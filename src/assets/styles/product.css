@@ -625,3 +625,30 @@
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
+
+.product-share-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .product-share-container {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .social-share-row {
+    width: 100% !important;
+    justify-content: space-between !important;
+    margin-top: 0 !important;
+  }
+  .social-share-btn {
+    flex: 1 !important;
+    width: auto !important;
+    height: 38px !important;
+  }
+}

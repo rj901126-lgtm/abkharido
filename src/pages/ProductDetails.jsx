@@ -500,7 +500,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Share your experience (build quality, packaging, delivery etc.)"
                       required
-                      style={{ width: '100%', height: '90px', padding: '10px', fontSize: '13px', border: '1px solid #ccc', borderRadius: '4px', resize: 'none' }}
+                      style={{ width: '100%', height: '90px', padding: '10px', fontSize: '13px', border: '1px solid #ccc', borderRadius: '4px', resize: 'none', boxSizing: 'border-box' }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '4px' }}>
                       <span style={{ color: wordCount > 500 ? 'var(--error)' : '#878787' }}>
@@ -653,7 +653,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
              )}
 
             {/* Social Sharing */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
+            <div className="product-share-container">
               <span style={{ fontSize: '12px', color: '#166534', fontWeight: '600' }}>Quick Share:</span>
               <div className="social-share-row">
                 <button className="social-share-btn social-wa" onClick={handleShareWhatsApp}>
