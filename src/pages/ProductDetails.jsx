@@ -15,10 +15,108 @@ import {
 import '../assets/styles/product.css';
 
 const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
-  const { addToCart, currentUser, showToast, products } = useApp();
+  const { addToCart, currentUser, showToast, products, orders } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState('560103');
   const [deliveryEstimate, setDeliveryEstimate] = useState('Delivery by Tomorrow, Monday | Free Express Shipping');
+
+  // --- Dynamic Customer Reviews hooks ---
+  const [reviewsList, setReviewsList] = useState(() => {
+    const saved = localStorage.getItem(`product_${productId}_reviews`);
+    if (saved) return JSON.parse(saved);
+    return [
+      { name: "Rajesh Kumar", username: "rajesh_k", rating: 5, comment: "Excellent build quality. Completely satisfied with the direct delivery. 100% original!", date: "2026-07-10", photos: [] },
+      { name: "Ananya Sharma", username: "ananya_s", rating: 4, comment: "Very fast shipping to Bengaluru. Product works perfectly. Value for money.", date: "2026-07-09", photos: [] },
+      { name: "Vikram Singh", username: "vikram_s", rating: 5, comment: "Superb product. The A-Assured badge is true to its word. High quality packaging.", date: "2026-07-08", photos: [] }
+    ];
+  });
+
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState('');
+  const [selectedPhotos, setSelectedPhotos] = useState([]); // Base64 strings
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  React.useEffect(() => {
+    localStorage.setItem(`product_${productId}_reviews`, JSON.stringify(reviewsList));
+  }, [reviewsList, productId]);
+
+  const wordCount = newComment.trim() === '' ? 0 : newComment.trim().split(/\s+/).length;
+
+  // 1. Verified Purchaser Check: Has ordered this product and order status is not CANCELLED
+  const hasPurchased = orders ? orders.some(order => 
+    order.status !== 'CANCELLED' && 
+    order.cart?.some(item => item.product.id === productId)
+  ) : false;
+
+  // 2. Review count check: Max 2 reviews per product per user
+  const userReviewsCount = currentUser 
+    ? reviewsList.filter(r => r.username === currentUser.username).length 
+    : 0;
+
+  const handlePhotoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (selectedPhotos.length + files.length > 5) {
+      showToast('You can upload a maximum of 5 photos per review.', 'error');
+      return;
+    }
+
+    const readers = files.map(file => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(readers).then(results => {
+      setSelectedPhotos(prev => [...prev, ...results]);
+    });
+  };
+
+  const handleRemovePhoto = (index) => {
+    setSelectedPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    if (!currentUser) {
+      showToast('Please log in to submit a review.', 'error');
+      return;
+    }
+    if (!hasPurchased) {
+      showToast('You can only review products you have purchased.', 'error');
+      return;
+    }
+    if (userReviewsCount >= 2) {
+      showToast('You cannot submit more than 2 reviews for this product.', 'error');
+      return;
+    }
+    if (wordCount > 500) {
+      showToast('Review comment cannot exceed 500 words.', 'error');
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    setTimeout(() => {
+      const reviewObj = {
+        name: currentUser.fullName || 'Verified Buyer',
+        username: currentUser.username,
+        rating: newRating,
+        comment: newComment.trim(),
+        date: new Date().toISOString().split('T')[0],
+        photos: selectedPhotos
+      };
+
+      setReviewsList(prev => [reviewObj, ...prev]);
+      setNewComment('');
+      setSelectedPhotos([]);
+      setNewRating(5);
+      setIsSubmittingReview(false);
+      showToast('Review submitted successfully!', 'success');
+    }, 800);
+  };
 
   const handlePincodeCheck = () => {
     const pinRegex = /^[1-9][0-9]{5}$/;
@@ -321,21 +419,171 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
             {/* List of customer comments */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-              {[
-                { name: "Rajesh Kumar", rating: 5, comment: "Excellent build quality. Completely satisfied with the direct delivery. 100% original!" },
-                { name: "Ananya Sharma", rating: 4, comment: "Very fast shipping to Bengaluru. Product works perfectly. Value for money." },
-                { name: "Vikram Singh", rating: 5, comment: "Superb product. The A-Assured badge is true to its word. High quality packaging." },
-              ].map((rev, idx) => (
-                <div key={idx} style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: '12px' }}>
+              {reviewsList.map((rev, idx) => (
+                <div key={idx} style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', textAlign: 'left' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span className="rating-tag" style={{ fontSize: '10px', padding: '1px 5px', height: '16px', display: 'inline-flex', alignItems: 'center' }}>
                       {rev.rating} ★
                     </span>
                     <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{rev.name}</strong>
+                    <span style={{ fontSize: '11px', color: '#888', marginLeft: 'auto' }}>{rev.date}</span>
                   </div>
                   <p style={{ fontSize: '13px', color: '#555', marginTop: '6px', lineHeight: '1.4' }}>{rev.comment}</p>
+                  
+                  {/* Attached review photos */}
+                  {rev.photos && rev.photos.length > 0 && (
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                      {rev.photos.map((photo, pIdx) => (
+                        <img 
+                          key={pIdx} 
+                          src={photo} 
+                          alt="Review attachment" 
+                          style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e0e0e0' }} 
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
+            </div>
+
+            {/* WRITE A REVIEW FORM (With strict anti-spam) */}
+            <div style={{ borderTop: '1px dashed #e0e0e0', marginTop: '24px', paddingTop: '20px', textAlign: 'left' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '12px', color: '#212121' }}>Write a Customer Review</h4>
+              
+              {!currentUser ? (
+                <div style={{ backgroundColor: '#f9f9f9', padding: '16px', borderRadius: '4px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '13px', color: '#666', marginBottom: '10px' }}>Sign in to write reviews and upload photos.</p>
+                  <button className="btn btn-primary" onClick={() => onNavigate('login')} style={{ height: '36px', padding: '0 16px', fontSize: '12px' }}>Sign In</button>
+                </div>
+              ) : !hasPurchased ? (
+                <div style={{ backgroundColor: '#fff9e6', border: '1px solid #ffe0b2', padding: '12px 16px', borderRadius: '4px', color: '#b78103', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>⚠️ Only verified customers who have bought this product can post reviews.</span>
+                </div>
+              ) : userReviewsCount >= 2 ? (
+                <div style={{ backgroundColor: '#eef9ff', border: '1px solid #b3e5fc', padding: '12px 16px', borderRadius: '4px', color: '#0288d1', fontSize: '13px' }}>
+                  <span>ℹ️ You have already posted 2 reviews for this product. Further submissions are locked.</span>
+                </div>
+              ) : (
+                <form onSubmit={handleReviewSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* Rating Selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>Your Rating:</span>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {[1, 2, 3, 4, 5].map(num => (
+                        <button 
+                          key={num} 
+                          type="button" 
+                          onClick={() => setNewRating(num)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '22px',
+                            cursor: 'pointer',
+                            color: num <= newRating ? '#ff9f00' : '#dcdcdc',
+                            padding: 0
+                          }}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Comment box */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#555', marginBottom: '6px' }}>
+                      Review Comment *
+                    </label>
+                    <textarea 
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Share your experience (build quality, packaging, delivery etc.)"
+                      required
+                      style={{ width: '100%', height: '90px', padding: '10px', fontSize: '13px', border: '1px solid #ccc', borderRadius: '4px', resize: 'none' }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '4px' }}>
+                      <span style={{ color: wordCount > 500 ? 'var(--error)' : '#878787' }}>
+                        {wordCount} / 500 words
+                      </span>
+                      {wordCount > 500 && <span style={{ color: 'var(--error)', fontWeight: 'bold' }}>Exceeded limit of 500 words!</span>}
+                    </div>
+                  </div>
+
+                  {/* Photo Upload Box */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#555', marginBottom: '6px' }}>
+                      Upload Photos (Max 5)
+                    </label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <label style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '70px',
+                        height: '70px',
+                        border: '2px dashed #ccc',
+                        borderRadius: '4px',
+                        cursor: selectedPhotos.length >= 5 ? 'not-allowed' : 'pointer',
+                        backgroundColor: '#fbfbfb'
+                      }}>
+                        <input 
+                          type="file" 
+                          multiple 
+                          accept="image/*" 
+                          onChange={handlePhotoUpload}
+                          disabled={selectedPhotos.length >= 5}
+                          style={{ display: 'none' }}
+                        />
+                        <span style={{ fontSize: '24px', color: '#888' }}>+</span>
+                      </label>
+
+                      {/* Photo Previews */}
+                      {selectedPhotos.map((photo, pIdx) => (
+                        <div key={pIdx} style={{ position: 'relative', width: '70px', height: '70px' }}>
+                          <img 
+                            src={photo} 
+                            alt="preview" 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} 
+                          />
+                          <button 
+                            type="button" 
+                            onClick={() => handleRemovePhoto(pIdx)}
+                            style={{
+                              position: 'absolute',
+                              top: '-6px',
+                              right: '-6px',
+                              width: '18px',
+                              height: '18px',
+                              borderRadius: '50%',
+                              backgroundColor: 'rgba(0,0,0,0.6)',
+                              color: 'white',
+                              border: 'none',
+                              fontSize: '10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button 
+                    type="submit" 
+                    className="btn btn-accent" 
+                    disabled={isSubmittingReview || wordCount > 500}
+                    style={{ height: '40px', fontWeight: 'bold', width: '100%', marginTop: '8px' }}
+                  >
+                    {isSubmittingReview ? 'SUBMITTING...' : 'SUBMIT CUSTOMER REVIEW'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
 
