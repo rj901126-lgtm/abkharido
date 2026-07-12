@@ -328,7 +328,7 @@
     height: 80px !important;
     padding: 8px 0 !important;
     top: 104px !important; /* Sit below the taller 104px mobile header */
-    margin-bottom: 12px !important; /* Clean space separator below categories bubble bar */
+    margin-bottom: 4px !important; /* Clean tight space separator below categories bubble bar */
   }
   .cat-container {
     display: flex !important;

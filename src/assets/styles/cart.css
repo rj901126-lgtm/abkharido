@@ -243,7 +243,7 @@
 /* Mobile Sticky Checkout Bar (Flipkart App Match) */
 .mobile-cart-sticky-bar {
   position: fixed;
-  bottom: 56px !important;
+  bottom: calc(56px + env(safe-area-inset-bottom)) !important;
   left: 0;
   right: 0;
   height: 60px;
@@ -299,6 +299,6 @@
     display: none !important;
   }
   .cart-layout-grid {
-    padding-bottom: 140px !important;
+    padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important;
   }
 }
