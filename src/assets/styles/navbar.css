@@ -308,6 +308,8 @@
     display: none; /* Hide label text, show only icons on mobile */
   }
   .cat-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
     gap: 16px;
     overflow-x: auto;
     justify-content: flex-start;
@@ -328,6 +330,8 @@
     top: 104px !important; /* Sit below the taller 104px mobile header */
   }
   .cat-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
     gap: 18px !important;
     padding: 0 12px !important;
   }

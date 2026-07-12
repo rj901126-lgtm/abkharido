@@ -426,6 +426,40 @@ img {
     gap: 6px !important;
   }
 
+  /* Deals of the Day header alignments on mobile viewports */
+  .deals-header {
+    align-items: center !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 8px !important;
+  }
+  .deals-title-area {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+  .deals-title {
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+  }
+  .deals-timer {
+    font-size: 11px !important;
+    gap: 4px !important;
+  }
+  .timer-box {
+    padding: 2px 4px !important;
+    font-size: 10px !important;
+  }
+
+  /* Affiliate panel text sizing cleanups on mobile */
+  .promo-heading {
+    font-size: 16px !important;
+  }
+  .promo-subheading {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
   /* Checkout responsiveness overrides */
   .checkout-tracker-container {
     padding: 10px !important;
