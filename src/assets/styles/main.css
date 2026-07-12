@@ -309,7 +309,7 @@ img {
 @media (max-width: 600px) {
   /* Global Page Margins */
   .main-content {
-    margin-top: 56px !important;
+    margin-top: 104px !important;
     padding-bottom: 80px !important;
   }
 
@@ -351,5 +351,18 @@ img {
     width: 38px !important;
     height: 42px !important;
     font-size: 16px !important;
+  }
+
+  /* Hide quick Add to Cart on mobile cards for Flipkart space mapping */
+  .product-add-to-cart-btn {
+    display: none !important;
+  }
+
+  /* Make cards look taller and flatter like Flipkart */
+  .grid-cols-4 .card {
+    border-radius: 2px !important;
+    padding: 8px !important;
+    box-shadow: none !important;
+    border: 1px solid #eaeaea !important;
   }
 }

@@ -77,7 +77,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         </div>
 
         {/* Quick Add To Cart */}
-        <button style={styles.addBtn} onClick={handleAddToCart}>
+        <button className="product-add-to-cart-btn" style={styles.addBtn} onClick={handleAddToCart}>
           <ShoppingCart size={14} /> Add to Cart
         </button>
       </div>
