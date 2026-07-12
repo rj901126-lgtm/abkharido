@@ -18,6 +18,43 @@ import '../assets/styles/admin.css';
 
 const AdminDashboard = ({ onNavigate }) => {
   const { products, addProduct, removeProduct, showToast } = useApp();
+  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders'
+  const [adminOrders, setAdminOrders] = useState([]);
+
+  // Fetch all orders for management
+  const fetchAllOrders = async () => {
+    try {
+      const res = await fetch('/api/orders?email=admin');
+      if (res.ok) {
+        const data = await res.json();
+        setAdminOrders(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin orders:', err);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchAllOrders();
+  }, []);
+
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        showToast(`Order milestone updated to ${newStatus}!`, 'success');
+        fetchAllOrders();
+      } else {
+        showToast('Failed to update status.', 'error');
+      }
+    } catch (err) {
+      console.error('Failed to update order status:', err);
+    }
+  };
 
   // --- Add Product Form State ---
   const [id, setId] = useState('');
@@ -146,8 +183,104 @@ const AdminDashboard = ({ onNavigate }) => {
         </button>
       </div>
 
-      {/* Grid: Left - Products list / Right - Add Form */}
-      <div className="admin-grid">
+      {/* Admin Tab controls */}
+      <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid #eaeaea', paddingBottom: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <button 
+          onClick={() => setActiveTab('inventory')}
+          className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <Package size={16} /> Manage Inventory ({products.length})
+        </button>
+        <button 
+          onClick={() => setActiveTab('orders')}
+          className={`btn ${activeTab === 'orders' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <FileText size={16} /> Manage Orders ({adminOrders.length})
+        </button>
+      </div>
+
+      {/* CONDITIONAL RENDER: ORDERS TAB */}
+      {activeTab === 'orders' && (
+        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 className="admin-form-title"><FileText size={18} color="var(--primary-color)" /> Platform Orders List</h3>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer Email</th>
+                  <th>Items Detail</th>
+                  <th>Total Amount</th>
+                  <th>Milestone Status</th>
+                  <th>Payment Info</th>
+                  <th>Quick Admin Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adminOrders.map(o => (
+                  <tr key={o.id}>
+                    <td><code>{o.id}</code></td>
+                    <td>
+                      <div style={{ fontWeight: 'bold' }}>{o.customerUsername}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{o.date}</div>
+                    </td>
+                    <td>
+                      {o.items.map(item => (
+                        <div key={item.product.id} style={{ fontSize: '12px' }}>
+                          • {item.product.name.substring(0, 20)}... (x{item.quantity})
+                        </div>
+                      ))}
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 'bold' }}>₹{o.finalAmount.toLocaleString('en-IN')}</div>
+                      {o.coinsDiscountValue > 0 && <div style={{ fontSize: '11px', color: '#e68f00' }}>(-{o.coinsDiscountValue} Coins)</div>}
+                    </td>
+                    <td>
+                      <span className={`badge ${
+                        o.status === 'Delivered' ? 'badge-success' : 
+                        o.status === 'CANCELLED' ? 'badge-danger' : 'badge-info'
+                      }`} style={{ fontSize: '11px' }}>
+                        {o.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ fontSize: '12px' }}>Mode: <strong>{o.paymentMethod}</strong></div>
+                      <div style={{ fontSize: '11px', color: o.paymentStatus === 'SUCCESS' ? 'var(--success)' : 'var(--error)' }}>
+                        {o.paymentStatus}
+                      </div>
+                    </td>
+                    <td>
+                      {o.status !== 'CANCELLED' && o.status !== 'Delivered' && (
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <select 
+                            value={o.status}
+                            onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
+                            style={{ fontSize: '12px', padding: '4px', border: '1px solid #ddd', borderRadius: '4px' }}
+                          >
+                            <option value="Processing">Processing</option>
+                            <option value="Packed">Packed</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Delivered">Delivered</option>
+                          </select>
+                        </div>
+                      )}
+                      {(o.status === 'CANCELLED' || o.status === 'Delivered') && (
+                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Archived</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* CONDITIONAL RENDER: INVENTORY TAB */}
+      {activeTab === 'inventory' && (
+        <div className="admin-grid">
         
         {/* LEFT COLUMN: PRODUCTS AUDIT LIST */}
         <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -355,7 +488,7 @@ const AdminDashboard = ({ onNavigate }) => {
         </div>
 
       </div>
-
+      )}
     </div>
   );
 };

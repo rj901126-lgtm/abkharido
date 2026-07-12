@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
 
 const Orders = ({ onNavigate }) => {
-  const { orders, currentUser, fetchOrders } = useApp();
+  const { orders, currentUser, fetchOrders, cancelOrder } = useApp();
 
   React.useEffect(() => {
     if (currentUser) {
@@ -134,6 +134,21 @@ const Orders = ({ onNavigate }) => {
                   <span style={{ color: '#e68f00', marginLeft: '6px' }}>(Redeemed {order.coinsDiscountValue} Coins)</span>
                 )}
               </div>
+
+              {/* Cancel Button */}
+              {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'CANCELLED' && (
+                <button
+                  className="btn btn-outline"
+                  style={{ borderColor: 'var(--error)', color: 'var(--error)', fontSize: '12px', padding: '6px 14px', borderRadius: '4px', fontWeight: 'bold' }}
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to cancel this order?')) {
+                      cancelOrder(order.id);
+                    }
+                  }}
+                >
+                  Cancel Order
+                </button>
+              )}
 
               {/* Referral attribution display */}
               {order.referralApplied ? (

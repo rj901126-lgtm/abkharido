@@ -693,7 +693,7 @@ app.get('/api/orders', async (req, res) => {
   try {
     const orders = await getOrders();
     const { email } = req.query;
-    if (email) {
+    if (email && email !== 'admin') {
       const users = await getUsersMap();
       const user = Object.values(users).find(u => u.email.toLowerCase() === email.toLowerCase());
       if (user) {
@@ -701,9 +701,10 @@ app.get('/api/orders', async (req, res) => {
         const filtered = orders.filter(o => o.customerUsername === user.username);
         return res.json(filtered);
       }
+      return res.json([]);
     }
-    // Return empty list if no valid user email query is provided
-    res.json([]);
+    // Return all orders if email query is absent or is 'admin'
+    res.json(orders);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
@@ -934,6 +935,89 @@ app.post('/api/payment/verify', async (req, res) => {
   } catch (err) {
     console.error('Payment verification failed:', err);
     res.status(500).json({ error: 'Failed to verify transaction status.' });
+  }
+});
+
+// 5.8 CUSTOMER ORDER CANCELLATION & ADMIN STATUS UPDATES
+app.post('/api/orders/:orderId/cancel', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const orders = await getOrders();
+    const users = await getUsersMap();
+
+    const orderIndex = orders.findIndex(o => o.id === orderId);
+    if (orderIndex === -1) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const order = orders[orderIndex];
+    if (order.status === 'Delivered' || order.status === 'In Transit') {
+      return res.status(400).json({ error: 'Cannot cancel order once it is shipped or delivered.' });
+    }
+
+    const oldStatus = order.status;
+    order.status = 'CANCELLED';
+    const oldPaymentStatus = order.paymentStatus;
+    order.paymentStatus = 'REFUNDED';
+
+    // Refund coins to buyer if spent
+    const buyer = users[order.customerUsername];
+    if (buyer) {
+      buyer.walletCoins += order.coinsDiscountValue || 0;
+      buyer.ordersCount = Math.max(0, buyer.ordersCount - 1);
+    }
+
+    // Deduct referral commissions if previously credited
+    if (oldPaymentStatus === 'SUCCESS' && order.referralApplied) {
+      const { type, referrerId } = order.referralApplied;
+      let totalCommissionEarned = 0;
+      order.items.forEach(item => {
+        const rate = type === 'aff' ? item.product.influencerCommissionRate : item.product.userCommissionRate;
+        totalCommissionEarned += item.product.price * item.quantity * rate;
+      });
+      totalCommissionEarned = Math.round(totalCommissionEarned * 100) / 100;
+
+      if (type === 'aff') {
+        const creator = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
+        if (creator) {
+          creator.walletCash = Math.max(0, creator.walletCash - totalCommissionEarned);
+        }
+      } else if (type === 'ref') {
+        const referrer = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
+        if (referrer) {
+          referrer.walletCoins = Math.max(0, referrer.walletCoins - Math.round(totalCommissionEarned));
+        }
+      }
+    }
+
+    await saveOrders(orders);
+    await saveUsersMap(users);
+
+    res.json({ success: true, order, user: buyer });
+  } catch (err) {
+    console.error('Cancel order failed:', err);
+    res.status(500).json({ error: 'Failed to process order cancellation.' });
+  }
+});
+
+app.post('/api/orders/:orderId/status', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    const orders = await getOrders();
+
+    const orderIndex = orders.findIndex(o => o.id === orderId);
+    if (orderIndex === -1) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    orders[orderIndex].status = status;
+    await saveOrders(orders);
+
+    res.json({ success: true, order: orders[orderIndex] });
+  } catch (err) {
+    console.error('Update order status failed:', err);
+    res.status(500).json({ error: 'Failed to update order milestone status.' });
   }
 });
 

@@ -230,7 +230,6 @@
   cursor: pointer;
 }
 
-/* Responsive Cart styling */
 @media (max-width: 900px) {
   .cart-layout-grid {
     flex-direction: column;
@@ -238,5 +237,65 @@
   .price-details-card {
     width: 100%;
     position: static;
+  }
+}
+
+/* Mobile Sticky Checkout Bar (Flipkart App Match) */
+.mobile-cart-sticky-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #ffffff;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 -3px 10px rgba(0,0,0,0.06);
+  z-index: 1000;
+  display: none; /* Hidden on desktop */
+}
+
+.mobile-cart-price-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mobile-cart-amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: #212121;
+}
+
+.mobile-cart-saving {
+  font-size: 11px;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.mobile-cart-checkout-btn {
+  background-color: #fb641b !important;
+  color: white !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  height: 40px !important;
+  border-radius: 2px !important;
+  padding: 0 24px !important;
+  font-size: 13px !important;
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .mobile-cart-sticky-bar {
+    display: flex !important; /* Visible on mobile */
+  }
+  /* Hide the static checkout button inside the cards summary on mobile */
+  .price-details-card button.btn-accent {
+    display: none !important;
   }
 }

@@ -15,6 +15,7 @@ import Orders from './pages/Orders';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import BottomNavigation from './components/BottomNavigation';
+import InfoPage from './pages/InfoPage';
 
 const AppContent = () => {
   const { toast, currentUser, verifyPayment, showToast } = useApp();
@@ -120,6 +121,11 @@ const AppContent = () => {
       );
     }
 
+    if (activePage.startsWith('info-')) {
+      const type = activePage.split('-')[1];
+      return <InfoPage infoType={type} />;
+    }
+
     switch (activePage) {
       case 'home':
         return (
@@ -185,7 +191,9 @@ const AppContent = () => {
       <Footer onNavigate={handleNavigate} />
 
       {/* Mobile Sticky Bottom Tab Bar */}
-      <BottomNavigation activePage={activePage} onNavigate={handleNavigate} />
+      {!activePage.startsWith('product') && activePage !== 'checkout' && activePage !== 'cart' && (
+        <BottomNavigation activePage={activePage} onNavigate={handleNavigate} />
+      )}
 
       {/* Toast Messages */}
       {toast && (

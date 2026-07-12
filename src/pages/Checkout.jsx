@@ -178,20 +178,20 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       
       {/* Wizard Step Progress Tracker */}
       {step < 4 && (
-        <div style={styles.trackerContainer}>
-          <div style={{ ...styles.stepIndicator, ...(step >= 1 ? styles.stepActive : {}) }}>
-            <span style={styles.stepNum}>1</span>
-            <span>Delivery Address</span>
+        <div className="checkout-tracker-container" style={styles.trackerContainer}>
+          <div className="checkout-step-indicator" style={{ ...styles.stepIndicator, ...(step >= 1 ? styles.stepActive : {}) }}>
+            <span className="checkout-step-num" style={styles.stepNum}>1</span>
+            <span className="checkout-step-text">Delivery Address</span>
           </div>
-          <div style={styles.stepConnector}></div>
-          <div style={{ ...styles.stepIndicator, ...(step >= 2 ? styles.stepActive : {}) }}>
-            <span style={styles.stepNum}>2</span>
-            <span>Order Summary</span>
+          <div className="checkout-step-connector" style={styles.stepConnector}></div>
+          <div className="checkout-step-indicator" style={{ ...styles.stepIndicator, ...(step >= 2 ? styles.stepActive : {}) }}>
+            <span className="checkout-step-num" style={styles.stepNum}>2</span>
+            <span className="checkout-step-text">Order Summary</span>
           </div>
-          <div style={styles.stepConnector}></div>
-          <div style={{ ...styles.stepIndicator, ...(step >= 3 ? styles.stepActive : {}) }}>
-            <span style={styles.stepNum}>3</span>
-            <span>Payment Options</span>
+          <div className="checkout-step-connector" style={styles.stepConnector}></div>
+          <div className="checkout-step-indicator" style={{ ...styles.stepIndicator, ...(step >= 3 ? styles.stepActive : {}) }}>
+            <span className="checkout-step-num" style={styles.stepNum}>3</span>
+            <span className="checkout-step-text">Payment Options</span>
           </div>
         </div>
       )}
@@ -201,7 +201,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         <div className="card" style={{ padding: '24px' }}>
           <h2 style={styles.stepHeader}><MapPin size={20} /> Shipping Address Details</h2>
           <form onSubmit={handleAddressSubmit} style={styles.form}>
-            <div style={styles.formRow}>
+            <div className="checkout-form-row" style={styles.formRow}>
               <div style={{ flex: 1 }}>
                 <label style={styles.label}>Full Name*</label>
                 <input 
@@ -224,7 +224,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               </div>
             </div>
 
-            <div style={styles.formRow}>
+            <div className="checkout-form-row" style={styles.formRow}>
               <div style={{ flex: 1 }}>
                 <label style={styles.label}>Pincode*</label>
                 <input 
@@ -257,7 +257,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               />
             </div>
 
-            <div style={styles.formRow}>
+            <div className="checkout-form-row" style={styles.formRow}>
               <div style={{ flex: 1 }}>
                 <label style={styles.label}>City*</label>
                 <input 

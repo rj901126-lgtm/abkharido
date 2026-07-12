@@ -43,10 +43,10 @@ const Footer = ({ onNavigate }) => {
         <div>
           <h5 style={styles.heading}>ABOUT ABKHARIDO</h5>
           <ul style={styles.list}>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Contact Us</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>About Us</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Careers</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Wholesale Enquiries</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Contact Us</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-about'); }}>About Us</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Careers</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Wholesale Enquiries</a></li>
           </ul>
         </div>
         <div>
@@ -67,16 +67,16 @@ const Footer = ({ onNavigate }) => {
                 Refer a Friend (3% Coins)
               </a>
             </li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Affiliate Guidelines</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-terms'); }}>Affiliate Guidelines</a></li>
           </ul>
         </div>
         <div>
           <h5 style={styles.heading}>HELP & POLICIES</h5>
           <ul style={styles.list}>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Payments & Refunds</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Shipping & Delivery</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Cancellation & Returns</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); }}>Terms of Use & Privacy</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-terms'); }}>Payments & Refunds</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Shipping & Delivery</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-returns'); }}>Cancellation & Returns</a></li>
+            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-privacy'); }}>Terms of Use & Privacy</a></li>
           </ul>
         </div>
         <div>

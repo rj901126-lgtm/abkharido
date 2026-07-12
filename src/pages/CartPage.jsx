@@ -209,6 +209,22 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         </button>
       </div>
 
+      {/* Mobile Sticky Checkout Bar */}
+      <div className="mobile-cart-sticky-bar">
+        <div className="mobile-cart-price-info">
+          <div className="mobile-cart-amount">₹{finalAmount.toLocaleString('en-IN')}</div>
+          <div className="mobile-cart-saving">
+            Save ₹{(discountValue + coinsDiscount).toLocaleString('en-IN')}
+          </div>
+        </div>
+        <button 
+          className="mobile-cart-checkout-btn"
+          onClick={() => onCheckout(useCoinsDiscount)}
+        >
+          Place Order
+        </button>
+      </div>
+
     </div>
   );
 };

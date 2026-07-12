@@ -365,4 +365,23 @@ img {
     box-shadow: none !important;
     border: 1px solid #eaeaea !important;
   }
+
+  /* Checkout responsiveness overrides */
+  .checkout-tracker-container {
+    padding: 10px !important;
+    margin-bottom: 12px !important;
+  }
+  .checkout-step-text {
+    display: none !important; /* Hide label text on mobile to avoid overflow */
+  }
+  .checkout-step-connector {
+    margin: 0 8px !important;
+  }
+  .checkout-form-row {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .checkout-form-row > div {
+    width: 100% !important;
+  }
 }

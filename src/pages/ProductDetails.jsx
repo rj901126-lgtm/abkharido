@@ -17,6 +17,25 @@ import '../assets/styles/product.css';
 const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   const { addToCart, currentUser, showToast, products } = useApp();
   const [copied, setCopied] = useState(false);
+  const [pincode, setPincode] = useState('560103');
+  const [deliveryEstimate, setDeliveryEstimate] = useState('Delivery by Tomorrow, Monday | Free Express Shipping');
+
+  const handlePincodeCheck = () => {
+    const pinRegex = /^[1-9][0-9]{5}$/;
+    if (!pinRegex.test(pincode)) {
+      showToast('Please enter a valid 6-digit Indian PIN code.', 'error');
+      setDeliveryEstimate('Invalid PIN code. Please recheck.');
+      return;
+    }
+
+    if (pincode.startsWith('560')) {
+      showToast('Express delivery available at Bengaluru hub!', 'success');
+      setDeliveryEstimate('Delivery by Tomorrow, Monday | Free Express Shipping');
+    } else {
+      showToast('Standard shipping available at your location!', 'success');
+      setDeliveryEstimate('Delivery in 3-5 days | Free Standard Shipping');
+    }
+  };
 
   // Find product in list
   const product = products.find(p => p.id === productId);
@@ -209,19 +228,20 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 <input 
                   type="text" 
                   placeholder="Enter Delivery Pincode" 
-                  defaultValue="560103"
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, ''))}
                   maxLength="6"
                   style={{ border: 'none', padding: '0 12px', fontSize: '13px', outline: 'none', width: '100%' }}
                 />
                 <button 
-                  onClick={() => showToast('Delivery service available at this pincode!', 'success')}
+                  onClick={handlePincodeCheck}
                   style={{ background: 'none', border: 'none', color: 'var(--primary-color)', padding: '0 16px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', borderLeft: '1px solid #e0e0e0' }}
                 >
                   Check
                 </button>
               </div>
               <span style={{ fontSize: '12px', color: '#212121', fontWeight: '600', marginTop: '4px' }}>
-                Delivery by Tomorrow, Monday | <span style={{ color: 'var(--success)' }}>Free</span> <span style={{ textDecoration: 'line-through', color: '#878787', fontWeight: 'normal' }}>₹40</span>
+                {deliveryEstimate}
               </span>
             </div>
           </div>

@@ -131,6 +131,32 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const cancelOrder = async (orderId) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/cancel`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          setCurrentUser(data.user);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        if (currentUser) {
+          fetchOrders(currentUser.email);
+        }
+        showToast('Order cancelled successfully! Refund processed.', 'success');
+        return true;
+      } else {
+        const errData = await res.json();
+        showToast(errData.error || 'Failed to cancel order.', 'error');
+        return false;
+      }
+    } catch (err) {
+      console.error('Failed to cancel order:', err);
+      showToast('Connection error. Please try again.', 'error');
+      return false;
+    }
+  };
+
   const fetchStats = async () => {
     try {
       const res = await fetch('/api/stats');
@@ -404,7 +430,8 @@ export const AppProvider = ({ children }) => {
         verifyPayment,
         resetDatabase,
         addProduct,
-        removeProduct
+        removeProduct,
+        cancelOrder
       }}
     >
       {children}
