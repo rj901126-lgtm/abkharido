@@ -256,6 +256,7 @@ const AppContent = () => {
       const hash = window.location.hash;
       let targetPage = 'home';
       let targetProdId = null;
+      let targetCategory = 'all';
 
       if (hash && hash !== '#home') {
         if (hash === '#cart') targetPage = 'cart';
@@ -265,8 +266,13 @@ const AppContent = () => {
         else if (hash === '#partner') targetPage = 'partner';
         else if (hash === '#admin') targetPage = 'admin';
         else if (hash === '#login') targetPage = 'login';
-        else if (hash === '#catalog') targetPage = 'catalog';
-        else if (hash.startsWith('#product-')) {
+        else if (hash === '#catalog') {
+          targetPage = 'catalog';
+          targetCategory = 'all';
+        } else if (hash.startsWith('#catalog-')) {
+          targetPage = 'catalog';
+          targetCategory = hash.replace('#catalog-', '');
+        } else if (hash.startsWith('#product-')) {
           targetPage = 'product';
           targetProdId = hash.replace('#product-', '');
         }
@@ -282,6 +288,9 @@ const AppContent = () => {
 
       if (targetPage === 'product' && targetProdId) {
         setActiveProductId(targetProdId);
+      }
+      if (targetPage === 'catalog') {
+        setCurrentCategory(targetCategory);
       }
       setActivePage(targetPage);
     };
@@ -304,6 +313,8 @@ const AppContent = () => {
 
     if (page === 'product' && activeProductId) {
       window.location.hash = `#product-${activeProductId}`;
+    } else if (page === 'catalog') {
+      window.location.hash = `#catalog-${currentCategory || 'all'}`;
     } else {
       window.location.hash = `#${page}`;
     }
@@ -329,7 +340,7 @@ const AppContent = () => {
   const handleSelectCategory = (catId) => {
     setCurrentCategory(catId);
     setSearchQuery(''); 
-    handleNavigate('catalog');
+    window.location.hash = `#catalog-${catId}`;
   };
 
   const handleBuyNow = (product) => {
