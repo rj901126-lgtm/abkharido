@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const ProfilePage = ({ onNavigate }) => {
@@ -26,6 +26,14 @@ const ProfilePage = ({ onNavigate }) => {
   const [addressInput, setAddressInput] = useState(currentUser.address || '');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Check if inputs differ from database values
+  const hasChanges = 
+    firstName !== (currentUser.firstName || '') ||
+    lastName !== (currentUser.lastName || '') ||
+    pincodeInput !== (currentUser.pincode || '') ||
+    addressInput !== (currentUser.address || '');
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -52,6 +60,7 @@ const ProfilePage = ({ onNavigate }) => {
 
     if (success) {
       showToast('Profile details updated successfully!', 'success');
+      setIsEditing(false); // Disable editing mode once successfully updated
     }
     setIsUpdating(false);
   };
@@ -154,8 +163,15 @@ const ProfilePage = ({ onNavigate }) => {
 
         {/* Profile Details Edit Form */}
         <form className="card" onSubmit={handleUpdateProfile} style={{ padding: '20px', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#212121', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px', marginBottom: '4px' }}>
-            Personal Details
+          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#212121', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px', marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Personal Details</span>
+            <button 
+              type="button" 
+              onClick={() => setIsEditing(!isEditing)} 
+              style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <Edit2 size={12} /> {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+            </button>
           </h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -166,7 +182,8 @@ const ProfilePage = ({ onNavigate }) => {
                 value={firstName} 
                 onChange={(e) => setFirstName(e.target.value)} 
                 placeholder="First name"
-                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px' }}
+                disabled={!isEditing}
+                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
                 required
               />
             </div>
@@ -177,7 +194,8 @@ const ProfilePage = ({ onNavigate }) => {
                 value={lastName} 
                 onChange={(e) => setLastName(e.target.value)} 
                 placeholder="Surname"
-                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px' }}
+                disabled={!isEditing}
+                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
                 required
               />
             </div>
@@ -241,15 +259,17 @@ const ProfilePage = ({ onNavigate }) => {
                   value={pincodeInput} 
                   onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
                   placeholder="6-digit pincode"
-                  style={{ width: '150px', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px' }}
+                  disabled={!isEditing}
+                  style={{ width: '150px', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
                   required
                 />
                 <button 
                   type="button" 
                   onClick={handleGeolocate}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f5f5f5', color: '#333', border: '1px solid #ccc', padding: '0 12px', borderRadius: '4px', fontSize: '12px', fontWeight: '500', cursor: 'pointer' }}
+                  disabled={!isEditing}
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', background: !isEditing ? '#eaeaea' : '#f5f5f5', color: !isEditing ? '#888' : '#333', border: '1px solid #ccc', padding: '0 12px', borderRadius: '4px', fontSize: '12px', fontWeight: '500', cursor: !isEditing ? 'not-allowed' : 'pointer' }}
                 >
-                  <MapPin size={14} color="var(--primary-color)" /> Detect Location
+                  <MapPin size={14} color={!isEditing ? '#888' : 'var(--primary-color)'} /> Detect Location
                 </button>
               </div>
             </div>
@@ -260,7 +280,8 @@ const ProfilePage = ({ onNavigate }) => {
                 value={addressInput} 
                 onChange={(e) => setAddressInput(e.target.value)} 
                 placeholder="House No, Building Name, Street Area, City & State"
-                style={{ width: '100%', height: '80px', padding: '10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', resize: 'vertical' }}
+                disabled={!isEditing}
+                style={{ width: '100%', height: '80px', padding: '10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', resize: 'vertical', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
                 required
               />
             </div>
@@ -269,8 +290,17 @@ const ProfilePage = ({ onNavigate }) => {
           <button 
             type="submit" 
             className="btn btn-accent" 
-            style={{ width: '100%', height: '44px', fontWeight: 'bold', marginTop: '10px' }}
-            disabled={isUpdating}
+            style={{ 
+              width: '100%', 
+              height: '44px', 
+              fontWeight: 'bold', 
+              marginTop: '10px',
+              backgroundColor: (!isEditing || !hasChanges) ? '#cccccc' : 'var(--accent-color)',
+              color: (!isEditing || !hasChanges) ? '#666666' : 'white',
+              border: 'none',
+              cursor: (!isEditing || !hasChanges) ? 'not-allowed' : 'pointer'
+            }}
+            disabled={isUpdating || !isEditing || !hasChanges}
           >
             {isUpdating ? 'SAVING DETAILS...' : 'SAVE & UPDATE DETAILS'}
           </button>
