@@ -45,7 +45,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   // 1. Verified Purchaser Check: Has ordered this product and order status is not CANCELLED
   const hasPurchased = orders ? orders.some(order => 
     order.status !== 'CANCELLED' && 
-    order.cart?.some(item => item.product.id === productId)
+    order.items?.some(item => item.product.id === productId)
   ) : false;
 
   // 2. Review count check: Max 2 reviews per product per user
