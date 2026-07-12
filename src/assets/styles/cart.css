@@ -244,11 +244,12 @@
 .mobile-cart-sticky-bar {
   position: fixed;
   bottom: calc(56px + env(safe-area-inset-bottom)) !important;
-  left: 0;
-  right: 0;
+  left: 16px !important;
+  right: 16px !important;
   height: 60px;
   background-color: #ffffff;
-  border-top: 1px solid #eaeaea;
+  border: 1px solid #eaeaea !important;
+  border-radius: 8px !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
