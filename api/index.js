@@ -163,18 +163,32 @@ const mongoUri = process.env.MONGODB_URI;
 let dbClient = null;
 let db = null;
 let isMongo = false;
+let isConnecting = false;
 
-async function connectDatabase() {
+async function getDb() {
+  if (db) return db;
+  
+  if (isConnecting) {
+    // Wait a brief moment for ongoing connection
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return getDb();
+  }
+
+  isConnecting = true;
   if (mongoUri) {
     try {
-      dbClient = new MongoClient(mongoUri);
+      // Set short connect timeouts so Vercel Serverless Function doesn't hang
+      dbClient = new MongoClient(mongoUri, {
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 5000
+      });
       await dbClient.connect();
       db = dbClient.db();
       isMongo = true;
       console.log('Connected to MongoDB Atlas successfully.');
       await seedMongoDb();
     } catch (err) {
-      console.error('MongoDB Atlas connection failed. Falling back to JSON files:', err.message);
+      console.error('MongoDB Atlas connection failed. Falling back to local/memory state:', err.message);
       isMongo = false;
       await ensureLocalDbExists();
     }
@@ -182,6 +196,8 @@ async function connectDatabase() {
     isMongo = false;
     await ensureLocalDbExists();
   }
+  isConnecting = false;
+  return db;
 }
 
 // --- Seed MongoDB Collections ---
@@ -240,6 +256,7 @@ async function writeJson(filePath, data) {
 
 // 1. PRODUCTS DB HELPERS
 async function getProducts() {
+  await getDb();
   if (isMongo) {
     return await db.collection('products').find({}).toArray();
   } else {
@@ -248,6 +265,7 @@ async function getProducts() {
 }
 
 async function saveProduct(newProduct) {
+  await getDb();
   if (isMongo) {
     await db.collection('products').insertOne(newProduct);
   } else {
@@ -258,6 +276,7 @@ async function saveProduct(newProduct) {
 }
 
 async function deleteProduct(productId) {
+  await getDb();
   if (isMongo) {
     await db.collection('products').deleteOne({ id: productId });
   } else {
@@ -269,6 +288,7 @@ async function deleteProduct(productId) {
 
 // 2. USERS DB HELPERS
 async function getUsersMap() {
+  await getDb();
   if (isMongo) {
     const usersList = await db.collection('users').find({}).toArray();
     const map = {};
@@ -283,6 +303,7 @@ async function getUsersMap() {
 }
 
 async function saveUsersMap(usersMap) {
+  await getDb();
   if (isMongo) {
     for (const username of Object.keys(usersMap)) {
       const userDoc = { _id: username, ...usersMap[username] };
@@ -295,6 +316,7 @@ async function saveUsersMap(usersMap) {
 
 // 3. ORDERS DB HELPERS
 async function getOrders() {
+  await getDb();
   if (isMongo) {
     return await db.collection('orders').find({}).toArray();
   } else {
@@ -303,6 +325,7 @@ async function getOrders() {
 }
 
 async function saveOrders(ordersList) {
+  await getDb();
   if (isMongo) {
     await db.collection('orders').deleteMany({});
     if (ordersList.length > 0) {
@@ -315,6 +338,7 @@ async function saveOrders(ordersList) {
 
 // 4. STATS DB HELPERS
 async function getStats() {
+  await getDb();
   if (isMongo) {
     const doc = await db.collection('stats').findOne({ _id: 'global_stats' });
     if (doc) {
@@ -328,6 +352,7 @@ async function getStats() {
 }
 
 async function saveStats(statsData) {
+  await getDb();
   if (isMongo) {
     await db.collection('stats').replaceOne({ _id: 'global_stats' }, { _id: 'global_stats', ...statsData }, { upsert: true });
   } else {
@@ -336,6 +361,7 @@ async function saveStats(statsData) {
 }
 
 async function resetAllDatabases() {
+  await getDb();
   if (isMongo) {
     await db.collection('products').deleteMany({});
     await db.collection('products').insertMany(SEED_PRODUCTS);
@@ -358,9 +384,6 @@ async function resetAllDatabases() {
     await fs.writeFile(STATS_FILE, JSON.stringify(SEED_STATS, null, 2));
   }
 }
-
-// Connect Database on boot
-await connectDatabase();
 
 // --- API Endpoints ---
 
