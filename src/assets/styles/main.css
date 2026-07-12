@@ -486,6 +486,15 @@ img {
     margin-top: 2px !important;
   }
 
+  /* Force Quick Add To Cart buttons to stay within product card borders */
+  .product-add-to-cart-btn {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+    justify-content: center !important;
+  }
+
   /* Info Page responsiveness overrides */
   .info-page-container {
     padding: 12px !important;
