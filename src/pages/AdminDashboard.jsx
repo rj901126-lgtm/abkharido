@@ -12,14 +12,17 @@ import {
   Layers,
   ArrowLeft,
   X,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 
 const AdminDashboard = ({ onNavigate }) => {
   const { products, addProduct, removeProduct, showToast } = useApp();
-  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders'
+  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users'
   const [adminOrders, setAdminOrders] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
 
   // Fetch all orders for management
   const fetchAllOrders = async () => {
@@ -53,6 +56,56 @@ const AdminDashboard = ({ onNavigate }) => {
       }
     } catch (err) {
       console.error('Failed to update order status:', err);
+    }
+  };
+
+  const fetchAllUsers = async () => {
+    try {
+      const res = await fetch('/api/users');
+      if (res.ok) {
+        const data = await res.json();
+        setAdminUsers(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin users:', err);
+    }
+  };
+
+  React.useEffect(() => {
+    if (activeTab === 'orders') {
+      fetchAllOrders();
+    } else if (activeTab === 'users') {
+      fetchAllUsers();
+    }
+  }, [activeTab]);
+
+  const handleToggleUserRole = async (userObj) => {
+    const isCurrentlyCreator = userObj.isInfluencer;
+    const targetState = !isCurrentlyCreator;
+    
+    const cleanPhone = (userObj.phone || userObj.username).replace(/\D/g, '');
+    const suffix = cleanPhone.substring(cleanPhone.length - 4) || Math.floor(1000 + Math.random() * 9000);
+    const creatorCode = targetState ? `CREATOR-${suffix}` : '';
+    const influencerId = targetState ? `INF-${suffix}` : '';
+
+    try {
+      const res = await fetch(`/api/users/${userObj.username}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isInfluencer: targetState,
+          creatorCode,
+          influencerId
+        })
+      });
+      if (res.ok) {
+        showToast(`User role updated successfully!`, 'success');
+        fetchAllUsers();
+      } else {
+        showToast('Failed to update user role.', 'error');
+      }
+    } catch (err) {
+      console.error('Failed to update user role:', err);
     }
   };
 
@@ -199,6 +252,13 @@ const AdminDashboard = ({ onNavigate }) => {
         >
           <FileText size={16} /> Manage Orders ({adminOrders.length})
         </button>
+        <button 
+          onClick={() => setActiveTab('users')}
+          className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <Users size={16} /> Referral & Users ({adminUsers.length})
+        </button>
       </div>
 
       {/* CONDITIONAL RENDER: ORDERS TAB */}
@@ -215,63 +275,191 @@ const AdminDashboard = ({ onNavigate }) => {
                   <th>Total Amount</th>
                   <th>Milestone Status</th>
                   <th>Payment Info</th>
+                  <th>Referral Details</th>
                   <th>Quick Admin Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {adminOrders.map(o => (
-                  <tr key={o.id}>
-                    <td><code>{o.id}</code></td>
-                    <td>
-                      <div style={{ fontWeight: 'bold' }}>{o.customerUsername}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{o.date}</div>
-                    </td>
-                    <td>
-                      {o.items.map(item => (
-                        <div key={item.product.id} style={{ fontSize: '12px' }}>
-                          • {item.product.name.substring(0, 20)}... (x{item.quantity})
+                {adminOrders.map(o => {
+                  // Calculate dynamic commission for display
+                  let commissionText = 'None';
+                  if (o.referralApplied) {
+                    const { type, referrerId } = o.referralApplied;
+                    let totalCommission = 0;
+                    o.items.forEach(item => {
+                      const rate = type === 'aff' ? item.product.influencerCommissionRate : item.product.userCommissionRate;
+                      totalCommission += item.product.price * item.quantity * rate;
+                    });
+                    
+                    if (type === 'aff') {
+                      commissionText = `Creator: ${referrerId} (Earned ₹${(Math.round(totalCommission * 100) / 100).toFixed(2)})`;
+                    } else {
+                      commissionText = `User: ${referrerId} (Earned ${Math.round(totalCommission)} Coins)`;
+                    }
+                  }
+
+                  return (
+                    <tr key={o.id}>
+                      <td><code>{o.id}</code></td>
+                      <td>
+                        <div style={{ fontWeight: 'bold' }}>{o.customerUsername}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{o.date}</div>
+                      </td>
+                      <td>
+                        {o.items.map(item => (
+                          <div key={item.product.id} style={{ fontSize: '12px' }}>
+                            • {item.product.name.substring(0, 20)}... (x{item.quantity})
+                          </div>
+                        ))}
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 'bold' }}>₹{o.finalAmount.toLocaleString('en-IN')}</div>
+                        {o.coinsDiscountValue > 0 && <div style={{ fontSize: '11px', color: '#e68f00' }}>(-{o.coinsDiscountValue} Coins)</div>}
+                      </td>
+                      <td>
+                        <span className={`badge ${
+                          o.status === 'Delivered' ? 'badge-success' : 
+                          o.status === 'CANCELLED' ? 'badge-danger' : 'badge-info'
+                        }`} style={{ fontSize: '11px' }}>
+                          {o.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '12px' }}>Mode: <strong>{o.paymentMethod}</strong></div>
+                        <div style={{ fontSize: '11px', color: o.paymentStatus === 'SUCCESS' ? 'var(--success)' : 'var(--error)' }}>
+                          {o.paymentStatus}
                         </div>
-                      ))}
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 'bold' }}>₹{o.finalAmount.toLocaleString('en-IN')}</div>
-                      {o.coinsDiscountValue > 0 && <div style={{ fontSize: '11px', color: '#e68f00' }}>(-{o.coinsDiscountValue} Coins)</div>}
-                    </td>
-                    <td>
-                      <span className={`badge ${
-                        o.status === 'Delivered' ? 'badge-success' : 
-                        o.status === 'CANCELLED' ? 'badge-danger' : 'badge-info'
-                      }`} style={{ fontSize: '11px' }}>
-                        {o.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ fontSize: '12px' }}>Mode: <strong>{o.paymentMethod}</strong></div>
-                      <div style={{ fontSize: '11px', color: o.paymentStatus === 'SUCCESS' ? 'var(--success)' : 'var(--error)' }}>
-                        {o.paymentStatus}
-                      </div>
-                    </td>
-                    <td>
-                      {o.status !== 'CANCELLED' && o.status !== 'Delivered' && (
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <select 
-                            value={o.status}
-                            onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
-                            style={{ fontSize: '12px', padding: '4px', border: '1px solid #ddd', borderRadius: '4px' }}
-                          >
-                            <option value="Processing">Processing</option>
-                            <option value="Packed">Packed</option>
-                            <option value="In Transit">In Transit</option>
-                            <option value="Delivered">Delivered</option>
-                          </select>
+                      </td>
+                      <td>
+                        {o.referralApplied ? (
+                          <div style={{ fontSize: '12px', lineHeight: '1.3' }}>
+                            <div style={{ fontWeight: 'bold', color: o.referralApplied.type === 'aff' ? 'var(--success)' : '#e68f00' }}>
+                              {o.referralApplied.type === 'aff' ? ' Verified Creator' : ' Regular Refer'}
+                            </div>
+                            <div style={{ color: '#555', fontSize: '11px' }}>{commissionText}</div>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>Direct (No refer)</span>
+                        )}
+                      </td>
+                      <td>
+                        {o.status !== 'CANCELLED' && o.status !== 'Delivered' && (
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <select 
+                              value={o.status}
+                              onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
+                              style={{ fontSize: '12px', padding: '4px', border: '1px solid #ddd', borderRadius: '4px' }}
+                            >
+                              <option value="Processing">Processing</option>
+                              <option value="Packed">Packed</option>
+                              <option value="In Transit">In Transit</option>
+                              <option value="Delivered">Delivered</option>
+                            </select>
+                          </div>
+                        )}
+                        {(o.status === 'CANCELLED' || o.status === 'Delivered') && (
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Archived</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* CONDITIONAL RENDER: REFERRAL & USERS TAB */}
+      {activeTab === 'users' && (
+        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+            <h3 className="admin-form-title" style={{ margin: 0 }}><Users size={18} color="var(--primary-color)" /> Platform Accounts & Referral Data</h3>
+            
+            {/* Search Input */}
+            <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
+              <input 
+                type="text" 
+                placeholder="Search mobile number or name..." 
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
+              />
+            </div>
+          </div>
+
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>User ID / Username</th>
+                  <th>Full Name</th>
+                  <th>Email Address</th>
+                  <th>Verification Settings</th>
+                  <th>Role Status</th>
+                  <th>Referral Code / Tag</th>
+                  <th>Wallet Balances</th>
+                  <th>Action controls</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adminUsers
+                  .filter(u => 
+                    u.username.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
+                    (u.fullName && u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()))
+                  )
+                  .map(u => (
+                    <tr key={u.username}>
+                      <td>
+                        <div style={{ fontWeight: 'bold' }}>{u.username}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Joined platform</div>
+                      </td>
+                      <td>{u.fullName || 'Guest User'}</td>
+                      <td>{u.email || <span style={{ color: '#888', fontStyle: 'italic' }}>Not provided</span>}</td>
+                      <td>
+                        <span className={`badge ${u.emailVerified ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '11px' }}>
+                          {u.emailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge ${u.isInfluencer ? 'badge-success' : 'badge-info'}`} style={{ fontSize: '11px', backgroundColor: u.isInfluencer ? 'var(--success)' : '#eaeaea', color: u.isInfluencer ? 'white' : '#555' }}>
+                          {u.isInfluencer ? ' Verified Creator' : 'Regular Customer'}
+                        </span>
+                      </td>
+                      <td>
+                        {u.isInfluencer ? (
+                          <div style={{ fontSize: '12px' }}>
+                            <div>ID: <code>{u.influencerId || 'N/A'}</code></div>
+                            <div style={{ fontWeight: 'bold', color: 'var(--success)', marginTop: '2px' }}>Code: {u.creatorCode || 'N/A'}</div>
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '12px' }}>
+                            <div style={{ color: '#888' }}>Code: {u.referralCode || 'N/A'}</div>
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                          <div style={{ color: '#e68f00', fontWeight: 'bold' }}>🪙 {u.walletCoins || 0} Coins</div>
+                          <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
                         </div>
-                      )}
-                      {(o.status === 'CANCELLED' || o.status === 'Delivered') && (
-                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Archived</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-outline"
+                          style={{
+                            fontSize: '11px',
+                            padding: '4px 8px',
+                            borderColor: u.isInfluencer ? 'var(--error)' : 'var(--success)',
+                            color: u.isInfluencer ? 'var(--error)' : 'var(--success)'
+                          }}
+                          onClick={() => handleToggleUserRole(u)}
+                        >
+                          {u.isInfluencer ? 'Demote to Customer' : 'Verify as Creator'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

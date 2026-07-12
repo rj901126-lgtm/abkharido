@@ -603,7 +603,7 @@ app.post('/api/users/:username/update', async (req, res) => {
   try {
     const users = await getUsersMap();
     const { username } = req.params;
-    const { firstName, lastName, email, pincode, address, emailVerified } = req.body;
+    const { firstName, lastName, email, pincode, address, emailVerified, isInfluencer, creatorCode, influencerId, walletCoins, walletCash } = req.body;
 
     if (!users[username]) {
       return res.status(404).json({ error: 'User not found' });
@@ -616,6 +616,11 @@ app.post('/api/users/:username/update', async (req, res) => {
     if (pincode !== undefined) user.pincode = pincode;
     if (address !== undefined) user.address = address;
     if (emailVerified !== undefined) user.emailVerified = emailVerified;
+    if (isInfluencer !== undefined) user.isInfluencer = isInfluencer;
+    if (creatorCode !== undefined) user.creatorCode = creatorCode;
+    if (influencerId !== undefined) user.influencerId = influencerId;
+    if (walletCoins !== undefined) user.walletCoins = Number(walletCoins);
+    if (walletCash !== undefined) user.walletCash = Number(walletCash);
 
     // Recalculate fullName
     if (user.firstName || user.lastName) {
@@ -644,6 +649,15 @@ app.get('/api/users/:username', async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});
+
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await getUsersMap();
+    res.json(Object.values(users));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch users list' });
   }
 });
 
