@@ -10,16 +10,62 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Form states
   const [address, setAddress] = useState({
     name: currentUser ? currentUser.fullName : '',
-    phone: '9876543210',
-    pincode: '560103',
-    locality: 'Devarabeesanahalli',
-    streetAddress: 'Outer Ring Road, Block B, AbKharido Tower',
-    city: 'Bengaluru',
-    state: 'Karnataka'
+    phone: currentUser ? (currentUser.phone || currentUser.username) : '',
+    pincode: currentUser ? (currentUser.pincode || '') : '',
+    locality: '',
+    streetAddress: currentUser ? (currentUser.address || '') : '',
+    city: '',
+    state: ''
   });
 
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
   const [createdOrder, setCreatedOrder] = useState(null);
+
+  // Synchronize currentUser fields
+  useEffect(() => {
+    if (currentUser) {
+      setAddress(prev => ({
+        ...prev,
+        name: currentUser.fullName || prev.name,
+        phone: currentUser.phone || currentUser.username || prev.phone,
+        pincode: currentUser.pincode || prev.pincode,
+        streetAddress: currentUser.address || prev.streetAddress
+      }));
+    }
+  }, [currentUser]);
+
+  // Resolve Indian postal pincode details automatically
+  useEffect(() => {
+    const resolvePincode = async () => {
+      if (address.pincode.length === 6 && !isNaN(address.pincode)) {
+        try {
+          const res = await fetch(`https://api.postalpincode.in/pincode/${address.pincode}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data[0]?.Status === "Success") {
+              const postOffice = data[0].PostOffice[0];
+              setAddress(prev => ({
+                ...prev,
+                city: postOffice.District || postOffice.Name,
+                state: postOffice.State
+              }));
+              showToast(`Pincode resolved: ${postOffice.District}, ${postOffice.State}!`, 'success');
+            }
+          }
+        } catch (e) {
+          const code = address.pincode;
+          if (code.startsWith('11')) {
+            setAddress(prev => ({ ...prev, city: 'New Delhi', state: 'Delhi' }));
+          } else if (code.startsWith('40')) {
+            setAddress(prev => ({ ...prev, city: 'Mumbai', state: 'Maharashtra' }));
+          } else if (code.startsWith('56')) {
+            setAddress(prev => ({ ...prev, city: 'Bengaluru', state: 'Karnataka' }));
+          }
+        }
+      }
+    };
+    resolvePincode();
+  }, [address.pincode]);
 
   // Price calculations
   const itemsPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
