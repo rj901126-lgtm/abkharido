@@ -134,8 +134,8 @@ const InfoPage = ({ infoType }) => {
   };
 
   return (
-    <div className="container animate-fade-in" style={styles.pageContainer}>
-      <div style={styles.sidebar}>
+    <div className="container info-page-container animate-fade-in" style={styles.pageContainer}>
+      <div className="info-sidebar" style={styles.sidebar}>
         <h3 style={styles.sidebarTitle}>Policies & Info</h3>
         <div style={styles.navMenu}>
           <a href="#about" style={styles.sidebarLink}>🏢 About AbKharido</a>
@@ -145,7 +145,7 @@ const InfoPage = ({ infoType }) => {
           <a href="#contact" style={styles.sidebarLink}>📞 Contact Support</a>
         </div>
       </div>
-      <div className="card" style={styles.contentCard}>
+      <div className="card info-content-card" style={styles.contentCard}>
         {renderContent()}
       </div>
     </div>

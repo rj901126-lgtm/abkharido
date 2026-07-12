@@ -152,7 +152,7 @@ const Login = ({ onNavigate }) => {
   };
 
   return (
-    <div className="container animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '20px 0' }}>
+    <div className="container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '24px 16px' }}>
       <div className="card" style={{ width: '100%', maxWidth: '420px', padding: '32px', boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}>
         
         {/* Header Branding */}
@@ -309,6 +309,19 @@ const Login = ({ onNavigate }) => {
             </div>
           </form>
         )}
+      </div>
+
+      {/* Flipkart Style Footer Links for Mobile Login */}
+      <div className="login-footer-links" style={{ marginTop: '24px', textAlign: 'center', fontSize: '11px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center', color: '#878787' }}>
+        <a href="#about" onClick={(e) => { e.preventDefault(); onNavigate('info-about'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>About Us</a>
+        <span>|</span>
+        <a href="#terms" onClick={(e) => { e.preventDefault(); onNavigate('info-terms'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Terms of Use</a>
+        <span>|</span>
+        <a href="#privacy" onClick={(e) => { e.preventDefault(); onNavigate('info-privacy'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Privacy Policy</a>
+        <span>|</span>
+        <a href="#returns" onClick={(e) => { e.preventDefault(); onNavigate('info-returns'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Return Policy</a>
+        <span>|</span>
+        <a href="#contact" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Contact Support</a>
       </div>
     </div>
   );

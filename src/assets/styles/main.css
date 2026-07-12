@@ -470,10 +470,24 @@ img {
     gap: 8px !important;
   }
   .footer-links-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 24px !important;
-    padding-top: 24px !important;
-    padding-bottom: 24px !important;
+    display: none !important; /* Hide footer link columns on mobile */
+  }
+
+  /* Info Page responsiveness overrides */
+  .info-page-container {
+    padding: 12px !important;
+    gap: 16px !important;
+    flex-direction: column !important;
+  }
+  .info-sidebar {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+  }
+  .info-content-card {
+    width: 100% !important;
+    min-width: 100% !important;
+    flex: 1 1 auto !important;
+    padding: 16px !important;
   }
 
   /* Checkout responsiveness overrides */
