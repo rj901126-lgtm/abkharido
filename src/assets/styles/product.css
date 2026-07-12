@@ -268,12 +268,21 @@
 .social-share-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: 4px;
   color: white;
+  width: 125px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.social-share-btn:hover {
+  opacity: 0.9;
 }
 
 .social-wa {
