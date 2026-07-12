@@ -304,3 +304,52 @@ img {
 .timeline-label.completed {
   color: var(--success);
 }
+
+/* --- MOBILE APP RESPONSIVENESS OVERRIDES --- */
+@media (max-width: 600px) {
+  /* Global Page Margins */
+  .main-content {
+    margin-top: 56px !important;
+    padding-bottom: 80px !important;
+  }
+
+  /* Grid Layouts - 2 Columns instead of 1 on mobile */
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Timeline - Tighter padding */
+  .timeline-container {
+    padding: 0 5px !important;
+    margin: 16px 0 !important;
+  }
+  .timeline-label {
+    font-size: 9px !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* Cart & Checkout Layout Stacking */
+  .cart-page-layout, .checkout-page-layout {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* Stats Dashboard Grid */
+  .stats-grid-creator {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* Form & Auth Pages */
+  .otp-input-field {
+    width: 38px !important;
+    height: 42px !important;
+    font-size: 16px !important;
+  }
+}

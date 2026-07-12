@@ -8,16 +8,9 @@ export const AppProvider = ({ children }) => {
   // --- Persistent & API States ---
   const [products, setProducts] = useState([]);
   
-  const [currentUser, setCurrentUser] = useState({
-    username: 'amit_kumar',
-    fullName: 'Amit Kumar',
-    email: 'amit.kumar@gmail.com',
-    isInfluencer: false,
-    influencerId: '',
-    walletCoins: 0,
-    walletCash: 0,
-    ordersCount: 0,
-    payoutDetails: { upi: '', bankAccount: '', bankIfsc: '' }
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('abkharido_user_session');
+    return saved ? JSON.parse(saved) : null;
   });
 
   const [cart, setCart] = useState(() => {
@@ -44,8 +37,10 @@ export const AppProvider = ({ children }) => {
   // --- Fetch Data on Mount ---
   useEffect(() => {
     fetchProducts();
-    fetchUser(currentUser.username);
-    fetchOrders();
+    if (currentUser) {
+      fetchUser(currentUser.username);
+      fetchOrders(currentUser.email);
+    }
     fetchStats();
   }, []);
 
@@ -70,7 +65,7 @@ export const AppProvider = ({ children }) => {
     const productIdParam = params.get('prod');
 
     if (refUser) {
-      if (refUser === currentUser.username) {
+      if (currentUser && refUser === currentUser.username) {
         showToast('Self-referral links do not earn rewards.', 'warning');
       } else {
         incrementReferrerClicks();
@@ -83,7 +78,7 @@ export const AppProvider = ({ children }) => {
         showToast(`Referral active: Shopping via link shared by ${refUser}!`, 'info');
       }
     } else if (affInfluencer) {
-      if (currentUser.isInfluencer && currentUser.influencerId === affInfluencer) {
+      if (currentUser && currentUser.isInfluencer && currentUser.influencerId === affInfluencer) {
         showToast('Self-affiliate links do not earn commission.', 'warning');
       } else {
         incrementReferrerClicks();
@@ -96,7 +91,7 @@ export const AppProvider = ({ children }) => {
         showToast(`Affiliate link active: Support creator ${affInfluencer}!`, 'info');
       }
     }
-  }, [currentUser.username]);
+  }, [currentUser]);
 
   // --- API Fetches ---
   const fetchProducts = async () => {
@@ -117,15 +112,16 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data);
+        localStorage.setItem('abkharido_user_session', JSON.stringify(data));
       }
     } catch (err) {
       console.error('Failed to sync user profile:', err);
     }
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (email) => {
     try {
-      const res = await fetch('/api/orders');
+      const res = await fetch(`/api/orders?email=${email || ''}`);
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
@@ -152,7 +148,7 @@ export const AppProvider = ({ children }) => {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
-    }, 4000);
+    }, 4500);
   };
 
   // --- Helper: Increment Referrer Clicks via API ---
@@ -201,6 +197,14 @@ export const AppProvider = ({ children }) => {
 
   const clearCart = () => {
     setCart([]);
+  };
+
+  // --- Logout Action ---
+  const logout = () => {
+    localStorage.removeItem('abkharido_user_session');
+    setCurrentUser(null);
+    setOrders([]);
+    showToast('Logged out successfully.', 'info');
   };
 
   // --- Admin Panel API Actions ---
@@ -257,6 +261,7 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data);
+        localStorage.setItem('abkharido_user_session', JSON.stringify(data));
         showToast('Congratulations! You are now an approved AbKharido Creator.', 'success');
       } else {
         showToast('Failed to save creator data.', 'error');
@@ -284,6 +289,7 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data.user);
+        localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
         fetchStats(); // reload payouts transaction table
         showToast(`Payout request of ₹${amount} submitted successfully!`, 'success');
         return true;
@@ -295,7 +301,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // --- Place Order & Attributions API Checkout ---
-  const placeOrder = async (shippingAddress, paymentMethod, useCoinsDiscount = false) => {
+  const placeOrder = async (shippingAddress, paymentMethod, useCoinsDiscount = false, cfOrderId = null) => {
     if (cart.length === 0) {
       showToast('Cart is empty!', 'error');
       return null;
@@ -310,15 +316,17 @@ export const AppProvider = ({ children }) => {
           shippingAddress,
           paymentMethod,
           useCoinsDiscount,
-          activeReferral
+          activeReferral,
+          cfOrderId
         })
       });
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data.user);
+        localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
         clearCart();
         setActiveReferral(null);
-        fetchOrders();
+        fetchOrders(currentUser.email);
         fetchStats();
         return data.order;
       } else {
@@ -330,19 +338,28 @@ export const AppProvider = ({ children }) => {
     return null;
   };
 
-  // --- Switch Profile & Reset Database API routes ---
-  const switchUser = async (type) => {
-    const targetUsername = type === 'buyer' ? 'amit_kumar' : 'ria_reviews';
+  // --- Cashfree Payment Status verification ---
+  const verifyPayment = async (orderId) => {
     try {
-      const res = await fetch(`/api/users/${targetUsername}`);
+      const res = await fetch('/api/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId })
+      });
       if (res.ok) {
         const data = await res.json();
-        setCurrentUser(data);
-        showToast(`Switched account to: ${data.fullName}`, 'info');
+        if (data.success) {
+          setCurrentUser(data.user);
+          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
+          fetchOrders(currentUser.email);
+          fetchStats();
+          return true;
+        }
       }
     } catch (err) {
-      showToast('Failed to switch profiles.', 'error');
+      console.error('Failed to verify payment status:', err);
     }
+    return false;
   };
 
   const resetDatabase = async () => {
@@ -351,8 +368,10 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         showToast('Database files reset successfully.', 'info');
         fetchProducts();
-        fetchUser(currentUser.username);
-        fetchOrders();
+        if (currentUser) {
+          fetchUser(currentUser.username);
+          fetchOrders(currentUser.email);
+        }
         fetchStats();
         clearCart();
         setActiveReferral(null);
@@ -377,10 +396,12 @@ export const AppProvider = ({ children }) => {
         updateCartQty,
         removeFromCart,
         clearCart,
+        logout,
         registerAsInfluencer,
         requestPayout,
         placeOrder,
-        switchUser,
+        fetchOrders,
+        verifyPayment,
         resetDatabase,
         addProduct,
         removeProduct

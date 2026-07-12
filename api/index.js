@@ -164,6 +164,7 @@ let dbClient = null;
 let db = null;
 let isMongo = false;
 let isConnecting = false;
+const LOCAL_OTPS = new Map();
 
 async function getDb() {
   if (db) return db;
@@ -385,6 +386,50 @@ async function resetAllDatabases() {
   }
 }
 
+// --- OTP Database Helpers ---
+async function saveOtpCode(recipient, otpCode) {
+  await getDb();
+  const expiry = Date.now() + 5 * 60 * 1000; // 5 mins expiry
+  if (isMongo) {
+    await db.collection('otps').replaceOne(
+      { _id: recipient },
+      { _id: recipient, code: otpCode, expiry },
+      { upsert: true }
+    );
+  } else {
+    LOCAL_OTPS.set(recipient, { code: otpCode, expiry });
+  }
+}
+
+async function verifyOtpCode(recipient, otpCode) {
+  await getDb();
+  if (isMongo) {
+    const entry = await db.collection('otps').findOne({ _id: recipient });
+    if (!entry) return false;
+    if (Date.now() > entry.expiry) {
+      await db.collection('otps').deleteOne({ _id: recipient });
+      return false;
+    }
+    const isCorrect = entry.code === otpCode;
+    if (isCorrect) {
+      await db.collection('otps').deleteOne({ _id: recipient });
+    }
+    return isCorrect;
+  } else {
+    const entry = LOCAL_OTPS.get(recipient);
+    if (!entry) return false;
+    if (Date.now() > entry.expiry) {
+      LOCAL_OTPS.delete(recipient);
+      return false;
+    }
+    const isCorrect = entry.code === otpCode;
+    if (isCorrect) {
+      LOCAL_OTPS.delete(recipient);
+    }
+    return isCorrect;
+  }
+}
+
 // --- API Endpoints ---
 
 // 1. PRODUCTS DATABASE ROUTES
@@ -431,6 +476,89 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // 2. USER PROFILE & AUTH SIMULATION
+app.post('/api/auth/send-otp', async (req, res) => {
+  try {
+    const { recipient, isSignup } = req.body;
+    
+    // Check if recipient is a valid email or phone
+    const isEmail = recipient.includes('@');
+    
+    const users = await getUsersMap();
+    const formattedUsername = recipient.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    
+    if (isSignup) {
+      // Check duplicate email/phone registries
+      const exists = Object.values(users).some(u => 
+        u.email.toLowerCase() === recipient.toLowerCase() || 
+        u.username.toLowerCase() === formattedUsername
+      );
+      if (exists) {
+        return res.status(400).json({ error: 'This email or phone number is already registered.' });
+      }
+    }
+
+    // Generate random 6-digit OTP
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Save to database with 5 min expiry
+    await saveOtpCode(recipient, generatedOtp);
+
+    // Print delivery alert to console
+    if (isEmail) {
+      console.log(`[SMTP EMAIL SIMULATION] Sent OTP ${generatedOtp} to ${recipient}`);
+    } else {
+      console.log(`[SMS GATEWAY SIMULATION] Sent OTP ${generatedOtp} to ${recipient}`);
+    }
+
+    // Return the generated OTP for live on-screen testing!
+    res.json({ success: true, otp: generatedOtp });
+  } catch (err) {
+    console.error('Failed to send OTP:', err);
+    res.status(500).json({ error: 'Server authentication process error.' });
+  }
+});
+
+app.post('/api/auth/verify-otp', async (req, res) => {
+  try {
+    const { recipient, otp, isSignup, fullName } = req.body;
+
+    const isValid = await verifyOtpCode(recipient, otp);
+    if (!isValid) {
+      return res.status(400).json({ error: 'Invalid or expired OTP verification code.' });
+    }
+
+    const users = await getUsersMap();
+    const formattedUsername = recipient.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    let user = Object.values(users).find(u => 
+      u.email.toLowerCase() === recipient.toLowerCase() || 
+      u.username.toLowerCase() === formattedUsername
+    );
+
+    if (!user) {
+      // Create user profile on signup or first login
+      user = {
+        username: formattedUsername,
+        fullName: fullName || (recipient.includes('@') ? recipient.split('@')[0] : 'Guest User'),
+        email: recipient.includes('@') ? recipient : `${recipient}@abkharido.com`,
+        isInfluencer: false,
+        influencerId: '',
+        walletCoins: 0,
+        walletCash: 0,
+        ordersCount: 0,
+        payoutDetails: { upi: '', bankAccount: '', bankIfsc: '' }
+      };
+      
+      users[formattedUsername] = user;
+      await saveUsersMap(users);
+    }
+
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error('Failed to verify OTP:', err);
+    res.status(500).json({ error: 'Authentication verification failure.' });
+  }
+});
+
 app.get('/api/users/:username', async (req, res) => {
   try {
     const users = await getUsersMap();
@@ -531,7 +659,18 @@ app.post('/api/payouts', async (req, res) => {
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await getOrders();
-    res.json(orders);
+    const { email } = req.query;
+    if (email) {
+      const users = await getUsersMap();
+      const user = Object.values(users).find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (user) {
+        // Return only this customer's orders
+        const filtered = orders.filter(o => o.customerUsername === user.username);
+        return res.json(filtered);
+      }
+    }
+    // Return empty list if no valid user email query is provided
+    res.json([]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
@@ -543,7 +682,7 @@ app.post('/api/orders', async (req, res) => {
     const users = await getUsersMap();
     const stats = await getStats();
 
-    const { cart, username, shippingAddress, paymentMethod, useCoinsDiscount, activeReferral } = req.body;
+    const { cart, username, shippingAddress, paymentMethod, useCoinsDiscount, activeReferral, cfOrderId } = req.body;
 
     const user = users[username];
     if (!user) return res.status(404).json({ error: 'Buyer account not found' });
@@ -554,8 +693,12 @@ app.post('/api/orders', async (req, res) => {
     const finalAmount = itemsPrice - coinsDiscountValue + deliveryCharge;
 
     const orderId = `OD-${Math.floor(10000000 + Math.random() * 90000000)}`;
+    const isCod = paymentMethod === 'Cash on Delivery';
+    
     const newOrder = {
       id: orderId,
+      cfOrderId: cfOrderId || null,
+      customerUsername: username,
       date: new Date().toISOString().split('T')[0],
       items: cart,
       itemsPrice,
@@ -564,12 +707,13 @@ app.post('/api/orders', async (req, res) => {
       finalAmount,
       shippingAddress,
       paymentMethod,
-      status: 'Processing',
+      status: isCod ? 'Packed' : 'Processing',
+      paymentStatus: isCod ? 'SUCCESS' : 'PENDING',
       referralApplied: activeReferral || null
     };
 
-    // Process Referral Commissions
-    if (activeReferral) {
+    // Process Referral Commissions immediately ONLY if Cash on Delivery (COD)
+    if (isCod && activeReferral) {
       const { type, referrerId } = activeReferral;
       
       let totalCommissionEarned = 0;
@@ -594,7 +738,7 @@ app.post('/api/orders', async (req, res) => {
           rate: 'Dynamic',
           amount: itemsPrice,
           earnings: totalCommissionEarned,
-          status: 'Pending'
+          status: 'Approved'
         };
 
         stats.conversions += 1;
@@ -635,6 +779,128 @@ app.post('/api/orders', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to place purchase order' });
+  }
+});
+
+// 5.5 CASHFREE TRANSACTION STATUS VERIFICATION
+app.post('/api/payment/verify', async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const orders = await getOrders();
+    const orderIndex = orders.findIndex(o => o.id === orderId || o.cfOrderId === orderId);
+    
+    if (orderIndex === -1) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const order = orders[orderIndex];
+
+    if (order.paymentStatus === 'SUCCESS') {
+      const users = await getUsersMap();
+      const user = users[order.customerUsername];
+      return res.json({ success: true, status: 'SUCCESS', order, user });
+    }
+
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    const isProd = process.env.CASHFREE_PROD === 'true';
+
+    let orderStatus = 'PAID'; // Default to PAID (Simulated success) if keys not loaded
+    
+    if (appId && secretKey && order.cfOrderId && !order.cfOrderId.startsWith('cf_order_mock')) {
+      const url = isProd
+        ? `https://api.cashfree.com/pg/orders/${order.cfOrderId}`
+        : `https://sandbox.cashfree.com/pg/orders/${order.cfOrderId}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'x-api-version': '2023-08-01',
+          'x-client-id': appId,
+          'x-client-secret': secretKey
+        }
+      });
+
+      if (response.ok) {
+        const cfData = await response.json();
+        orderStatus = cfData.order_status; // PAID, ACTIVE, FAILED, etc.
+      }
+    }
+
+    if (orderStatus === 'PAID') {
+      order.paymentStatus = 'SUCCESS';
+      order.status = 'Packed';
+      
+      // Process Referral Commissions now since payment is verified!
+      if (order.referralApplied) {
+        const users = await getUsersMap();
+        const stats = await getStats();
+        const { type, referrerId } = order.referralApplied;
+        
+        let totalCommissionEarned = 0;
+        order.items.forEach(item => {
+          const rate = type === 'aff' ? item.product.influencerCommissionRate : item.product.userCommissionRate;
+          totalCommissionEarned += item.product.price * item.quantity * rate;
+        });
+        totalCommissionEarned = Math.round(totalCommissionEarned * 100) / 100;
+
+        if (type === 'aff') {
+          const creatorProfile = Object.values(users).find(u => u.influencerId === referrerId);
+          if (creatorProfile) {
+            creatorProfile.walletCash += totalCommissionEarned;
+          }
+          const newHistoryTxn = {
+            id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+            date: new Date().toISOString().split('T')[0],
+            productName: order.items.length === 1 ? order.items[0].product.name : `${order.items[0].product.name.substring(0, 25)}... (+${order.items.length - 1} items)`,
+            type: 'influencer',
+            rate: 'Dynamic',
+            amount: order.itemsPrice,
+            earnings: totalCommissionEarned,
+            status: 'Approved'
+          };
+          stats.conversions += 1;
+          stats.history = [newHistoryTxn, ...stats.history];
+        } else if (type === 'ref') {
+          const coinsEarned = Math.round(totalCommissionEarned);
+          const userProfile = users[referrerId];
+          if (userProfile) {
+            userProfile.walletCoins += coinsEarned;
+          }
+          const newHistoryTxn = {
+            id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+            date: new Date().toISOString().split('T')[0],
+            productName: order.items.length === 1 ? order.items[0].product.name : `${order.items[0].product.name.substring(0, 25)}... (+${order.items.length - 1} items)`,
+            type: 'user',
+            rate: 'Dynamic',
+            amount: order.itemsPrice,
+            earnings: coinsEarned,
+            status: 'Approved'
+          };
+          stats.conversions += 1;
+          stats.history = [newHistoryTxn, ...stats.history];
+        }
+
+        await saveUsersMap(users);
+        await saveStats(stats);
+      }
+
+      await saveOrders(orders);
+      const users = await getUsersMap();
+      const user = users[order.customerUsername];
+      res.json({ success: true, status: 'SUCCESS', order, user });
+    } else if (orderStatus === 'FAILED' || orderStatus === 'EXPIRED') {
+      order.paymentStatus = 'FAILED';
+      await saveOrders(orders);
+      const users = await getUsersMap();
+      const user = users[order.customerUsername];
+      res.json({ success: false, status: 'FAILED', order, user });
+    } else {
+      res.json({ success: false, status: 'PENDING', order });
+    }
+  } catch (err) {
+    console.error('Payment verification failed:', err);
+    res.status(500).json({ error: 'Failed to verify transaction status.' });
   }
 });
 

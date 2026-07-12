@@ -3,7 +3,13 @@ import { useApp } from '../context/AppContext';
 import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
 
 const Orders = ({ onNavigate }) => {
-  const { orders } = useApp();
+  const { orders, currentUser, fetchOrders } = useApp();
+
+  React.useEffect(() => {
+    if (currentUser) {
+      fetchOrders(currentUser.email);
+    }
+  }, []);
 
   if (orders.length === 0) {
     return (

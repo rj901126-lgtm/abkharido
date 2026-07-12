@@ -13,33 +13,64 @@ import Checkout from './pages/Checkout';
 import PartnerCenter from './pages/PartnerCenter';
 import Orders from './pages/Orders';
 import AdminDashboard from './pages/AdminDashboard';
+import Login from './pages/Login';
 
 const AppContent = () => {
-  const { toast } = useApp();
+  const { toast, currentUser, verifyPayment, showToast } = useApp();
   const [activePage, setActivePage] = useState('home');
   const [currentCategory, setCurrentCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeProductId, setActiveProductId] = useState(null);
   const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
 
-  // Parse product details directly from URL on mount (simulates direct link loading)
+  // Parse details from URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const prodId = params.get('prod');
     const isAdmin = params.get('admin');
-    if (prodId) {
+    const cfOrderId = params.get('order_id');
+    const isCreator = params.get('creator') === 'true' || params.get('partner') === 'true';
+
+    if (cfOrderId) {
+      // Clear URL parameter immediately to prevent duplicate runs
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      const runVerification = async () => {
+        showToast('Verifying payment status with Cashfree...', 'info');
+        const success = await verifyPayment(cfOrderId);
+        if (success) {
+          showToast('Online Payment Verified Successfully!', 'success');
+          setActivePage('orders');
+        } else {
+          showToast('Payment verification failed or was cancelled.', 'error');
+          setActivePage('cart');
+        }
+      };
+      runVerification();
+    } else if (prodId) {
       setActiveProductId(prodId);
       setActivePage('product');
+    } else if (isCreator) {
+      setActivePage('partner');
     } else if (isAdmin === 'true' || isAdmin === '1') {
       setActivePage('admin');
     }
-  }, []);
+  }, [verifyPayment, showToast]);
 
   const handleNavigate = (page) => {
+    // Route protection: login required for secure pages
+    const protectedPages = ['checkout', 'partner', 'orders'];
+    if (protectedPages.includes(page) && !currentUser) {
+      showToast('Please sign in to access this page.', 'warning');
+      setActivePage('login');
+      window.scrollTo(0, 0);
+      return;
+    }
+
     setActivePage(page);
     window.scrollTo(0, 0);
 
-    // If leaving checkout or cart, reset coin discount checkbox state
+    // Reset coin discount if leaving cart/checkout
     if (page !== 'cart' && page !== 'checkout') {
       setUseCoinsDiscount(false);
     }
@@ -57,12 +88,11 @@ const AppContent = () => {
 
   const handleSelectCategory = (catId) => {
     setCurrentCategory(catId);
-    setSearchQuery(''); // Clear search when selecting category quickbar
+    setSearchQuery(''); 
     handleNavigate('catalog');
   };
 
   const handleBuyNow = (product) => {
-    // Add product to cart, then navigate directly to cart
     handleNavigate('cart');
   };
 
@@ -122,6 +152,8 @@ const AppContent = () => {
         return <Orders onNavigate={handleNavigateProduct} />;
       case 'admin':
         return <AdminDashboard onNavigate={handleNavigate} />;
+      case 'login':
+        return <Login onNavigate={handleNavigate} />;
       default:
         return <Home onNavigate={handleNavigate} onNavigateProduct={handleNavigateProduct} onSelectCategory={handleSelectCategory} />;
     }

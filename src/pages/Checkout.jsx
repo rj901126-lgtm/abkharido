@@ -38,6 +38,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   };
 
   // Handle Payment Submit and Order Placement (Cashfree Integration)
+  const { verifyPayment } = useApp();
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
 
@@ -77,18 +78,36 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
       const data = await res.json();
       
+      // Pre-create order in database as PENDING before starting payment
+      const orderDetails = await placeOrder(
+        address,
+        'Online Payment',
+        useCoinsDiscount,
+        data.orderId
+      );
+
+      if (!orderDetails) {
+        showToast('Failed to register order transaction.', 'error');
+        return;
+      }
+      
       if (data.simulated) {
-        // Developer simulated successful checkout
-        showToast('Simulated Payment Successful (Developer Mode)!', 'success');
-        const orderDetails = await placeOrder(
-          address, 
-          paymentMethod === 'upi' ? `UPI (Cashfree Sandbox)` : `Card (Cashfree Sandbox)`,
-          useCoinsDiscount
-        );
-        if (orderDetails) {
-          setCreatedOrder(orderDetails);
+        // Developer simulated successful checkout (Verify instantly)
+        showToast('Verifying simulated payment...', 'info');
+        const isVerified = await verifyPayment(data.orderId);
+        
+        if (isVerified) {
+          showToast('Payment Verified Successfully!', 'success');
+          // Fetch updated order details
+          setCreatedOrder({
+            ...orderDetails,
+            paymentStatus: 'SUCCESS',
+            status: 'Packed'
+          });
           setStep(4);
           triggerConfetti();
+        } else {
+          showToast('Simulated payment verification failed.', 'error');
         }
       } else {
         // Real Cashfree integration

@@ -19,7 +19,7 @@ import {
 import '../assets/styles/navbar.css';
 
 const Navbar = ({ activePage, onNavigate, onSearch, currentCategory, onSelectCategory }) => {
-  const { currentUser, cart, switchUser, resetDatabase } = useApp();
+  const { currentUser, cart, logout, resetDatabase } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -72,81 +72,68 @@ const Navbar = ({ activePage, onNavigate, onSearch, currentCategory, onSelectCat
           </form>
 
           <div className="navbar-right">
-            {/* Simulation Controller (Super Developer Tool) */}
-            <div className="simulator-panel">
-              <span className="simulator-label">Simulate:</span>
-              <button 
-                className={`simulator-btn ${!currentUser.isInfluencer ? 'active' : ''}`}
-                onClick={() => switchUser('buyer')}
+            {currentUser ? (
+              /* Profile Dropdown */
+              <div 
+                className="nav-item" 
+                onMouseEnter={() => setDropdownOpen(true)}
+                onMouseLeave={() => setDropdownOpen(false)}
+                style={{ position: 'relative' }}
               >
-                Customer
-              </button>
-              <button 
-                className={`simulator-btn ${currentUser.isInfluencer ? 'active' : ''}`}
-                onClick={() => switchUser('creator')}
-              >
-                Creator
-              </button>
-            </div>
+                <User size={18} />
+                <span className="nav-text">{currentUser.fullName}</span>
+                <ChevronDown size={14} />
 
-            {/* Profile Dropdown */}
-            <div 
-              className="nav-item" 
-              onMouseEnter={() => setDropdownOpen(true)}
-              onMouseLeave={() => setDropdownOpen(false)}
-            >
-              <User size={18} />
-              <span className="nav-text">{currentUser.fullName}</span>
-              <ChevronDown size={14} />
+                {dropdownOpen && (
+                  <div className="dropdown-menu">
+                    <div className="dropdown-user-info">
+                      <div className="dropdown-name">{currentUser.fullName}</div>
+                      <div className="dropdown-email">{currentUser.email}</div>
+                    </div>
 
-              {dropdownOpen && (
-                <div className="dropdown-menu">
-                  <div className="dropdown-user-info">
-                    <div className="dropdown-name">{currentUser.fullName}</div>
-                    <div className="dropdown-email">{currentUser.email}</div>
+                    {currentUser.isInfluencer ? (
+                      <div className="dropdown-item" style={{ color: 'var(--success)', fontWeight: '600' }}>
+                        <CircleDollarSign size={16} /> Withdrawable: ₹{currentUser.walletCash.toFixed(2)}
+                      </div>
+                    ) : (
+                      <div className="dropdown-item" style={{ color: '#e68f00', fontWeight: '600' }}>
+                        <Coins size={16} /> My Coins: {currentUser.walletCoins}
+                      </div>
+                    )}
+
+                    {currentUser.isInfluencer && (
+                      <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}>
+                        <Award size={16} /> Creator Dashboard
+                      </a>
+                    )}
+
+                    <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('orders'); }}>
+                      <History size={16} /> My Orders
+                    </a>
+
+                    <div className="dropdown-divider"></div>
+
+                    <button className="dropdown-item" onClick={logout} style={{ color: 'var(--error)' }}>
+                      <LogOut size={16} /> Logout Account
+                    </button>
+
+                    <button className="dropdown-item" onClick={resetDatabase} style={{ color: '#8c8c8c', fontSize: '11px', padding: '4px 12px' }}>
+                      <RotateCcw size={12} /> Reset Database
+                    </button>
                   </div>
-
-                  <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}>
-                    <User size={16} /> My Profile
-                  </a>
-
-                  {currentUser.isInfluencer ? (
-                    <div className="dropdown-item" style={{ color: 'var(--success)', fontWeight: '600' }}>
-                      <CircleDollarSign size={16} /> Withdrawable: ₹{currentUser.walletCash.toFixed(2)}
-                    </div>
-                  ) : (
-                    <div className="dropdown-item" style={{ color: '#e68f00', fontWeight: '600' }}>
-                      <Coins size={16} /> My Coins: {currentUser.walletCoins}
-                    </div>
-                  )}
-
-                  <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}>
-                    <Award size={16} /> Partner Dashboard
-                  </a>
-
-                  <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('orders'); }}>
-                    <History size={16} /> My Orders
-                  </a>
-
-
-                  <div className="dropdown-divider"></div>
-
-                  <button className="dropdown-item" onClick={resetDatabase} style={{ color: 'var(--error)' }}>
-                    <RotateCcw size={16} /> Reset Simulation
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Become an Affiliate Link */}
-            <a 
-              href="#partners" 
-              className="nav-item nav-item-btn" 
-              onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}
-            >
-              <Award size={16} style={{ marginRight: '4px' }} />
-              <span>Partner Hub</span>
-            </a>
+                )}
+              </div>
+            ) : (
+              /* Login/Signup Button */
+              <a 
+                href="#login" 
+                className="nav-item-btn" 
+                onClick={(e) => { e.preventDefault(); onNavigate('login'); }}
+                style={{ backgroundColor: 'white', color: 'var(--primary-color)', padding: '6px 20px', borderRadius: '2px', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}
+              >
+                Login
+              </a>
+            )}
 
             {/* Cart */}
             <a 
