@@ -107,6 +107,10 @@ const Navbar = ({ activePage, onNavigate, onSearch, currentCategory, onSelectCat
                       </a>
                     )}
 
+                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('profile'); }}>
+                      <User size={16} /> My Profile
+                    </a>
+
                     <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('orders'); }}>
                       <History size={16} /> My Orders
                     </a>

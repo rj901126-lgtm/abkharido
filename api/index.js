@@ -571,8 +571,14 @@ app.post('/api/auth/verify-otp', async (req, res) => {
       // Create user profile on signup or first login
       user = {
         username: formattedUsername,
-        fullName: fullName || (recipient.includes('@') ? recipient.split('@')[0] : 'Guest User'),
-        email: recipient.includes('@') ? recipient : `${recipient}@abkharido.com`,
+        fullName: 'Guest User',
+        firstName: '',
+        lastName: '',
+        phone: recipient,
+        email: '',
+        emailVerified: false,
+        pincode: '',
+        address: '',
         isInfluencer: false,
         influencerId: '',
         walletCoins: 0,
@@ -589,6 +595,40 @@ app.post('/api/auth/verify-otp', async (req, res) => {
   } catch (err) {
     console.error('Failed to verify OTP:', err);
     res.status(500).json({ error: 'Authentication verification failure.' });
+  }
+});
+
+// Update User Profile API
+app.post('/api/users/:username/update', async (req, res) => {
+  try {
+    const users = await getUsersMap();
+    const { username } = req.params;
+    const { firstName, lastName, email, pincode, address, emailVerified } = req.body;
+
+    if (!users[username]) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = users[username];
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (email !== undefined) user.email = email;
+    if (pincode !== undefined) user.pincode = pincode;
+    if (address !== undefined) user.address = address;
+    if (emailVerified !== undefined) user.emailVerified = emailVerified;
+
+    // Recalculate fullName
+    if (user.firstName || user.lastName) {
+      user.fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    } else {
+      user.fullName = 'Guest User';
+    }
+
+    await saveUsersMap(users);
+    res.json(user);
+  } catch (err) {
+    console.error('Failed to update user profile:', err);
+    res.status(500).json({ error: 'Failed to update user profile' });
   }
 });
 

@@ -233,6 +233,30 @@ export const AppProvider = ({ children }) => {
     showToast('Logged out successfully.', 'info');
   };
 
+  // --- Update User Profile Action ---
+  const updateUserProfile = async (details) => {
+    if (!currentUser) return false;
+    try {
+      const res = await fetch(`/api/users/${currentUser.username}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(details)
+      });
+      if (res.ok) {
+        const updatedUser = await res.json();
+        setCurrentUser(updatedUser);
+        localStorage.setItem('abkharido_user_session', JSON.stringify(updatedUser));
+        return true;
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to update profile.', 'error');
+      }
+    } catch (e) {
+      showToast('Network error updating profile.', 'error');
+    }
+    return false;
+  };
+
   // --- Admin Panel API Actions ---
   const addProduct = async (newProduct) => {
     try {
@@ -423,6 +447,7 @@ export const AppProvider = ({ children }) => {
         removeFromCart,
         clearCart,
         logout,
+        updateUserProfile,
         registerAsInfluencer,
         requestPayout,
         placeOrder,

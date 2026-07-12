@@ -4,11 +4,9 @@ import { ShieldCheck, Phone, Mail, ArrowRight, Lock } from 'lucide-react';
 
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
-  const [loginMethod, setLoginMethod] = useState('phone'); // 'phone' or 'email'
+  const loginMethod = 'phone';
+  const isSignup = false;
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [isSignup, setIsSignup] = useState(false);
   
   // OTP States
   const [showOtpScreen, setShowOtpScreen] = useState(false);
@@ -230,83 +228,28 @@ const Login = ({ onNavigate }) => {
         ) : (
           /* Input Credentials Screen */
           <form onSubmit={handleSendOtp}>
-            {/* Toggle method */}
-            <div style={{ display: 'flex', backgroundColor: '#f0f0f0', borderRadius: '4px', padding: '4px', marginBottom: '20px' }}>
-              <button type="button" onClick={() => { setLoginMethod('phone'); setShowOtpScreen(false); }} style={{ flex: 1, border: 'none', padding: '8px', borderRadius: '4px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', backgroundColor: loginMethod === 'phone' ? 'white' : 'transparent', color: loginMethod === 'phone' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: loginMethod === 'phone' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
-                <Phone size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Mobile Number
-              </button>
-              <button type="button" onClick={() => { setLoginMethod('email'); setShowOtpScreen(false); }} style={{ flex: 1, border: 'none', padding: '8px', borderRadius: '4px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', backgroundColor: loginMethod === 'email' ? 'white' : 'transparent', color: loginMethod === 'email' ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: loginMethod === 'email' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
-                <Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Email Address
-              </button>
-            </div>
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-              {/* Full Name for Signup */}
-              {isSignup && (
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>FULL NAME</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      style={{ paddingLeft: '36px', width: '100%', height: '42px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '14px' }}
-                      required
-                    />
-                    <Lock size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#8c8c8c' }} />
-                  </div>
-                </div>
-              )}
-
               {/* Mobile Input */}
-              {loginMethod === 'phone' ? (
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>10-DIGIT MOBILE NUMBER</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type="tel"
-                      placeholder="98765 43210"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
-                      style={{ paddingLeft: '56px', width: '100%', height: '42px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '14px', letterSpacing: '0.5px' }}
-                      required
-                    />
-                    <span style={{ position: 'absolute', left: '12px', top: '12px', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>+91</span>
-                  </div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '4px' }}>Genuine Indian mobiles only.</span>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>10-DIGIT MOBILE NUMBER</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="tel"
+                    placeholder="98765 43210"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
+                    style={{ paddingLeft: '56px', width: '100%', height: '42px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '14px', letterSpacing: '0.5px' }}
+                    required
+                  />
+                  <span style={{ position: 'absolute', left: '12px', top: '12px', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>+91</span>
                 </div>
-              ) : (
-                /* Email Input */
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>EMAIL ADDRESS</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type="email"
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      style={{ paddingLeft: '36px', width: '100%', height: '42px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '14px' }}
-                      required
-                    />
-                    <Mail size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#8c8c8c' }} />
-                  </div>
-                </div>
-              )}
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '4px' }}>Genuine Indian mobile number matching Flipkart OTP flow.</span>
+              </div>
             </div>
 
             <button type="submit" className="btn btn-accent" style={{ width: '100%', height: '44px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} disabled={isSending}>
               {isSending ? 'SENDING OTP...' : 'CONTINUE'} <ArrowRight size={16} />
             </button>
-
-            {/* Switch Mode Links */}
-            <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid #f0f0f0', paddingTop: '20px', fontSize: '13px' }}>
-              {isSignup ? (
-                <span>Already have an account? <button type="button" onClick={() => setIsSignup(false)} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer', padding: 0 }}>Login</button></span>
-              ) : (
-                <span>New to AbKharido? <button type="button" onClick={() => setIsSignup(true)} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer', padding: 0 }}>Create Account</button></span>
-              )}
-            </div>
           </form>
         )}
       </div>

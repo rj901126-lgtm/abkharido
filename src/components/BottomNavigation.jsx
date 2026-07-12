@@ -44,7 +44,7 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
 
       <button 
         className={`bottom-nav-item ${activePage === 'login' || activePage === 'profile' ? 'active' : ''}`}
-        onClick={() => onNavigate(currentUser ? 'orders' : 'login')}
+        onClick={() => onNavigate(currentUser ? 'profile' : 'login')}
       >
         <User size={20} />
         <span>{currentUser ? 'Profile' : 'Login'}</span>
