@@ -117,7 +117,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
               </button>
             </div>
             {/* Visual element on right of slide */}
-            <div style={{ marginRight: '40px', opacity: 0.15 }}>
+            <div className="slide-visual-icon" style={{ marginRight: '40px', opacity: 0.15 }}>
               <Award size={180} color="white" />
             </div>
           </div>

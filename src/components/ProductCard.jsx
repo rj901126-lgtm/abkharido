@@ -19,15 +19,15 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   };
 
   return (
-    <div style={styles.card} onClick={() => onNavigateProduct(product.id)}>
+    <div className="card product-card" style={styles.card} onClick={() => onNavigateProduct(product.id)}>
       {/* Product Image */}
-      <div style={styles.imageWrapper}>
+      <div className="product-card-image-wrapper" style={styles.imageWrapper}>
         <img src={product.image} alt={product.name} style={styles.image} />
       </div>
 
       {/* Info Content */}
-      <div style={styles.info}>
-        <h4 style={styles.name} title={product.name}>
+      <div className="product-card-info" style={styles.info}>
+        <h4 className="product-card-name" style={styles.name} title={product.name}>
           {product.name}
         </h4>
 
@@ -58,20 +58,20 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         </div>
 
         {/* Pricing */}
-        <div style={styles.priceRow}>
+        <div className="product-card-price-row" style={styles.priceRow}>
           <span style={styles.price}>₹{product.price.toLocaleString('en-IN')}</span>
           <span style={styles.originalPrice}>₹{product.originalPrice.toLocaleString('en-IN')}</span>
           <span style={styles.discount}>{discountPercent}% off</span>
         </div>
 
         {/* Dynamic Affiliate / Referral Earning Banner */}
-        <div style={styles.rewardBanner}>
-          <Award size={14} color="var(--primary-color)" />
+        <div className="product-card-reward-banner" style={styles.rewardBanner}>
+          <Award size={14} color="var(--primary-color)" style={{ flexShrink: 0 }} />
           <div style={styles.rewardText}>
             {currentUser && currentUser.isInfluencer ? (
-              <span>Earn <strong style={{ color: 'var(--success)' }}>₹{influencerEarningsCash}</strong> cash commission</span>
+              <span>Earn <strong style={{ color: 'var(--success)' }}>₹{influencerEarningsCash}</strong> cash</span>
             ) : (
-              <span>Earn <strong style={{ color: '#e68f00' }}>{userEarningsCoins}</strong> Coins referral reward</span>
+              <span>Earn <strong style={{ color: '#e68f00' }}>{userEarningsCoins}</strong> Coins</span>
             )}
           </div>
         </div>
