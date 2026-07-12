@@ -258,84 +258,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           </div>
 
-          {/* Share & Earn Panel (Affiliate/Referral) */}
-          <div className="share-earn-box">
-            <div className="share-earn-header">
-              <Award size={20} />
-              <span>Share & Earn Program (Active)</span>
-            </div>
-            
-            <p className="share-earn-desc">
-              Promote this product to friends, followers, or family. If they buy using your custom tracking link, 
-              you get credited immediately!
-            </p>
 
-            {/* Commissions Rates info */}
-            <div style={{ display: 'flex', gap: '16px', borderBottom: '1px dashed #bbf7d0', paddingBottom: '12px', marginBottom: '4px' }}>
-              <div style={{ flex: 1, fontSize: '13px' }}>
-                <div style={{ color: '#166534', fontWeight: '500' }}>Regular User Reward</div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#e68f00' }}>{userCoins} AbKharido Coins</div>
-                <div style={{ fontSize: '11px', color: '#15803d' }}>({Math.round(product.userCommissionRate * 100 * 10) / 10}% rate, credited on checkout)</div>
-              </div>
-              <div style={{ flex: 1, fontSize: '13px', borderLeft: '1px solid #bbf7d0', paddingLeft: '16px' }}>
-                <div style={{ color: '#166534', fontWeight: '500' }}>Verified Creator Commission</div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--success)' }}>₹{creatorCash} Cash Payout</div>
-                <div style={{ fontSize: '11px', color: '#15803d' }}>({Math.round(product.influencerCommissionRate * 100 * 10) / 10}% rate, withdrawable)</div>
-              </div>
-            </div>
-
-            {/* Custom Link Copy Section */}
-            {currentUser ? (
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#166534' }}>
-                   Your Unique Tracking Link ({currentUser.isInfluencer ? 'Creator Mode' : 'User Mode'}):
-                 </label>
-                 <div className="share-link-generator">
-                   <input 
-                     type="text" 
-                     className="share-link-input" 
-                     readOnly 
-                     value={getReferralLink()} 
-                     onClick={(e) => e.target.select()}
-                   />
-                   <button 
-                     className="btn btn-primary" 
-                     style={{ backgroundColor: '#15803d', display: 'flex', gap: '4px', padding: '0 16px' }}
-                     onClick={handleCopyLink}
-                   >
-                     {copied ? <Check size={16} /> : <Copy size={16} />}
-                     <span>{copied ? 'Copied' : 'Copy'}</span>
-                   </button>
-                 </div>
-               </div>
-             ) : (
-               <div style={{ textAlign: 'center', padding: '12px 0', borderTop: '1px dashed #bbf7d0', marginTop: '6px' }}>
-                 <p style={{ fontSize: '13px', color: '#166534', fontWeight: '500', marginBottom: '8px' }}>
-                   Want to earn rewards? Log in to get your tracking link!
-                 </p>
-                 <button 
-                   className="btn btn-primary animate-fade-in" 
-                   style={{ backgroundColor: '#15803d', height: '36px', fontSize: '13px', padding: '0 20px', fontWeight: '600' }}
-                   onClick={() => onNavigate('login')}
-                 >
-                   Log In & Start Earning
-                 </button>
-               </div>
-             )}
-
-            {/* Social Sharing */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
-              <span style={{ fontSize: '12px', color: '#166534', fontWeight: '600' }}>Quick Share:</span>
-              <div className="social-share-row">
-                <button className="social-share-btn social-wa" onClick={handleShareWhatsApp}>
-                  <Send size={12} fill="white" /> WhatsApp
-                </button>
-                <button className="social-share-btn social-tw" onClick={handleShareTwitter}>
-                  <Share2 size={12} /> Twitter / X
-                </button>
-              </div>
-            </div>
-          </div>
 
           {/* Product Description */}
           <div>
@@ -415,6 +338,85 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                   <p style={{ fontSize: '13px', color: '#555', marginTop: '6px', lineHeight: '1.4' }}>{rev.comment}</p>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Share & Earn Panel (Affiliate/Referral) */}
+          <div className="share-earn-box" style={{ marginTop: '24px' }}>
+            <div className="share-earn-header">
+              <Award size={20} />
+              <span>Share & Earn Program (Active)</span>
+            </div>
+            
+            <p className="share-earn-desc">
+              Promote this product to friends, followers, or family. If they buy using your custom tracking link, 
+              you get credited immediately!
+            </p>
+
+            {/* Commissions Rates info */}
+            <div style={{ display: 'flex', gap: '16px', borderBottom: '1px dashed #bbf7d0', paddingBottom: '12px', marginBottom: '4px' }}>
+              <div style={{ flex: 1, fontSize: '13px' }}>
+                <div style={{ color: '#166534', fontWeight: '500' }}>Regular User Reward</div>
+                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#e68f00' }}>{userCoins} AbKharido Coins</div>
+                <div style={{ fontSize: '11px', color: '#15803d' }}>({Math.round(product.userCommissionRate * 100 * 10) / 10}% rate, credited on checkout)</div>
+              </div>
+              <div style={{ flex: 1, fontSize: '13px', borderLeft: '1px solid #bbf7d0', paddingLeft: '16px' }}>
+                <div style={{ color: '#166534', fontWeight: '500' }}>Verified Creator Commission</div>
+                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--success)' }}>₹{creatorCash} Cash Payout</div>
+                <div style={{ fontSize: '11px', color: '#15803d' }}>({Math.round(product.influencerCommissionRate * 100 * 10) / 10}% rate, withdrawable)</div>
+              </div>
+            </div>
+
+            {/* Custom Link Copy Section */}
+            {currentUser ? (
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#166534' }}>
+                   Your Unique Tracking Link ({currentUser.isInfluencer ? 'Creator Mode' : 'User Mode'}):
+                 </label>
+                 <div className="share-link-generator">
+                   <input 
+                     type="text" 
+                     className="share-link-input" 
+                     readOnly 
+                     value={getReferralLink()} 
+                     onClick={(e) => e.target.select()}
+                   />
+                   <button 
+                     className="btn btn-primary" 
+                     style={{ backgroundColor: '#15803d', display: 'flex', gap: '4px', padding: '0 16px' }}
+                     onClick={handleCopyLink}
+                   >
+                     {copied ? <Check size={16} /> : <Copy size={16} />}
+                     <span>{copied ? 'Copied' : 'Copy'}</span>
+                   </button>
+                 </div>
+               </div>
+             ) : (
+               <div style={{ textAlign: 'center', padding: '12px 0', borderTop: '1px dashed #bbf7d0', marginTop: '6px' }}>
+                 <p style={{ fontSize: '13px', color: '#166534', fontWeight: '500', marginBottom: '8px' }}>
+                   Want to earn rewards? Log in to get your tracking link!
+                 </p>
+                 <button 
+                   className="btn btn-primary animate-fade-in" 
+                   style={{ backgroundColor: '#15803d', height: '36px', fontSize: '13px', padding: '0 20px', fontWeight: '600' }}
+                   onClick={() => onNavigate('login')}
+                 >
+                   Log In & Start Earning
+                 </button>
+               </div>
+             )}
+
+            {/* Social Sharing */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
+              <span style={{ fontSize: '12px', color: '#166534', fontWeight: '600' }}>Quick Share:</span>
+              <div className="social-share-row">
+                <button className="social-share-btn social-wa" onClick={handleShareWhatsApp}>
+                  <Send size={12} fill="white" /> WhatsApp
+                </button>
+                <button className="social-share-btn social-tw" onClick={handleShareTwitter}>
+                  <Share2 size={12} /> Twitter / X
+                </button>
+              </div>
             </div>
           </div>
 
