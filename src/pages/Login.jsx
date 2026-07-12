@@ -238,7 +238,7 @@ const Login = ({ onNavigate }) => {
                     placeholder="98765 43210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
-                    style={{ paddingLeft: '56px', width: '100%', height: '42px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '14px', letterSpacing: '0.5px' }}
+                    style={{ paddingLeft: '56px', width: '100%', height: '42px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '14px', letterSpacing: '0.5px', boxSizing: 'border-box' }}
                     required
                   />
                   <span style={{ position: 'absolute', left: '12px', top: '12px', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>+91</span>

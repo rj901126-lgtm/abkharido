@@ -137,7 +137,7 @@ const OnboardingModal = () => {
                 value={fName} 
                 onChange={(e) => setFName(e.target.value)} 
                 placeholder="e.g. Rajesh"
-                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px' }}
+                 style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', boxSizing: 'border-box' }}
                 required 
               />
             </div>
@@ -148,7 +148,7 @@ const OnboardingModal = () => {
                 value={sName} 
                 onChange={(e) => setSName(e.target.value)} 
                 placeholder="e.g. Kumar"
-                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px' }}
+                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', boxSizing: 'border-box' }}
                 required 
               />
             </div>
@@ -162,7 +162,7 @@ const OnboardingModal = () => {
               value={pCode} 
               onChange={(e) => setPCode(e.target.value.replace(/\D/g, ''))} 
               placeholder={loadingLoc ? "Detecting Pincode..." : "6-digit code"}
-              style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: loadingLoc ? '#f5f5f5' : 'white' }}
+              style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: loadingLoc ? '#f5f5f5' : 'white', boxSizing: 'border-box' }}
               disabled={loadingLoc}
               required 
             />
@@ -175,7 +175,7 @@ const OnboardingModal = () => {
               value={addr} 
               onChange={(e) => setAddr(e.target.value)} 
               placeholder="House No, Flat, Street Name, Land Mark, City & State"
-              style={{ width: '100%', height: '70px', padding: '10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', resize: 'none' }}
+              style={{ width: '100%', height: '70px', padding: '10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', resize: 'none', boxSizing: 'border-box' }}
               required 
             />
           </div>

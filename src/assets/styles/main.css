@@ -602,3 +602,33 @@ img {
   color: #878787;
   margin-top: 1px;
 }
+
+/* Premium Product Card Hover Effects */
+.product-card {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease !important;
+}
+
+.product-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.product-card:hover .product-card-image-wrapper img {
+  transform: scale(1.05);
+}
+
+.product-add-to-cart-btn {
+  cursor: pointer;
+}
+
+.product-add-to-cart-btn:hover {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+.otp-input-field:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.15) !important;
+}
