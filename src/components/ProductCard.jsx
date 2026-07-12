@@ -50,7 +50,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         <div style={styles.rewardBanner}>
           <Award size={14} color="var(--primary-color)" />
           <div style={styles.rewardText}>
-            {currentUser.isInfluencer ? (
+            {currentUser && currentUser.isInfluencer ? (
               <span>Earn <strong style={{ color: 'var(--success)' }}>₹{influencerEarningsCash}</strong> cash commission</span>
             ) : (
               <span>Earn <strong style={{ color: '#e68f00' }}>{userEarningsCoins}</strong> Coins referral reward</span>

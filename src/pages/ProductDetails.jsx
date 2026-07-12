@@ -42,6 +42,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
   // Generate the unique referral tracking link
   const getReferralLink = () => {
+    if (!currentUser) return '';
     const origin = window.location.origin;
     const trackingParam = currentUser.isInfluencer 
       ? `aff=${currentUser.influencerId}` 
@@ -165,28 +166,43 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
 
             {/* Custom Link Copy Section */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#166534' }}>
-                Your Unique Tracking Link ({currentUser.isInfluencer ? 'Creator Mode' : 'User Mode'}):
-              </label>
-              <div className="share-link-generator">
-                <input 
-                  type="text" 
-                  className="share-link-input" 
-                  readOnly 
-                  value={getReferralLink()} 
-                  onClick={(e) => e.target.select()}
-                />
-                <button 
-                  className="btn btn-primary" 
-                  style={{ backgroundColor: '#15803d', display: 'flex', gap: '4px', padding: '0 16px' }}
-                  onClick={handleCopyLink}
-                >
-                  {copied ? <Check size={16} /> : <Copy size={16} />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
-            </div>
+            {currentUser ? (
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#166534' }}>
+                   Your Unique Tracking Link ({currentUser.isInfluencer ? 'Creator Mode' : 'User Mode'}):
+                 </label>
+                 <div className="share-link-generator">
+                   <input 
+                     type="text" 
+                     className="share-link-input" 
+                     readOnly 
+                     value={getReferralLink()} 
+                     onClick={(e) => e.target.select()}
+                   />
+                   <button 
+                     className="btn btn-primary" 
+                     style={{ backgroundColor: '#15803d', display: 'flex', gap: '4px', padding: '0 16px' }}
+                     onClick={handleCopyLink}
+                   >
+                     {copied ? <Check size={16} /> : <Copy size={16} />}
+                     <span>{copied ? 'Copied' : 'Copy'}</span>
+                   </button>
+                 </div>
+               </div>
+             ) : (
+               <div style={{ textAlign: 'center', padding: '12px 0', borderTop: '1px dashed #bbf7d0', marginTop: '6px' }}>
+                 <p style={{ fontSize: '13px', color: '#166534', fontWeight: '500', marginBottom: '8px' }}>
+                   Want to earn rewards? Log in to get your tracking link!
+                 </p>
+                 <button 
+                   className="btn btn-primary animate-fade-in" 
+                   style={{ backgroundColor: '#15803d', height: '36px', fontSize: '13px', padding: '0 20px', fontWeight: '600' }}
+                   onClick={() => onNavigate('login')}
+                 >
+                   Log In & Start Earning
+                 </button>
+               </div>
+             )}
 
             {/* Social Sharing */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
