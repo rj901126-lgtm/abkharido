@@ -9,7 +9,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   // Form states
   const [address, setAddress] = useState({
-    name: currentUser.fullName,
+    name: currentUser ? currentUser.fullName : '',
     phone: '9876543210',
     pincode: '560103',
     locality: 'Devarabeesanahalli',
@@ -24,7 +24,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Price calculations
   const itemsPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
-  const coinsDiscount = useCoinsDiscount ? Math.min(currentUser.walletCoins, itemsPrice) : 0;
+  const coinsDiscount = useCoinsDiscount && currentUser ? Math.min(currentUser.walletCoins, itemsPrice) : 0;
   const finalAmount = itemsPrice - coinsDiscount + deliveryCharge;
 
   // Handle Address Submit
@@ -156,6 +156,22 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       }
     }());
   };
+
+  if (!currentUser) {
+    return (
+      <div className="container" style={{ padding: '80px 20px', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Authentication Required</h2>
+        <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Please log in to proceed to checkout.</p>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => onNavigate('login')} 
+          style={{ marginTop: '16px' }}
+        >
+          Go to Login Page
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="container animate-fade-in" style={{ padding: '24px 0', maxWidth: '800px' }}>

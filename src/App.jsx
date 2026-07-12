@@ -51,11 +51,16 @@ const AppContent = () => {
       setActiveProductId(prodId);
       setActivePage('product');
     } else if (isCreator) {
-      setActivePage('partner');
+      if (currentUser) {
+        setActivePage('partner');
+      } else {
+        setActivePage('login');
+        showToast('Please log in to access the Creator Hub.', 'warning');
+      }
     } else if (isAdmin === 'true' || isAdmin === '1') {
       setActivePage('admin');
     }
-  }, [verifyPayment, showToast]);
+  }, [verifyPayment, showToast, currentUser]);
 
   const handleNavigate = (page) => {
     // Route protection: login required for secure pages
