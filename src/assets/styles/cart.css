@@ -290,7 +290,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .mobile-cart-sticky-bar {
     display: flex !important; /* Visible on mobile */
   }

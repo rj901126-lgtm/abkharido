@@ -316,7 +316,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .main-image-frame {
     height: 280px !important;
   }

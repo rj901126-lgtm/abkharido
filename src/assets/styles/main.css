@@ -306,7 +306,7 @@ img {
 }
 
 /* --- MOBILE APP RESPONSIVENESS OVERRIDES --- */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   /* Global Page Margins */
   .main-content {
     margin-top: 104px !important;
