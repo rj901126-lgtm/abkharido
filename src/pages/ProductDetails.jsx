@@ -137,15 +137,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
           <div className="action-buttons-row">
             <button 
-              className="btn btn-secondary btn-lg" 
-              style={{ display: 'flex', gap: '8px', fontSize: '15px' }}
+              className="btn btn-secondary btn-lg details-action-btn" 
               onClick={() => addToCart(product)}
             >
               <ShoppingCart size={18} /> ADD TO CART
             </button>
             <button 
-              className="btn btn-accent btn-lg" 
-              style={{ display: 'flex', gap: '8px', fontSize: '15px' }}
+              className="btn btn-accent btn-lg details-action-btn" 
               onClick={() => {
                 addToCart(product, 1);
                 onBuyNow(product);
