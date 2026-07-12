@@ -377,6 +377,15 @@
     padding: 16px !important;
     margin-bottom: calc(140px + env(safe-area-inset-bottom)) !important;
   }
+  .mobile-only-spacer {
+    display: block !important;
+    height: calc(130px + env(safe-area-inset-bottom)) !important;
+    width: 100% !important;
+  }
+}
+
+.mobile-only-spacer {
+  display: none;
 }
 
 /* Mobile Quick Filter Pills (Flipkart App Match) */

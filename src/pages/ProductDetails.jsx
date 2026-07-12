@@ -418,6 +418,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           </div>
 
+          {/* Spacer to prevent floating buttons from blocking Share & Earn box */}
+          <div className="mobile-only-spacer" />
+
         </div>
 
       </div>
