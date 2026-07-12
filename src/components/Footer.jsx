@@ -3,7 +3,7 @@ import { ShoppingBag, Award, Heart, HelpCircle, ShieldCheck } from 'lucide-react
 
 const Footer = ({ onNavigate }) => {
   return (
-    <footer style={styles.footer}>
+    <footer className="app-footer" style={styles.footer}>
       {/* Upper footer features */}
       <div style={styles.featuresSection}>
         <div className="container footer-features-grid" style={styles.featuresGrid}>

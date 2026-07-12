@@ -472,6 +472,9 @@ img {
   .footer-links-grid {
     display: none !important; /* Hide footer link columns on mobile */
   }
+  .app-footer {
+    padding-bottom: 72px !important; /* Extra bottom margin so footer is readable above the bottom nav bar */
+  }
 
   /* Info Page responsiveness overrides */
   .info-page-container {
