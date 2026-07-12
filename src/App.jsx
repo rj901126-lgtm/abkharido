@@ -14,6 +14,7 @@ import PartnerCenter from './pages/PartnerCenter';
 import Orders from './pages/Orders';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
+import BottomNavigation from './components/BottomNavigation';
 
 const AppContent = () => {
   const { toast, currentUser, verifyPayment, showToast } = useApp();
@@ -182,6 +183,9 @@ const AppContent = () => {
 
       {/* Footer */}
       <Footer onNavigate={handleNavigate} />
+
+      {/* Mobile Sticky Bottom Tab Bar */}
+      <BottomNavigation activePage={activePage} onNavigate={handleNavigate} />
 
       {/* Toast Messages */}
       {toast && (

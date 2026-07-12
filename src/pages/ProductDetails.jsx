@@ -21,6 +21,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   // Find product in list
   const product = products.find(p => p.id === productId);
 
+  const [activeImage, setActiveImage] = useState(product ? product.image : '');
+
+  React.useEffect(() => {
+    if (product) {
+      setActiveImage(product.image);
+    }
+  }, [productId, product]);
+
   if (!product) {
     return (
       <div className="container" style={{ textAlign: 'center', padding: '80px 20px' }}>
@@ -45,8 +53,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
     if (!currentUser) return '';
     const origin = window.location.origin;
     const trackingParam = currentUser.isInfluencer 
-      ? `aff=${currentUser.influencerId}` 
-      : `ref=${currentUser.username}`;
+      ? `aff=${currentUser.creatorCode || 'AFF-TEMP'}` 
+      : `ref=${currentUser.referralCode || 'REF-TEMP'}`;
     return `${origin}/?prod=${product.id}&${trackingParam}`;
   };
 
@@ -80,8 +88,33 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
         {/* Left Column: Image and Purchase Actions */}
         <div className="image-showcase-column">
           <div className="main-image-frame">
-            <img src={product.image} alt={product.name} />
+            <img src={activeImage || product.image} alt={product.name} />
           </div>
+
+          {/* Multiple preview thumbnails (Flipkart Carousel style) */}
+          {product.images && product.images.length > 1 && (
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '4px 0 12px 0', flexWrap: 'wrap' }}>
+              {product.images.map((imgUrl, index) => (
+                <img
+                  key={index}
+                  src={imgUrl}
+                  alt={`Preview ${index}`}
+                  onClick={() => setActiveImage(imgUrl)}
+                  style={{
+                    width: '52px',
+                    height: '52px',
+                    objectFit: 'contain',
+                    border: activeImage === imgUrl ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
+                    borderRadius: '4px',
+                    padding: '2px',
+                    cursor: 'pointer',
+                    backgroundColor: 'white',
+                    transition: 'all 0.1s'
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
           <div className="action-buttons-row">
             <button 
@@ -94,7 +127,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             <button 
               className="btn btn-accent btn-lg" 
               style={{ display: 'flex', gap: '8px', fontSize: '15px' }}
-              onClick={() => onBuyNow(product)}
+              onClick={() => {
+                addToCart(product, 1);
+                onBuyNow(product);
+              }}
             >
               <Zap size={18} /> BUY NOW
             </button>
@@ -104,26 +140,89 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
         {/* Right Column: Details, Specifications and Affiliate Link */}
         <div className="details-info-column">
           <div>
-            <h1 className="product-title-text">{product.name}</h1>
+            <h1 className="product-title-text" style={{ fontSize: '20px', fontWeight: 'normal', color: '#212121' }}>{product.name}</h1>
           </div>
 
-          <div className="product-ratings-row">
-            <span className="rating-tag" style={{ fontSize: '13px' }}>
-              {product.rating} <Star size={11} fill="white" />
+          <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="rating-tag" style={{ fontSize: '12px', padding: '2px 6px', borderRadius: '3px' }}>
+              {product.rating} <Star size={10} fill="white" />
             </span>
-            <span>{product.reviewsCount.toLocaleString()} Ratings & Reviews</span>
-            <span style={{ color: 'var(--success)', fontWeight: '600' }}>Direct Stock</span>
+            <span style={{ color: '#878787', fontSize: '13px', fontWeight: '600' }}>{product.reviewsCount.toLocaleString()} Ratings & Reviews</span>
+            
+            {/* Proprietary A-Assured Badge Graphic */}
+            <div style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              marginLeft: '8px', 
+              height: '20px', 
+              background: 'linear-gradient(135deg, #1e3a8a 0%, #2874f0 100%)', 
+              color: 'white', 
+              borderRadius: '2px', 
+              padding: '0 6px', 
+              fontSize: '9px', 
+              fontWeight: '900', 
+              fontStyle: 'italic', 
+              letterSpacing: '0.2px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+            }}>
+              A-Assured <span style={{ color: '#ffe500', marginLeft: '3px' }}>★</span>
+            </div>
           </div>
 
           {/* Pricing Details */}
-          <div className="price-box-details">
-            <div className="details-price-row">
-              <span className="details-price">₹{product.price.toLocaleString('en-IN')}</span>
-              <span className="details-original">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-              <span className="details-discount">{discountPercent}% off</span>
+          <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0 }}>
+            <div className="details-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+              <span className="details-price" style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{product.price.toLocaleString('en-IN')}</span>
+              <span className="details-original" style={{ fontSize: '14px', color: '#878787', textDecoration: 'line-through' }}>₹{product.originalPrice.toLocaleString('en-IN')}</span>
+              <span className="details-discount" style={{ fontSize: '14px', fontWeight: 'bold', color: '#388e3c' }}>{discountPercent}% off</span>
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Inclusive of all taxes + Free Delivery on orders above ₹500
+          </div>
+
+          {/* Flipkart-Style Available Offers */}
+          <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '16px', marginTop: '4px' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#212121', marginBottom: '10px' }}>Available Offers</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
+                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
+                <span><strong>Partner Link Reward:</strong> Earn up to <strong style={{ color: '#e68f00' }}>{userCoins} Coins</strong> back on referral orders. <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}>T&C</span></span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
+                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
+                <span><strong>Creator Payout:</strong> Earn up to <strong style={{ color: 'var(--success)' }}>₹{creatorCash} Cash</strong> commission on affiliate link sharing.</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
+                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
+                <span><strong>SBI Card Discount:</strong> 5% Instant Cash Back on SBI Bank Credit Cards. <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}>T&C</span></span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
+                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
+                <span><strong>Express Shipping:</strong> Shop for more than ₹500 and get free express home shipping.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Delivery Pincode Checker */}
+          <div style={{ borderTop: '1px solid #f0f0f0', borderBottom: '1px solid #f0f0f0', padding: '16px 0', margin: '8px 0', display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '13px', color: '#878787', fontWeight: 'bold', width: '80px' }}>Delivery</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '200px' }}>
+              <div style={{ display: 'flex', border: '1px solid #dcdcdc', borderRadius: '4px', overflow: 'hidden', maxWidth: '280px', height: '36px', backgroundColor: 'white' }}>
+                <input 
+                  type="text" 
+                  placeholder="Enter Delivery Pincode" 
+                  defaultValue="560103"
+                  maxLength="6"
+                  style={{ border: 'none', padding: '0 12px', fontSize: '13px', outline: 'none', width: '100%' }}
+                />
+                <button 
+                  onClick={() => showToast('Delivery service available at this pincode!', 'success')}
+                  style={{ background: 'none', border: 'none', color: 'var(--primary-color)', padding: '0 16px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', borderLeft: '1px solid #e0e0e0' }}
+                >
+                  Check
+                </button>
+              </div>
+              <span style={{ fontSize: '12px', color: '#212121', fontWeight: '600', marginTop: '4px' }}>
+                Delivery by Tomorrow, Monday | <span style={{ color: 'var(--success)' }}>Free</span> <span style={{ textDecoration: 'line-through', color: '#878787', fontWeight: 'normal' }}>₹40</span>
+              </span>
             </div>
           </div>
 

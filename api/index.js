@@ -57,6 +57,11 @@ const SEED_PRODUCTS = [
     rating: 4.8,
     reviewsCount: 942,
     image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Welcome to the era of mobile AI. With Galaxy S24 Ultra in your hands, you can unleash whole new levels of creativity, productivity and possibility.',
     specifications: [
       { key: 'Display', value: '6.8-inch Dynamic AMOLED 2X, QHD+' },
@@ -76,6 +81,11 @@ const SEED_PRODUCTS = [
     rating: 4.6,
     reviewsCount: 320,
     image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'The MacBook Air with M3 chip is superportable, superfast, and supercharged for work, play, and everything you do. Up to 18 hours of battery life.',
     specifications: [
       { key: 'Display', value: '13.6-inch Liquid Retina Display' },
@@ -94,6 +104,11 @@ const SEED_PRODUCTS = [
     rating: 4.5,
     reviewsCount: 2712,
     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'With two processors controlling eight microphones, Auto NC Optimizer for automatically optimizing noise cancelling, and a specially designed driver unit.',
     specifications: [
       { key: 'Type', value: 'Over-ear, Closed-back wireless' },
@@ -287,20 +302,38 @@ async function deleteProduct(productId) {
   }
 }
 
-// 2. USERS DB HELPERS
 async function getUsersMap() {
   await getDb();
+  let map = {};
   if (isMongo) {
     const usersList = await db.collection('users').find({}).toArray();
-    const map = {};
     usersList.forEach(u => {
       const { _id, ...rest } = u;
-      map[_id] = rest;
+      map[_id] = { username: _id, ...rest };
     });
-    return map;
   } else {
-    return await readJson(USERS_FILE);
+    map = await readJson(USERS_FILE);
   }
+
+  // Auto-generate random referralCode and creatorCode tokens if missing
+  let modified = false;
+  Object.keys(map).forEach(username => {
+    const u = map[username];
+    if (!u.referralCode) {
+      u.referralCode = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      modified = true;
+    }
+    if (u.isInfluencer && !u.creatorCode) {
+      u.creatorCode = 'AFF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      modified = true;
+    }
+  });
+
+  if (modified) {
+    await saveUsersMap(map);
+  }
+
+  return map;
 }
 
 async function saveUsersMap(usersMap) {
@@ -725,7 +758,7 @@ app.post('/api/orders', async (req, res) => {
       totalCommissionEarned = Math.round(totalCommissionEarned * 100) / 100;
 
       if (type === 'aff') {
-        const creatorProfile = Object.values(users).find(u => u.influencerId === referrerId);
+        const creatorProfile = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
         if (creatorProfile) {
           creatorProfile.walletCash += totalCommissionEarned;
         }
@@ -746,7 +779,7 @@ app.post('/api/orders', async (req, res) => {
 
       } else if (type === 'ref') {
         const coinsEarned = Math.round(totalCommissionEarned);
-        const userProfile = users[referrerId];
+        const userProfile = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
         if (userProfile) {
           userProfile.walletCoins += coinsEarned;
         }
@@ -845,7 +878,7 @@ app.post('/api/payment/verify', async (req, res) => {
         totalCommissionEarned = Math.round(totalCommissionEarned * 100) / 100;
 
         if (type === 'aff') {
-          const creatorProfile = Object.values(users).find(u => u.influencerId === referrerId);
+          const creatorProfile = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
           if (creatorProfile) {
             creatorProfile.walletCash += totalCommissionEarned;
           }
@@ -863,7 +896,7 @@ app.post('/api/payment/verify', async (req, res) => {
           stats.history = [newHistoryTxn, ...stats.history];
         } else if (type === 'ref') {
           const coinsEarned = Math.round(totalCommissionEarned);
-          const userProfile = users[referrerId];
+          const userProfile = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
           if (userProfile) {
             userProfile.walletCoins += coinsEarned;
           }

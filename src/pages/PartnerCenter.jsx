@@ -104,15 +104,15 @@ const PartnerCenter = () => {
   const getStorewideLink = () => {
     const origin = window.location.origin;
     return currentUser.isInfluencer 
-      ? `${origin}/?aff=${currentUser.influencerId}` 
-      : `${origin}/?ref=${currentUser.username}`;
+      ? `${origin}/?aff=${currentUser.creatorCode || 'AFF-TEMP'}` 
+      : `${origin}/?ref=${currentUser.referralCode || 'REF-TEMP'}`;
   };
 
   const getSelectedProductLink = () => {
     const origin = window.location.origin;
     const tracking = currentUser.isInfluencer 
-      ? `aff=${currentUser.influencerId}` 
-      : `ref=${currentUser.username}`;
+      ? `aff=${currentUser.creatorCode || 'AFF-TEMP'}` 
+      : `ref=${currentUser.referralCode || 'REF-TEMP'}`;
     return `${origin}/?prod=${selectedProdId}&${tracking}`;
   };
 

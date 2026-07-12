@@ -37,6 +37,24 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             {product.rating} <Star size={10} fill="white" />
           </span>
           <span style={styles.reviewsCount}>({product.reviewsCount})</span>
+          
+          {/* Custom A-Assured Badge */}
+          <div style={{ 
+            marginLeft: 'auto', 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            height: '16px', 
+            background: 'linear-gradient(135deg, #1e3a8a 0%, #2874f0 100%)', 
+            color: 'white', 
+            borderRadius: '2px', 
+            padding: '0 5px', 
+            fontSize: '8px', 
+            fontWeight: '900', 
+            fontStyle: 'italic',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+          }}>
+            A-Assured <span style={{ color: '#ffe500', marginLeft: '2px' }}>★</span>
+          </div>
         </div>
 
         {/* Pricing */}
