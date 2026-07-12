@@ -364,6 +364,60 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </table>
           </div>
 
+          {/* Ratings & Reviews section */}
+          <div style={{ marginTop: '24px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>Ratings & Reviews</span>
+              <span className="rating-tag" style={{ fontSize: '13px', padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                {product.rating} <span style={{ color: 'white' }}>★</span>
+              </span>
+            </h3>
+            
+            {/* Visual Bar Chart grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px', margin: '16px 0', alignItems: 'center', backgroundColor: '#fafafa', padding: '16px', borderRadius: '4px' }}>
+              <div style={{ textAlign: 'center', borderRight: '1px solid #eee', paddingRight: '16px' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#212121' }}>{product.rating}</div>
+                <div style={{ fontSize: '11px', color: '#878787' }}>{product.reviewsCount} Ratings & Reviews</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {[
+                  { star: 5, pct: 72, color: 'var(--success)' },
+                  { star: 4, pct: 18, color: 'var(--success)' },
+                  { star: 3, pct: 6, color: '#ff9f00' },
+                  { star: 2, pct: 2, color: '#ff9f00' },
+                  { star: 1, pct: 2, color: 'var(--error)' }
+                ].map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
+                    <span style={{ width: '20px', fontWeight: 'bold' }}>{item.star}★</span>
+                    <div style={{ flex: 1, height: '6px', backgroundColor: '#eaeaea', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ width: `${item.pct}%`, height: '100%', backgroundColor: item.color }}></div>
+                    </div>
+                    <span style={{ width: '30px', color: '#878787', textAlign: 'right' }}>{item.pct}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* List of customer comments */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+              {[
+                { name: "Rajesh Kumar", rating: 5, comment: "Excellent build quality. Completely satisfied with the direct delivery. 100% original!" },
+                { name: "Ananya Sharma", rating: 4, comment: "Very fast shipping to Bengaluru. Product works perfectly. Value for money." },
+                { name: "Vikram Singh", rating: 5, comment: "Superb product. The A-Assured badge is true to its word. High quality packaging." },
+              ].map((rev, idx) => (
+                <div key={idx} style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="rating-tag" style={{ fontSize: '10px', padding: '1px 5px', height: '16px', display: 'inline-flex', alignItems: 'center' }}>
+                      {rev.rating} ★
+                    </span>
+                    <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{rev.name}</strong>
+                  </div>
+                  <p style={{ fontSize: '13px', color: '#555', marginTop: '6px', lineHeight: '1.4' }}>{rev.comment}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
 
       </div>

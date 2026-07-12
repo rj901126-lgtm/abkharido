@@ -63,41 +63,103 @@ const Orders = ({ onNavigate }) => {
             </div>
 
             {/* Order Status Badge & Timeline */}
-            <div style={{ backgroundColor: '#f9f9f9', padding: '16px', borderRadius: '4px', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #eaeaea', paddingBottom: '12px', marginBottom: '12px' }}>
-                <Truck size={16} color="var(--primary-color)" />
-                <span style={{ fontSize: '13px', fontWeight: '600' }}>Status:</span>
-                <span className="badge badge-info" style={{ fontSize: '11px' }}>{order.status}</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: 'auto' }}>Estimated Delivery: Tomorrow</span>
-              </div>
+            {(() => {
+              const status = order.status;
+              let width = '0%';
+              let orderedClass = 'completed';
+              let packedClass = '';
+              let transitClass = '';
+              let deliveredClass = '';
+              let orderedIcon = '✓';
+              let packedIcon = '●';
+              let transitIcon = '●';
+              let deliveredIcon = '●';
 
-              {/* Delivery Progress Timeline Tracker */}
-              <div className="timeline-container">
-                <div className="timeline-line"></div>
-                <div className="timeline-line-progress" style={{ width: order.status === 'Delivered' ? '100%' : '50%' }}></div>
-                
-                <div className="timeline-step">
-                  <div className="timeline-node completed" style={{ fontSize: '11px', color: 'white', fontWeight: 'bold' }}>✓</div>
-                  <span className="timeline-label completed">Ordered</span>
-                </div>
-                <div className="timeline-step">
-                  <div className="timeline-node completed" style={{ fontSize: '11px', color: 'white', fontWeight: 'bold' }}>✓</div>
-                  <span className="timeline-label completed">Packed</span>
-                </div>
-                <div className="timeline-step">
-                  <div className={`timeline-node ${order.status === 'Delivered' ? 'completed' : 'active'}`} style={{ fontSize: '11px', color: order.status === 'Delivered' ? 'white' : 'var(--primary-color)', fontWeight: 'bold' }}>
-                    {order.status === 'Delivered' ? '✓' : '●'}
+              if (status === 'CANCELLED') {
+                width = '0%';
+                orderedClass = 'cancelled';
+                orderedIcon = '✕';
+              } else if (status === 'Processing') {
+                width = '0%';
+                orderedClass = 'completed';
+                orderedIcon = '✓';
+                packedClass = 'active';
+              } else if (status === 'Packed') {
+                width = '33%';
+                orderedClass = 'completed';
+                packedClass = 'completed';
+                orderedIcon = '✓';
+                packedIcon = '✓';
+                transitClass = 'active';
+              } else if (status === 'In Transit') {
+                width = '66%';
+                orderedClass = 'completed';
+                packedClass = 'completed';
+                transitClass = 'completed';
+                orderedIcon = '✓';
+                packedIcon = '✓';
+                transitIcon = '✓';
+                deliveredClass = 'active';
+              } else if (status === 'Delivered') {
+                width = '100%';
+                orderedClass = 'completed';
+                packedClass = 'completed';
+                transitClass = 'completed';
+                deliveredClass = 'completed';
+                orderedIcon = '✓';
+                packedIcon = '✓';
+                transitIcon = '✓';
+                deliveredIcon = '✓';
+              }
+
+              return (
+                <div style={{ backgroundColor: '#f9f9f9', padding: '16px', borderRadius: '4px', marginBottom: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #eaeaea', paddingBottom: '12px', marginBottom: '12px' }}>
+                    <Truck size={16} color="var(--primary-color)" />
+                    <span style={{ fontSize: '13px', fontWeight: '600' }}>Status:</span>
+                    <span className={`badge ${status === 'CANCELLED' ? 'badge-error' : 'badge-info'}`} style={{ fontSize: '11px', backgroundColor: status === 'CANCELLED' ? '#d32f2f' : '#2874f0', color: 'white', padding: '2px 6px', borderRadius: '2px' }}>
+                      {status.toUpperCase()}
+                    </span>
+                    {status !== 'CANCELLED' && (
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: 'auto' }}>
+                        {status === 'Delivered' ? 'Delivered successfully' : 'Estimated Delivery: Tomorrow'}
+                      </span>
+                    )}
                   </div>
-                  <span className={`timeline-label ${order.status === 'Delivered' ? 'completed' : 'active'}`}>In Transit</span>
-                </div>
-                <div className="timeline-step">
-                  <div className={`timeline-node ${order.status === 'Delivered' ? 'completed' : ''}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold' }}>
-                    {order.status === 'Delivered' ? '✓' : ''}
+
+                  {/* Delivery Progress Timeline Tracker */}
+                  <div className="timeline-container">
+                    <div className="timeline-line"></div>
+                    <div className="timeline-line-progress" style={{ width: width, backgroundColor: status === 'CANCELLED' ? '#d32f2f' : 'var(--success)' }}></div>
+                    
+                    <div className="timeline-step">
+                      <div className={`timeline-node ${orderedClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: orderedClass === 'cancelled' ? '#d32f2f' : (orderedClass === 'completed' ? 'var(--success)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {orderedIcon}
+                      </div>
+                      <span className={`timeline-label ${orderedClass}`}>{status === 'CANCELLED' ? 'Cancelled' : 'Ordered'}</span>
+                    </div>
+                    <div className="timeline-step">
+                      <div className={`timeline-node ${packedClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: packedClass === 'completed' ? 'var(--success)' : (packedClass === 'active' ? 'var(--primary-color)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {packedIcon}
+                      </div>
+                      <span className={`timeline-label ${packedClass}`}>Packed</span>
+                    </div>
+                    <div className="timeline-step">
+                      <div className={`timeline-node ${transitClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: transitClass === 'completed' ? 'var(--success)' : (transitClass === 'active' ? 'var(--primary-color)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {transitIcon}
+                      </div>
+                      <span className={`timeline-label ${transitClass}`}>In Transit</span>
+                    </div>
+                    <div className="timeline-step">
+                      <div className={`timeline-node ${deliveredClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: deliveredClass === 'completed' ? 'var(--success)' : (deliveredClass === 'active' ? 'var(--primary-color)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {deliveredIcon}
+                      </div>
+                      <span className={`timeline-label ${deliveredClass}`}>Delivered</span>
+                    </div>
                   </div>
-                  <span className={`timeline-label ${order.status === 'Delivered' ? 'completed' : ''}`}>Delivered</span>
                 </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Order Items */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px', marginBottom: '16px' }}>

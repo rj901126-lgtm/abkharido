@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
-import { Filter, Star, RefreshCw } from 'lucide-react';
+import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import '../assets/styles/product.css';
 
 const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct }) => {
@@ -11,6 +11,8 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   const [maxPrice, setMaxPrice] = useState(150000);
   const [selectedRating, setSelectedRating] = useState(null);
   const [sortBy, setSortBy] = useState('popularity'); // popularity, priceLow, priceHigh
+  const [showSortModal, setShowSortModal] = useState(false);
+  const [showFilterDrawer, setShowFilterDrawer] = useState(false);
 
   // Synchronize category or resets
   useEffect(() => {
@@ -176,6 +178,35 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
       {/* Main Results Container */}
       <main className="catalog-main">
+        
+        {/* Mobile Quick Filter Pills */}
+        <div className="mobile-filter-pills">
+          <div 
+            onClick={() => setSortBy(sortBy === 'priceLow' ? 'popularity' : 'priceLow')}
+            className={`filter-pill ${sortBy === 'priceLow' ? 'active' : ''}`}
+          >
+            Price: Low to High {sortBy === 'priceLow' && '✓'}
+          </div>
+          <div 
+            onClick={() => setSortBy(sortBy === 'priceHigh' ? 'popularity' : 'priceHigh')}
+            className={`filter-pill ${sortBy === 'priceHigh' ? 'active' : ''}`}
+          >
+            Price: High to Low {sortBy === 'priceHigh' && '✓'}
+          </div>
+          <div 
+            onClick={() => setSelectedRating(selectedRating === 4 ? null : 4)}
+            className={`filter-pill ${selectedRating === 4 ? 'active' : ''}`}
+          >
+            4 ★ & above {selectedRating === 4 && '✓'}
+          </div>
+          <div 
+            onClick={() => setMaxPrice(maxPrice === 25000 ? 150000 : 25000)}
+            className={`filter-pill ${maxPrice === 25000 ? 'active' : ''}`}
+          >
+            Under ₹25,000 {maxPrice === 25000 && '✓'}
+          </div>
+        </div>
+
         {/* Results Header */}
         <div className="catalog-header">
           <span className="results-count">
@@ -224,6 +255,131 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           </div>
         )}
       </main>
+
+      {/* Mobile Sticky Sort & Filter bar (Flipkart Style) */}
+      <div className="mobile-catalog-bottom-bar">
+        <button className="mobile-bar-btn" onClick={() => setShowSortModal(true)}>
+          <ArrowUpDown size={16} /> Sort
+        </button>
+        <div className="bar-separator"></div>
+        <button className="mobile-bar-btn" onClick={() => setShowFilterDrawer(true)}>
+          <SlidersHorizontal size={16} /> Filter
+        </button>
+      </div>
+
+      {/* Sort Bottom Sheet Modal */}
+      {showSortModal && (
+        <div className="bottom-sheet-backdrop" onClick={() => setShowSortModal(false)}>
+          <div className="bottom-sheet-content" onClick={(e) => e.stopPropagation()}>
+            <h4 className="bottom-sheet-title">Sort By</h4>
+            <div className="sort-option-list">
+              {[
+                { value: 'popularity', label: 'Popularity' },
+                { value: 'priceLow', label: 'Price: Low to High' },
+                { value: 'priceHigh', label: 'Price: High to Low' },
+                { value: 'rating', label: 'Highest Rated' }
+              ].map(opt => (
+                <label key={opt.value} className="sort-option-item">
+                  <input 
+                    type="radio" 
+                    name="mobile-sort" 
+                    checked={sortBy === opt.value} 
+                    onChange={() => { setSortBy(opt.value); setShowSortModal(false); }}
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter Slide-in Drawer Modal */}
+      {showFilterDrawer && (
+        <div className="filter-drawer-backdrop" onClick={() => setShowFilterDrawer(false)}>
+          <div className="filter-drawer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="filter-drawer-header">
+              <span>Filters</span>
+              <button className="filter-drawer-clear" onClick={() => { handleResetFilters(); setShowFilterDrawer(false); }}>
+                Clear All
+              </button>
+            </div>
+            
+            <div className="filter-drawer-body">
+              {/* Category filter */}
+              <div className="drawer-filter-section">
+                <h5 className="filter-title">Category</h5>
+                <select 
+                  value={currentCategory} 
+                  onChange={(e) => onSelectCategory(e.target.value)}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-light)', borderRadius: '4px', backgroundColor: 'white' }}
+                >
+                  <option value="all">All Categories</option>
+                  <option value="mobiles">Mobiles</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="fashion">Fashion</option>
+                  <option value="home">Home & Living</option>
+                  <option value="appliances">Appliances</option>
+                </select>
+              </div>
+
+              {/* Price range */}
+              <div className="drawer-filter-section">
+                <h5 className="filter-title">Price Range</h5>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Max Price: ₹{maxPrice.toLocaleString('en-IN')}</label>
+                  <input 
+                    type="range" 
+                    min="1000" 
+                    max="150000" 
+                    step="1000"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                    style={{ width: '100%', cursor: 'pointer' }}
+                  />
+                </div>
+              </div>
+
+              {/* Ratings */}
+              <div className="drawer-filter-section">
+                <h5 className="filter-title">Customer Ratings</h5>
+                <ul className="filter-list">
+                  {[4, 3, 2].map(stars => (
+                    <li key={stars}>
+                      <label className="filter-item-label">
+                        <input 
+                          type="radio" 
+                          name="drawer-rating-filter" 
+                          checked={selectedRating === stars}
+                          onChange={() => setSelectedRating(stars)}
+                        />
+                        <span>{stars}★ & above</span>
+                      </label>
+                    </li>
+                  ))}
+                  <li>
+                    <label className="filter-item-label">
+                      <input 
+                        type="radio" 
+                        name="drawer-rating-filter" 
+                        checked={selectedRating === null}
+                        onChange={() => setSelectedRating(null)}
+                      />
+                      <span>All Ratings</span>
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="filter-drawer-footer">
+              <button className="btn btn-accent btn-block" onClick={() => setShowFilterDrawer(false)} style={{ width: '100%', height: '42px', fontWeight: 'bold' }}>
+                APPLY FILTERS ({filteredProducts.length} items)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight } from 'lucide-react';
+import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck } from 'lucide-react';
 import '../assets/styles/cart.css';
 
 const CartPage = ({ onNavigate, onCheckout }) => {
@@ -207,6 +207,12 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         >
           PLACE ORDER <ArrowRight size={16} />
         </button>
+
+        {/* Flipkart Style Trust Badge */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '11px', color: '#7f7f7f', marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '12px' }}>
+          <ShieldCheck size={14} color="#388e3c" style={{ flexShrink: 0 }} />
+          <span>Safe and Secure Payments. 100% Authentic Products.</span>
+        </div>
       </div>
 
       {/* Mobile Sticky Checkout Bar */}
