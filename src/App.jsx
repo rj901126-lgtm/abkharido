@@ -356,6 +356,7 @@ const AppContent = () => {
       <Navbar 
         activePage={activePage} 
         onNavigate={handleNavigate} 
+        onNavigateProduct={handleNavigateProduct}
         onSearch={handleSearch}
         currentCategory={currentCategory}
         onSelectCategory={handleSelectCategory}

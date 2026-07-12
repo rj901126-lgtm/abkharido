@@ -18,16 +18,18 @@ import {
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
-const Navbar = ({ activePage, onNavigate, onSearch, currentCategory, onSelectCategory }) => {
-  const { currentUser, cart, logout, resetDatabase } = useApp();
+const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory }) => {
+  const { currentUser, cart, logout, resetDatabase, products } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     onSearch(searchQuery);
+    setShowSuggestions(false);
   };
 
   const handleCategoryClick = (catId) => {
@@ -64,11 +66,66 @@ const Navbar = ({ activePage, onNavigate, onSearch, currentCategory, onSelectCat
                 placeholder="Search for products, brands and more..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
               />
               <button type="submit" className="search-button">
                 <Search size={18} />
               </button>
             </div>
+            {showSuggestions && searchQuery.trim() && products && (
+              (() => {
+                const matches = products.filter(p => 
+                  p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  p.category.toLowerCase().includes(searchQuery.toLowerCase())
+                ).slice(0, 5);
+                
+                return matches.length > 0 ? (
+                  <div className="search-suggestions-dropdown" style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    backgroundColor: 'white',
+                    borderRadius: '4px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    marginTop: '4px',
+                    maxHeight: '260px',
+                    overflowY: 'auto',
+                    zIndex: 1100,
+                    border: '1px solid #e0e0e0'
+                  }}>
+                    {matches.map(p => (
+                      <div 
+                        key={p.id} 
+                        className="suggestion-item"
+                        onMouseDown={() => {
+                          onNavigateProduct(p.id);
+                          setSearchQuery('');
+                          setShowSuggestions(false);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '10px 14px',
+                          fontSize: '13px',
+                          color: '#212121',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #f0f0f0'
+                        }}
+                      >
+                        <Search size={14} color="#8c8c8c" />
+                        <div className="suggestion-text" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textString: 'ellipsis', textAlign: 'left' }}>
+                          <span style={{ fontWeight: '500' }}>{p.name}</span> <span style={{ color: '#888', fontSize: '11px', textTransform: 'uppercase', marginLeft: '6px' }}>in {p.category}</span>
+                        </div>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#388e3c' }}>₹{p.price.toLocaleString('en-IN')}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : null;
+              })()
+            )}
           </form>
 
           <div className="navbar-right">

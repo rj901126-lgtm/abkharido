@@ -431,3 +431,7 @@
     padding: 0 12px !important;
   }
 }
+
+.suggestion-item:hover {
+  background-color: #f5f8ff !important;
+}
