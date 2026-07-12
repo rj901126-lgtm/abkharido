@@ -202,56 +202,111 @@ const AppContent = () => {
   const [activeProductId, setActiveProductId] = useState(null);
   const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
 
-  // Parse details from URL on mount
+  // Parse details from URL and hash on mount/hashchange
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const prodId = params.get('prod');
-    const isAdmin = params.get('admin');
-    const cfOrderId = params.get('order_id');
-    const isCreator = params.get('creator') === 'true' || params.get('partner') === 'true';
+    const handleHashChange = async () => {
+      // Check search parameters first (e.g. for Cashfree redirects or creator parameters)
+      const params = new URLSearchParams(window.location.search);
+      const cfOrderId = params.get('order_id');
+      const prodId = params.get('prod');
+      const isAdmin = params.get('admin') === 'true' || params.get('admin') === '1';
+      const isCreator = params.get('creator') === 'true' || params.get('partner') === 'true';
 
-    if (cfOrderId) {
-      // Clear URL parameter immediately to prevent duplicate runs
-      window.history.replaceState({}, document.title, window.location.pathname);
-      
-      const runVerification = async () => {
+      if (cfOrderId) {
+        // Clear search parameters immediately to prevent duplicate verification runs
+        window.history.replaceState({}, document.title, window.location.pathname);
         showToast('Verifying payment status with Cashfree...', 'info');
         const success = await verifyPayment(cfOrderId);
         if (success) {
           showToast('Online Payment Verified Successfully!', 'success');
-          setActivePage('orders');
+          window.location.hash = '#orders';
         } else {
           showToast('Payment verification failed or was cancelled.', 'error');
-          setActivePage('cart');
+          window.location.hash = '#cart';
         }
-      };
-      runVerification();
-    } else if (prodId) {
-      setActiveProductId(prodId);
-      setActivePage('product');
-    } else if (isCreator) {
-      if (currentUser) {
-        setActivePage('partner');
-      } else {
-        setActivePage('login');
-        showToast('Please log in to access the Creator Hub.', 'warning');
+        return;
       }
-    } else if (isAdmin === 'true' || isAdmin === '1') {
-      setActivePage('admin');
-    }
-  }, [verifyPayment, showToast, currentUser]);
+
+      if (prodId) {
+        // Clear search parameter so it transitions to hash routing
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setActiveProductId(prodId);
+        window.location.hash = `#product-${prodId}`;
+        return;
+      }
+
+      if (isAdmin) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.hash = '#admin';
+        return;
+      }
+
+      if (isCreator) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        if (currentUser) {
+          window.location.hash = '#partner';
+        } else {
+          window.location.hash = '#login';
+          showToast('Please log in to access the Creator Hub.', 'warning');
+        }
+        return;
+      }
+
+      // Read from hash
+      const hash = window.location.hash;
+      let targetPage = 'home';
+      let targetProdId = null;
+
+      if (hash && hash !== '#home') {
+        if (hash === '#cart') targetPage = 'cart';
+        else if (hash === '#checkout') targetPage = 'checkout';
+        else if (hash === '#orders') targetPage = 'orders';
+        else if (hash === '#profile') targetPage = 'profile';
+        else if (hash === '#partner') targetPage = 'partner';
+        else if (hash === '#admin') targetPage = 'admin';
+        else if (hash === '#login') targetPage = 'login';
+        else if (hash === '#catalog') targetPage = 'catalog';
+        else if (hash.startsWith('#product-')) {
+          targetPage = 'product';
+          targetProdId = hash.replace('#product-', '');
+        }
+      }
+
+      // Route protection check: login required for secure pages
+      const protectedPages = ['checkout', 'partner', 'orders', 'profile'];
+      if (protectedPages.includes(targetPage) && !currentUser) {
+        showToast('Please sign in to access this page.', 'warning');
+        window.location.hash = '#login';
+        return;
+      }
+
+      if (targetPage === 'product' && targetProdId) {
+        setActiveProductId(targetProdId);
+      }
+      setActivePage(targetPage);
+    };
+
+    // Run initial parsing on load
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [currentUser, verifyPayment, showToast]);
 
   const handleNavigate = (page) => {
-    // Route protection: login required for secure pages
-    const protectedPages = ['checkout', 'partner', 'orders'];
+    // Route protection check: login required for secure pages
+    const protectedPages = ['checkout', 'partner', 'orders', 'profile'];
     if (protectedPages.includes(page) && !currentUser) {
       showToast('Please sign in to access this page.', 'warning');
-      setActivePage('login');
-      window.scrollTo(0, 0);
+      window.location.hash = '#login';
       return;
     }
 
-    setActivePage(page);
+    if (page === 'product' && activeProductId) {
+      window.location.hash = `#product-${activeProductId}`;
+    } else {
+      window.location.hash = `#${page}`;
+    }
     window.scrollTo(0, 0);
 
     // Reset coin discount if leaving cart/checkout
@@ -262,7 +317,8 @@ const AppContent = () => {
 
   const handleNavigateProduct = (productId) => {
     setActiveProductId(productId);
-    handleNavigate('product');
+    window.location.hash = `#product-${productId}`;
+    window.scrollTo(0, 0);
   };
 
   const handleSearch = (query) => {
