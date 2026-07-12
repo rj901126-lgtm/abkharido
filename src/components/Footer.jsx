@@ -6,29 +6,29 @@ const Footer = ({ onNavigate }) => {
     <footer style={styles.footer}>
       {/* Upper footer features */}
       <div style={styles.featuresSection}>
-        <div className="container" style={styles.featuresGrid}>
-          <div style={styles.featureItem}>
+        <div className="container footer-features-grid" style={styles.featuresGrid}>
+          <div className="footer-feature-item" style={styles.featureItem}>
             <ShoppingBag size={22} color="#ffe500" />
             <div>
               <h4 style={styles.featureTitle}>100% Direct Sales</h4>
               <p style={styles.featureDesc}>No 3rd party sellers. Direct inventory & warranty.</p>
             </div>
           </div>
-          <div style={styles.featureItem}>
+          <div className="footer-feature-item" style={styles.featureItem}>
             <Award size={22} color="#ffe500" />
             <div>
               <h4 style={styles.featureTitle}>Affiliate Program</h4>
               <p style={styles.featureDesc}>Share links & earn up to 7% commission.</p>
             </div>
           </div>
-          <div style={styles.featureItem}>
+          <div className="footer-feature-item" style={styles.featureItem}>
             <ShieldCheck size={22} color="#ffe500" />
             <div>
               <h4 style={styles.featureTitle}>Secure Payments</h4>
               <p style={styles.featureDesc}>Netbanking, UPI, Cards, and COD options.</p>
             </div>
           </div>
-          <div style={styles.featureItem}>
+          <div className="footer-feature-item" style={styles.featureItem}>
             <HelpCircle size={22} color="#ffe500" />
             <div>
               <h4 style={styles.featureTitle}>24/7 Dedicated Support</h4>
@@ -39,7 +39,7 @@ const Footer = ({ onNavigate }) => {
       </div>
 
       {/* Main Footer Links */}
-      <div className="container" style={styles.linksGrid}>
+      <div className="container footer-links-grid" style={styles.linksGrid}>
         <div>
           <h5 style={styles.heading}>ABOUT ABKHARIDO</h5>
           <ul style={styles.list}>

@@ -460,6 +460,22 @@ img {
     line-height: 1.4 !important;
   }
 
+  /* Footer responsiveness overrides */
+  .footer-features-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+  .footer-feature-item {
+    font-size: 11px !important;
+    gap: 8px !important;
+  }
+  .footer-links-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 24px !important;
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+
   /* Checkout responsiveness overrides */
   .checkout-tracker-container {
     padding: 10px !important;
