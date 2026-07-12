@@ -256,6 +256,7 @@
   box-shadow: 0 -3px 10px rgba(0,0,0,0.06);
   z-index: 1000;
   display: none; /* Hidden on desktop */
+  box-sizing: border-box !important;
 }
 
 .mobile-cart-price-info {

@@ -358,6 +358,7 @@
     margin: 0;
     gap: 8px !important;
     align-items: center !important;
+    box-sizing: border-box !important; /* Forces container to include padding in width calculations, preventing edge overflows */
   }
   .action-buttons-row button {
     width: 100% !important;
@@ -461,6 +462,7 @@
   box-shadow: 0 -3px 10px rgba(0,0,0,0.06);
   z-index: 1000;
   display: none; /* Hidden on desktop */
+  box-sizing: border-box !important;
 }
 
 .mobile-bar-btn {
