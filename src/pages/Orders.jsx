@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
+import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp } from 'lucide-react';
 
 const Orders = ({ onNavigate }) => {
   const { orders, currentUser, fetchOrders, cancelOrder } = useApp();
+  const [activeTrackingId, setActiveTrackingId] = useState(null);
 
   React.useEffect(() => {
     if (currentUser) {
@@ -161,6 +162,175 @@ const Orders = ({ onNavigate }) => {
               );
             })()}
 
+            {/* Expanded Shipment Tracking Panel */}
+            {activeTrackingId === order.id && order.status !== 'CANCELLED' && (() => {
+              const status = order.status;
+              const p0 = { x: 50, y: 80 };
+              const p1 = { x: 150, y: 20 };
+              const p2 = { x: 350, y: 20 };
+              const p3 = { x: 450, y: 80 };
+              
+              let t = 0.15; // default Processing
+              if (status === 'Packed') t = 0.45;
+              else if (status === 'In Transit') t = 0.75;
+              else if (status === 'Delivered') t = 1.0;
+              
+              // Cubic Bezier curve path math
+              const getCubicBezierXY = (paramT, start, c1, c2, end) => {
+                const mt = 1 - paramT;
+                const x = Math.pow(mt, 3) * start.x + 
+                          3 * Math.pow(mt, 2) * paramT * c1.x + 
+                          3 * mt * Math.pow(paramT, 2) * c2.x + 
+                          Math.pow(paramT, 3) * end.x;
+                const y = Math.pow(mt, 3) * start.y + 
+                          3 * Math.pow(mt, 2) * paramT * c1.y + 
+                          3 * mt * Math.pow(paramT, 2) * c2.y + 
+                          Math.pow(paramT, 3) * end.y;
+                return { x, y };
+              };
+              
+              const truckPos = getCubicBezierXY(t, p0, p1, p2, p3);
+              const strokeOffset = 420 * (1 - t);
+              
+              // Date calculations
+              const orderDate = order.date;
+              const getFormattedDate = (days) => {
+                try {
+                  const date = new Date(orderDate);
+                  date.setDate(date.getDate() + days);
+                  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                } catch (e) {
+                  return orderDate;
+                }
+              };
+
+              return (
+                <div className="animate-fade-in" style={{ marginTop: '0px', marginBottom: '20px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '16px', backgroundColor: 'white', boxSizing: 'border-box' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', marginBottom: '12px' }}>
+                    <div>
+                      <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>CARRIER</span>
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Truck size={14} color="var(--primary-color)" /> Delhivery Express
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>TRACKING AWB</span>
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                        DEL-{order.id.replace(/\D/g, '') || '98732104'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Route Map (SVG) */}
+                  <div style={{ position: 'relative', width: '100%', overflow: 'hidden', marginBottom: '20px' }}>
+                    <svg viewBox="0 0 500 130" style={{ width: '100%', height: 'auto', backgroundColor: '#fcfdfd', border: '1px solid #f0f0f0', borderRadius: '6px', padding: '10px 10px 20px 10px', boxSizing: 'border-box' }}>
+                      {/* Dotted path background */}
+                      <path d="M 50 80 C 150 20, 350 20, 450 80" fill="none" stroke="#e2e8f0" strokeWidth="3" strokeDasharray="6,6" />
+                      
+                      {/* Active path colored on top */}
+                      <path 
+                        d="M 50 80 C 150 20, 350 20, 450 80" 
+                        fill="none" 
+                        stroke="var(--success)" 
+                        strokeWidth="3.5" 
+                        strokeDasharray="420"
+                        strokeDashoffset={strokeOffset}
+                        style={{ transition: 'stroke-dashoffset 1s ease-in-out' }}
+                      />
+                      
+                      {/* Origin node (Fulfillment Center) */}
+                      <g transform="translate(50, 80)">
+                        <circle r="8" fill="var(--primary-color)" />
+                        <circle r="12" fill="var(--primary-color)" fillOpacity="0.2" />
+                        <text y="24" textAnchor="middle" style={{ fontSize: '9px', fontWeight: 'bold', fill: '#666' }}>Warehouse Hub</text>
+                      </g>
+                      
+                      {/* Transit Node (Sorting facility) */}
+                      <g transform="translate(250, 35)">
+                        <circle r="7" fill={t >= 0.45 ? 'var(--primary-color)' : '#cbd5e1'} />
+                        {t >= 0.45 && <circle r="11" fill="var(--primary-color)" fillOpacity="0.15" />}
+                        <text y="-14" textAnchor="middle" style={{ fontSize: '9px', fontWeight: 'bold', fill: '#666' }}>Sorting Hub</text>
+                      </g>
+                      
+                      {/* Destination Node (Customer Address) */}
+                      <g transform="translate(450, 80)">
+                        <circle r="8" fill={status === 'Delivered' ? 'var(--success)' : '#cbd5e1'} />
+                        {status === 'Delivered' && <circle r="12" fill="var(--success)" fillOpacity="0.2" />}
+                        <text y="24" textAnchor="middle" style={{ fontSize: '9px', fontWeight: 'bold', fill: '#666' }}>
+                          {order.shippingAddress.city ? `${order.shippingAddress.city} (${order.shippingAddress.pincode})` : 'Destination'}
+                        </text>
+                      </g>
+                      
+                      {/* Moving Truck Icon */}
+                      <g transform={`translate(${truckPos.x}, ${truckPos.y})`} style={{ transition: 'transform 1s ease-in-out' }}>
+                        <circle r="13" fill="#fb641b" fillOpacity="0.2" />
+                        <path d="M-8,-5 L1,-5 L5,-1 L5,4 L-8,4 Z" fill="#fb641b" />
+                        <rect x="5" y="-1" width="3" height="5" fill="#fb641b" />
+                        <circle cx="-4" cy="4" r="2" fill="#212121" />
+                        <circle cx="3" cy="4" r="2" fill="#212121" />
+                      </g>
+                    </svg>
+                  </div>
+
+                  {/* Detailed Shipping Checkpoints Stepper */}
+                  <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '12px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginBottom: '12px' }}>Shipment Checkpoints</div>
+                    <div className="tracking-checkpoints-list">
+                      
+                      {/* Delivered step */}
+                      {(status === 'Delivered') && (
+                        <div className="tracking-checkpoint-item completed">
+                          <div className="tracking-checkpoint-node"></div>
+                          <div className="tracking-checkpoint-title">Delivered Successfully</div>
+                          <div className="tracking-checkpoint-desc">Package delivered directly to {order.shippingAddress.name} at destination location.</div>
+                          <div className="tracking-checkpoint-date">{getFormattedDate(2)}</div>
+                        </div>
+                      )}
+
+                      {/* Out for Delivery step */}
+                      {(status === 'In Transit' || status === 'Delivered') && (
+                        <div className={`tracking-checkpoint-item ${status === 'In Transit' ? 'active' : 'completed'}`}>
+                          <div className="tracking-checkpoint-node"></div>
+                          <div className="tracking-checkpoint-title">Out for Delivery</div>
+                          <div className="tracking-checkpoint-desc">Package is with local courier delivery partner near {order.shippingAddress.city || 'your city'}.</div>
+                          <div className="tracking-checkpoint-date">{getFormattedDate(1)}</div>
+                        </div>
+                      )}
+
+                      {/* Transit Hub step */}
+                      {(status === 'Packed' || status === 'In Transit' || status === 'Delivered') && (
+                        <div className={`tracking-checkpoint-item ${status === 'Packed' ? 'active' : 'completed'}`}>
+                          <div className="tracking-checkpoint-node"></div>
+                          <div className="tracking-checkpoint-title">Reached Sorting Hub</div>
+                          <div className="tracking-checkpoint-desc">Package processed and dispatched from regional sorting facility hub.</div>
+                          <div className="tracking-checkpoint-date">{getFormattedDate(1)}</div>
+                        </div>
+                      )}
+
+                      {/* Packed step */}
+                      {(status === 'Processing' || status === 'Packed' || status === 'In Transit' || status === 'Delivered') && (
+                        <div className={`tracking-checkpoint-item ${status === 'Processing' ? 'active' : 'completed'}`}>
+                          <div className="tracking-checkpoint-node"></div>
+                          <div className="tracking-checkpoint-title">Package Packed & Secured</div>
+                          <div className="tracking-checkpoint-desc">Item inspected, bubble wrapped and handed over to Delhivery logistics partner.</div>
+                          <div className="tracking-checkpoint-date">{getFormattedDate(0)}</div>
+                        </div>
+                      )}
+
+                      {/* Order Placed step */}
+                      <div className="tracking-checkpoint-item completed">
+                        <div className="tracking-checkpoint-node"></div>
+                        <div className="tracking-checkpoint-title">Order Placed & Confirmed</div>
+                        <div className="tracking-checkpoint-desc">Order request received and payment validation checked successfully.</div>
+                        <div className="tracking-checkpoint-date">{getFormattedDate(0)}</div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Order Items */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px', marginBottom: '16px' }}>
               {order.items.map(item => (
@@ -197,20 +367,46 @@ const Orders = ({ onNavigate }) => {
                 )}
               </div>
 
-              {/* Cancel Button */}
-              {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'CANCELLED' && (
-                <button
-                  className="btn btn-outline"
-                  style={{ borderColor: 'var(--error)', color: 'var(--error)', fontSize: '12px', padding: '6px 14px', borderRadius: '4px', fontWeight: 'bold' }}
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to cancel this order?')) {
-                      cancelOrder(order.id);
-                    }
-                  }}
-                >
-                  Cancel Order
-                </button>
-              )}
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                {order.status !== 'CANCELLED' && (
+                  <button
+                    className="btn btn-outline"
+                    style={{
+                      borderColor: 'var(--primary-color)',
+                      color: 'var(--primary-color)',
+                      fontSize: '12px',
+                      padding: '6px 14px',
+                      borderRadius: '4px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                      backgroundColor: activeTrackingId === order.id ? '#f0f4ff' : 'transparent'
+                    }}
+                    onClick={() => setActiveTrackingId(activeTrackingId === order.id ? null : order.id)}
+                  >
+                    <Truck size={14} />
+                    <span>{activeTrackingId === order.id ? 'Hide Tracking' : 'Track Shipment'}</span>
+                    {activeTrackingId === order.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </button>
+                )}
+
+                {/* Cancel Button */}
+                {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'CANCELLED' && (
+                  <button
+                    className="btn btn-outline"
+                    style={{ borderColor: 'var(--error)', color: 'var(--error)', fontSize: '12px', padding: '6px 14px', borderRadius: '4px', fontWeight: 'bold' }}
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to cancel this order?')) {
+                        cancelOrder(order.id);
+                      }
+                    }}
+                  >
+                    Cancel Order
+                  </button>
+                )}
+              </div>
 
               {/* Referral attribution display */}
               {order.referralApplied ? (
