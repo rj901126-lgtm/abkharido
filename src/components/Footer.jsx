@@ -92,7 +92,7 @@ const Footer = ({ onNavigate }) => {
       </div>
 
       {/* Footer Bottom copyright */}
-      <div style={styles.bottomBar}>
+      <div className="footer-bottom-bar" style={styles.bottomBar}>
         <div className="container" style={styles.bottomContent}>
           <p>© 2026 AbKharido.com. All rights reserved. Self-Operated E-Commerce Platform.</p>
           <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>

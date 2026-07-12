@@ -32,14 +32,14 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         </h4>
 
         {/* Rating and Reviews */}
-        <div style={styles.ratingRow}>
+        <div className="product-card-rating-row" style={styles.ratingRow}>
           <span className="rating-tag">
             {product.rating} <Star size={10} fill="white" />
           </span>
           <span style={styles.reviewsCount}>({product.reviewsCount})</span>
           
           {/* Custom A-Assured Badge */}
-          <div style={{ 
+          <div className="product-card-assured-badge" style={{ 
             marginLeft: 'auto', 
             display: 'inline-flex', 
             alignItems: 'center', 

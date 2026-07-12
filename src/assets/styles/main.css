@@ -472,8 +472,18 @@ img {
   .footer-links-grid {
     display: none !important; /* Hide footer link columns on mobile */
   }
-  .app-footer {
-    padding-bottom: 72px !important; /* Extra bottom margin so footer is readable above the bottom nav bar */
+  .footer-bottom-bar {
+    padding-bottom: 80px !important; /* Pushes the dark copyright background below nav bar for unified look */
+  }
+
+  /* Prevent A-Assured trust badge cropping on narrow cards */
+  .product-card-rating-row {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .product-card-assured-badge {
+    margin-left: 0 !important; /* Reset automatic right alignment so it wraps cleanly instead of overflow cropping */
+    margin-top: 2px !important;
   }
 
   /* Info Page responsiveness overrides */
