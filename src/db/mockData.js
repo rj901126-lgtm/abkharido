@@ -19,6 +19,12 @@ export const PRODUCTS = [
     rating: 4.7,
     reviewsCount: 1845,
     image: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1573148195900-7845dcb9b127?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Experience iPhone 15 Pro. Forged in titanium and featuring the groundbreaking A17 Pro chip, a customizable Action button, and the most powerful iPhone camera system ever.',
     specifications: [
       { key: 'Display', value: '6.1-inch Super Retina XDR OLED' },
@@ -40,6 +46,11 @@ export const PRODUCTS = [
     rating: 4.8,
     reviewsCount: 942,
     image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Welcome to the era of mobile AI. With Galaxy S24 Ultra in your hands, you can unleash whole new levels of creativity, productivity and possibility.',
     specifications: [
       { key: 'Display', value: '6.8-inch Dynamic AMOLED 2X, QHD+' },
@@ -61,6 +72,11 @@ export const PRODUCTS = [
     rating: 4.6,
     reviewsCount: 320,
     image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'The MacBook Air with M3 chip is superportable, superfast, and supercharged for work, play, and everything you do. Up to 18 hours of battery life.',
     specifications: [
       { key: 'Display', value: '13.6-inch Liquid Retina Display' },
@@ -82,6 +98,11 @@ export const PRODUCTS = [
     rating: 4.5,
     reviewsCount: 2712,
     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'With two processors controlling eight microphones, Auto NC Optimizer for automatically optimizing noise cancelling, and a specially designed driver unit.',
     specifications: [
       { key: 'Type', value: 'Over-ear, Closed-back wireless' },
@@ -103,6 +124,11 @@ export const PRODUCTS = [
     rating: 4.2,
     reviewsCount: 88,
     image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Add a rugged edge to your outfit with this pure leather biker jacket. Crafted from top-grade sheepskin leather, it features custom metal hardware and dual lining.',
     specifications: [
       { key: 'Material', value: '100% Genuine Sheepskin Leather' },
@@ -123,6 +149,11 @@ export const PRODUCTS = [
     rating: 4.4,
     reviewsCount: 1540,
     image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Engineered for daily runs, the FlexRun Pro features an ultra-breathable mesh upper and responsiveness cushioning. The lightweight sole protects your joints.',
     specifications: [
       { key: 'Type', value: 'Road Running Shoes' },
@@ -143,6 +174,11 @@ export const PRODUCTS = [
     rating: 4.3,
     reviewsCount: 198,
     image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'The Imperium Chronograph defines status. Featuring a 42mm surgical stainless steel case plated in gold, white sunray dial, and full stopwatch functionalities.',
     specifications: [
       { key: 'Display Type', value: 'Analog Chronograph' },
@@ -163,6 +199,11 @@ export const PRODUCTS = [
     rating: 4.4,
     reviewsCount: 654,
     image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Bring the cafe home. With a professional 15-bar Italian pump pressure and a high-performance steam wand, you can froth milk for lattes and cappuccinos like a barista.',
     specifications: [
       { key: 'Pressure', value: '15 Bar Italian Pump' },
@@ -183,6 +224,11 @@ export const PRODUCTS = [
     rating: 4.3,
     reviewsCount: 423,
     image: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1580481072645-022f9a6dbf27?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Correct your posture during long work hours. The ErgoComfort features adaptive lumbar support, 3D adjustable armrests, and premium breathable Korean mesh.',
     specifications: [
       { key: 'Support', value: 'Dynamic Self-Adjusting Lumbar Support' },
@@ -203,6 +249,11 @@ export const PRODUCTS = [
     rating: 4.6,
     reviewsCount: 1150,
     image: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1626315582236-fa2c23565e31?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1528190336454-13cd56b45b5a?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Clean air in minutes. Utilizing a True HEPA H13 filter that captures 99.97% of airborne pollutants down to 0.1 microns, including dust, smoke, pollen, and allergens.',
     specifications: [
       { key: 'CADR Value', value: '250 m³/h (Covers up to 350 sq.ft)' },
@@ -223,6 +274,11 @@ export const PRODUCTS = [
     rating: 4.5,
     reviewsCount: 3950,
     image: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1552975084-6e027cd345c2?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1601944179066-29786cb9d32a?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Immerse yourself in cinematic 4K resolution. Equipped with Dolby Vision, HDR10+, and 30W Dolby Atmos sound, powered by Android TV for access to all popular streaming platforms.',
     specifications: [
       { key: 'Resolution', value: '4K Ultra HD (3840 x 2160)' },
@@ -243,6 +299,11 @@ export const PRODUCTS = [
     rating: 4.8,
     reviewsCount: 112,
     image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1626958390898-162d3577f593?w=600&auto=format&fit=crop&q=80'
+    ],
     description: 'Designed for coders and gamers alike. The KeyCraft K8 Pro features hot-swappable Gateron Brown switches, double-shot PBT keycaps, and beautiful custom south-facing RGB presets.',
     specifications: [
       { key: 'Layout', value: 'Tenkeyless (TKL) 80% Layout' },

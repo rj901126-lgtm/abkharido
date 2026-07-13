@@ -10,7 +10,9 @@ import {
   Send,
   ShieldAlert,
   ShieldCheck,
-  Check
+  Check,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import '../assets/styles/product.css';
 
@@ -138,13 +140,36 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   // Find product in list
   const product = products.find(p => p.id === productId);
 
-  const [activeImage, setActiveImage] = useState(product ? product.image : '');
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const imagesList = product && product.images && product.images.length > 0 
+    ? product.images 
+    : product ? [product.image] : [];
 
   React.useEffect(() => {
-    if (product) {
-      setActiveImage(product.image);
+    setActiveImageIndex(0);
+  }, [productId]);
+
+  const handlePrev = () => {
+    setActiveImageIndex(prev => (prev > 0 ? prev - 1 : imagesList.length - 1));
+  };
+  
+  const handleNext = () => {
+    setActiveImageIndex(prev => (prev < imagesList.length - 1 ? prev + 1 : 0));
+  };
+
+  const touchStartX = React.useRef(0);
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (diff > 50) {
+      handleNext();
+    } else if (diff < -50) {
+      handlePrev();
     }
-  }, [productId, product]);
+  };
 
   if (!product) {
     return (
@@ -204,24 +229,78 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
         
         {/* Left Column: Image and Purchase Actions */}
         <div className="image-showcase-column">
-          <div className="main-image-frame">
-            <img src={activeImage || product.image} alt={product.name} />
+          <div 
+            className="main-image-frame" 
+            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab', display: 'block', padding: 0 }}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Sliding Track */}
+            <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(-${activeImageIndex * 100}%)`, transition: 'transform 0.3s ease-out' }}>
+              {imagesList.map((imgUrl, index) => (
+                <div key={index} style={{ minWidth: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', boxSizing: 'border-box' }}>
+                  <img src={imgUrl} alt={`${product.name} View ${index}`} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+                </div>
+              ))}
+            </div>
+
+            {/* Navigation Arrows */}
+            {imagesList.length > 1 && (
+              <>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                  style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #ddd', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}
+                  className="carousel-arrow"
+                >
+                  <ChevronLeft size={18} color="#333" />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #ddd', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}
+                  className="carousel-arrow"
+                >
+                  <ChevronRight size={18} color="#333" />
+                </button>
+              </>
+            )}
+
+            {/* Indicator Dots */}
+            {imagesList.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px', zIndex: 5 }}>
+                {imagesList.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={(e) => { e.stopPropagation(); setActiveImageIndex(index); }}
+                    style={{
+                      padding: 0,
+                      border: 'none',
+                      height: '6px',
+                      width: activeImageIndex === index ? '16px' : '6px',
+                      borderRadius: '3px',
+                      backgroundColor: activeImageIndex === index ? 'var(--primary-color)' : '#cbd5e1',
+                      cursor: 'pointer',
+                      transition: 'all 0.25s ease'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Multiple preview thumbnails (Flipkart Carousel style) */}
-          {product.images && product.images.length > 1 && (
+          {/* Multiple preview thumbnails (desktop layout style thumbnails below) */}
+          {imagesList.length > 1 && (
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '4px 0 12px 0', flexWrap: 'wrap' }}>
-              {product.images.map((imgUrl, index) => (
+              {imagesList.map((imgUrl, index) => (
                 <img
                   key={index}
                   src={imgUrl}
                   alt={`Preview ${index}`}
-                  onClick={() => setActiveImage(imgUrl)}
+                  onClick={() => setActiveImageIndex(index)}
                   style={{
                     width: '52px',
                     height: '52px',
                     objectFit: 'contain',
-                    border: activeImage === imgUrl ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
+                    border: activeImageIndex === index ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
                     borderRadius: '4px',
                     padding: '2px',
                     cursor: 'pointer',
