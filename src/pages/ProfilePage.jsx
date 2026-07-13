@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2 } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const ProfilePage = ({ onNavigate }) => {
-  const { currentUser, updateUserProfile, logout, showToast } = useApp();
+  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist } = useApp();
   
   if (!currentUser) {
     return (
@@ -27,6 +27,8 @@ const ProfilePage = ({ onNavigate }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  const wishlistProducts = products ? products.filter(p => wishlist?.includes(p.id)) : [];
 
   // Check if inputs differ from database values
   const hasChanges = 
@@ -305,6 +307,74 @@ const ProfilePage = ({ onNavigate }) => {
             {isUpdating ? 'SAVING DETAILS...' : 'SAVE & UPDATE DETAILS'}
           </button>
         </form>
+
+        {/* Wishlist Section */}
+        <div className="card" style={{ padding: '20px', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#212121', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Heart size={16} fill="#d32f2f" color="#d32f2f" />
+            <span>My Wishlist ({wishlistProducts.length})</span>
+          </h3>
+
+          {wishlistProducts.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-secondary)' }}>
+              <ShoppingBag size={36} color="#878787" style={{ margin: '0 auto 12px auto', opacity: 0.6 }} />
+              <p style={{ fontSize: '13px' }}>Your wishlist is empty.</p>
+              <button 
+                onClick={() => onNavigate('home')}
+                className="btn btn-outline" 
+                style={{ marginTop: '12px', fontSize: '12px', padding: '6px 12px', width: '100%' }}
+              >
+                Explore Products
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {wishlistProducts.map(p => (
+                <div 
+                  key={p.id}
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '12px', 
+                    borderBottom: '1px solid #f0f0f0', 
+                    paddingBottom: '12px',
+                    position: 'relative'
+                  }}
+                >
+                  <img 
+                    src={p.image} 
+                    alt={p.name} 
+                    style={{ width: '50px', height: '50px', objectFit: 'contain', border: '1px solid #f0f0f0', borderRadius: '4px', padding: '2px', backgroundColor: 'white' }} 
+                  />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h4 
+                      onClick={() => {
+                        window.location.hash = `#product-${p.id}`;
+                      }}
+                      style={{ fontSize: '13px', fontWeight: '600', color: '#212121', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    >
+                      {p.name}
+                    </h4>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121' }}>₹{p.price.toLocaleString('en-IN')}</span>
+                      <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{p.originalPrice.toLocaleString('en-IN')}</span>
+                      <span style={{ fontSize: '11px', color: '#388e3c', fontWeight: 'bold' }}>
+                        {Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)}% off
+                      </span>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => toggleWishlist(p.id)}
+                    style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', padding: '6px' }}
+                    title="Remove from Wishlist"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
       </div>
     </div>

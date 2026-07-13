@@ -34,6 +34,15 @@ export const AppProvider = ({ children }) => {
 
   const [toast, setToast] = useState(null);
 
+  const [wishlist, setWishlist] = useState(() => {
+    const saved = localStorage.getItem('abkharido_wishlist');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('abkharido_wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
+
   // --- Fetch Data on Mount ---
   useEffect(() => {
     fetchProducts();
@@ -155,6 +164,23 @@ export const AppProvider = ({ children }) => {
       showToast('Connection error. Please try again.', 'error');
       return false;
     }
+  };
+
+  const toggleWishlist = (productId) => {
+    if (!currentUser) {
+      showToast('Please sign in to add items to your wishlist.', 'warning');
+      return;
+    }
+    setWishlist(prev => {
+      const exists = prev.includes(productId);
+      if (exists) {
+        showToast('Removed from Wishlist!', 'info');
+        return prev.filter(id => id !== productId);
+      } else {
+        showToast('Added to Wishlist!', 'success');
+        return [...prev, productId];
+      }
+    });
   };
 
   const fetchStats = async () => {
@@ -456,7 +482,9 @@ export const AppProvider = ({ children }) => {
         resetDatabase,
         addProduct,
         removeProduct,
-        cancelOrder
+        cancelOrder,
+        wishlist,
+        toggleWishlist
       }}
     >
       {children}

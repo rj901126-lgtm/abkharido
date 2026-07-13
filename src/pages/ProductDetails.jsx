@@ -19,7 +19,7 @@ import {
 import '../assets/styles/product.css';
 
 const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
-  const { addToCart, currentUser, showToast, products, orders } = useApp();
+  const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState('560103');
   const [deliveryEstimate, setDeliveryEstimate] = useState('Delivery by Tomorrow, Monday | Free Express Shipping');
@@ -413,10 +413,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             {/* Wishlist Heart & Share Panel (Top-Right) */}
             <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button 
-                onClick={(e) => { e.stopPropagation(); showToast('Added to Wishlist!', 'success'); }}
+                onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
                 style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer' }}
               >
-                <Heart size={16} color="#777" />
+                {wishlist && wishlist.includes(product.id) ? (
+                  <Heart size={16} fill="#d32f2f" color="#d32f2f" />
+                ) : (
+                  <Heart size={16} color="#777" />
+                )}
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleShareWhatsApp(); }}
