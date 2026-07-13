@@ -410,19 +410,13 @@
     height: 44px !important;
     box-sizing: border-box !important;
   }
-  .action-buttons-row .action-btn-cart-icon {
-    width: 44px !important;
-    flex-shrink: 0 !important;
-    border: 1px solid #dcdcdc !important;
-    background-color: white !important;
-    color: #212121 !important;
-  }
-  .action-buttons-row .action-btn-emi {
+  .action-buttons-row .action-btn-add-cart {
     flex: 1 !important;
     border: 1px solid #dcdcdc !important;
     background-color: white !important;
     color: #212121 !important;
     font-size: 13px !important;
+    font-weight: 700 !important;
   }
   .action-buttons-row .action-btn-buy {
     flex: 1 !important;
@@ -430,6 +424,7 @@
     background-color: #ffd54f !important;
     color: #212121 !important;
     font-size: 13px !important;
+    font-weight: 700 !important;
   }
   /* Add padding at the bottom of details page so content doesn't get covered by sticky buttons */
   .details-page-grid {
@@ -740,9 +735,6 @@
   }
   .desktop-thumbnails-container {
     display: none !important;
-  }
-  .action-buttons-row .action-btn-cart-icon {
-    display: flex !important;
   }
   .action-buttons-row .mobile-only {
     display: flex !important;

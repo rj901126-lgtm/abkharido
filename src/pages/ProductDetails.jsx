@@ -672,27 +672,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
           {/* Flipkart Inline Action Buttons Row for Immediate Purchase */}
           <div className="action-buttons-row" style={{ margin: '16px 0', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' }}>
-            {/* 1. Mobile-only Cart Icon Button (Square Box) */}
+            {/* 1. Add to Cart Option */}
             <button 
-              className="action-btn-cart-icon" 
-              onClick={() => {
-                const customProduct = {
-                  ...product,
-                  price: currentDisplayPrice,
-                  originalPrice: currentDisplayOriginalPrice,
-                  selectedColor: activeColor ? activeColor.name : '',
-                  selectedVariant: activeVariant ? activeVariant.name : ''
-                };
-                addToCart(customProduct);
-              }}
-              style={{ display: 'none' }} /* Visible only on mobile via CSS flex display overrides */
-            >
-              <ShoppingCart size={18} />
-            </button>
-
-            {/* 2. White Add to Cart / Buy with EMI Option */}
-            <button 
-              className="action-btn-emi" 
+              className="action-btn-add-cart" 
               onClick={() => {
                 const customProduct = {
                   ...product,
@@ -715,19 +697,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: '600'
+                fontWeight: '600',
+                fontSize: '14px'
               }}
             >
-              {/* Desktop Text */}
-              <span className="desktop-only">Add to cart</span>
-              {/* Mobile Text */}
-              <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
-                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Buy with EMI</span>
-                <span style={{ fontSize: '9px', fontWeight: 'normal', color: '#666' }}>From ₹{Math.round(currentDisplayPrice / 6).toLocaleString('en-IN')}/m</span>
-              </div>
+              Add to cart
             </button>
 
-            {/* 3. Yellow Buy Now Option */}
+            {/* 2. Yellow Buy Now Option */}
             <button 
               className="action-btn-buy" 
               onClick={() => {
