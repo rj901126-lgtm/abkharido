@@ -328,7 +328,7 @@ const ProfilePage = ({ onNavigate }) => {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 8px', minWidth: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
               {wishlistProducts.map(p => (
                 <div 
                   key={p.id}
