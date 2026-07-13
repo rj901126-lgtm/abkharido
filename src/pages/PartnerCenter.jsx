@@ -120,7 +120,7 @@ const PartnerCenter = () => {
     <div className="container partner-container animate-fade-in">
       
       {/* 1. Profile Header bar */}
-      <div style={{ backgroundColor: 'white', border: '1px solid var(--border-light)', padding: '24px', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="partner-header-card">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <h1 style={{ fontSize: '22px', fontWeight: 'bold' }}>{currentUser.fullName}'s Partner Dashboard</h1>
@@ -136,13 +136,14 @@ const PartnerCenter = () => {
         </div>
         
         {/* Quick Link Share */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div className="share-link-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Your Storewide Referral Link:</span>
           <div style={{ display: 'flex', gap: '6px' }}>
             <input 
               type="text" 
               readOnly 
               value={getStorewideLink()} 
+              className="share-link-input"
               style={{ padding: '6px 12px', fontSize: '13px', border: '1px solid var(--border-light)', borderRadius: '4px', width: '220px', backgroundColor: '#fcfcfc' }}
             />
             <button 
@@ -358,7 +359,7 @@ const PartnerCenter = () => {
               </div>
 
               {/* Commission rules cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="partner-info-grid">
                 <div className="card" style={{ padding: '20px' }}>
                   <h3 style={{ fontSize: '15px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}><Award size={16} color="var(--primary-color)" /> Commission Rates Breakdown</h3>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
@@ -542,7 +543,7 @@ const PartnerCenter = () => {
             <div className="dashboard-panel-card">
               <h3 className="panel-header-title">Request Cash Withdrawal</h3>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <div className="partner-payouts-grid">
                 {/* Request panel */}
                 <div className="card" style={{ padding: '20px' }}>
                   <h4 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '16px' }}>Request Payout</h4>

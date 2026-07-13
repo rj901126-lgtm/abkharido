@@ -236,3 +236,51 @@
     padding: 12px 14px;
   }
 }
+
+/* Custom Responsive partner layout configurations */
+.partner-header-card {
+  background-color: white;
+  border: 1px solid var(--border-light);
+  padding: 24px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.partner-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.partner-payouts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .partner-header-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 16px !important;
+  }
+  .partner-header-card .share-link-wrapper {
+    width: 100% !important;
+  }
+  .partner-header-card .share-link-input {
+    width: 100% !important;
+    flex: 1 !important;
+    box-sizing: border-box !important;
+  }
+  .partner-info-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .partner-payouts-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
