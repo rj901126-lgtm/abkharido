@@ -73,7 +73,61 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   };
 
   return (
-    <div className="container catalog-container animate-fade-in" style={{ padding: '24px 12px' }}>
+    <div className="container catalog-container animate-fade-in" style={{ padding: '16px 12px' }}>
+      
+      {/* Top Sort & Filter Buttons Bar (Always visible at the top of category menus) */}
+      <div className="catalog-top-filter-bar" style={{
+        display: 'flex',
+        border: '1px solid #e0e0e0',
+        borderRadius: '8px',
+        backgroundColor: '#ffffff',
+        marginBottom: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
+      }}>
+        <button 
+          onClick={() => setShowSortModal(true)} 
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            height: '44px',
+            background: 'none',
+            border: 'none',
+            borderRight: '1px solid #e0e0e0',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#212121',
+            cursor: 'pointer'
+          }}
+        >
+          <ArrowUpDown size={16} color="#757575" />
+          Sort
+        </button>
+        <button 
+          onClick={() => setShowFilterDrawer(true)} 
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            height: '44px',
+            background: 'none',
+            border: 'none',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#212121',
+            cursor: 'pointer'
+          }}
+        >
+          <SlidersHorizontal size={16} color="#757575" />
+          Filter
+        </button>
+      </div>
+
       {/* Main Results Container */}
       <main className="catalog-main" style={{ width: '100%', flex: 1 }}>
         
@@ -108,6 +162,120 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           </div>
         )}
       </main>
+
+      {/* Sort Bottom Sheet Modal */}
+      {showSortModal && (
+        <div className="bottom-sheet-backdrop" onClick={() => setShowSortModal(false)}>
+          <div className="bottom-sheet-content" onClick={(e) => e.stopPropagation()}>
+            <h4 className="bottom-sheet-title" style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Sort By</h4>
+            <div className="sort-option-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[
+                { value: 'popularity', label: 'Popularity' },
+                { value: 'priceLow', label: 'Price: Low to High' },
+                { value: 'priceHigh', label: 'Price: High to Low' },
+                { value: 'rating', label: 'Highest Rated' }
+              ].map(opt => (
+                <label key={opt.value} className="sort-option-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', cursor: 'pointer' }}>
+                  <input 
+                    type="radio" 
+                    name="mobile-sort" 
+                    checked={sortBy === opt.value} 
+                    onChange={() => { setSortBy(opt.value); setShowSortModal(false); }}
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter Slide-in Drawer Modal */}
+      {showFilterDrawer && (
+        <div className="filter-drawer-backdrop" onClick={() => setShowFilterDrawer(false)}>
+          <div className="filter-drawer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="filter-drawer-header">
+              <span>Filters</span>
+              <button className="filter-drawer-clear" onClick={() => { handleResetFilters(); setShowFilterDrawer(false); }}>
+                Clear All
+              </button>
+            </div>
+            
+            <div className="filter-drawer-body">
+              {/* Category filter */}
+              <div className="drawer-filter-section">
+                <h5 className="filter-title">Category</h5>
+                <select 
+                  value={currentCategory} 
+                  onChange={(e) => onSelectCategory(e.target.value)}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-light)', borderRadius: '4px', backgroundColor: 'white' }}
+                >
+                  <option value="all">All Categories</option>
+                  <option value="mobiles">Mobiles</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="fashion">Fashion</option>
+                  <option value="home">Home & Living</option>
+                  <option value="appliances">Appliances</option>
+                </select>
+              </div>
+
+              {/* Price range */}
+              <div className="drawer-filter-section">
+                <h5 className="filter-title">Price Range</h5>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Max Price: ₹{maxPrice.toLocaleString('en-IN')}</label>
+                  <input 
+                    type="range" 
+                    min="1000" 
+                    max="150000" 
+                    step="1000"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                    style={{ width: '100%', cursor: 'pointer' }}
+                  />
+                </div>
+              </div>
+
+              {/* Ratings */}
+              <div className="drawer-filter-section">
+                <h5 className="filter-title">Customer Ratings</h5>
+                <ul className="filter-list">
+                  {[4, 3, 2].map(stars => (
+                    <li key={stars}>
+                      <label className="filter-item-label">
+                        <input 
+                          type="radio" 
+                          name="drawer-rating-filter" 
+                          checked={selectedRating === stars}
+                          onChange={() => setSelectedRating(stars)}
+                        />
+                        <span>{stars}★ & above</span>
+                      </label>
+                    </li>
+                  ))}
+                  <li>
+                    <label className="filter-item-label">
+                      <input 
+                        type="radio" 
+                        name="drawer-rating-filter" 
+                        checked={selectedRating === null}
+                        onChange={() => setSelectedRating(null)}
+                      />
+                      <span>All Ratings</span>
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="filter-drawer-footer">
+              <button className="btn btn-accent btn-block" onClick={() => setShowFilterDrawer(false)} style={{ width: '100%', height: '42px', fontWeight: 'bold' }}>
+                APPLY FILTERS ({filteredProducts.length} items)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
