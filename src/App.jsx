@@ -449,7 +449,7 @@ const AppContent = () => {
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={handleNavigate} />
+      {activePage !== 'categories' && <Footer onNavigate={handleNavigate} />}
 
       {/* Mobile Sticky Bottom Tab Bar */}
       {activePage && !activePage.startsWith('product') && (
