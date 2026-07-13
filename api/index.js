@@ -1028,7 +1028,7 @@ app.post('/api/users/register-creator', async (req, res) => {
 app.post('/api/seller/signup', async (req, res) => {
   try {
     const sellers = await getSellersMap();
-    const { email, password, shopName, sellerAddress, payoutDetails } = req.body;
+    const { email, password, shopName, sellerAddress, payoutDetails, phone } = req.body;
 
     if (!email || !password || !shopName || !sellerAddress) {
       return res.status(400).json({ error: 'Please fill out all required fields' });
@@ -1041,6 +1041,7 @@ app.post('/api/seller/signup', async (req, res) => {
 
     sellers[cleanEmail] = {
       email: cleanEmail,
+      phone: phone || '',
       password: password,
       shopName,
       sellerAddress,

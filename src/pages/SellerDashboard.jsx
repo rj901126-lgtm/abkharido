@@ -17,7 +17,10 @@ import {
   CreditCard,
   AlertCircle,
   LogOut,
-  Lock
+  Lock,
+  CheckCircle2,
+  Mail,
+  Phone
 } from 'lucide-react';
 import '../assets/styles/admin.css'; // Reuse administrative styling framework
 
@@ -37,13 +40,27 @@ const SellerDashboard = ({ onNavigate }) => {
 
   // --- Login / Signup Form Toggle ---
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup'
+  const [regStep, setRegStep] = useState(1); // 1: Email & Password, 2: Business Details
+  
+  // Signup State fields
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [shopName, setShopName] = useState('');
   const [address, setAddress] = useState('');
   const [upi, setUpi] = useState('');
   const [bankAccount, setBankAccount] = useState('');
   const [bankIfsc, setBankIfsc] = useState('');
+
+  // Simulated OTP States
+  const [mobileOtpSent, setMobileOtpSent] = useState(false);
+  const [mobileOtpInput, setMobileOtpInput] = useState('');
+  const [mobileVerified, setMobileVerified] = useState(false);
+
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [emailOtpInput, setEmailOtpInput] = useState('');
+  const [emailVerified, setEmailVerified] = useState(false);
 
   // --- Add Product Form State ---
   const [id, setId] = useState('');
@@ -112,12 +129,59 @@ const SellerDashboard = ({ onNavigate }) => {
   const handleLogout = () => {
     localStorage.removeItem('abkharido_seller_session');
     setCurrentSeller(null);
+    setRegStep(1);
+    setMobileVerified(false);
+    setMobileOtpSent(false);
+    setEmailVerified(false);
+    setEmailOtpSent(false);
     showToast('Merchant session logged out successfully.', 'info');
+  };
+
+  // Simulated OTP helpers
+  const handleSendMobileOtp = () => {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      showToast('Please enter a valid 10-digit mobile number.', 'error');
+      return;
+    }
+    setMobileOtpSent(true);
+    showToast('Simulated SMS OTP sent! Enter "123456" to verify.', 'success');
+  };
+
+  const handleVerifyMobileOtp = () => {
+    if (mobileOtpInput === '123456') {
+      setMobileVerified(true);
+      setMobileOtpSent(false);
+      showToast('Mobile number verified successfully! ✓', 'success');
+    } else {
+      showToast('Incorrect OTP. Please enter 123456.', 'error');
+    }
+  };
+
+  const handleSendEmailOtp = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast('Please enter a valid email address.', 'error');
+      return;
+    }
+    setEmailOtpSent(true);
+    showToast('Simulated Email OTP sent! Enter "123456" to verify.', 'success');
+  };
+
+  const handleVerifyEmailOtp = () => {
+    if (emailOtpInput === '123456') {
+      setEmailVerified(true);
+      setEmailOtpSent(false);
+      showToast('Email verified successfully! ✓', 'success');
+    } else {
+      showToast('Incorrect OTP. Please enter 123456.', 'error');
+    }
   };
 
   // --- Authentications handlers ---
   const handleAuthSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    
     if (authMode === 'login') {
       if (!email || !password) {
         showToast('Please fill out all fields.', 'error');
@@ -142,8 +206,9 @@ const SellerDashboard = ({ onNavigate }) => {
         showToast('Fulfillment server lookup error.', 'error');
       }
     } else {
-      if (!email || !password || !shopName || !address || !upi) {
-        showToast('Please fill out all required fields.', 'error');
+      // Sign up process (Step 2 Submit)
+      if (!shopName || !address || !upi) {
+        showToast('Please fill out all required business fields.', 'error');
         return;
       }
       try {
@@ -152,6 +217,7 @@ const SellerDashboard = ({ onNavigate }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email,
+            phone,
             password,
             shopName,
             sellerAddress: address,
@@ -171,6 +237,23 @@ const SellerDashboard = ({ onNavigate }) => {
         showToast('Fulfillment server registration error.', 'error');
       }
     }
+  };
+
+  const handleStep1Submit = (e) => {
+    e.preventDefault();
+    if (!phone || !email || !password || !confirmPassword) {
+      showToast('Please fill out all fields.', 'error');
+      return;
+    }
+    if (password !== confirmPassword) {
+      showToast('Passwords do not match.', 'error');
+      return;
+    }
+    if (!mobileVerified || !emailVerified) {
+      showToast('Please verify your Mobile Number and Email using OTP first.', 'error');
+      return;
+    }
+    setRegStep(2);
   };
 
   // --- Specs rows handlers ---
@@ -351,122 +434,280 @@ const SellerDashboard = ({ onNavigate }) => {
   // --- Auth Render View ---
   if (!currentSeller) {
     return (
-      <div className="container animate-fade-in" style={{ maxWidth: '480px', padding: '50px 20px' }}>
-        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '32px 16px' }}>
+        <div className="admin-panel-card" style={{ width: '100%', maxWidth: '520px', padding: '36px' }}>
+          
+          <div style={{ textAlign: 'center', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-color)', margin: '0 auto' }}>
               <Store size={24} />
             </div>
-            <h2 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)' }}>Merchant Seller Central</h2>
-            <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Log in or register your business to manage inventory & earnings.</span>
+            <h2 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>Seller Central Portal</h2>
+            <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+              {authMode === 'login' ? 'Access your merchant store manager panel' : 'Register your business on AbKharido Marketplace'}
+            </span>
           </div>
 
-          <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div className="form-group">
-              <label className="form-label-txt">Business Email ID*</label>
-              <input 
-                type="email" 
-                placeholder="merchant@yourdomain.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="form-input-field"
-                required
-              />
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label-txt">Access Password*</label>
-              <input 
-                type="password" 
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-input-field"
-                required
-              />
-            </div>
+          {authMode === 'login' ? (
+            /* --- LOGIN FORM --- */
+            <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="form-group">
+                <label className="form-label-txt">Business Email ID*</label>
+                <input 
+                  type="email" 
+                  placeholder="merchant@yourdomain.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="form-input-field"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label-txt">Access Password*</label>
+                <input 
+                  type="password" 
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="form-input-field"
+                  required
+                />
+              </div>
 
-            {authMode === 'signup' && (
-              <>
-                <div className="form-group">
-                  <label className="form-label-txt">Registered Shop Name*</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Modern Fashion Hub"
-                    value={shopName}
-                    onChange={(e) => setShopName(e.target.value)}
-                    className="form-input-field"
-                    required
-                  />
+              <button type="submit" className="btn" style={{ height: '44px', backgroundColor: '#2874f0', color: 'white', fontWeight: 'bold', fontSize: '14px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginTop: '8px' }}>
+                LOG IN TO SELLER CENTRAL
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  New to AbKharido Seller?{' '}
+                  <strong style={{ color: '#2874f0', cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>Register Business</strong>
+                </span>
+              </div>
+            </form>
+          ) : (
+            /* --- SIGNUP MULTI-STEP WIZARD (FLIPKART STYLE) --- */
+            <div>
+              {/* Steps Progress Indicator */}
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '24px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: regStep === 1 ? 1 : 0.6, borderBottom: regStep === 1 ? '2px solid #2874f0' : 'none', paddingBottom: '8px' }}>
+                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: regStep === 1 ? '#2874f0' : '#4caf50', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>
+                    {regStep > 1 ? '✓' : '1'}
+                  </div>
+                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>EMAIL & PASSWORD</span>
                 </div>
-
-                <div className="form-group">
-                  <label className="form-label-txt">Warehouse Address*</label>
-                  <textarea 
-                    placeholder="Physical address of shipment operations..."
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="form-input-field"
-                    style={{ height: '50px', resize: 'none' }}
-                    required
-                  />
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: regStep === 2 ? 1 : 0.6, borderBottom: regStep === 2 ? '2px solid #2874f0' : 'none', paddingBottom: '8px' }}>
+                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: regStep === 2 ? '#2874f0' : '#ccc', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>
+                    2
+                  </div>
+                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>BUSINESS DETAILS</span>
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label className="form-label-txt">Settlement UPI ID*</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. shopname@ybl"
-                    value={upi}
-                    onChange={(e) => setUpi(e.target.value)}
-                    className="form-input-field"
-                    required
-                  />
-                </div>
+              {/* Step 1 Form */}
+              {regStep === 1 && (
+                <form onSubmit={handleStep1Submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {/* Phone input with Send OTP */}
+                  <div className="form-group" style={{ position: 'relative' }}>
+                    <label className="form-label-txt">Enter Mobile Number *</label>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input 
+                        type="tel"
+                        placeholder="10-digit phone number"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
+                        className="form-input-field"
+                        style={{ flex: 1 }}
+                        disabled={mobileVerified}
+                        required
+                      />
+                      {mobileVerified ? (
+                        <span style={{ color: '#4caf50', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          Verified <CheckCircle2 size={16} />
+                        </span>
+                      ) : (
+                        <button type="button" onClick={handleSendMobileOtp} style={{ color: '#2874f0', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                          {mobileOtpSent ? 'Resend OTP' : 'Send OTP'}
+                        </button>
+                      )}
+                    </div>
+                    {/* Simulated mobile OTP input */}
+                    {mobileOtpSent && !mobileVerified && (
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '8px', alignItems: 'center', animation: 'fadeIn 0.2s' }}>
+                        <input 
+                          type="text" 
+                          placeholder="Enter 6-digit OTP (123456)" 
+                          value={mobileOtpInput}
+                          onChange={(e) => setMobileOtpInput(e.target.value)}
+                          className="form-input-field"
+                          style={{ height: '32px', fontSize: '13px', flex: 1 }}
+                        />
+                        <button type="button" onClick={handleVerifyMobileOtp} style={{ backgroundColor: '#2874f0', color: 'white', border: 'none', height: '32px', padding: '0 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                          Verify
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label-txt" style={{ fontSize: '10px' }}>Bank Account Number</label>
+                  {/* Email input with Send OTP */}
+                  <div className="form-group">
+                    <label className="form-label-txt">Email ID *</label>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input 
+                        type="email"
+                        placeholder="business@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="form-input-field"
+                        style={{ flex: 1 }}
+                        disabled={emailVerified}
+                        required
+                      />
+                      {emailVerified ? (
+                        <span style={{ color: '#4caf50', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          Verified <CheckCircle2 size={16} />
+                        </span>
+                      ) : (
+                        <button type="button" onClick={handleSendEmailOtp} style={{ color: '#2874f0', background: 'none', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                          {emailOtpSent ? 'Resend OTP' : 'Send OTP'}
+                        </button>
+                      )}
+                    </div>
+                    {/* Simulated email OTP input */}
+                    {emailOtpSent && !emailVerified && (
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '8px', alignItems: 'center', animation: 'fadeIn 0.2s' }}>
+                        <input 
+                          type="text" 
+                          placeholder="Enter 6-digit OTP (123456)" 
+                          value={emailOtpInput}
+                          onChange={(e) => setEmailOtpInput(e.target.value)}
+                          className="form-input-field"
+                          style={{ height: '32px', fontSize: '13px', flex: 1 }}
+                        />
+                        <button type="button" onClick={handleVerifyEmailOtp} style={{ backgroundColor: '#2874f0', color: 'white', border: 'none', height: '32px', padding: '0 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                          Verify
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label-txt">Create Password *</label>
                     <input 
-                      type="text" 
-                      placeholder="Optional"
-                      value={bankAccount}
-                      onChange={(e) => setBankAccount(e.target.value)}
+                      type="password"
+                      placeholder="At least 6 characters"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       className="form-input-field"
+                      required
                     />
                   </div>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label-txt" style={{ fontSize: '10px' }}>Bank IFSC Code</label>
+
+                  <div className="form-group">
+                    <label className="form-label-txt">Confirm Password *</label>
                     <input 
-                      type="text" 
-                      placeholder="Optional"
-                      value={bankIfsc}
-                      onChange={(e) => setBankIfsc(e.target.value)}
+                      type="password"
+                      placeholder="Re-enter password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       className="form-input-field"
+                      required
                     />
                   </div>
-                </div>
-              </>
-            )}
 
-            <button type="submit" className="btn btn-primary" style={{ marginTop: '8px', height: '40px', fontWeight: 'bold' }}>
-              {authMode === 'login' ? 'LOG IN TO SELLER CENTRAL' : 'SUBMIT MERCHANT APPLICATION'}
-            </button>
-          </form>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0 0', lineHeight: '1.4' }}>
+                    By continuing, I agree to Flipkart's <span style={{ color: '#2874f0' }}>Terms of Use</span> & <span style={{ color: '#2874f0' }}>Privacy Policy</span>
+                  </p>
 
-          <div style={{ textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '12px', marginTop: '4px' }}>
-            {authMode === 'login' ? (
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                Don't have a merchant account?{' '}
-                <strong style={{ color: 'var(--primary-color)', cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>Register Shop</strong>
-              </span>
-            ) : (
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                Already registered?{' '}
-                <strong style={{ color: 'var(--primary-color)', cursor: 'pointer' }} onClick={() => setAuthMode('login')}>Log In</strong>
-              </span>
-            )}
-          </div>
+                  <button type="submit" className="btn" style={{ height: '44px', backgroundColor: '#0056b3', color: 'white', fontWeight: 'bold', fontSize: '14px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    Register & Continue <ArrowRight size={16} />
+                  </button>
+
+                  <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      Already have an account?{' '}
+                      <strong style={{ color: '#2874f0', cursor: 'pointer' }} onClick={() => setAuthMode('login')}>Log In</strong>
+                    </span>
+                  </div>
+                </form>
+              )}
+
+              {/* Step 2 Form */}
+              {regStep === 2 && (
+                <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className="form-group">
+                    <label className="form-label-txt">Registered Business / Shop Name*</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Fashion Point Hub"
+                      value={shopName}
+                      onChange={(e) => setShopName(e.target.value)}
+                      className="form-input-field"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label-txt">Warehouse Address*</label>
+                    <textarea 
+                      placeholder="Physical office address for shipping pickups..."
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="form-input-field"
+                      style={{ height: '50px', resize: 'none' }}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label-txt">Settlement UPI ID*</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. shopname@ybl"
+                      value={upi}
+                      onChange={(e) => setUpi(e.target.value)}
+                      className="form-input-field"
+                      required
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label className="form-label-txt" style={{ fontSize: '10px' }}>Bank Account Number</label>
+                      <input 
+                        type="text" 
+                        placeholder="Optional"
+                        value={bankAccount}
+                        onChange={(e) => setBankAccount(e.target.value)}
+                        className="form-input-field"
+                      />
+                    </div>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label className="form-label-txt" style={{ fontSize: '10px' }}>Bank IFSC Code</label>
+                      <input 
+                        type="text" 
+                        placeholder="Optional"
+                        value={bankIfsc}
+                        onChange={(e) => setBankIfsc(e.target.value)}
+                        className="form-input-field"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                    <button type="button" onClick={() => setRegStep(1)} className="btn btn-outline" style={{ flex: 1, height: '40px' }}>
+                      Back to Step 1
+                    </button>
+                    <button type="submit" className="btn btn-primary" style={{ flex: 2, height: '40px', fontWeight: 'bold' }}>
+                      COMPLETE REGISTRATION
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+
         </div>
       </div>
     );
