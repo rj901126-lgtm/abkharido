@@ -789,6 +789,10 @@ app.post('/api/orders', async (req, res) => {
     const orderId = `OD-${Math.floor(10000000 + Math.random() * 90000000)}`;
     const isCod = paymentMethod === 'Cash on Delivery';
     
+    // Generate Delhivery tracking details (Delhivery 12-digit numeric AWB style)
+    const trackingNumber = `14${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    const courierPartner = 'Delhivery';
+
     const newOrder = {
       id: orderId,
       cfOrderId: cfOrderId || null,
@@ -803,7 +807,9 @@ app.post('/api/orders', async (req, res) => {
       paymentMethod,
       status: isCod ? 'Packed' : 'Processing',
       paymentStatus: isCod ? 'SUCCESS' : 'PENDING',
-      referralApplied: activeReferral || null
+      referralApplied: activeReferral || null,
+      trackingNumber,
+      courierPartner
     };
 
     // Process Referral Commissions immediately ONLY if Cash on Delivery (COD)

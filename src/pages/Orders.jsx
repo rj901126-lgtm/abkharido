@@ -208,16 +208,24 @@ const Orders = ({ onNavigate }) => {
                 <div className="animate-fade-in" style={{ marginTop: '0px', marginBottom: '20px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '16px', backgroundColor: 'white', boxSizing: 'border-box' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', marginBottom: '12px' }}>
                     <div>
-                      <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>CARRIER</span>
+                      <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>COURIER PARTNER</span>
                       <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Truck size={14} color="var(--primary-color)" /> Delhivery Express
+                        <Truck size={14} color="var(--primary-color)" /> {order.courierPartner || 'Delhivery Express'}
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                       <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>TRACKING AWB</span>
                       <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                        DEL-{order.id.replace(/\D/g, '') || '98732104'}
+                        {order.trackingNumber || `14${order.id.replace(/\D/g, '') || '9873210423'}`}
                       </div>
+                      <a 
+                        href={`https://www.delhivery.com/track/package/${order.trackingNumber || ('14' + (order.id.replace(/\D/g, '') || '9873210423'))}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ fontSize: '11px', color: 'var(--success)', fontWeight: 'bold', textDecoration: 'underline', marginTop: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
+                      >
+                        Track on Delhivery Portal ↗
+                      </a>
                     </div>
                   </div>
 
