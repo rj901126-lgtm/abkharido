@@ -309,7 +309,7 @@ const ProfilePage = ({ onNavigate }) => {
         </form>
 
         {/* Wishlist Section */}
-        <div id="wishlist-section" className="card" style={{ padding: '20px', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div id="wishlist-section" className="card" style={{ padding: '20px', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>
           <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#212121', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Heart size={16} fill="#d32f2f" color="#d32f2f" />
             <span>My Wishlist ({wishlistProducts.length})</span>
@@ -328,7 +328,7 @@ const ProfilePage = ({ onNavigate }) => {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 8px', minWidth: 0 }}>
               {wishlistProducts.map(p => (
                 <div 
                   key={p.id}
@@ -338,7 +338,8 @@ const ProfilePage = ({ onNavigate }) => {
                     gap: '12px', 
                     borderBottom: '1px solid #f0f0f0', 
                     paddingBottom: '12px',
-                    position: 'relative'
+                    position: 'relative',
+                    minWidth: 0
                   }}
                 >
                   <img 
