@@ -73,7 +73,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   };
 
   return (
-    <div className="container catalog-container animate-fade-in" style={{ padding: '16px 12px' }}>
+    <div className="container catalog-container animate-fade-in" style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       
       {/* Top Sort & Filter Buttons Bar (Always visible at the top of category menus) */}
       <div className="catalog-top-filter-bar" style={{
@@ -81,7 +81,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
         border: '1px solid #e0e0e0',
         borderRadius: '8px',
         backgroundColor: '#ffffff',
-        marginBottom: '16px',
+        marginBottom: '0px',
         overflow: 'hidden',
         boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
       }}>
@@ -129,10 +129,10 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       </div>
 
       {/* Main Results Container */}
-      <main className="catalog-main" style={{ width: '100%', flex: 1 }}>
+      <main className="catalog-main" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
         
         {/* Results Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', paddingBottom: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0px', paddingBottom: '0px' }}>
           <span className="results-count" style={{ fontSize: '13px', fontWeight: '500', color: '#666666' }}>
             {searchQuery ? (
               <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
