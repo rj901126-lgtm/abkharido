@@ -142,68 +142,124 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   // Find product in list
   const product = products.find(p => p.id === productId);
 
-  const getProductColors = (prod) => {
+  const getProductColorModels = (prod) => {
     if (!prod) return [];
-    if (prod.colors) return prod.colors;
+    if (prod.colorModels) return prod.colorModels;
     
-    // Dynamic color variations using high-quality image alternates from imagesList
-    if (prod.category === 'mobiles' && prod.images && prod.images.length >= 2) {
-      return [
-        { name: 'Titanium Gray', image: prod.images[0] },
-        { name: 'Titanium Blue', image: prod.images[1] }
-      ];
-    } else if (prod.category === 'fashion' && prod.images && prod.images.length >= 2) {
-      return [
-        { name: 'Pitch Black', image: prod.images[0] },
-        { name: 'Vintage Shade', image: prod.images[1] }
-      ];
-    } else if (prod.category === 'electronics' && prod.images && prod.images.length >= 2) {
-      return [
-        { name: 'Classic Dark', image: prod.images[0] },
-        { name: 'Silver Slate', image: prod.images[1] }
-      ];
-    }
-    return [
-      { name: 'Standard Color', image: prod.image }
-    ];
-  };
-
-  const getProductVariants = (prod) => {
-    if (!prod) return [];
-    if (prod.variants) return prod.variants;
-    
-    const discount = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
-    
+    // Dynamic models builder based on product category
     if (prod.category === 'mobiles') {
+      const discount = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
       return [
-        { name: '128 GB + 6 GB', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 8 },
-        { name: '128 GB + 8 GB', price: Math.round(prod.price * 1.1), originalPrice: Math.round(prod.originalPrice * 1.1), discount, stock: 5 },
-        { name: '256 GB + 8 GB', price: Math.round(prod.price * 1.25), originalPrice: Math.round(prod.originalPrice * 1.25), discount, stock: 1 }
+        {
+          name: 'Titanium Gray',
+          primaryImage: prod.images && prod.images[0] ? prod.images[0] : prod.image,
+          images: [
+            prod.images && prod.images[0] ? prod.images[0] : prod.image,
+            prod.images && prod.images[2] ? prod.images[2] : prod.image
+          ],
+          variants: [
+            { name: '128 GB + 6 GB', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 8 },
+            { name: '128 GB + 8 GB', price: Math.round(prod.price * 1.08), originalPrice: Math.round(prod.originalPrice * 1.08), discount, stock: 5 },
+            { name: '256 GB + 8 GB', price: Math.round(prod.price * 1.20), originalPrice: Math.round(prod.originalPrice * 1.20), discount, stock: 1 }
+          ]
+        },
+        {
+          name: 'Titanium Blue',
+          primaryImage: prod.images && prod.images[1] ? prod.images[1] : prod.image,
+          images: [
+            prod.images && prod.images[1] ? prod.images[1] : prod.image,
+            prod.images && prod.images[3] ? prod.images[3] : prod.image
+          ],
+          variants: [
+            { name: '128 GB + 6 GB', price: Math.round(prod.price * 1.03), originalPrice: Math.round(prod.originalPrice * 1.03), discount, stock: 4 },
+            { name: '128 GB + 8 GB', price: Math.round(prod.price * 1.12), originalPrice: Math.round(prod.originalPrice * 1.12), discount, stock: 2 },
+            { name: '256 GB + 8 GB', price: Math.round(prod.price * 1.26), originalPrice: Math.round(prod.originalPrice * 1.26), discount, stock: 0 }
+          ]
+        }
       ];
     } else if (prod.category === 'fashion') {
+      const discount = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
       return [
-        { name: 'Size M', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 12 },
-        { name: 'Size L', price: Math.round(prod.price * 1.05), originalPrice: Math.round(prod.originalPrice * 1.05), discount, stock: 2 },
-        { name: 'Size XL', price: Math.round(prod.price * 1.12), originalPrice: Math.round(prod.originalPrice * 1.12), discount, stock: 6 }
+        {
+          name: 'Pitch Black',
+          primaryImage: prod.images && prod.images[0] ? prod.images[0] : prod.image,
+          images: [
+            prod.images && prod.images[0] ? prod.images[0] : prod.image,
+            prod.images && prod.images[2] ? prod.images[2] : prod.image
+          ],
+          variants: [
+            { name: 'Size M', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 12 },
+            { name: 'Size L', price: Math.round(prod.price * 1.05), originalPrice: Math.round(prod.originalPrice * 1.05), discount, stock: 2 },
+            { name: 'Size XL', price: Math.round(prod.price * 1.10), originalPrice: Math.round(prod.originalPrice * 1.10), discount, stock: 6 }
+          ]
+        },
+        {
+          name: 'Vintage Brown',
+          primaryImage: prod.images && prod.images[1] ? prod.images[1] : prod.image,
+          images: [
+            prod.images && prod.images[1] ? prod.images[1] : prod.image
+          ],
+          variants: [
+            { name: 'Size M', price: Math.round(prod.price * 1.08), originalPrice: Math.round(prod.originalPrice * 1.08), discount, stock: 3 },
+            { name: 'Size L', price: Math.round(prod.price * 1.14), originalPrice: Math.round(prod.originalPrice * 1.14), discount, stock: 1 }
+          ]
+        }
       ];
     } else if (prod.category === 'electronics') {
+      const discount = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
       return [
-        { name: 'Base Model', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 15 },
-        { name: 'Pro Model', price: Math.round(prod.price * 1.3), originalPrice: Math.round(prod.originalPrice * 1.3), discount, stock: 3 }
+        {
+          name: 'Carbon Gray',
+          primaryImage: prod.images && prod.images[0] ? prod.images[0] : prod.image,
+          images: [
+            prod.images && prod.images[0] ? prod.images[0] : prod.image,
+            prod.images && prod.images[2] ? prod.images[2] : prod.image
+          ],
+          variants: [
+            { name: 'Base Edition', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 15 },
+            { name: 'Pro Edition', price: Math.round(prod.price * 1.25), originalPrice: Math.round(prod.originalPrice * 1.25), discount, stock: 3 }
+          ]
+        },
+        {
+          name: 'Platinum Silver',
+          primaryImage: prod.images && prod.images[1] ? prod.images[1] : prod.image,
+          images: [
+            prod.images && prod.images[1] ? prod.images[1] : prod.image
+          ],
+          variants: [
+            { name: 'Base Edition', price: Math.round(prod.price * 1.05), originalPrice: Math.round(prod.originalPrice * 1.05), discount, stock: 5 },
+            { name: 'Pro Edition', price: Math.round(prod.price * 1.32), originalPrice: Math.round(prod.originalPrice * 1.32), discount, stock: 2 }
+          ]
+        }
       ];
     }
+    // Default model if category is different
+    const discount = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
     return [
-      { name: 'Standard Edition', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 10 }
+      {
+        name: 'Standard Edition',
+        primaryImage: prod.image,
+        images: [prod.image],
+        variants: [
+          { name: 'Standard Pack', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 10 }
+        ]
+      }
     ];
   };
 
-  const colorsList = product ? getProductColors(product) : [];
-  const variantsList = product ? getProductVariants(product) : [];
+  const colorModels = product ? getProductColorModels(product) : [];
 
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
 
-  const activeColor = selectedColor || colorsList[0];
+  const activeColor = selectedColor || colorModels[0];
+
+  const imagesList = activeColor && activeColor.images && activeColor.images.length > 0 
+    ? activeColor.images 
+    : (product ? [product.image] : []);
+
+  const variantsList = activeColor && activeColor.variants ? activeColor.variants : [];
+
   const activeVariant = selectedVariant || variantsList[0];
 
   const currentDisplayPrice = activeVariant ? activeVariant.price : (product ? product.price : 0);
@@ -212,17 +268,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const imagesList = product && product.images && product.images.length > 0 
-    ? product.images 
-    : product ? [product.image] : [];
-
+  // Sync state when color selection triggers
   React.useEffect(() => {
-    setActiveImageIndex(0);
+    if (activeColor) {
+      setActiveImageIndex(0);
+      setSelectedVariant(activeColor.variants[0]);
+    }
+  }, [selectedColor]);
+
+  // Sync product selection on initial mount or swap
+  React.useEffect(() => {
     if (product) {
-      const colors = getProductColors(product);
-      const variants = getProductVariants(product);
-      setSelectedColor(colors[0]);
-      setSelectedVariant(variants[0]);
+      const models = getProductColorModels(product);
+      setSelectedColor(models[0]);
+      setSelectedVariant(models[0].variants[0]);
+      setActiveImageIndex(0);
     }
   }, [productId, product]);
 
@@ -515,21 +575,17 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
           </div>
 
           {/* Color Variation Selection (Flipkart style) */}
-          {colorsList.length > 0 && (
+          {/* Color Variation Selection (Flipkart style) */}
+          {colorModels.length > 0 && (
             <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
               <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
                 Selected Color: <span style={{ color: '#212121', fontWeight: 'bold' }}>{activeColor ? activeColor.name : ''}</span>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                {colorsList.map((c, i) => (
+                {colorModels.map((c, i) => (
                   <button
                     key={i}
-                    onClick={() => {
-                      setSelectedColor(c);
-                      // Update active slider index to show this color image
-                      const imgIndex = imagesList.indexOf(c.image);
-                      if (imgIndex !== -1) setActiveImageIndex(imgIndex);
-                    }}
+                    onClick={() => setSelectedColor(c)}
                     style={{
                       border: activeColor && activeColor.name === c.name ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
                       borderRadius: '4px',
@@ -546,7 +602,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                       transition: 'all 0.1s'
                     }}
                   >
-                    <img src={c.image} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    <img src={c.primaryImage} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </button>
                 ))}
               </div>
