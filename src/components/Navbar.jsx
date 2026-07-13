@@ -214,19 +214,21 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
       </header>
 
       {/* Subnav categories bar */}
-      <nav className="cat-bar">
-        <div className="cat-container">
-          {CATEGORIES.map(cat => (
-            <div
-              key={cat.id}
-              className={`cat-item ${currentCategory === cat.id ? 'active' : ''}`}
-              onClick={() => handleCategoryClick(cat.id)}
-            >
-              <span>{cat.name}</span>
-            </div>
-          ))}
-        </div>
-      </nav>
+      {activePage !== 'product-details' && (
+        <nav className="cat-bar">
+          <div className="cat-container">
+            {CATEGORIES.map(cat => (
+              <div
+                key={cat.id}
+                className={`cat-item ${currentCategory === cat.id ? 'active' : ''}`}
+                onClick={() => handleCategoryClick(cat.id)}
+              >
+                <span>{cat.name}</span>
+              </div>
+            ))}
+          </div>
+        </nav>
+      )}
     </>
   );
 };

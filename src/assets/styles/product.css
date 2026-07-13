@@ -400,8 +400,11 @@
   }
   /* Add padding at the bottom of details page so content doesn't get covered by sticky buttons */
   .details-page-grid {
-    padding: 16px !important;
+    padding: 0 !important;
     margin-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  }
+  .details-info-column {
+    padding: 0 16px !important;
   }
   .mobile-only-spacer {
     display: block !important;
