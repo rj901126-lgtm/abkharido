@@ -415,9 +415,19 @@ async function getDb() {
 
 // --- Seed MongoDB Collections ---
 async function seedMongoDb() {
-  const productsCount = await db.collection('products').countDocuments();
-  if (productsCount === 0) {
-    await db.collection('products').insertMany(SEED_PRODUCTS);
+  // Sync SEED_PRODUCTS to MongoDB to support multiple photos and specifications updates
+  for (const product of SEED_PRODUCTS) {
+    await db.collection('products').updateOne(
+      { id: product.id },
+      { 
+        $set: { 
+          image: product.image,
+          images: product.images || [product.image],
+          specifications: product.specifications 
+        } 
+      },
+      { upsert: true }
+    );
   }
 
   const usersCount = await db.collection('users').countDocuments();
