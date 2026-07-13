@@ -444,7 +444,7 @@ const AppContent = () => {
       />
 
       {/* Main Content Area */}
-      <main className="main-content">
+      <main className={`main-content ${activePage === 'categories' ? 'no-padding-bottom' : ''}`}>
         {renderPage()}
       </main>
 
