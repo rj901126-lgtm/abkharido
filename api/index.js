@@ -789,9 +789,9 @@ app.post('/api/orders', async (req, res) => {
     const orderId = `OD-${Math.floor(10000000 + Math.random() * 90000000)}`;
     const isCod = paymentMethod === 'Cash on Delivery';
     
-    // Generate Delhivery tracking details (Delhivery 12-digit numeric AWB style)
-    const trackingNumber = `14${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-    const courierPartner = 'Delhivery';
+    // Generate Shiprocket tracking details (Shiprocket 12-digit numeric AWB style)
+    const trackingNumber = `12${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    const courierPartner = 'Shiprocket';
 
     const newOrder = {
       id: orderId,

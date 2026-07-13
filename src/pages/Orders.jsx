@@ -210,21 +210,21 @@ const Orders = ({ onNavigate }) => {
                     <div>
                       <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>COURIER PARTNER</span>
                       <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Truck size={14} color="var(--primary-color)" /> {order.courierPartner || 'Delhivery Express'}
+                        <Truck size={14} color="var(--primary-color)" /> {order.courierPartner || 'Shiprocket (Delhivery)'}
                       </div>
                     </div>
                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                       <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>TRACKING AWB</span>
                       <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                        {order.trackingNumber || `14${order.id.replace(/\D/g, '') || '9873210423'}`}
+                        {order.trackingNumber || `12${order.id.replace(/\D/g, '') || '9873210423'}`}
                       </div>
                       <a 
-                        href={`https://www.delhivery.com/track/package/${order.trackingNumber || ('14' + (order.id.replace(/\D/g, '') || '9873210423'))}`}
+                        href={`https://shiprocket.co/tracking/${order.trackingNumber || ('12' + (order.id.replace(/\D/g, '') || '9873210423'))}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         style={{ fontSize: '11px', color: 'var(--success)', fontWeight: 'bold', textDecoration: 'underline', marginTop: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
                       >
-                        Track on Delhivery Portal ↗
+                        Track on Shiprocket Portal ↗
                       </a>
                     </div>
                   </div>
