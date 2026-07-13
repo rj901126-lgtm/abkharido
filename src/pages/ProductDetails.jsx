@@ -368,28 +368,70 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   };
 
   return (
-    <div className="container animate-fade-in-only">
+    <div className="container animate-fade-in-only" style={{ padding: 0 }}>
+      {/* Mobile Sticky Header (Flipkart App Style) */}
+      <div className="mobile-product-details-header" style={{
+        display: 'none',
+        position: 'sticky',
+        top: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#ffffff',
+        height: '52px',
+        alignItems: 'center',
+        padding: '0 16px',
+        gap: '16px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+        zIndex: 100
+      }}>
+        <button onClick={() => onNavigate('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+          <ArrowLeft size={22} color="#212121" />
+        </button>
+        <div style={{ flex: 1, position: 'relative' }}>
+          <input 
+            type="text" 
+            placeholder="Search for products"
+            onClick={() => onNavigate('home')}
+            readOnly
+            style={{
+              width: '100%',
+              height: '36px',
+              border: '1px solid #c5c5c5',
+              borderRadius: '4px',
+              paddingLeft: '32px',
+              fontSize: '14px',
+              outline: 'none',
+              backgroundColor: '#f0f2f5',
+              boxSizing: 'border-box'
+            }}
+          />
+          <span style={{ position: 'absolute', left: '10px', top: '9px', fontSize: '13px', color: '#878787' }}>🔍</span>
+        </div>
+        <button onClick={() => onNavigate('cart')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <ShoppingCart size={22} color="#212121" />
+        </button>
+      </div>
+
       <div className="details-page-grid">
-        
         {/* Left Column: Image and Purchase Actions */}
         <div className="image-showcase-column">
           <div 
             className="main-image-frame" 
-            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab', display: 'block', padding: 0 }}
+            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab', display: 'block', padding: 0, border: '1px solid #f0f0f0', borderRadius: '4px' }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             {/* Sliding Track */}
             <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(-${activeImageIndex * 100}%)`, transition: 'transform 0.3s ease-out' }}>
               {imagesList.map((imgUrl, index) => (
-                <div key={index} style={{ minWidth: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', boxSizing: 'border-box' }}>
+                <div key={index} style={{ minWidth: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', boxSizing: 'border-box', backgroundColor: 'white' }}>
                   <img src={imgUrl} alt={`${product.name} View ${index}`} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
                 </div>
               ))}
             </div>
 
-            {/* Floating Back Arrow Button (Top-Left overlay) */}
-            <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 5 }}>
+            {/* Floating Back Arrow Button (Desktop Only overlay, hidden in mobile header) */}
+            <div className="desktop-back-arrow" style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 5 }}>
               <button 
                 onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}
                 style={{ 
@@ -409,7 +451,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
               </button>
             </div>
 
-            {/* Flipkart Floating Badges & Controls Overlay */}
             {/* Wishlist Heart & Share Panel (Top-Right) */}
             <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button 
@@ -431,36 +472,55 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
 
             {/* Rating & Reviews Pill Badge (Bottom-Left) */}
-            <div style={{ position: 'absolute', bottom: '12px', left: '12px', zIndex: 5, backgroundColor: 'rgba(0, 0, 0, 0.65)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '3px' }}>
-              {product.rating} <Star size={10} fill="var(--success)" stroke="var(--success)" style={{ display: 'inline' }} /> <span style={{ color: 'rgba(255,255,255,0.7)', margin: '0 2px' }}>|</span> {product.reviewsCount > 999 ? `${(product.reviewsCount/1000).toFixed(1)}K` : product.reviewsCount}+
+            <div style={{ 
+              position: 'absolute', 
+              bottom: '12px', 
+              left: '12px', 
+              zIndex: 5, 
+              backgroundColor: '#ffffff', 
+              color: '#212121', 
+              padding: '4px 10px', 
+              borderRadius: '20px', 
+              fontSize: '11px', 
+              fontWeight: '700', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              border: '1px solid #eaeaea',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <span>{product.rating}</span> 
+              <Star size={11} fill="#388e3c" stroke="#388e3c" style={{ display: 'inline' }} /> 
+              <span style={{ color: '#ccc', margin: '0 2px' }}>|</span> 
+              <span style={{ color: '#878787' }}>{product.reviewsCount > 999 ? `${(product.reviewsCount/1000).toFixed(1)}K` : product.reviewsCount}+</span>
             </div>
-
-            {/* Indicator Dots */}
-            {imagesList.length > 1 && (
-              <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px', zIndex: 5 }}>
-                {imagesList.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => { e.stopPropagation(); setActiveImageIndex(index); }}
-                    style={{
-                      padding: 0,
-                      border: 'none',
-                      height: '6px',
-                      width: activeImageIndex === index ? '16px' : '6px',
-                      borderRadius: '3px',
-                      backgroundColor: activeImageIndex === index ? 'var(--primary-color)' : '#cbd5e1',
-                      cursor: 'pointer',
-                      transition: 'all 0.25s ease'
-                    }}
-                  />
-                ))}
-              </div>
-            )}
           </div>
+
+          {/* Centered Indicator Dots below image slider */}
+          {imagesList.length > 1 && (
+            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', margin: '12px 0 8px 0' }}>
+              {imagesList.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => { e.stopPropagation(); setActiveImageIndex(index); }}
+                  style={{
+                    padding: 0,
+                    border: 'none',
+                    height: '6px',
+                    width: activeImageIndex === index ? '16px' : '6px',
+                    borderRadius: '3px',
+                    backgroundColor: activeImageIndex === index ? '#2874f0' : '#cbd5e1',
+                    cursor: 'pointer',
+                    transition: 'all 0.25s ease'
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Multiple preview thumbnails (desktop layout style thumbnails below) */}
           {imagesList.length > 1 && (
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '4px 0 12px 0', flexWrap: 'wrap' }}>
+            <div className="desktop-thumbnails-container" style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '4px 0 12px 0', flexWrap: 'wrap' }}>
               {imagesList.map((imgUrl, index) => (
                 <img
                   key={index}
@@ -605,9 +665,27 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
           {/* Flipkart Inline Action Buttons Row for Immediate Purchase */}
           <div className="action-buttons-row" style={{ margin: '16px 0', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' }}>
-            {/* White Add to Cart Option */}
+            {/* 1. Mobile-only Cart Icon Button (Square Box) */}
             <button 
-              className="details-action-btn-secondary" 
+              className="action-btn-cart-icon" 
+              onClick={() => {
+                const customProduct = {
+                  ...product,
+                  price: currentDisplayPrice,
+                  originalPrice: currentDisplayOriginalPrice,
+                  selectedColor: activeColor ? activeColor.name : '',
+                  selectedVariant: activeVariant ? activeVariant.name : ''
+                };
+                addToCart(customProduct);
+              }}
+              style={{ display: 'none' }} /* Visible only on mobile via CSS flex display overrides */
+            >
+              <ShoppingCart size={18} />
+            </button>
+
+            {/* 2. White Add to Cart / Buy with EMI Option */}
+            <button 
+              className="action-btn-emi" 
               onClick={() => {
                 const customProduct = {
                   ...product,
@@ -630,16 +708,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: '600',
-                fontSize: '14px'
+                fontWeight: '600'
               }}
             >
-              Add to cart
+              {/* Desktop Text */}
+              <span className="desktop-only">Add to cart</span>
+              {/* Mobile Text */}
+              <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
+                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Buy with EMI</span>
+                <span style={{ fontSize: '9px', fontWeight: 'normal', color: '#666' }}>From ₹{Math.round(currentDisplayPrice / 6).toLocaleString('en-IN')}/m</span>
+              </div>
             </button>
 
-            {/* Yellow Buy Now Option */}
+            {/* 3. Yellow Buy Now Option */}
             <button 
-              className="details-action-btn-primary" 
+              className="action-btn-buy" 
               onClick={() => {
                 const customProduct = {
                   ...product,
@@ -663,11 +746,16 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: 'bold',
-                fontSize: '14px'
+                fontWeight: 'bold'
               }}
             >
-              Buy at ₹{currentDisplayPrice.toLocaleString('en-IN')}
+              {/* Desktop Text */}
+              <span className="desktop-only">Buy at ₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+              {/* Mobile Text */}
+              <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
+                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Buy now</span>
+                <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,0,0,0.6)' }}>at ₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+              </div>
             </button>
           </div>
 
