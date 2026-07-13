@@ -1224,13 +1224,26 @@ app.post('/api/payouts', async (req, res) => {
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await getOrders();
-    const { email } = req.query;
+    const { email, username } = req.query;
+    
+    // 1. Direct filter by username if provided
+    if (username && username !== 'admin') {
+      const filtered = orders.filter(o => o.customerUsername === username);
+      return res.json(filtered);
+    }
+    
+    // 2. Lookup by email address
     if (email && email !== 'admin') {
       const users = await getUsersMap();
       const user = Object.values(users).find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
       if (user) {
-        // Return only this customer's orders
         const filtered = orders.filter(o => o.customerUsername === user.username);
+        return res.json(filtered);
+      }
+      
+      // Fallback: check if email param is actually user's username key
+      if (users[email]) {
+        const filtered = orders.filter(o => o.customerUsername === email);
         return res.json(filtered);
       }
       return res.json([]);

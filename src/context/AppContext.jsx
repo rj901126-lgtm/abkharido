@@ -128,9 +128,11 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const fetchOrders = async (email) => {
+  const fetchOrders = async (emailOrUsername) => {
     try {
-      const res = await fetch(`/api/orders?email=${email || ''}`);
+      const username = currentUser ? currentUser.username : '';
+      const emailVal = emailOrUsername || (currentUser ? currentUser.email : '');
+      const res = await fetch(`/api/orders?username=${username}&email=${emailVal || ''}`);
       if (res.ok) {
         const data = await res.json();
         setOrders(data);

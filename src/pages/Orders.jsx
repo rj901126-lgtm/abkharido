@@ -8,7 +8,7 @@ const Orders = ({ onNavigate }) => {
 
   React.useEffect(() => {
     if (currentUser) {
-      fetchOrders(currentUser.email);
+      fetchOrders(currentUser.username || currentUser.email);
     }
   }, []);
 
