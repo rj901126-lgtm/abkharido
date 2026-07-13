@@ -2,10 +2,17 @@
 .categories-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px - 60px); /* Adjusts for main header and bottom nav */
+  height: calc(100vh - 56px - 48px); /* Desktop: 56px top header, 48px page header */
   background-color: #ffffff;
   overflow: hidden;
   font-family: Inter, -apple-system, sans-serif;
+}
+
+@media (max-width: 600px) {
+  .categories-page {
+    /* Mobile: 104px top header, 48px page header, 56px bottom nav */
+    height: calc(100vh - 104px - 48px - 56px - env(safe-area-inset-bottom)) !important;
+  }
 }
 
 @media (min-width: 769px) {
