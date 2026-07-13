@@ -120,7 +120,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct }) => 
       <div className="categories-split-container">
         {/* Sidebar vertical navigation */}
         <div className="categories-sidebar">
-          {CATEGORIES.map(cat => (
+          {CATEGORIES.filter(cat => cat.id !== 'all').map(cat => (
             <button
               key={cat.id}
               className={`sidebar-category-btn ${selectedCatId === cat.id ? 'active' : ''}`}

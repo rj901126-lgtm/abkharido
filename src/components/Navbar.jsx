@@ -244,7 +244,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
       {(activePage === 'home' || activePage === 'catalog') && (
         <nav className="cat-bar">
           <div className="cat-container">
-            {CATEGORIES.map(cat => (
+            {CATEGORIES.filter(cat => cat.id !== 'all').map(cat => (
               <div
                 key={cat.id}
                 className={`cat-item ${currentCategory === cat.id ? 'active' : ''}`}
