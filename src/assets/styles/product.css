@@ -411,6 +411,20 @@
     height: calc(100px + env(safe-area-inset-bottom)) !important;
     width: 100% !important;
   }
+  /* CSS-based fail-safe hides for mobile view when ProductDetails is active */
+  body.product-details-active .bottom-nav {
+    display: none !important;
+  }
+  body.product-details-active .navbar-header {
+    display: none !important;
+  }
+  body.product-details-active .cat-bar {
+    display: none !important;
+  }
+  body.product-details-active .main-content {
+    margin-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
 }
 
 .mobile-only-spacer {

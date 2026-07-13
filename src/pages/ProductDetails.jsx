@@ -13,7 +13,8 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Heart
+  Heart,
+  ArrowLeft
 } from 'lucide-react';
 import '../assets/styles/product.css';
 
@@ -22,6 +23,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState('560103');
   const [deliveryEstimate, setDeliveryEstimate] = useState('Delivery by Tomorrow, Monday | Free Express Shipping');
+
+  React.useEffect(() => {
+    document.body.classList.add('product-details-active');
+    return () => {
+      document.body.classList.remove('product-details-active');
+    };
+  }, []);
 
   // --- Dynamic Customer Reviews hooks ---
   const [reviewsList, setReviewsList] = useState(() => {
@@ -378,6 +386,27 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                   <img src={imgUrl} alt={`${product.name} View ${index}`} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
                 </div>
               ))}
+            </div>
+
+            {/* Floating Back Arrow Button (Top-Left overlay) */}
+            <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 5 }}>
+              <button 
+                onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}
+                style={{ 
+                  border: '1px solid #eaeaea', 
+                  borderRadius: '50%', 
+                  backgroundColor: 'white', 
+                  width: '36px', 
+                  height: '36px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.05)', 
+                  cursor: 'pointer' 
+                }}
+              >
+                <ArrowLeft size={18} color="#212121" />
+              </button>
             </div>
 
             {/* Flipkart Floating Badges & Controls Overlay */}
