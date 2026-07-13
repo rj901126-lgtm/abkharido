@@ -370,52 +370,20 @@
     background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%);
   }
   .cat-item:nth-child(3)::before {
-    content: '👕';
-    background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%);
-  }
-  .cat-item:nth-child(4)::before {
-    content: '💄';
-    background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
-  }
-  .cat-item:nth-child(5)::before {
-    content: '🛋️';
-    background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%);
-  }
-  .cat-item:nth-child(6)::before {
     content: '💻';
     background: linear-gradient(135deg, #e0f7fa 0%, #4dd0e1 100%);
   }
-  .cat-item:nth-child(7)::before {
+  .cat-item:nth-child(4)::before {
+    content: '👕';
+    background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%);
+  }
+  .cat-item:nth-child(5)::before {
+    content: '🏠';
+    background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%);
+  }
+  .cat-item:nth-child(6)::before {
     content: '📺';
     background: linear-gradient(135deg, #ffebee 0%, #ef9a9a 100%);
-  }
-  .cat-item:nth-child(8)::before {
-    content: '🧸';
-    background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
-  }
-  .cat-item:nth-child(9)::before {
-    content: '🍯';
-    background: linear-gradient(135deg, #fffde7 0%, #fff59d 100%);
-  }
-  .cat-item:nth-child(10)::before {
-    content: '🏍️';
-    background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
-  }
-  .cat-item:nth-child(11)::before {
-    content: '🏏';
-    background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%);
-  }
-  .cat-item:nth-child(12)::before {
-    content: '🪑';
-    background: linear-gradient(135deg, #fbe9e7 0%, #ffccbc 100%);
-  }
-  .cat-item:nth-child(13)::before {
-    content: '📖';
-    background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%);
-  }
-  .cat-item:nth-child(14)::before {
-    content: '🛵';
-    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
   }
   .cat-item.active::before {
     border-color: var(--primary-color) !important;
