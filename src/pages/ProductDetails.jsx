@@ -652,7 +652,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
               </div>
             </div>
           )}
-
           {/* Pricing Details */}
           <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0, marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
             <div className="details-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
@@ -662,8 +661,99 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           </div>
 
+          {/* Flipkart Inline Action Buttons Row for Immediate Purchase */}
+          <div className="action-buttons-row" style={{ margin: '16px 0', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' }}>
+            {/* Outline Shopping Cart Box Icon */}
+            <button 
+              className="details-action-btn-cart-icon" 
+              onClick={() => {
+                const customProduct = {
+                  ...product,
+                  price: currentDisplayPrice,
+                  originalPrice: currentDisplayOriginalPrice,
+                  selectedColor: activeColor ? activeColor.name : '',
+                  selectedVariant: activeVariant ? activeVariant.name : ''
+                };
+                addToCart(customProduct);
+              }}
+              style={{
+                border: '1px solid #dcdcdc',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '46px',
+                height: '46px',
+                cursor: 'pointer',
+                boxSizing: 'border-box'
+              }}
+            >
+              <ShoppingCart size={18} color="#212121" />
+            </button>
+
+            {/* White Add to Cart Option */}
+            <button 
+              className="details-action-btn-secondary" 
+              onClick={() => {
+                const customProduct = {
+                  ...product,
+                  price: currentDisplayPrice,
+                  originalPrice: currentDisplayOriginalPrice,
+                  selectedColor: activeColor ? activeColor.name : '',
+                  selectedVariant: activeVariant ? activeVariant.name : ''
+                };
+                addToCart(customProduct);
+              }}
+              style={{
+                border: '1px solid #dcdcdc',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                color: '#212121',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                height: '46px',
+                cursor: 'pointer',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
+            >
+              ADD TO CART
+            </button>
+
+            {/* Yellow Buy Now Option */}
+            <button 
+              className="details-action-btn-primary" 
+              onClick={() => {
+                const customProduct = {
+                  ...product,
+                  price: currentDisplayPrice,
+                  originalPrice: currentDisplayOriginalPrice,
+                  selectedColor: activeColor ? activeColor.name : '',
+                  selectedVariant: activeVariant ? activeVariant.name : ''
+                };
+                addToCart(customProduct, 1);
+                onBuyNow(customProduct);
+              }}
+              style={{
+                border: 'none',
+                borderRadius: '4px',
+                backgroundColor: '#ffc200',
+                color: '#212121',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                height: '46px',
+                cursor: 'pointer',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
+            >
+              BUY NOW
+            </button>
+          </div>
+
           {/* Flipkart-Style Available Offers */}
-          <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '16px', marginTop: '4px' }}>
+          <div style={{ paddingTop: '4px' }}>
             <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#212121', marginBottom: '10px' }}>Available Offers</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
