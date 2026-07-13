@@ -305,6 +305,21 @@ img {
   color: var(--success);
 }
 
+/* --- FOOTER DESKTOP GRID LAYOUTS --- */
+.footer-features-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 24px !important;
+}
+
+.footer-links-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 32px !important;
+  padding-top: 40px !important;
+  padding-bottom: 40px !important;
+}
+
 /* --- MOBILE APP RESPONSIVENESS OVERRIDES --- */
 @media (max-width: 768px) {
   /* Global Page Margins */
@@ -462,15 +477,24 @@ img {
 
   /* Footer responsiveness overrides */
   .footer-features-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 16px !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 20px !important;
+    padding: 0 16px !important;
   }
   .footer-feature-item {
     font-size: 11px !important;
-    gap: 8px !important;
+    gap: 10px !important;
   }
   .footer-links-grid {
-    display: none !important; /* Hide footer link columns on mobile */
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 24px !important;
+    padding: 30px 16px !important;
+  }
+  .footer-links-grid > div:last-child {
+    grid-column: span 2 !important;
+    border-top: 1px dashed #2e3e54;
+    padding-top: 16px;
   }
   .footer-bottom-bar {
     padding-bottom: 80px !important; /* Pushes the dark copyright background below nav bar for unified look */

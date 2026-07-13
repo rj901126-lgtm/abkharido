@@ -116,8 +116,6 @@ const styles = {
     padding: '24px 0',
   },
   featuresGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '24px',
   },
   featureItem: {
@@ -135,8 +133,6 @@ const styles = {
     fontSize: '12px',
   },
   linksGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '32px',
     paddingTop: '40px',
     paddingBottom: '40px',
