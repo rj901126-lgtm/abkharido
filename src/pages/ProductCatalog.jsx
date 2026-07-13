@@ -132,8 +132,8 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       <main className="catalog-main" style={{ width: '100%', flex: 1 }}>
         
         {/* Results Header */}
-        <div className="catalog-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px' }}>
-          <span className="results-count" style={{ fontSize: '14px', fontWeight: '500', color: '#212121' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', paddingBottom: '4px' }}>
+          <span className="results-count" style={{ fontSize: '13px', fontWeight: '500', color: '#666666' }}>
             {searchQuery ? (
               <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
             ) : (
