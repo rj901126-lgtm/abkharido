@@ -336,12 +336,18 @@ async function getUsersMap() {
   return map;
 }
 
-async function saveUsersMap(usersMap) {
+async function saveUsersMap(usersMap, modifiedUsernames = null) {
   await getDb();
   if (isMongo) {
-    for (const username of Object.keys(usersMap)) {
-      const userDoc = { _id: username, ...usersMap[username] };
-      await db.collection('users').replaceOne({ _id: username }, userDoc, { upsert: true });
+    let targets = Object.keys(usersMap);
+    if (modifiedUsernames) {
+      targets = Array.isArray(modifiedUsernames) ? modifiedUsernames : [modifiedUsernames];
+    }
+    for (const username of targets) {
+      if (usersMap[username]) {
+        const userDoc = { _id: username, ...usersMap[username] };
+        await db.collection('users').replaceOne({ _id: username }, userDoc, { upsert: true });
+      }
     }
   } else {
     await writeJson(USERS_FILE, usersMap);
@@ -588,7 +594,7 @@ app.post('/api/auth/verify-otp', async (req, res) => {
       };
       
       users[formattedUsername] = user;
-      await saveUsersMap(users);
+      await saveUsersMap(users, formattedUsername);
     }
 
     res.json({ success: true, user });
@@ -629,7 +635,7 @@ app.post('/api/users/:username/update', async (req, res) => {
       user.fullName = 'Guest User';
     }
 
-    await saveUsersMap(users);
+    await saveUsersMap(users, username);
     res.json(user);
   } catch (err) {
     console.error('Failed to update user profile:', err);
@@ -677,7 +683,7 @@ app.post('/api/users/register-creator', async (req, res) => {
       ...payoutDetails
     };
 
-    await saveUsersMap(users);
+    await saveUsersMap(users, username);
     res.json(users[username]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to register creator profile' });
@@ -733,7 +739,7 @@ app.post('/api/payouts', async (req, res) => {
 
     stats.payouts = [payoutRecord, ...(stats.payouts || [])];
 
-    await saveUsersMap(users);
+    await saveUsersMap(users, username);
     await saveStats(stats);
 
     res.json({ success: true, user, payoutRecord });
@@ -860,7 +866,23 @@ app.post('/api/orders', async (req, res) => {
 
     orders.unshift(newOrder);
     await saveOrders(orders);
-    await saveUsersMap(users);
+    
+    const modifiedUsernames = [user.username];
+    if (isCod && activeReferral) {
+      const { type, referrerId } = activeReferral;
+      if (type === 'aff') {
+        const creatorProfile = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
+        if (creatorProfile) {
+          modifiedUsernames.push(creatorProfile.username);
+        }
+      } else if (type === 'ref') {
+        const userProfile = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
+        if (userProfile) {
+          modifiedUsernames.push(userProfile.username);
+        }
+      }
+    }
+    await saveUsersMap(users, modifiedUsernames);
     await saveStats(stats);
 
     res.json({ order: newOrder, user });
@@ -969,7 +991,19 @@ app.post('/api/payment/verify', async (req, res) => {
           stats.history = [newHistoryTxn, ...stats.history];
         }
 
-        await saveUsersMap(users);
+        const modifiedUsernames = [];
+        if (type === 'aff') {
+          const creatorProfile = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
+          if (creatorProfile) {
+            modifiedUsernames.push(creatorProfile.username);
+          }
+        } else if (type === 'ref') {
+          const userProfile = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
+          if (userProfile) {
+            modifiedUsernames.push(userProfile.username);
+          }
+        }
+        await saveUsersMap(users, modifiedUsernames);
         await saveStats(stats);
       }
 
@@ -1045,7 +1079,26 @@ app.post('/api/orders/:orderId/cancel', async (req, res) => {
     }
 
     await saveOrders(orders);
-    await saveUsersMap(users);
+    
+    const modifiedUsernames = [];
+    if (buyer) {
+      modifiedUsernames.push(buyer.username);
+    }
+    if (oldPaymentStatus === 'SUCCESS' && order.referralApplied) {
+      const { type, referrerId } = order.referralApplied;
+      if (type === 'aff') {
+        const creator = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
+        if (creator) {
+          modifiedUsernames.push(creator.username);
+        }
+      } else if (type === 'ref') {
+        const referrer = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
+        if (referrer) {
+          modifiedUsernames.push(referrer.username);
+        }
+      }
+    }
+    await saveUsersMap(users, modifiedUsernames);
 
     res.json({ success: true, order, user: buyer });
   } catch (err) {
