@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ShieldCheck, Phone, Mail, ArrowRight, ArrowLeft, UserPlus } from 'lucide-react';
+import { ShieldCheck, Phone, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
+  
+  // 'login' | 'signup'
+  const [authMode, setAuthMode] = useState('login'); 
+  
+  // Inputs
   const [phone, setPhone] = useState('');
-  
-  // OTP & Signup Prompt States
-  const [showOtpScreen, setShowOtpScreen] = useState(false);
-  const [showSignupForm, setShowSignupForm] = useState(false);
-  
-  // Registration Inputs
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   
+  // OTP States
+  const [showOtpScreen, setShowOtpScreen] = useState(false);
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
-  const [generatedOtp, setGeneratedOtp] = useState(''); // Dev helper code
+  const [generatedOtp, setGeneratedOtp] = useState('');
   const [timer, setTimer] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [isCheckingUser, setIsCheckingUser] = useState(false);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -66,52 +66,60 @@ const Login = ({ onNavigate }) => {
     return true;
   };
 
-  // Step 1: Check if user exists on CONTINUE click
-  const handleCheckAndSendOtp = async (e) => {
+  // Trigger check and OTP dispatch
+  const handleRequestOtp = async (e) => {
     if (e) e.preventDefault();
     if (!validatePhone()) return;
 
-    setIsCheckingUser(true);
+    setIsSending(true);
     try {
+      // 1. Check if user already exists
       const checkRes = await fetch('/api/auth/check-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipient: phone })
       });
       
-      if (checkRes.ok) {
-        const checkData = await checkRes.json();
-        if (checkData.exists) {
-          // User exists: Send OTP directly for login!
-          await triggerOtpDispatch(false);
-        } else {
-          // User is new: Prompt for registration details
-          setShowSignupForm(true);
-          showToast('This number is not registered. Please create a new account.', 'info');
+      if (!checkRes.ok) {
+        showToast('Failed to connect to verification backend.', 'error');
+        setIsSending(false);
+        return;
+      }
+
+      const checkData = await checkRes.json();
+      const userExists = checkData.exists;
+
+      // 2. Apply business rules based on active authMode
+      if (authMode === 'login') {
+        if (!userExists) {
+          // Rule: If customer tries to login but is NOT registered, prompt to sign up
+          showToast("Account not found. Please click 'Create an account' below to register.", 'error');
+          setIsSending(false);
+          return;
         }
       } else {
-        showToast('Failed to verify account details with server.', 'error');
+        if (userExists) {
+          // Rule: If customer tries to register but already HAS an account, prompt to login
+          showToast("Mobile number is already registered. Please click 'Log in' below.", 'error');
+          setIsSending(false);
+          return;
+        }
+        if (!validateSignupDetails()) {
+          setIsSending(false);
+          return;
+        }
       }
-    } catch (err) {
-      showToast('Network error verifying account.', 'error');
-    } finally {
-      setIsCheckingUser(false);
-    }
-  };
 
-  // Step 2: Trigger OTP Dispatch call
-  const triggerOtpDispatch = async (signupMode) => {
-    setIsSending(true);
-    try {
+      // 3. Dispatch OTP if checks pass
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipient: phone, isSignup: signupMode })
+        body: JSON.stringify({ recipient: phone, isSignup: authMode === 'signup' })
       });
 
       const data = await res.json();
       if (res.ok) {
-        setGeneratedOtp(data.otp); // Save the test OTP shown to developer
+        setGeneratedOtp(data.otp); // Save helper code for dev validation
         setShowOtpScreen(true);
         setTimer(60);
         showToast('OTP sent successfully!', 'success');
@@ -119,20 +127,12 @@ const Login = ({ onNavigate }) => {
         showToast(data.error || 'Failed to dispatch verification code.', 'error');
       }
     } catch (err) {
-      showToast('Failed to connect to authentication server.', 'error');
+      showToast('Connection error dispatching OTP.', 'error');
     } finally {
       setIsSending(false);
     }
   };
 
-  // Step 3: Handle Signup details form submission
-  const handleSignupSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateSignupDetails()) return;
-    await triggerOtpDispatch(true);
-  };
-
-  // Step 4: Verify OTP input with Backend
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     const enteredOtp = otpCode.join('');
@@ -149,42 +149,39 @@ const Login = ({ onNavigate }) => {
         body: JSON.stringify({
           recipient: phone,
           otp: enteredOtp,
-          isSignup: showSignupForm,
-          fullName: showSignupForm ? fullName.trim() : undefined,
-          email: showSignupForm ? email.trim() : undefined
+          isSignup: authMode === 'signup',
+          fullName: authMode === 'signup' ? fullName.trim() : undefined,
+          email: authMode === 'signup' ? email.trim() : undefined
         })
       });
 
       const data = await res.json();
       if (res.ok) {
-        showToast(showSignupForm ? 'Registration completed successfully!' : 'Logged in successfully!', 'success');
-        // Save token & refresh page to load user context
+        showToast(authMode === 'signup' ? 'Registration completed successfully!' : 'Logged in successfully!', 'success');
         localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-        window.location.reload(); // Refresh to sync all states
+        window.location.reload(); 
       } else {
         showToast(data.error || 'Incorrect OTP code.', 'error');
       }
     } catch (err) {
-      showToast('Failed to verify OTP with server.', 'error');
+      showToast('Authentication verification server failure.', 'error');
     } finally {
       setIsVerifying(false);
     }
   };
 
-  // Manage individual OTP digit box focuses
   const handleOtpChange = (element, index) => {
     if (isNaN(element.value)) return false;
 
     setOtpCode([...otpCode.map((d, idx) => (idx === index ? element.value : d))]);
 
-    // Focus next input
+    // Auto-focus next field
     if (element.nextSibling && element.value) {
       element.nextSibling.focus();
     }
   };
 
   const handleOtpKeyDown = (e, index) => {
-    // Focus previous on backspace
     if (e.key === 'Backspace' && !otpCode[index] && e.target.previousSibling) {
       e.target.previousSibling.focus();
     }
@@ -196,175 +193,311 @@ const Login = ({ onNavigate }) => {
     setGeneratedOtp('');
   };
 
-  const handleCancelSignup = () => {
-    setShowSignupForm(false);
+  const toggleAuthMode = () => {
+    setAuthMode(authMode === 'login' ? 'signup' : 'login');
+    setPhone('');
     setFullName('');
     setEmail('');
+    setShowOtpScreen(false);
   };
 
   return (
     <div className="container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '24px 16px' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '420px', padding: '32px', boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}>
+      
+      {/* Flipkart Style Split Card Grid */}
+      <div className="flipkart-card-wrapper" style={{ 
+        display: 'flex', 
+        width: '100%', 
+        maxWidth: '780px', 
+        minHeight: '460px', 
+        backgroundColor: '#ffffff', 
+        borderRadius: '4px', 
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        overflow: 'hidden'
+      }}>
         
-        {/* Header Branding */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ display: 'inline-flex', padding: '12px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary-color)', marginBottom: '12px' }}>
-            {showSignupForm ? <UserPlus size={28} /> : <ShieldCheck size={28} />}
+        {/* Left Panel: Solid Blue Branding Area */}
+        <div className="flipkart-left-panel" style={{ 
+          width: '40%', 
+          backgroundColor: '#2874f0', 
+          color: '#ffffff', 
+          padding: '40px 32px', 
+          display: 'flex', 
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          boxSizing: 'border-box'
+        }}>
+          <div>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.2' }}>
+              {showOtpScreen 
+                ? 'Verify' 
+                : authMode === 'login' 
+                  ? 'Login' 
+                  : 'Looks like you\'re new here!'}
+            </h2>
+            <p style={{ fontSize: '15px', color: '#dbdbdb', margin: 0, lineHeight: '1.5' }}>
+              {showOtpScreen 
+                ? 'Verification OTP has been sent' 
+                : authMode === 'login' 
+                  ? 'Get access to your Orders, Wishlist and Recommendations' 
+                  : 'Sign up with your mobile number to get started'}
+            </p>
           </div>
-          <h2 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.3' }}>
-            {showOtpScreen 
-              ? 'Enter Verification Code' 
-              : showSignupForm 
-                ? 'Create AbKharido Account' 
-                : 'Welcome to AbKharido'}
-          </h2>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: '1.4' }}>
-            {showOtpScreen 
-              ? `Verification OTP sent to +91 ${phone}` 
-              : showSignupForm 
-                ? `Enter details to register mobile number +91 ${phone}`
-                : 'Secure, passwordless verification via OTP'}
-          </p>
+
+          {/* Premium Vector SVG Illustration */}
+          <div className="illustration-container" style={{ marginTop: 'auto' }}>
+            <svg viewBox="0 0 200 120" style={{ width: '100%', height: 'auto', maxHeight: '110px' }}>
+              <circle cx="100" cy="80" r="40" fill="rgba(255,255,255,0.08)" />
+              <path d="M40 90h120v20H40z" fill="rgba(255,255,255,0.12)" rx="2" />
+              {/* Device monitor */}
+              <rect x="75" y="45" width="50" height="35" rx="3" fill="#ffffff" />
+              <rect x="78" y="48" width="44" height="25" fill="#f0f3f7" />
+              <rect x="92" y="80" width="16" height="10" fill="#e0e6ed" />
+              <path d="M85 90h30v3H85z" fill="#ccd6e0" />
+              <circle cx="100" cy="60" r="6" fill="#ffd54f" />
+              {/* Floating heart */}
+              <path d="M40 50c-2-2-5-2-7 0a4.9 4.9 0 000 7l7 7 7-7a4.9 4.9 0 000-7z" fill="#ff4d6d" />
+              {/* Shopping bag */}
+              <rect x="135" y="65" width="22" height="22" rx="2" fill="#ffd54f" />
+              <path d="M141 65v-3a5 5 0 0110 0v3" stroke="#ffb300" strokeWidth="2" fill="none" />
+              <circle cx="146" cy="74" r="2" fill="#333" />
+              <circle cx="152" cy="74" r="2" fill="#333" />
+            </svg>
+          </div>
         </div>
 
-        {/* Live Test Developer Banner (For testing on Vercel without real SMS/Email charges) */}
-        {showOtpScreen && generatedOtp && (
-          <div style={{ backgroundColor: '#fff8e1', border: '1px dashed #ffe082', borderRadius: '4px', padding: '12px', marginBottom: '20px', fontSize: '13px', color: '#b78103', textAlign: 'center', fontWeight: '600' }}>
-            🔔 [TEST MODE OTP HELPER] <br />
-            Enter Code: <code style={{ fontSize: '15px', color: '#e65100', fontWeight: 'bold' }}>{generatedOtp}</code>
-          </div>
-        )}
+        {/* Right Panel: White Work Area */}
+        <div className="flipkart-right-panel" style={{ 
+          width: '60%', 
+          backgroundColor: '#ffffff', 
+          padding: '48px 40px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'space-between',
+          boxSizing: 'border-box'
+        }}>
+          
+          {/* Main workspace */}
+          <div>
+            {/* Developer OTP Test banner */}
+            {showOtpScreen && generatedOtp && (
+              <div style={{ 
+                backgroundColor: '#fff8e1', 
+                border: '1px dashed #ffe082', 
+                borderRadius: '4px', 
+                padding: '10px 12px', 
+                marginBottom: '20px', 
+                fontSize: '12px', 
+                color: '#b78103', 
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <span>🔔 [TEST MODE OTP]</span>
+                <code>Code: <strong style={{ color: '#e65100', fontSize: '13px' }}>{generatedOtp}</strong></code>
+              </div>
+            )}
 
-        {/* 1. OTP Verification Screen */}
-        {showOtpScreen ? (
-          <form onSubmit={handleVerifyOtp}>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
-              {otpCode.map((data, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  name="otp"
-                  maxLength="1"
-                  value={data}
-                  onChange={(e) => handleOtpChange(e.target, index)}
-                  onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                  onFocus={(e) => e.target.select()}
-                  style={{
-                    width: '45px',
-                    height: '48px',
-                    fontSize: '20px',
-                    textAlign: 'center',
+            {/* Verification Mode Form */}
+            {showOtpScreen ? (
+              <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  Enter the 6-digit OTP sent to **+91 {phone}**:
+                </span>
+                
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-start' }}>
+                  {otpCode.map((data, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      name="otp"
+                      maxLength="1"
+                      value={data}
+                      onChange={(e) => handleOtpChange(e.target, index)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                      onFocus={(e) => e.target.select()}
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        fontSize: '18px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        border: 'none',
+                        borderBottom: '2px solid #ccc',
+                        outline: 'none',
+                        transition: 'border-color 0.2s'
+                      }}
+                      className="otp-input-field"
+                      required
+                    />
+                  ))}
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="btn" 
+                  style={{ 
+                    width: '100%', 
+                    height: '48px', 
+                    backgroundColor: '#fb641b', 
+                    color: '#ffffff', 
                     fontWeight: 'bold',
-                    border: '1px solid #dcdcdc',
-                    borderRadius: '4px',
-                    outline: 'none',
-                    transition: 'all 0.2s'
+                    fontSize: '15px',
+                    borderRadius: '2px',
+                    border: 'none',
+                    cursor: 'pointer'
                   }}
-                  className="otp-input-field"
-                  required
-                />
-              ))}
-            </div>
-
-            <button type="submit" className="btn btn-accent" style={{ width: '100%', height: '44px', fontWeight: 'bold' }} disabled={isVerifying}>
-              {isVerifying 
-                ? 'VERIFYING...' 
-                : showSignupForm 
-                  ? 'VERIFY & CREATE ACCOUNT' 
-                  : 'VERIFY & SIGN IN'}
-            </button>
-
-            <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px' }}>
-              {timer > 0 ? (
-                <span style={{ color: 'var(--text-secondary)' }}>Resend code in <strong style={{ color: 'var(--text-primary)' }}>{timer}s</strong></span>
-              ) : (
-                <button type="button" onClick={() => triggerOtpDispatch(showSignupForm)} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer', padding: 0 }} disabled={isSending}>
-                  Resend Verification OTP
+                  disabled={isVerifying}
+                >
+                  {isVerifying ? 'VERIFYING...' : 'VERIFY & CONTINUE'}
                 </button>
-              )}
-            </div>
 
-            <button type="button" onClick={handleGoBack} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', margin: '20px auto 0 auto', fontSize: '13px', cursor: 'pointer' }}>
-              <ArrowLeft size={14} /> Change details / Go Back
-            </button>
-          </form>
-        ) : showSignupForm ? (
-          /* 2. New User Registration Prompt */
-          <form onSubmit={handleSignupSubmit}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
-              <div className="form-group">
-                <label className="form-label-txt" style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Full Name*</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter your first & last name" 
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="form-input-field"
-                  style={{ height: '40px', boxSizing: 'border-box' }}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label-txt" style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Email Address (Optional)</label>
-                <input 
-                  type="email" 
-                  placeholder="name@example.com" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="form-input-field"
-                  style={{ height: '40px', boxSizing: 'border-box' }}
-                />
-              </div>
-            </div>
-
-            <button type="submit" className="btn btn-accent" style={{ width: '100%', height: '44px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} disabled={isSending}>
-              {isSending ? 'SENDING OTP...' : 'REGISTER & SEND OTP'} <ArrowRight size={16} />
-            </button>
-
-            <button type="button" onClick={handleCancelSignup} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', margin: '20px auto 0 auto', fontSize: '13px', cursor: 'pointer' }}>
-              <ArrowLeft size={14} /> Change mobile number
-            </button>
-          </form>
-        ) : (
-          /* 3. Initial Phone Input (Direct Login Flow) */
-          <form onSubmit={handleCheckAndSendOtp}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase' }}>10-DIGIT MOBILE NUMBER</label>
-                <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginTop: '4px' }}>
+                  {timer > 0 ? (
+                    <span style={{ color: 'var(--text-secondary)' }}>Resend code in **{timer}s**</span>
+                  ) : (
+                    <button type="button" onClick={() => triggerOtpDispatch(authMode === 'signup')} style={{ background: 'none', border: 'none', color: '#2874f0', fontWeight: '600', cursor: 'pointer', padding: 0 }}>
+                      Resend OTP
+                    </button>
+                  )}
+                  <button type="button" onClick={handleGoBack} style={{ background: 'none', border: 'none', color: '#2874f0', cursor: 'pointer', padding: 0, fontWeight: '600' }}>
+                    Edit Mobile Number
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* Request Code Mode Forms */
+              <form onSubmit={handleRequestOtp} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                
+                {/* 1. Phone input - underline input style */}
+                <div style={{ position: 'relative', borderBottom: '2px solid #e0e0e0', paddingBottom: '4px' }}>
+                  <span style={{ position: 'absolute', left: '0', bottom: '6px', fontSize: '15px', color: '#878787', fontWeight: '500' }}>+91</span>
                   <input
                     type="tel"
-                    placeholder="98765 43210"
+                    placeholder="Enter Mobile number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
-                    style={{ paddingLeft: '56px', width: '100%', height: '42px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '14px', letterSpacing: '0.5px', boxSizing: 'border-box' }}
+                    style={{ 
+                      paddingLeft: '38px', 
+                      width: '100%', 
+                      height: '36px', 
+                      border: 'none', 
+                      outline: 'none',
+                      fontSize: '15px', 
+                      boxSizing: 'border-box' 
+                    }}
                     required
                   />
-                  <span style={{ position: 'absolute', left: '12px', top: '12px', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>+91</span>
                 </div>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '6px', lineHeight: '1.4' }}>Enter your registered number to log in. If you are new, you will be prompted to register.</span>
-              </div>
-            </div>
 
-            <button type="submit" className="btn btn-accent" style={{ width: '100%', height: '44px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} disabled={isCheckingUser}>
-              {isCheckingUser ? 'CHECKING ACCOUNT...' : 'CONTINUE'} <ArrowRight size={16} />
-            </button>
-          </form>
-        )}
+                {/* 2. Signup Fields */}
+                {authMode === 'signup' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease' }}>
+                    <div style={{ borderBottom: '2px solid #e0e0e0', paddingBottom: '4px' }}>
+                      <input
+                        type="text"
+                        placeholder="Enter Full Name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        style={{ 
+                          width: '100%', 
+                          height: '36px', 
+                          border: 'none', 
+                          outline: 'none',
+                          fontSize: '15px', 
+                          boxSizing: 'border-box' 
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <div style={{ borderBottom: '2px solid #e0e0e0', paddingBottom: '4px' }}>
+                      <input
+                        type="email"
+                        placeholder="Enter Email (Optional)"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={{ 
+                          width: '100%', 
+                          height: '36px', 
+                          border: 'none', 
+                          outline: 'none',
+                          fontSize: '15px', 
+                          boxSizing: 'border-box' 
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Policy Notice */}
+                <p style={{ fontSize: '12px', color: '#878787', margin: 0, lineHeight: '1.4' }}>
+                  By continuing, you agree to AbKharido's <span style={{ color: '#2874f0', cursor: 'pointer' }}>Terms of Use</span> and <span style={{ color: '#2874f0', cursor: 'pointer' }}>Privacy Policy</span>.
+                </p>
+
+                {/* Action Request Button */}
+                <button 
+                  type="submit" 
+                  className="btn" 
+                  style={{ 
+                    width: '100%', 
+                    height: '48px', 
+                    backgroundColor: '#fb641b', 
+                    color: '#ffffff', 
+                    fontWeight: 'bold',
+                    fontSize: '15px',
+                    borderRadius: '2px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 2px 0 rgba(0,0,0,0.1)'
+                  }}
+                  disabled={isSending}
+                >
+                  {isSending 
+                    ? 'SENDING OTP...' 
+                    : authMode === 'login' 
+                      ? 'Request OTP' 
+                      : 'CONTINUE'}
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Bottom Flip Link: Toggle between Login and Registration */}
+          {!showOtpScreen && (
+            <div style={{ textAlign: 'center', marginTop: '24px' }}>
+              {authMode === 'login' ? (
+                <span 
+                  onClick={toggleAuthMode}
+                  style={{ color: '#2874f0', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}
+                >
+                  New to Flipkart? Create an account
+                </span>
+              ) : (
+                <span 
+                  onClick={toggleAuthMode}
+                  style={{ color: '#2874f0', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}
+                >
+                  Existing User? Log in
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Flipkart Style Footer Links */}
-      <div className="login-footer-links" style={{ marginTop: '24px', textAlign: 'center', fontSize: '11px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center', color: '#878787' }}>
-        <a href="#about" onClick={(e) => { e.preventDefault(); onNavigate('info-about'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>About Us</a>
+      {/* Footer support links */}
+      <div className="login-footer-links" style={{ marginTop: '30px', textAlign: 'center', fontSize: '11px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center', color: '#878787' }}>
+        <a href="#about" onClick={(e) => { e.preventDefault(); onNavigate('info-about'); }} style={{ color: '#878787', textDecoration: 'none' }}>About Us</a>
         <span>|</span>
-        <a href="#terms" onClick={(e) => { e.preventDefault(); onNavigate('info-terms'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Terms of Use</a>
+        <a href="#terms" onClick={(e) => { e.preventDefault(); onNavigate('info-terms'); }} style={{ color: '#878787', textDecoration: 'none' }}>Terms of Use</a>
         <span>|</span>
-        <a href="#privacy" onClick={(e) => { e.preventDefault(); onNavigate('info-privacy'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Privacy Policy</a>
+        <a href="#privacy" onClick={(e) => { e.preventDefault(); onNavigate('info-privacy'); }} style={{ color: '#878787', textDecoration: 'none' }}>Privacy Policy</a>
         <span>|</span>
-        <a href="#returns" onClick={(e) => { e.preventDefault(); onNavigate('info-returns'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Return Policy</a>
+        <a href="#returns" onClick={(e) => { e.preventDefault(); onNavigate('info-returns'); }} style={{ color: '#878787', textDecoration: 'none' }}>Return Policy</a>
         <span>|</span>
-        <a href="#contact" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }} style={{ color: '#555', textDecoration: 'none', fontWeight: '600' }}>Contact Support</a>
+        <a href="#contact" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }} style={{ color: '#878787', textDecoration: 'none' }}>Contact Support</a>
       </div>
     </div>
   );
