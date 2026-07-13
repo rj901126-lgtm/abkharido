@@ -24,12 +24,24 @@ const InfoPage = ({ infoType }) => {
               We believe in rewarding our community. Shoppers earn shopping discount coins, while creators/influencers 
               receive withdrawable cash commissions on sales made through secure tracking links.
             </p>
+            
+            <h3 style={styles.subtitle}>💼 Careers</h3>
+            <p style={styles.paragraph}>
+              We are constantly seeking smart minds in warehouse operations, customer service, supply logistics, and 
+              software engineering. If you would like to join our self-operated e-commerce crew, please drop your resume 
+              at <a href="mailto:careers@abkharido.com" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>careers@abkharido.com</a>.
+            </p>
+
+            <h3 style={styles.subtitle}>📦 Wholesale Enquiries</h3>
+            <p style={styles.paragraph}>
+              Are you looking to buy wholesale stocks, corporate gifts, or place bulk institutional orders? Get custom discounted pricing quotes by contacting our bulk channel desk at <strong>wholesale@abkharido.com</strong>.
+            </p>
           </div>
         );
       case 'terms':
         return (
           <div>
-            <h2 style={styles.title}>Terms of Use</h2>
+            <h2 style={styles.title}>Terms of Use & Guidelines</h2>
             <p style={styles.date}>Last Updated: July 2026</p>
             <p style={styles.paragraph}>
               This document is an electronic record in terms of Information Technology Act, 2000 and rules there 
@@ -42,11 +54,17 @@ const InfoPage = ({ infoType }) => {
               Users are responsible for maintaining the privacy of their OTP sessions and are advised against 
               exposing registration keys.
             </p>
-            <h3 style={styles.subtitle}>2. Payment Terms</h3>
+            <h3 style={styles.subtitle}>2. Payment Terms & Refunds</h3>
             <p style={styles.paragraph}>
               All transactions are processed through our partner payment gateways (Cashfree Payments). 
-              Funds are held securely and orders are dispatched once payment status is verified. In case of 
-              cancellations, refunds are credited back to the original source.
+              Funds are held securely and orders are dispatched once payment status is verified. Refund processing 
+              usually takes 5-7 business days to be credited back to your original payment method.
+            </p>
+            <h3 style={styles.subtitle}>3. Affiliate Partnerships Guidelines</h3>
+            <p style={styles.paragraph}>
+              Affiliates and creators are required to share links responsibly. Spamming social channels, utilizing 
+              automated traffic bots, or making false advertising claims is strictly prohibited and will lead to instant 
+              commission ledger termination.
             </p>
           </div>
         );
@@ -76,7 +94,7 @@ const InfoPage = ({ infoType }) => {
       case 'returns':
         return (
           <div>
-            <h2 style={styles.title}>Cancellation & Return Policy</h2>
+            <h2 style={styles.title}>Cancellation, Returns & Shipping</h2>
             <p style={styles.paragraph}>
               We want you to be fully satisfied with every purchase. AbKharido offers a user-friendly cancellation 
               and returns policy.
@@ -93,16 +111,23 @@ const InfoPage = ({ infoType }) => {
               <strong>"Cancel Order"</strong> button in your Orders history. Any redeemed coins will be immediately 
               refunded to your wallet, and payment refunds will be processed within 5-7 business days.
             </p>
+            <h3 style={styles.subtitle}>🚚 Shipping & Delivery Policy</h3>
+            <p style={styles.paragraph}>
+              Orders are dispatched within 24 hours of successful placement. Express 1-Day home delivery is available 
+              for all addresses located within the Bengaluru hub zone. Shipping to other national zones takes 
+              between 3-5 business days. We offer free standard shipping on orders valued above ₹500.
+            </p>
           </div>
         );
       case 'contact':
       default:
         return (
           <div>
-            <h2 style={styles.title}>Contact Support & Fulfillment Hub</h2>
+            <h2 style={styles.title}>Contact Support & Partnerships</h2>
             <p style={styles.paragraph}>
               Need assistance with an order, payment transaction, or creator payout? Get in touch with our team directly.
             </p>
+            
             <div style={styles.contactCard}>
               <div style={styles.contactItem}>
                 <Building size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
@@ -128,6 +153,12 @@ const InfoPage = ({ infoType }) => {
                 </div>
               </div>
             </div>
+
+            <h3 style={styles.subtitle}>🤝 Creator & Affiliate Partnership Dashboard</h3>
+            <p style={styles.paragraph}>
+              Are you looking to view your share stats, withdraw cash commissions, or track your friend referral progress? 
+              You can access all creator tools directly inside the <strong>Affiliate / Creator Tab</strong> in the top header.
+            </p>
           </div>
         );
     }

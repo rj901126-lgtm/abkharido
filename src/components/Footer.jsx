@@ -38,58 +38,7 @@ const Footer = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Main Footer Links */}
-      <div className="container footer-links-grid" style={styles.linksGrid}>
-        <div>
-          <h5 style={styles.heading}>ABOUT ABKHARIDO</h5>
-          <ul style={styles.list}>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Contact Us</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-about'); }}>About Us</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Careers</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Wholesale Enquiries</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 style={styles.heading}>PARTNERSHIPS</h5>
-          <ul style={styles.list}>
-            <li style={styles.listItem}>
-              <a href="#partners" onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}>
-                Affiliate Dashboard
-              </a>
-            </li>
-            <li style={styles.listItem}>
-              <a href="#creator-program" onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}>
-                Become a Creator (7% Cash)
-              </a>
-            </li>
-            <li style={styles.listItem}>
-              <a href="#referrals" onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}>
-                Refer a Friend (3% Coins)
-              </a>
-            </li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-terms'); }}>Affiliate Guidelines</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 style={styles.heading}>HELP & POLICIES</h5>
-          <ul style={styles.list}>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-terms'); }}>Payments & Refunds</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-contact'); }}>Shipping & Delivery</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-returns'); }}>Cancellation & Returns</a></li>
-            <li style={styles.listItem}><a href="#" onClick={(e) => { e.preventDefault(); onNavigate('info-privacy'); }}>Terms of Use & Privacy</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 style={styles.heading}>DIRECT FULFILLMENT HUB</h5>
-          <p style={styles.fulfillmentText}>
-            <strong>AbKharido Retail Private Limited</strong><br />
-            Outer Ring Road, Devarabeesanahalli Village,<br />
-            Bengaluru, Karnataka - 560103.<br />
-            CIN: U72900KA2026PTC998877<br />
-            Email: help@abkharido.com
-          </p>
-        </div>
-      </div>
+      {/* Main links block removed as they are shifted to the profile tab info sections */}
 
       {/* Footer Bottom copyright */}
       <div className="footer-bottom-bar" style={styles.bottomBar}>
