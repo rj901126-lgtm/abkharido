@@ -1,5 +1,18 @@
 /* Product Catalog & Details Styles for AbKharido.com */
 
+.animate-fade-in-only {
+  animation: fadeInOnly var(--transition-normal) forwards;
+}
+
+@keyframes fadeInOnly {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* --- CATALOG PAGE --- */
 .catalog-container {
   display: flex;

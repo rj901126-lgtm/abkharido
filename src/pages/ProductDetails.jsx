@@ -368,7 +368,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   };
 
   return (
-    <div className="container animate-fade-in">
+    <div className="container animate-fade-in-only">
       <div className="details-page-grid">
         
         {/* Left Column: Image and Purchase Actions */}
