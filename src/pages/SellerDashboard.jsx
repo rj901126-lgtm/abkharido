@@ -10,6 +10,7 @@ import {
   DollarSign, 
   Layers,
   ArrowLeft,
+  ArrowRight,
   X,
   FileText,
   Store,
