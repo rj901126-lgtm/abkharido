@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { CATEGORIES } from '../db/mockData';
 import '../assets/styles/product.css';
 
 const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct }) => {
@@ -97,12 +98,11 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
             onChange={(e) => onSelectCategory(e.target.value)}
             style={{ width: '100%', padding: '6px', border: '1px solid var(--border-light)', borderRadius: '4px' }}
           >
-            <option value="all">All Categories</option>
-            <option value="mobiles">Mobiles</option>
-            <option value="electronics">Electronics</option>
-            <option value="fashion">Fashion</option>
-            <option value="home">Home & Living</option>
-            <option value="appliances">Appliances</option>
+            {CATEGORIES.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.id === 'all' ? 'All Categories' : cat.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -315,12 +315,11 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
                   onChange={(e) => onSelectCategory(e.target.value)}
                   style={{ width: '100%', padding: '8px', border: '1px solid var(--border-light)', borderRadius: '4px', backgroundColor: 'white' }}
                 >
-                  <option value="all">All Categories</option>
-                  <option value="mobiles">Mobiles</option>
-                  <option value="electronics">Electronics</option>
-                  <option value="fashion">Fashion</option>
-                  <option value="home">Home & Living</option>
-                  <option value="appliances">Appliances</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.id === 'all' ? 'All Categories' : cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

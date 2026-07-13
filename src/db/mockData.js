@@ -1,12 +1,20 @@
 /* Mock Database for AbKharido.com */
 
 export const CATEGORIES = [
-  { id: 'all', name: 'All Categories', icon: 'LayoutGrid' },
+  { id: 'all', name: 'For You', icon: 'LayoutGrid' },
   { id: 'mobiles', name: 'Mobiles', icon: 'Smartphone' },
-  { id: 'electronics', name: 'Electronics', icon: 'Laptop' },
   { id: 'fashion', name: 'Fashion', icon: 'Shirt' },
-  { id: 'home', name: 'Home & Living', icon: 'Home' },
-  { id: 'appliances', name: 'Appliances', icon: 'Tv' }
+  { id: 'beauty', name: 'Beauty', icon: 'Sparkles' },
+  { id: 'home', name: 'Home', icon: 'Home' },
+  { id: 'electronics', name: 'Electronics', icon: 'Laptop' },
+  { id: 'appliances', name: 'Appliances', icon: 'Tv' },
+  { id: 'toys', name: 'Toys, baby...', icon: 'Heart' },
+  { id: 'food', name: 'Food & More...', icon: 'ShoppingBag' },
+  { id: 'auto', name: 'Auto Acc...', icon: 'Shield' },
+  { id: 'sports', name: 'Sports & ...', icon: 'Activity' },
+  { id: 'furniture', name: 'Furniture', icon: 'Armchair' },
+  { id: 'books', name: 'Books & ...', icon: 'BookOpen' },
+  { id: 'twowheelers', name: '2 Wheele...', icon: 'Bike' }
 ];
 
 export const PRODUCTS = [
