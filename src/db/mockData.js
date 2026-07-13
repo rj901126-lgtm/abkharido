@@ -314,6 +314,158 @@ export const PRODUCTS = [
     influencerCommissionRate: 0.03,
     userCommissionRate: 0.012,
     inStock: true
+  },
+  {
+    id: 'loreal-shampoo',
+    name: "L'Oreal Professionnel Serie Expert Shampoo (1500 ml)",
+    category: 'beauty',
+    price: 1850,
+    originalPrice: 2100,
+    rating: 4.5,
+    reviewsCount: 824,
+    image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80'],
+    description: 'Professional shampoo for colored and damaged hair. Hydrates, cleanses, and restores hair fiber strength.',
+    specifications: [
+      { key: 'Volume', value: '1500 ml' },
+      { key: 'Type', value: 'Damaged Hair Expert care' }
+    ],
+    influencerCommissionRate: 0.07,
+    userCommissionRate: 0.03,
+    inStock: true
+  },
+  {
+    id: 'lego-police-station',
+    name: 'LEGO City Police Station Toy Building Block Set (668 Pieces)',
+    category: 'toys',
+    price: 4999,
+    originalPrice: 5999,
+    rating: 4.7,
+    reviewsCount: 412,
+    image: 'https://images.unsplash.com/photo-1585366119957-e5737520e979?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1585366119957-e5737520e979?w=600&auto=format&fit=crop&q=80'],
+    description: 'Feature-rich 3-level police station building set. Comes with standard cruiser, helicopter, garbage truck, and 5 mini-figures.',
+    specifications: [
+      { key: 'Ages', value: '6+' },
+      { key: 'Pieces', value: '668 Blocks' }
+    ],
+    influencerCommissionRate: 0.05,
+    userCommissionRate: 0.02,
+    inStock: true
+  },
+  {
+    id: 'organic-honey-pure',
+    name: 'AbKharido Organic Raw Forest Honey (1 kg)',
+    category: 'food',
+    price: 450,
+    originalPrice: 590,
+    rating: 4.6,
+    reviewsCount: 1980,
+    image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&auto=format&fit=crop&q=80'],
+    description: '100% natural raw forest honey. Directly harvested from sustainable organic bee farms, unfiltered and chemical-free.',
+    specifications: [
+      { key: 'Weight', value: '1 kg' },
+      { key: 'Source', value: 'Organic Himalayan Forest' }
+    ],
+    influencerCommissionRate: 0.05,
+    userCommissionRate: 0.02,
+    inStock: true
+  },
+  {
+    id: 'vega-cruiser-helmet',
+    name: 'Vega Cruiser Open Face Motorbike Helmet (ISI Certified)',
+    category: 'auto',
+    price: 1250,
+    originalPrice: 1599,
+    rating: 4.4,
+    reviewsCount: 3420,
+    image: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?w=600&auto=format&fit=crop&q=80'],
+    description: 'Open face ISI certified riding helmet with scratch-resistant clear visor, dynamic ventilation system, and quick-release buckle.',
+    specifications: [
+      { key: 'Certification', value: 'ISI Approved' },
+      { key: 'Size', value: 'Medium (58cm)' }
+    ],
+    influencerCommissionRate: 0.05,
+    userCommissionRate: 0.02,
+    inStock: true
+  },
+  {
+    id: 'mrf-cricket-bat',
+    name: 'MRF Genius Grand Edition English Willow Cricket Bat',
+    category: 'sports',
+    price: 9999,
+    originalPrice: 12999,
+    rating: 4.7,
+    reviewsCount: 88,
+    image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600&auto=format&fit=crop&q=80'],
+    description: 'Premium English willow bat as used by elite international players. Perfect balance, thick edges, and superb punch response.',
+    specifications: [
+      { key: 'Willow', value: 'English Willow Grade 1' },
+      { key: 'Weight', value: '1180 grams' }
+    ],
+    influencerCommissionRate: 0.05,
+    userCommissionRate: 0.02,
+    inStock: true
+  },
+  {
+    id: 'office-chair-ergonomic',
+    name: 'ComfortX Ergonomic Mesh High-Back Office Chair',
+    category: 'furniture',
+    price: 7499,
+    originalPrice: 9999,
+    rating: 4.5,
+    reviewsCount: 312,
+    image: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80'],
+    description: 'High back work desk chair with breathable mesh back, adjustable lumbar support, 3D armrests, and premium tilt-lock mechanism.',
+    specifications: [
+      { key: 'Frame', value: 'Heavy Duty Nylon' },
+      { key: 'Upholstery', value: 'High Tensile Mesh' }
+    ],
+    influencerCommissionRate: 0.05,
+    userCommissionRate: 0.02,
+    inStock: true
+  },
+  {
+    id: 'alchemist-novel',
+    name: 'The Alchemist (Paperback) - By Paulo Coelho',
+    category: 'books',
+    price: 299,
+    originalPrice: 399,
+    rating: 4.8,
+    reviewsCount: 12500,
+    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80'],
+    description: 'A beautiful fable about Santiago, an Andalusian shepherd boy who journeys to Egypt in search of a worldly treasure.',
+    specifications: [
+      { key: 'Author', value: 'Paulo Coelho' },
+      { key: 'Format', value: 'Paperback' }
+    ],
+    influencerCommissionRate: 0.07,
+    userCommissionRate: 0.03,
+    inStock: true
+  },
+  {
+    id: 'ola-s1-pro',
+    name: 'Ola S1 Pro Gen 2 Electric Scooter (Jet Black, 4kWh)',
+    category: 'twowheelers',
+    price: 147999,
+    originalPrice: 152999,
+    rating: 4.6,
+    reviewsCount: 2150,
+    image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600&auto=format&fit=crop&q=80',
+    images: ['https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600&auto=format&fit=crop&q=80'],
+    description: 'Experience next-gen electric mobility. 195 km certified range, 120 km/h top speed, touchscreen smart dashboard, and keyless navigation.',
+    specifications: [
+      { key: 'Range', value: '195 km (IDC certified)' },
+      { key: 'Top Speed', value: '120 km/h' }
+    ],
+    influencerCommissionRate: 0.02,
+    userCommissionRate: 0.005,
+    inStock: true
   }
 ];
 
