@@ -18,6 +18,7 @@ import ProfilePage from './pages/ProfilePage';
 import BottomNavigation from './components/BottomNavigation';
 import InfoPage from './pages/InfoPage';
 import SellerDashboard from './pages/SellerDashboard';
+import CategoriesPage from './pages/CategoriesPage';
 const OnboardingModal = () => {
   const { currentUser, updateUserProfile, showToast } = useApp();
   const [fName, setFName] = React.useState('');
@@ -268,6 +269,7 @@ const AppContent = () => {
         else if (hash === '#seller') targetPage = 'seller';
         else if (hash === '#admin') targetPage = 'admin';
         else if (hash === '#login') targetPage = 'login';
+        else if (hash === '#categories') targetPage = 'categories';
         else if (hash === '#catalog') {
           targetPage = 'catalog';
           targetCategory = 'all';
@@ -387,6 +389,14 @@ const AppContent = () => {
             currentCategory={currentCategory} 
             onSelectCategory={handleSelectCategory}
             searchQuery={searchQuery}
+            onNavigateProduct={handleNavigateProduct}
+          />
+        );
+      case 'categories':
+        return (
+          <CategoriesPage 
+            onNavigate={handleNavigate}
+            onSelectCategory={handleSelectCategory}
             onNavigateProduct={handleNavigateProduct}
           />
         );

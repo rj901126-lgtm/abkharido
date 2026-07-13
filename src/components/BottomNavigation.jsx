@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Home, Search, Award, History, User } from 'lucide-react';
+import { Home, LayoutGrid, Award, History, User } from 'lucide-react';
 import '../assets/styles/bottomnav.css';
 
 const BottomNavigation = ({ activePage, onNavigate }) => {
@@ -17,10 +17,10 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
       </button>
 
       <button 
-        className={`bottom-nav-item ${activePage === 'catalog' ? 'active' : ''}`}
-        onClick={() => onNavigate('catalog')}
+        className={`bottom-nav-item ${activePage === 'categories' ? 'active' : ''}`}
+        onClick={() => onNavigate('categories')}
       >
-        <Search size={20} />
+        <LayoutGrid size={20} />
         <span>Categories</span>
       </button>
 
