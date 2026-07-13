@@ -865,9 +865,25 @@ app.post('/api/auth/send-otp', async (req, res) => {
   }
 });
 
+app.post('/api/auth/check-user', async (req, res) => {
+  try {
+    const { recipient } = req.body;
+    const users = await getUsersMap();
+    const formattedUsername = recipient.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const exists = Object.values(users).some(u => 
+      (u.phone && u.phone.trim() === recipient.trim()) || 
+      (u.email && u.email.toLowerCase().trim() === recipient.toLowerCase().trim()) || 
+      u.username.toLowerCase() === formattedUsername
+    );
+    res.json({ exists });
+  } catch (err) {
+    res.status(500).json({ error: 'Server validation error' });
+  }
+});
+
 app.post('/api/auth/verify-otp', async (req, res) => {
   try {
-    const { recipient, otp, isSignup, fullName } = req.body;
+    const { recipient, otp, isSignup, fullName, email } = req.body;
 
     const isValid = await verifyOtpCode(recipient, otp);
     if (!isValid) {
@@ -885,11 +901,11 @@ app.post('/api/auth/verify-otp', async (req, res) => {
       // Create user profile on signup or first login
       user = {
         username: formattedUsername,
-        fullName: 'Guest User',
-        firstName: '',
-        lastName: '',
+        fullName: fullName || 'Guest User',
+        firstName: fullName ? fullName.split(' ')[0] : '',
+        lastName: fullName ? fullName.split(' ').slice(1).join(' ') : '',
         phone: recipient,
-        email: '',
+        email: email || '',
         emailVerified: false,
         pincode: '',
         address: '',
