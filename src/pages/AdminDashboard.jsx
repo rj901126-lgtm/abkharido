@@ -384,8 +384,12 @@ const AdminDashboard = ({ onNavigate }) => {
                     const { type, referrerId } = o.referralApplied;
                     let totalCommission = 0;
                     o.items.forEach(item => {
-                      const rate = type === 'aff' ? item.product.influencerCommissionRate : item.product.userCommissionRate;
-                      totalCommission += item.product.price * item.quantity * rate;
+                      if (item.product) {
+                        const rate = type === 'aff' 
+                          ? (item.product.influencerCommissionRate || 0) 
+                          : (item.product.userCommissionRate || 0);
+                        totalCommission += (item.product.price || 0) * (item.quantity || 1) * rate;
+                      }
                     });
                     
                     if (type === 'aff') {
@@ -618,16 +622,16 @@ const AdminDashboard = ({ onNavigate }) => {
                       <img src={prod.image} alt={prod.name} className="admin-prod-thumb" />
                     </td>
                     <td>
-                      <div style={{ fontWeight: 'bold' }}>{prod.name.substring(0, 40)}...</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>ID: <code>{prod.id}</code></div>
+                      <div style={{ fontWeight: 'bold' }}>{(prod.name || '').substring(0, 40)}...</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>ID: <code>{prod.id || ''}</code></div>
                     </td>
-                    <td style={{ textTransform: 'capitalize' }}>{prod.category}</td>
+                    <td style={{ textTransform: 'capitalize' }}>{prod.category || ''}</td>
                     <td>
-                      <div style={{ fontWeight: 'bold' }}>₹{prod.price.toLocaleString('en-IN')}</div>
-                      <div style={{ fontSize: '11px', textDecoration: 'line-through', color: 'var(--text-secondary)' }}>₹{prod.originalPrice.toLocaleString('en-IN')}</div>
+                      <div style={{ fontWeight: 'bold' }}>₹{(prod.price || 0).toLocaleString('en-IN')}</div>
+                      <div style={{ fontSize: '11px', textDecoration: 'line-through', color: 'var(--text-secondary)' }}>₹{(prod.originalPrice || 0).toLocaleString('en-IN')}</div>
                     </td>
-                    <td style={{ color: 'var(--success)', fontWeight: 'bold' }}>{(prod.influencerCommissionRate * 100).toFixed(1)}%</td>
-                    <td style={{ color: '#e68f00', fontWeight: 'bold' }}>{(prod.userCommissionRate * 100).toFixed(1)}%</td>
+                    <td style={{ color: 'var(--success)', fontWeight: 'bold' }}>{((prod.influencerCommissionRate || 0) * 100).toFixed(1)}%</td>
+                    <td style={{ color: '#e68f00', fontWeight: 'bold' }}>{((prod.userCommissionRate || 0) * 100).toFixed(1)}%</td>
                     <td>
                       <button 
                         className="admin-action-btn-danger" 
