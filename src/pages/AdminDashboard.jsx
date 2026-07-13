@@ -127,6 +127,74 @@ const AdminDashboard = ({ onNavigate }) => {
     { key: 'Model', value: '' }
   ]);
 
+  // Colors & Variants State
+  const [colorModels, setColorModels] = useState([]);
+
+  const handleAddColorModel = () => {
+    setColorModels([...colorModels, {
+      name: '',
+      primaryImage: '',
+      imagesInput: '',
+      variants: [
+        { name: '', price: '', originalPrice: '', stock: '10' }
+      ]
+    }]);
+  };
+
+  const handleRemoveColorModel = (colorIdx) => {
+    setColorModels(colorModels.filter((_, idx) => idx !== colorIdx));
+  };
+
+  const handleColorModelChange = (colorIdx, field, value) => {
+    setColorModels(colorModels.map((cm, idx) => {
+      if (idx === colorIdx) {
+        return { ...cm, [field]: value };
+      }
+      return cm;
+    }));
+  };
+
+  const handleAddVariant = (colorIdx) => {
+    setColorModels(colorModels.map((cm, idx) => {
+      if (idx === colorIdx) {
+        return {
+          ...cm,
+          variants: [...cm.variants, { name: '', price: '', originalPrice: '', stock: '10' }]
+        };
+      }
+      return cm;
+    }));
+  };
+
+  const handleRemoveVariant = (colorIdx, variantIdx) => {
+    setColorModels(colorModels.map((cm, idx) => {
+      if (idx === colorIdx) {
+        return {
+          ...cm,
+          variants: cm.variants.filter((_, vIdx) => vIdx !== variantIdx)
+        };
+      }
+      return cm;
+    }));
+  };
+
+  const handleVariantChange = (colorIdx, variantIdx, field, value) => {
+    setColorModels(colorModels.map((cm, idx) => {
+      if (idx === colorIdx) {
+        return {
+          ...cm,
+          variants: cm.variants.map((v, vIdx) => {
+            if (vIdx === variantIdx) {
+              return { ...v, [field]: value };
+            }
+            return v;
+          })
+        };
+      }
+      return cm;
+    }));
+  };
+
   // Dynamic commission rates (pre-filled on category change for helper guidance)
   const [infCommission, setInfCommission] = useState('0.03'); // 3%
   const [userCommission, setUserCommission] = useState('0.012'); // 1.2%
@@ -189,6 +257,33 @@ const AdminDashboard = ({ onNavigate }) => {
     // Clean specifications (filter empty rows)
     const cleanSpecs = specs.filter(s => s.key.trim() !== '' && s.value.trim() !== '');
 
+    // Process Color Models & Variants
+    const cleanColorModels = colorModels.map(cm => {
+      const extraImages = cm.imagesInput
+        ? cm.imagesInput.split(',').map(url => url.trim()).filter(url => url !== '')
+        : [];
+      
+      const cleanVariants = cm.variants
+        .filter(v => v.name.trim() !== '' && v.price !== '')
+        .map(v => {
+          const discountPct = Math.round(((Number(v.originalPrice || v.price) - Number(v.price)) / Number(v.originalPrice || v.price)) * 100);
+          return {
+            name: v.name.trim(),
+            price: Number(v.price),
+            originalPrice: Number(v.originalPrice || v.price),
+            discount: isNaN(discountPct) ? 0 : discountPct,
+            stock: Number(v.stock || 0)
+          };
+        });
+
+      return {
+        name: cm.name.trim(),
+        primaryImage: cm.primaryImage.trim(),
+        images: [cm.primaryImage.trim(), ...extraImages],
+        variants: cleanVariants
+      };
+    }).filter(cm => cm.name !== '' && cm.primaryImage !== '' && cm.variants.length > 0);
+
     // Construct product object
     const newProduct = {
       id: id.toLowerCase().trim().replace(/[\s\W]+/g, '-'),
@@ -203,7 +298,8 @@ const AdminDashboard = ({ onNavigate }) => {
       specifications: cleanSpecs,
       influencerCommissionRate: Number(infCommission),
       userCommissionRate: Number(userCommission),
-      inStock
+      inStock,
+      colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined
     };
 
     // Call context to append to products state list
@@ -220,6 +316,7 @@ const AdminDashboard = ({ onNavigate }) => {
       { key: 'Brand', value: '' },
       { key: 'Model', value: '' }
     ]);
+    setColorModels([]);
   };
 
   return (
@@ -399,6 +496,7 @@ const AdminDashboard = ({ onNavigate }) => {
                   <th>Role Status</th>
                   <th>Referral Code / Tag</th>
                   <th>Wallet Balances</th>
+                  <th>Referred Performance</th>
                   <th>Action controls</th>
                 </tr>
               </thead>
@@ -408,58 +506,84 @@ const AdminDashboard = ({ onNavigate }) => {
                     u.username.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
                     (u.fullName && u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()))
                   )
-                  .map(u => (
-                    <tr key={u.username}>
-                      <td>
-                        <div style={{ fontWeight: 'bold' }}>{u.username}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Joined platform</div>
-                      </td>
-                      <td>{u.fullName || 'Guest User'}</td>
-                      <td>{u.email || <span style={{ color: '#888', fontStyle: 'italic' }}>Not provided</span>}</td>
-                      <td>
-                        <span className={`badge ${u.emailVerified ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '11px' }}>
-                          {u.emailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge ${u.isInfluencer ? 'badge-success' : 'badge-info'}`} style={{ fontSize: '11px', backgroundColor: u.isInfluencer ? 'var(--success)' : '#eaeaea', color: u.isInfluencer ? 'white' : '#555' }}>
-                          {u.isInfluencer ? ' Verified Creator' : 'Regular Customer'}
-                        </span>
-                      </td>
-                      <td>
-                        {u.isInfluencer ? (
-                          <div style={{ fontSize: '12px' }}>
-                            <div>ID: <code>{u.influencerId || 'N/A'}</code></div>
-                            <div style={{ fontWeight: 'bold', color: 'var(--success)', marginTop: '2px' }}>Code: {u.creatorCode || 'N/A'}</div>
+                  .map(u => {
+                    const userCode = u.isInfluencer ? u.creatorCode : u.referralCode;
+                    const influencerId = u.isInfluencer ? u.influencerId : null;
+                    
+                    const referredOrdersList = adminOrders.filter(o => 
+                      o.referralApplied && 
+                      (o.referralApplied.referrerId === userCode || 
+                       o.referralApplied.referrerId === influencerId)
+                    );
+                    
+                    const salesCount = referredOrdersList.length;
+                    const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + o.finalAmount, 0);
+
+                    return (
+                      <tr key={u.username}>
+                        <td>
+                          <div style={{ fontWeight: 'bold' }}>{u.username}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Joined platform</div>
+                        </td>
+                        <td>{u.fullName || 'Guest User'}</td>
+                        <td>{u.email || <span style={{ color: '#888', fontStyle: 'italic' }}>Not provided</span>}</td>
+                        <td>
+                          <span className={`badge ${u.emailVerified ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '11px' }}>
+                            {u.emailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`badge ${u.isInfluencer ? 'badge-success' : 'badge-info'}`} style={{ fontSize: '11px', backgroundColor: u.isInfluencer ? 'var(--success)' : '#eaeaea', color: u.isInfluencer ? 'white' : '#555' }}>
+                            {u.isInfluencer ? ' Verified Creator' : 'Regular Customer'}
+                          </span>
+                        </td>
+                        <td>
+                          {u.isInfluencer ? (
+                            <div style={{ fontSize: '12px' }}>
+                              <div>ID: <code>{u.influencerId || 'N/A'}</code></div>
+                              <div style={{ fontWeight: 'bold', color: 'var(--success)', marginTop: '2px' }}>Code: {u.creatorCode || 'N/A'}</div>
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: '12px' }}>
+                              <div style={{ color: '#888' }}>Code: {u.referralCode || 'N/A'}</div>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                            <div style={{ color: '#e68f00', fontWeight: 'bold' }}>🪙 {u.walletCoins || 0} Coins</div>
+                            <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
                           </div>
-                        ) : (
-                          <div style={{ fontSize: '12px' }}>
-                            <div style={{ color: '#888' }}>Code: {u.referralCode || 'N/A'}</div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                            <div style={{ fontWeight: 'bold', color: salesCount > 0 ? 'var(--success)' : '#777' }}>
+                              📈 {salesCount} referred sales
+                            </div>
+                            {salesCount > 0 && (
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                Volume: ₹{totalSalesVolume.toLocaleString('en-IN')}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                          <div style={{ color: '#e68f00', fontWeight: 'bold' }}>🪙 {u.walletCoins || 0} Coins</div>
-                          <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
-                        </div>
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline"
-                          style={{
-                            fontSize: '11px',
-                            padding: '4px 8px',
-                            borderColor: u.isInfluencer ? 'var(--error)' : 'var(--success)',
-                            color: u.isInfluencer ? 'var(--error)' : 'var(--success)'
-                          }}
-                          onClick={() => handleToggleUserRole(u)}
-                        >
-                          {u.isInfluencer ? 'Demote to Customer' : 'Verify as Creator'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-outline"
+                            style={{
+                              fontSize: '11px',
+                              padding: '4px 8px',
+                              borderColor: u.isInfluencer ? 'var(--error)' : 'var(--success)',
+                              color: u.isInfluencer ? 'var(--error)' : 'var(--success)'
+                            }}
+                            onClick={() => handleToggleUserRole(u)}
+                          >
+                            {u.isInfluencer ? 'Demote to Customer' : 'Verify as Creator'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>
@@ -638,6 +762,140 @@ const AdminDashboard = ({ onNavigate }) => {
                 style={{ height: '80px', resize: 'vertical' }}
                 required
               />
+            </div>
+
+            {/* Colors & Custom Variations Section */}
+            <div className="form-group" style={{ border: '1px solid #e0e0e0', padding: '12px', borderRadius: '6px', backgroundColor: '#fdfdfd', marginTop: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <label className="form-label-txt" style={{ fontWeight: '700', color: '#212121', margin: 0 }}>Colors & Custom Variations</label>
+                <button
+                  type="button"
+                  onClick={handleAddColorModel}
+                  className="btn btn-outline btn-sm"
+                  style={{ fontSize: '11px', padding: '4px 8px', height: '28px', display: 'flex', gap: '4px', alignItems: 'center' }}
+                >
+                  <PlusCircle size={12} /> Add Color Model
+                </button>
+              </div>
+              
+              {colorModels.length === 0 ? (
+                <div style={{ fontSize: '12px', color: '#777', fontStyle: 'italic', padding: '8px 0' }}>
+                  No custom models added. Default variations will be generated.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+                  {colorModels.map((cm, colorIdx) => (
+                    <div key={colorIdx} style={{ border: '1px dashed #ccc', padding: '12px', borderRadius: '4px', backgroundColor: '#fafafa', position: 'relative' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveColorModel(colorIdx)}
+                        style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: '#c62828', cursor: 'pointer' }}
+                        title="Remove Color Model"
+                      >
+                        <X size={16} />
+                      </button>
+                      
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '8px' }}>Color Model #{colorIdx + 1}</div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Color Name* (e.g. Coral Pink)</label>
+                          <input
+                            type="text"
+                            placeholder="Color name"
+                            value={cm.name}
+                            onChange={(e) => handleColorModelChange(colorIdx, 'name', e.target.value)}
+                            style={{ width: '100%', height: '32px', padding: '0 8px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Primary Image URL*</label>
+                          <input
+                            type="url"
+                            placeholder="Primary image link"
+                            value={cm.primaryImage}
+                            onChange={(e) => handleColorModelChange(colorIdx, 'primaryImage', e.target.value)}
+                            style={{ width: '100%', height: '32px', padding: '0 8px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Extra Images URLs (comma-separated)</label>
+                          <input
+                            type="text"
+                            placeholder="https://image2, https://image3"
+                            value={cm.imagesInput}
+                            onChange={(e) => handleColorModelChange(colorIdx, 'imagesInput', e.target.value)}
+                            style={{ width: '100%', height: '32px', padding: '0 8px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                          />
+                        </div>
+
+                        {/* Variants List Inside Color */}
+                        <div style={{ marginTop: '8px', borderTop: '1px solid #e5e5e5', paddingTop: '10px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#444' }}>Variants (e.g. Size/Storage)</span>
+                            <button
+                              type="button"
+                              onClick={() => handleAddVariant(colorIdx)}
+                              style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}
+                            >
+                              <PlusCircle size={10} /> Add Variant
+                            </button>
+                          </div>
+                          
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {cm.variants.map((v, variantIdx) => (
+                              <div key={variantIdx} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                <input
+                                  type="text"
+                                  placeholder="Name (e.g. 128 GB)"
+                                  value={v.name}
+                                  onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'name', e.target.value)}
+                                  style={{ flex: 2, height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                  required
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Price"
+                                  value={v.price}
+                                  onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'price', e.target.value)}
+                                  style={{ flex: 1, minWidth: '60px', height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                  required
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Org Price"
+                                  value={v.originalPrice}
+                                  onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'originalPrice', e.target.value)}
+                                  style={{ flex: 1, minWidth: '60px', height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Stock"
+                                  value={v.stock}
+                                  onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'stock', e.target.value)}
+                                  style={{ width: '50px', height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                />
+                                {cm.variants.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveVariant(colorIdx, variantIdx)}
+                                    style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', padding: '2px' }}
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Specifications editor list */}
