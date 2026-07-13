@@ -720,15 +720,27 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           </div>
 
-          {/* AbKharido Direct Sales Guarantee */}
+          {/* AbKharido Direct/Seller Guarantee */}
           <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fafafa', border: '1px solid #e0e0e0', padding: '12px 16px', borderRadius: '4px' }}>
             <ShieldCheck size={28} color="var(--primary-color)" style={{ flexShrink: 0 }} />
             <div style={{ fontSize: '13px' }}>
-              <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>AbKharido Fulfill Direct Guarantee</div>
-              <div style={{ color: 'var(--text-secondary)' }}>
-                This item is owned, warehoused, and directly shipped by AbKharido. We do not host third-party sellers. 
-                Guaranteed genuine brand, secure transit packing, and unified support.
-              </div>
+              {product.sellerId && product.sellerId !== 'admin' ? (
+                <>
+                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>Sold by: {product.sellerName || 'Marketplace Seller'} (✓ Verified Merchant)</div>
+                  <div style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    This item is listed and fulfilled directly by {product.sellerName || 'Marketplace Seller'} under the AbKharido Trust Guarantee. 
+                    10-day replacement policy, secure transit packing, and unified support.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>AbKharido Fulfill Direct Guarantee</div>
+                  <div style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    This item is owned, warehoused, and directly shipped by AbKharido. We do not host third-party sellers. 
+                    Guaranteed genuine brand, secure transit packing, and unified support.
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

@@ -25,6 +25,7 @@ const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const STATS_FILE = path.join(DATA_DIR, 'stats.json');
+const SELLERS_FILE = path.join(DATA_DIR, 'sellers.json');
 
 // --- Seed Data definitions ---
 const SEED_PRODUCTS = [
@@ -462,6 +463,9 @@ async function ensureLocalDbExists() {
     try { await fs.access(STATS_FILE); } catch {
       await fs.writeFile(STATS_FILE, JSON.stringify(SEED_STATS, null, 2));
     }
+    try { await fs.access(SELLERS_FILE); } catch {
+      await fs.writeFile(SELLERS_FILE, JSON.stringify({}, null, 2));
+    }
   } catch (err) {
     console.error('Failed to create local databases:', err);
   }
@@ -561,6 +565,43 @@ async function saveUsersMap(usersMap, modifiedUsernames = null) {
   }
 }
 
+async function getSellersMap() {
+  await getDb();
+  let map = {};
+  if (isMongo) {
+    try {
+      const sellersList = await db.collection('sellers').find({}).toArray();
+      sellersList.forEach(s => {
+        const { _id, ...rest } = s;
+        map[_id] = { email: _id, ...rest };
+      });
+    } catch (err) {
+      // Fallback if table doesn't exist yet
+    }
+  } else {
+    map = await readJson(SELLERS_FILE);
+  }
+  return map;
+}
+
+async function saveSellersMap(sellersMap, modifiedSellerIds = null) {
+  await getDb();
+  if (isMongo) {
+    let targets = Object.keys(sellersMap);
+    if (modifiedSellerIds) {
+      targets = Array.isArray(modifiedSellerIds) ? modifiedSellerIds : [modifiedSellerIds];
+    }
+    for (const email of targets) {
+      if (sellersMap[email]) {
+        const sellerDoc = { _id: email, ...sellersMap[email] };
+        await db.collection('sellers').replaceOne({ _id: email }, sellerDoc, { upsert: true });
+      }
+    }
+  } else {
+    await writeJson(SELLERS_FILE, sellersMap);
+  }
+}
+
 // 3. ORDERS DB HELPERS
 async function getOrders() {
   await getDb();
@@ -621,6 +662,7 @@ async function resetAllDatabases() {
     await db.collection('users').insertMany(userDocs);
 
     await db.collection('orders').deleteMany({});
+    await db.collection('sellers').deleteMany({});
 
     await db.collection('stats').deleteMany({});
     await db.collection('stats').insertOne({ _id: 'global_stats', ...SEED_STATS });
@@ -629,6 +671,7 @@ async function resetAllDatabases() {
     await fs.writeFile(USERS_FILE, JSON.stringify(SEED_USERS, null, 2));
     await fs.writeFile(ORDERS_FILE, JSON.stringify([], null, 2));
     await fs.writeFile(STATS_FILE, JSON.stringify(SEED_STATS, null, 2));
+    await fs.writeFile(SELLERS_FILE, JSON.stringify({}, null, 2));
   }
 }
 
@@ -685,6 +728,33 @@ const verifyAdminToken = (req, res, next) => {
   res.status(403).json({ error: 'Access Denied: Invalid admin authorization token' });
 };
 
+const verifyAdminOrSellerToken = async (req, res, next) => {
+  const adminToken = req.headers['x-admin-token'];
+  const sellerId = req.headers['x-seller-id'];
+  
+  const adminPass = process.env.ADMIN_PASSWORD || 'AbKharidoAdmin2026';
+  if (adminToken === adminPass) {
+    req.isAdmin = true;
+    return next();
+  }
+  
+  if (sellerId) {
+    try {
+      const sellers = await getSellersMap();
+      const seller = sellers[sellerId.toLowerCase().trim()];
+      if (seller && seller.isApproved) {
+        req.isAdmin = false;
+        req.sellerId = sellerId.toLowerCase().trim();
+        return next();
+      }
+    } catch (err) {
+      // Fall through to error
+    }
+  }
+  
+  res.status(403).json({ error: 'Access Denied: Invalid admin or seller authorization' });
+};
+
 app.post('/api/admin/verify', (req, res) => {
   const { password } = req.body;
   const adminPass = process.env.ADMIN_PASSWORD || 'AbKharidoAdmin2026';
@@ -704,13 +774,24 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-app.post('/api/products', verifyAdminToken, async (req, res) => {
+app.post('/api/products', verifyAdminOrSellerToken, async (req, res) => {
   try {
     const products = await getProducts();
     const newProduct = req.body;
 
     if (products.some(p => p.id === newProduct.id)) {
       return res.status(400).json({ error: 'Product ID already exists' });
+    }
+
+    if (req.isAdmin) {
+      if (!newProduct.sellerId) {
+        newProduct.sellerId = 'admin';
+        newProduct.sellerName = 'AbKharido Direct';
+      }
+    } else {
+      newProduct.sellerId = req.sellerId;
+      const sellers = await getSellersMap();
+      newProduct.sellerName = sellers[req.sellerId]?.shopName || 'Marketplace Seller';
     }
 
     await saveProduct(newProduct);
@@ -720,14 +801,18 @@ app.post('/api/products', verifyAdminToken, async (req, res) => {
   }
 });
 
-app.delete('/api/products/:id', verifyAdminToken, async (req, res) => {
+app.delete('/api/products/:id', verifyAdminOrSellerToken, async (req, res) => {
   try {
     const products = await getProducts();
     const { id } = req.params;
 
-    const exists = products.some(p => p.id === id);
-    if (!exists) {
+    const product = products.find(p => p.id === id);
+    if (!product) {
       return res.status(404).json({ error: 'Product not found' });
+    }
+
+    if (!req.isAdmin && product.sellerId !== req.sellerId) {
+      return res.status(403).json({ error: 'Access Denied: You can only delete your own products' });
     }
 
     await deleteProduct(id);
@@ -832,10 +917,10 @@ app.post('/api/users/:username/update', async (req, res) => {
   try {
     const users = await getUsersMap();
     const { username } = req.params;
-    const { firstName, lastName, email, pincode, address, emailVerified, isInfluencer, creatorCode, influencerId, walletCoins, walletCash } = req.body;
+    const { firstName, lastName, email, pincode, address, emailVerified, isInfluencer, creatorCode, influencerId, walletCoins, walletCash, isSeller, sellerDetails } = req.body;
 
-    // Security check: Only admins can modify creator roles and balances
-    if (isInfluencer !== undefined || creatorCode !== undefined || influencerId !== undefined || walletCoins !== undefined || walletCash !== undefined) {
+    // Security check: Only admins can modify creator/seller roles and balances
+    if (isInfluencer !== undefined || creatorCode !== undefined || influencerId !== undefined || walletCoins !== undefined || walletCash !== undefined || isSeller !== undefined) {
       const token = req.headers['x-admin-token'];
       const adminPass = process.env.ADMIN_PASSWORD || 'AbKharidoAdmin2026';
       if (token !== adminPass) {
@@ -859,6 +944,8 @@ app.post('/api/users/:username/update', async (req, res) => {
     if (influencerId !== undefined) user.influencerId = influencerId;
     if (walletCoins !== undefined) user.walletCoins = Number(walletCoins);
     if (walletCash !== undefined) user.walletCash = Number(walletCash);
+    if (isSeller !== undefined) user.isSeller = isSeller;
+    if (sellerDetails !== undefined) user.sellerDetails = sellerDetails;
 
     // Recalculate fullName
     if (user.firstName || user.lastName) {
@@ -922,6 +1009,119 @@ app.post('/api/users/register-creator', async (req, res) => {
   }
 });
 
+app.post('/api/seller/signup', async (req, res) => {
+  try {
+    const sellers = await getSellersMap();
+    const { email, password, shopName, sellerAddress, payoutDetails } = req.body;
+
+    if (!email || !password || !shopName || !sellerAddress) {
+      return res.status(400).json({ error: 'Please fill out all required fields' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    if (sellers[cleanEmail]) {
+      return res.status(400).json({ error: 'A merchant account with this email already exists' });
+    }
+
+    sellers[cleanEmail] = {
+      email: cleanEmail,
+      password: password,
+      shopName,
+      sellerAddress,
+      payoutDetails: payoutDetails || { upi: '', bankAccount: '', bankIfsc: '' },
+      walletCash: 0,
+      isApproved: false,
+      history: []
+    };
+
+    await saveSellersMap(sellers, cleanEmail);
+    res.json({ success: true, message: 'Merchant registered successfully. Awaiting admin approval.', seller: sellers[cleanEmail] });
+  } catch (err) {
+    console.error('Failed to register seller:', err);
+    res.status(500).json({ error: 'Failed to register merchant profile' });
+  }
+});
+
+app.post('/api/seller/login', async (req, res) => {
+  try {
+    const sellers = await getSellersMap();
+    const { email, password } = req.body;
+
+    const cleanEmail = email.toLowerCase().trim();
+    const seller = sellers[cleanEmail];
+
+    if (!seller || seller.password !== password) {
+      return res.status(401).json({ error: 'Invalid merchant credentials' });
+    }
+
+    res.json({ success: true, seller });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to authenticate merchant' });
+  }
+});
+
+app.get('/api/sellers', verifyAdminToken, async (req, res) => {
+  try {
+    const sellers = await getSellersMap();
+    res.json(Object.values(sellers));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch sellers list' });
+  }
+});
+
+app.post('/api/sellers/:email/verify', verifyAdminToken, async (req, res) => {
+  try {
+    const sellers = await getSellersMap();
+    const { email } = req.params;
+    const { isApproved } = req.body;
+
+    const cleanEmail = email.toLowerCase().trim();
+    if (!sellers[cleanEmail]) {
+      return res.status(404).json({ error: 'Seller account not found' });
+    }
+
+    sellers[cleanEmail].isApproved = isApproved;
+    await saveSellersMap(sellers, cleanEmail);
+    res.json(sellers[cleanEmail]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update merchant status' });
+  }
+});
+
+app.get('/api/seller/orders', async (req, res) => {
+  try {
+    const { sellerId } = req.query;
+    if (!sellerId) return res.status(400).json({ error: 'sellerId is required' });
+
+    const orders = await getOrders();
+    const filteredOrders = orders.filter(o => 
+      o.items.some(item => item.product && item.product.sellerId === sellerId)
+    ).map(o => {
+      return {
+        ...o,
+        items: o.items.filter(item => item.product && item.product.sellerId === sellerId)
+      };
+    });
+
+    res.json(filteredOrders);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch seller orders' });
+  }
+});
+
+app.get('/api/seller/products', async (req, res) => {
+  try {
+    const { sellerId } = req.query;
+    if (!sellerId) return res.status(400).json({ error: 'sellerId is required' });
+
+    const products = await getProducts();
+    const filteredProducts = products.filter(p => p.sellerId === sellerId);
+    res.json(filteredProducts);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch seller products' });
+  }
+});
+
 // 3. STATS & REVENUE HISTORY
 app.get('/api/stats', async (req, res) => {
   try {
@@ -947,34 +1147,57 @@ app.post('/api/stats/click', async (req, res) => {
 app.post('/api/payouts', async (req, res) => {
   try {
     const users = await getUsersMap();
+    const sellers = await getSellersMap();
     const stats = await getStats();
     const { username, amount, method } = req.body;
 
+    const cleanUsername = (username || '').toLowerCase().trim();
+    const seller = sellers[cleanUsername];
     const user = users[username];
-    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    if (amount > user.walletCash) {
-      return res.status(400).json({ error: 'Insufficient funds' });
+    if (!seller && !user) {
+      return res.status(404).json({ error: 'Account not found' });
     }
 
-    // Deduct cash balance
-    user.walletCash -= amount;
-    
-    // Add to payout history log
     const payoutRecord = {
       id: `PAY-${Math.floor(1000 + Math.random() * 9000)}`,
       date: new Date().toISOString().split('T')[0],
-      amount,
+      amount: Number(amount),
       method,
       status: 'Processing'
     };
 
-    stats.payouts = [payoutRecord, ...(stats.payouts || [])];
+    if (seller) {
+      if (Number(amount) > (seller.walletCash || 0)) {
+        return res.status(400).json({ error: 'Insufficient withdrawable cash balance' });
+      }
+      seller.walletCash = (seller.walletCash || 0) - Number(amount);
+      
+      if (!seller.history) seller.history = [];
+      seller.history.unshift({
+        id: `SLR-PAY-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: payoutRecord.date,
+        productName: `Withdrawal Request (${method})`,
+        quantity: 1,
+        amount: Number(amount),
+        commissionDeducted: 0,
+        earnings: -Number(amount),
+        status: 'Processing'
+      });
 
-    await saveUsersMap(users, username);
+      await saveSellersMap(sellers, cleanUsername);
+    } else {
+      if (Number(amount) > (user.walletCash || 0)) {
+        return res.status(400).json({ error: 'Insufficient withdrawable cash balance' });
+      }
+      user.walletCash = (user.walletCash || 0) - Number(amount);
+      await saveUsersMap(users, username);
+    }
+
+    stats.payouts = [payoutRecord, ...(stats.payouts || [])];
     await saveStats(stats);
 
-    res.json({ success: true, user, payoutRecord });
+    res.json({ success: true, user: seller || user, payoutRecord });
   } catch (err) {
     res.status(500).json({ error: 'Failed to process payout' });
   }
@@ -1007,10 +1230,52 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
+const creditSellersForOrder = (order, sellers, stats) => {
+  const { items, referralApplied } = order;
+  const isAff = referralApplied && referralApplied.type === 'aff';
+  
+  items.forEach(item => {
+    const prod = item.product;
+    if (prod && prod.sellerId && prod.sellerId !== 'admin') {
+      const seller = sellers[prod.sellerId.toLowerCase().trim()];
+      if (seller) {
+        let baseEarnings = prod.price * item.quantity;
+        let deductions = 0;
+        
+        if (isAff) {
+          const rate = prod.influencerCommissionRate || 0;
+          deductions = baseEarnings * rate;
+        }
+        
+        const finalSellerEarnings = Math.max(0, Math.round((baseEarnings - deductions) * 100) / 100);
+        
+        seller.walletCash = (seller.walletCash || 0) + finalSellerEarnings;
+        
+        if (!seller.history) {
+          seller.history = [];
+        }
+        
+        seller.history.unshift({
+          id: `SLR-TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+          orderId: order.id,
+          date: new Date().toISOString().split('T')[0],
+          productName: prod.name,
+          quantity: item.quantity,
+          amount: baseEarnings,
+          commissionDeducted: deductions,
+          earnings: finalSellerEarnings,
+          status: 'Credited'
+        });
+      }
+    }
+  });
+};
+
 app.post('/api/orders', async (req, res) => {
   try {
     const orders = await getOrders();
     const users = await getUsersMap();
+    const sellers = await getSellersMap();
     const stats = await getStats();
 
     const { cart, username, shippingAddress, paymentMethod, useCoinsDiscount, activeReferral, cfOrderId } = req.body;
@@ -1104,6 +1369,17 @@ app.post('/api/orders', async (req, res) => {
       }
     }
 
+    const modifiedSellerEmails = [];
+    if (isCod) {
+      creditSellersForOrder(newOrder, sellers, stats);
+      newOrder.items.forEach(item => {
+        const prod = item.product;
+        if (prod && prod.sellerId && prod.sellerId !== 'admin') {
+          modifiedSellerEmails.push(prod.sellerId.toLowerCase().trim());
+        }
+      });
+    }
+
     user.walletCoins -= coinsDiscountValue;
     user.ordersCount += 1;
 
@@ -1125,7 +1401,11 @@ app.post('/api/orders', async (req, res) => {
         }
       }
     }
+
     await saveUsersMap(users, modifiedUsernames);
+    if (modifiedSellerEmails.length > 0) {
+      await saveSellersMap(sellers, modifiedSellerEmails);
+    }
     await saveStats(stats);
 
     res.json({ order: newOrder, user });
@@ -1184,10 +1464,13 @@ app.post('/api/payment/verify', async (req, res) => {
       order.paymentStatus = 'SUCCESS';
       order.status = 'Packed';
       
+      const users = await getUsersMap();
+      const sellers = await getSellersMap();
+      const stats = await getStats();
+      const modifiedUsernames = [order.customerUsername];
+      
       // Process Referral Commissions now since payment is verified!
       if (order.referralApplied) {
-        const users = await getUsersMap();
-        const stats = await getStats();
         const { type, referrerId } = order.referralApplied;
         
         let totalCommissionEarned = 0;
@@ -1201,6 +1484,7 @@ app.post('/api/payment/verify', async (req, res) => {
           const creatorProfile = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
           if (creatorProfile) {
             creatorProfile.walletCash += totalCommissionEarned;
+            modifiedUsernames.push(creatorProfile.username);
           }
           const newHistoryTxn = {
             id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -1219,6 +1503,7 @@ app.post('/api/payment/verify', async (req, res) => {
           const userProfile = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
           if (userProfile) {
             userProfile.walletCoins += coinsEarned;
+            modifiedUsernames.push(userProfile.username);
           }
           const newHistoryTxn = {
             id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -1233,25 +1518,25 @@ app.post('/api/payment/verify', async (req, res) => {
           stats.conversions += 1;
           stats.history = [newHistoryTxn, ...stats.history];
         }
-
-        const modifiedUsernames = [];
-        if (type === 'aff') {
-          const creatorProfile = Object.values(users).find(u => u.creatorCode === referrerId || u.influencerId === referrerId);
-          if (creatorProfile) {
-            modifiedUsernames.push(creatorProfile.username);
-          }
-        } else if (type === 'ref') {
-          const userProfile = Object.values(users).find(u => u.referralCode === referrerId || u.username === referrerId);
-          if (userProfile) {
-            modifiedUsernames.push(userProfile.username);
-          }
-        }
-        await saveUsersMap(users, modifiedUsernames);
-        await saveStats(stats);
       }
 
+      // Credit Sellers for product sales
+      creditSellersForOrder(order, sellers, stats);
+      const modifiedSellerEmails = [];
+      order.items.forEach(item => {
+        const prod = item.product;
+        if (prod && prod.sellerId && prod.sellerId !== 'admin') {
+          modifiedSellerEmails.push(prod.sellerId.toLowerCase().trim());
+        }
+      });
+
+      await saveUsersMap(users, modifiedUsernames);
+      if (modifiedSellerEmails.length > 0) {
+        await saveSellersMap(sellers, modifiedSellerEmails);
+      }
+      await saveStats(stats);
       await saveOrders(orders);
-      const users = await getUsersMap();
+      
       const user = users[order.customerUsername];
       res.json({ success: true, status: 'SUCCESS', order, user });
     } else if (orderStatus === 'FAILED' || orderStatus === 'EXPIRED') {

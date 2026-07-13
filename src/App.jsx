@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import ProfilePage from './pages/ProfilePage';
 import BottomNavigation from './components/BottomNavigation';
 import InfoPage from './pages/InfoPage';
+import SellerDashboard from './pages/SellerDashboard';
 const OnboardingModal = () => {
   const { currentUser, updateUserProfile, showToast } = useApp();
   const [fName, setFName] = React.useState('');
@@ -264,6 +265,7 @@ const AppContent = () => {
         else if (hash === '#orders') targetPage = 'orders';
         else if (hash === '#profile') targetPage = 'profile';
         else if (hash === '#partner') targetPage = 'partner';
+        else if (hash === '#seller') targetPage = 'seller';
         else if (hash === '#admin') targetPage = 'admin';
         else if (hash === '#login') targetPage = 'login';
         else if (hash === '#catalog') {
@@ -279,7 +281,7 @@ const AppContent = () => {
       }
 
       // Route protection check: login required for secure pages
-      const protectedPages = ['checkout', 'partner', 'orders', 'profile'];
+      const protectedPages = ['checkout', 'partner', 'seller', 'orders', 'profile'];
       if (protectedPages.includes(targetPage) && !currentUser) {
         showToast('Please sign in to access this page.', 'warning');
         window.location.hash = '#login';
@@ -404,6 +406,8 @@ const AppContent = () => {
         );
       case 'partner':
         return <PartnerCenter />;
+      case 'seller':
+        return <SellerDashboard onNavigate={handleNavigate} />;
       case 'orders':
         return <Orders onNavigate={handleNavigateProduct} />;
       case 'admin':

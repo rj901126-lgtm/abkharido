@@ -355,6 +355,38 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const registerAsSeller = async (shopName, sellerAddress, payoutDetails) => {
+    if (!currentUser) {
+      showToast('Please log in to register as a seller.', 'error');
+      return false;
+    }
+    try {
+      const res = await fetch('/api/users/register-seller', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: currentUser.username,
+          shopName,
+          sellerAddress,
+          payoutDetails
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast(err.error || 'Registration failed.', 'error');
+        return false;
+      }
+      const data = await res.json();
+      setCurrentUser(data);
+      localStorage.setItem('abkharido_user_session', JSON.stringify(data));
+      showToast('Shop registered! Awaiting admin approval.', 'success');
+      return true;
+    } catch (err) {
+      showToast('Failed to connect to backend server.', 'error');
+      return false;
+    }
+  };
+
   const requestPayout = async (amount, method) => {
     if (amount > currentUser.walletCash) {
       showToast('Insufficient withdrawable cash balance.', 'error');
@@ -492,7 +524,8 @@ export const AppProvider = ({ children }) => {
         removeProduct,
         cancelOrder,
         wishlist,
-        toggleWishlist
+        toggleWishlist,
+        registerAsSeller
       }}
     >
       {children}

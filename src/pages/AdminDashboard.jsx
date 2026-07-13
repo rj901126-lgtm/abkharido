@@ -14,7 +14,8 @@ import {
   X,
   FileText,
   Users,
-  ShieldAlert
+  ShieldAlert,
+  Store
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 
@@ -23,7 +24,9 @@ const AdminDashboard = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users'
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
+  const [adminSellers, setAdminSellers] = useState([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [sellerSearchQuery, setSellerSearchQuery] = useState('');
 
   // Security Auth State
   const [authorized, setAuthorized] = useState(() => {
@@ -109,6 +112,22 @@ const AdminDashboard = ({ onNavigate }) => {
     }
   };
 
+  const fetchAllSellers = async () => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    if (!token) return;
+    try {
+      const res = await fetch('/api/sellers', {
+        headers: { 'x-admin-token': token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAdminSellers(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin sellers:', err);
+    }
+  };
+
   const fetchAllUsers = async () => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
@@ -120,6 +139,7 @@ const AdminDashboard = ({ onNavigate }) => {
         const data = await res.json();
         setAdminUsers(data);
       }
+      await fetchAllSellers();
     } catch (err) {
       console.error('Failed to fetch admin users:', err);
     }
@@ -164,6 +184,33 @@ const AdminDashboard = ({ onNavigate }) => {
       }
     } catch (err) {
       console.error('Failed to update user role:', err);
+    }
+  };
+
+  const handleToggleSellerRole = async (sellerObj) => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    const isCurrentlySeller = sellerObj.isApproved;
+    const targetState = !isCurrentlySeller;
+
+    try {
+      const res = await fetch(`/api/sellers/${sellerObj.email}/verify`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
+        body: JSON.stringify({
+          isApproved: targetState
+        })
+      });
+      if (res.ok) {
+        showToast(`Seller status updated successfully!`, 'success');
+        fetchAllSellers();
+      } else {
+        showToast('Failed to update seller status.', 'error');
+      }
+    } catch (err) {
+      console.error('Failed to update seller role:', err);
     }
   };
 
@@ -579,123 +626,209 @@ const AdminDashboard = ({ onNavigate }) => {
 
       {/* CONDITIONAL RENDER: REFERRAL & USERS TAB */}
       {activeTab === 'users' && (
-        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-            <h3 className="admin-form-title" style={{ margin: 0 }}><Users size={18} color="var(--primary-color)" /> Platform Accounts & Referral Data</h3>
-            
-            {/* Search Input */}
-            <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
-              <input 
-                type="text" 
-                placeholder="Search mobile number or name..." 
-                value={userSearchQuery}
-                onChange={(e) => setUserSearchQuery(e.target.value)}
-                style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
-              />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Regular Users / Customer Accounts */}
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <h3 className="admin-form-title" style={{ margin: 0 }}><Users size={18} color="var(--primary-color)" /> Platform Customer Accounts & Referral Data</h3>
+              
+              {/* Search Input */}
+              <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search mobile number or name..." 
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
+                />
+              </div>
+            </div>
+
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>User ID / Username</th>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Verification Settings</th>
+                    <th>Role Status</th>
+                    <th>Referral Code / Tag</th>
+                    <th>Wallet Balances</th>
+                    <th>Referred Performance</th>
+                    <th>Action controls</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminUsers
+                    .filter(u => 
+                      u.username.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
+                      (u.fullName && u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()))
+                    )
+                    .map(u => {
+                      const userCode = u.isInfluencer ? u.creatorCode : u.referralCode;
+                      const influencerId = u.isInfluencer ? u.influencerId : null;
+                      
+                      const referredOrdersList = adminOrders.filter(o => 
+                        o.referralApplied && 
+                        (o.referralApplied.referrerId === userCode || 
+                         o.referralApplied.referrerId === influencerId)
+                      );
+                      
+                      const salesCount = referredOrdersList.length;
+                      const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + o.finalAmount, 0);
+
+                      return (
+                        <tr key={u.username}>
+                          <td>
+                            <div style={{ fontWeight: 'bold' }}>{u.username}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Joined platform</div>
+                          </td>
+                          <td>{u.fullName || 'Guest User'}</td>
+                          <td>{u.email || <span style={{ color: '#888', fontStyle: 'italic' }}>Not provided</span>}</td>
+                          <td>
+                            <span className={`badge ${u.emailVerified ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '11px' }}>
+                              {u.emailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <span className={`badge ${u.isInfluencer ? 'badge-success' : 'badge-info'}`} style={{ fontSize: '10px', backgroundColor: u.isInfluencer ? 'var(--success)' : '#eaeaea', color: u.isInfluencer ? 'white' : '#555' }}>
+                                {u.isInfluencer ? ' Verified Creator' : 'Regular Customer'}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            {u.isInfluencer && (
+                              <div style={{ fontSize: '12px', marginBottom: '4px' }}>
+                                <div>Creator ID: <code>{u.influencerId || 'N/A'}</code></div>
+                                <div style={{ fontWeight: 'bold', color: 'var(--success)' }}>Code: {u.creatorCode || 'N/A'}</div>
+                              </div>
+                            )}
+                            {!u.isInfluencer && (
+                              <div style={{ fontSize: '12px', marginBottom: '4px' }}>
+                                <div style={{ color: '#888' }}>Code: {u.referralCode || 'N/A'}</div>
+                              </div>
+                            )}
+                          </td>
+                          <td>
+                            <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                              <div style={{ color: '#e68f00', fontWeight: 'bold' }}>🪙 {u.walletCoins || 0} Coins</div>
+                              <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                              <div style={{ fontWeight: 'bold', color: salesCount > 0 ? 'var(--success)' : '#777' }}>
+                                📈 {salesCount} referred sales
+                              </div>
+                              {salesCount > 0 && (
+                                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                  Volume: ₹{totalSalesVolume.toLocaleString('en-IN')}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <button
+                                className="btn btn-sm btn-outline"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '4px 8px',
+                                  borderColor: u.isInfluencer ? 'var(--error)' : 'var(--success)',
+                                  color: u.isInfluencer ? 'var(--error)' : 'var(--success)',
+                                  height: '28px'
+                                }}
+                                onClick={() => handleToggleUserRole(u)}
+                              >
+                                {u.isInfluencer ? 'Demote Creator' : 'Verify Creator'}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div className="admin-table-wrapper">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>User ID / Username</th>
-                  <th>Full Name</th>
-                  <th>Email Address</th>
-                  <th>Verification Settings</th>
-                  <th>Role Status</th>
-                  <th>Referral Code / Tag</th>
-                  <th>Wallet Balances</th>
-                  <th>Referred Performance</th>
-                  <th>Action controls</th>
-                </tr>
-              </thead>
-              <tbody>
-                {adminUsers
-                  .filter(u => 
-                    u.username.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
-                    (u.fullName && u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()))
-                  )
-                  .map(u => {
-                    const userCode = u.isInfluencer ? u.creatorCode : u.referralCode;
-                    const influencerId = u.isInfluencer ? u.influencerId : null;
-                    
-                    const referredOrdersList = adminOrders.filter(o => 
-                      o.referralApplied && 
-                      (o.referralApplied.referrerId === userCode || 
-                       o.referralApplied.referrerId === influencerId)
-                    );
-                    
-                    const salesCount = referredOrdersList.length;
-                    const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + o.finalAmount, 0);
+          {/* Decoupled Merchant Accounts Section */}
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <h3 className="admin-form-title" style={{ margin: 0 }}><Store size={18} color="var(--primary-color)" /> Marketplace Merchant Shops (Decoupled Registry)</h3>
+              <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search shop name or email..." 
+                  value={sellerSearchQuery}
+                  onChange={(e) => setSellerSearchQuery(e.target.value)}
+                  style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
+                />
+              </div>
+            </div>
 
-                    return (
-                      <tr key={u.username}>
-                        <td>
-                          <div style={{ fontWeight: 'bold' }}>{u.username}</div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Joined platform</div>
-                        </td>
-                        <td>{u.fullName || 'Guest User'}</td>
-                        <td>{u.email || <span style={{ color: '#888', fontStyle: 'italic' }}>Not provided</span>}</td>
-                        <td>
-                          <span className={`badge ${u.emailVerified ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '11px' }}>
-                            {u.emailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`badge ${u.isInfluencer ? 'badge-success' : 'badge-info'}`} style={{ fontSize: '11px', backgroundColor: u.isInfluencer ? 'var(--success)' : '#eaeaea', color: u.isInfluencer ? 'white' : '#555' }}>
-                            {u.isInfluencer ? ' Verified Creator' : 'Regular Customer'}
-                          </span>
-                        </td>
-                        <td>
-                          {u.isInfluencer ? (
-                            <div style={{ fontSize: '12px' }}>
-                              <div>ID: <code>{u.influencerId || 'N/A'}</code></div>
-                              <div style={{ fontWeight: 'bold', color: 'var(--success)', marginTop: '2px' }}>Code: {u.creatorCode || 'N/A'}</div>
-                            </div>
-                          ) : (
-                            <div style={{ fontSize: '12px' }}>
-                              <div style={{ color: '#888' }}>Code: {u.referralCode || 'N/A'}</div>
-                            </div>
-                          )}
-                        </td>
-                        <td>
-                          <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                            <div style={{ color: '#e68f00', fontWeight: 'bold' }}>🪙 {u.walletCoins || 0} Coins</div>
-                            <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
-                          </div>
-                        </td>
-                        <td>
-                          <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                            <div style={{ fontWeight: 'bold', color: salesCount > 0 ? 'var(--success)' : '#777' }}>
-                              📈 {salesCount} referred sales
-                            </div>
-                            {salesCount > 0 && (
-                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                                Volume: ₹{totalSalesVolume.toLocaleString('en-IN')}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-sm btn-outline"
-                            style={{
-                              fontSize: '11px',
-                              padding: '4px 8px',
-                              borderColor: u.isInfluencer ? 'var(--error)' : 'var(--success)',
-                              color: u.isInfluencer ? 'var(--error)' : 'var(--success)'
-                            }}
-                            onClick={() => handleToggleUserRole(u)}
-                          >
-                            {u.isInfluencer ? 'Demote to Customer' : 'Verify as Creator'}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Shop Details</th>
+                    <th>Registered Email</th>
+                    <th>Warehouse Address</th>
+                    <th>Payout Destination</th>
+                    <th>Withdrawable Cash</th>
+                    <th>Status</th>
+                    <th>Action Controls</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminSellers.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', color: '#999', padding: '24px' }}>No merchants registered yet.</td>
+                    </tr>
+                  ) : (
+                    adminSellers
+                      .filter(s => 
+                        s.shopName.toLowerCase().includes(sellerSearchQuery.toLowerCase()) || 
+                        s.email.toLowerCase().includes(sellerSearchQuery.toLowerCase())
+                      )
+                      .map(s => (
+                        <tr key={s.email}>
+                          <td><strong>{s.shopName}</strong></td>
+                          <td><code>{s.email}</code></td>
+                          <td style={{ fontSize: '12px', color: '#666' }}>{s.sellerAddress}</td>
+                          <td style={{ fontSize: '12px' }}>
+                            <div>UPI: <code>{s.payoutDetails?.upi || 'N/A'}</code></div>
+                            {s.payoutDetails?.bankAccount && <div style={{ fontSize: '10px', color: '#888' }}>Bank: {s.payoutDetails.bankAccount}</div>}
+                          </td>
+                          <td style={{ fontWeight: 'bold', color: 'var(--success)' }}>₹{(s.walletCash || 0).toFixed(2)}</td>
+                          <td>
+                            <span className={`badge ${s.isApproved ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '11px' }}>
+                              {s.isApproved ? 'Approved Merchant' : 'Awaiting Audit'}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-outline"
+                              style={{
+                                fontSize: '11px',
+                                padding: '4px 8px',
+                                borderColor: s.isApproved ? 'var(--error)' : 'var(--primary-color)',
+                                color: s.isApproved ? 'var(--error)' : 'var(--primary-color)',
+                                height: '28px'
+                              }}
+                              onClick={() => handleToggleSellerRole(s)}
+                            >
+                              {s.isApproved ? 'Demote Merchant' : 'Approve Merchant'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

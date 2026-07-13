@@ -15,7 +15,8 @@ import {
   History,
   RotateCcw,
   Settings,
-  Heart
+  Heart,
+  Store
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
@@ -177,6 +178,10 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
                     <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('orders'); }}>
                       <History size={16} /> My Orders
+                    </a>
+
+                    <a href="#seller" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('seller'); }}>
+                      <Store size={16} /> Sell on AbKharido
                     </a>
 
                     <div className="dropdown-divider"></div>
