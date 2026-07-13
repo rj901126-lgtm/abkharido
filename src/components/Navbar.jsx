@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../db/mockData';
 import { 
@@ -25,6 +25,20 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    const handleFocusSearch = () => {
+      // Focus element after small delay to allow Home page rendering
+      setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }, 50);
+    };
+    window.addEventListener('focus-main-search', handleFocusSearch);
+    return () => window.removeEventListener('focus-main-search', handleFocusSearch);
+  }, []);
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -63,6 +77,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
           <form className="search-form" onSubmit={handleSearchSubmit}>
             <div className="search-input-wrapper">
               <input
+                ref={searchInputRef}
                 type="text"
                 className="search-input"
                 placeholder="Search for products, brands and more..."

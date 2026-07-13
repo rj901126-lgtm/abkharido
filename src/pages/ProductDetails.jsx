@@ -367,6 +367,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
     window.open(url, '_blank');
   };
 
+  const handleSearchClick = () => {
+    onNavigate('home');
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('focus-main-search'));
+    }, 150);
+  };
+
   return (
     <div className="container animate-fade-in-only" style={{ padding: 0 }}>
       {/* Mobile Sticky Header (Flipkart App Style) */}
@@ -391,7 +398,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
           <input 
             type="text" 
             placeholder="Search for products"
-            onClick={() => onNavigate('home')}
+            onClick={handleSearchClick}
             readOnly
             style={{
               width: '100%',
