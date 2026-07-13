@@ -176,8 +176,8 @@ const ProfilePage = ({ onNavigate }) => {
             </button>
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ flex: '1 1 240px' }}>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>FIRST NAME *</label>
               <input 
                 type="text" 
@@ -189,7 +189,7 @@ const ProfilePage = ({ onNavigate }) => {
                 required
               />
             </div>
-            <div>
+            <div style={{ flex: '1 1 240px' }}>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>SURNAME *</label>
               <input 
                 type="text" 

@@ -219,7 +219,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
       </header>
 
       {/* Subnav categories bar */}
-      {activePage && !activePage.startsWith('product') && (
+      {(activePage === 'home' || activePage === 'catalog') && (
         <nav className="cat-bar">
           <div className="cat-container">
             {CATEGORIES.map(cat => (
