@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import Toast from './components/Toast';
 
 // Pages
@@ -447,9 +446,6 @@ const AppContent = () => {
       <main className={`main-content ${activePage === 'categories' ? 'no-padding-bottom' : ''}`}>
         {renderPage()}
       </main>
-
-      {/* Footer */}
-      {activePage !== 'categories' && <Footer onNavigate={handleNavigate} />}
 
       {/* Mobile Sticky Bottom Tab Bar */}
       {activePage && !activePage.startsWith('product') && (
