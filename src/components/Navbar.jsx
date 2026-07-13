@@ -76,10 +76,12 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             </div>
             {showSuggestions && searchQuery.trim() && products && (
               (() => {
-                const matches = products.filter(p => 
-                  p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  p.category.toLowerCase().includes(searchQuery.toLowerCase())
-                ).slice(0, 5);
+                const matches = products.filter(p => {
+                  const name = p.name ? p.name.toLowerCase() : '';
+                  const category = p.category ? p.category.toLowerCase() : '';
+                  const query = searchQuery.toLowerCase();
+                  return name.includes(query) || category.includes(query);
+                }).slice(0, 5);
                 
                 return matches.length > 0 ? (
                   <div className="search-suggestions-dropdown" style={{

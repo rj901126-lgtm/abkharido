@@ -36,7 +36,8 @@ const CartPage = ({ onNavigate, onCheckout }) => {
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
   
   // Coin redemption calculation
-  const maxCoinsToRedeem = Math.min(currentUser.walletCoins, itemsPrice);
+  const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
+  const maxCoinsToRedeem = Math.min(userCoins, itemsPrice);
   const coinsDiscount = useCoinsDiscount ? maxCoinsToRedeem : 0;
   const finalAmount = itemsPrice - coinsDiscount + deliveryCharge;
 

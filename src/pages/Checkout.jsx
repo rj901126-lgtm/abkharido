@@ -37,9 +37,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Resolve Indian postal pincode details automatically
   useEffect(() => {
     const resolvePincode = async () => {
-      if (address.pincode.length === 6 && !isNaN(address.pincode)) {
+      const pinStr = String(address.pincode || '');
+      if (pinStr.length === 6 && !isNaN(pinStr)) {
         try {
-          const res = await fetch(`https://api.postalpincode.in/pincode/${address.pincode}`);
+          const res = await fetch(`https://api.postalpincode.in/pincode/${pinStr}`);
           if (res.ok) {
             const data = await res.json();
             if (data[0]?.Status === "Success") {
@@ -53,7 +54,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             }
           }
         } catch (e) {
-          const code = address.pincode;
+          const code = pinStr;
           if (code.startsWith('11')) {
             setAddress(prev => ({ ...prev, city: 'New Delhi', state: 'Delhi' }));
           } else if (code.startsWith('40')) {
@@ -70,7 +71,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Price calculations
   const itemsPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
-  const coinsDiscount = useCoinsDiscount && currentUser ? Math.min(currentUser.walletCoins, itemsPrice) : 0;
+  const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
+  const coinsDiscount = useCoinsDiscount && currentUser ? Math.min(userCoins, itemsPrice) : 0;
   const finalAmount = itemsPrice - coinsDiscount + deliveryCharge;
 
   // Handle Address Submit

@@ -31,11 +31,12 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     // 2. Search Query Filter
     if (searchQuery && searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(query) || 
-        p.description.toLowerCase().includes(query) ||
-        p.category.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter(p => {
+        const name = p.name ? p.name.toLowerCase() : '';
+        const description = p.description ? p.description.toLowerCase() : '';
+        const category = p.category ? p.category.toLowerCase() : '';
+        return name.includes(query) || description.includes(query) || category.includes(query);
+      });
     }
 
     // 3. Price Filter

@@ -962,7 +962,7 @@ app.get('/api/orders', async (req, res) => {
     const { email } = req.query;
     if (email && email !== 'admin') {
       const users = await getUsersMap();
-      const user = Object.values(users).find(u => u.email.toLowerCase() === email.toLowerCase());
+      const user = Object.values(users).find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
       if (user) {
         // Return only this customer's orders
         const filtered = orders.filter(o => o.customerUsername === user.username);

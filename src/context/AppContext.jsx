@@ -147,7 +147,7 @@ export const AppProvider = ({ children }) => {
         const data = await res.json();
         if (data.user) {
           setCurrentUser(data.user);
-          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
         }
         if (currentUser) {
           fetchOrders(currentUser.email);
