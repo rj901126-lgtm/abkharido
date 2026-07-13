@@ -449,97 +449,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
               ))}
             </div>
           )}
-
-          {/* Constant Action Footer Row */}
-          <div className="action-buttons-row">
-            {/* Outline Shopping Cart Box Icon */}
-            <button 
-              className="details-action-btn-cart-icon" 
-              onClick={() => {
-                const customProduct = {
-                  ...product,
-                  price: currentDisplayPrice,
-                  originalPrice: currentDisplayOriginalPrice,
-                  selectedColor: activeColor ? activeColor.name : '',
-                  selectedVariant: activeVariant ? activeVariant.name : ''
-                };
-                addToCart(customProduct);
-              }}
-              style={{
-                border: '1px solid #dcdcdc',
-                borderRadius: '4px',
-                backgroundColor: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '46px',
-                height: '46px',
-                cursor: 'pointer',
-                boxSizing: 'border-box'
-              }}
-            >
-              <ShoppingCart size={18} color="#212121" />
-            </button>
-
-            {/* White Add to Cart Option */}
-            <button 
-              className="details-action-btn-secondary" 
-              onClick={() => {
-                const customProduct = {
-                  ...product,
-                  price: currentDisplayPrice,
-                  originalPrice: currentDisplayOriginalPrice,
-                  selectedColor: activeColor ? activeColor.name : '',
-                  selectedVariant: activeVariant ? activeVariant.name : ''
-                };
-                addToCart(customProduct);
-              }}
-              style={{
-                border: '1px solid #dcdcdc',
-                borderRadius: '4px',
-                backgroundColor: 'white',
-                color: '#212121',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                height: '46px',
-                cursor: 'pointer',
-                width: '100%',
-                boxSizing: 'border-box'
-              }}
-            >
-              ADD TO CART
-            </button>
-
-            {/* Yellow Buy Now Option */}
-            <button 
-              className="details-action-btn-primary" 
-              onClick={() => {
-                const customProduct = {
-                  ...product,
-                  price: currentDisplayPrice,
-                  originalPrice: currentDisplayOriginalPrice,
-                  selectedColor: activeColor ? activeColor.name : '',
-                  selectedVariant: activeVariant ? activeVariant.name : ''
-                };
-                addToCart(customProduct, 1);
-                onBuyNow(customProduct);
-              }}
-              style={{
-                border: 'none',
-                borderRadius: '4px',
-                backgroundColor: '#ffc200',
-                color: '#212121',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                height: '46px',
-                cursor: 'pointer',
-                width: '100%',
-                boxSizing: 'border-box'
-              }}
-            >
-              BUY NOW
-            </button>
-          </div>
         </div>
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
@@ -663,35 +572,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
           {/* Flipkart Inline Action Buttons Row for Immediate Purchase */}
           <div className="action-buttons-row" style={{ margin: '16px 0', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' }}>
-            {/* Outline Shopping Cart Box Icon */}
-            <button 
-              className="details-action-btn-cart-icon" 
-              onClick={() => {
-                const customProduct = {
-                  ...product,
-                  price: currentDisplayPrice,
-                  originalPrice: currentDisplayOriginalPrice,
-                  selectedColor: activeColor ? activeColor.name : '',
-                  selectedVariant: activeVariant ? activeVariant.name : ''
-                };
-                addToCart(customProduct);
-              }}
-              style={{
-                border: '1px solid #dcdcdc',
-                borderRadius: '4px',
-                backgroundColor: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '46px',
-                height: '46px',
-                cursor: 'pointer',
-                boxSizing: 'border-box'
-              }}
-            >
-              <ShoppingCart size={18} color="#212121" />
-            </button>
-
             {/* White Add to Cart Option */}
             <button 
               className="details-action-btn-secondary" 
@@ -710,15 +590,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 borderRadius: '4px',
                 backgroundColor: 'white',
                 color: '#212121',
-                fontWeight: 'bold',
-                fontSize: '14px',
                 height: '46px',
                 cursor: 'pointer',
                 width: '100%',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: '1.2'
               }}
             >
-              ADD TO CART
+              <span style={{ fontSize: '13px', fontWeight: 'bold' }}>ADD TO CART</span>
+              <span style={{ fontSize: '9px', fontWeight: 'normal', color: '#666', marginTop: '2px' }}>
+                EMI from ₹{Math.round(currentDisplayPrice / 24).toLocaleString('en-IN')}/m
+              </span>
             </button>
 
             {/* Yellow Buy Now Option */}
@@ -740,15 +626,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 borderRadius: '4px',
                 backgroundColor: '#ffc200',
                 color: '#212121',
-                fontWeight: 'bold',
-                fontSize: '14px',
                 height: '46px',
                 cursor: 'pointer',
                 width: '100%',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: '1.2'
               }}
             >
-              BUY NOW
+              <span style={{ fontSize: '13px', fontWeight: 'bold' }}>BUY NOW</span>
+              <span style={{ fontSize: '9px', fontWeight: 'normal', color: 'rgba(33,33,33,0.8)', marginTop: '2px' }}>
+                at ₹{currentDisplayPrice.toLocaleString('en-IN')}
+              </span>
             </button>
           </div>
 
