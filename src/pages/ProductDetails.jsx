@@ -587,7 +587,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
               }}
               style={{
                 border: '1px solid #dcdcdc',
-                borderRadius: '4px',
+                borderRadius: '8px',
                 backgroundColor: 'white',
                 color: '#212121',
                 height: '46px',
@@ -597,11 +597,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: 'bold',
+                fontWeight: '600',
                 fontSize: '14px'
               }}
             >
-              ADD TO CART
+              Add to cart
             </button>
 
             {/* Yellow Buy Now Option */}
@@ -620,8 +620,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
               }}
               style={{
                 border: 'none',
-                borderRadius: '4px',
-                backgroundColor: '#ffc200',
+                borderRadius: '8px',
+                backgroundColor: '#ffd203',
                 color: '#212121',
                 height: '46px',
                 cursor: 'pointer',
@@ -634,7 +634,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 fontSize: '14px'
               }}
             >
-              BUY NOW
+              Buy at ₹{currentDisplayPrice.toLocaleString('en-IN')}
             </button>
           </div>
 
