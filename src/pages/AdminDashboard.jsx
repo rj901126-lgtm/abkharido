@@ -13,7 +13,8 @@ import {
   ArrowLeft,
   X,
   FileText,
-  Users
+  Users,
+  ShieldAlert
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 
@@ -24,10 +25,53 @@ const AdminDashboard = ({ onNavigate }) => {
   const [adminUsers, setAdminUsers] = useState([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
 
+  // Security Auth State
+  const [authorized, setAuthorized] = useState(() => {
+    return !!sessionStorage.getItem('abkharido_admin_token');
+  });
+  const [adminPin, setAdminPin] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [verifying, setVerifying] = useState(false);
+
+  const handleVerifyPin = async (e) => {
+    e.preventDefault();
+    if (!adminPin) return;
+    setVerifying(true);
+    setLoginError('');
+    try {
+      const res = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPin })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        sessionStorage.setItem('abkharido_admin_token', data.token);
+        setAuthorized(true);
+        showToast('Access Granted. Welcome Administrator!', 'success');
+        // Trigger initial data loads on success
+        setTimeout(() => {
+          fetchAllOrders();
+        }, 100);
+      } else {
+        setLoginError('Incorrect Security Password/PIN. Please try again.');
+        showToast('Access Denied. Incorrect PIN.', 'error');
+      }
+    } catch (err) {
+      setLoginError('Failed to connect to security backend.');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   // Fetch all orders for management
   const fetchAllOrders = async () => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    if (!token) return;
     try {
-      const res = await fetch('/api/orders?email=admin');
+      const res = await fetch('/api/orders?email=admin', {
+        headers: { 'x-admin-token': token }
+      });
       if (res.ok) {
         const data = await res.json();
         setAdminOrders(data);
@@ -38,14 +82,20 @@ const AdminDashboard = ({ onNavigate }) => {
   };
 
   React.useEffect(() => {
-    fetchAllOrders();
-  }, []);
+    if (authorized) {
+      fetchAllOrders();
+    }
+  }, [authorized]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
       const res = await fetch(`/api/orders/${orderId}/status`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
         body: JSON.stringify({ status: newStatus })
       });
       if (res.ok) {
@@ -60,8 +110,12 @@ const AdminDashboard = ({ onNavigate }) => {
   };
 
   const fetchAllUsers = async () => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    if (!token) return;
     try {
-      const res = await fetch('/api/users');
+      const res = await fetch('/api/users', {
+        headers: { 'x-admin-token': token }
+      });
       if (res.ok) {
         const data = await res.json();
         setAdminUsers(data);
@@ -72,14 +126,15 @@ const AdminDashboard = ({ onNavigate }) => {
   };
 
   React.useEffect(() => {
-    if (activeTab === 'orders') {
+    if (activeTab === 'orders' && authorized) {
       fetchAllOrders();
-    } else if (activeTab === 'users') {
+    } else if (activeTab === 'users' && authorized) {
       fetchAllUsers();
     }
-  }, [activeTab]);
+  }, [activeTab, authorized]);
 
   const handleToggleUserRole = async (userObj) => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
     const isCurrentlyCreator = userObj.isInfluencer;
     const targetState = !isCurrentlyCreator;
     
@@ -91,7 +146,10 @@ const AdminDashboard = ({ onNavigate }) => {
     try {
       const res = await fetch(`/api/users/${userObj.username}/update`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
         body: JSON.stringify({
           isInfluencer: targetState,
           creatorCode,
@@ -318,6 +376,54 @@ const AdminDashboard = ({ onNavigate }) => {
     ]);
     setColorModels([]);
   };
+
+  if (!authorized) {
+    return (
+      <div className="container animate-fade-in" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div className="admin-panel-card" style={{ maxWidth: '420px', width: '100%', padding: '32px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#fff3e0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff9800' }}>
+              <ShieldAlert size={24} />
+            </div>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>Backend Security Authorization</h2>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              This panel is restricted to verified store managers. Please enter the security PIN to verify access.
+            </span>
+          </div>
+
+          <form onSubmit={handleVerifyPin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="form-group" style={{ textAlign: 'left' }}>
+              <label className="form-label-txt">Security Password/PIN*</label>
+              <input
+                type="password"
+                placeholder="••••••••••••"
+                value={adminPin}
+                onChange={(e) => setAdminPin(e.target.value)}
+                className="form-input-field"
+                style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '18px', boxSizing: 'border-box' }}
+                required
+                autoFocus
+              />
+            </div>
+
+            {loginError && (
+              <div style={{ fontSize: '12px', color: 'var(--error)', backgroundColor: '#ffebee', padding: '8px 12px', borderRadius: '4px', fontWeight: '500' }}>
+                {loginError}
+              </div>
+            )}
+
+            <button type="submit" disabled={verifying} className="btn btn-primary" style={{ height: '40px', fontWeight: 'bold' }}>
+              {verifying ? 'Verifying Authorization...' : 'UNLOCK INVENTORY CONTROL'}
+            </button>
+            
+            <button type="button" onClick={() => onNavigate('home')} className="btn btn-outline" style={{ height: '40px' }}>
+              Cancel & Exit
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container admin-container animate-fade-in">

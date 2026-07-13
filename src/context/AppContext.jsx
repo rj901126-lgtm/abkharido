@@ -285,10 +285,14 @@ export const AppProvider = ({ children }) => {
 
   // --- Admin Panel API Actions ---
   const addProduct = async (newProduct) => {
+    const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
       const res = await fetch('/api/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
         body: JSON.stringify(newProduct)
       });
       if (!res.ok) {
@@ -305,9 +309,13 @@ export const AppProvider = ({ children }) => {
   };
 
   const removeProduct = async (productId) => {
+    const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
       const res = await fetch(`/api/products/${productId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'x-admin-token': adminToken
+        }
       });
       if (!res.ok) {
         const err = await res.json();

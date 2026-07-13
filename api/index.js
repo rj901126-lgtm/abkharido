@@ -676,7 +676,23 @@ async function verifyOtpCode(recipient, otpCode) {
   }
 }
 
-// --- API Endpoints ---
+const verifyAdminToken = (req, res, next) => {
+  const token = req.headers['x-admin-token'];
+  const adminPass = process.env.ADMIN_PASSWORD || 'AbKharidoAdmin2026';
+  if (token === adminPass) {
+    return next();
+  }
+  res.status(403).json({ error: 'Access Denied: Invalid admin authorization token' });
+};
+
+app.post('/api/admin/verify', (req, res) => {
+  const { password } = req.body;
+  const adminPass = process.env.ADMIN_PASSWORD || 'AbKharidoAdmin2026';
+  if (password === adminPass) {
+    return res.json({ success: true, token: adminPass });
+  }
+  res.status(401).json({ error: 'Invalid admin PIN/password' });
+});
 
 // 1. PRODUCTS DATABASE ROUTES
 app.get('/api/products', async (req, res) => {
@@ -688,7 +704,7 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-app.post('/api/products', async (req, res) => {
+app.post('/api/products', verifyAdminToken, async (req, res) => {
   try {
     const products = await getProducts();
     const newProduct = req.body;
@@ -704,7 +720,7 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-app.delete('/api/products/:id', async (req, res) => {
+app.delete('/api/products/:id', verifyAdminToken, async (req, res) => {
   try {
     const products = await getProducts();
     const { id } = req.params;
@@ -818,6 +834,15 @@ app.post('/api/users/:username/update', async (req, res) => {
     const { username } = req.params;
     const { firstName, lastName, email, pincode, address, emailVerified, isInfluencer, creatorCode, influencerId, walletCoins, walletCash } = req.body;
 
+    // Security check: Only admins can modify creator roles and balances
+    if (isInfluencer !== undefined || creatorCode !== undefined || influencerId !== undefined || walletCoins !== undefined || walletCash !== undefined) {
+      const token = req.headers['x-admin-token'];
+      const adminPass = process.env.ADMIN_PASSWORD || 'AbKharidoAdmin2026';
+      if (token !== adminPass) {
+        return res.status(403).json({ error: 'Access Denied: Admin privileges required to update role or balances' });
+      }
+    }
+
     if (!users[username]) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -865,7 +890,7 @@ app.get('/api/users/:username', async (req, res) => {
   }
 });
 
-app.get('/api/users', async (req, res) => {
+app.get('/api/users', verifyAdminToken, async (req, res) => {
   try {
     const users = await getUsersMap();
     res.json(Object.values(users));
@@ -970,8 +995,13 @@ app.get('/api/orders', async (req, res) => {
       }
       return res.json([]);
     }
-    // Return all orders if email query is absent or is 'admin'
-    res.json(orders);
+    // Return all orders if email query is absent or is 'admin' (requires admin token validation)
+    const token = req.headers['x-admin-token'];
+    const adminPass = process.env.ADMIN_PASSWORD || 'AbKharidoAdmin2026';
+    if (token === adminPass) {
+      return res.json(orders);
+    }
+    res.status(403).json({ error: 'Access Denied: Admin authorization required' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
@@ -1320,7 +1350,7 @@ app.post('/api/orders/:orderId/cancel', async (req, res) => {
   }
 });
 
-app.post('/api/orders/:orderId/status', async (req, res) => {
+app.post('/api/orders/:orderId/status', verifyAdminToken, async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
