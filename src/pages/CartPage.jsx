@@ -100,7 +100,11 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
               <div className="cart-item-details">
                 <h3 className="cart-item-title">{item.product.name}</h3>
-                <span className="cart-item-category">Category: {item.product.category}</span>
+                <span className="cart-item-category">
+                  Category: {item.product.category}
+                  {item.product.selectedColor && ` | Color: ${item.product.selectedColor}`}
+                  {item.product.selectedVariant && ` | Variant: ${item.product.selectedVariant}`}
+                </span>
                 
                 <div className="cart-item-prices">
                   <span className="cart-item-price">₹{item.product.price.toLocaleString('en-IN')}</span>

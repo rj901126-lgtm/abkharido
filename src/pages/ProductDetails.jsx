@@ -139,7 +139,76 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   };
 
   // Find product in list
+  // Find product in list
   const product = products.find(p => p.id === productId);
+
+  const getProductColors = (prod) => {
+    if (!prod) return [];
+    if (prod.colors) return prod.colors;
+    
+    // Dynamic color variations using high-quality image alternates from imagesList
+    if (prod.category === 'mobiles' && prod.images && prod.images.length >= 2) {
+      return [
+        { name: 'Titanium Gray', image: prod.images[0] },
+        { name: 'Titanium Blue', image: prod.images[1] }
+      ];
+    } else if (prod.category === 'fashion' && prod.images && prod.images.length >= 2) {
+      return [
+        { name: 'Pitch Black', image: prod.images[0] },
+        { name: 'Vintage Shade', image: prod.images[1] }
+      ];
+    } else if (prod.category === 'electronics' && prod.images && prod.images.length >= 2) {
+      return [
+        { name: 'Classic Dark', image: prod.images[0] },
+        { name: 'Silver Slate', image: prod.images[1] }
+      ];
+    }
+    return [
+      { name: 'Standard Color', image: prod.image }
+    ];
+  };
+
+  const getProductVariants = (prod) => {
+    if (!prod) return [];
+    if (prod.variants) return prod.variants;
+    
+    const discount = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
+    
+    if (prod.category === 'mobiles') {
+      return [
+        { name: '128 GB + 6 GB', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 8 },
+        { name: '128 GB + 8 GB', price: Math.round(prod.price * 1.1), originalPrice: Math.round(prod.originalPrice * 1.1), discount, stock: 5 },
+        { name: '256 GB + 8 GB', price: Math.round(prod.price * 1.25), originalPrice: Math.round(prod.originalPrice * 1.25), discount, stock: 1 }
+      ];
+    } else if (prod.category === 'fashion') {
+      return [
+        { name: 'Size M', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 12 },
+        { name: 'Size L', price: Math.round(prod.price * 1.05), originalPrice: Math.round(prod.originalPrice * 1.05), discount, stock: 2 },
+        { name: 'Size XL', price: Math.round(prod.price * 1.12), originalPrice: Math.round(prod.originalPrice * 1.12), discount, stock: 6 }
+      ];
+    } else if (prod.category === 'electronics') {
+      return [
+        { name: 'Base Model', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 15 },
+        { name: 'Pro Model', price: Math.round(prod.price * 1.3), originalPrice: Math.round(prod.originalPrice * 1.3), discount, stock: 3 }
+      ];
+    }
+    return [
+      { name: 'Standard Edition', price: prod.price, originalPrice: prod.originalPrice, discount, stock: 10 }
+    ];
+  };
+
+  const colorsList = product ? getProductColors(product) : [];
+  const variantsList = product ? getProductVariants(product) : [];
+
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
+  const activeColor = selectedColor || colorsList[0];
+  const activeVariant = selectedVariant || variantsList[0];
+
+  const currentDisplayPrice = activeVariant ? activeVariant.price : (product ? product.price : 0);
+  const currentDisplayOriginalPrice = activeVariant ? activeVariant.originalPrice : (product ? product.originalPrice : 0);
+  const currentDisplayDiscount = activeVariant ? activeVariant.discount : 0;
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -149,7 +218,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
   React.useEffect(() => {
     setActiveImageIndex(0);
-  }, [productId]);
+    if (product) {
+      const colors = getProductColors(product);
+      const variants = getProductVariants(product);
+      setSelectedColor(colors[0]);
+      setSelectedVariant(variants[0]);
+    }
+  }, [productId, product]);
 
   const handlePrev = () => {
     setActiveImageIndex(prev => (prev > 0 ? prev - 1 : imagesList.length - 1));
@@ -321,8 +396,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             <button 
               className="details-action-btn-cart-icon" 
               onClick={() => {
-                addToCart(product);
-                showToast('Product added to Cart successfully!', 'success');
+                const customProduct = {
+                  ...product,
+                  price: currentDisplayPrice,
+                  originalPrice: currentDisplayOriginalPrice,
+                  selectedColor: activeColor ? activeColor.name : '',
+                  selectedVariant: activeVariant ? activeVariant.name : ''
+                };
+                addToCart(customProduct);
               }}
               style={{
                 border: '1px solid #dcdcdc',
@@ -344,8 +425,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             <button 
               className="details-action-btn-secondary" 
               onClick={() => {
-                addToCart(product);
-                showToast('Product added to Cart successfully!', 'success');
+                const customProduct = {
+                  ...product,
+                  price: currentDisplayPrice,
+                  originalPrice: currentDisplayOriginalPrice,
+                  selectedColor: activeColor ? activeColor.name : '',
+                  selectedVariant: activeVariant ? activeVariant.name : ''
+                };
+                addToCart(customProduct);
               }}
               style={{
                 border: '1px solid #dcdcdc',
@@ -367,8 +454,15 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             <button 
               className="details-action-btn-primary" 
               onClick={() => {
-                addToCart(product, 1);
-                onBuyNow(product);
+                const customProduct = {
+                  ...product,
+                  price: currentDisplayPrice,
+                  originalPrice: currentDisplayOriginalPrice,
+                  selectedColor: activeColor ? activeColor.name : '',
+                  selectedVariant: activeVariant ? activeVariant.name : ''
+                };
+                addToCart(customProduct, 1);
+                onBuyNow(customProduct);
               }}
               style={{
                 border: 'none',
@@ -420,12 +514,95 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           </div>
 
+          {/* Color Variation Selection (Flipkart style) */}
+          {colorsList.length > 0 && (
+            <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
+              <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
+                Selected Color: <span style={{ color: '#212121', fontWeight: 'bold' }}>{activeColor ? activeColor.name : ''}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {colorsList.map((c, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setSelectedColor(c);
+                      // Update active slider index to show this color image
+                      const imgIndex = imagesList.indexOf(c.image);
+                      if (imgIndex !== -1) setActiveImageIndex(imgIndex);
+                    }}
+                    style={{
+                      border: activeColor && activeColor.name === c.name ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
+                      borderRadius: '4px',
+                      padding: '2px',
+                      backgroundColor: 'white',
+                      cursor: 'pointer',
+                      width: '60px',
+                      height: '60px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxSizing: 'border-box',
+                      boxShadow: activeColor && activeColor.name === c.name ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                      transition: 'all 0.1s'
+                    }}
+                  >
+                    <img src={c.image} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Variant Selection (Flipkart style) */}
+          {variantsList.length > 0 && (
+            <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
+              <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
+                Variant: <span style={{ color: '#212121', fontWeight: 'bold' }}>{activeVariant ? activeVariant.name : ''}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {variantsList.map((v, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedVariant(v)}
+                    style={{
+                      border: activeVariant && activeVariant.name === v.name ? '2px solid #212121' : '1px solid #e0e0e0',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      backgroundColor: 'white',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      minWidth: '120px',
+                      boxSizing: 'border-box',
+                      boxShadow: activeVariant && activeVariant.name === v.name ? '0 1px 5px rgba(0,0,0,0.05)' : 'none',
+                      transition: 'all 0.1s',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#212121' }}>{v.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                       <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#388e3c' }}>↓{v.discount}%</span>
+                       <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{v.originalPrice.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginTop: '2px' }}>₹{v.price.toLocaleString('en-IN')}</div>
+                    
+                    {/* Low stock tag */}
+                    {v.stock <= 3 && (
+                      <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#d32f2f', marginTop: '4px' }}>
+                        {v.stock} left
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Pricing Details */}
-          <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0 }}>
+          <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0, marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
             <div className="details-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <span className="details-price" style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{product.price.toLocaleString('en-IN')}</span>
-              <span className="details-original" style={{ fontSize: '14px', color: '#878787', textDecoration: 'line-through' }}>₹{product.originalPrice.toLocaleString('en-IN')}</span>
-              <span className="details-discount" style={{ fontSize: '14px', fontWeight: 'bold', color: '#388e3c' }}>{discountPercent}% off</span>
+              <span className="details-price" style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+              <span className="details-original" style={{ fontSize: '14px', color: '#878787', textDecoration: 'line-through' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+              <span className="details-discount" style={{ fontSize: '14px', fontWeight: 'bold', color: '#388e3c' }}>{currentDisplayDiscount}% off</span>
             </div>
           </div>
 
