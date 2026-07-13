@@ -438,7 +438,7 @@ const AppContent = () => {
       <Footer onNavigate={handleNavigate} />
 
       {/* Mobile Sticky Bottom Tab Bar */}
-      {activePage !== 'product' && (
+      {activePage && !activePage.startsWith('product') && (
         <BottomNavigation activePage={activePage} onNavigate={handleNavigate} />
       )}
 
