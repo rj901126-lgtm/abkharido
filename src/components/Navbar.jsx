@@ -14,7 +14,8 @@ import {
   Coins,
   History,
   RotateCcw,
-  Settings
+  Settings,
+  Heart
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
@@ -166,6 +167,10 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
                     <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('profile'); }}>
                       <User size={16} /> My Profile
+                    </a>
+
+                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('profile'); setTimeout(() => { document.getElementById('wishlist-section')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}>
+                      <Heart size={16} fill="#d32f2f" color="#d32f2f" /> My Wishlist
                     </a>
 
                     <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('orders'); }}>
