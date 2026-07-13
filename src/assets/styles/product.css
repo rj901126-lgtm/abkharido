@@ -563,24 +563,24 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.5);
-  z-index: 2000;
+  background-color: rgba(0,0,0,0.55);
+  z-index: 2200; /* Above bottom nav */
   display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
-/* Sort Bottom Sheet */
-.bottom-sheet-backdrop {
-  align-items: flex-end;
-}
-
+/* Sort Centered Modal Card */
 .bottom-sheet-content {
-  width: 100%;
+  width: 90%;
+  max-width: 320px;
   background-color: white;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
-  animation: slideUp 0.25s ease-out;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  animation: modalZoomIn 0.2s ease-out;
 }
 
 .bottom-sheet-title {
@@ -614,20 +614,18 @@
   height: 18px;
 }
 
-/* Filter Drawer (Slide in from Right) */
-.filter-drawer-backdrop {
-  justify-content: flex-end;
-}
-
+/* Filter Centered Modal Card */
 .filter-drawer-content {
-  width: 80%;
+  width: 90%;
   max-width: 320px;
-  height: 100%;
+  max-height: 85vh; /* Safe bounds to display all options on any mobile view screen */
   background-color: white;
   display: flex;
   flex-direction: column;
-  box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-  animation: slideLeft 0.25s ease-out;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  animation: modalZoomIn 0.2s ease-out;
+  overflow: hidden;
 }
 
 .filter-drawer-header {
@@ -675,6 +673,11 @@
 }
 
 /* Keyframes animations */
+@keyframes modalZoomIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 @keyframes slideUp {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
