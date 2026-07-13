@@ -331,3 +331,44 @@
     align-items: flex-start;
   }
 }
+
+/* --- HORIZONTAL PRODUCT CAROUSEL SHELF --- */
+.home-carousel-row {
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+  padding: 8px 4px 16px 4px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.home-carousel-row::-webkit-scrollbar {
+  height: 6px;
+}
+.home-carousel-row::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+.home-carousel-row::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.home-carousel-row::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.home-carousel-row .product-card {
+  flex: 0 0 220px !important;
+  width: 220px !important;
+  max-width: 220px !important;
+}
+
+@media (max-width: 600px) {
+  .home-carousel-row {
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+  .home-carousel-row .product-card {
+    flex: 0 0 165px !important;
+    width: 165px !important;
+    max-width: 165px !important;
+  }
+}

@@ -81,14 +81,15 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
     setActiveSlide(prev => (prev - 1 + slides.length) % slides.length);
   };
 
-  // Filter products for Deals section
-  const dealsProducts = products.slice(0, 5);
-
-  // Filter products for Electronics section
-  const electronicsProducts = products.filter(p => p.category === 'electronics').slice(0, 4);
-
-  // Filter products for Fashion section
-  const fashionProducts = products.filter(p => p.category === 'fashion').slice(0, 4);
+  // Filter products for 8 horizontal carousels
+  const dealsProducts = products.slice(0, 6);
+  const mobilesProducts = products.filter(p => p.category === 'mobiles');
+  const electronicsProducts = products.filter(p => p.category === 'electronics');
+  const fashionProducts = products.filter(p => p.category === 'fashion');
+  const homeProducts = products.filter(p => p.category === 'home' || p.category === 'furniture');
+  const appliancesProducts = products.filter(p => p.category === 'appliances');
+  const budgetProducts = products.filter(p => p.price < 15000);
+  const topRatedProducts = products.filter(p => p.rating >= 4.5);
 
   return (
     <div className="container home-container animate-fade-in">
@@ -141,7 +142,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
         </div>
       </section>
 
-      {/* Deals of the Day (With Timer) */}
+      {/* 1. Deals of the Day (With Timer) */}
       <section className="deals-container">
         <div className="deals-header">
           <div className="deals-title-area">
@@ -162,9 +163,83 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             View All
           </button>
         </div>
-
-        <div className="deals-grid">
+        <div className="home-carousel-row">
           {dealsProducts.map(product => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onNavigateProduct={onNavigateProduct} 
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 2. Mobiles & Smart Devices */}
+      <section className="deals-container">
+        <div className="deals-header">
+          <span className="deals-title">Smart Mobiles & Accessories</span>
+          <button 
+            className="btn btn-outline btn-sm"
+            onClick={() => {
+              onSelectCategory('mobiles');
+              onNavigate('catalog');
+            }}
+          >
+            Explore
+          </button>
+        </div>
+        <div className="home-carousel-row">
+          {mobilesProducts.map(product => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onNavigateProduct={onNavigateProduct} 
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 3. Tech & Electronics */}
+      <section className="deals-container">
+        <div className="deals-header">
+          <span className="deals-title">Best of Tech & Electronics</span>
+          <button 
+            className="btn btn-outline btn-sm"
+            onClick={() => {
+              onSelectCategory('electronics');
+              onNavigate('catalog');
+            }}
+          >
+            Explore
+          </button>
+        </div>
+        <div className="home-carousel-row">
+          {electronicsProducts.map(product => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onNavigateProduct={onNavigateProduct} 
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 4. Trends in Fashion */}
+      <section className="deals-container">
+        <div className="deals-header">
+          <span className="deals-title">Top Trends in Fashion</span>
+          <button 
+            className="btn btn-outline btn-sm"
+            onClick={() => {
+              onSelectCategory('fashion');
+              onNavigate('catalog');
+            }}
+          >
+            Explore
+          </button>
+        </div>
+        <div className="home-carousel-row">
+          {fashionProducts.map(product => (
             <ProductCard 
               key={product.id} 
               product={product} 
@@ -197,22 +272,22 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
         </div>
       </section>
 
-      {/* Tech Spotlight Grid */}
+      {/* 5. Home & Kitchen Essentials */}
       <section className="deals-container">
         <div className="deals-header">
-          <span className="deals-title">Best of Tech & Electronics</span>
+          <span className="deals-title">Home & Kitchen Essentials</span>
           <button 
-            className="btn btn-outline"
+            className="btn btn-outline btn-sm"
             onClick={() => {
-              onSelectCategory('electronics');
+              onSelectCategory('home');
               onNavigate('catalog');
             }}
           >
             Explore
           </button>
         </div>
-        <div className="grid-cols-4">
-          {electronicsProducts.map(product => (
+        <div className="home-carousel-row">
+          {homeProducts.map(product => (
             <ProductCard 
               key={product.id} 
               product={product} 
@@ -222,22 +297,72 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
         </div>
       </section>
 
-      {/* Fashion Spotlight Grid */}
+      {/* 6. Smart Household Appliances */}
       <section className="deals-container">
         <div className="deals-header">
-          <span className="deals-title">Top Trends in Fashion</span>
+          <span className="deals-title">Smart Household Appliances</span>
           <button 
-            className="btn btn-outline"
+            className="btn btn-outline btn-sm"
             onClick={() => {
-              onSelectCategory('fashion');
+              onSelectCategory('appliances');
               onNavigate('catalog');
             }}
           >
             Explore
           </button>
         </div>
-        <div className="grid-cols-4">
-          {fashionProducts.map(product => (
+        <div className="home-carousel-row">
+          {appliancesProducts.map(product => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onNavigateProduct={onNavigateProduct} 
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 7. Budget Buys & Super Savers */}
+      <section className="deals-container">
+        <div className="deals-header">
+          <span className="deals-title">Budget Buys & Super Savers (Under ₹15,000)</span>
+          <button 
+            className="btn btn-outline btn-sm"
+            onClick={() => {
+              onSelectCategory('all');
+              onNavigate('catalog');
+            }}
+          >
+            Explore
+          </button>
+        </div>
+        <div className="home-carousel-row">
+          {budgetProducts.map(product => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onNavigateProduct={onNavigateProduct} 
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 8. Customer Favorites & Top Rated */}
+      <section className="deals-container" style={{ marginBottom: '24px' }}>
+        <div className="deals-header">
+          <span className="deals-title">Customer Favorites (Top Rated 4.5+ ★)</span>
+          <button 
+            className="btn btn-outline btn-sm"
+            onClick={() => {
+              onSelectCategory('all');
+              onNavigate('catalog');
+            }}
+          >
+            Explore
+          </button>
+        </div>
+        <div className="home-carousel-row">
+          {topRatedProducts.map(product => (
             <ProductCard 
               key={product.id} 
               product={product} 
