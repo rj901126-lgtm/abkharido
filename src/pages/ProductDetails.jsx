@@ -595,16 +595,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 width: '100%',
                 boxSizing: 'border-box',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                lineHeight: '1.2'
+                fontWeight: 'bold',
+                fontSize: '14px'
               }}
             >
-              <span style={{ fontSize: '13px', fontWeight: 'bold' }}>ADD TO CART</span>
-              <span style={{ fontSize: '9px', fontWeight: 'normal', color: '#666', marginTop: '2px' }}>
-                EMI from ₹{Math.round(currentDisplayPrice / 24).toLocaleString('en-IN')}/m
-              </span>
+              ADD TO CART
             </button>
 
             {/* Yellow Buy Now Option */}
@@ -631,16 +628,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                 width: '100%',
                 boxSizing: 'border-box',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                lineHeight: '1.2'
+                fontWeight: 'bold',
+                fontSize: '14px'
               }}
             >
-              <span style={{ fontSize: '13px', fontWeight: 'bold' }}>BUY NOW</span>
-              <span style={{ fontSize: '9px', fontWeight: 'normal', color: 'rgba(33,33,33,0.8)', marginTop: '2px' }}>
-                at ₹{currentDisplayPrice.toLocaleString('en-IN')}
-              </span>
+              BUY NOW
             </button>
           </div>
 
