@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   Check,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Heart
 } from 'lucide-react';
 import '../assets/styles/product.css';
 
@@ -244,25 +245,27 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
               ))}
             </div>
 
-            {/* Navigation Arrows */}
-            {imagesList.length > 1 && (
-              <>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                  style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #ddd', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}
-                  className="carousel-arrow"
-                >
-                  <ChevronLeft size={18} color="#333" />
-                </button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #ddd', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}
-                  className="carousel-arrow"
-                >
-                  <ChevronRight size={18} color="#333" />
-                </button>
-              </>
-            )}
+            {/* Flipkart Floating Badges & Controls Overlay */}
+            {/* Wishlist Heart & Share Panel (Top-Right) */}
+            <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button 
+                onClick={(e) => { e.stopPropagation(); showToast('Added to Wishlist!', 'success'); }}
+                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+              >
+                <Heart size={16} color="#777" />
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleShareWhatsApp(); }}
+                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+              >
+                <Share2 size={16} color="#777" />
+              </button>
+            </div>
+
+            {/* Rating & Reviews Pill Badge (Bottom-Left) */}
+            <div style={{ position: 'absolute', bottom: '12px', left: '12px', zIndex: 5, backgroundColor: 'rgba(0, 0, 0, 0.65)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              {product.rating} <Star size={10} fill="var(--success)" stroke="var(--success)" style={{ display: 'inline' }} /> <span style={{ color: 'rgba(255,255,255,0.7)', margin: '0 2px' }}>|</span> {product.reviewsCount > 999 ? `${(product.reviewsCount/1000).toFixed(1)}K` : product.reviewsCount}+
+            </div>
 
             {/* Indicator Dots */}
             {imagesList.length > 1 && (
@@ -312,21 +315,75 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           )}
 
+          {/* Constant Action Footer Row */}
           <div className="action-buttons-row">
+            {/* Outline Shopping Cart Box Icon */}
             <button 
-              className="btn btn-secondary btn-lg details-action-btn" 
-              onClick={() => addToCart(product)}
+              className="details-action-btn-cart-icon" 
+              onClick={() => {
+                addToCart(product);
+                showToast('Product added to Cart successfully!', 'success');
+              }}
+              style={{
+                border: '1px solid #dcdcdc',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '46px',
+                height: '46px',
+                cursor: 'pointer',
+                boxSizing: 'border-box'
+              }}
             >
-              <ShoppingCart size={18} /> ADD TO CART
+              <ShoppingCart size={18} color="#212121" />
             </button>
+
+            {/* White Add to Cart Option */}
             <button 
-              className="btn btn-accent btn-lg details-action-btn" 
+              className="details-action-btn-secondary" 
+              onClick={() => {
+                addToCart(product);
+                showToast('Product added to Cart successfully!', 'success');
+              }}
+              style={{
+                border: '1px solid #dcdcdc',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                color: '#212121',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                height: '46px',
+                cursor: 'pointer',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
+            >
+              ADD TO CART
+            </button>
+
+            {/* Yellow Buy Now Option */}
+            <button 
+              className="details-action-btn-primary" 
               onClick={() => {
                 addToCart(product, 1);
                 onBuyNow(product);
               }}
+              style={{
+                border: 'none',
+                borderRadius: '4px',
+                backgroundColor: '#ffc200',
+                color: '#212121',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                height: '46px',
+                cursor: 'pointer',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
             >
-              <Zap size={18} /> BUY NOW
+              BUY NOW
             </button>
           </div>
         </div>
