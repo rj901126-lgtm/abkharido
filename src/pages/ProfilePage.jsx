@@ -355,7 +355,7 @@ const ProfilePage = ({ onNavigate }) => {
                     >
                       {p.name}
                     </h4>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
                       <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121' }}>₹{p.price.toLocaleString('en-IN')}</span>
                       <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{p.originalPrice.toLocaleString('en-IN')}</span>
                       <span style={{ fontSize: '11px', color: '#388e3c', fontWeight: 'bold' }}>
