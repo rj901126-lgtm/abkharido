@@ -5,6 +5,8 @@ import { Star, Award, ShoppingCart } from 'lucide-react';
 const ProductCard = ({ product, onNavigateProduct }) => {
   const { addToCart, currentUser } = useApp();
 
+  if (!product) return null;
+
   const discountPercent = Math.round(
     ((product.originalPrice - product.price) / product.originalPrice) * 100
   );

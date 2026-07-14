@@ -81,15 +81,16 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
     setActiveSlide(prev => (prev - 1 + slides.length) % slides.length);
   };
 
-  // Filter products for 8 horizontal carousels
-  const dealsProducts = products.slice(0, 6);
-  const mobilesProducts = products.filter(p => p.category === 'mobiles');
-  const electronicsProducts = products.filter(p => p.category === 'electronics');
-  const fashionProducts = products.filter(p => p.category === 'fashion');
-  const homeProducts = products.filter(p => p.category === 'home' || p.category === 'furniture');
-  const appliancesProducts = products.filter(p => p.category === 'appliances');
-  const budgetProducts = products.filter(p => p.price < 15000);
-  const topRatedProducts = products.filter(p => p.rating >= 4.5);
+  // Filter products for 8 horizontal carousels (with safety checks)
+  const productList = Array.isArray(products) ? products : [];
+  const dealsProducts = productList.slice(0, 6);
+  const mobilesProducts = productList.filter(p => p && p.category === 'mobiles');
+  const electronicsProducts = productList.filter(p => p && p.category === 'electronics');
+  const fashionProducts = productList.filter(p => p && p.category === 'fashion');
+  const homeProducts = productList.filter(p => p && (p.category === 'home' || p.category === 'furniture'));
+  const appliancesProducts = productList.filter(p => p && p.category === 'appliances');
+  const budgetProducts = productList.filter(p => p && typeof p.price === 'number' && p.price < 15000);
+  const topRatedProducts = productList.filter(p => p && typeof p.rating === 'number' && p.rating >= 4.5);
 
   return (
     <div className="container home-container animate-fade-in">
