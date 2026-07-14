@@ -34,8 +34,10 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct }) => 
     }
   };
 
-  // Get active category's products
-  const categoryProducts = products.filter(p => {
+  // Get active category's products (with safe list check)
+  const productList = Array.isArray(products) ? products : [];
+  const categoryProducts = productList.filter(p => {
+    if (!p) return false;
     if (selectedCatId === 'all') return true;
     return p.category === selectedCatId;
   }).slice(0, 5); // display up to 5 items inside grid, then show "View All" button
@@ -157,20 +159,23 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct }) => 
           <div className="panel-section">
             <h3 className="panel-section-title">New & Upcoming Launches</h3>
             <div className="category-products-grid">
-              {categoryProducts.map(prod => (
-                <div 
-                  key={prod.id} 
-                  className="category-grid-item"
-                  onClick={() => onNavigateProduct(prod.id)}
-                >
-                  <div className="category-item-image-wrapper">
-                    <img src={prod.image} alt={prod.name} className="category-item-image" />
+              {categoryProducts.map(prod => {
+                if (!prod) return null;
+                return (
+                  <div 
+                    key={prod.id} 
+                    className="category-grid-item"
+                    onClick={() => onNavigateProduct(prod.id)}
+                  >
+                    <div className="category-item-image-wrapper">
+                      <img src={prod.image} alt={prod.name} className="category-item-image" />
+                    </div>
+                    <span className="category-item-badge">Buy Now</span>
+                    <span className="category-item-name">{prod.name}</span>
+                    <span className="category-item-price">₹{(prod.price || 0).toLocaleString('en-IN')}</span>
                   </div>
-                  <span className="category-item-badge">Buy Now</span>
-                  <span className="category-item-name">{prod.name}</span>
-                  <span className="category-item-price">₹{prod.price.toLocaleString('en-IN')}</span>
-                </div>
-              ))}
+                );
+              })}
 
               {/* View All Circle Button at the end */}
               <div className="view-all-circle-btn" onClick={handleViewAllClick}>
