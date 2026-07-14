@@ -138,7 +138,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                         <div className="suggestion-text" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textString: 'ellipsis', textAlign: 'left' }}>
                           <span style={{ fontWeight: '500' }}>{p.name}</span> <span style={{ color: '#888', fontSize: '11px', textTransform: 'uppercase', marginLeft: '6px' }}>in {p.category}</span>
                         </div>
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#388e3c' }}>₹{p.price.toLocaleString('en-IN')}</span>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#388e3c' }}>₹{(p.price || 0).toLocaleString('en-IN')}</span>
                       </div>
                     ))}
                   </div>

@@ -357,10 +357,10 @@ const ProfilePage = ({ onNavigate }) => {
                       {p.name}
                     </h4>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121' }}>₹{p.price.toLocaleString('en-IN')}</span>
-                      <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{p.originalPrice.toLocaleString('en-IN')}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121' }}>₹{(p.price || 0).toLocaleString('en-IN')}</span>
+                      <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{(p.originalPrice || p.price || 0).toLocaleString('en-IN')}</span>
                       <span style={{ fontSize: '11px', color: '#388e3c', fontWeight: 'bold' }}>
-                        {Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)}% off
+                        {p.originalPrice > p.price ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0}% off
                       </span>
                     </div>
                   </div>

@@ -351,7 +351,7 @@ const Orders = ({ onNavigate }) => {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.product.name}</div>
                     <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      Price: ₹{item.product.price.toLocaleString('en-IN')} | Quantity: {item.quantity}
+                      Price: ₹{(item.product.price || 0).toLocaleString('en-IN')} | Quantity: {item.quantity}
                     </div>
                   </div>
                   <button 

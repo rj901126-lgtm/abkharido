@@ -55,8 +55,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
   // 1. Verified Purchaser Check: Has ordered this product and order status is not CANCELLED
   const hasPurchased = orders ? orders.some(order => 
-    order.status !== 'CANCELLED' && 
-    order.items?.some(item => item.product.id === productId)
+    order && order.status !== 'CANCELLED' && 
+    order.items?.some(item => item && item.product && item.product.id === productId)
   ) : false;
 
   // 2. Review count check: Max 2 reviews per product per user
@@ -561,7 +561,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             <span className="rating-tag" style={{ fontSize: '12px', padding: '2px 6px', borderRadius: '3px' }}>
               {product.rating} <Star size={10} fill="white" />
             </span>
-            <span style={{ color: '#878787', fontSize: '13px', fontWeight: '600' }}>{product.reviewsCount.toLocaleString()} Ratings & Reviews</span>
+            <span style={{ color: '#878787', fontSize: '13px', fontWeight: '600' }}>{(product.reviewsCount || 0).toLocaleString()} Ratings & Reviews</span>
             
             {/* Proprietary A-Assured Badge Graphic */}
             <div style={{ 
@@ -646,9 +646,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#212121' }}>{v.name}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
                        <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#388e3c' }}>↓{v.discount}%</span>
-                       <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{v.originalPrice.toLocaleString('en-IN')}</span>
+                       <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginTop: '2px' }}>₹{v.price.toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginTop: '2px' }}>₹{(v.price || 0).toLocaleString('en-IN')}</div>
                     
                     {/* Low stock tag */}
                     {v.stock <= 3 && (
@@ -664,8 +664,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
           {/* Pricing Details */}
           <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0, marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
             <div className="details-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <span className="details-price" style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
-              <span className="details-original" style={{ fontSize: '14px', color: '#878787', textDecoration: 'line-through' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+              <span className="details-price" style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
+              <span className="details-original" style={{ fontSize: '14px', color: '#878787', textDecoration: 'line-through' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
               <span className="details-discount" style={{ fontSize: '14px', fontWeight: 'bold', color: '#388e3c' }}>{currentDisplayDiscount}% off</span>
             </div>
           </div>
@@ -734,11 +734,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
               }}
             >
               {/* Desktop Text */}
-              <span className="desktop-only">Buy at ₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+              <span className="desktop-only">Buy at ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
               {/* Mobile Text */}
               <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
                 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Buy now</span>
-                <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,0,0,0.6)' }}>at ₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+                <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,0,0,0.6)' }}>at ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
               </div>
             </button>
           </div>

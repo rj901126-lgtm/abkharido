@@ -108,8 +108,8 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                 </span>
                 
                 <div className="cart-item-prices">
-                  <span className="cart-item-price">₹{item.product.price.toLocaleString('en-IN')}</span>
-                  <span className="cart-item-original">₹{item.product.originalPrice.toLocaleString('en-IN')}</span>
+                  <span className="cart-item-price">₹{(item.product.price || 0).toLocaleString('en-IN')}</span>
+                  <span className="cart-item-original">₹{(item.product.originalPrice || 0).toLocaleString('en-IN')}</span>
                   <span className="cart-item-discount">{discountPercent}% Off</span>
                 </div>
 

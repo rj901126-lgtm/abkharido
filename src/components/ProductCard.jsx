@@ -7,13 +7,13 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
   if (!product) return null;
 
-  const discountPercent = Math.round(
-    ((product.originalPrice - product.price) / product.originalPrice) * 100
-  );
+  const price = product.price || 0;
+  const originalPrice = product.originalPrice || price;
+  const discountPercent = originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   // Dynamic earnings display
-  const userEarningsCoins = Math.round(product.price * product.userCommissionRate);
-  const influencerEarningsCash = Math.round(product.price * product.influencerCommissionRate);
+  const userEarningsCoins = Math.round(price * (product.userCommissionRate || 0));
+  const influencerEarningsCash = Math.round(price * (product.influencerCommissionRate || 0));
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -61,8 +61,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
         {/* Pricing */}
         <div className="product-card-price-row" style={styles.priceRow}>
-          <span style={styles.price}>₹{product.price.toLocaleString('en-IN')}</span>
-          <span style={styles.originalPrice}>₹{product.originalPrice.toLocaleString('en-IN')}</span>
+          <span style={styles.price}>₹{(product.price || 0).toLocaleString('en-IN')}</span>
+          <span style={styles.originalPrice}>₹{(product.originalPrice || 0).toLocaleString('en-IN')}</span>
           <span style={styles.discount}>{discountPercent}% off</span>
         </div>
 

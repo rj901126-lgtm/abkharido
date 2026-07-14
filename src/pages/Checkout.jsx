@@ -354,7 +354,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 <img src={item.product.image} alt={item.product.name} style={{ width: '50px', height: '50px', objectFit: 'contain', border: '1px solid #f0f0f0', padding: '2px', borderRadius: '4px' }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '14px', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.product.name}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Qty: {item.quantity} | Subtotal: ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Qty: {item.quantity} | Subtotal: ₹{((item.product.price || 0) * item.quantity).toLocaleString('en-IN')}</div>
                 </div>
               </div>
             ))}
