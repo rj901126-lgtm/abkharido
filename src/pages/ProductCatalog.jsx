@@ -73,66 +73,156 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   };
 
   return (
-    <div className="container catalog-container animate-fade-in" style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div className="container catalog-container animate-fade-in">
       
-      {/* Top Sort & Filter Buttons Bar (Always visible at the top of category menus) */}
-      <div className="catalog-top-filter-bar" style={{
-        display: 'flex',
-        border: '1px solid #e0e0e0',
-        borderRadius: '8px',
-        backgroundColor: '#ffffff',
-        marginBottom: '0px',
-        overflow: 'hidden',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
-      }}>
-        <button 
-          onClick={() => setShowSortModal(true)} 
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            height: '44px',
-            background: 'none',
-            border: 'none',
-            borderRight: '1px solid #e0e0e0',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: '#212121',
-            cursor: 'pointer'
-          }}
-        >
-          <ArrowUpDown size={16} color="#757575" />
-          Sort
-        </button>
-        <button 
-          onClick={() => setShowFilterDrawer(true)} 
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            height: '44px',
-            background: 'none',
-            border: 'none',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: '#212121',
-            cursor: 'pointer'
-          }}
-        >
-          <SlidersHorizontal size={16} color="#757575" />
-          Filter
-        </button>
-      </div>
+      {/* 1. DESKTOP FILTERS SIDEBAR (Visible on screens > 768px via CSS) */}
+      <aside className="filters-sidebar">
+        {/* Sort section */}
+        <div className="filter-section">
+          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Sort By</h5>
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            style={{ width: '100%', padding: '8px', border: '1px solid var(--border-light)', borderRadius: '4px', backgroundColor: 'white', fontSize: '13px' }}
+          >
+            <option value="popularity">Popularity</option>
+            <option value="priceLow">Price: Low to High</option>
+            <option value="priceHigh">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+          </select>
+        </div>
 
-      {/* Main Results Container */}
-      <main className="catalog-main" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {/* Category section */}
+        <div className="filter-section">
+          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Category</h5>
+          <select 
+            value={currentCategory} 
+            onChange={(e) => onSelectCategory(e.target.value)}
+            style={{ width: '100%', padding: '8px', border: '1px solid var(--border-light)', borderRadius: '4px', backgroundColor: 'white', fontSize: '13px' }}
+          >
+            <option value="all">All Categories</option>
+            <option value="mobiles">Mobiles</option>
+            <option value="electronics">Electronics</option>
+            <option value="fashion">Fashion</option>
+            <option value="home">Home &amp; Living</option>
+            <option value="appliances">Appliances</option>
+          </select>
+        </div>
+
+        {/* Price section */}
+        <div className="filter-section">
+          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Price Range</h5>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Max Price: ₹{maxPrice.toLocaleString('en-IN')}</label>
+            <input 
+              type="range" 
+              min="1000" 
+              max="150000" 
+              step="1000"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              style={{ width: '100%', cursor: 'pointer' }}
+            />
+          </div>
+        </div>
+
+        {/* Ratings section */}
+        <div className="filter-section">
+          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Ratings</h5>
+          <ul className="filter-list" style={{ padding: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {[4, 3, 2].map(stars => (
+              <li key={stars}>
+                <label className="filter-item-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                  <input 
+                    type="radio" 
+                    name="sidebar-rating-filter" 
+                    checked={selectedRating === stars}
+                    onChange={() => setSelectedRating(stars)}
+                  />
+                  <span>{stars}★ &amp; above</span>
+                </label>
+              </li>
+            ))}
+            <li>
+              <label className="filter-item-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                <input 
+                  type="radio" 
+                  name="sidebar-rating-filter" 
+                  checked={selectedRating === null}
+                  onChange={() => setSelectedRating(null)}
+                />
+                <span>All Ratings</span>
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        {/* Reset button */}
+        <button 
+          className="btn btn-outline" 
+          onClick={handleResetFilters}
+          style={{ width: '100%', height: '36px', fontSize: '12px', fontWeight: 'bold' }}
+        >
+          Reset Filters
+        </button>
+      </aside>
+
+      {/* 2. CATALOG MAIN AREA: Products grid + Mobile filter buttons */}
+      <main className="catalog-main">
         
+        {/* Top Sort & Filter Buttons Bar: Mobile only */}
+        <div className="catalog-top-filter-bar" style={{
+          border: '1px solid #e0e0e0',
+          borderRadius: '8px',
+          backgroundColor: '#ffffff',
+          overflow: 'hidden',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
+        }}>
+          <button 
+            onClick={() => setShowSortModal(true)} 
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              height: '44px',
+              background: 'none',
+              border: 'none',
+              borderRight: '1px solid #e0e0e0',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#212121',
+              cursor: 'pointer'
+            }}
+          >
+            <ArrowUpDown size={16} color="#757575" />
+            Sort
+          </button>
+          <button 
+            onClick={() => setShowFilterDrawer(true)} 
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              height: '44px',
+              background: 'none',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#212121',
+              cursor: 'pointer'
+            }}
+          >
+            <SlidersHorizontal size={16} color="#757575" />
+            Filter
+          </button>
+        </div>
+
         {/* Results Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0px', paddingBottom: '0px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
           <span className="results-count" style={{ fontSize: '13px', fontWeight: '500', color: '#666666' }}>
             {searchQuery ? (
               <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
@@ -162,6 +252,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           </div>
         )}
       </main>
+
 
       {/* Sort Bottom Sheet Modal */}
       {showSortModal && (

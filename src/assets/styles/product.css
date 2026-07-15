@@ -515,6 +515,13 @@
   .mobile-catalog-bottom-bar {
     display: flex !important; /* Visible on mobile */
   }
+  .catalog-top-filter-bar {
+    display: flex !important; /* Show on mobile */
+  }
+}
+
+.catalog-top-filter-bar {
+  display: none !important; /* Hide on desktop */
 }
 
 /* Mobile Catalog Bottom Bar (Sort / Filter sticky) */
