@@ -716,13 +716,13 @@ img {
   margin-bottom: 32px;
 }
 
-.lp-logo-icon { font-size: 26px; }
-
-.lp-logo-text {
-  font-size: 22px;
-  font-weight: 800;
-  color: white;
-  letter-spacing: -0.3px;
+/* Logo image - desktop (on blue bg, apply brightness filter to make visible) */
+.lp-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* White version on blue background */
+  margin-bottom: 4px;
 }
 
 .lp-left-title {
@@ -1041,11 +1041,13 @@ img {
     color: white;
   }
 
-  .lp-mob-logo {
-    font-size: 20px;
-    color: white;
+  .lp-mob-logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* White on blue bg */
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .lp-mob-tagline {

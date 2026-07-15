@@ -123,7 +123,15 @@ const InfoPage = ({ infoType }) => {
       default:
         return (
           <div>
-            <h2 style={styles.title}>Contact Support & Partnerships</h2>
+            {/* Logo Header */}
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <img 
+                src="/logo.png" 
+                alt="AbKharido" 
+                style={{ height: '60px', width: 'auto', objectFit: 'contain' }} 
+              />
+            </div>
+            <h2 style={styles.title}>Contact Support &amp; Partnerships</h2>
             <p style={styles.paragraph}>
               Need assistance with an order, payment transaction, or creator payout? Get in touch with our team directly.
             </p>
