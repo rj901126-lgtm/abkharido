@@ -857,8 +857,12 @@ app.post('/api/auth/send-otp', async (req, res) => {
       console.log(`[SMS GATEWAY SIMULATION] Sent OTP ${generatedOtp} to ${recipient}`);
     }
 
-    // Return the generated OTP for live on-screen testing!
-    res.json({ success: true, otp: generatedOtp });
+    // Return the generated OTP for live testing in development mode only
+    if (process.env.NODE_ENV === 'production') {
+      res.json({ success: true });
+    } else {
+      res.json({ success: true, otp: generatedOtp });
+    }
   } catch (err) {
     console.error('Failed to send OTP:', err);
     res.status(500).json({ error: 'Server authentication process error.' });
@@ -1686,8 +1690,8 @@ app.post('/api/orders/:orderId/status', verifyAdminToken, async (req, res) => {
   }
 });
 
-// 6. DB SYSTEM REINITIALIZATION
-app.post('/api/reset', async (req, res) => {
+// 6. DB SYSTEM REINITIALIZATION (Restricted to verified administrators)
+app.post('/api/reset', verifyAdminToken, async (req, res) => {
   try {
     await resetAllDatabases();
     res.json({ success: true, message: 'Database reset successfully' });
