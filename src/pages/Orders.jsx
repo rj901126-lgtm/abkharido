@@ -10,7 +10,21 @@ const Orders = ({ onNavigate }) => {
     if (currentUser) {
       fetchOrders(currentUser.username || currentUser.email);
     }
+  }, [currentUser]); // re-fetch if user changes
+
+  const [isLoading, setIsLoading] = React.useState(true);
+  React.useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(t);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="container" style={{ textAlign: 'center', padding: '80px 20px' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>Loading your orders...</p>
+      </div>
+    );
+  }
 
   if (orders.length === 0) {
     return (
@@ -25,7 +39,7 @@ const Orders = ({ onNavigate }) => {
         <button 
           className="btn btn-primary" 
           style={{ marginTop: '20px' }} 
-          onClick={() => onNavigate('home')}
+          onClick={() => onNavigate('catalog')}
         >
           Go Shopping
         </button>

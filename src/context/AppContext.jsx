@@ -9,13 +9,17 @@ export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('abkharido_user_session');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('abkharido_user_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
   });
 
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('abkharido_cart');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('abkharido_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
   });
 
   const [orders, setOrders] = useState([]);
@@ -28,15 +32,19 @@ export const AppProvider = ({ children }) => {
   });
 
   const [activeReferral, setActiveReferral] = useState(() => {
-    const saved = localStorage.getItem('abkharido_active_referral');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('abkharido_active_referral');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
   });
 
   const [toast, setToast] = useState(null);
 
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem('abkharido_wishlist');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('abkharido_wishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
   });
 
   useEffect(() => {
@@ -100,7 +108,7 @@ export const AppProvider = ({ children }) => {
         showToast(`Affiliate link active: Support creator ${affInfluencer}!`, 'info');
       }
     }
-  }, [currentUser]);
+  }, []); // Only parse URL params once on mount, not on every user change
 
   // --- API Fetches ---
   const fetchProducts = async () => {
@@ -111,7 +119,7 @@ export const AppProvider = ({ children }) => {
         setProducts(data);
       }
     } catch (err) {
-      console.error('Failed to load products:', err);
+      if (import.meta.env.DEV) console.error('Failed to load products:', err);
     }
   };
 
@@ -124,21 +132,22 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('abkharido_user_session', JSON.stringify(data));
       }
     } catch (err) {
-      console.error('Failed to sync user profile:', err);
+      if (import.meta.env.DEV) console.error('Failed to sync user profile:', err);
     }
   };
 
   const fetchOrders = async (emailOrUsername) => {
     try {
-      const username = currentUser ? currentUser.username : '';
-      const emailVal = emailOrUsername || (currentUser ? currentUser.email : '');
+      const user = currentUser;
+      const username = user ? user.username : '';
+      const emailVal = emailOrUsername || (user ? user.email : '');
       const res = await fetch(`/api/orders?username=${username}&email=${emailVal || ''}`);
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
       }
     } catch (err) {
-      console.error('Failed to sync orders:', err);
+      if (import.meta.env.DEV) console.error('Failed to sync orders:', err);
     }
   };
 
@@ -162,7 +171,7 @@ export const AppProvider = ({ children }) => {
         return false;
       }
     } catch (err) {
-      console.error('Failed to cancel order:', err);
+      if (import.meta.env.DEV) console.error('Failed to cancel order:', err);
       showToast('Connection error. Please try again.', 'error');
       return false;
     }
@@ -193,7 +202,7 @@ export const AppProvider = ({ children }) => {
         setPartnerStats(data);
       }
     } catch (err) {
-      console.error('Failed to sync stats:', err);
+      if (import.meta.env.DEV) console.error('Failed to sync stats:', err);
     }
   };
 
@@ -221,11 +230,17 @@ export const AppProvider = ({ children }) => {
   const addToCart = (product, qty = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
+      const stock = product.stock ?? 99;
       if (existing) {
+        const newQty = existing.quantity + qty;
+        if (newQty > stock) {
+          showToast(`Only ${stock} units available in stock.`, 'warning');
+          return prev;
+        }
         showToast(`${product.name.substring(0, 20)}... quantity updated!`);
-        return prev.map(item => 
-          item.product.id === product.id 
-            ? { ...item, quantity: item.quantity + qty } 
+        return prev.map(item =>
+          item.product.id === product.id
+            ? { ...item, quantity: newQty }
             : item
         );
       }
@@ -239,9 +254,17 @@ export const AppProvider = ({ children }) => {
       removeFromCart(productId);
       return;
     }
-    setCart(prev => prev.map(item => 
-      item.product.id === productId ? { ...item, quantity: qty } : item
-    ));
+    setCart(prev => prev.map(item => {
+      if (item.product.id === productId) {
+        const stock = item.product.stock ?? 99;
+        if (qty > stock) {
+          showToast(`Only ${stock} units available in stock.`, 'warning');
+          return item; // don't update
+        }
+        return { ...item, quantity: qty };
+      }
+      return item;
+    }));
   };
 
   const removeFromCart = (productId) => {
@@ -334,6 +357,10 @@ export const AppProvider = ({ children }) => {
 
   // --- Creator & Wallet API Actions ---
   const registerAsInfluencer = async (influencerId, payoutDetails) => {
+    if (!currentUser) {
+      showToast('Please log in to register as a creator.', 'error');
+      return;
+    }
     try {
       const res = await fetch('/api/users/register-creator', {
         method: 'POST',
@@ -390,7 +417,11 @@ export const AppProvider = ({ children }) => {
   };
 
   const requestPayout = async (amount, method) => {
-    if (amount > currentUser.walletCash) {
+    if (!currentUser) {
+      showToast('Please log in to request a payout.', 'error');
+      return false;
+    }
+    if (amount > (currentUser.walletCash || 0)) {
       showToast('Insufficient withdrawable cash balance.', 'error');
       return false;
     }
@@ -408,7 +439,7 @@ export const AppProvider = ({ children }) => {
         const data = await res.json();
         setCurrentUser(data.user);
         localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-        fetchStats(); // reload payouts transaction table
+        fetchStats();
         showToast(`Payout request of ₹${amount} submitted successfully!`, 'success');
         return true;
       }
@@ -420,6 +451,10 @@ export const AppProvider = ({ children }) => {
 
   // --- Place Order & Attributions API Checkout ---
   const placeOrder = async (shippingAddress, paymentMethod, useCoinsDiscount = false, cfOrderId = null) => {
+    if (!currentUser) {
+      showToast('Please log in to place an order.', 'error');
+      return null;
+    }
     if (cart.length === 0) {
       showToast('Cart is empty!', 'error');
       return null;

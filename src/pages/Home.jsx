@@ -100,7 +100,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
           <div
             key={idx}
             className={`carousel-slide ${idx === activeSlide ? 'active' : ''}`}
-            style={{ backgroundImage: slide.bg }}
+            style={{ background: slide.bg }}
           >
             <div className="slide-content">
               <span className="slide-tag">{slide.tag}</span>

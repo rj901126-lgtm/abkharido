@@ -135,7 +135,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                         }}
                       >
                         <Search size={14} color="#8c8c8c" />
-                        <div className="suggestion-text" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textString: 'ellipsis', textAlign: 'left' }}>
+                        <div className="suggestion-text" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
                           <span style={{ fontWeight: '500' }}>{p.name}</span> <span style={{ color: '#888', fontSize: '11px', textTransform: 'uppercase', marginLeft: '6px' }}>in {p.category}</span>
                         </div>
                         <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#388e3c' }}>₹{(p.price || 0).toLocaleString('en-IN')}</span>
@@ -169,7 +169,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
                     {currentUser.isInfluencer ? (
                       <div className="dropdown-item" style={{ color: 'var(--success)', fontWeight: '600' }}>
-                        <CircleDollarSign size={16} /> Withdrawable: ₹{currentUser.walletCash.toFixed(2)}
+                        <CircleDollarSign size={16} /> Withdrawable: ₹{(currentUser.walletCash || 0).toFixed(2)}
                       </div>
                     ) : (
                       <div className="dropdown-item" style={{ color: '#e68f00', fontWeight: '600' }}>

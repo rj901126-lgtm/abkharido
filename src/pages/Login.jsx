@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ShieldCheck, Phone, User, Mail, ArrowLeft, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import { Phone, User, Mail, ArrowLeft, ChevronRight } from 'lucide-react';
 
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
@@ -216,10 +216,10 @@ const Login = ({ onNavigate }) => {
 
         <div className="lp-form-card">
 
-          {/* OTP Dev Banner */}
-          {showOtpScreen && generatedOtp && (
+          {/* OTP Dev Banner — only shown in development */}
+          {import.meta.env.DEV && showOtpScreen && generatedOtp && (
             <div className="lp-otp-dev-banner">
-              <span>🔔 Test OTP</span>
+              <span>🔔 Dev OTP</span>
               <strong>{generatedOtp}</strong>
             </div>
           )}

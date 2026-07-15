@@ -4,7 +4,7 @@ import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck 
 import confetti from 'canvas-confetti';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
-  const { cart, currentUser, placeOrder, showToast } = useApp();
+  const { cart, currentUser, placeOrder, showToast, verifyPayment } = useApp();
   const [step, setStep] = useState(1); // 1: Address, 2: Summary, 3: Payment, 4: Success
 
   // Form states
@@ -36,40 +36,42 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   // Resolve Indian postal pincode details automatically
   useEffect(() => {
+    const controller = new AbortController();
     const resolvePincode = async () => {
       const pinStr = String(address.pincode || '');
-      if (pinStr.length === 6 && !isNaN(pinStr)) {
-        try {
-          const res = await fetch(`https://api.postalpincode.in/pincode/${pinStr}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data[0]?.Status === "Success") {
-              const postOffice = data[0].PostOffice[0];
-              setAddress(prev => ({
-                ...prev,
-                city: postOffice.District || postOffice.Name,
-                state: postOffice.State
-              }));
-              showToast(`Pincode resolved: ${postOffice.District}, ${postOffice.State}!`, 'success');
-            }
+      if (pinStr.length !== 6 || isNaN(pinStr)) return; // only call when full 6 digits
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal });
+        if (res.ok) {
+          const data = await res.json();
+          if (data[0]?.Status === "Success") {
+            const postOffice = data[0].PostOffice[0];
+            setAddress(prev => ({
+              ...prev,
+              city: postOffice.District || postOffice.Name,
+              state: postOffice.State
+            }));
+            showToast(`Pincode resolved: ${postOffice.District}, ${postOffice.State}!`, 'success');
           }
-        } catch (e) {
-          const code = pinStr;
-          if (code.startsWith('11')) {
-            setAddress(prev => ({ ...prev, city: 'New Delhi', state: 'Delhi' }));
-          } else if (code.startsWith('40')) {
-            setAddress(prev => ({ ...prev, city: 'Mumbai', state: 'Maharashtra' }));
-          } else if (code.startsWith('56')) {
-            setAddress(prev => ({ ...prev, city: 'Bengaluru', state: 'Karnataka' }));
-          }
+        }
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        const code = pinStr;
+        if (code.startsWith('11')) {
+          setAddress(prev => ({ ...prev, city: 'New Delhi', state: 'Delhi' }));
+        } else if (code.startsWith('40')) {
+          setAddress(prev => ({ ...prev, city: 'Mumbai', state: 'Maharashtra' }));
+        } else if (code.startsWith('56')) {
+          setAddress(prev => ({ ...prev, city: 'Bengaluru', state: 'Karnataka' }));
         }
       }
     };
     resolvePincode();
+    return () => controller.abort(); // cleanup on unmount or pincode change
   }, [address.pincode]);
 
-  // Price calculations
-  const itemsPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  // Price calculations — safe fallbacks to prevent NaN
+  const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
   const coinsDiscount = useCoinsDiscount && currentUser ? Math.min(userCoins, itemsPrice) : 0;
@@ -82,11 +84,15 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       showToast('Please fill out all required shipping fields.', 'error');
       return;
     }
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(address.phone)) {
+      showToast('Please enter a valid 10-digit Indian mobile number.', 'error');
+      return;
+    }
     setStep(2);
   };
 
   // Handle Payment Submit and Order Placement (Cashfree Integration)
-  const { verifyPayment } = useApp();
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
 
@@ -161,9 +167,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         // Real Cashfree integration
         showToast('Launching Cashfree Gateway...', 'success');
         if (window.Cashfree) {
-          const isProd = false; // Set true for production
-          const cashfree = window.Cashfree({ 
-            mode: isProd ? "production" : "sandbox" 
+        const isProd = import.meta.env.VITE_CASHFREE_PROD === 'true';
+          const cashfree = window.Cashfree({
+            mode: isProd ? "production" : "sandbox"
           });
           
           cashfree.checkout({
@@ -175,7 +181,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         }
       }
     } catch (err) {
-      console.error('Payment checkout failed:', err);
+      if (import.meta.env.DEV) console.error('Payment checkout failed:', err);
       showToast('Checkout transaction communication error.', 'error');
     }
   };
@@ -280,6 +286,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   value={address.pincode} 
                   onChange={(e) => setAddress({...address, pincode: e.target.value})}
                   style={styles.input} 
+                  maxLength="6"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  placeholder="6-digit pincode"
                   required
                 />
               </div>

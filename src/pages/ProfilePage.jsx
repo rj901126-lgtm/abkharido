@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-const ProfilePage = ({ onNavigate }) => {
+const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist } = useApp();
+  const isMountedRef = useRef(true);
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
   
   if (!currentUser) {
     return (
@@ -77,17 +82,15 @@ const ProfilePage = ({ onNavigate }) => {
     setIsVerifyingEmail(true);
     // Simulate SMTP delivery network delay
     setTimeout(async () => {
+      if (!isMountedRef.current) return;
       const success = await updateUserProfile({
         email: emailInput.trim(),
         emailVerified: true
       });
+      if (!isMountedRef.current) return;
       if (success) {
         showToast('Email verified successfully!', 'success');
-        confetti({
-          particleCount: 120,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
       }
       setIsVerifyingEmail(false);
     }, 1500);
@@ -148,7 +151,7 @@ const ProfilePage = ({ onNavigate }) => {
               {currentUser.isInfluencer ? (
                 <>
                   <Award size={20} color="var(--success)" />
-                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--success)' }}>₹{currentUser.walletCash.toFixed(2)} Cash</span>
+                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--success)' }}>₹{(currentUser.walletCash || 0).toFixed(2)} Cash</span>
                 </>
               ) : (
                 <>
@@ -350,7 +353,8 @@ const ProfilePage = ({ onNavigate }) => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h4 
                       onClick={() => {
-                        window.location.hash = `#product-${p.id}`;
+                        if (onNavigateProduct) onNavigateProduct(p.id);
+                        else onNavigate(`product-${p.id}`);
                       }}
                       style={{ fontSize: '13px', fontWeight: '600', color: '#212121', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                     >

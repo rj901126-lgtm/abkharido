@@ -22,7 +22,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
   const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState('560103');
-  const [deliveryEstimate, setDeliveryEstimate] = useState('Delivery by Tomorrow, Monday | Free Express Shipping');
+  // Dynamic delivery estimate
+  const getTomorrowDay = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
+  };
+  const [deliveryEstimate] = useState(`Delivery by ${getTomorrowDay()} | Free Express Shipping`);
 
   React.useEffect(() => {
     document.body.classList.add('product-details-active');
@@ -33,8 +39,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
   // --- Dynamic Customer Reviews hooks ---
   const [reviewsList, setReviewsList] = useState(() => {
-    const saved = localStorage.getItem(`product_${productId}_reviews`);
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem(`product_${productId}_reviews`);
+      if (saved) return JSON.parse(saved);
+    } catch { /* corrupted, fall through to defaults */ }
     return [
       { name: "Rajesh Kumar", username: "rajesh_k", rating: 5, comment: "Excellent build quality. Completely satisfied with the direct delivery. 100% original!", date: "2026-07-10", photos: [] },
       { name: "Ananya Sharma", username: "ananya_s", rating: 4, comment: "Very fast shipping to Bengaluru. Product works perfectly. Value for money.", date: "2026-07-09", photos: [] },
@@ -327,12 +335,12 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
     );
   }
 
-  const discountPercent = Math.round(
-    ((product.originalPrice - product.price) / product.originalPrice) * 100
-  );
+  const discountPercent = product.originalPrice > 0
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
 
-  const userCoins = Math.round(product.price * product.userCommissionRate);
-  const creatorCash = Math.round(product.price * product.influencerCommissionRate);
+  const userCoins = Math.round((product.price || 0) * (product.userCommissionRate || 0));
+  const creatorCash = Math.round((product.price || 0) * (product.influencerCommissionRate || 0));
 
   // Generate the unique referral tracking link
   const getReferralLink = () => {
@@ -835,7 +843,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </h3>
             <table className="specs-table">
               <tbody>
-                {product.specifications.map((spec, index) => (
+                {(product.specifications || []).map((spec, index) => (
                   <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#fafafa' : 'transparent' }}>
                     <td className="specs-key">{spec.key}</td>
                     <td className="specs-value">{spec.value}</td>

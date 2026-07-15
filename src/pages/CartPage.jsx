@@ -90,9 +90,9 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
         {/* List of Products in Cart */}
         {cart.map(item => {
-          const discountPercent = Math.round(
-            ((item.product.originalPrice - item.product.price) / item.product.originalPrice) * 100
-          );
+          const discountPercent = item.product.originalPrice > 0
+            ? Math.round(((item.product.originalPrice - item.product.price) / item.product.originalPrice) * 100)
+            : 0;
           return (
             <div key={item.product.id} className="cart-item-card">
               <div className="cart-item-image">
@@ -153,7 +153,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         <div className="price-card-title">Price Details</div>
 
         {/* AbKharido Loyalty Coins Redemption */}
-        {currentUser.walletCoins > 0 && (
+        {currentUser?.walletCoins > 0 && (
           <div className="coins-redeem-banner">
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <Coins size={18} color="#e68f00" />
@@ -173,7 +173,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid var(--border-light)', paddingBottom: '16px' }}>
           <div className="price-row-item">
-            <span>Price ({cart.length} items)</span>
+            <span>Price ({cart.reduce((t, i) => t + (i.quantity || 1), 0)} items)</span>
             <span>₹{originalItemsPrice.toLocaleString('en-IN')}</span>
           </div>
           <div className="price-row-item">

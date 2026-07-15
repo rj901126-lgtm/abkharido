@@ -92,11 +92,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct }) => 
 
   const handleViewAllClick = () => {
     onSelectCategory(selectedCatId);
-    onNavigate('home');
-    // small timeout to trigger hash navigation
-    setTimeout(() => {
-      window.location.hash = `#catalog-${selectedCatId}`;
-    }, 100);
+    onNavigate('catalog'); // correctly go to catalog page, not home
   };
 
   return (
