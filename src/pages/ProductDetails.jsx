@@ -384,7 +384,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
   return (
     <div className="container animate-fade-in-only" style={{ padding: 0 }}>
-      {/* Mobile Sticky Header (Flipkart App Style) */}
+      {/* Mobile Sticky Header (AbKharido App Style) */}
       <div className="mobile-product-details-header" style={{
         display: 'none',
         position: 'sticky',
@@ -591,8 +591,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           </div>
 
-          {/* Color Variation Selection (Flipkart style) */}
-          {/* Color Variation Selection (Flipkart style) */}
+          {/* Color Variation Selection (AbKharido style) */}
           {colorModels.length > 0 && (
             <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
               <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
@@ -626,7 +625,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           )}
 
-          {/* Variant Selection (Flipkart style) */}
+          {/* Variant Selection (AbKharido style) */}
           {variantsList.length > 0 && (
             <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
               <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
@@ -678,7 +677,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </div>
           </div>
 
-          {/* Flipkart Inline Action Buttons Row for Immediate Purchase */}
+          {/* AbKharido Inline Action Buttons Row for Immediate Purchase */}
           <div className="action-buttons-row" style={{ margin: '16px 0', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' }}>
             {/* 1. Add to Cart Option */}
             <button 
@@ -751,7 +750,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
             </button>
           </div>
 
-          {/* Flipkart-Style Available Offers */}
+          {/* AbKharido-Style Available Offers */}
           <div style={{ paddingTop: '4px' }}>
             <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#212121', marginBottom: '10px' }}>Available Offers</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

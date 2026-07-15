@@ -30,8 +30,10 @@ const SellerDashboard = ({ onNavigate }) => {
   
   // Decoupled Merchant Account Session
   const [currentSeller, setCurrentSeller] = useState(() => {
-    const saved = localStorage.getItem('abkharido_seller_session');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('abkharido_seller_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
   });
 
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'payouts'
@@ -116,7 +118,7 @@ const SellerDashboard = ({ onNavigate }) => {
       const res = await fetch(`/api/sellers`);
       if (res.ok) {
         const sellersList = await res.json();
-        const updated = sellersList.find(s => s.email === currentSeller.email);
+        const updated = Array.isArray(sellersList) ? sellersList.find(s => s.email === currentSeller.email) : null;
         if (updated) {
           setCurrentSeller(updated);
           localStorage.setItem('abkharido_seller_session', JSON.stringify(updated));
@@ -315,12 +317,14 @@ const SellerDashboard = ({ onNavigate }) => {
       const cleanVariants = cm.variants
         .filter(v => v.name.trim() !== '' && v.price !== '')
         .map(v => {
-          const discountPct = Math.round(((Number(v.originalPrice || v.price) - Number(v.price)) / Number(v.originalPrice || v.price)) * 100);
+          const orig = Number(v.originalPrice || v.price || 0);
+          const prc = Number(v.price || 0);
+          const discountPct = orig > 0 ? Math.round(((orig - prc) / orig) * 100) : 0;
           return {
             name: v.name.trim(),
-            price: Number(v.price),
-            originalPrice: Number(v.originalPrice || v.price),
-            discount: isNaN(discountPct) ? 0 : discountPct,
+            price: prc,
+            originalPrice: orig,
+            discount: discountPct,
             stock: Number(v.stock || 0)
           };
         });
@@ -618,7 +622,7 @@ const SellerDashboard = ({ onNavigate }) => {
                   </div>
 
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0 0', lineHeight: '1.4' }}>
-                    By continuing, I agree to Flipkart's <span style={{ color: '#2874f0' }}>Terms of Use</span> & <span style={{ color: '#2874f0' }}>Privacy Policy</span>
+                    By continuing, I agree to AbKharido's <span style={{ color: '#2874f0' }}>Terms of Use</span> &amp; <span style={{ color: '#2874f0' }}>Privacy Policy</span>
                   </p>
 
                   <button type="submit" className="btn" style={{ height: '44px', backgroundColor: '#0056b3', color: 'white', fontWeight: 'bold', fontSize: '14px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
@@ -1111,16 +1115,16 @@ const SellerDashboard = ({ onNavigate }) => {
                   </tr>
                 ) : (
                   sellerOrders.map(o => {
-                    // Sum seller specific items cost
-                    const sellerTotal = o.items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+                    // Sum seller specific items cost (safely guarding against deleted products/null price values)
+                    const sellerTotal = (o.items || []).reduce((sum, item) => sum + ((item.product?.price || 0) * (item.quantity || 1)), 0);
                     return (
                       <tr key={o.id}>
                         <td><code>{o.id}</code></td>
                         <td>{o.date}</td>
                         <td>
-                          {o.items.map((item, idx) => (
+                          {(o.items || []).map((item, idx) => (
                             <div key={idx} style={{ fontSize: '12px' }}>
-                              • {item.product?.name?.substring(0, 20)}... (x{item.quantity})
+                              • {item.product?.name ? item.product.name.substring(0, 20) : 'Deleted Product'}... (x{item.quantity})
                             </div>
                           ))}
                         </td>

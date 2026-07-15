@@ -371,12 +371,14 @@ const AdminDashboard = ({ onNavigate }) => {
       const cleanVariants = cm.variants
         .filter(v => v.name.trim() !== '' && v.price !== '')
         .map(v => {
-          const discountPct = Math.round(((Number(v.originalPrice || v.price) - Number(v.price)) / Number(v.originalPrice || v.price)) * 100);
+          const orig = Number(v.originalPrice || v.price || 0);
+          const prc = Number(v.price || 0);
+          const discountPct = orig > 0 ? Math.round(((orig - prc) / orig) * 100) : 0;
           return {
             name: v.name.trim(),
-            price: Number(v.price),
-            originalPrice: Number(v.originalPrice || v.price),
-            discount: isNaN(discountPct) ? 0 : discountPct,
+            price: prc,
+            originalPrice: orig,
+            discount: discountPct,
             stock: Number(v.stock || 0)
           };
         });
@@ -536,8 +538,8 @@ const AdminDashboard = ({ onNavigate }) => {
                   if (o.referralApplied) {
                     const { type, referrerId } = o.referralApplied;
                     let totalCommission = 0;
-                    o.items.forEach(item => {
-                      if (item.product) {
+                    (o.items || []).forEach(item => {
+                      if (item && item.product) {
                         const rate = type === 'aff' 
                           ? (item.product.influencerCommissionRate || 0) 
                           : (item.product.userCommissionRate || 0);
@@ -560,9 +562,9 @@ const AdminDashboard = ({ onNavigate }) => {
                         <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{o.date}</div>
                       </td>
                       <td>
-                        {o.items.map(item => (
-                          <div key={item.product.id} style={{ fontSize: '12px' }}>
-                            • {item.product.name.substring(0, 20)}... (x{item.quantity})
+                        {(o.items || []).map((item, idx) => (
+                          <div key={item?.product?.id || idx} style={{ fontSize: '12px' }}>
+                            • {item?.product?.name ? item.product.name.substring(0, 20) : 'Deleted Product'}... (x{item?.quantity || 1})
                           </div>
                         ))}
                       </td>
