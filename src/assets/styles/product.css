@@ -515,13 +515,34 @@
   .mobile-catalog-bottom-bar {
     display: flex !important; /* Visible on mobile */
   }
-  .catalog-top-filter-bar {
-    display: flex !important; /* Show on mobile */
+  
+  /* Mobile Bottom Sheet (Sort) */
+  .bottom-sheet-backdrop {
+    align-items: flex-end !important;
+    padding: 0 !important;
   }
-}
-
-.catalog-top-filter-bar {
-  display: none !important; /* Hide on desktop */
+  .bottom-sheet-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    animation: slideUp 0.25s ease-out !important;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Mobile Slide-in Drawer (Filter) */
+  .filter-drawer-backdrop {
+    justify-content: flex-end !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+  }
+  .filter-drawer-content {
+    width: 85% !important;
+    max-width: 340px !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    animation: slideLeft 0.25s ease-out !important;
+  }
 }
 
 /* Mobile Catalog Bottom Bar (Sort / Filter sticky) */
