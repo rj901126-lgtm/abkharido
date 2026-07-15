@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ShieldCheck, Phone, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Phone, User, Mail, ArrowLeft, Eye, EyeOff, ChevronRight } from 'lucide-react';
 
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
   
-  // 'login' | 'signup'
   const [authMode, setAuthMode] = useState('login'); 
-  
-  // Inputs
   const [phone, setPhone] = useState('');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  
-  // OTP States
   const [showOtpScreen, setShowOtpScreen] = useState(false);
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [generatedOtp, setGeneratedOtp] = useState('');
@@ -21,31 +16,24 @@ const Login = ({ onNavigate }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (currentUser) {
-      onNavigate('home');
-    }
+    if (currentUser) onNavigate('home');
   }, [currentUser, onNavigate]);
 
-  // Countdown timer for OTP resend
   useEffect(() => {
     let interval = null;
     if (showOtpScreen && timer > 0) {
-      interval = setInterval(() => {
-        setTimer(t => t - 1);
-      }, 1000);
+      interval = setInterval(() => setTimer(t => t - 1), 1000);
     } else {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
   }, [showOtpScreen, timer]);
 
-  // Validate Input Formatting
   const validatePhone = () => {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone)) {
-      showToast('Please enter a valid 10-digit Indian phone number starting with 6-9.', 'error');
+      showToast('Please enter a valid 10-digit Indian mobile number.', 'error');
       return false;
     }
     return true;
@@ -53,7 +41,7 @@ const Login = ({ onNavigate }) => {
 
   const validateSignupDetails = () => {
     if (!fullName.trim()) {
-      showToast('Please enter your full name to register.', 'error');
+      showToast('Please enter your full name.', 'error');
       return false;
     }
     if (email.trim()) {
@@ -66,68 +54,53 @@ const Login = ({ onNavigate }) => {
     return true;
   };
 
-  // Trigger check and OTP dispatch
   const handleRequestOtp = async (e) => {
     if (e) e.preventDefault();
     if (!validatePhone()) return;
-
     setIsSending(true);
     try {
-      // 1. Check if user already exists
       const checkRes = await fetch('/api/auth/check-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipient: phone })
       });
-      
       if (!checkRes.ok) {
-        showToast('Failed to connect to verification backend.', 'error');
+        showToast('Failed to connect. Please try again.', 'error');
         setIsSending(false);
         return;
       }
-
       const checkData = await checkRes.json();
       const userExists = checkData.exists;
-
-      // 2. Apply business rules based on active authMode
       if (authMode === 'login') {
         if (!userExists) {
-          // Rule: If customer tries to login but is NOT registered, prompt to sign up
-          showToast("Account not found. Please click 'Create an account' below to register.", 'error');
+          showToast("Account not found. Please create an account.", 'error');
           setIsSending(false);
           return;
         }
       } else {
         if (userExists) {
-          // Rule: If customer tries to register but already HAS an account, prompt to login
-          showToast("Mobile number is already registered. Please click 'Log in' below.", 'error');
+          showToast("Mobile already registered. Please log in.", 'error');
           setIsSending(false);
           return;
         }
-        if (!validateSignupDetails()) {
-          setIsSending(false);
-          return;
-        }
+        if (!validateSignupDetails()) { setIsSending(false); return; }
       }
-
-      // 3. Dispatch OTP if checks pass
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipient: phone, isSignup: authMode === 'signup' })
       });
-
       const data = await res.json();
       if (res.ok) {
-        setGeneratedOtp(data.otp); // Save helper code for dev validation
+        setGeneratedOtp(data.otp);
         setShowOtpScreen(true);
         setTimer(60);
         showToast('OTP sent successfully!', 'success');
       } else {
-        showToast(data.error || 'Failed to dispatch verification code.', 'error');
+        showToast(data.error || 'Failed to send OTP.', 'error');
       }
     } catch (err) {
-      showToast('Connection error dispatching OTP.', 'error');
+      showToast('Connection error. Please try again.', 'error');
     } finally {
       setIsSending(false);
     }
@@ -137,10 +110,9 @@ const Login = ({ onNavigate }) => {
     e.preventDefault();
     const enteredOtp = otpCode.join('');
     if (enteredOtp.length < 6) {
-      showToast('Please enter all 6 digits of the OTP.', 'error');
+      showToast('Please enter all 6 digits.', 'error');
       return;
     }
-
     setIsVerifying(true);
     try {
       const res = await fetch('/api/auth/verify-otp', {
@@ -154,31 +126,25 @@ const Login = ({ onNavigate }) => {
           email: authMode === 'signup' ? email.trim() : undefined
         })
       });
-
       const data = await res.json();
       if (res.ok) {
-        showToast(authMode === 'signup' ? 'Registration completed successfully!' : 'Logged in successfully!', 'success');
+        showToast(authMode === 'signup' ? 'Account created successfully!' : 'Logged in!', 'success');
         localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-        window.location.reload(); 
+        window.location.reload();
       } else {
-        showToast(data.error || 'Incorrect OTP code.', 'error');
+        showToast(data.error || 'Incorrect OTP.', 'error');
       }
     } catch (err) {
-      showToast('Authentication verification server failure.', 'error');
+      showToast('Verification failed. Try again.', 'error');
     } finally {
       setIsVerifying(false);
     }
   };
 
   const handleOtpChange = (element, index) => {
-    if (isNaN(element.value)) return false;
-
+    if (isNaN(element.value)) return;
     setOtpCode([...otpCode.map((d, idx) => (idx === index ? element.value : d))]);
-
-    // Auto-focus next field
-    if (element.nextSibling && element.value) {
-      element.nextSibling.focus();
-    }
+    if (element.nextSibling && element.value) element.nextSibling.focus();
   };
 
   const handleOtpKeyDown = (e, index) => {
@@ -202,85 +168,79 @@ const Login = ({ onNavigate }) => {
   };
 
   return (
-    <div className="login-page-wrapper animate-fade-in">
-      
-      {/* Flipkart Style Split Card Grid */}
-      <div className="login-card-wrapper">
-        
-        {/* Left Panel: Solid Blue Branding Area */}
-        <div className="login-left-panel">
-          <div>
-            <h2 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.2' }}>
-              {showOtpScreen 
-                ? 'Verify' 
-                : authMode === 'login' 
-                  ? 'Login' 
-                  : 'Looks like you\'re new here!'}
-            </h2>
-            <p style={{ fontSize: '15px', color: '#dbdbdb', margin: 0, lineHeight: '1.5' }}>
-              {showOtpScreen 
-                ? 'Verification OTP has been sent' 
-                : authMode === 'login' 
-                  ? 'Get access to your Orders, Wishlist and Recommendations' 
-                  : 'Sign up with your mobile number to get started'}
-            </p>
+    <div className="lp-wrapper">
+      {/* ── Desktop: Left Blue Panel ── */}
+      <div className="lp-left">
+        <div className="lp-left-content">
+          <div className="lp-logo-row">
+            <span className="lp-logo-icon">🛍️</span>
+            <span className="lp-logo-text">AbKharido</span>
           </div>
-
-          {/* Premium Vector SVG Illustration */}
-          <div className="illustration-container" style={{ marginTop: 'auto' }}>
-            <svg viewBox="0 0 200 120" style={{ width: '100%', height: 'auto', maxHeight: '110px' }}>
-              <circle cx="100" cy="80" r="40" fill="rgba(255,255,255,0.08)" />
-              <path d="M40 90h120v20H40z" fill="rgba(255,255,255,0.12)" rx="2" />
-              {/* Device monitor */}
-              <rect x="75" y="45" width="50" height="35" rx="3" fill="#ffffff" />
-              <rect x="78" y="48" width="44" height="25" fill="#f0f3f7" />
-              <rect x="92" y="80" width="16" height="10" fill="#e0e6ed" />
-              <path d="M85 90h30v3H85z" fill="#ccd6e0" />
-              <circle cx="100" cy="60" r="6" fill="#ffd54f" />
-              {/* Floating heart */}
-              <path d="M40 50c-2-2-5-2-7 0a4.9 4.9 0 000 7l7 7 7-7a4.9 4.9 0 000-7z" fill="#ff4d6d" />
-              {/* Shopping bag */}
-              <rect x="135" y="65" width="22" height="22" rx="2" fill="#ffd54f" />
-              <path d="M141 65v-3a5 5 0 0110 0v3" stroke="#ffb300" strokeWidth="2" fill="none" />
-              <circle cx="146" cy="74" r="2" fill="#333" />
-              <circle cx="152" cy="74" r="2" fill="#333" />
+          <h1 className="lp-left-title">
+            {showOtpScreen
+              ? 'Verify your\nnumber'
+              : authMode === 'login'
+              ? 'Welcome\nback!'
+              : "Looks like\nyou're new\nhere!"}
+          </h1>
+          <p className="lp-left-sub">
+            {showOtpScreen
+              ? `OTP sent to +91 ${phone}`
+              : authMode === 'login'
+              ? 'Get access to your Orders, Wishlist & Recommendations'
+              : 'Sign up with your mobile number to get started'}
+          </p>
+          <div className="lp-illustration">
+            <svg viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="110" cy="90" r="55" fill="rgba(255,255,255,0.07)" />
+              <rect x="75" y="50" width="70" height="50" rx="6" fill="white" />
+              <rect x="80" y="55" width="60" height="35" rx="3" fill="#e8f0fe" />
+              <rect x="100" y="100" width="20" height="10" fill="#c5d8f5" />
+              <rect x="90" y="110" width="40" height="4" rx="2" fill="#b0c9ee" />
+              <circle cx="110" cy="72" r="8" fill="#fbbf24" />
+              <path d="M45 55c-3-3-7-3-10 0a7 7 0 000 10l10 10 10-10a7 7 0 000-10z" fill="#f87171" />
+              <rect x="155" y="75" width="28" height="28" rx="4" fill="#fbbf24" />
+              <path d="M162 75v-5a7 7 0 0114 0v5" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
+              <circle cx="168" cy="88" r="2.5" fill="#374151" />
+              <circle cx="176" cy="88" r="2.5" fill="#374151" />
             </svg>
           </div>
         </div>
+      </div>
 
-        {/* Right Panel: White Work Area */}
-        <div className="login-right-panel">
-          
-          {/* Main workspace */}
-          <div>
-            {/* Developer OTP Test banner */}
-            {showOtpScreen && generatedOtp && (
-              <div style={{ 
-                backgroundColor: '#fff8e1', 
-                border: '1px dashed #ffe082', 
-                borderRadius: '4px', 
-                padding: '10px 12px', 
-                marginBottom: '20px', 
-                fontSize: '12px', 
-                color: '#b78103', 
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <span>🔔 [TEST MODE OTP]</span>
-                <code>Code: <strong style={{ color: '#e65100', fontSize: '13px' }}>{generatedOtp}</strong></code>
-              </div>
-            )}
+      {/* ── Right / Mobile: Form Panel ── */}
+      <div className="lp-right">
 
-            {/* Verification Mode Form */}
-            {showOtpScreen ? (
-              <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                  Enter the 6-digit OTP sent to **+91 {phone}**:
-                </span>
-                
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-start' }}>
+        {/* Mobile-only top bar */}
+        <div className="lp-mobile-header">
+          <span className="lp-mob-logo">🛍️ <strong>AbKharido</strong></span>
+          <p className="lp-mob-tagline">
+            {authMode === 'login' ? 'Login to your account' : "Create your account"}
+          </p>
+        </div>
+
+        <div className="lp-form-card">
+
+          {/* OTP Dev Banner */}
+          {showOtpScreen && generatedOtp && (
+            <div className="lp-otp-dev-banner">
+              <span>🔔 Test OTP</span>
+              <strong>{generatedOtp}</strong>
+            </div>
+          )}
+
+          {/* ── OTP Screen ── */}
+          {showOtpScreen ? (
+            <>
+              <button className="lp-back-btn" onClick={handleGoBack}>
+                <ArrowLeft size={16} /> Back
+              </button>
+
+              <h2 className="lp-form-title">Enter OTP</h2>
+              <p className="lp-form-sub">6-digit code sent to <strong>+91 {phone}</strong></p>
+
+              <form onSubmit={handleVerifyOtp} className="lp-form">
+                <div className="lp-otp-row">
                   {otpCode.map((data, index) => (
                     <input
                       key={index}
@@ -291,176 +251,120 @@ const Login = ({ onNavigate }) => {
                       onChange={(e) => handleOtpChange(e.target, index)}
                       onKeyDown={(e) => handleOtpKeyDown(e, index)}
                       onFocus={(e) => e.target.select()}
-                      style={{
-                        width: '42px',
-                        height: '42px',
-                        fontSize: '18px',
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        border: 'none',
-                        borderBottom: '2px solid #ccc',
-                        outline: 'none',
-                        transition: 'border-color 0.2s'
-                      }}
-                      className="otp-input-field"
+                      className="lp-otp-box"
+                      inputMode="numeric"
                       required
                     />
                   ))}
                 </div>
 
-                <button 
-                  type="submit" 
-                  className="btn" 
-                  style={{ 
-                    width: '100%', 
-                    height: '48px', 
-                    backgroundColor: '#fb641b', 
-                    color: '#ffffff', 
-                    fontWeight: 'bold',
-                    fontSize: '15px',
-                    borderRadius: '2px',
-                    border: 'none',
-                    cursor: 'pointer'
-                  }}
-                  disabled={isVerifying}
-                >
-                  {isVerifying ? 'VERIFYING...' : 'VERIFY & CONTINUE'}
+                <button type="submit" className="lp-submit-btn" disabled={isVerifying}>
+                  {isVerifying ? 'Verifying...' : 'VERIFY & CONTINUE'}
+                  {!isVerifying && <ChevronRight size={18} />}
                 </button>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginTop: '4px' }}>
+                <div className="lp-resend-row">
                   {timer > 0 ? (
-                    <span style={{ color: 'var(--text-secondary)' }}>Resend code in **{timer}s**</span>
+                    <span className="lp-timer">Resend OTP in <strong>{timer}s</strong></span>
                   ) : (
-                    <button type="button" onClick={() => triggerOtpDispatch(authMode === 'signup')} style={{ background: 'none', border: 'none', color: '#2874f0', fontWeight: '600', cursor: 'pointer', padding: 0 }}>
+                    <button type="button" onClick={() => handleRequestOtp(null)} className="lp-link-btn">
                       Resend OTP
                     </button>
                   )}
-                  <button type="button" onClick={handleGoBack} style={{ background: 'none', border: 'none', color: '#2874f0', cursor: 'pointer', padding: 0, fontWeight: '600' }}>
-                    Edit Mobile Number
+                  <button type="button" onClick={handleGoBack} className="lp-link-btn">
+                    Edit Number
                   </button>
                 </div>
               </form>
-            ) : (
-              /* Request Code Mode Forms */
-              <form onSubmit={handleRequestOtp} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                
-                {/* 1. Phone input - underline input style */}
-                <div style={{ position: 'relative', borderBottom: '2px solid #e0e0e0', paddingBottom: '4px' }}>
-                  <span style={{ position: 'absolute', left: '0', bottom: '6px', fontSize: '15px', color: '#878787', fontWeight: '500' }}>+91</span>
+            </>
+          ) : (
+            <>
+              <h2 className="lp-form-title">
+                {authMode === 'login' ? 'Login' : 'Create Account'}
+              </h2>
+              <p className="lp-form-sub">
+                {authMode === 'login'
+                  ? 'Enter your mobile number to continue'
+                  : 'Fill in the details to get started'}
+              </p>
+
+              <form onSubmit={handleRequestOtp} className="lp-form">
+
+                {/* Phone Input */}
+                <div className="lp-input-group">
+                  <span className="lp-input-prefix">+91</span>
                   <input
                     type="tel"
-                    placeholder="Enter Mobile number"
+                    placeholder="Mobile Number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
-                    style={{ 
-                      paddingLeft: '38px', 
-                      width: '100%', 
-                      height: '36px', 
-                      border: 'none', 
-                      outline: 'none',
-                      fontSize: '15px', 
-                      boxSizing: 'border-box' 
-                    }}
+                    className="lp-input lp-input-phone"
+                    inputMode="numeric"
                     required
                   />
+                  <Phone size={16} className="lp-input-icon-right" />
                 </div>
 
-                {/* 2. Signup Fields */}
+                {/* Signup Extra Fields */}
                 {authMode === 'signup' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease' }}>
-                    <div style={{ borderBottom: '2px solid #e0e0e0', paddingBottom: '4px' }}>
+                  <div className="lp-signup-fields">
+                    <div className="lp-input-group">
+                      <User size={16} className="lp-input-icon-left" />
                       <input
                         type="text"
-                        placeholder="Enter Full Name"
+                        placeholder="Full Name"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        style={{ 
-                          width: '100%', 
-                          height: '36px', 
-                          border: 'none', 
-                          outline: 'none',
-                          fontSize: '15px', 
-                          boxSizing: 'border-box' 
-                        }}
+                        className="lp-input lp-input-padded"
                         required
                       />
                     </div>
-
-                    <div style={{ borderBottom: '2px solid #e0e0e0', paddingBottom: '4px' }}>
+                    <div className="lp-input-group">
+                      <Mail size={16} className="lp-input-icon-left" />
                       <input
                         type="email"
-                        placeholder="Enter Email (Optional)"
+                        placeholder="Email (Optional)"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        style={{ 
-                          width: '100%', 
-                          height: '36px', 
-                          border: 'none', 
-                          outline: 'none',
-                          fontSize: '15px', 
-                          boxSizing: 'border-box' 
-                        }}
+                        className="lp-input lp-input-padded"
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Policy Notice */}
-                <p style={{ fontSize: '12px', color: '#878787', margin: 0, lineHeight: '1.4' }}>
-                  By continuing, you agree to AbKharido's <span style={{ color: '#2874f0', cursor: 'pointer' }}>Terms of Use</span> and <span style={{ color: '#2874f0', cursor: 'pointer' }}>Privacy Policy</span>.
+                <p className="lp-policy">
+                  By continuing, you agree to AbKharido's{' '}
+                  <span className="lp-policy-link">Terms of Use</span> and{' '}
+                  <span className="lp-policy-link">Privacy Policy</span>.
                 </p>
 
-                {/* Action Request Button */}
-                <button 
-                  type="submit" 
-                  className="btn" 
-                  style={{ 
-                    width: '100%', 
-                    height: '48px', 
-                    backgroundColor: '#fb641b', 
-                    color: '#ffffff', 
-                    fontWeight: 'bold',
-                    fontSize: '15px',
-                    borderRadius: '2px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    boxShadow: '0 1px 2px 0 rgba(0,0,0,0.1)'
-                  }}
-                  disabled={isSending}
-                >
-                  {isSending 
-                    ? 'SENDING OTP...' 
-                    : authMode === 'login' 
-                      ? 'Request OTP' 
-                      : 'CONTINUE'}
+                <button type="submit" className="lp-submit-btn" disabled={isSending}>
+                  {isSending
+                    ? 'Sending OTP...'
+                    : authMode === 'login'
+                    ? 'REQUEST OTP'
+                    : 'CONTINUE'}
+                  {!isSending && <ChevronRight size={18} />}
                 </button>
               </form>
-            )}
-          </div>
 
-          {/* Bottom Flip Link: Toggle between Login and Registration */}
-          {!showOtpScreen && (
-            <div style={{ textAlign: 'center', marginTop: '24px' }}>
-              {authMode === 'login' ? (
-                <span 
-                  onClick={toggleAuthMode}
-                  style={{ color: '#2874f0', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}
-                >
-                  New to Flipkart? Create an account
-                </span>
-              ) : (
-                <span 
-                  onClick={toggleAuthMode}
-                  style={{ color: '#2874f0', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}
-                >
-                  Existing User? Log in
-                </span>
-              )}
-            </div>
+              <div className="lp-switch-row">
+                {authMode === 'login' ? (
+                  <>
+                    <span>New to AbKharido?</span>
+                    <button onClick={toggleAuthMode} className="lp-switch-btn">Create an account</button>
+                  </>
+                ) : (
+                  <>
+                    <span>Already have an account?</span>
+                    <button onClick={toggleAuthMode} className="lp-switch-btn">Log in</button>
+                  </>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>
-
     </div>
   );
 };
