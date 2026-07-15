@@ -202,31 +202,13 @@ const Login = ({ onNavigate }) => {
   };
 
   return (
-    <div className="container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '24px 16px' }}>
+    <div className="login-page-wrapper animate-fade-in">
       
       {/* Flipkart Style Split Card Grid */}
-      <div className="flipkart-card-wrapper" style={{ 
-        display: 'flex', 
-        width: '100%', 
-        maxWidth: '780px', 
-        minHeight: '460px', 
-        backgroundColor: '#ffffff', 
-        borderRadius: '4px', 
-        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        overflow: 'hidden'
-      }}>
+      <div className="login-card-wrapper">
         
         {/* Left Panel: Solid Blue Branding Area */}
-        <div className="flipkart-left-panel" style={{ 
-          width: '40%', 
-          backgroundColor: '#2874f0', 
-          color: '#ffffff', 
-          padding: '40px 32px', 
-          display: 'flex', 
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          boxSizing: 'border-box'
-        }}>
+        <div className="login-left-panel">
           <div>
             <h2 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 16px 0', lineHeight: '1.2' }}>
               {showOtpScreen 
@@ -267,15 +249,7 @@ const Login = ({ onNavigate }) => {
         </div>
 
         {/* Right Panel: White Work Area */}
-        <div className="flipkart-right-panel" style={{ 
-          width: '60%', 
-          backgroundColor: '#ffffff', 
-          padding: '48px 40px', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'space-between',
-          boxSizing: 'border-box'
-        }}>
+        <div className="login-right-panel">
           
           {/* Main workspace */}
           <div>

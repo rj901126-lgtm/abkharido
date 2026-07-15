@@ -658,3 +658,103 @@ img {
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.15) !important;
 }
+
+/* =============================================
+   LOGIN / SIGNUP PAGE - RESPONSIVE LAYOUT
+   ============================================= */
+.login-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 24px 16px;
+}
+
+.login-card-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 780px;
+  min-height: 460px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+/* Desktop: Left blue branding panel */
+.login-left-panel {
+  width: 40%;
+  background-color: #2874f0;
+  color: #ffffff;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* Desktop: Right white form panel */
+.login-right-panel {
+  width: 60%;
+  background-color: #ffffff;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* Mobile override - collapse to single column */
+@media (max-width: 600px) {
+  .login-page-wrapper {
+    padding: 0;
+    min-height: 100vh;
+    justify-content: flex-start;
+    background-color: #f5f5f5;
+  }
+
+  .login-card-wrapper {
+    flex-direction: column;
+    max-width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* On mobile: shrink blue panel to a compact header bar */
+  .login-left-panel {
+    width: 100%;
+    padding: 24px 20px 20px;
+    min-height: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+
+  /* Hide illustration SVG on mobile - saves space */
+  .login-left-panel .illustration-container {
+    display: none !important;
+  }
+
+  /* Compact title + sub-text on mobile */
+  .login-left-panel h2 {
+    font-size: 20px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .login-left-panel p {
+    font-size: 13px !important;
+  }
+
+  /* Right panel takes full remaining space on mobile */
+  .login-right-panel {
+    width: 100%;
+    padding: 28px 20px 32px;
+    flex: 1;
+    background-color: #ffffff;
+  }
+}
