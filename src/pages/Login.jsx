@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Phone, User, Mail, ArrowLeft, ChevronRight } from 'lucide-react';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { auth as firebaseAuth } from '../firebase';
 
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
@@ -15,6 +17,10 @@ const Login = ({ onNavigate }) => {
   const [timer, setTimer] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  
+  // Firebase Auth states
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [useFirebase, setUseFirebase] = useState(true);
 
   useEffect(() => {
     if (currentUser) onNavigate('home');
@@ -85,24 +91,51 @@ const Login = ({ onNavigate }) => {
         }
         if (!validateSignupDetails()) { setIsSending(false); return; }
       }
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipient: phone, isSignup: authMode === 'signup' })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setGeneratedOtp(data.otp);
-        setShowOtpScreen(true);
-        setTimer(60);
-        showToast('OTP sent successfully!', 'success');
+
+      if (useFirebase) {
+        try {
+          if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
+              size: 'invisible',
+              callback: () => {}
+            });
+          }
+          const appVerifier = window.recaptchaVerifier;
+          const formattedPhone = `+91${phone}`;
+          const result = await signInWithPhoneNumber(firebaseAuth, formattedPhone, appVerifier);
+          setConfirmationResult(result);
+          setShowOtpScreen(true);
+          setTimer(60);
+          showToast('Verification code sent!', 'success');
+        } catch (fbErr) {
+          console.warn('Firebase verification failed, trying mock fallback:', fbErr.message);
+          setUseFirebase(false);
+          await triggerMockOtpFlow();
+        }
       } else {
-        showToast(data.error || 'Failed to send OTP.', 'error');
+        await triggerMockOtpFlow();
       }
     } catch (err) {
       showToast('Connection error. Please try again.', 'error');
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const triggerMockOtpFlow = async () => {
+    const res = await fetch('/api/auth/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipient: phone, isSignup: authMode === 'signup' })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setGeneratedOtp(data.otp);
+      setShowOtpScreen(true);
+      setTimer(60);
+      showToast('OTP sent successfully!', 'success');
+    } else {
+      showToast(data.error || 'Failed to send OTP.', 'error');
     }
   };
 
@@ -115,24 +148,54 @@ const Login = ({ onNavigate }) => {
     }
     setIsVerifying(true);
     try {
-      const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipient: phone,
-          otp: enteredOtp,
-          isSignup: authMode === 'signup',
-          fullName: authMode === 'signup' ? fullName.trim() : undefined,
-          email: authMode === 'signup' ? email.trim() : undefined
-        })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showToast(authMode === 'signup' ? 'Account created successfully!' : 'Logged in!', 'success');
-        localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-        window.location.reload();
+      if (useFirebase && confirmationResult) {
+        try {
+          const result = await confirmationResult.confirm(enteredOtp);
+          const firebaseUser = result.user;
+          const firebaseIdToken = await firebaseUser.getIdToken();
+          
+          const res = await fetch('/api/auth/verify-firebase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              idToken: firebaseIdToken,
+              phone: phone,
+              isSignup: authMode === 'signup',
+              fullName: authMode === 'signup' ? fullName.trim() : undefined,
+              email: authMode === 'signup' ? email.trim() : undefined
+            })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showToast(authMode === 'signup' ? 'Account created successfully!' : 'Logged in!', 'success');
+            localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
+            window.location.reload();
+          } else {
+            showToast(data.error || 'Failed to authenticate on backend.', 'error');
+          }
+        } catch (fbErr) {
+          showToast('Invalid verification code. Please check and try again.', 'error');
+        }
       } else {
-        showToast(data.error || 'Incorrect OTP.', 'error');
+        const res = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipient: phone,
+            otp: enteredOtp,
+            isSignup: authMode === 'signup',
+            fullName: authMode === 'signup' ? fullName.trim() : undefined,
+            email: authMode === 'signup' ? email.trim() : undefined
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(authMode === 'signup' ? 'Account created successfully!' : 'Logged in!', 'success');
+          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
+          window.location.reload();
+        } else {
+          showToast(data.error || 'Incorrect OTP.', 'error');
+        }
       }
     } catch (err) {
       showToast('Verification failed. Try again.', 'error');
@@ -284,6 +347,8 @@ const Login = ({ onNavigate }) => {
               </p>
 
               <form onSubmit={handleRequestOtp} className="lp-form">
+                {/* Firebase reCAPTCHA invisible target */}
+                <div id="recaptcha-container"></div>
 
                 {/* Phone Input */}
                 <div className="lp-input-group">

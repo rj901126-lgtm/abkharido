@@ -16,6 +16,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "firebase": "^12.16.0",
+    "firebase-admin": "^14.1.0",
     "lucide-react": "^1.23.0",
     "mongodb": "^7.5.0",
     "react": "^19.2.7",

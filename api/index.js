@@ -9,6 +9,33 @@ import dotenv from 'dotenv';
 // Load environmental variables
 dotenv.config();
 
+import admin from 'firebase-admin';
+
+// Initialize firebase-admin if service account credentials are provided
+let firebaseAdminApp = null;
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    firebaseAdminApp = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('[FIREBASE] Admin SDK initialized successfully.');
+  } catch (err) {
+    console.error('[FIREBASE] Failed to initialize Admin SDK from environment:', err.message);
+  }
+}
+
+const decodeJwtPayload = (token) => {
+  try {
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
+      return payload;
+    }
+  } catch (e) {}
+  return null;
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -928,6 +955,71 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     res.json({ success: true, user });
   } catch (err) {
     console.error('Failed to verify OTP:', err);
+    res.status(500).json({ error: 'Authentication verification failure.' });
+  }
+});
+
+// Firebase Token Verification API
+app.post('/api/auth/verify-firebase', async (req, res) => {
+  try {
+    const { idToken, phone, isSignup, fullName, email } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ error: 'Firebase idToken is required' });
+    }
+
+    let verifiedPhone = null;
+    if (firebaseAdminApp) {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      verifiedPhone = decodedToken.phone_number;
+    } else {
+      // Development fallback decode
+      const payload = decodeJwtPayload(idToken);
+      if (payload) {
+        verifiedPhone = payload.phone_number;
+      }
+    }
+
+    if (!verifiedPhone) {
+      return res.status(400).json({ error: 'Failed to verify Firebase authentication token.' });
+    }
+
+    // Strip "+91" or country prefix to retrieve standard 10-digit number
+    const cleanPhone = verifiedPhone.replace(/^\+91/, '').replace(/\D/g, '');
+    const users = await getUsersMap();
+    const formattedUsername = cleanPhone.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+
+    let user = Object.values(users).find(u => 
+      (u.phone && u.phone.trim() === cleanPhone) || 
+      u.username.toLowerCase() === formattedUsername
+    );
+
+    if (!user) {
+      // Create user profile on signup or first login
+      user = {
+        username: formattedUsername,
+        fullName: fullName || 'Guest User',
+        firstName: fullName ? fullName.split(' ')[0] : '',
+        lastName: fullName ? fullName.split(' ').slice(1).join(' ') : '',
+        phone: cleanPhone,
+        email: email || '',
+        emailVerified: false,
+        pincode: '',
+        address: '',
+        isInfluencer: false,
+        influencerId: '',
+        walletCoins: 0,
+        walletCash: 0,
+        ordersCount: 0,
+        payoutDetails: { upi: '', bankAccount: '', bankIfsc: '' }
+      };
+      
+      users[formattedUsername] = user;
+      await saveUsersMap(users, formattedUsername);
+    }
+
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error('Firebase token verification failed:', err);
     res.status(500).json({ error: 'Authentication verification failure.' });
   }
 });
