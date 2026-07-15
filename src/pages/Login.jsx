@@ -213,15 +213,6 @@ const Login = ({ onNavigate }) => {
       {/* ── Right / Mobile: Form Panel ── */}
       <div className="lp-right">
 
-        {/* Mobile-only top bar */}
-        <div className="lp-mobile-header">
-          <span className="lp-mob-brand">
-            AbKharido<span className="lp-mob-brand-dot">.com</span>
-          </span>
-          <p className="lp-mob-tagline">
-            {authMode === 'login' ? 'Login to your account' : 'Create your account'}
-          </p>
-        </div>
 
         <div className="lp-form-card">
 

@@ -1208,67 +1208,78 @@ img {
 
 /* ── MOBILE OVERRIDES ── */
 @media (max-width: 640px) {
+  /* Full screen blue background */
   .lp-wrapper {
     flex-direction: column;
     background: #2874f0;
     min-height: 100vh;
+    justify-content: center;
+    align-items: center;
   }
 
-  /* Hide desktop left panel completely */
+  /* Hide desktop left panel */
   .lp-left {
     display: none;
   }
 
-  /* Show mobile header */
-  .lp-mobile-header {
-    display: block;
-    padding: 28px 24px 20px;
-    color: white;
-  }
-
-  /* Mobile brand text */
-  .lp-mob-brand {
-    font-family: var(--font-logo, 'Georgia', serif);
-    font-size: 22px;
-    font-weight: 800;
-    font-style: italic;
-    color: #ffffff;
-    letter-spacing: -0.5px;
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .lp-mob-brand-dot {
-    color: #ffeb3b;
-    font-weight: bold;
-  }
-
-  .lp-mob-tagline {
-    font-size: 13px;
-    color: rgba(255,255,255,0.75);
-    margin: 4px 0 0 0;
-  }
-
-  /* Right panel fills remaining space */
+  /* Right panel: center everything */
   .lp-right {
-    padding: 0;
-    justify-content: flex-start;
+    width: 100%;
+    padding: 24px 16px;
+    justify-content: center;
+    align-items: center;
     background: transparent;
+    box-sizing: border-box;
   }
 
-  /* Form card slides up from bottom over blue bg */
+  /* Form card: clean white card in center, auto height — no scrolling */
   .lp-form-card {
-    border-radius: 20px 20px 0 0;
-    padding: 28px 22px 40px;
-    box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
-    min-height: calc(100vh - 130px);
+    width: 100%;
+    max-width: 380px;
+    border-radius: 16px;
+    padding: 28px 20px 28px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    min-height: unset;
+    height: auto;
+  }
+
+  /* Slightly tighter inputs on mobile */
+  .lp-input-group {
+    border-radius: 8px;
+  }
+
+  .lp-input {
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .lp-input-prefix {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .lp-submit-btn {
+    height: 46px;
+    font-size: 13px;
   }
 
   .lp-otp-box {
     max-width: 44px;
     height: 46px;
     font-size: 18px;
-    gap: 7px;
+  }
+
+  .lp-form-title {
+    font-size: 20px;
+  }
+
+  .lp-form-sub {
+    font-size: 12px;
+    margin-bottom: 18px;
+  }
+
+  .lp-form {
+    gap: 13px;
   }
 }
 
