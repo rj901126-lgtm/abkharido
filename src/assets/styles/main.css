@@ -660,6 +660,174 @@ img {
 }
 
 /* =============================================
+   INFO PAGE (About / Contact / Terms etc.)
+   ============================================= */
+.info-page-wrap {
+  padding: 24px 0;
+  display: flex;
+  gap: 20px;
+  max-width: 1000px;
+  min-height: 60vh;
+  align-items: flex-start;
+}
+
+/* Sidebar */
+.info-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 16px;
+  position: sticky;
+  top: 80px;
+}
+
+.info-sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 10px;
+  margin: 0 0 12px 0;
+}
+
+.info-nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-nav-link {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.info-nav-link:hover { color: var(--primary-color); }
+
+/* Content Card */
+.info-content-card {
+  flex: 1;
+  padding: 28px 32px;
+  background-color: #ffffff;
+  min-width: 0;
+}
+
+/* Typography inside content */
+.info-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #212121;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 12px;
+  margin: 0 0 18px 0;
+}
+
+.info-subtitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #212121;
+  margin: 20px 0 8px 0;
+}
+
+.info-paragraph {
+  font-size: 13px;
+  color: #424242;
+  line-height: 1.65;
+  margin-bottom: 14px;
+}
+
+/* Contact Card */
+.info-contact-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 18px;
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.info-contact-item {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: #212121;
+  line-height: 1.6;
+  align-items: flex-start;
+}
+
+/* ── InfoPage Mobile ── */
+@media (max-width: 640px) {
+  .info-page-wrap {
+    flex-direction: column;
+    padding: 16px 0;
+    gap: 12px;
+  }
+
+  /* Sidebar becomes a horizontal scrolling pill row */
+  .info-sidebar {
+    width: 100%;
+    padding: 12px 16px;
+    position: static;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    box-sizing: border-box;
+  }
+
+  .info-sidebar-title {
+    display: none; /* hide on mobile, nav pills are self-explanatory */
+  }
+
+  .info-nav-menu {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .info-nav-menu::-webkit-scrollbar { display: none; }
+
+  .info-nav-link {
+    white-space: nowrap;
+    background: #f0f4ff;
+    border: 1px solid #c7d7f9;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #2874f0;
+    flex-shrink: 0;
+  }
+
+  /* Content card full width */
+  .info-content-card {
+    padding: 20px 16px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .info-title { font-size: 17px; }
+
+  .info-contact-card {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .info-contact-item {
+    font-size: 12px;
+    word-break: break-word;
+  }
+}
+
+/* =============================================
    LOGIN / SIGNUP PAGE — MODERN RESPONSIVE
    ============================================= */
 
@@ -716,13 +884,30 @@ img {
   margin-bottom: 32px;
 }
 
-/* Logo image - desktop (on blue bg, apply brightness filter to make visible) */
-.lp-logo-img {
-  height: 48px;
-  width: auto;
-  object-fit: contain;
-  filter: brightness(0) invert(1); /* White version on blue background */
-  margin-bottom: 4px;
+/* Brand text — navbar style (on blue bg, white text) */
+.lp-brand-text {
+  font-family: var(--font-logo, 'Georgia', serif);
+  font-size: 24px;
+  font-weight: 800;
+  font-style: italic;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  display: block;
+}
+
+.lp-brand-dot {
+  color: #ffeb3b;
+  font-weight: bold;
+}
+
+.lp-brand-sub {
+  font-size: 11px;
+  font-style: italic;
+  color: rgba(255,255,255,0.7);
+  margin-top: 3px;
+  display: block;
+  letter-spacing: 0.2px;
 }
 
 .lp-left-title {
@@ -1041,13 +1226,21 @@ img {
     color: white;
   }
 
-  .lp-mob-logo-img {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-    filter: brightness(0) invert(1); /* White on blue bg */
+  /* Mobile brand text */
+  .lp-mob-brand {
+    font-family: var(--font-logo, 'Georgia', serif);
+    font-size: 22px;
+    font-weight: 800;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: -0.5px;
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+  }
+
+  .lp-mob-brand-dot {
+    color: #ffeb3b;
+    font-weight: bold;
   }
 
   .lp-mob-tagline {

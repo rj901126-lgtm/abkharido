@@ -123,21 +123,14 @@ const InfoPage = ({ infoType }) => {
       default:
         return (
           <div>
-            {/* Logo Header */}
-            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-              <img 
-                src="/logo.png" 
-                alt="AbKharido" 
-                style={{ height: '60px', width: 'auto', objectFit: 'contain' }} 
-              />
-            </div>
-            <h2 style={styles.title}>Contact Support &amp; Partnerships</h2>
-            <p style={styles.paragraph}>
+            <h2 className="info-title">Contact Support &amp; Partnerships</h2>
+            <p className="info-paragraph">
               Need assistance with an order, payment transaction, or creator payout? Get in touch with our team directly.
             </p>
             
-            <div style={styles.contactCard}>
-              <div style={styles.contactItem}>
+
+            <div className="info-contact-card">
+              <div className="info-contact-item">
                 <Building size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
                 <div>
                   <strong>Registered Office Address:</strong><br />
@@ -146,14 +139,14 @@ const InfoPage = ({ infoType }) => {
                   Bengaluru, Karnataka - 560103, India.
                 </div>
               </div>
-              <div style={styles.contactItem}>
+              <div className="info-contact-item">
                 <Mail size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
                 <div>
                   <strong>Support Helpdesk:</strong><br />
                   <a href="mailto:help@abkharido.com" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>help@abkharido.com</a>
                 </div>
               </div>
-              <div style={styles.contactItem}>
+              <div className="info-contact-item">
                 <FileText size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
                 <div>
                   <strong>Corporate Identification Number (CIN):</strong><br />
@@ -162,8 +155,8 @@ const InfoPage = ({ infoType }) => {
               </div>
             </div>
 
-            <h3 style={styles.subtitle}>🤝 Creator & Affiliate Partnership Dashboard</h3>
-            <p style={styles.paragraph}>
+            <h3 className="info-subtitle">🤝 Creator &amp; Affiliate Partnership Dashboard</h3>
+            <p className="info-paragraph">
               Are you looking to view your share stats, withdraw cash commissions, or track your friend referral progress? 
               You can access all creator tools directly inside the <strong>Affiliate / Creator Tab</strong> in the top header.
             </p>
@@ -173,18 +166,18 @@ const InfoPage = ({ infoType }) => {
   };
 
   return (
-    <div className="container info-page-container animate-fade-in" style={styles.pageContainer}>
-      <div className="info-sidebar" style={styles.sidebar}>
-        <h3 style={styles.sidebarTitle}>Policies & Info</h3>
-        <div style={styles.navMenu}>
-          <a href="#about" style={styles.sidebarLink}>🏢 About AbKharido</a>
-          <a href="#terms" style={styles.sidebarLink}>📄 Terms of Use</a>
-          <a href="#privacy" style={styles.sidebarLink}>🔒 Privacy Policy</a>
-          <a href="#returns" style={styles.sidebarLink}>↩️ Returns & Refund</a>
-          <a href="#contact" style={styles.sidebarLink}>📞 Contact Support</a>
+    <div className="container info-page-wrap animate-fade-in">
+      <div className="info-sidebar">
+        <h3 className="info-sidebar-title">Policies &amp; Info</h3>
+        <div className="info-nav-menu">
+          <a href="#about" className="info-nav-link">🏢 About AbKharido</a>
+          <a href="#terms" className="info-nav-link">📄 Terms of Use</a>
+          <a href="#privacy" className="info-nav-link">🔒 Privacy Policy</a>
+          <a href="#returns" className="info-nav-link">↩️ Returns &amp; Refund</a>
+          <a href="#contact" className="info-nav-link">📞 Contact Support</a>
         </div>
       </div>
-      <div className="card info-content-card" style={styles.contentCard}>
+      <div className="card info-content-card">
         {renderContent()}
       </div>
     </div>

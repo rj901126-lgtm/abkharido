@@ -173,7 +173,10 @@ const Login = ({ onNavigate }) => {
       <div className="lp-left">
         <div className="lp-left-content">
           <div className="lp-logo-row">
-            <img src="/logo.png" alt="AbKharido" className="lp-logo-img" />
+            <span className="lp-brand-text">
+              AbKharido<span className="lp-brand-dot">.com</span>
+            </span>
+            <span className="lp-brand-sub">Direct Buy &amp; Earn</span>
           </div>
           <h1 className="lp-left-title">
             {showOtpScreen
@@ -212,9 +215,11 @@ const Login = ({ onNavigate }) => {
 
         {/* Mobile-only top bar */}
         <div className="lp-mobile-header">
-          <img src="/logo.png" alt="AbKharido" className="lp-mob-logo-img" />
+          <span className="lp-mob-brand">
+            AbKharido<span className="lp-mob-brand-dot">.com</span>
+          </span>
           <p className="lp-mob-tagline">
-            {authMode === 'login' ? 'Login to your account' : "Create your account"}
+            {authMode === 'login' ? 'Login to your account' : 'Create your account'}
           </p>
         </div>
 
