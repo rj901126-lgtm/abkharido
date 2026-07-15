@@ -515,6 +515,9 @@
   .mobile-catalog-bottom-bar {
     display: flex !important; /* Visible on mobile */
   }
+  .catalog-top-filter-bar {
+    display: flex !important; /* Visible on mobile */
+  }
   
   /* Mobile Bottom Sheet (Sort) */
   .bottom-sheet-backdrop {
@@ -542,6 +545,12 @@
     max-height: 100vh !important;
     border-radius: 0 !important;
     animation: slideLeft 0.25s ease-out !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .catalog-top-filter-bar {
+    display: none !important; /* Hide Sort & Filter buttons bar on desktop */
   }
 }
 
