@@ -432,18 +432,19 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
         <div className="image-showcase-column">
           <div 
             className="main-image-frame" 
-            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab', display: 'block', padding: 0, border: '1px solid #f0f0f0', borderRadius: '4px' }}
+            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab', display: 'block' }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             {/* Sliding Track */}
             <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(-${activeImageIndex * 100}%)`, transition: 'transform 0.3s ease-out' }}>
               {imagesList.map((imgUrl, index) => (
-                <div key={index} style={{ minWidth: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', boxSizing: 'border-box', backgroundColor: 'white' }}>
-                  <img src={imgUrl} alt={`${product.name} View ${index}`} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+                <div key={index} className="main-image-slide">
+                  <img src={imgUrl} alt={`${product.name} View ${index}`} />
                 </div>
               ))}
             </div>
+
 
             {/* Floating Back Arrow Button (Desktop Only overlay, hidden in mobile header) */}
             <div className="desktop-back-arrow" style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 5 }}>
