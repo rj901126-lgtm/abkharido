@@ -702,7 +702,14 @@ const SEED_PROMOTIONS = {
       cat: "fashion",
       bg: "linear-gradient(135deg, #fda4af 0%, #f43f5e 100%)"
     }
-  ]
+  ],
+  categoryBanners: {
+    mobiles: { image: "", show: false },
+    electronics: { image: "", show: false },
+    fashion: { image: "", show: false },
+    home: { image: "", show: false },
+    appliances: { image: "", show: false }
+  }
 };
 
 async function getPromotions() {

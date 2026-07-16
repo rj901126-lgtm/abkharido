@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard';
 import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import '../assets/styles/product.css';
 
-const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct }) => {
+const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct, promotions }) => {
   const { products } = useApp();
   // Filter States
   const [minPrice, setMinPrice] = useState(0);
@@ -169,6 +169,30 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
       {/* 2. CATALOG MAIN AREA: Products grid + Mobile filter buttons */}
       <main className="catalog-main">
+        
+        {/* Category Specific Promotion Banner */}
+        {(() => {
+          const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[currentCategory];
+          if (catPromo && catPromo.show && catPromo.image) {
+            return (
+              <div 
+                className="category-promo-banner animate-fade-in"
+                style={{
+                  width: '100%',
+                  aspectRatio: '1200 / 300',
+                  maxHeight: '180px',
+                  backgroundImage: `url(${catPromo.image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  borderRadius: '8px',
+                  marginBottom: '16px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                }}
+              />
+            );
+          }
+          return null;
+        })()}
         
         {/* Top Sort & Filter Buttons Bar: Mobile only */}
         <div className="catalog-top-filter-bar" style={{

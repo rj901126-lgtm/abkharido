@@ -50,6 +50,15 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [newSlideImageOnly, setNewSlideImageOnly] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  // Category Banners Configuration State
+  const [categoryBanners, setCategoryBanners] = useState({
+    mobiles: { image: '', show: false },
+    electronics: { image: '', show: false },
+    fashion: { image: '', show: false },
+    home: { image: '', show: false },
+    appliances: { image: '', show: false }
+  });
+
   const handleBannerFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -95,6 +104,55 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     reader.readAsDataURL(file);
   };
 
+  const handleCategoryBannerUpload = async (catKey, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      showToast('Image file size must be under 3MB.', 'error');
+      return;
+    }
+
+    showToast(`Uploading ${catKey} banner image...`, 'info');
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Data = reader.result;
+      const token = sessionStorage.getItem('abkharido_admin_token') || '';
+      try {
+        const res = await fetch('/api/admin/upload-banner', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': token
+          },
+          body: JSON.stringify({
+            base64Data,
+            fileName: `${catKey}-banner-${file.name}`
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.imageUrl) {
+            setCategoryBanners(prev => ({
+              ...prev,
+              [catKey]: {
+                ...prev[catKey],
+                image: data.imageUrl
+              }
+            }));
+            showToast(`${catKey.toUpperCase()} page banner uploaded successfully!`, 'success');
+          }
+        } else {
+          showToast('Failed to upload category banner to server.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error uploading category banner.', 'error');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Synchronize state when promotions prop loads
   React.useEffect(() => {
     if (promotions) {
@@ -104,6 +162,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       setAnnouncementText(promotions.announcement?.text || '');
       setAnnouncementLink(promotions.announcement?.link || '');
       setBanners(promotions.banners || []);
+      setCategoryBanners(promotions.categoryBanners || {
+        mobiles: { image: '', show: false },
+        electronics: { image: '', show: false },
+        fashion: { image: '', show: false },
+        home: { image: '', show: false },
+        appliances: { image: '', show: false }
+      });
     }
   }, [promotions]);
 
@@ -1649,6 +1714,98 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </div>
           </div>
 
+          {/* Card 4: Category Page Banners */}
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h3 className="admin-form-title"><Layers size={18} color="var(--primary-color)" /> Category Page Banners</h3>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '-10px' }}>
+              👉 Recommended Category Banner Size: 1200 x 300 pixels (aspect ratio 4:1) for optimal horizontal placement.
+            </span>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {['mobiles', 'electronics', 'fashion', 'home', 'appliances'].map(catKey => {
+                const catData = categoryBanners[catKey] || { image: '', show: false };
+                return (
+                  <div 
+                    key={catKey} 
+                    style={{
+                      border: '1px solid var(--border-light)',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      background: 'var(--bg-light)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 'bold', textTransform: 'capitalize', color: 'var(--text-primary)', fontSize: '14px' }}>
+                        {catKey === 'home' ? 'Home & Kitchen' : catKey} Page Banner
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <input 
+                          type="checkbox" 
+                          id={`cat-show-${catKey}`}
+                          checked={catData.show} 
+                          onChange={(e) => {
+                            const val = e.target.checked;
+                            setCategoryBanners(prev => ({
+                              ...prev,
+                              [catKey]: { ...prev[catKey], show: val }
+                            }));
+                          }}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                        <label htmlFor={`cat-show-${catKey}`} style={{ fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', color: 'var(--text-primary)' }}>
+                          Active & Visible
+                        </label>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                      <div style={{ flex: 1, minWidth: '220px' }}>
+                        <label className="form-label-txt" style={{ fontSize: '11px' }}>Upload Banner File</label>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={(e) => handleCategoryBannerUpload(catKey, e)}
+                          className="admin-form-input"
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: '220px' }}>
+                        <label className="form-label-txt" style={{ fontSize: '11px' }}>Or paste image URL</label>
+                        <input 
+                          type="text" 
+                          className="admin-form-input" 
+                          placeholder="https://..."
+                          value={catData.image || ''} 
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCategoryBanners(prev => ({
+                              ...prev,
+                              [catKey]: { ...prev[catKey], image: val }
+                            }));
+                          }}
+                          style={{ fontSize: '12px' }}
+                        />
+                      </div>
+                    </div>
+
+                    {catData.image && (
+                      <div style={{ marginTop: '4px' }}>
+                        <img 
+                          src={catData.image} 
+                          alt={`${catKey} page banner preview`} 
+                          style={{ width: '100%', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-light)' }} 
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Save Promotions Button */}
           <button 
             onClick={async () => {
@@ -1676,7 +1833,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       text: announcementText,
                       link: announcementLink
                     },
-                    banners
+                    banners,
+                    categoryBanners
                   })
                 });
 
@@ -1693,7 +1851,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           text: announcementText,
                           link: announcementLink
                         },
-                        banners
+                        banners,
+                        categoryBanners
                       });
                     }
                   }
