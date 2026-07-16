@@ -900,12 +900,23 @@ app.post('/api/auth/check-user', async (req, res) => {
   try {
     const { recipient } = req.body;
     const users = await getUsersMap();
-    const formattedUsername = recipient.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    const exists = Object.values(users).some(u => 
-      (u.phone && u.phone.trim() === recipient.trim()) || 
-      (u.email && u.email.toLowerCase().trim() === recipient.toLowerCase().trim()) || 
-      u.username.toLowerCase() === formattedUsername
-    );
+    
+    // Normalize recipient digits to standard last 10 digits
+    const recipientDigits = recipient.replace(/\D/g, '');
+    const recipient10 = recipientDigits.length >= 10 ? recipientDigits.slice(-10) : recipientDigits;
+    const formattedUsername = recipient10;
+
+    const exists = Object.values(users).some(u => {
+      const uPhoneDigits = u.phone ? u.phone.replace(/\D/g, '') : '';
+      const uPhone10 = uPhoneDigits.length >= 10 ? uPhoneDigits.slice(-10) : uPhoneDigits;
+      
+      const phoneMatches = uPhone10 && uPhone10 === recipient10;
+      const emailMatches = u.email && recipient && u.email.toLowerCase().trim() === recipient.toLowerCase().trim();
+      const usernameMatches = u.username && (u.username.toLowerCase() === formattedUsername || u.username.toLowerCase() === recipient.toLowerCase());
+      
+      return phoneMatches || emailMatches || usernameMatches;
+    });
+    
     res.json({ exists });
   } catch (err) {
     res.status(500).json({ error: 'Server validation error' });
@@ -922,11 +933,15 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     }
 
     const users = await getUsersMap();
-    const formattedUsername = recipient.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    let user = Object.values(users).find(u => 
-      u.email.toLowerCase() === recipient.toLowerCase() || 
-      u.username.toLowerCase() === formattedUsername
-    );
+    const recipientDigits = recipient.replace(/\D/g, '');
+    const recipient10 = recipientDigits.length >= 10 ? recipientDigits.slice(-10) : recipientDigits;
+    const formattedUsername = recipient10;
+
+    let user = Object.values(users).find(u => {
+      const uPhoneDigits = u.phone ? u.phone.replace(/\D/g, '') : '';
+      const uPhone10 = uPhoneDigits.length >= 10 ? uPhoneDigits.slice(-10) : uPhoneDigits;
+      return (uPhone10 && uPhone10 === recipient10) || u.username.toLowerCase() === formattedUsername;
+    });
 
     if (!user) {
       // Create user profile on signup or first login
@@ -983,15 +998,17 @@ app.post('/api/auth/verify-firebase', async (req, res) => {
       return res.status(400).json({ error: 'Failed to verify Firebase authentication token.' });
     }
 
-    // Strip "+91" or country prefix to retrieve standard 10-digit number
-    const cleanPhone = verifiedPhone.replace(/^\+91/, '').replace(/\D/g, '');
+    // Normalize verifiedPhone to standard last 10 digits
+    const cleanPhoneDigits = verifiedPhone.replace(/\D/g, '');
+    const cleanPhone = cleanPhoneDigits.length >= 10 ? cleanPhoneDigits.slice(-10) : cleanPhoneDigits;
     const users = await getUsersMap();
-    const formattedUsername = cleanPhone.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const formattedUsername = cleanPhone;
 
-    let user = Object.values(users).find(u => 
-      (u.phone && u.phone.trim() === cleanPhone) || 
-      u.username.toLowerCase() === formattedUsername
-    );
+    let user = Object.values(users).find(u => {
+      const uPhoneDigits = u.phone ? u.phone.replace(/\D/g, '') : '';
+      const uPhone10 = uPhoneDigits.length >= 10 ? uPhoneDigits.slice(-10) : uPhoneDigits;
+      return (uPhone10 && uPhone10 === cleanPhone) || u.username.toLowerCase() === formattedUsername;
+    });
 
     if (!user) {
       // Create user profile on signup or first login
