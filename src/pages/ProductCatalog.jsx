@@ -24,16 +24,14 @@ const CatBannerCarousel = ({ slides }) => {
 
   return (
     <div style={{ position: 'relative', width: '100%', marginBottom: '16px', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
-      {/* Slide background */}
       <div
         className="animate-fade-in"
         style={{
           width: '100%',
           height: '140px',
-          background: hasImage ? 'transparent' : (slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'),
-          backgroundImage: hasImage ? `url(${slide.image})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background: hasImage 
+            ? `url(${slide.image}) no-repeat center center / cover, ${slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'}` 
+            : (slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'),
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
