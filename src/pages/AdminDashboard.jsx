@@ -35,6 +35,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [announcementShow, setAnnouncementShow] = useState(false);
   const [announcementText, setAnnouncementText] = useState('');
   const [dealOfTheDayProducts, setDealOfTheDayProducts] = useState([]);
+  const [dealSearchQuery, setDealSearchQuery] = useState('');
   const [announcementLink, setAnnouncementLink] = useState('');
   const [banners, setBanners] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -1448,10 +1449,32 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </div>
 
             <div className="form-group" style={{ marginTop: '8px' }}>
-              <label className="form-label-txt">Deal of the Day Featured Products</label>
+              <label className="form-label-txt" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Deal of the Day Featured Products</span>
+                {dealOfTheDayProducts.length > 0 && <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-color)' }}>{dealOfTheDayProducts.length} Selected</span>}
+              </label>
+              
+              <input 
+                type="text" 
+                placeholder="Search products by name..." 
+                className="admin-form-input"
+                style={{ marginBottom: '8px', padding: '8px 12px', fontSize: '13px' }}
+                value={dealSearchQuery}
+                onChange={(e) => setDealSearchQuery(e.target.value)}
+              />
+
               <div style={{ maxHeight: '220px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '8px', backgroundColor: '#fdfdfd' }}>
                 {products.length === 0 && <span style={{ fontSize: '12px', color: '#999' }}>No products available.</span>}
-                {products.map(p => (
+                {products
+                  .filter(p => dealOfTheDayProducts.includes(p.id) || p.name.toLowerCase().includes(dealSearchQuery.toLowerCase()))
+                  .sort((a, b) => {
+                    const aSel = dealOfTheDayProducts.includes(a.id);
+                    const bSel = dealOfTheDayProducts.includes(b.id);
+                    if (aSel && !bSel) return -1;
+                    if (!aSel && bSel) return 1;
+                    return 0;
+                  })
+                  .map(p => (
                   <label key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 4px', borderBottom: '1px solid #f0f0f0', cursor: 'pointer' }}>
                     <input 
                       type="checkbox" 
