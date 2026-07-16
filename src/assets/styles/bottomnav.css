@@ -42,6 +42,13 @@
   font-weight: 600;
 }
 
+.bottom-nav-item.active .lucide {
+  transform: translateY(-4px) scale(1.2);
+  stroke-width: 2.5px;
+  filter: drop-shadow(0 6px 8px rgba(79, 70, 229, 0.4));
+  color: var(--primary-color);
+}
+
 /* Hide bottom nav on desktop screens */
 @media (min-width: 601px) {
   .bottom-nav {
