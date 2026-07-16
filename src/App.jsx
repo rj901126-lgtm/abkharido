@@ -454,6 +454,7 @@ const AppContent = () => {
   };
 
   const showAnnouncement = promotions && promotions.announcement && promotions.announcement.show;
+  const isAdminPage = activePage === 'admin';
 
   return (
     <div className="app-container">
@@ -489,21 +490,23 @@ const AppContent = () => {
         </div>
       )}
 
-      {/* Navbar Header */}
-      <Navbar 
-        activePage={activePage} 
-        onNavigate={handleNavigate} 
-        onNavigateProduct={handleNavigateProduct}
-        onSearch={handleSearch}
-        currentCategory={currentCategory}
-        onSelectCategory={handleSelectCategory}
-        style={{ top: showAnnouncement ? '30px' : '0' }}
-      />
+      {/* Navbar Header - Hidden on Admin Dashboard to prevent storefront header clutter */}
+      {!isAdminPage && (
+        <Navbar 
+          activePage={activePage} 
+          onNavigate={handleNavigate} 
+          onNavigateProduct={handleNavigateProduct}
+          onSearch={handleSearch}
+          currentCategory={currentCategory}
+          onSelectCategory={handleSelectCategory}
+          style={{ top: showAnnouncement ? '30px' : '0' }}
+        />
+      )}
 
       {/* Main Content Area */}
       <main 
         className={`main-content ${activePage === 'categories' ? 'no-padding-bottom' : ''}`}
-        style={{ marginTop: showAnnouncement ? '86px' : '56px' }}
+        style={{ marginTop: isAdminPage ? (showAnnouncement ? '30px' : '0') : (showAnnouncement ? '86px' : '56px') }}
       >
         {renderPage()}
       </main>
