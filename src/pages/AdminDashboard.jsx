@@ -19,14 +19,41 @@ import {
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 
-const AdminDashboard = ({ onNavigate }) => {
+const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, removeProduct, showToast } = useApp();
-  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users'
+  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users' | 'promotions'
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminSellers, setAdminSellers] = useState([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [sellerSearchQuery, setSellerSearchQuery] = useState('');
+
+  // Promotions Management States
+  const [promoDealsTimer, setPromoDealsTimer] = useState('');
+  const [promoBudgetThreshold, setPromoBudgetThreshold] = useState(15000);
+  const [announcementShow, setAnnouncementShow] = useState(false);
+  const [announcementText, setAnnouncementText] = useState('');
+  const [announcementLink, setAnnouncementLink] = useState('');
+  const [banners, setBanners] = useState([]);
+
+  // New Slide Form Inputs
+  const [newSlideTitle, setNewSlideTitle] = useState('');
+  const [newSlideDesc, setNewSlideDesc] = useState('');
+  const [newSlideTag, setNewSlideTag] = useState('');
+  const [newSlideCat, setNewSlideCat] = useState('all');
+  const [newSlideBg, setNewSlideBg] = useState('linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)');
+
+  // Synchronize state when promotions prop loads
+  React.useEffect(() => {
+    if (promotions) {
+      setPromoDealsTimer(promotions.dealsTimer ? new Date(promotions.dealsTimer).toISOString().substring(0, 16) : '');
+      setPromoBudgetThreshold(promotions.budgetThreshold || 15000);
+      setAnnouncementShow(promotions.announcement?.show || false);
+      setAnnouncementText(promotions.announcement?.text || '');
+      setAnnouncementLink(promotions.announcement?.link || '');
+      setBanners(promotions.banners || []);
+    }
+  }, [promotions]);
 
   // Security Auth State
   const [authorized, setAuthorized] = useState(() => {
@@ -510,6 +537,13 @@ const AdminDashboard = ({ onNavigate }) => {
           style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
         >
           <Users size={16} /> Referral & Users ({adminUsers.length})
+        </button>
+        <button 
+          onClick={() => setActiveTab('promotions')}
+          className={`btn ${activeTab === 'promotions' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <Tag size={16} /> Banners & Offers ({banners.length})
         </button>
       </div>
 
@@ -1179,6 +1213,300 @@ const AdminDashboard = ({ onNavigate }) => {
         </div>
 
       </div>
+      )}
+
+      {/* CONDITIONAL RENDER: PROMOTIONS & OFFERS TAB */}
+      {activeTab === 'promotions' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* Card 1: Announcement Bar */}
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 className="admin-form-title"><Tag size={18} color="var(--primary-color)" /> Dynamic Announcement Bar</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <input 
+                type="checkbox" 
+                id="show-announcement-chk"
+                checked={announcementShow} 
+                onChange={(e) => setAnnouncementShow(e.target.checked)} 
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+              <label htmlFor="show-announcement-chk" style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                Enable announcement ribbon at top of site
+              </label>
+            </div>
+            {announcementShow && (
+              <>
+                <div className="form-group">
+                  <label className="form-label-txt">Announcement Text*</label>
+                  <input 
+                    type="text" 
+                    className="admin-form-input" 
+                    value={announcementText} 
+                    onChange={(e) => setAnnouncementText(e.target.value)} 
+                    placeholder="Enter announcement banner message..."
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label-txt">Redirect Page Link (on click)</label>
+                  <select 
+                    className="admin-form-input"
+                    value={announcementLink}
+                    onChange={(e) => setAnnouncementLink(e.target.value)}
+                  >
+                    <option value="">No link (static text)</option>
+                    <option value="catalog">All Products Catalog</option>
+                    <option value="partner">Share & Earn Partner Center</option>
+                    <option value="seller">Seller Center</option>
+                    <option value="orders">My Orders</option>
+                  </select>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Card 2: Flash Sale Countdown Timer & Budget Store */}
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h3 className="admin-form-title"><Settings size={18} color="var(--primary-color)" /> Flash Sale & Budget Settings</h3>
+            
+            <div className="form-group">
+              <label className="form-label-txt">Deals of the Day Countdown Timer End Date/Time*</label>
+              <input 
+                type="datetime-local" 
+                className="admin-form-input" 
+                value={promoDealsTimer} 
+                onChange={(e) => setPromoDealsTimer(e.target.value)} 
+                required
+              />
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                This controls the countdown timer clock displayed on the Deals of the Day homepage shelf.
+              </span>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label-txt">Budget Store Max Price Cap (₹)*</label>
+              <input 
+                type="number" 
+                className="admin-form-input" 
+                value={promoBudgetThreshold} 
+                onChange={(e) => setPromoBudgetThreshold(Number(e.target.value))} 
+                required
+              />
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                Products priced under this amount will automatically show up in the Budget Store homepage section.
+              </span>
+            </div>
+          </div>
+
+          {/* Card 3: Hero Carousel Banners */}
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h3 className="admin-form-title"><Image size={18} color="var(--primary-color)" /> Homepage Slides / Banners ({banners.length})</h3>
+            
+            {/* Slide List */}
+            {banners.length === 0 ? (
+              <div style={{ padding: '16px', border: '1px dashed var(--border-light)', borderRadius: '6px', textAlign: 'center', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                No custom slides configured. Default slides are currently being displayed.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {banners.map((slide, idx) => (
+                  <div 
+                    key={idx} 
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 16px',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: '6px',
+                      background: slide.bg || 'var(--primary-color)',
+                      color: 'white',
+                      boxShadow: 'inset 0 0 100px rgba(0,0,0,0.2)'
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', opacity: 0.8 }}>{slide.tag || 'PROMOTION'}</div>
+                      <div style={{ fontSize: '14px', fontWeight: '700' }}>{slide.title}</div>
+                      <div style={{ fontSize: '11px', opacity: 0.9 }}>{slide.desc}</div>
+                      <div style={{ fontSize: '10px', marginTop: '4px', fontWeight: 'bold' }}>Target: {slide.cat}</div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        const updated = banners.filter((_, i) => i !== idx);
+                        setBanners(updated);
+                      }}
+                      className="btn btn-sm btn-accent"
+                      style={{ padding: '6px', height: '30px', width: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#d32f2f', border: 'none' }}
+                      title="Delete Slide"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Slide Creator Form */}
+            <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px', marginTop: '10px' }}>
+              <h4 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-primary)' }}>Create New Slide</h4>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label-txt">Slide Title*</label>
+                    <input 
+                      type="text" 
+                      className="admin-form-input" 
+                      value={newSlideTitle} 
+                      onChange={(e) => setNewSlideTitle(e.target.value)} 
+                      placeholder="e.g. Monsoon Sale Live!"
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label-txt">Tag Ribbon text</label>
+                    <input 
+                      type="text" 
+                      className="admin-form-input" 
+                      value={newSlideTag} 
+                      onChange={(e) => setNewSlideTag(e.target.value)} 
+                      placeholder="e.g. LIMITED OFFER"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="form-label-txt">Slide Description*</label>
+                  <input 
+                    type="text" 
+                    className="admin-form-input" 
+                    value={newSlideDesc} 
+                    onChange={(e) => setNewSlideDesc(e.target.value)} 
+                    placeholder="e.g. Get up to 60% cashback on fashion catalog today."
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label-txt">Click Target Category*</label>
+                    <select 
+                      className="admin-form-input"
+                      value={newSlideCat}
+                      onChange={(e) => setNewSlideCat(e.target.value)}
+                    >
+                      <option value="all">All Categories</option>
+                      <option value="mobiles">Mobiles</option>
+                      <option value="electronics">Electronics</option>
+                      <option value="fashion">Fashion</option>
+                      <option value="home">Home & Kitchen</option>
+                      <option value="appliances">Appliances</option>
+                    </select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label-txt">Background color/gradient*</label>
+                    <select 
+                      className="admin-form-input"
+                      value={newSlideBg}
+                      onChange={(e) => setNewSlideBg(e.target.value)}
+                    >
+                      <option value="linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)">Electric Indigo (Brand Primary)</option>
+                      <option value="linear-gradient(135deg, #fda4af 0%, #f43f5e 100%)">Vivid Coral Rose (Accent Brand)</option>
+                      <option value="linear-gradient(135deg, #093129 0%, #00796b 100%)">Deep Teal</option>
+                      <option value="linear-gradient(135deg, #0f172a 0%, #334155 100%)">Dark Slate</option>
+                      <option value="linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)">Neon Purple</option>
+                      <option value="linear-gradient(135deg, #ca8a04 0%, #eab308 100%)">Sunset Yellow</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => {
+                    if (!newSlideTitle || !newSlideDesc) {
+                      showToast('Please enter Title and Description for the slide.', 'error');
+                      return;
+                    }
+                    const slide = {
+                      title: newSlideTitle,
+                      desc: newSlideDesc,
+                      tag: newSlideTag || 'OFFER',
+                      cat: newSlideCat,
+                      bg: newSlideBg
+                    };
+                    setBanners([...banners, slide]);
+                    // Reset inputs
+                    setNewSlideTitle('');
+                    setNewSlideDesc('');
+                    setNewSlideTag('');
+                  }}
+                  className="btn btn-outline btn-sm"
+                  style={{ display: 'flex', gap: '6px', justifyContent: 'center', width: 'fit-content' }}
+                >
+                  <PlusCircle size={14} /> Add Slide to List
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Save Promotions Button */}
+          <button 
+            onClick={async () => {
+              if (announcementShow && !announcementText) {
+                showToast('Please enter the announcement text.', 'error');
+                return;
+              }
+              if (!promoDealsTimer) {
+                showToast('Please configure a deals countdown timer.', 'error');
+                return;
+              }
+              const token = sessionStorage.getItem('abkharido_admin_token') || '';
+              try {
+                const res = await fetch('/api/promotions', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-token': token
+                  },
+                  body: JSON.stringify({
+                    dealsTimer: new Date(promoDealsTimer).toISOString(),
+                    budgetThreshold: Number(promoBudgetThreshold),
+                    announcement: {
+                      show: announcementShow,
+                      text: announcementText,
+                      link: announcementLink
+                    },
+                    banners
+                  })
+                });
+
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data.success) {
+                    showToast('Site promotions and configurations saved successfully!', 'success');
+                    if (onUpdatePromotions) {
+                      onUpdatePromotions({
+                        dealsTimer: new Date(promoDealsTimer).toISOString(),
+                        budgetThreshold: Number(promoBudgetThreshold),
+                        announcement: {
+                          show: announcementShow,
+                          text: announcementText,
+                          link: announcementLink
+                        },
+                        banners
+                      });
+                    }
+                  }
+                } else {
+                  showToast('Failed to save configurations. Access denied.', 'error');
+                }
+              } catch (err) {
+                showToast('Network error saving configurations.', 'error');
+              }
+            }}
+            className="btn btn-accent btn-lg"
+            style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center' }}
+          >
+            SAVE ALL PROMOTIONS AND LIVE BROADCAST
+          </button>
+        </div>
       )}
     </div>
   );

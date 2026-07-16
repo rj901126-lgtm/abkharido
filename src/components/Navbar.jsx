@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
-const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory }) => {
+const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, style }) => {
   const { currentUser, cart, logout, resetDatabase, products } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,7 +58,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header className="navbar-header">
+      <header className="navbar-header" style={style}>
         <div className="navbar-container">
           
           <div className="navbar-left">

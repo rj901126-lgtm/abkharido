@@ -676,6 +676,62 @@ async function saveStats(statsData) {
   }
 }
 
+// 5. PROMOTIONS CONFIG HELPERS
+const PROMOTIONS_FILE = path.join(DATA_DIR, 'promotions.json');
+
+const SEED_PROMOTIONS = {
+  dealsTimer: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+  budgetThreshold: 15000,
+  announcement: {
+    show: true,
+    text: "🎉 AbKharido Launch: Earn up to 7% affiliate commission coins on sharing product links!",
+    link: "partner"
+  },
+  banners: [
+    {
+      title: "Big Bachat Days!",
+      desc: "Get up to 60% off on all premium electronic gadgets and smart accessories.",
+      tag: "ELECTRONICS EXCLUSIVE",
+      cat: "electronics",
+      bg: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)"
+    },
+    {
+      title: "Trends in Fashion",
+      desc: "Up to 50% discount on clothing, sports wear and casual footwear.",
+      tag: "NEW SEASON STYLES",
+      cat: "fashion",
+      bg: "linear-gradient(135deg, #fda4af 0%, #f43f5e 100%)"
+    }
+  ]
+};
+
+async function getPromotions() {
+  await getDb();
+  if (isMongo) {
+    const doc = await db.collection('promotions').findOne({ _id: 'global_promotions' });
+    if (doc) {
+      const { _id, ...rest } = doc;
+      return rest;
+    }
+    return SEED_PROMOTIONS;
+  } else {
+    try {
+      return await readJson(PROMOTIONS_FILE);
+    } catch {
+      return SEED_PROMOTIONS;
+    }
+  }
+}
+
+async function savePromotions(promoData) {
+  await getDb();
+  if (isMongo) {
+    await db.collection('promotions').replaceOne({ _id: 'global_promotions' }, { _id: 'global_promotions', ...promoData }, { upsert: true });
+  } else {
+    await writeJson(PROMOTIONS_FILE, promoData);
+  }
+}
+
 async function resetAllDatabases() {
   await getDb();
   if (isMongo) {
@@ -694,12 +750,16 @@ async function resetAllDatabases() {
 
     await db.collection('stats').deleteMany({});
     await db.collection('stats').insertOne({ _id: 'global_stats', ...SEED_STATS });
+
+    await db.collection('promotions').deleteMany({});
+    await db.collection('promotions').insertOne({ _id: 'global_promotions', ...SEED_PROMOTIONS });
   } else {
     await fs.writeFile(PRODUCTS_FILE, JSON.stringify(SEED_PRODUCTS, null, 2));
     await fs.writeFile(USERS_FILE, JSON.stringify(SEED_USERS, null, 2));
     await fs.writeFile(ORDERS_FILE, JSON.stringify([], null, 2));
     await fs.writeFile(STATS_FILE, JSON.stringify(SEED_STATS, null, 2));
     await fs.writeFile(SELLERS_FILE, JSON.stringify({}, null, 2));
+    await fs.writeFile(PROMOTIONS_FILE, JSON.stringify(SEED_PROMOTIONS, null, 2));
   }
 }
 
@@ -1903,6 +1963,29 @@ app.post('/api/payment/session', async (req, res) => {
   } catch (err) {
     console.error('Cashfree PG connection error:', err);
     res.status(500).json({ error: 'Failed to contact payment gateway' });
+  }
+});
+
+// GET /api/promotions - Fetch site promos configurations
+app.get('/api/promotions', async (req, res) => {
+  try {
+    const promos = await getPromotions();
+    res.json(promos);
+  } catch (err) {
+    console.error('[API] Failed to get promotions:', err);
+    res.status(500).json({ error: 'Failed to retrieve site configurations' });
+  }
+});
+
+// POST /api/promotions - Update promotions configurations (Admin Only)
+app.post('/api/promotions', verifyAdminToken, async (req, res) => {
+  try {
+    const promoData = req.body;
+    await savePromotions(promoData);
+    res.json({ success: true, message: 'Site configuration updated successfully' });
+  } catch (err) {
+    console.error('[API] Failed to save promotions:', err);
+    res.status(500).json({ error: 'Failed to update site configurations' });
   }
 });
 

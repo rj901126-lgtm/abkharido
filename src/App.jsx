@@ -202,6 +202,27 @@ const AppContent = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeProductId, setActiveProductId] = useState(null);
   const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
+  const [promotions, setPromotions] = useState(null);
+
+  const fetchPromotions = async () => {
+    try {
+      const res = await fetch('/api/promotions');
+      if (res.ok) {
+        const data = await res.json();
+        setPromotions(data);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch promotions config:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+
+  const handleUpdatePromotions = (newPromos) => {
+    setPromotions(newPromos);
+  };
 
   // Parse details from URL and hash on mount/hashchange
   useEffect(() => {
@@ -380,6 +401,7 @@ const AppContent = () => {
             onNavigate={handleNavigate} 
             onNavigateProduct={handleNavigateProduct}
             onSelectCategory={handleSelectCategory}
+            promotions={promotions}
           />
         );
       case 'catalog':
@@ -389,6 +411,7 @@ const AppContent = () => {
             onSelectCategory={handleSelectCategory}
             searchQuery={searchQuery}
             onNavigateProduct={handleNavigateProduct}
+            promotions={promotions}
           />
         );
       case 'categories':
@@ -420,18 +443,52 @@ const AppContent = () => {
       case 'orders':
         return <Orders onNavigate={handleNavigateProduct} />;
       case 'admin':
-        return <AdminDashboard onNavigate={handleNavigate} />;
+        return <AdminDashboard onNavigate={handleNavigate} promotions={promotions} onUpdatePromotions={handleUpdatePromotions} />;
       case 'login':
         return <Login onNavigate={handleNavigate} />;
       case 'profile':
         return <ProfilePage onNavigate={handleNavigate} />;
       default:
-        return <Home onNavigate={handleNavigate} onNavigateProduct={handleNavigateProduct} onSelectCategory={handleSelectCategory} />;
+        return <Home onNavigate={handleNavigate} onNavigateProduct={handleNavigateProduct} onSelectCategory={handleSelectCategory} promotions={promotions} />;
     }
   };
 
+  const showAnnouncement = promotions && promotions.announcement && promotions.announcement.show;
+
   return (
     <div className="app-container">
+      {/* Dynamic Announcement Ticker Ribbon */}
+      {showAnnouncement && (
+        <div 
+          className="promo-announcement-ticker" 
+          onClick={() => {
+            if (promotions.announcement.link) {
+              handleNavigate(promotions.announcement.link);
+            }
+          }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '30px',
+            backgroundColor: 'var(--accent-color)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: promotions.announcement.link ? 'pointer' : 'default',
+            zIndex: 1100,
+            padding: '0 16px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+          }}
+        >
+          {promotions.announcement.text}
+        </div>
+      )}
+
       {/* Navbar Header */}
       <Navbar 
         activePage={activePage} 
@@ -440,10 +497,14 @@ const AppContent = () => {
         onSearch={handleSearch}
         currentCategory={currentCategory}
         onSelectCategory={handleSelectCategory}
+        style={{ top: showAnnouncement ? '30px' : '0' }}
       />
 
       {/* Main Content Area */}
-      <main className={`main-content ${activePage === 'categories' ? 'no-padding-bottom' : ''}`}>
+      <main 
+        className={`main-content ${activePage === 'categories' ? 'no-padding-bottom' : ''}`}
+        style={{ marginTop: showAnnouncement ? '86px' : '56px' }}
+      >
         {renderPage()}
       </main>
 

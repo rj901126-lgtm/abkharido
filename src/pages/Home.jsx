@@ -4,35 +4,37 @@ import ProductCard from '../components/ProductCard';
 import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award } from 'lucide-react';
 import '../assets/styles/home.css';
 
-const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
+const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) => {
   const { products } = useApp();
   const [activeSlide, setActiveSlide] = useState(0);
   const [timerString, setTimerString] = useState('00:00:00');
 
-  // Hero carousel content
-  const slides = [
-    {
-      title: 'Fashion Trendsetters - Min 50% Off',
-      desc: 'Top styles directly from manufacturers. Share links & earn the highest 7% cash or 3% coins reward!',
-      bg: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-      tag: 'HOT FASHION AFFILIATE DEALS',
-      cat: 'fashion'
-    },
-    {
-      title: 'Mega Electronics Extravaganza',
-      desc: 'Exclusive laptops, mechanical keyboards, and headphones in stock. Up to 3% cash commissions for creators.',
-      bg: 'linear-gradient(135deg, #093129 0%, #00796b 100%)',
-      tag: 'TECH ZONE REWARDS',
-      cat: 'electronics'
-    },
-    {
-      title: 'Direct-to-Consumer Guarantee',
-      desc: 'No middle sellers, no markups. Just pure authentic inventory backed by AbKharido.com direct shipping.',
-      bg: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
-      tag: 'ABKHARIDO TRUST',
-      cat: 'all'
-    }
-  ];
+  // Dynamic Carousel slides with fallback
+  const slides = promotions && Array.isArray(promotions.banners) && promotions.banners.length > 0
+    ? promotions.banners
+    : [
+        {
+          title: 'Fashion Trendsetters - Min 50% Off',
+          desc: 'Top styles directly from manufacturers. Share links & earn the highest 7% cash or 3% coins reward!',
+          bg: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
+          tag: 'HOT FASHION AFFILIATE DEALS',
+          cat: 'fashion'
+        },
+        {
+          title: 'Mega Electronics Extravaganza',
+          desc: 'Exclusive laptops, mechanical keyboards, and headphones in stock. Up to 3% cash commissions for creators.',
+          bg: 'linear-gradient(135deg, #093129 0%, #00796b 100%)',
+          tag: 'TECH ZONE REWARDS',
+          cat: 'electronics'
+        },
+        {
+          title: 'Direct-to-Consumer Guarantee',
+          desc: 'No middle sellers, no markups. Just pure authentic inventory backed by AbKharido.com direct shipping.',
+          bg: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
+          tag: 'ABKHARIDO TRUST',
+          cat: 'all'
+        }
+      ];
 
   // Carousel transition timer
   useEffect(() => {
@@ -40,17 +42,21 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
       setActiveSlide(prev => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(slideTimer);
-  }, []);
+  }, [slides.length]);
 
   // Deals of the day countdown timer
   useEffect(() => {
-    // Generate constant target for today's end
-    const tomorrow = new Date();
-    tomorrow.setHours(24, 0, 0, 0);
+    const targetDate = promotions && promotions.dealsTimer 
+      ? new Date(promotions.dealsTimer)
+      : (() => {
+          const tomorrow = new Date();
+          tomorrow.setHours(24, 0, 0, 0);
+          return tomorrow;
+        })();
 
     const updateTimer = () => {
       const now = new Date();
-      const diff = tomorrow.getTime() - now.getTime();
+      const diff = targetDate.getTime() - now.getTime();
       
       if (diff <= 0) {
         setTimerString('00:00:00');
@@ -71,7 +77,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [promotions]);
 
   const handleNextSlide = () => {
     setActiveSlide(prev => (prev + 1) % slides.length);
@@ -89,7 +95,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
   const fashionProducts = productList.filter(p => p && p.category === 'fashion');
   const homeProducts = productList.filter(p => p && (p.category === 'home' || p.category === 'furniture'));
   const appliancesProducts = productList.filter(p => p && p.category === 'appliances');
-  const budgetProducts = productList.filter(p => p && typeof p.price === 'number' && p.price < 15000);
+  
+  const budgetThreshold = promotions && typeof promotions.budgetThreshold === 'number'
+    ? promotions.budgetThreshold
+    : 15000;
+  const budgetProducts = productList.filter(p => p && typeof p.price === 'number' && p.price < budgetThreshold);
   const topRatedProducts = productList.filter(p => p && typeof p.rating === 'number' && p.rating >= 4.5);
 
   return (
@@ -317,7 +327,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
       {/* 7. Budget Buys & Super Savers */}
       <section className="deals-container">
         <div className="deals-header">
-          <span className="deals-title">Budget Buys & Super Savers (Under ₹15,000)</span>
+          <span className="deals-title">Budget Buys & Super Savers (Under ₹{budgetThreshold.toLocaleString('en-IN')})</span>
           <button 
             className="btn btn-outline btn-sm"
             onClick={() => {
