@@ -27,6 +27,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [adminSellers, setAdminSellers] = useState([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [sellerSearchQuery, setSellerSearchQuery] = useState('');
+  const [inventorySearchQuery, setInventorySearchQuery] = useState('');
 
   // Promotions Management States
   const [promoDealsTimer, setPromoDealsTimer] = useState('');
@@ -877,6 +878,18 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 className="admin-form-title"><Package size={18} color="var(--primary-color)" /> Live Inventory ({products.length} Products)</h3>
           
+          {/* Inventory Search Input */}
+          <div style={{ marginBottom: '4px' }}>
+            <input 
+              type="text"
+              className="admin-form-input"
+              placeholder="Search by product name, ID, or category..."
+              value={inventorySearchQuery}
+              onChange={(e) => setInventorySearchQuery(e.target.value)}
+              style={{ width: '100%', padding: '8px 14px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)' }}
+            />
+          </div>
+
           <div className="admin-table-wrapper">
             <table className="admin-table">
               <thead>
@@ -891,7 +904,27 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 </tr>
               </thead>
               <tbody>
-                {products.map(prod => (
+                {(() => {
+                  const filtered = products.filter(prod => {
+                    const query = inventorySearchQuery.toLowerCase().trim();
+                    if (!query) return true;
+                    const name = (prod.name || '').toLowerCase();
+                    const id = (prod.id || '').toLowerCase();
+                    const category = (prod.category || '').toLowerCase();
+                    return name.includes(query) || id.includes(query) || category.includes(query);
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>
+                          No matching inventory products found.
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  return filtered.map(prod => (
                   <tr key={prod.id}>
                     <td>
                       <img src={prod.image} alt={prod.name} className="admin-prod-thumb" />
@@ -917,7 +950,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  ));
+                })()}
               </tbody>
             </table>
           </div>
