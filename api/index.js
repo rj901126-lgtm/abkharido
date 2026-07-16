@@ -719,12 +719,33 @@ async function getPromotions() {
     const doc = await db.collection('promotions').findOne({ _id: 'global_promotions' });
     if (doc) {
       const { _id, ...rest } = doc;
-      return rest;
+      // Deep-merge with SEED defaults so new fields (like categoryBanners)
+      // always exist even when the stored document pre-dates them
+      const merged = {
+        ...SEED_PROMOTIONS,
+        ...rest,
+        announcement: { ...SEED_PROMOTIONS.announcement, ...(rest.announcement || {}) },
+        categoryBanners: {
+          ...SEED_PROMOTIONS.categoryBanners,
+          ...(rest.categoryBanners || {})
+        }
+      };
+      return merged;
     }
     return SEED_PROMOTIONS;
   } else {
     try {
-      return await readJson(PROMOTIONS_FILE);
+      const data = await readJson(PROMOTIONS_FILE);
+      // Same deep-merge for local file fallback
+      return {
+        ...SEED_PROMOTIONS,
+        ...data,
+        announcement: { ...SEED_PROMOTIONS.announcement, ...(data.announcement || {}) },
+        categoryBanners: {
+          ...SEED_PROMOTIONS.categoryBanners,
+          ...(data.categoryBanners || {})
+        }
+      };
     } catch {
       return SEED_PROMOTIONS;
     }
