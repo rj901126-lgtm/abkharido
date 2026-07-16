@@ -21,16 +21,17 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct }) => 
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Map icon name string to Lucide component
+  // Map icon name string to Lucide component with premium sizing
   const renderCatIcon = (iconName) => {
+    const iconProps = { size: 22, strokeWidth: 1.75 };
     switch (iconName) {
-      case 'LayoutGrid': return <LayoutGrid size={20} />;
-      case 'Smartphone': return <Smartphone size={20} />;
-      case 'Laptop': return <Laptop size={20} />;
-      case 'Shirt': return <Shirt size={20} />;
-      case 'Home': return <HomeIcon size={20} />;
-      case 'Tv': return <Tv size={20} />;
-      default: return <LayoutGrid size={20} />;
+      case 'LayoutGrid': return <LayoutGrid {...iconProps} />;
+      case 'Smartphone': return <Smartphone {...iconProps} />;
+      case 'Laptop': return <Laptop {...iconProps} />;
+      case 'Shirt': return <Shirt {...iconProps} />;
+      case 'Home': return <HomeIcon {...iconProps} />;
+      case 'Tv': return <Tv {...iconProps} />;
+      default: return <LayoutGrid {...iconProps} />;
     }
   };
 
