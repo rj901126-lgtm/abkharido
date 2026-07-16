@@ -1,20 +1,24 @@
 /* Navbar and Header Styling for AbKharido.com */
 
 .navbar-header {
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.96), rgba(55, 48, 163, 0.96)) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  color: white;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  color: var(--text-primary);
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: var(--max-width-content);
+  height: 64px;
   display: flex;
   align-items: center;
   z-index: 1000;
-  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.12) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+  border: none !important;
+  transition: all var(--transition-normal);
 }
 
 .navbar-container {
@@ -43,10 +47,13 @@
 
 .logo-text {
   font-family: var(--font-logo);
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: -0.5px;
   font-style: italic;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .logo-sub {
@@ -55,8 +62,9 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  color: #ffeb3b;
-  margin-top: 2px;
+  color: var(--secondary-color);
+  margin-top: 0px;
+  font-weight: 600;
 }
 
 .logo-plus {
@@ -73,27 +81,27 @@
 
 .search-input-wrapper {
   display: flex;
-  background-color: rgba(255, 255, 255, 0.12) !important;
-  border-radius: var(--radius-md) !important;
+  background-color: rgba(2, 6, 23, 0.04) !important;
+  border-radius: var(--radius-full) !important;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: none !important;
-  transition: all var(--transition-fast) !important;
+  border: 1px solid rgba(2, 6, 23, 0.05) !important;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02) !important;
+  transition: all var(--transition-normal) !important;
 }
 
 .search-input-wrapper:focus-within {
-  background-color: rgba(255, 255, 255, 0.18) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
+  background-color: white !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
 }
 
 .search-input {
   width: 100%;
   border: none;
   background: transparent !important;
-  padding: 8px 16px;
+  padding: 10px 20px;
   font-size: 14px;
-  color: white !important;
+  color: var(--text-primary) !important;
   outline: none;
 }
 
@@ -124,21 +132,44 @@
 }
 
 .nav-item {
-  color: white;
-  font-weight: 500;
-  font-size: 15px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
   position: relative;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(99, 102, 241, 0.08);
+  color: var(--primary-color);
+}
+
+.nav-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.nav-icon-btn:hover {
+  color: var(--primary-color);
+  background-color: rgba(99, 102, 241, 0.08);
 }
 
 .nav-item-btn {
@@ -270,13 +301,14 @@
 
 /* Category Quick Bar (Subheader) */
 .cat-bar {
-  background-color: white;
+  background-color: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-light);
   height: 48px;
   display: flex;
   align-items: center;
   position: sticky;
-  top: 56px;
+  top: 88px; /* Below new floating header */
   z-index: 999;
 }
 
