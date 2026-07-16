@@ -263,51 +263,18 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           return <CatBannerCarousel slides={slides} />;
         })()}
         
-        {/* Top Sort & Filter Buttons Bar: Mobile only */}
-        <div className="catalog-top-filter-bar" style={{
-          border: '1px solid #e0e0e0',
-          borderRadius: '8px',
-          backgroundColor: '#ffffff',
-          overflow: 'hidden',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
-        }}>
+        {/* Sticky Mobile Sort & Filter Bar (Fixed at bottom) */}
+        <div className="mobile-catalog-bottom-bar">
           <button 
             onClick={() => setShowSortModal(true)} 
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              height: '44px',
-              background: 'none',
-              border: 'none',
-              borderRight: '1px solid #e0e0e0',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#212121',
-              cursor: 'pointer'
-            }}
+            className="mobile-bar-btn"
           >
             <ArrowUpDown size={16} color="#757575" />
             Sort
           </button>
           <button 
             onClick={() => setShowFilterDrawer(true)} 
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              height: '44px',
-              background: 'none',
-              border: 'none',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#212121',
-              cursor: 'pointer'
-            }}
+            className="mobile-bar-btn"
           >
             <SlidersHorizontal size={16} color="#757575" />
             Filter
