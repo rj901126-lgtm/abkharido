@@ -110,25 +110,39 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
           <div
             key={idx}
             className={`carousel-slide ${idx === activeSlide ? 'active' : ''}`}
-            style={{ background: slide.bg }}
+            style={{ 
+              background: slide.image ? `url(${slide.image}) no-repeat center center` : slide.bg,
+              backgroundSize: 'cover',
+              cursor: slide.imageOnly ? 'pointer' : 'default'
+            }}
+            onClick={() => {
+              if (slide.imageOnly) {
+                onSelectCategory(slide.cat || 'all');
+              }
+            }}
           >
-            <div className="slide-content">
-              <span className="slide-tag">{slide.tag}</span>
-              <h2 className="slide-title">{slide.title}</h2>
-              <p className="slide-desc">{slide.desc}</p>
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  onSelectCategory(slide.cat || 'all');
-                }}
-              >
-                Explore Sale <ArrowRight size={16} />
-              </button>
-            </div>
+            {!slide.imageOnly && (
+              <div className="slide-content">
+                <span className="slide-tag">{slide.tag}</span>
+                <h2 className="slide-title">{slide.title}</h2>
+                <p className="slide-desc">{slide.desc}</p>
+                <button
+                  className="btn btn-secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectCategory(slide.cat || 'all');
+                  }}
+                >
+                  Explore Sale <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
             {/* Visual element on right of slide */}
-            <div className="slide-visual-icon" style={{ marginRight: '40px', opacity: 0.15 }}>
-              <Award size={180} color="white" />
-            </div>
+            {!slide.imageOnly && (
+              <div className="slide-visual-icon" style={{ marginRight: '40px', opacity: 0.15 }}>
+                <Award size={180} color="white" />
+              </div>
+            )}
           </div>
         ))}
 

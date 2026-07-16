@@ -1989,6 +1989,31 @@ app.post('/api/promotions', verifyAdminToken, async (req, res) => {
   }
 });
 
+// POST /api/admin/upload-banner - Upload customized banner image (Admin Only)
+app.post('/api/admin/upload-banner', verifyAdminToken, async (req, res) => {
+  try {
+    const { base64Data, fileName } = req.body;
+    if (!base64Data || !fileName) {
+      return res.status(400).json({ error: 'Missing image data or filename' });
+    }
+
+    const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Image, 'base64');
+
+    const cleanFileName = `banner-${Date.now()}-${fileName.replace(/\s+/g, '-').replace(/[^\w\.-]/g, '')}`;
+    const publicDir = path.join(__dirname, '..', 'public', 'uploads');
+    
+    await fs.mkdir(publicDir, { recursive: true });
+    await fs.writeFile(path.join(publicDir, cleanFileName), buffer);
+
+    const relativeUrl = `/uploads/${cleanFileName}`;
+    res.json({ success: true, imageUrl: relativeUrl });
+  } catch (err) {
+    console.error('[API] Banner upload error:', err);
+    res.status(500).json({ error: 'Failed to upload image file' });
+  }
+});
+
 // Start Express server on localhost
 app.listen(PORT, () => {
   console.log(`Server running locally on port ${PORT}`);
