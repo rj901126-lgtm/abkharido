@@ -1466,7 +1466,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               <div style={{ maxHeight: '220px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '8px', backgroundColor: '#fdfdfd' }}>
                 {products.length === 0 && <span style={{ fontSize: '12px', color: '#999' }}>No products available.</span>}
                 {products
-                  .filter(p => dealOfTheDayProducts.includes(p.id) || p.name.toLowerCase().includes(dealSearchQuery.toLowerCase()))
+                  .filter(p => dealOfTheDayProducts.includes(p.id) || (p.name && p.name.toLowerCase().includes((dealSearchQuery || '').toLowerCase())))
                   .sort((a, b) => {
                     const aSel = dealOfTheDayProducts.includes(a.id);
                     const bSel = dealOfTheDayProducts.includes(b.id);
