@@ -1,7 +1,9 @@
 /* Navbar and Header Styling for AbKharido.com */
 
 .navbar-header {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.96), rgba(55, 48, 163, 0.96)) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   color: white;
   position: fixed;
   top: 0;
@@ -11,7 +13,8 @@
   display: flex;
   align-items: center;
   z-index: 1000;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.12) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .navbar-container {
@@ -70,25 +73,38 @@
 
 .search-input-wrapper {
   display: flex;
-  background-color: white;
-  border-radius: var(--radius-sm);
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-md) !important;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: none !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.search-input-wrapper:focus-within {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
 }
 
 .search-input {
   width: 100%;
   border: none;
+  background: transparent !important;
   padding: 8px 16px;
   font-size: 14px;
-  color: var(--text-primary);
+  color: white !important;
   outline: none;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.65) !important;
 }
 
 .search-button {
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: white !important;
   padding: 0 16px;
   display: flex;
   align-items: center;
@@ -97,7 +113,7 @@
 }
 
 .search-button:hover {
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Navigation Links */
