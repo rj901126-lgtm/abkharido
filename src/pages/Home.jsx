@@ -181,8 +181,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
             </div>
           </div>
           <button 
-            className="btn btn-outline"
-            style={{ padding: '6px 14px', fontSize: '12px' }}
+            className="btn btn-primary btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('all');
             }}

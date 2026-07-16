@@ -8,14 +8,14 @@
 }
 
 .admin-header {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  padding: 32px;
+  background-color: white;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-title-area {
@@ -24,20 +24,18 @@
 }
 
 .admin-title {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 12px;
-  letter-spacing: -0.5px;
+  gap: 8px;
 }
 
 .admin-subtitle {
-  font-size: 14px;
-  color: #94a3b8;
-  margin-top: 6px;
-  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
 }
 
 .admin-grid {
@@ -53,15 +51,11 @@
 }
 
 .admin-panel-card {
-  background-color: var(--bg-card);
+  background-color: white;
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: 32px;
-  box-shadow: var(--shadow-md);
-  transition: box-shadow var(--transition-normal);
-}
-.admin-panel-card:hover {
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-form-title {
