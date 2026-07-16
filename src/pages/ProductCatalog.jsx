@@ -1,8 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import '../assets/styles/product.css';
+
+/* ─── Auto-rotating Category Banner Carousel ─── */
+const CatBannerCarousel = ({ slides }) => {
+  const [idx, setIdx] = useState(0);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setIdx(prev => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(timerRef.current);
+  }, [slides.length]);
+
+  if (!slides || slides.length === 0) return null;
+  const slide = slides[idx];
+
+  return (
+    <div style={{ position: 'relative', width: '100%', marginBottom: '16px' }}>
+      <div
+        className="animate-fade-in"
+        style={{
+          width: '100%',
+          aspectRatio: '1200 / 300',
+          maxHeight: '180px',
+          backgroundImage: `url(${slide.image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          transition: 'background-image 0.4s ease'
+        }}
+      />
+      {/* Dot indicators */}
+      {slides.length > 1 && (
+        <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px' }}>
+          {slides.map((_, i) => (
+            <div
+              key={i}
+              onClick={() => { setIdx(i); clearInterval(timerRef.current); }}
+              style={{
+                width: i === idx ? '18px' : '6px',
+                height: '6px',
+                borderRadius: '3px',
+                background: i === idx ? '#fff' : 'rgba(255,255,255,0.5)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct, promotions }) => {
   const { products } = useApp();
@@ -170,28 +226,12 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       {/* 2. CATALOG MAIN AREA: Products grid + Mobile filter buttons */}
       <main className="catalog-main">
         
-        {/* Category Specific Promotion Banner */}
+        {/* Category Banner Carousel */}
         {(() => {
           const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[currentCategory];
-          if (catPromo && catPromo.show && catPromo.image) {
-            return (
-              <div 
-                className="category-promo-banner animate-fade-in"
-                style={{
-                  width: '100%',
-                  aspectRatio: '1200 / 300',
-                  maxHeight: '180px',
-                  backgroundImage: `url(${catPromo.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  borderRadius: '8px',
-                  marginBottom: '16px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-                }}
-              />
-            );
-          }
-          return null;
+          const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
+          if (slides.length === 0) return null;
+          return <CatBannerCarousel slides={slides} />;
         })()}
         
         {/* Top Sort & Filter Buttons Bar: Mobile only */}

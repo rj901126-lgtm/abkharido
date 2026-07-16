@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../db/mockData';
 import { 
@@ -14,6 +14,41 @@ import {
   Tv
 } from 'lucide-react';
 import '../assets/styles/categories.css';
+
+/* ─── Auto-rotating Category Banner Carousel (reused in CategoriesPage) ─── */
+const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
+  const [idx, setIdx] = useState(0);
+  const timerRef = useRef(null);
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    timerRef.current = setInterval(() => setIdx(prev => (prev + 1) % slides.length), 4000);
+    return () => clearInterval(timerRef.current);
+  }, [slides.length]);
+  if (!slides || slides.length === 0) return null;
+  return (
+    <div style={{ position: 'relative', width: '100%', marginBottom: '14px', cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
+      <div
+        className="animate-fade-in"
+        style={{
+          width: '100%', aspectRatio: '1200 / 300', maxHeight,
+          backgroundImage: `url(${slides[idx].image})`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+          transition: 'background-image 0.4s ease'
+        }}
+      />
+      {slides.length > 1 && (
+        <div style={{ position: 'absolute', bottom: '6px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px' }}>
+          {slides.map((_, i) => (
+            <div key={i} onClick={e => { e.stopPropagation(); setIdx(i); clearInterval(timerRef.current); }}
+              style={{ width: i === idx ? '16px' : '5px', height: '5px', borderRadius: '3px', background: i === idx ? '#fff' : 'rgba(255,255,255,0.5)', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions }) => {
   const { products, cart } = useApp();
@@ -135,30 +170,12 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
 
         {/* Right Details Panel */}
         <div className="categories-content-panel">
-          {/* Category Specific Promotion Banner */}
+          {/* Category Banner Carousel */}
           {(() => {
             const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[selectedCatId];
-            if (catPromo && catPromo.show && catPromo.image) {
-              return (
-                <div 
-                  className="category-promo-banner animate-fade-in"
-                  onClick={handleViewAllClick}
-                  style={{
-                    width: '100%',
-                    aspectRatio: '1200 / 300',
-                    maxHeight: '110px',
-                    backgroundImage: `url(${catPromo.image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    borderRadius: '8px',
-                    marginBottom: '16px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-                    cursor: 'pointer'
-                  }}
-                />
-              );
-            }
-            return null;
+            const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
+            if (slides.length === 0) return null;
+            return <CatBannerCarousel slides={slides} onClick={handleViewAllClick} maxHeight="110px" />;
           })()}
 
           {/* Section 1: Popular Store Circles */}

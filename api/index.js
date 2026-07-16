@@ -704,12 +704,12 @@ const SEED_PROMOTIONS = {
     }
   ],
   categoryBanners: {
-    all: { image: "", show: false },
-    mobiles: { image: "", show: false },
-    electronics: { image: "", show: false },
-    fashion: { image: "", show: false },
-    home: { image: "", show: false },
-    appliances: { image: "", show: false }
+    all:        { slides: [], show: false },
+    mobiles:    { slides: [], show: false },
+    electronics:{ slides: [], show: false },
+    fashion:    { slides: [], show: false },
+    home:       { slides: [], show: false },
+    appliances: { slides: [], show: false }
   }
 };
 

@@ -50,14 +50,25 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [newSlideImageOnly, setNewSlideImageOnly] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Category Banners Configuration State
-  const [categoryBanners, setCategoryBanners] = useState({
-    all: { image: '', show: false },
-    mobiles: { image: '', show: false },
-    electronics: { image: '', show: false },
-    fashion: { image: '', show: false },
-    home: { image: '', show: false },
-    appliances: { image: '', show: false }
+  // Category Banners — multi-slide structure
+  const EMPTY_CAT_BANNERS = {
+    all:        { slides: [], show: false },
+    mobiles:    { slides: [], show: false },
+    electronics:{ slides: [], show: false },
+    fashion:    { slides: [], show: false },
+    home:       { slides: [], show: false },
+    appliances: { slides: [], show: false }
+  };
+  const [categoryBanners, setCategoryBanners] = useState(EMPTY_CAT_BANNERS);
+
+  // Per-category new slide form state
+  const [catSlideForm, setCatSlideForm] = useState({
+    all:        { image: '', title: '', uploading: false },
+    mobiles:    { image: '', title: '', uploading: false },
+    electronics:{ image: '', title: '', uploading: false },
+    fashion:    { image: '', title: '', uploading: false },
+    home:       { image: '', title: '', uploading: false },
+    appliances: { image: '', title: '', uploading: false }
   });
 
   const handleBannerFileUpload = async (e) => {
@@ -105,16 +116,15 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     reader.readAsDataURL(file);
   };
 
-  const handleCategoryBannerUpload = async (catKey, e) => {
+  // Upload image for a category slide form
+  const handleCatSlideImageUpload = async (catKey, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (file.size > 3 * 1024 * 1024) {
-      showToast('Image file size must be under 3MB.', 'error');
+      showToast('Image must be under 3MB.', 'error');
       return;
     }
-
-    showToast(`Uploading ${catKey} banner image...`, 'info');
+    setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], uploading: true } }));
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64Data = reader.result;
@@ -122,33 +132,22 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       try {
         const res = await fetch('/api/admin/upload-banner', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-token': token
-          },
-          body: JSON.stringify({
-            base64Data,
-            fileName: `${catKey}-banner-${file.name}`
-          })
+          headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+          body: JSON.stringify({ base64Data, fileName: `${catKey}-slide-${file.name}` })
         });
-
         if (res.ok) {
           const data = await res.json();
           if (data.imageUrl) {
-            setCategoryBanners(prev => ({
-              ...prev,
-              [catKey]: {
-                ...prev[catKey],
-                image: data.imageUrl
-              }
-            }));
-            showToast(`${catKey.toUpperCase()} page banner uploaded successfully!`, 'success');
+            setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], image: data.imageUrl, uploading: false } }));
+            showToast('Image uploaded!', 'success');
           }
         } else {
-          showToast('Failed to upload category banner to server.', 'error');
+          showToast('Upload failed.', 'error');
+          setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], uploading: false } }));
         }
-      } catch (err) {
-        showToast('Network error uploading category banner.', 'error');
+      } catch {
+        showToast('Network error.', 'error');
+        setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], uploading: false } }));
       }
     };
     reader.readAsDataURL(file);
@@ -163,14 +162,21 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       setAnnouncementText(promotions.announcement?.text || '');
       setAnnouncementLink(promotions.announcement?.link || '');
       setBanners(promotions.banners || []);
-      setCategoryBanners(promotions.categoryBanners || {
-        all: { image: '', show: false },
-        mobiles: { image: '', show: false },
-        electronics: { image: '', show: false },
-        fashion: { image: '', show: false },
-        home: { image: '', show: false },
-        appliances: { image: '', show: false }
+      // Normalise old single-image docs → new slides[] format
+      const rawCB = promotions.categoryBanners || {};
+      const normCB = {};
+      ['all','mobiles','electronics','fashion','home','appliances'].forEach(k => {
+        const existing = rawCB[k] || {};
+        if (Array.isArray(existing.slides)) {
+          normCB[k] = existing;
+        } else if (existing.image) {
+          // Migrate old single image into slides array
+          normCB[k] = { slides: [{ image: existing.image, title: '' }], show: existing.show || false };
+        } else {
+          normCB[k] = { slides: [], show: false };
+        }
       });
+      setCategoryBanners(normCB);
     }
   }, [promotions]);
 
@@ -1716,96 +1722,140 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </div>
           </div>
 
-          {/* Card 4: Category Page Banners */}
-          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Card 4: Category Page Banners — Multi-Slide */}
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <h3 className="admin-form-title"><Layers size={18} color="var(--primary-color)" /> Category Page Banners</h3>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '-10px' }}>
-              👉 Recommended Category Banner Size: 1200 x 300 pixels (aspect ratio 4:1) for optimal horizontal placement.
+              👉 Recommended size: <strong>1200 × 300 px</strong> (4:1). Each category supports multiple banner slides — they auto-rotate on the category page.
             </span>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {['all', 'mobiles', 'electronics', 'fashion', 'home', 'appliances'].map(catKey => {
-                const catData = categoryBanners[catKey] || { image: '', show: false };
-                return (
-                  <div 
-                    key={catKey} 
-                    style={{
-                      border: '1px solid var(--border-light)',
-                      borderRadius: '8px',
-                      padding: '16px',
-                      background: 'var(--bg-light)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 'bold', textTransform: 'capitalize', color: 'var(--text-primary)', fontSize: '14px' }}>
-                        {catKey === 'all' ? 'All Categories / Catalog' : (catKey === 'home' ? 'Home & Living' : catKey)} Page Banner
-                      </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <input 
-                          type="checkbox" 
-                          id={`cat-show-${catKey}`}
-                          checked={catData.show} 
-                          onChange={(e) => {
-                            const val = e.target.checked;
-                            setCategoryBanners(prev => ({
-                              ...prev,
-                              [catKey]: { ...prev[catKey], show: val }
-                            }));
-                          }}
-                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                        />
-                        <label htmlFor={`cat-show-${catKey}`} style={{ fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', color: 'var(--text-primary)' }}>
-                          Active & Visible
-                        </label>
-                      </div>
-                    </div>
+            {['all', 'mobiles', 'electronics', 'fashion', 'home', 'appliances'].map(catKey => {
+              const catData = categoryBanners[catKey] || { slides: [], show: false };
+              const slides = catData.slides || [];
+              const form = catSlideForm[catKey] || { image: '', title: '', uploading: false };
+              const catLabel = catKey === 'all' ? 'All Categories / Catalog' : catKey === 'home' ? 'Home & Living' : catKey.charAt(0).toUpperCase() + catKey.slice(1);
 
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                      <div style={{ flex: 1, minWidth: '220px' }}>
-                        <label className="form-label-txt" style={{ fontSize: '11px' }}>Upload Banner File</label>
-                        <input 
-                          type="file" 
-                          accept="image/*"
-                          onChange={(e) => handleCategoryBannerUpload(catKey, e)}
-                          className="admin-form-input"
-                          style={{ padding: '6px 12px', fontSize: '12px' }}
-                        />
+              return (
+                <div key={catKey} style={{ border: '1.5px solid var(--border-light)', borderRadius: '10px', overflow: 'hidden' }}>
+                  {/* Category header row */}
+                  <div style={{ background: 'linear-gradient(90deg,#f8f9ff,#eef0ff)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)' }}>
+                    <span style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-primary)' }}>
+                      📂 {catLabel} Page
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="checkbox"
+                        id={`cat-show-${catKey}`}
+                        checked={catData.show}
+                        onChange={e => setCategoryBanners(prev => ({ ...prev, [catKey]: { ...prev[catKey], show: e.target.checked } }))}
+                        style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      />
+                      <label htmlFor={`cat-show-${catKey}`} style={{ fontSize: '12px', fontWeight: '600', cursor: 'pointer', color: catData.show ? '#1a73e8' : '#777' }}>
+                        {catData.show ? '✅ Banners Active' : 'Banners Off'}
+                      </label>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+                    {/* Existing slides list */}
+                    {slides.length === 0 ? (
+                      <div style={{ fontSize: '12px', color: '#999', fontStyle: 'italic', padding: '8px 0' }}>No slides added yet. Add one below.</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {slides.map((slide, idx) => (
+                          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fafafa', border: '1px solid #eee', borderRadius: '6px', padding: '8px 10px' }}>
+                            <img src={slide.image} alt={`slide-${idx}`} style={{ width: '80px', height: '28px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd', flexShrink: 0 }} />
+                            <span style={{ flex: 1, fontSize: '12px', color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {slide.title || `Slide ${idx + 1}`}
+                            </span>
+                            <span style={{ fontSize: '10px', background: '#e8f5e9', color: '#2e7d32', padding: '2px 6px', borderRadius: '10px', flexShrink: 0 }}>Slide {idx + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = slides.filter((_, i) => i !== idx);
+                                setCategoryBanners(prev => ({ ...prev, [catKey]: { ...prev[catKey], slides: updated } }));
+                              }}
+                              style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', flexShrink: 0 }}
+                              title="Remove slide"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                      <div style={{ flex: 1, minWidth: '220px' }}>
-                        <label className="form-label-txt" style={{ fontSize: '11px' }}>Or paste image URL</label>
-                        <input 
-                          type="text" 
-                          className="admin-form-input" 
-                          placeholder="https://..."
-                          value={catData.image || ''} 
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setCategoryBanners(prev => ({
-                              ...prev,
-                              [catKey]: { ...prev[catKey], image: val }
-                            }));
-                          }}
+                    )}
+
+                    {/* Add new slide form */}
+                    <div style={{ border: '1px dashed #b0b8d1', borderRadius: '8px', padding: '14px', background: '#f5f7ff', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-color)' }}>➕ Add New Slide</span>
+
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <label className="form-label-txt" style={{ fontSize: '11px' }}>Upload Image (max 3MB)</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={form.uploading}
+                            onChange={e => handleCatSlideImageUpload(catKey, e)}
+                            className="admin-form-input"
+                            style={{ padding: '6px 10px', fontSize: '12px' }}
+                          />
+                          {form.uploading && <span style={{ fontSize: '11px', color: '#777' }}>Uploading…</span>}
+                        </div>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <label className="form-label-txt" style={{ fontSize: '11px' }}>Or paste image URL</label>
+                          <input
+                            type="text"
+                            className="admin-form-input"
+                            placeholder="https://..."
+                            value={form.image}
+                            onChange={e => setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], image: e.target.value } }))}
+                            style={{ fontSize: '12px' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label-txt" style={{ fontSize: '11px' }}>Slide Label (optional)</label>
+                        <input
+                          type="text"
+                          className="admin-form-input"
+                          placeholder="e.g. Diwali Sale Banner"
+                          value={form.title}
+                          onChange={e => setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], title: e.target.value } }))}
                           style={{ fontSize: '12px' }}
                         />
                       </div>
+
+                      {form.image && (
+                        <img src={form.image} alt="preview" style={{ width: '100%', maxHeight: '70px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      )}
+
+                      <button
+                        type="button"
+                        disabled={!form.image}
+                        onClick={() => {
+                          if (!form.image) { showToast('Please add an image first.', 'error'); return; }
+                          const newSlide = { image: form.image, title: form.title || '' };
+                          setCategoryBanners(prev => ({
+                            ...prev,
+                            [catKey]: { ...prev[catKey], slides: [...(prev[catKey].slides || []), newSlide] }
+                          }));
+                          setCatSlideForm(prev => ({ ...prev, [catKey]: { image: '', title: '', uploading: false } }));
+                          showToast(`Slide added to ${catLabel}!`, 'success');
+                        }}
+                        className="btn btn-outline btn-sm"
+                        style={{ display: 'flex', gap: '6px', width: 'fit-content', opacity: form.image ? 1 : 0.5 }}
+                      >
+                        <PlusCircle size={14} /> Add Slide to {catLabel}
+                      </button>
                     </div>
 
-                    {catData.image && (
-                      <div style={{ marginTop: '4px' }}>
-                        <img 
-                          src={catData.image} 
-                          alt={`${catKey} page banner preview`} 
-                          style={{ width: '100%', maxHeight: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-light)' }} 
-                        />
-                      </div>
-                    )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Save Promotions Button */}
