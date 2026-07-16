@@ -52,6 +52,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
   // Category Banners Configuration State
   const [categoryBanners, setCategoryBanners] = useState({
+    all: { image: '', show: false },
     mobiles: { image: '', show: false },
     electronics: { image: '', show: false },
     fashion: { image: '', show: false },
@@ -163,6 +164,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       setAnnouncementLink(promotions.announcement?.link || '');
       setBanners(promotions.banners || []);
       setCategoryBanners(promotions.categoryBanners || {
+        all: { image: '', show: false },
         mobiles: { image: '', show: false },
         electronics: { image: '', show: false },
         fashion: { image: '', show: false },
@@ -1722,7 +1724,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </span>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {['mobiles', 'electronics', 'fashion', 'home', 'appliances'].map(catKey => {
+              {['all', 'mobiles', 'electronics', 'fashion', 'home', 'appliances'].map(catKey => {
                 const catData = categoryBanners[catKey] || { image: '', show: false };
                 return (
                   <div 
@@ -1739,7 +1741,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: 'bold', textTransform: 'capitalize', color: 'var(--text-primary)', fontSize: '14px' }}>
-                        {catKey === 'home' ? 'Home & Kitchen' : catKey} Page Banner
+                        {catKey === 'all' ? 'All Categories / Catalog' : (catKey === 'home' ? 'Home & Living' : catKey)} Page Banner
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <input 

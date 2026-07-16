@@ -704,6 +704,7 @@ const SEED_PROMOTIONS = {
     }
   ],
   categoryBanners: {
+    all: { image: "", show: false },
     mobiles: { image: "", show: false },
     electronics: { image: "", show: false },
     fashion: { image: "", show: false },
