@@ -419,6 +419,48 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }));
   };
 
+  const handleColorModelImageUpload = async (e, colorIdx) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Image size should be less than 2MB', 'error');
+      e.target.value = '';
+      return;
+    }
+
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    showToast('Uploading variant image...', 'info');
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result;
+        
+        const res = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': token
+          },
+          body: JSON.stringify({ base64Data, fileName: file.name })
+        });
+
+        const data = await res.json();
+        if (data.success && data.imageUrl) {
+          handleColorModelChange(colorIdx, 'primaryImage', data.imageUrl);
+          showToast('Variant image uploaded', 'success');
+        } else {
+          showToast(data.error || 'Failed to upload image', 'error');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Variant image upload failed:', err);
+      showToast('Error uploading image', 'error');
+    }
+  };
+
   const handleAddVariant = (colorIdx) => {
     setColorModels(colorModels.map((cm, idx) => {
       if (idx === colorIdx) {
@@ -1137,9 +1179,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         </div>
 
         {/* RIGHT COLUMN: ADD NEW PRODUCT FORM */}
-        <div className="admin-panel-card">
-          <h3 className="admin-form-title"><PlusCircle size={18} color="var(--primary-color)" /> Add New Product</h3>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h3 className="admin-form-title"><PlusCircle size={18} color="var(--primary-color)" /> Product Details</h3>
+
             
             <div className="form-group">
               <label className="form-label-txt">Product ID (Unique - lowercase, no spaces)*</label>
@@ -1265,10 +1309,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               />
             </div>
 
-            {/* Colors & Custom Variations Section */}
-            <div className="form-group" style={{ border: '1px solid #e0e0e0', padding: '12px', borderRadius: '6px', backgroundColor: '#fdfdfd', marginTop: '4px' }}>
+            </div> {/* End Product Details Card */}
+
+            {/* Colors & Custom Variations Section (Proper Column/Card) */}
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <label className="form-label-txt" style={{ fontWeight: '700', color: '#212121', margin: 0 }}>Colors & Custom Variations</label>
+                <h3 className="admin-form-title" style={{ margin: 0 }}>Colors & Custom Variations</h3>
                 <button
                   type="button"
                   onClick={handleAddColorModel}
@@ -1311,15 +1357,19 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Primary Image URL*</label>
-                          <input
-                            type="url"
-                            placeholder="Primary image link"
-                            value={cm.primaryImage}
-                            onChange={(e) => handleColorModelChange(colorIdx, 'primaryImage', e.target.value)}
-                            style={{ width: '100%', height: '32px', padding: '0 8px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
-                            required
-                          />
+                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Variant Primary Image*</label>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleColorModelImageUpload(e, colorIdx)}
+                              style={{ flex: 1, padding: '4px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', backgroundColor: 'white' }}
+                              required={!cm.primaryImage}
+                            />
+                            {cm.primaryImage && (
+                              <img src={cm.primaryImage} alt="Variant" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc' }} />
+                            )}
+                          </div>
                         </div>
                         <div>
                           <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Extra Images URLs (comma-separated)</label>
@@ -1389,7 +1439,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                                 )}
                               </div>
                             ))}
-                          </div>
+                  </div>
                         </div>
 
                       </div>
@@ -1397,38 +1447,40 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> {/* End Colors Card */}
 
-            {/* Specifications editor list */}
-            <div className="form-group">
-              <label className="form-label-txt">Technical Specifications</label>
-              {specs.map((spec, idx) => (
-                <div key={idx} className="spec-builder-row">
-                  <input 
-                    type="text" 
-                    placeholder="Key (e.g. Brand)" 
-                    value={spec.key}
-                    onChange={(e) => handleSpecChange(idx, 'key', e.target.value)}
-                    className="spec-builder-input"
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Value (e.g. Apple)" 
-                    value={spec.value}
-                    onChange={(e) => handleSpecChange(idx, 'value', e.target.value)}
-                    className="spec-builder-input"
-                  />
-                  <span className="spec-remove-btn" onClick={() => handleRemoveSpecRow(idx)}>
-                    <X size={16} />
-                  </span>
-                </div>
-              ))}
-              <span className="spec-add-btn" onClick={handleAddSpecRow}>
-                <PlusCircle size={14} /> Add Row
-              </span>
-            </div>
+            {/* Specifications editor list (Proper Column/Card) */}
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h3 className="admin-form-title" style={{ margin: 0 }}>Technical Specifications</h3>
+              <div className="form-group" style={{ marginTop: '10px' }}>
+                {specs.map((spec, idx) => (
+                  <div key={idx} className="spec-builder-row">
+                    <input 
+                      type="text" 
+                      placeholder="Key (e.g. Brand)" 
+                      value={spec.key}
+                      onChange={(e) => handleSpecChange(idx, 'key', e.target.value)}
+                      className="spec-builder-input"
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="Value (e.g. Apple)" 
+                      value={spec.value}
+                      onChange={(e) => handleSpecChange(idx, 'value', e.target.value)}
+                      className="spec-builder-input"
+                    />
+                    <span className="spec-remove-btn" onClick={() => handleRemoveSpecRow(idx)}>
+                      <X size={16} />
+                    </span>
+                  </div>
+                ))}
+                <span className="spec-add-btn" onClick={handleAddSpecRow}>
+                  <PlusCircle size={14} /> Add Row
+                </span>
+              </div>
+            </div> {/* End Specs Card */}
 
-            <button type="submit" className="btn btn-accent" style={{ marginTop: '12px' }}>
+            <button type="submit" className="btn btn-accent" style={{ marginTop: '8px', width: '100%', padding: '12px', fontSize: '14px' }}>
               ADD PRODUCT TO STORE
             </button>
           </form>
