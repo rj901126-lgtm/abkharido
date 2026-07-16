@@ -89,7 +89,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
 
   // Filter products for 8 horizontal carousels (with safety checks)
   const productList = Array.isArray(products) ? products : [];
-  const dealsProducts = productList.slice(0, 6);
+  
+  // Custom Deal of the Day logic
+  const customDealIds = promotions && promotions.dealOfTheDayProducts && Array.isArray(promotions.dealOfTheDayProducts) ? promotions.dealOfTheDayProducts : [];
+  const dealsProducts = customDealIds.length > 0 
+    ? productList.filter(p => customDealIds.includes(p.id))
+    : productList.slice(0, 6);
   const mobilesProducts = productList.filter(p => p && p.category === 'mobiles');
   const electronicsProducts = productList.filter(p => p && p.category === 'electronics');
   const fashionProducts = productList.filter(p => p && p.category === 'fashion');

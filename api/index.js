@@ -710,7 +710,8 @@ const SEED_PROMOTIONS = {
     fashion:    { slides: [], show: false },
     home:       { slides: [], show: false },
     appliances: { slides: [], show: false }
-  }
+  },
+  dealOfTheDayProducts: []
 };
 
 async function getPromotions() {
@@ -728,7 +729,8 @@ async function getPromotions() {
         categoryBanners: {
           ...SEED_PROMOTIONS.categoryBanners,
           ...(rest.categoryBanners || {})
-        }
+        },
+        dealOfTheDayProducts: rest.dealOfTheDayProducts || SEED_PROMOTIONS.dealOfTheDayProducts
       };
       return merged;
     }
@@ -744,7 +746,8 @@ async function getPromotions() {
         categoryBanners: {
           ...SEED_PROMOTIONS.categoryBanners,
           ...(data.categoryBanners || {})
-        }
+        },
+        dealOfTheDayProducts: data.dealOfTheDayProducts || SEED_PROMOTIONS.dealOfTheDayProducts
       };
     } catch {
       return SEED_PROMOTIONS;

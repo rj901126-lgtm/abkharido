@@ -34,6 +34,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [promoBudgetThreshold, setPromoBudgetThreshold] = useState(15000);
   const [announcementShow, setAnnouncementShow] = useState(false);
   const [announcementText, setAnnouncementText] = useState('');
+  const [dealOfTheDayProducts, setDealOfTheDayProducts] = useState([]);
   const [announcementLink, setAnnouncementLink] = useState('');
   const [banners, setBanners] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -164,6 +165,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       setPromoBudgetThreshold(promotions.budgetThreshold || 15000);
       setAnnouncementShow(promotions.announcement?.show || false);
       setAnnouncementText(promotions.announcement?.text || '');
+      setDealOfTheDayProducts(promotions.dealOfTheDayProducts || []);
       setAnnouncementLink(promotions.announcement?.link || '');
       setBanners(promotions.banners || []);
       // Normalise old single-image docs → new slides[] format
@@ -1445,6 +1447,34 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               </span>
             </div>
 
+            <div className="form-group" style={{ marginTop: '8px' }}>
+              <label className="form-label-txt">Deal of the Day Featured Products</label>
+              <div style={{ maxHeight: '220px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '8px', backgroundColor: '#fdfdfd' }}>
+                {products.length === 0 && <span style={{ fontSize: '12px', color: '#999' }}>No products available.</span>}
+                {products.map(p => (
+                  <label key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 4px', borderBottom: '1px solid #f0f0f0', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={dealOfTheDayProducts.includes(p.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setDealOfTheDayProducts(prev => [...prev, p.id]);
+                        } else {
+                          setDealOfTheDayProducts(prev => prev.filter(id => id !== p.id));
+                        }
+                      }}
+                      style={{ accentColor: 'var(--primary-color)', width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                    <img src={p.image} alt="" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e0e0e0' }} />
+                    <span style={{ fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#333', fontWeight: '500' }}>{p.name}</span>
+                  </label>
+                ))}
+              </div>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '6px' }}>
+                Select specific products to feature in the "Deal of the Day" section. Recommended: 4-6 products. If none selected, the newest products will automatically display.
+              </span>
+            </div>
+
             <div className="form-group">
               <label className="form-label-txt">Budget Store Max Price Cap (₹)*</label>
               <input 
@@ -1955,7 +1985,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               setIsSaving(true);
               console.log('[ADMIN SAVE] categoryBanners being saved:', JSON.stringify(categoryBanners, null, 2));
               try {
-                const payload = { dealsTimer: timerIso, budgetThreshold: Number(promoBudgetThreshold), announcement: { show: announcementShow, text: announcementText, link: announcementLink }, banners, categoryBanners };
+                const payload = { dealsTimer: timerIso, budgetThreshold: Number(promoBudgetThreshold), announcement: { show: announcementShow, text: announcementText, link: announcementLink }, banners, categoryBanners, dealOfTheDayProducts };
                 const res = await fetch('/api/promotions', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
