@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import '../assets/styles/product.css';
 
-const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
+const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState('560103');
@@ -384,6 +384,29 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow }) => {
 
   return (
     <div className="container animate-fade-in-only" style={{ padding: 0 }}>
+      {/* Category Specific Promotion Banner at top of Product Details */}
+      {(() => {
+        const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[product.category];
+        if (catPromo && catPromo.show && catPromo.image) {
+          return (
+            <div 
+              className="category-promo-banner animate-fade-in"
+              style={{
+                width: '100%',
+                aspectRatio: '1200 / 300',
+                maxHeight: '130px',
+                backgroundImage: `url(${catPromo.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                borderRadius: '8px',
+                marginBottom: '16px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+              }}
+            />
+          );
+        }
+        return null;
+      })()}
       {/* Mobile Sticky Header (AbKharido App Style) */}
       <div className="mobile-product-details-header" style={{
         display: 'none',

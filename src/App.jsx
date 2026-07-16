@@ -382,6 +382,7 @@ const AppContent = () => {
         <ProductDetails 
           productId={activeProductId} 
           onNavigate={handleNavigate}
+          promotions={promotions}
           onBuyNow={(prod) => {
             handleBuyNow(prod);
           }}
