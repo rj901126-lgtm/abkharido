@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import '../assets/styles/categories.css';
 
-const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct }) => {
+const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions }) => {
   const { products, cart } = useApp();
   const [selectedCatId, setSelectedCatId] = useState('mobiles'); // default start on mobiles category
 
@@ -135,6 +135,32 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct }) => 
 
         {/* Right Details Panel */}
         <div className="categories-content-panel">
+          {/* Category Specific Promotion Banner */}
+          {(() => {
+            const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[selectedCatId];
+            if (catPromo && catPromo.show && catPromo.image) {
+              return (
+                <div 
+                  className="category-promo-banner animate-fade-in"
+                  onClick={handleViewAllClick}
+                  style={{
+                    width: '100%',
+                    aspectRatio: '1200 / 300',
+                    maxHeight: '110px',
+                    backgroundImage: `url(${catPromo.image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    borderRadius: '8px',
+                    marginBottom: '16px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+                    cursor: 'pointer'
+                  }}
+                />
+              );
+            }
+            return null;
+          })()}
+
           {/* Section 1: Popular Store Circles */}
           <div className="panel-section">
             <h3 className="panel-section-title">Popular Store</h3>

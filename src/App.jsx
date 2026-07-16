@@ -420,6 +420,7 @@ const AppContent = () => {
             onNavigate={handleNavigate}
             onSelectCategory={handleSelectCategory}
             onNavigateProduct={handleNavigateProduct}
+            promotions={promotions}
           />
         );
       case 'cart':
