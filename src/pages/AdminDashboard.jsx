@@ -1865,11 +1865,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 showToast('Please enter the announcement text.', 'error');
                 return;
               }
-              if (!promoDealsTimer) {
-                showToast('Please configure a deals countdown timer.', 'error');
-                return;
-              }
               const token = sessionStorage.getItem('abkharido_admin_token') || '';
+              // Use a sensible default if deals timer not configured
+              const defaultTimer = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
+              let timerIso = defaultTimer;
+              try {
+                if (promoDealsTimer) timerIso = new Date(promoDealsTimer).toISOString();
+              } catch { timerIso = defaultTimer; }
               try {
                 const res = await fetch('/api/promotions', {
                   method: 'POST',
@@ -1878,7 +1880,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                     'x-admin-token': token
                   },
                   body: JSON.stringify({
-                    dealsTimer: new Date(promoDealsTimer).toISOString(),
+                    dealsTimer: timerIso,
                     budgetThreshold: Number(promoBudgetThreshold),
                     announcement: {
                       show: announcementShow,
@@ -1896,7 +1898,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                     showToast('Site promotions and configurations saved successfully!', 'success');
                     if (onUpdatePromotions) {
                       onUpdatePromotions({
-                        dealsTimer: new Date(promoDealsTimer).toISOString(),
+                        dealsTimer: timerIso,
                         budgetThreshold: Number(promoBudgetThreshold),
                         announcement: {
                           show: announcementShow,
