@@ -109,10 +109,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
               <button
                 className="btn btn-secondary"
                 onClick={() => {
-                  if (slide.cat !== 'all') {
-                    onSelectCategory(slide.cat);
-                  }
-                  onNavigate('catalog');
+                  onSelectCategory(slide.cat || 'all');
                 }}
               >
                 Explore Sale <ArrowRight size={16} />
@@ -158,7 +155,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-primary btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('all');
-              onNavigate('catalog');
             }}
           >
             View All
@@ -183,7 +179,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('mobiles');
-              onNavigate('catalog');
             }}
           >
             Explore
@@ -208,7 +203,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('electronics');
-              onNavigate('catalog');
             }}
           >
             Explore
@@ -233,7 +227,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('fashion');
-              onNavigate('catalog');
             }}
           >
             Explore
@@ -281,7 +274,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('home');
-              onNavigate('catalog');
             }}
           >
             Explore
@@ -306,7 +298,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('appliances');
-              onNavigate('catalog');
             }}
           >
             Explore
@@ -331,7 +322,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('all');
-              onNavigate('catalog');
             }}
           >
             Explore
@@ -356,7 +346,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory }) => {
             className="btn btn-outline btn-sm"
             onClick={() => {
               onSelectCategory('all');
-              onNavigate('catalog');
             }}
           >
             Explore
