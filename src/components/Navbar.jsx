@@ -204,10 +204,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                     <button className="dropdown-item" onClick={logout} style={{ color: 'var(--error)' }}>
                       <LogOut size={16} /> Logout Account
                     </button>
-
-                    <button className="dropdown-item" onClick={resetDatabase} style={{ color: '#8c8c8c', fontSize: '11px', padding: '4px 12px' }}>
-                      <RotateCcw size={12} /> Reset Database
-                    </button>
                   </div>
                 )}
               </div>
