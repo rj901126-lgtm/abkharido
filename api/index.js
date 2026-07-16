@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import admin from 'firebase-admin';
+import { checkServiceability, createShiprocketOrder } from './shiprocket.js';
 
 // Initialize firebase-admin if service account credentials are provided
 let firebaseAdminApp = null;
@@ -1041,6 +1042,21 @@ app.post('/api/auth/verify-firebase', async (req, res) => {
   }
 });
 
+// Shiprocket Shipping Serviceability Endpoint
+app.post('/api/shipping/serviceability', async (req, res) => {
+  try {
+    const { deliveryPincode, weight, isCod } = req.body;
+    if (!deliveryPincode) {
+      return res.status(400).json({ error: 'Delivery pincode is required' });
+    }
+    const result = await checkServiceability(deliveryPincode, weight || 0.5, isCod || false);
+    res.json(result);
+  } catch (err) {
+    console.error('[SHIPROCKET API] Serviceability check error:', err);
+    res.status(500).json({ error: 'Failed to verify shipping serviceability' });
+  }
+});
+
 // Update User Profile API
 app.post('/api/users/:username/update', async (req, res) => {
   try {
@@ -1434,9 +1450,25 @@ app.post('/api/orders', async (req, res) => {
     const orderId = `OD-${Math.floor(10000000 + Math.random() * 90000000)}`;
     const isCod = paymentMethod === 'Cash on Delivery';
     
-    // Generate Shiprocket tracking details (Shiprocket 12-digit numeric AWB style)
-    const trackingNumber = `12${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-    const courierPartner = 'Shiprocket';
+    // Register order dynamically in Shiprocket
+    let trackingNumber = `12${Math.floor(1000000000 + Math.random() * 9000000000)}`; // Default AWB style
+    let courierPartner = 'Shiprocket'; // Default courier fallback
+    let shiprocketDetails = null;
+
+    try {
+      const srResult = await createShiprocketOrder(orderId, shippingAddress, cart, finalAmount, isCod);
+      if (srResult.success) {
+        trackingNumber = srResult.awbCode || trackingNumber;
+        courierPartner = srResult.courier || 'Shiprocket';
+        shiprocketDetails = {
+          shipmentId: srResult.shipmentId,
+          orderId: srResult.orderId
+        };
+        console.log(`[SHIPROCKET] Order synchronized successfully. AWB: ${trackingNumber}`);
+      }
+    } catch (srErr) {
+      console.warn('[SHIPROCKET] Integration order creation failed, using mock defaults:', srErr.message);
+    }
 
     const newOrder = {
       id: orderId,
@@ -1454,7 +1486,8 @@ app.post('/api/orders', async (req, res) => {
       paymentStatus: isCod ? 'SUCCESS' : 'PENDING',
       referralApplied: activeReferral || null,
       trackingNumber,
-      courierPartner
+      courierPartner,
+      shiprocketDetails
     };
 
     // Process Referral Commissions immediately ONLY if Cash on Delivery (COD)

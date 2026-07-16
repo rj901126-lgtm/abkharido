@@ -9,14 +9,17 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   // Form states
   const [address, setAddress] = useState({
-    name: currentUser ? currentUser.fullName : '',
-    phone: currentUser ? (currentUser.phone || currentUser.username) : '',
+    name: currentUser ? (currentUser.fullName || '') : '',
+    phone: currentUser ? (currentUser.phone || '') : '',
     pincode: currentUser ? (currentUser.pincode || '') : '',
     locality: '',
     streetAddress: currentUser ? (currentUser.address || '') : '',
     city: '',
     state: ''
   });
+
+  const [shippingServiceability, setShippingServiceability] = useState(null);
+  const [isCheckingShipping, setIsCheckingShipping] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
   const [createdOrder, setCreatedOrder] = useState(null);
@@ -70,6 +73,38 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     return () => controller.abort(); // cleanup on unmount or pincode change
   }, [address.pincode]);
 
+  // Shiprocket Pincode Serviceability Check
+  useEffect(() => {
+    const pinStr = String(address.pincode || '');
+    if (pinStr.length !== 6 || isNaN(pinStr)) {
+      setShippingServiceability(null);
+      return;
+    }
+
+    const checkShipping = async () => {
+      setIsCheckingShipping(true);
+      try {
+        const res = await fetch('/api/shipping/serviceability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deliveryPincode: pinStr })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setShippingServiceability(data);
+        } else {
+          setShippingServiceability({ serviceable: false, error: 'Could not fetch serviceability' });
+        }
+      } catch (err) {
+        setShippingServiceability({ serviceable: false, error: 'Network error checking shipping' });
+      } finally {
+        setIsCheckingShipping(false);
+      }
+    };
+
+    checkShipping();
+  }, [address.pincode]);
+
   // Price calculations — safe fallbacks to prevent NaN
   const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
@@ -87,6 +122,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(address.phone)) {
       showToast('Please enter a valid 10-digit Indian mobile number.', 'error');
+      return;
+    }
+    if (shippingServiceability && !shippingServiceability.serviceable) {
+      showToast('We cannot deliver to this pincode. Please try a different address.', 'error');
       return;
     }
     setStep(2);
@@ -292,6 +331,26 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   placeholder="6-digit pincode"
                   required
                 />
+                
+                {/* Shiprocket Serviceability UI Feedback */}
+                {isCheckingShipping && (
+                  <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                    Checking shipping serviceability...
+                  </div>
+                )}
+                {shippingServiceability && !isCheckingShipping && (
+                  <div style={{ fontSize: '11px', marginTop: '4px', fontWeight: '500' }}>
+                    {shippingServiceability.serviceable ? (
+                      <span style={{ color: '#2e7d32' }}>
+                        ✓ Deliverable by {shippingServiceability.courier} in {shippingServiceability.estimatedDays || 4-5} days.
+                      </span>
+                    ) : (
+                      <span style={{ color: '#c62828' }}>
+                        ✗ Delivery unavailable for this pin code.
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
               <div style={{ flex: 1 }}>
                 <label style={styles.label}>Locality/Area*</label>
