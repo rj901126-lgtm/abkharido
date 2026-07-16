@@ -72,6 +72,18 @@ img {
   flex: 1;
   margin-top: 56px; /* Offset for sticky navbar */
   min-height: calc(100vh - 56px - 250px); /* Height minus navbar and footer */
+  animation: fadeInPage 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Core Container Utility */
