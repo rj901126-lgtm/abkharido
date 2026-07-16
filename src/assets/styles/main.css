@@ -841,7 +841,7 @@ img {
 /* ── Left Blue Panel (Desktop Only) ── */
 .lp-left {
   width: 42%;
-  background: linear-gradient(145deg, #1a5fd4 0%, #2874f0 55%, #3d8bff 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1215,7 +1215,7 @@ img {
     inset: 0;               /* top:0, right:0, bottom:0, left:0 */
     z-index: 10;
     flex-direction: column;
-    background: #2874f0;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
     display: flex;
     justify-content: center;
     align-items: center;
