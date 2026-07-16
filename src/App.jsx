@@ -222,6 +222,8 @@ const AppContent = () => {
 
   const handleUpdatePromotions = (newPromos) => {
     setPromotions(newPromos);
+    // Re-fetch from server after save to guarantee fresh state
+    setTimeout(() => fetchPromotions(), 800);
   };
 
   // Parse details from URL and hash on mount/hashchange

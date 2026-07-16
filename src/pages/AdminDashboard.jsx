@@ -36,6 +36,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [announcementText, setAnnouncementText] = useState('');
   const [announcementLink, setAnnouncementLink] = useState('');
   const [banners, setBanners] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   // New Slide Form Inputs
   const [newSlideTitle, setNewSlideTitle] = useState('');
@@ -1761,6 +1762,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
                   <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
+                    {/* Warning if slides exist but show is off */}
+                    {slides.length > 0 && !catData.show && (
+                      <div style={{ background: '#fff8e1', border: '1px solid #ffca28', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', color: '#f57f17', fontWeight: '600' }}>
+                        ⚠️ You have {slides.length} slide(s) but banners are OFF. Enable "Banners Active" above to show them on the website.
+                      </div>
+                    )}
+
                     {/* Existing slides list */}
                     {slides.length === 0 ? (
                       <div style={{ fontSize: '12px', color: '#999', fontStyle: 'italic', padding: '8px 0' }}>No slides added yet. Add one below.</div>
@@ -1898,7 +1906,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                         onClick={() => {
                           if (form.useImage && !form.image) { showToast('Please add an image first.', 'error'); return; }
                           if (!form.useImage && (!form.title || !form.desc)) { showToast('Please enter Title and Description.', 'error'); return; }
-                          if (!form.useImage && !form.imageOnly && !form.title) { showToast('Please enter a slide title.', 'error'); return; }
                           const newSlide = {
                             title: form.imageOnly ? '' : form.title,
                             desc: form.imageOnly ? '' : form.desc,
@@ -1907,12 +1914,17 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                             image: form.useImage ? form.image : undefined,
                             imageOnly: form.useImage ? form.imageOnly : false
                           };
-                          setCategoryBanners(prev => ({
-                            ...prev,
-                            [catKey]: { ...prev[catKey], slides: [...(prev[catKey].slides || []), newSlide] }
-                          }));
+                          setCategoryBanners(prev => {
+                            const existingSlides = prev[catKey]?.slides || [];
+                            // Auto-enable show when adding the first slide
+                            const autoShow = existingSlides.length === 0 ? true : prev[catKey].show;
+                            return {
+                              ...prev,
+                              [catKey]: { ...prev[catKey], slides: [...existingSlides, newSlide], show: autoShow }
+                            };
+                          });
                           setCatSlideForm(prev => ({ ...prev, [catKey]: { ...EMPTY_SLIDE_FORM } }));
-                          showToast(`Slide added to ${catLabel}!`, 'success');
+                          showToast(`✅ Slide added! Now click SAVE to publish it.`, 'success');
                         }}
                         className="btn btn-outline btn-sm"
                         style={{ display: 'flex', gap: '6px', width: 'fit-content' }}
@@ -1929,67 +1941,48 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
           {/* Save Promotions Button */}
           <button 
+            disabled={isSaving}
             onClick={async () => {
               if (announcementShow && !announcementText) {
                 showToast('Please enter the announcement text.', 'error');
                 return;
               }
               const token = sessionStorage.getItem('abkharido_admin_token') || '';
-              // Use a sensible default if deals timer not configured
+              if (!token) { showToast('Session expired. Please re-login to admin.', 'error'); return; }
               const defaultTimer = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
               let timerIso = defaultTimer;
+              try { if (promoDealsTimer) timerIso = new Date(promoDealsTimer).toISOString(); } catch { timerIso = defaultTimer; }
+              setIsSaving(true);
+              console.log('[ADMIN SAVE] categoryBanners being saved:', JSON.stringify(categoryBanners, null, 2));
               try {
-                if (promoDealsTimer) timerIso = new Date(promoDealsTimer).toISOString();
-              } catch { timerIso = defaultTimer; }
-              try {
+                const payload = { dealsTimer: timerIso, budgetThreshold: Number(promoBudgetThreshold), announcement: { show: announcementShow, text: announcementText, link: announcementLink }, banners, categoryBanners };
                 const res = await fetch('/api/promotions', {
                   method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'x-admin-token': token
-                  },
-                  body: JSON.stringify({
-                    dealsTimer: timerIso,
-                    budgetThreshold: Number(promoBudgetThreshold),
-                    announcement: {
-                      show: announcementShow,
-                      text: announcementText,
-                      link: announcementLink
-                    },
-                    banners,
-                    categoryBanners
-                  })
+                  headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+                  body: JSON.stringify(payload)
                 });
-
                 if (res.ok) {
                   const data = await res.json();
                   if (data.success) {
-                    showToast('Site promotions and configurations saved successfully!', 'success');
-                    if (onUpdatePromotions) {
-                      onUpdatePromotions({
-                        dealsTimer: timerIso,
-                        budgetThreshold: Number(promoBudgetThreshold),
-                        announcement: {
-                          show: announcementShow,
-                          text: announcementText,
-                          link: announcementLink
-                        },
-                        banners,
-                        categoryBanners
-                      });
-                    }
+                    showToast('✅ Saved! Banners are now live on the website.', 'success');
+                    if (onUpdatePromotions) onUpdatePromotions(payload);
+                  } else {
+                    showToast(`Save failed: ${data.error || 'Unknown error from server.'}`, 'error');
                   }
                 } else {
-                  showToast('Failed to save configurations. Access denied.', 'error');
+                  const errText = await res.text().catch(() => '');
+                  showToast(`Save failed (HTTP ${res.status}): ${errText.substring(0, 80)}`, 'error');
                 }
               } catch (err) {
-                showToast('Network error saving configurations.', 'error');
+                showToast(`Network error: ${err.message}`, 'error');
+              } finally {
+                setIsSaving(false);
               }
             }}
             className="btn btn-accent btn-lg"
-            style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center' }}
+            style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center', opacity: isSaving ? 0.7 : 1 }}
           >
-            SAVE ALL PROMOTIONS AND LIVE BROADCAST
+            {isSaving ? 'Saving...' : 'SAVE ALL PROMOTIONS AND LIVE BROADCAST'}
           </button>
         </div>
       )}
