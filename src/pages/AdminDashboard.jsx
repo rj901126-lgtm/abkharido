@@ -382,6 +382,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [rating, setRating] = useState('4.5');
   const [reviewsCount, setReviewsCount] = useState('10');
   const [image, setImage] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
 
@@ -508,6 +509,53 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       return spec;
     });
     setSpecs(updated);
+  };
+
+  const handleProductImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Image size should be less than 2MB', 'error');
+      e.target.value = '';
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result;
+        
+        const res = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': token
+          },
+          body: JSON.stringify({
+            base64Data,
+            fileName: file.name
+          })
+        });
+
+        const data = await res.json();
+        if (data.success && data.imageUrl) {
+          setImage(data.imageUrl);
+          showToast('Image uploaded successfully', 'success');
+        } else {
+          showToast(data.error || 'Failed to upload image', 'error');
+        }
+        setIsUploadingImage(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      showToast('Error uploading image', 'error');
+      setIsUploadingImage(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -1185,15 +1233,24 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </div>
 
             <div className="form-group">
-              <label className="form-label-txt">Image URL*</label>
-              <input 
-                type="url" 
-                placeholder="https://images.unsplash.com/..." 
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                className="form-input-field"
-                required
-              />
+              <label className="form-label-txt">Product Image*</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleProductImageUpload}
+                  className="form-input-field"
+                  style={{ flex: 1, padding: '6px' }}
+                  required={!image}
+                />
+                {isUploadingImage && <span style={{ fontSize: '12px', color: 'var(--primary-color)' }}>Uploading...</span>}
+              </div>
+              {image && (
+                <div style={{ marginTop: '8px', position: 'relative', display: 'inline-block' }}>
+                  <img src={image} alt="Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-light)' }} />
+                  <button type="button" onClick={() => setImage('')} style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'white', border: '1px solid #ccc', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                </div>
+              )}
             </div>
 
             <div className="form-group">
