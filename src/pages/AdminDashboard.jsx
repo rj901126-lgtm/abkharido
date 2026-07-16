@@ -61,15 +61,18 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   };
   const [categoryBanners, setCategoryBanners] = useState(EMPTY_CAT_BANNERS);
 
-  // Per-category new slide form state
+  // Per-category new slide form state — full fields matching homepage slide builder
+  const EMPTY_SLIDE_FORM = { image: '', title: '', desc: '', tag: '', bg: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)', useImage: false, imageOnly: false, uploading: false };
   const [catSlideForm, setCatSlideForm] = useState({
-    all:        { image: '', title: '', uploading: false },
-    mobiles:    { image: '', title: '', uploading: false },
-    electronics:{ image: '', title: '', uploading: false },
-    fashion:    { image: '', title: '', uploading: false },
-    home:       { image: '', title: '', uploading: false },
-    appliances: { image: '', title: '', uploading: false }
+    all:        { ...EMPTY_SLIDE_FORM },
+    mobiles:    { ...EMPTY_SLIDE_FORM },
+    electronics:{ ...EMPTY_SLIDE_FORM },
+    fashion:    { ...EMPTY_SLIDE_FORM },
+    home:       { ...EMPTY_SLIDE_FORM },
+    appliances: { ...EMPTY_SLIDE_FORM }
   });
+  const updateCatForm = (catKey, field, value) =>
+    setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], [field]: value } }));
 
   const handleBannerFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -1786,67 +1789,133 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       </div>
                     )}
 
-                    {/* Add new slide form */}
-                    <div style={{ border: '1px dashed #b0b8d1', borderRadius: '8px', padding: '14px', background: '#f5f7ff', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-color)' }}>➕ Add New Slide</span>
+                    {/* Add new slide form — full builder like homepage */}
+                    <div style={{ border: '1px dashed #b0b8d1', borderRadius: '8px', padding: '16px', background: '#f5f7ff', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-color)' }}>➕ Create New Slide</span>
 
-                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label className="form-label-txt" style={{ fontSize: '11px' }}>Upload Image (max 3MB)</label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            disabled={form.uploading}
-                            onChange={e => handleCatSlideImageUpload(catKey, e)}
-                            className="admin-form-input"
-                            style={{ padding: '6px 10px', fontSize: '12px' }}
-                          />
-                          {form.uploading && <span style={{ fontSize: '11px', color: '#777' }}>Uploading…</span>}
-                        </div>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label className="form-label-txt" style={{ fontSize: '11px' }}>Or paste image URL</label>
-                          <input
-                            type="text"
-                            className="admin-form-input"
-                            placeholder="https://..."
-                            value={form.image}
-                            onChange={e => setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], image: e.target.value } }))}
-                            style={{ fontSize: '12px' }}
-                          />
-                        </div>
+                      {/* Use Image toggle */}
+                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+                          <input type="checkbox" checked={form.useImage} onChange={e => updateCatForm(catKey, 'useImage', e.target.checked)} style={{ width: '14px', height: '14px' }} />
+                          Use Custom Image / Canva Banner
+                        </label>
+                        {form.useImage && (
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer', color: '#e65100', fontWeight: '600' }}>
+                            <input type="checkbox" checked={form.imageOnly} onChange={e => updateCatForm(catKey, 'imageOnly', e.target.checked)} style={{ width: '14px', height: '14px' }} />
+                            Image-Only Mode (hide all text)
+                          </label>
+                        )}
                       </div>
 
-                      <div>
-                        <label className="form-label-txt" style={{ fontSize: '11px' }}>Slide Label (optional)</label>
-                        <input
-                          type="text"
-                          className="admin-form-input"
-                          placeholder="e.g. Diwali Sale Banner"
-                          value={form.title}
-                          onChange={e => setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], title: e.target.value } }))}
-                          style={{ fontSize: '12px' }}
-                        />
-                      </div>
-
-                      {form.image && (
-                        <img src={form.image} alt="preview" style={{ width: '100%', maxHeight: '70px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      {/* Image upload / URL */}
+                      {form.useImage && (
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                          <div style={{ flex: 1, minWidth: '200px' }}>
+                            <label className="form-label-txt" style={{ fontSize: '11px' }}>Upload Image File (max 3MB)</label>
+                            <input type="file" accept="image/*" disabled={form.uploading}
+                              onChange={e => handleCatSlideImageUpload(catKey, e)}
+                              className="admin-form-input" style={{ padding: '6px 10px', fontSize: '12px' }}
+                            />
+                            {form.uploading && <span style={{ fontSize: '11px', color: '#777' }}>Uploading…</span>}
+                          </div>
+                          <div style={{ flex: 1, minWidth: '200px' }}>
+                            <label className="form-label-txt" style={{ fontSize: '11px' }}>Or paste Image URL</label>
+                            <input type="text" className="admin-form-input" placeholder="https://..."
+                              value={form.image}
+                              onChange={e => updateCatForm(catKey, 'image', e.target.value)}
+                              style={{ fontSize: '12px' }}
+                            />
+                          </div>
+                        </div>
                       )}
 
+                      {/* Image preview */}
+                      {form.useImage && form.image && (
+                        <img src={form.image} alt="preview" style={{ width: '100%', maxHeight: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      )}
+
+                      {/* Title + Tag */}
+                      {(!form.useImage || !form.imageOnly) && (
+                        <>
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <div style={{ flex: 2, minWidth: '160px' }}>
+                              <label className="form-label-txt" style={{ fontSize: '11px' }}>Slide Title*</label>
+                              <input type="text" className="admin-form-input"
+                                placeholder="e.g. Monsoon Mobile Sale!"
+                                value={form.title}
+                                onChange={e => updateCatForm(catKey, 'title', e.target.value)}
+                                style={{ fontSize: '12px' }}
+                              />
+                            </div>
+                            <div style={{ flex: 1, minWidth: '120px' }}>
+                              <label className="form-label-txt" style={{ fontSize: '11px' }}>Tag Ribbon</label>
+                              <input type="text" className="admin-form-input"
+                                placeholder="e.g. LIMITED OFFER"
+                                value={form.tag}
+                                onChange={e => updateCatForm(catKey, 'tag', e.target.value)}
+                                style={{ fontSize: '12px' }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          <div>
+                            <label className="form-label-txt" style={{ fontSize: '11px' }}>Slide Description*</label>
+                            <input type="text" className="admin-form-input"
+                              placeholder="e.g. Up to 40% off on all mobiles today!"
+                              value={form.desc}
+                              onChange={e => updateCatForm(catKey, 'desc', e.target.value)}
+                              style={{ fontSize: '12px' }}
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* Background gradient (only if not using image) */}
+                      {!form.useImage && (
+                        <div>
+                          <label className="form-label-txt" style={{ fontSize: '11px' }}>Background Color / Gradient*</label>
+                          <select className="admin-form-input" value={form.bg} onChange={e => updateCatForm(catKey, 'bg', e.target.value)} style={{ fontSize: '12px' }}>
+                            <option value="linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)">⚡ Electric Indigo (Brand Primary)</option>
+                            <option value="linear-gradient(135deg, #fda4af 0%, #f43f5e 100%)">🌸 Vivid Coral Rose</option>
+                            <option value="linear-gradient(135deg, #093129 0%, #00796b 100%)">🌿 Deep Teal</option>
+                            <option value="linear-gradient(135deg, #0f172a 0%, #334155 100%)">🌑 Dark Slate</option>
+                            <option value="linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)">💜 Neon Purple</option>
+                            <option value="linear-gradient(135deg, #ca8a04 0%, #eab308 100%)">🌟 Sunset Yellow</option>
+                            <option value="linear-gradient(135deg, #be123c 0%, #fb7185 100%)">❤️ Deep Red Splash</option>
+                            <option value="linear-gradient(135deg, #0369a1 0%, #38bdf8 100%)">🔵 Ocean Blue</option>
+                          </select>
+                          {/* Live gradient preview */}
+                          <div style={{ marginTop: '6px', height: '28px', borderRadius: '4px', background: form.bg, display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                            {form.title && <span style={{ color: '#fff', fontSize: '11px', fontWeight: '700', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>{form.title}</span>}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Add Slide button */}
                       <button
                         type="button"
-                        disabled={!form.image}
                         onClick={() => {
-                          if (!form.image) { showToast('Please add an image first.', 'error'); return; }
-                          const newSlide = { image: form.image, title: form.title || '' };
+                          if (form.useImage && !form.image) { showToast('Please add an image first.', 'error'); return; }
+                          if (!form.useImage && (!form.title || !form.desc)) { showToast('Please enter Title and Description.', 'error'); return; }
+                          if (!form.useImage && !form.imageOnly && !form.title) { showToast('Please enter a slide title.', 'error'); return; }
+                          const newSlide = {
+                            title: form.imageOnly ? '' : form.title,
+                            desc: form.imageOnly ? '' : form.desc,
+                            tag: form.imageOnly ? '' : (form.tag || 'OFFER'),
+                            bg: form.bg,
+                            image: form.useImage ? form.image : undefined,
+                            imageOnly: form.useImage ? form.imageOnly : false
+                          };
                           setCategoryBanners(prev => ({
                             ...prev,
                             [catKey]: { ...prev[catKey], slides: [...(prev[catKey].slides || []), newSlide] }
                           }));
-                          setCatSlideForm(prev => ({ ...prev, [catKey]: { image: '', title: '', uploading: false } }));
+                          setCatSlideForm(prev => ({ ...prev, [catKey]: { ...EMPTY_SLIDE_FORM } }));
                           showToast(`Slide added to ${catLabel}!`, 'success');
                         }}
                         className="btn btn-outline btn-sm"
-                        style={{ display: 'flex', gap: '6px', width: 'fit-content', opacity: form.image ? 1 : 0.5 }}
+                        style={{ display: 'flex', gap: '6px', width: 'fit-content' }}
                       >
                         <PlusCircle size={14} /> Add Slide to {catLabel}
                       </button>

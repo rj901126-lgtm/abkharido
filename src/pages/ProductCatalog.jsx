@@ -13,29 +13,60 @@ const CatBannerCarousel = ({ slides }) => {
     if (slides.length <= 1) return;
     timerRef.current = setInterval(() => {
       setIdx(prev => (prev + 1) % slides.length);
-    }, 4000);
+    }, 4500);
     return () => clearInterval(timerRef.current);
   }, [slides.length]);
 
   if (!slides || slides.length === 0) return null;
   const slide = slides[idx];
+  const hasImage = !!slide.image;
+  const isImageOnly = slide.imageOnly;
 
   return (
-    <div style={{ position: 'relative', width: '100%', marginBottom: '16px' }}>
+    <div style={{ position: 'relative', width: '100%', marginBottom: '16px', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
+      {/* Slide background */}
       <div
         className="animate-fade-in"
         style={{
           width: '100%',
-          aspectRatio: '1200 / 300',
-          maxHeight: '180px',
-          backgroundImage: `url(${slide.image})`,
+          height: '140px',
+          background: hasImage ? 'transparent' : (slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'),
+          backgroundImage: hasImage ? `url(${slide.image})` : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          transition: 'background-image 0.4s ease'
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          padding: hasImage && isImageOnly ? '0' : '16px 20px'
         }}
-      />
+      >
+        {/* Dark overlay for text readability on images */}
+        {hasImage && !isImageOnly && (
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 100%)' }} />
+        )}
+
+        {/* Text content overlay */}
+        {!isImageOnly && (
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '75%' }}>
+            {slide.tag && (
+              <span style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', color: '#fff', background: 'rgba(255,255,255,0.22)', borderRadius: '3px', padding: '2px 7px', width: 'fit-content' }}>
+                {slide.tag}
+              </span>
+            )}
+            {slide.title && (
+              <span style={{ fontSize: '15px', fontWeight: '800', color: '#fff', lineHeight: 1.2, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                {slide.title}
+              </span>
+            )}
+            {slide.desc && (
+              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.88)', lineHeight: 1.3 }}>
+                {slide.desc}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Dot indicators */}
       {slides.length > 1 && (
         <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px' }}>

@@ -21,22 +21,37 @@ const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
   const timerRef = useRef(null);
   useEffect(() => {
     if (slides.length <= 1) return;
-    timerRef.current = setInterval(() => setIdx(prev => (prev + 1) % slides.length), 4000);
+    timerRef.current = setInterval(() => setIdx(prev => (prev + 1) % slides.length), 4500);
     return () => clearInterval(timerRef.current);
   }, [slides.length]);
   if (!slides || slides.length === 0) return null;
+  const slide = slides[idx];
+  const hasImage = !!slide.image;
+  const isImageOnly = slide.imageOnly;
   return (
-    <div style={{ position: 'relative', width: '100%', marginBottom: '14px', cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
+    <div style={{ position: 'relative', width: '100%', marginBottom: '14px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.09)', cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
       <div
         className="animate-fade-in"
         style={{
-          width: '100%', aspectRatio: '1200 / 300', maxHeight,
-          backgroundImage: `url(${slides[idx].image})`,
+          width: '100%', height: maxHeight,
+          background: hasImage ? 'transparent' : (slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'),
+          backgroundImage: hasImage ? `url(${slide.image})` : undefined,
           backgroundSize: 'cover', backgroundPosition: 'center',
-          borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-          transition: 'background-image 0.4s ease'
+          position: 'relative', display: 'flex', alignItems: 'center',
+          padding: hasImage && isImageOnly ? '0' : '12px 16px'
         }}
-      />
+      >
+        {hasImage && !isImageOnly && (
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 100%)' }} />
+        )}
+        {!isImageOnly && (
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '75%' }}>
+            {slide.tag && <span style={{ fontSize: '8px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', color: '#fff', background: 'rgba(255,255,255,0.2)', borderRadius: '3px', padding: '1px 6px', width: 'fit-content' }}>{slide.tag}</span>}
+            {slide.title && <span style={{ fontSize: '13px', fontWeight: '800', color: '#fff', lineHeight: 1.2, textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>{slide.title}</span>}
+            {slide.desc && <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>{slide.desc}</span>}
+          </div>
+        )}
+      </div>
       {slides.length > 1 && (
         <div style={{ position: 'absolute', bottom: '6px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px' }}>
           {slides.map((_, i) => (
