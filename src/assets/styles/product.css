@@ -23,13 +23,27 @@
 .filters-sidebar {
   width: 260px;
   background-color: white;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  padding: 16px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   align-self: flex-start;
+  position: sticky;
+  top: 140px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Custom scrollbar for sticky filters */
+.filters-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.filters-sidebar::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
 }
 
 .filter-section {
