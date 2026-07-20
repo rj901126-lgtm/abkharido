@@ -1305,22 +1305,21 @@ button:active .lucide, a:active .lucide, .interactive-icon:active .lucide {
 
 .premium-affiliate-banner {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  border-radius: 0;
-  padding: 30px 10%;
+  border-radius: 24px;
+  padding: 40px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 40px;
-  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.2);
+  justify-content: space-between;
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
   color: white;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: transform 0.3s;
 }
 
 .premium-affiliate-banner:hover {
-  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+  transform: translateY(-5px);
 }
 
 .premium-affiliate-content {
@@ -1351,9 +1350,9 @@ button:active .lucide, a:active .lucide, .interactive-icon:active .lucide {
   .premium-affiliate-banner {
     flex-direction: column;
     text-align: center;
-    padding: 24px 20px;
+    padding: 20px 16px;
     gap: 16px;
-    border-radius: 0;
+    border-radius: 16px;
   }
   .premium-affiliate-content {
     flex-direction: column;
