@@ -252,21 +252,21 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
       {/* Affiliate Promo Banner */}
       {/* Affiliate Promo Banner */}
       <section style={{ padding: '0 20px', marginBottom: '40px' }}>
-        <div style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', borderRadius: '24px', padding: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 30px rgba(79, 70, 229, 0.3)', color: 'white', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.3s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'} onClick={() => onNavigate('info')}>
+        <div className="premium-affiliate-banner" onClick={() => onNavigate('info')}>
           {/* Decorative background elements */}
           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
           <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '100px', height: '100px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', zIndex: 1 }}>
+          <div className="premium-affiliate-content">
             <div style={{ background: 'rgba(255,255,255,0.2)', padding: '20px', borderRadius: '20px', backdropFilter: 'blur(10px)' }}>
               <Award size={40} color="#fff" strokeWidth={2} />
             </div>
-            <div>
+            <div className="premium-affiliate-text">
               <h3 style={{ margin: '0 0 10px 0', fontSize: '28px', fontWeight: '800', letterSpacing: '1px' }}>Start Earning With Us</h3>
-              <p style={{ margin: 0, fontSize: '16px', color: '#e0e7ff', maxWidth: '600px', lineHeight: '1.5' }}>Join the exclusive AbKharido Creator Program. Share links and earn up to <strong style={{ color: '#fef08a' }}>7% instant cash</strong> on every sale you refer.</p>
+              <p style={{ margin: 0, fontSize: '16px', color: '#e0e7ff', lineHeight: '1.5' }}>Join the exclusive AbKharido Creator Program. Share links and earn up to <strong style={{ color: '#fef08a' }}>7% instant cash</strong> on every sale you refer.</p>
             </div>
           </div>
-          <button className="btn" style={{ background: '#fff', color: '#4f46e5', fontWeight: '800', padding: '14px 28px', borderRadius: '12px', fontSize: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 1, border: 'none', cursor: 'pointer' }}>
+          <button className="premium-affiliate-btn">
             Learn More
           </button>
         </div>
