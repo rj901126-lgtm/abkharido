@@ -1232,14 +1232,32 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
           <button 
             className="btn btn-primary" 
             style={{ flex: 1, backgroundColor: 'white', color: 'var(--primary-color)', border: '1px solid var(--border-light)' }} 
-            onClick={handleAddToCart}
+            onClick={() => {
+              const customProduct = {
+                ...product,
+                price: currentDisplayPrice,
+                originalPrice: currentDisplayOriginalPrice,
+                selectedColor: activeColor ? activeColor.name : '',
+                selectedVariant: activeVariant ? activeVariant.name : ''
+              };
+              addToCart(customProduct);
+            }}
           >
             <ShoppingCart size={18} /> Add
           </button>
           <button 
             className="btn btn-accent" 
             style={{ flex: 1, backgroundColor: 'var(--primary-color)' }} 
-            onClick={() => onBuyNow(product)}
+            onClick={() => {
+              const customProduct = {
+                ...product,
+                price: currentDisplayPrice,
+                originalPrice: currentDisplayOriginalPrice,
+                selectedColor: activeColor ? activeColor.name : '',
+                selectedVariant: activeVariant ? activeVariant.name : ''
+              };
+              onBuyNow(customProduct);
+            }}
           >
             <Zap size={18} /> Buy
           </button>
