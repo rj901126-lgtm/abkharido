@@ -544,7 +544,7 @@
   .catalog-main {
     padding: 12px 12px calc(120px + env(safe-area-inset-bottom)) 12px !important; /* Extra bottom padding so products aren't covered by stacked sticky bars */
   }
-  .mobile-catalog-bottom-bar {
+  .mobile-catalog-top-bar {
     display: flex !important; /* Visible on mobile */
   }
   .catalog-top-filter-bar {
@@ -586,21 +586,25 @@
   }
 }
 
-/* Mobile Catalog Bottom Bar (Sort / Filter sticky) */
-.mobile-catalog-bottom-bar {
-  position: fixed;
-  bottom: calc(56px + env(safe-area-inset-bottom)) !important;
-  left: 0;
-  right: 0;
-  height: 52px;
+/* Mobile Catalog Top Bar (Sort / Filter sticky) */
+.mobile-catalog-top-bar {
+  position: sticky;
+  top: 64px; /* Adjust based on your header height */
+  margin-bottom: 16px;
   background-color: white;
-  border-top: 1px solid #eaeaea;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  box-shadow: 0 -3px 10px rgba(0,0,0,0.06);
-  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  z-index: 900;
   display: none; /* Hidden on desktop */
-  box-sizing: border-box !important;
+  overflow: hidden;
+}
+@media (max-width: 768px) {
+  .mobile-catalog-top-bar {
+    top: 190px; /* Below mobile nav (104px) + cat bubble bar (80px) + some margin */
+  }
 }
 
 .mobile-bar-btn {
@@ -616,6 +620,7 @@
   justify-content: center;
   gap: 8px;
   cursor: pointer;
+  padding: 12px 0;
 }
 
 .bar-separator {

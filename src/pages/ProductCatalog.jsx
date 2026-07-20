@@ -263,20 +263,21 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           return <CatBannerCarousel slides={slides} />;
         })()}
         
-        {/* Sticky Mobile Sort & Filter Bar (Fixed at bottom) */}
-        <div className="mobile-catalog-bottom-bar">
+        {/* Sticky Mobile Sort & Filter Bar (Fixed at top) */}
+        <div className="mobile-catalog-top-bar">
           <button 
             onClick={() => setShowSortModal(true)} 
             className="mobile-bar-btn"
           >
-            <ArrowUpDown size={16} color="#757575" />
+            <ArrowUpDown size={16} color="#4f46e5" />
             Sort
           </button>
+          <div style={{ width: '1px', backgroundColor: '#eaeaea' }}></div>
           <button 
             onClick={() => setShowFilterDrawer(true)} 
             className="mobile-bar-btn"
           >
-            <SlidersHorizontal size={16} color="#757575" />
+            <SlidersHorizontal size={16} color="#4f46e5" />
             Filter
           </button>
         </div>
