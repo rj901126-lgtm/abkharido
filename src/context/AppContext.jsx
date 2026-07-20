@@ -521,9 +521,13 @@ export const AppProvider = ({ children }) => {
   // --- Cashfree Payment Status verification ---
   const verifyPayment = async (orderId) => {
     try {
-      const res = await fetch('/api/payment/verify', {
+      const token = currentUser?.token;
+      const res = await fetch('/api/v2/payment/verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
         body: JSON.stringify({ orderId })
       });
       if (res.ok) {

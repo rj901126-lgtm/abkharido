@@ -184,9 +184,12 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     // Cashfree PG integration
     try {
       showToast('Initializing Cashfree gateway...', 'info');
-      const res = await fetch('/api/payment/session', {
+      const res = await fetch('/api/v2/payment/session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser?.token}`
+        },
         body: JSON.stringify({
           amount: finalAmount,
           customerId: currentUser.username,

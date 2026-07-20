@@ -24,7 +24,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
     <div className="card product-card" style={styles.card} onClick={() => onNavigateProduct(product.id)}>
       {/* Product Image */}
       <div className="product-card-image-wrapper" style={styles.imageWrapper}>
-        <img src={product.image} alt={product.name} style={styles.image} />
+        <img src={product.image} alt={product.name} style={styles.image} loading="lazy" />
       </div>
 
       {/* Info Content */}

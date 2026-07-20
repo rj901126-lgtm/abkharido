@@ -12,7 +12,7 @@ export const generatePaymentSession = async (req, res, next) => {
     if (!appId || !secretKey) {
       // Return a simulated success for local development without keys
       console.warn('Cashfree keys missing. Returning simulated session.');
-      return res.json({ payment_session_id: 'simulated_session_123', order_id: `cf_order_${Date.now()}` });
+      return res.json({ paymentSessionId: 'simulated_session_123', orderId: `cf_order_${Date.now()}`, simulated: true });
     }
 
     const url = isProd 
@@ -52,7 +52,7 @@ export const generatePaymentSession = async (req, res, next) => {
     }
 
     const data = await response.json();
-    res.json({ payment_session_id: data.payment_session_id, order_id: orderId });
+    res.json({ paymentSessionId: data.payment_session_id, orderId: orderId, simulated: false });
   } catch (error) {
     console.error('Cashfree PG connection error:', error);
     next(error);
