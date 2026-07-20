@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award } from 'lucide-react';
@@ -42,6 +42,23 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
     }, 6000);
     return () => clearInterval(slideTimer);
   }, [slides.length]);
+
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  
+  const handleTouchStart = (e) => { touchStartX.current = e.targetTouches[0].clientX; };
+  const handleTouchMove = (e) => { touchEndX.current = e.targetTouches[0].clientX; };
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const diff = touchStartX.current - touchEndX.current;
+    if (diff > 50) {
+      handleNextSlide();
+    } else if (diff < -50) {
+      handlePrevSlide();
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
 
   // Deals of the day countdown timer
   useEffect(() => {
@@ -107,7 +124,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
       )}
 
       {/* Hero Carousel */}
-      <section className="hero-carousel">
+      <section 
+        className="hero-carousel"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {slides.map((slide, idx) => (
           <div 
             key={idx} 

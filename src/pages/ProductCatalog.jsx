@@ -8,6 +8,24 @@ import '../assets/styles/product.css';
 const CatBannerCarousel = ({ slides }) => {
   const [idx, setIdx] = useState(0);
   const timerRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const handleTouchStart = (e) => { touchStartX.current = e.targetTouches[0].clientX; };
+  const handleTouchMove = (e) => { touchEndX.current = e.targetTouches[0].clientX; };
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const diff = touchStartX.current - touchEndX.current;
+    if (diff > 50) {
+      setIdx(prev => (prev + 1) % slides.length);
+      clearInterval(timerRef.current);
+    } else if (diff < -50) {
+      setIdx(prev => (prev - 1 + slides.length) % slides.length);
+      clearInterval(timerRef.current);
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -23,7 +41,12 @@ const CatBannerCarousel = ({ slides }) => {
   const isImageOnly = slide.imageOnly;
 
   return (
-    <div style={{ position: 'relative', width: '100%', marginBottom: '16px', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
+    <div 
+      style={{ position: 'relative', width: '100%', marginBottom: '16px', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div
         className="animate-fade-in"
         style={{
@@ -259,15 +282,6 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
       {/* 2. CATALOG MAIN AREA: Products grid + Mobile filter buttons */}
       <main className="catalog-main">
-        
-        {/* Category Banner Carousel */}
-        {(() => {
-          const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[currentCategory];
-          const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
-          if (slides.length === 0) return null;
-          return <CatBannerCarousel slides={slides} />;
-        })()}
-        
         {/* Sticky Mobile Sort & Filter Bar (Fixed at top) */}
         <div className="mobile-catalog-top-bar">
           <button 
@@ -286,6 +300,14 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
             Filter
           </button>
         </div>
+
+        {/* Category Banner Carousel */}
+        {(() => {
+          const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[currentCategory];
+          const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
+          if (slides.length === 0) return null;
+          return <CatBannerCarousel slides={slides} />;
+        })()}
 
         {/* Results Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
