@@ -1452,17 +1452,23 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Card 1: Announcement Bar */}
-          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h3 className="admin-form-title"><Tag size={18} color="var(--primary-color)" /> Dynamic Announcement Bar</h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'linear-gradient(145deg, #ffffff, #f5f7fa)', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+            <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', margin: 0 }}>
+              <div style={{ padding: '8px', background: '#eef2ff', borderRadius: '8px' }}>
+                <Tag size={20} color="#4f46e5" />
+              </div>
+              Dynamic Announcement Bar
+            </h3>
+            <p style={{ margin: '-8px 0 8px 44px', fontSize: '13px', color: '#64748b' }}>Configure the global site-wide announcement ribbon.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: announcementShow ? '#ecfdf5' : '#f8fafc', borderRadius: '8px', border: `1px solid ${announcementShow ? '#a7f3d0' : '#e2e8f0'}`, transition: 'all 0.3s ease' }}>
               <input 
                 type="checkbox" 
                 id="show-announcement-chk"
                 checked={announcementShow} 
                 onChange={(e) => setAnnouncementShow(e.target.checked)} 
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#10b981' }}
               />
-              <label htmlFor="show-announcement-chk" style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', cursor: 'pointer' }}>
+              <label htmlFor="show-announcement-chk" style={{ fontSize: '14px', fontWeight: '600', color: announcementShow ? '#065f46' : '#475569', cursor: 'pointer' }}>
                 Enable announcement ribbon at top of site
               </label>
             </div>
@@ -1581,61 +1587,75 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           </div>
 
           {/* Card 3: Hero Carousel Banners */}
-          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 className="admin-form-title"><Image size={18} color="var(--primary-color)" /> Homepage Slides / Banners ({banners.length})</h3>
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', margin: 0 }}>
+                <div style={{ padding: '8px', background: '#fdf4ff', borderRadius: '8px' }}>
+                  <Image size={20} color="#c026d3" />
+                </div>
+                Homepage Slides / Banners 
+                <span style={{ fontSize: '12px', background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', color: '#64748b' }}>{banners.length} Active</span>
+              </h3>
+            </div>
             
             {/* Slide List */}
             {banners.length === 0 ? (
-              <div style={{ padding: '16px', border: '1px dashed var(--border-light)', borderRadius: '6px', textAlign: 'center', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                No custom slides configured. Default slides are currently being displayed.
+              <div style={{ padding: '30px', border: '2px dashed #cbd5e1', borderRadius: '12px', textAlign: 'center', fontSize: '14px', color: '#64748b', background: '#f8fafc' }}>
+                No custom slides configured. Default promotional slides are currently being displayed.
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
                 {banners.map((slide, idx) => (
                   <div 
                     key={idx} 
                     style={{
                       display: 'flex',
-                      alignItems: 'center',
+                      flexDirection: 'column',
                       justifyContent: 'space-between',
-                      padding: '12px 16px',
-                      border: '1px solid var(--border-light)',
-                      borderRadius: '6px',
+                      height: '160px',
+                      padding: '16px',
+                      borderRadius: '12px',
                       background: slide.image ? `url(${slide.image}) no-repeat center center` : (slide.bg || 'var(--primary-color)'),
                       backgroundSize: 'cover',
                       color: 'white',
-                      boxShadow: 'inset 0 0 100px rgba(0,0,0,0.4)',
-                      textShadow: '0 1px 4px rgba(0,0,0,0.6)'
+                      boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), inset 0 0 80px rgba(0,0,0,0.5)',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      cursor: 'default'
                     }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(0,0,0,0.2), inset 0 0 80px rgba(0,0,0,0.5)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.1), inset 0 0 80px rgba(0,0,0,0.5)'; }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      {slide.image && (
-                        <img 
-                          src={slide.image} 
-                          alt="preview" 
-                          style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.4)' }} 
-                        />
-                      )}
-                      <div>
-                        <div style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', opacity: 0.9 }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '4px', backdropFilter: 'blur(4px)' }}>
                           {slide.tag || 'PROMOTION'} {slide.imageOnly && '• IMAGE ONLY'}
                         </div>
-                        <div style={{ fontSize: '14px', fontWeight: '700' }}>{slide.title || 'Custom Image Banner'}</div>
-                        <div style={{ fontSize: '11px', opacity: 0.9 }}>{slide.desc || 'No text overlay'}</div>
-                        <div style={{ fontSize: '10px', marginTop: '4px', fontWeight: 'bold' }}>Target: {slide.cat}</div>
+                        <button 
+                          onClick={() => {
+                            const updated = banners.filter((_, i) => i !== idx);
+                            setBanners(updated);
+                          }}
+                          style={{ padding: '6px', height: '28px', width: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', transition: 'background 0.2s' }}
+                          title="Delete Slide"
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.9)'}
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
+                      {!slide.imageOnly && (
+                        <div style={{ marginTop: '12px' }}>
+                          <div style={{ fontSize: '18px', fontWeight: '800', lineHeight: '1.2' }}>{slide.title || 'Custom Image Banner'}</div>
+                          <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{slide.desc || 'No text overlay'}</div>
+                        </div>
+                      )}
                     </div>
-                    <button 
-                      onClick={() => {
-                        const updated = banners.filter((_, i) => i !== idx);
-                        setBanners(updated);
-                      }}
-                      className="btn btn-sm btn-accent"
-                      style={{ padding: '6px', height: '30px', width: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#d32f2f', border: 'none' }}
-                      title="Delete Slide"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div style={{ fontSize: '11px', marginTop: 'auto', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ opacity: 0.8 }}>Target:</span> {slide.cat}
+                    </div>
                   </div>
                 ))}
               </div>
