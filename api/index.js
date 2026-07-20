@@ -542,6 +542,83 @@ async function deleteProduct(productId) {
   }
 }
 
+async function updateProduct(productId, updates) {
+  await getDb();
+  if (isMongo) {
+    await db.collection('products').updateOne({ id: productId }, { $set: updates });
+  } else {
+    const products = await readJson(PRODUCTS_FILE);
+    const index = products.findIndex(p => p.id === productId);
+    if (index !== -1) {
+      products[index] = { ...products[index], ...updates };
+      await writeJson(PRODUCTS_FILE, products);
+    }
+  }
+}
+
+async function getProductById(productId) {
+  await getDb();
+  if (isMongo) {
+    return await db.collection('products').findOne({ id: productId });
+  } else {
+    const products = await readJson(PRODUCTS_FILE);
+    return products.find(p => p.id === productId);
+  }
+}
+
+async function getProductsPaginated(query = {}) {
+  await getDb();
+  const { page = 1, limit = 10, search = '', category = '' } = query;
+  
+  if (isMongo) {
+    let filter = {};
+    if (category && category !== 'all') filter.category = category;
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { id: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const collection = db.collection('products');
+    const total = await collection.countDocuments(filter);
+    let cursor = collection.find(filter);
+    
+    if (limit > 0) {
+      const skip = (page - 1) * limit;
+      cursor = cursor.skip(skip).limit(parseInt(limit));
+    }
+    const products = await cursor.toArray();
+    return {
+      products,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 1
+    };
+  } else {
+    let products = await readJson(PRODUCTS_FILE);
+    if (category && category !== 'all') {
+      products = products.filter(p => p.category === category);
+    }
+    if (search) {
+      const s = search.toLowerCase();
+      products = products.filter(p => p.name.toLowerCase().includes(s) || p.id.toLowerCase().includes(s));
+    }
+    const total = products.length;
+    if (limit > 0) {
+      const skip = (page - 1) * limit;
+      products = products.slice(skip, skip + parseInt(limit));
+    }
+    return {
+      products,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 1
+    };
+  }
+}
+
 async function getUsersMap() {
   await getDb();
   let map = {};
@@ -924,10 +1001,9 @@ app.post('/api/products', verifyAdminOrSellerToken, async (req, res) => {
 
 app.delete('/api/products/:id', verifyAdminOrSellerToken, async (req, res) => {
   try {
-    const products = await getProducts();
     const { id } = req.params;
+    const product = await getProductById(id);
 
-    const product = products.find(p => p.id === id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
@@ -940,6 +1016,35 @@ app.delete('/api/products/:id', verifyAdminOrSellerToken, async (req, res) => {
     res.json({ success: true, removedId: id });
   } catch (err) {
     res.status(500).json({ error: 'Failed to remove product' });
+  }
+});
+
+app.put('/api/products/:id', verifyAdminOrSellerToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const product = await getProductById(id);
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    if (!req.isAdmin && product.sellerId !== req.sellerId) {
+      return res.status(403).json({ error: 'Access Denied: You can only edit your own products' });
+    }
+
+    await updateProduct(id, updates);
+    res.json({ success: true, id });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+});
+
+app.get('/api/admin/products/paginated', verifyAdminOrSellerToken, async (req, res) => {
+  try {
+    const result = await getProductsPaginated(req.query);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read paginated products' });
   }
 });
 

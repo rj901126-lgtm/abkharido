@@ -18,6 +18,7 @@ import {
   Store
 } from 'lucide-react';
 import '../assets/styles/admin.css';
+import AdminDataGrid from '../components/AdminDataGrid';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -86,7 +87,7 @@ const uploadToCloudinary = async (file) => {
 };
 
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
-  const { products, addProduct, removeProduct, showToast } = useApp();
+  const { products, addProduct, editProduct, removeProduct, showToast } = useApp();
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users' | 'promotions'
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
@@ -94,6 +95,41 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [sellerSearchQuery, setSellerSearchQuery] = useState('');
   const [inventorySearchQuery, setInventorySearchQuery] = useState('');
+
+  const [editMode, setEditMode] = useState(false);
+
+  const handleEditProduct = (prod) => {
+    setEditMode(true);
+    setId(prod.id);
+    setName(prod.name);
+    setCategory(prod.category || 'electronics');
+    setPrice(prod.price?.toString() || '');
+    setOriginalPrice(prod.originalPrice?.toString() || '');
+    setRating(prod.rating?.toString() || '4.5');
+    setReviewsCount(prod.reviewsCount?.toString() || '120');
+    setDescription(prod.description || '');
+    setInfluencerCommissionRate(prod.influencerCommissionRate ? (prod.influencerCommissionRate * 100).toString() : '5');
+    setUserCommissionRate(prod.userCommissionRate ? (prod.userCommissionRate * 100).toString() : '2');
+    setInStock(prod.inStock !== false);
+    setSpecs(prod.specs?.length ? prod.specs : [{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
+    setMedia(prod.images || [prod.image].filter(Boolean));
+    setColorModels(prod.colorModels?.length ? prod.colorModels : []);
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('Editing product. Scroll down to form.', 'info');
+  };
+
+  const resetForm = () => {
+    setEditMode(false);
+    setId('');
+    setName('');
+    setPrice('');
+    setOriginalPrice('');
+    setMedia([]);
+    setDescription('');
+    setSpecs([{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
+    setColorModels([]);
+  };
 
   // Promotions Management States
   const [promoDealsTimer, setPromoDealsTimer] = useState('');
@@ -658,29 +694,21 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       image: media[0],
       images: media,
       description,
-      specifications: cleanSpecs,
+      specs: cleanSpecs,
       influencerCommissionRate: Number(infCommission),
       userCommissionRate: Number(userCommission),
       inStock,
       colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined
     };
 
-    // Call context to append to products state list
-    addProduct(newProduct);
+    if (editMode) {
+      editProduct(newProduct.id, newProduct);
+    } else {
+      addProduct(newProduct);
+    }
 
-    // Clear form
-    setId('');
-    setName('');
-    setPrice('');
-    setOriginalPrice('');
-    setMedia([]);
-    setDescription('');
-    setSpecs([
-      { key: 'Brand', value: '' },
-      { key: 'Model', value: '' }
-    ]);
-    setColorModels([]);
-  };
+    resetForm();
+  };;
 
   if (!authorized) {
     return (
@@ -1103,86 +1131,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         <div className="admin-grid">
         
         {/* LEFT COLUMN: PRODUCTS AUDIT LIST */}
-        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 className="admin-form-title"><Package size={18} color="var(--primary-color)" /> Live Inventory ({products.length} Products)</h3>
-          
-          {/* Inventory Search Input */}
-          <div style={{ marginBottom: '4px' }}>
-            <input 
-              type="text"
-              className="admin-form-input"
-              placeholder="Search by product name, ID, or category..."
-              value={inventorySearchQuery}
-              onChange={(e) => setInventorySearchQuery(e.target.value)}
-              style={{ width: '100%', padding: '8px 14px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)' }}
-            />
-          </div>
-
-          <div className="admin-table-wrapper">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Preview</th>
-                  <th>ID / Name</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Creator Payout</th>
-                  <th>User Payout</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(() => {
-                  const filtered = products.filter(prod => {
-                    const query = inventorySearchQuery.toLowerCase().trim();
-                    if (!query) return true;
-                    const name = (prod.name || '').toLowerCase();
-                    const id = (prod.id || '').toLowerCase();
-                    const category = (prod.category || '').toLowerCase();
-                    return name.includes(query) || id.includes(query) || category.includes(query);
-                  });
-
-                  if (filtered.length === 0) {
-                    return (
-                      <tr>
-                        <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>
-                          No matching inventory products found.
-                        </td>
-                      </tr>
-                    );
-                  }
-
-                  return filtered.map(prod => (
-                  <tr key={prod.id}>
-                    <td>
-                      <img src={prod.image} alt={prod.name} className="admin-prod-thumb" />
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 'bold' }}>{(prod.name || '').substring(0, 40)}...</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>ID: <code>{prod.id || ''}</code></div>
-                    </td>
-                    <td style={{ textTransform: 'capitalize' }}>{prod.category || ''}</td>
-                    <td>
-                      <div style={{ fontWeight: 'bold' }}>₹{(prod.price || 0).toLocaleString('en-IN')}</div>
-                      <div style={{ fontSize: '11px', textDecoration: 'line-through', color: 'var(--text-secondary)' }}>₹{(prod.originalPrice || 0).toLocaleString('en-IN')}</div>
-                    </td>
-                    <td style={{ color: 'var(--success)', fontWeight: 'bold' }}>{((prod.influencerCommissionRate || 0) * 100).toFixed(1)}%</td>
-                    <td style={{ color: '#e68f00', fontWeight: 'bold' }}>{((prod.userCommissionRate || 0) * 100).toFixed(1)}%</td>
-                    <td>
-                      <button 
-                        className="admin-action-btn-danger" 
-                        onClick={() => removeProduct(prod.id)}
-                        title="Remove product from store"
-                      >
-                        <Trash2 size={14} /> Remove
-                      </button>
-                    </td>
-                  </tr>
-                  ));
-                })()}
-              </tbody>
-            </table>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <AdminDataGrid onEditProduct={handleEditProduct} />
         </div>
 
         {/* RIGHT COLUMN: ADD NEW PRODUCT FORM */}
@@ -1497,9 +1447,16 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               </div>
             </div> {/* End Specs Card */}
 
-            <button type="submit" className="btn btn-accent" style={{ marginTop: '8px', width: '100%', padding: '12px', fontSize: '14px' }}>
-              ADD PRODUCT TO STORE
-            </button>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+              <button type="submit" className="btn btn-accent" style={{ flex: 1, padding: '12px', fontSize: '14px' }}>
+                {editMode ? 'UPDATE PRODUCT IN STORE' : 'ADD PRODUCT TO STORE'}
+              </button>
+              {editMode && (
+                <button type="button" onClick={resetForm} className="btn btn-outline" style={{ padding: '12px', fontSize: '14px' }}>
+                  CANCEL EDIT
+                </button>
+              )}
+            </div>
           </form>
         </div>
 

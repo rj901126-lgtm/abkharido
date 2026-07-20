@@ -333,6 +333,33 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const editProduct = async (productId, updates) => {
+    const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
+    try {
+      const res = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
+        body: JSON.stringify(updates)
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast(err.error || 'Failed to update product', 'error');
+        return false;
+      }
+      
+      // Update local state for storefront
+      setProducts(prev => prev.map(p => p.id === productId ? { ...p, ...updates } : p));
+      showToast('Product updated successfully', 'success');
+      return true;
+    } catch (err) {
+      showToast('Network error while updating product', 'error');
+      return false;
+    }
+  };
+
   const removeProduct = async (productId) => {
     const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
@@ -558,6 +585,7 @@ export const AppProvider = ({ children }) => {
         verifyPayment,
         resetDatabase,
         addProduct,
+        editProduct,
         removeProduct,
         cancelOrder,
         wishlist,
