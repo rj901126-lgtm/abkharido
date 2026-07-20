@@ -21,40 +21,50 @@ import '../assets/styles/admin.css';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
+    try {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
 
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height *= maxWidth / width));
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width *= maxHeight / height));
-            height = maxHeight;
-          }
+              if (width > height) {
+                if (width > maxWidth) {
+                  height = Math.round(height * (maxWidth / width));
+                  width = maxWidth;
+                }
+              } else {
+                if (height > maxHeight) {
+                  width = Math.round(width * (maxHeight / height));
+                  height = maxHeight;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) throw new Error("Canvas 2D context not available");
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', quality));
+            } catch (err) {
+              reject(err);
+            }
+          };
+          img.onerror = (error) => reject(new Error("Image failed to load for compression"));
+          img.src = event.target.result;
+        } catch (err) {
+          reject(err);
         }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality));
       };
-      img.onerror = (error) => {
-        console.error("Image load failed in compressImage");
-        reject(error);
-      };
-      img.src = event.target.result;
-    };
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    } catch (err) {
+      reject(err);
+    }
   });
 };
 
