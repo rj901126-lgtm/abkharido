@@ -19,6 +19,40 @@ import {
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 
+const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height *= maxWidth / width));
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width *= maxHeight / height));
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, removeProduct, showToast } = useApp();
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users' | 'promotions'
@@ -423,41 +457,21 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('Image size should be less than 2MB', 'error');
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image size should be less than 5MB', 'error');
       e.target.value = '';
       return;
     }
 
-    const token = sessionStorage.getItem('abkharido_admin_token') || '';
-    showToast('Uploading variant image...', 'info');
+    showToast('Processing variant image...', 'info');
 
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Data = reader.result;
-        
-        const res = await fetch('/api/admin/upload-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-token': token
-          },
-          body: JSON.stringify({ base64Data, fileName: file.name })
-        });
-
-        const data = await res.json();
-        if (data.success && data.imageUrl) {
-          handleColorModelChange(colorIdx, 'primaryImage', data.imageUrl);
-          showToast('Variant image uploaded', 'success');
-        } else {
-          showToast(data.error || 'Failed to upload image', 'error');
-        }
-      };
-      reader.readAsDataURL(file);
+      const compressedBase64 = await compressImage(file, 800, 800, 0.7);
+      handleColorModelChange(colorIdx, 'primaryImage', compressedBase64);
+      showToast('Variant image processed successfully', 'success');
     } catch (err) {
-      console.error('Variant image upload failed:', err);
-      showToast('Error uploading image', 'error');
+      console.error('Variant image processing failed:', err);
+      showToast('Error processing image', 'error');
     }
   };
 
@@ -557,45 +571,23 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('Image size should be less than 2MB', 'error');
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image size should be less than 5MB', 'error');
       e.target.value = '';
       return;
     }
 
     setIsUploadingImage(true);
-    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    showToast('Processing main product image...', 'info');
 
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Data = reader.result;
-        
-        const res = await fetch('/api/admin/upload-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-token': token
-          },
-          body: JSON.stringify({
-            base64Data,
-            fileName: file.name
-          })
-        });
-
-        const data = await res.json();
-        if (data.success && data.imageUrl) {
-          setImage(data.imageUrl);
-          showToast('Image uploaded successfully', 'success');
-        } else {
-          showToast(data.error || 'Failed to upload image', 'error');
-        }
-        setIsUploadingImage(false);
-      };
-      reader.readAsDataURL(file);
+      const compressedBase64 = await compressImage(file, 800, 800, 0.7);
+      setImage(compressedBase64);
+      showToast('Image processed successfully', 'success');
     } catch (err) {
-      console.error('Image upload failed:', err);
-      showToast('Error uploading image', 'error');
+      console.error('Image processing failed:', err);
+      showToast('Error processing image', 'error');
+    } finally {
       setIsUploadingImage(false);
     }
   };
