@@ -15,10 +15,12 @@ import {
   FileText,
   Users,
   ShieldAlert,
-  Store
+  Store,
+  TrendingUp
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';
+import AdminAnalytics from '../components/AdminAnalytics';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -88,7 +90,7 @@ const uploadToCloudinary = async (file) => {
 
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, editProduct, removeProduct, showToast } = useApp();
-  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users' | 'promotions'
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'inventory' | 'orders' | 'users' | 'promotions'
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminSellers, setAdminSellers] = useState([]);
@@ -812,6 +814,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {/* Admin Tab controls */}
       <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid #eaeaea', paddingBottom: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <button 
+          onClick={() => setActiveTab('analytics')}
+          className={`btn ${activeTab === 'analytics' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <TrendingUp size={16} /> Analytics Dashboard
+        </button>
+        <button 
           onClick={() => setActiveTab('inventory')}
           className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-outline'}`}
           style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
@@ -840,6 +849,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           <Tag size={16} /> Banners & Offers ({banners.length})
         </button>
       </div>
+
+      {/* CONDITIONAL RENDER: ANALYTICS TAB */}
+      {activeTab === 'analytics' && (
+        <AdminAnalytics />
+      )}
 
       {/* CONDITIONAL RENDER: ORDERS TAB */}
       {activeTab === 'orders' && (
