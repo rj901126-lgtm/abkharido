@@ -75,7 +75,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
           {/* Search form */}
           <form className="search-form" onSubmit={handleSearchSubmit}>
-            <div className="search-input-wrapper">
+            <div className="search-input-wrapper" style={{ position: 'relative' }}>
               <input
                 ref={searchInputRef}
                 type="text"
@@ -85,7 +85,17 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
+                style={{ paddingRight: '40px' }}
               />
+              {searchQuery && (
+                <button 
+                  type="button" 
+                  onClick={() => { setSearchQuery(''); if (searchInputRef.current) searchInputRef.current.focus(); }}
+                  style={{ position: 'absolute', right: '40px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                >
+                  ✕
+                </button>
+              )}
               <button type="submit" className="search-button">
                 <Search size={18} />
               </button>

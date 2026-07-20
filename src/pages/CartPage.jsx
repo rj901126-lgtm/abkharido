@@ -9,20 +9,20 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
   if (cart.length === 0) {
     return (
-      <div className="container" style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <div style={{ display: 'inline-flex', padding: '16px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', marginBottom: '16px' }}>
-          <ShoppingBag size={48} color="var(--primary-color)" />
+      <div className="container" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'inline-flex', padding: '24px', borderRadius: '50%', background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', boxShadow: '0 8px 32px rgba(0,0,0,0.06), inset 0 2px 4px white', border: '1px solid rgba(255,255,255,0.8)', marginBottom: '24px' }}>
+          <ShoppingBag size={56} color="var(--primary-color)" strokeWidth={1.5} />
         </div>
-        <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Your cart is empty!</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '8px', fontSize: '14px' }}>
-          Explore our wide range of products directly in stock and fill it up!
+        <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '12px' }}>Your cart is empty!</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '15px', maxWidth: '300px', margin: '0 auto 32px' }}>
+          Explore our wide range of premium products and find something you love.
         </p>
         <button 
           className="btn btn-primary" 
-          style={{ marginTop: '20px' }} 
+          style={{ padding: '14px 40px', fontSize: '15px', borderRadius: '12px', fontWeight: '700', boxShadow: '0 8px 20px rgba(79, 70, 229, 0.3)' }} 
           onClick={() => onNavigate('home')}
         >
-          Shop Now
+          Start Shopping
         </button>
       </div>
     );
