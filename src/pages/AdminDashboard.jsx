@@ -113,7 +113,44 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setInStock(prod.inStock !== false);
     setSpecs(prod.specs?.length ? prod.specs : [{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
     setMedia(prod.images || [prod.image].filter(Boolean));
-    setColorModels(prod.colorModels?.length ? prod.colorModels : []);
+    
+    let initialColorModels = prod.colorModels;
+    if (!initialColorModels || initialColorModels.length === 0) {
+      if (prod.category === 'mobiles' || prod.category === 'electronics') {
+        initialColorModels = [
+          {
+            name: 'Carbon Gray',
+            primaryImage: prod.images && prod.images[0] ? prod.images[0] : prod.image || '',
+            imagesInput: (prod.images || []).join(', '),
+            variants: [
+              { name: 'Base Edition', price: prod.price?.toString() || '', originalPrice: prod.originalPrice?.toString() || '', stock: '15' },
+              { name: 'Pro Edition', price: Math.round(prod.price * 1.25).toString(), originalPrice: Math.round(prod.originalPrice * 1.25).toString(), stock: '3' }
+            ]
+          },
+          {
+            name: 'Platinum Silver',
+            primaryImage: prod.images && prod.images[1] ? prod.images[1] : prod.image || '',
+            imagesInput: (prod.images && prod.images[1] ? [prod.images[1]] : [prod.image]).filter(Boolean).join(', '),
+            variants: [
+              { name: 'Base Edition', price: Math.round(prod.price * 1.05).toString(), originalPrice: Math.round(prod.originalPrice * 1.05).toString(), stock: '5' },
+              { name: 'Pro Edition', price: Math.round(prod.price * 1.32).toString(), originalPrice: Math.round(prod.originalPrice * 1.32).toString(), stock: '2' }
+            ]
+          }
+        ];
+      } else {
+        initialColorModels = [
+          {
+            name: 'Standard Edition',
+            primaryImage: prod.image || '',
+            imagesInput: (prod.images || [prod.image]).filter(Boolean).join(', '),
+            variants: [
+              { name: 'Standard Pack', price: prod.price?.toString() || '', originalPrice: prod.originalPrice?.toString() || '', stock: '10' }
+            ]
+          }
+        ];
+      }
+    }
+    setColorModels(initialColorModels);
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
     showToast('Editing product. Scroll down to form.', 'info');
