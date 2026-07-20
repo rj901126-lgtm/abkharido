@@ -102,7 +102,11 @@ const AdminDataGrid = ({ onEditProduct }) => {
 
       <div className="admin-table-wrapper" style={{ minHeight: '400px' }}>
         {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading inventory...</div>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+            <div style={{ color: '#64748b', fontWeight: '500' }}>Loading inventory...</div>
+          </div>
         ) : (
           <table className="admin-table">
             <thead>

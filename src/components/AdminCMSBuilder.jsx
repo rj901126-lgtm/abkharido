@@ -82,7 +82,15 @@ const AdminCMSBuilder = () => {
     setLayout({ ...layout, components: updated });
   };
 
-  if (loading) return <div>Loading CMS Engine...</div>;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        <div style={{ color: '#64748b', fontWeight: '500' }}>Loading CMS Engine...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

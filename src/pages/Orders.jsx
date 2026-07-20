@@ -20,8 +20,10 @@ const Orders = ({ onNavigate }) => {
 
   if (isLoading) {
     return (
-      <div className="container" style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Loading your orders...</p>
+      <div className="orders-page" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        <div style={{ color: '#64748b', fontWeight: '500' }}>Loading your orders...</div>
       </div>
     );
   }
