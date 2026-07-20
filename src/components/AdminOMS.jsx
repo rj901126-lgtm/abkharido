@@ -16,8 +16,8 @@ const AdminOMS = () => {
   const fetchOrders = async () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch('/api/v2/orders/admin/all', {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetch('/api/orders?username=admin', {
+        headers: { 'x-admin-token': token }
       });
       if (res.ok) {
         const data = await res.json();
@@ -63,12 +63,23 @@ const AdminOMS = () => {
     }
 
     try {
-      // Assuming you will implement PUT /api/v2/orders/admin/bulk
-      showToast(`Simulated updating ${selectedOrders.length} orders to ${bulkStatus}`, 'success');
-      // fetchOrders();
+      const token = sessionStorage.getItem('abkharido_admin_token');
+      await Promise.all(selectedOrders.map(async (orderId) => {
+        await fetch(`/api/orders/${orderId}/status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': token
+          },
+          body: JSON.stringify({ status: bulkStatus })
+        });
+      }));
+      showToast(`Updated ${selectedOrders.length} orders to ${bulkStatus}`, 'success');
+      fetchOrders();
       setSelectedOrders([]);
     } catch (err) {
       console.error(err);
+      showToast('Failed to update order status', 'error');
     }
   };
 
