@@ -23,6 +23,7 @@ import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';
 import AdminAnalytics from '../components/AdminAnalytics';
 import AdminCMSBuilder from '../components/AdminCMSBuilder';
+import AdminCoupons from '../components/AdminCoupons';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -830,6 +831,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           <LayoutTemplate size={16} /> CMS & Layout
         </button>
         <button 
+          onClick={() => setActiveTab('coupons')}
+          className={`btn ${activeTab === 'coupons' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <Tag size={16} /> Marketing & Coupons
+        </button>
+        <button 
           onClick={() => setActiveTab('inventory')}
           className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-outline'}`}
           style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
@@ -867,6 +875,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {/* CONDITIONAL RENDER: CMS TAB */}
       {activeTab === 'cms' && (
         <AdminCMSBuilder />
+      )}
+
+      {/* CONDITIONAL RENDER: COUPONS TAB */}
+      {activeTab === 'coupons' && (
+        <AdminCoupons />
       )}
 
       {/* CONDITIONAL RENDER: ORDERS TAB */}

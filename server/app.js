@@ -14,6 +14,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import shippingRoutes from './routes/shippingRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import cmsRoutes from './routes/cmsRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ app.use('/api/v2/payment', paymentRoutes);
 app.use('/api/v2/shipping', shippingRoutes);
 app.use('/api/v2/analytics', analyticsRoutes);
 app.use('/api/v2/cms', cmsRoutes);
+app.use('/api/v2/coupons', couponRoutes);
 
 // --- LEGACY ROUTES WILL BE MOUNTED HERE BY api/index.js ---
 

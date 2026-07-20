@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
@@ -23,6 +23,11 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
   const [createdOrder, setCreatedOrder] = useState(null);
+
+  // Coupon states
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   // Synchronize currentUser fields
   useEffect(() => {
@@ -110,7 +115,33 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
   const coinsDiscount = useCoinsDiscount && currentUser ? Math.min(userCoins, itemsPrice) : 0;
-  const finalAmount = itemsPrice - coinsDiscount + deliveryCharge;
+  
+  const couponDiscountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const finalAmount = itemsPrice - coinsDiscount - couponDiscountAmount + deliveryCharge;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setApplyingCoupon(true);
+    try {
+      const res = await fetch('/api/v2/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode, cartValue: itemsPrice })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAppliedCoupon({ code: data.couponCode, discountAmount: data.discountAmount });
+        showToast(`Coupon applied! You saved ₹${data.discountAmount}`, 'success');
+      } else {
+        setAppliedCoupon(null);
+        showToast(data.error || data.message || 'Invalid Coupon', 'error');
+      }
+    } catch (err) {
+      showToast('Error applying coupon', 'error');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
 
   // Handle Address Submit
   const handleAddressSubmit = (e) => {
@@ -429,6 +460,37 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             ))}
           </div>
 
+          {/* Coupon Code Section */}
+          <div style={{ backgroundColor: '#fff', border: '1px dashed #ccc', padding: '16px', borderRadius: '4px', marginBottom: '20px' }}>
+            <h4 style={{ margin: '0 0 10px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Tag size={16} color="var(--primary-color)" /> Have a Coupon Code?
+            </h4>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="text" 
+                placeholder="Enter Code (e.g. DIWALI50)" 
+                style={{ flex: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '4px', textTransform: 'uppercase' }}
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                disabled={!!appliedCoupon}
+              />
+              {appliedCoupon ? (
+                <button className="btn btn-outline" onClick={() => { setAppliedCoupon(null); setCouponCode(''); }} style={{ color: '#d32f2f', borderColor: '#d32f2f' }}>
+                  REMOVE
+                </button>
+              ) : (
+                <button className="btn btn-primary" onClick={handleApplyCoupon} disabled={applyingCoupon || !couponCode}>
+                  {applyingCoupon ? 'APPLYING...' : 'APPLY'}
+                </button>
+              )}
+            </div>
+            {appliedCoupon && (
+              <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#2e7d32', fontWeight: 'bold' }}>
+                ✓ Coupon '{appliedCoupon.code}' applied successfully.
+              </p>
+            )}
+          </div>
+
           <div style={{ backgroundColor: '#fafafa', border: '1px solid #e0e0e0', padding: '16px', borderRadius: '4px', marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
               <span>Items Total Price:</span>
@@ -438,6 +500,12 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: '#e68f00' }}>
                 <span>Redeemed Coins Discount:</span>
                 <span>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+            {appliedCoupon && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: '#2e7d32' }}>
+                <span>Coupon Discount ({appliedCoupon.code}):</span>
+                <span>- ₹{appliedCoupon.discountAmount.toLocaleString('en-IN')}</span>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
