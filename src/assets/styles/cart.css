@@ -25,19 +25,20 @@
 
 .cart-item-card {
   background-color: white;
-  border: 1px solid transparent;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 24px;
   display: flex;
   gap: 24px;
   position: relative;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .cart-item-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
 }
 
 .cart-item-image {
@@ -166,42 +167,52 @@
 .price-details-card {
   width: 380px;
   background-color: white;
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   align-self: flex-start;
   position: sticky;
   top: 120px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  background-image: radial-gradient(circle at top right, rgba(79,70,229,0.03), transparent 250px);
 }
 
 .price-card-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 16px;
 }
 
 .price-row-item {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: var(--text-primary);
+  color: #475569;
+  font-weight: 500;
 }
 
 .price-total-row {
   display: flex;
   justify-content: space-between;
-  font-size: 18px;
-  font-weight: bold;
-  border-top: 1px dashed var(--border-light);
-  border-bottom: 1px dashed var(--border-light);
-  padding: 16px 0;
-  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 900;
+  border-top: 2px dashed #cbd5e1;
+  border-bottom: 2px dashed #cbd5e1;
+  padding: 20px 0;
+  color: #0f172a;
+  margin-top: 4px;
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.05), transparent, rgba(16, 185, 129, 0.05));
+  margin-left: -28px;
+  margin-right: -28px;
+  padding-left: 28px;
+  padding-right: 28px;
 }
 
 .price-savings-notice {
