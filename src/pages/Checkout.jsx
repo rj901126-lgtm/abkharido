@@ -325,7 +325,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
       {/* STEP 1: Address Details */}
       {step === 1 && (
-        <div className="card" style={{ padding: '24px' }}>
+        <div className="card" style={{ padding: '32px', borderRadius: '16px', border: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
           <h2 style={styles.stepHeader}><MapPin size={20} /> Shipping Address Details</h2>
           <form onSubmit={handleAddressSubmit} style={styles.form}>
             <div className="checkout-form-row" style={styles.formRow}>
@@ -438,9 +438,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         </div>
       )}
 
-      {/* STEP 2: Order Summary Review */}
+      {/* STEP 2: Order Summary */}
       {step === 2 && (
-        <div className="card" style={{ padding: '24px' }}>
+        <div className="card" style={{ padding: '32px', borderRadius: '16px', border: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
           <h2 style={styles.stepHeader}><ShoppingBag size={20} /> Review Order Items</h2>
           
           <div style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '12px', marginBottom: '16px' }}>
@@ -528,9 +528,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         </div>
       )}
 
-      {/* STEP 3: Payment Selection */}
+      {/* STEP 3: Payment Options */}
       {step === 3 && (
-        <div className="card" style={{ padding: '24px' }}>
+        <div className="card" style={{ padding: '32px', borderRadius: '16px', border: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
           <h2 style={styles.stepHeader}><CreditCard size={20} /> Select Payment Option</h2>
           <form onSubmit={handlePaymentSubmit}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
@@ -577,9 +577,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         </div>
       )}
 
-      {/* STEP 4: Success Screen */}
+      {/* STEP 4: Order Success Confetti Screen */}
       {step === 4 && createdOrder && (
-        <div className="card" style={{ padding: '40px 32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+        <div className="card animate-fade-in" style={{ padding: '48px', textAlign: 'center', borderRadius: '24px', border: 'none', boxShadow: '0 12px 48px rgba(0,0,0,0.06)', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
           <div style={{ display: 'inline-flex', padding: '12px', borderRadius: '50%', backgroundColor: '#e8f5e9', marginBottom: '8px' }}>
             <CheckCircle2 size={56} color="var(--success)" />
           </div>
@@ -627,35 +627,38 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '16px 20px',
+    padding: '24px 32px',
     backgroundColor: 'white',
-    border: '1px solid var(--border-light)',
-    borderRadius: '4px',
-    marginBottom: '20px',
-    fontSize: '13px',
-    fontWeight: '500',
+    border: '1px solid transparent',
+    borderRadius: '16px',
+    marginBottom: '24px',
+    fontSize: '14px',
+    fontWeight: '600',
     color: 'var(--text-secondary)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
   },
   stepIndicator: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '12px',
+    transition: 'all 0.3s ease',
   },
   stepActive: {
     color: 'var(--primary-color)',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   stepNum: {
-    width: '20px',
-    height: '20px',
+    width: '24px',
+    height: '24px',
     borderRadius: '50%',
-    backgroundColor: '#eaeaea',
-    color: '#333',
+    backgroundColor: '#f1f5f9',
+    color: '#64748b',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '11px',
-    fontWeight: 'bold',
+    fontSize: '12px',
+    fontWeight: '800',
+    transition: 'all 0.3s ease',
   },
   stepConnector: {
     flex: 1,
@@ -664,37 +667,38 @@ const styles = {
     margin: '0 16px',
   },
   stepHeader: {
-    fontSize: '18px',
-    fontWeight: 'bold',
+    fontSize: '20px',
+    fontWeight: '800',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    marginBottom: '20px',
-    borderBottom: '1px solid var(--border-light)',
-    paddingBottom: '12px',
+    gap: '10px',
+    marginBottom: '24px',
+    borderBottom: '1px solid rgba(0,0,0,0.05)',
+    paddingBottom: '16px',
+    color: 'var(--primary-color)'
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '16px',
   },
   formRow: {
     display: 'flex',
-    gap: '16px',
+    gap: '20px',
   },
   label: {
     display: 'block',
-    fontSize: '12px',
-    fontWeight: '600',
+    fontSize: '13px',
+    fontWeight: '700',
     color: 'var(--text-secondary)',
-    marginBottom: '4px',
+    marginBottom: '8px',
   },
   input: {
     width: '100%',
     border: '1px solid var(--border-light)',
-    borderRadius: '4px',
-    padding: '8px 12px',
-    fontSize: '14px',
+    borderRadius: '12px',
+    padding: '12px 16px',
+    fontSize: '15px',
     outline: 'none',
     transition: 'border-color 0.2s ease',
     marginBottom: '4px',
@@ -704,14 +708,17 @@ const styles = {
     gap: '16px',
     alignItems: 'flex-start',
     border: '1px solid var(--border-light)',
-    borderRadius: '4px',
-    padding: '16px',
+    borderRadius: '16px',
+    padding: '20px',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'white',
   },
   paymentOptionActive: {
     borderColor: 'var(--primary-color)',
-    backgroundColor: 'var(--primary-light)',
+    backgroundColor: '#eff6ff',
+    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.15)',
+    transform: 'translateY(-2px)'
   },
 };
 

@@ -143,10 +143,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       {/* Account Info Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '24px' }}>
         
-        {/* Wallet & Coins Card */}
-        <div className="card" style={{ padding: '16px', border: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg, #f5f8ff 0%, #eef3ff 100%)' }}>
-          <div>
-            <div style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>ACCOUNT BALANCE</div>
+        {/* Premium Profile Header Card */}
+        <div className="card" style={{ padding: '32px', border: 'none', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', background: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%)', color: 'white', boxShadow: '0 16px 40px rgba(55, 48, 163, 0.2)' }}>
+          {/* Wallet / Loyalty Balance */}
+          <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', padding: '16px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: 'bold' }}>WALLET BALANCE</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
               {currentUser.isInfluencer ? (
                 <>
@@ -167,8 +168,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
         </div>
 
         {/* Profile Details Edit Form */}
-        <form className="card" onSubmit={handleUpdateProfile} style={{ padding: '20px', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#212121', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px', marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <form className="card" onSubmit={handleUpdateProfile} style={{ padding: '32px', border: 'none', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary-color)', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '16px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Personal Details</span>
             <button 
               type="button" 
@@ -181,26 +182,26 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ flex: '1 1 240px' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>FIRST NAME *</label>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px' }}>FIRST NAME *</label>
               <input 
                 type="text" 
                 value={firstName} 
                 onChange={(e) => setFirstName(e.target.value)} 
                 placeholder="First name"
                 disabled={!isEditing}
-                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
+                style={{ width: '100%', height: '48px', padding: '0 16px', border: '1px solid var(--border-light)', borderRadius: '12px', fontSize: '14px', backgroundColor: !isEditing ? '#f8fafc' : 'white' }}
                 required
               />
             </div>
             <div style={{ flex: '1 1 240px' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>SURNAME *</label>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px' }}>SURNAME *</label>
               <input 
                 type="text" 
                 value={lastName} 
                 onChange={(e) => setLastName(e.target.value)} 
                 placeholder="Surname"
                 disabled={!isEditing}
-                style={{ width: '100%', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
+                style={{ width: '100%', height: '48px', padding: '0 16px', border: '1px solid var(--border-light)', borderRadius: '12px', fontSize: '14px', backgroundColor: !isEditing ? '#f8fafc' : 'white' }}
                 required
               />
             </div>

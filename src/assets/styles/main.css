@@ -836,10 +836,10 @@ img {
   background: #f0f4ff;
 }
 
-/* ── Left Blue Panel (Desktop Only) ── */
+/* ── Left Image Panel (Desktop Only) ── */
 .lp-left {
-  width: 42%;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
+  width: 48%;
+  background: url(https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=1200&auto=format&fit=crop) center/cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -851,23 +851,12 @@ img {
 .lp-left::before {
   content: '';
   position: absolute;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  top: -60px;
-  right: -80px;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.85) 0%, rgba(30, 27, 75, 0.95) 100%);
+  z-index: 1;
 }
-.lp-left::after {
-  content: '';
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-  bottom: -50px;
-  left: -60px;
-}
+
+
 
 .lp-left-content {
   position: relative;
@@ -950,11 +939,11 @@ img {
 /* Form Card */
 .lp-form-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 36px 32px;
-  box-shadow: 0 8px 32px rgba(40, 116, 240, 0.1);
+  border-radius: 24px;
+  padding: 48px 40px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.05);
 }
 
 .lp-back-btn {
@@ -996,16 +985,17 @@ img {
   position: relative;
   display: flex;
   align-items: center;
-  background: #f8faff;
-  border: 1.5px solid #e2e8f8;
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
   overflow: hidden;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .lp-input-group:focus-within {
-  border-color: #2874f0;
-  box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
 .lp-input-prefix {
@@ -1088,23 +1078,22 @@ img {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  height: 50px;
-  background: linear-gradient(90deg, #fb641b, #f97316);
+  height: 54px;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   color: #ffffff;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.5px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(251, 100, 27, 0.3);
-  transition: opacity 0.2s, transform 0.15s;
-  margin-top: 4px;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.lp-submit-btn:hover:not(:disabled) {
-  opacity: 0.93;
-  transform: translateY(-1px);
+.lp-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.4);
 }
 
 .lp-submit-btn:disabled {

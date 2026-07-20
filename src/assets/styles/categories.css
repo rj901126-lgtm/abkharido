@@ -138,10 +138,10 @@
 }
 
 .sidebar-category-btn.active .sidebar-category-icon-wrapper {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   color: #ffffff;
-  transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
 }
 
 .sidebar-category-label {
@@ -247,23 +247,24 @@
 
 .category-grid-item {
   background-color: #ffffff;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  border: 1px solid transparent;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px;
+  padding: 12px;
   cursor: pointer;
   text-align: center;
-  transition: all var(--transition-fast);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
 .category-grid-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary-color);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.15);
+  border-color: rgba(79, 70, 229, 0.2);
 }
 
 .category-item-image-wrapper {
