@@ -14,30 +14,40 @@ const AdminAnalytics = () => {
     totalRevenue: 0
   });
 
-  useEffect(() => {
-    // In a real scenario, this fetches from /api/v2/analytics/sales and /kpi
-    // For this build, we simulate realistic data
-    setKpis({
-      totalUsers: 1420,
-      totalProducts: 345,
-      totalOrders: 890,
-      totalRevenue: 450000
-    });
+  const [loading, setLoading] = useState(true);
 
-    const mockSales = [];
-    let currentRevenue = 15000;
-    for (let i = 30; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      currentRevenue += (Math.random() * 5000) - 2000;
-      mockSales.push({
-        date: d.toISOString().split('T')[0],
-        revenue: Math.floor(Math.max(5000, currentRevenue)),
-        orders: Math.floor(Math.random() * 20) + 5
-      });
-    }
-    setSalesData(mockSales);
+  useEffect(() => {
+    fetchAnalytics();
   }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || '';
+      const res = await fetch('/api/admin/analytics', {
+        headers: { 'x-admin-token': token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setKpis(data.kpis);
+        // Reverse salesData so it goes from oldest to newest (left to right on the chart)
+        setSalesData(data.salesData.reverse());
+      }
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        <div style={{ color: '#64748b', fontWeight: '500' }}>Loading authentic dashboard data...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

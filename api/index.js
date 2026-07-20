@@ -1042,6 +1042,65 @@ app.put('/api/products/:id', verifyAdminOrSellerToken, async (req, res) => {
   }
 });
 
+app.get('/api/admin/analytics', verifyAdminToken, async (req, res) => {
+  try {
+    const usersMap = await getUsersMap();
+    const products = await getProducts();
+    const orders = await getOrders();
+
+    const totalUsers = Object.keys(usersMap).length;
+    const totalProducts = products.length;
+    const totalOrders = orders.length;
+    
+    // Calculate Total Revenue (Sum of finalAmount from all delivered or processing orders)
+    const validOrders = orders.filter(o => o.status !== 'Cancelled' && o.status !== 'Refunded');
+    const totalRevenue = validOrders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
+
+    // Calculate Sales Data for the last 30 days
+    const mockSales = [];
+    const today = new Date();
+    
+    // Group valid orders by date
+    const ordersByDate = {};
+    validOrders.forEach(o => {
+      if (o.date) {
+        // o.date is like "2026-07-20T12:34:56.789Z" or "2026-07-20"
+        const dateStr = o.date.split('T')[0];
+        if (!ordersByDate[dateStr]) ordersByDate[dateStr] = { revenue: 0, orders: 0 };
+        ordersByDate[dateStr].revenue += (o.finalAmount || 0);
+        ordersByDate[dateStr].orders += 1;
+      }
+    });
+
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      
+      const dayData = ordersByDate[dateStr] || { revenue: 0, orders: 0 };
+      
+      mockSales.push({
+        date: dateStr,
+        revenue: dayData.revenue,
+        orders: dayData.orders
+      });
+    }
+
+    res.json({
+      kpis: {
+        totalUsers,
+        totalProducts,
+        totalOrders,
+        totalRevenue
+      },
+      salesData: mockSales
+    });
+  } catch (err) {
+    console.error('Analytics Error:', err);
+    res.status(500).json({ error: 'Failed to fetch analytics data' });
+  }
+});
+
 app.get('/api/admin/products/paginated', verifyAdminOrSellerToken, async (req, res) => {
   try {
     const result = await getProductsPaginated(req.query);
