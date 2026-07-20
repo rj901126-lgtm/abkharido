@@ -96,6 +96,7 @@ const uploadToCloudinary = async (file) => {
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, editProduct, removeProduct, showToast } = useApp();
   const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'inventory' | 'orders' | 'users' | 'promotions'
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminSellers, setAdminSellers] = useState([]);
@@ -803,78 +804,87 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   }
 
   return (
-    <div className="container admin-container animate-fade-in">
+    <div className="admin-layout animate-fade-in">
       
-      {/* Header bar */}
-      <div className="admin-header">
-        <div className="admin-title-area">
-          <h1 className="admin-title"><Settings size={22} color="var(--primary-color)" /> Backend Inventory Controller</h1>
-          <span className="admin-subtitle">Direct Warehousing - Add, remove, and audit our products database.</span>
+      {/* ── Premium Sidebar ── */}
+      <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+        <div className="admin-sidebar-header">
+          <div className="admin-sidebar-brand" onClick={() => onNavigate('home')}>
+            <ShieldAlert size={24} color="#818cf8" />
+            AbKharido<span style={{color: '#818cf8'}}>.Admin</span>
+          </div>
         </div>
-        <button className="btn btn-outline" onClick={() => onNavigate('home')}>
-          <ArrowLeft size={16} /> Back to Storefront
-        </button>
-      </div>
+        
+        <nav className="admin-sidebar-nav">
+          <div 
+            className={`admin-nav-item ${activeTab === 'analytics' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('analytics'); setMobileMenuOpen(false); }}
+          >
+            <TrendingUp size={18} /> Dashboard
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'cms' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('cms'); setMobileMenuOpen(false); }}
+          >
+            <LayoutTemplate size={18} /> CMS & Layout
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'coupons' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('coupons'); setMobileMenuOpen(false); }}
+          >
+            <Tag size={18} /> Marketing
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'crm' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('crm'); setMobileMenuOpen(false); }}
+          >
+            <Settings size={18} /> CRM Settings
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('inventory'); setMobileMenuOpen(false); }}
+          >
+            <Package size={18} /> Inventory
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('orders'); setMobileMenuOpen(false); }}
+          >
+            <FileText size={18} /> Orders
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
+          >
+            <Users size={18} /> Users
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'promotions' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('promotions'); setMobileMenuOpen(false); }}
+          >
+            <Image size={18} /> Banners
+          </div>
+        </nav>
+      </aside>
 
-      {/* Admin Tab controls */}
-      <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid #eaeaea', paddingBottom: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        <button 
-          onClick={() => setActiveTab('analytics')}
-          className={`btn ${activeTab === 'analytics' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <TrendingUp size={16} /> Analytics Dashboard
-        </button>
-        <button 
-          onClick={() => setActiveTab('cms')}
-          className={`btn ${activeTab === 'cms' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <LayoutTemplate size={16} /> CMS & Layout
-        </button>
-        <button 
-          onClick={() => setActiveTab('coupons')}
-          className={`btn ${activeTab === 'coupons' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <Tag size={16} /> Marketing & Coupons
-        </button>
-        <button 
-          onClick={() => setActiveTab('crm')}
-          className={`btn ${activeTab === 'crm' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <Settings size={16} /> CRM & Settings
-        </button>
-        <button 
-          onClick={() => setActiveTab('inventory')}
-          className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <Package size={16} /> Manage Inventory ({products.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('orders')}
-          className={`btn ${activeTab === 'orders' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <FileText size={16} /> Manage Orders ({adminOrders.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('users')}
-          className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <Users size={16} /> Referral & Users ({adminUsers.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('promotions')}
-          className={`btn ${activeTab === 'promotions' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
-        >
-          <Tag size={16} /> Banners & Offers ({banners.length})
-        </button>
-      </div>
+      {/* ── Main Content Area ── */}
+      <main className="admin-main-content">
+        
+        <header className="admin-topbar">
+          <div className="admin-topbar-title">
+            <button className="admin-mobile-menu-btn" onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X size={24} /> : <div style={{display:'flex', flexDirection:'column', gap:'4px'}}><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div></div>}
+            </button>
+            <span>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Control</span>
+          </div>
+          <div className="admin-topbar-actions">
+            <button className="btn btn-outline btn-sm" onClick={() => onNavigate('home')} style={{ fontSize: '12px' }}>
+              <ArrowLeft size={14} /> Exit Admin
+            </button>
+          </div>
+        </header>
+
+        <div className="admin-content-inner">
 
       {/* CONDITIONAL RENDER: ANALYTICS TAB */}
       {activeTab === 'analytics' && (
@@ -2126,6 +2136,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           </button>
         </div>
       )}
+
+        </div>
+      </main>
     </div>
   );
 };
