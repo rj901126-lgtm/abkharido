@@ -101,14 +101,14 @@ const AdminCMSBuilder = () => {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {layout.components.map((comp, idx) => (
-          <div key={comp.id} style={{ display: 'flex', gap: '16px', padding: '16px', background: '#f9f9f9', border: '1px solid #e0e0e0', borderRadius: '8px', alignItems: 'center' }}>
+          <div key={comp.id} className="admin-panel-card" style={{ display: 'flex', gap: '20px', padding: '24px', alignItems: 'flex-start', borderLeft: '4px solid var(--primary-color)', transition: 'all 0.3s ease' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateX(5px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button className="btn btn-outline" style={{ padding: '4px' }} onClick={() => moveUp(idx)}><MoveUp size={14} /></button>
-              <button className="btn btn-outline" style={{ padding: '4px' }} onClick={() => moveDown(idx)}><MoveDown size={14} /></button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '30px' }}>
+              <button className="btn btn-outline" style={{ padding: '6px', borderRadius: '8px', border: 'none', background: '#f1f5f9', color: '#64748b' }} onClick={() => moveUp(idx)}><MoveUp size={16} /></button>
+              <button className="btn btn-outline" style={{ padding: '6px', borderRadius: '8px', border: 'none', background: '#f1f5f9', color: '#64748b' }} onClick={() => moveDown(idx)}><MoveDown size={16} /></button>
             </div>
 
-            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
               <div>
                 <label className="admin-input-label">Row Type</label>
                 <select 
@@ -147,8 +147,8 @@ const AdminCMSBuilder = () => {
               )}
             </div>
 
-            <button className="btn btn-outline" style={{ color: '#d32f2f', borderColor: '#d32f2f', alignSelf: 'flex-start' }} onClick={() => removeComponent(idx)}>
-              <Trash2 size={16} />
+            <button className="btn btn-outline" style={{ color: '#ef4444', borderColor: 'transparent', background: '#fee2e2', borderRadius: '50%', padding: '10px', alignSelf: 'center' }} title="Remove Row" onClick={() => removeComponent(idx)}>
+              <Trash2 size={18} />
             </button>
           </div>
         ))}

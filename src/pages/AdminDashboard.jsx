@@ -915,18 +915,22 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {activeTab === 'users' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Regular Users / Customer Accounts */}
-          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 className="admin-form-title" style={{ margin: 0 }}><Users size={18} color="var(--primary-color)" /> Platform Customer Accounts & Referral Data</h3>
+          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+              <h3 className="admin-form-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Users size={20} /></div>
+                Platform Customer Accounts & Referral Data
+              </h3>
               
               {/* Search Input */}
-              <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
+              <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', height: '40px', width: '300px', background: '#f8fafc', alignItems: 'center', padding: '0 12px', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}>
+                <Users size={16} color="#94a3b8" />
                 <input 
                   type="text" 
                   placeholder="Search mobile number or name..." 
                   value={userSearchQuery}
                   onChange={(e) => setUserSearchQuery(e.target.value)}
-                  style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
+                  style={{ border: 'none', padding: '0 10px', fontSize: '14px', outline: 'none', width: '100%', background: 'transparent', color: '#334155' }}
                 />
               </div>
             </div>
@@ -966,51 +970,51 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + o.finalAmount, 0);
 
                       return (
-                        <tr key={u.username}>
-                          <td>
-                            <div style={{ fontWeight: 'bold' }}>{u.username}</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Joined platform</div>
+                        <tr key={u.username} style={{ transition: 'background-color 0.2s', borderBottom: '1px solid #f1f5f9' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                          <td style={{ padding: '16px 12px' }}>
+                            <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '14px' }}>{u.username}</div>
+                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Joined platform</div>
                           </td>
-                          <td>{u.fullName || 'Guest User'}</td>
-                          <td>{u.email || <span style={{ color: '#888', fontStyle: 'italic' }}>Not provided</span>}</td>
+                          <td style={{ color: '#334155', fontWeight: '500' }}>{u.fullName || 'Guest User'}</td>
+                          <td style={{ color: '#475569' }}>{u.email || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Not provided</span>}</td>
                           <td>
-                            <span className={`badge ${u.emailVerified ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '11px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px', background: u.emailVerified ? '#dcfce7' : '#fee2e2', color: u.emailVerified ? '#16a34a' : '#ef4444' }}>
                               {u.emailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
                             </span>
                           </td>
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <span className={`badge ${u.isInfluencer ? 'badge-success' : 'badge-info'}`} style={{ fontSize: '10px', backgroundColor: u.isInfluencer ? 'var(--success)' : '#eaeaea', color: u.isInfluencer ? 'white' : '#555' }}>
-                                {u.isInfluencer ? ' Verified Creator' : 'Regular Customer'}
+                              <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backgroundColor: u.isInfluencer ? '#4f46e5' : '#f1f5f9', color: u.isInfluencer ? 'white' : '#64748b', display: 'inline-block', textAlign: 'center' }}>
+                                {u.isInfluencer ? 'Verified Creator' : 'Regular Customer'}
                               </span>
                             </div>
                           </td>
                           <td>
                             {u.isInfluencer && (
-                              <div style={{ fontSize: '12px', marginBottom: '4px' }}>
-                                <div>Creator ID: <code>{u.influencerId || 'N/A'}</code></div>
-                                <div style={{ fontWeight: 'bold', color: 'var(--success)' }}>Code: {u.creatorCode || 'N/A'}</div>
+                              <div style={{ fontSize: '13px', marginBottom: '4px' }}>
+                                <div style={{ color: '#64748b' }}>Creator ID: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#0f172a' }}>{u.influencerId || 'N/A'}</code></div>
+                                <div style={{ fontWeight: '800', color: '#4f46e5', marginTop: '4px' }}>Code: {u.creatorCode || 'N/A'}</div>
                               </div>
                             )}
                             {!u.isInfluencer && (
-                              <div style={{ fontSize: '12px', marginBottom: '4px' }}>
-                                <div style={{ color: '#888' }}>Code: {u.referralCode || 'N/A'}</div>
+                              <div style={{ fontSize: '13px', marginBottom: '4px' }}>
+                                <div style={{ color: '#64748b' }}>Code: {u.referralCode || 'N/A'}</div>
                               </div>
                             )}
                           </td>
                           <td>
-                            <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                              <div style={{ color: '#e68f00', fontWeight: 'bold' }}>🪙 {u.walletCoins || 0} Coins</div>
-                              <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
+                            <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
+                              <div style={{ color: '#ca8a04', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>🪙 {u.walletCoins || 0} Coins</div>
+                              <div style={{ color: '#16a34a', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
                             </div>
                           </td>
                           <td>
-                            <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                              <div style={{ fontWeight: 'bold', color: salesCount > 0 ? 'var(--success)' : '#777' }}>
+                            <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
+                              <div style={{ fontWeight: '700', color: salesCount > 0 ? '#16a34a' : '#94a3b8' }}>
                                 📈 {salesCount} referred sales
                               </div>
                               {salesCount > 0 && (
-                                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
                                   Volume: ₹{totalSalesVolume.toLocaleString('en-IN')}
                                 </div>
                               )}
@@ -1021,13 +1025,18 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                               <button
                                 className="btn btn-sm btn-outline"
                                 style={{
-                                  fontSize: '11px',
-                                  padding: '4px 8px',
-                                  borderColor: u.isInfluencer ? 'var(--error)' : 'var(--success)',
-                                  color: u.isInfluencer ? 'var(--error)' : 'var(--success)',
-                                  height: '28px'
+                                  fontSize: '12px',
+                                  padding: '6px 12px',
+                                  borderRadius: '6px',
+                                  fontWeight: '600',
+                                  background: u.isInfluencer ? '#fff1f2' : '#f0fdf4',
+                                  borderColor: u.isInfluencer ? '#fecaca' : '#bbf7d0',
+                                  color: u.isInfluencer ? '#e11d48' : '#16a34a',
+                                  transition: 'all 0.2s'
                                 }}
                                 onClick={() => handleToggleUserRole(u)}
+                                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                                onMouseLeave={e => e.currentTarget.style.transform = 'none'}
                               >
                                 {u.isInfluencer ? 'Demote Creator' : 'Verify Creator'}
                               </button>
@@ -1131,9 +1140,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
         {/* RIGHT COLUMN: ADD NEW PRODUCT FORM */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <h3 className="admin-form-title"><PlusCircle size={18} color="var(--primary-color)" /> Product Details</h3>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
+                <div style={{ padding: '8px', background: '#dcfce7', borderRadius: '8px', color: '#16a34a' }}><PlusCircle size={20} /></div>
+                {editingProductId ? 'Edit Product Details' : 'Add New Product'}
+              </h3>
 
             
             <div className="form-group">

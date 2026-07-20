@@ -141,7 +141,9 @@ const AdminCoupons = () => {
             <input type="date" className="admin-input" required value={newCoupon.expiryDate} onChange={(e) => setNewCoupon({...newCoupon, expiryDate: e.target.value})} />
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '10px' }}>Generate Coupon</button>
+          <button type="submit" className="btn btn-primary" style={{ marginTop: '16px', padding: '12px', fontSize: '15px', fontWeight: 'bold', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+            <Plus size={18} /> Generate Coupon
+          </button>
         </form>
       </div>
 
@@ -151,23 +153,31 @@ const AdminCoupons = () => {
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {coupons.map((coupon) => (
-            <div key={coupon._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', border: '1px dashed #ccc', borderRadius: '8px', background: '#fafafa' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h4 style={{ margin: 0, fontSize: '18px', color: '#333' }}>{coupon.code}</h4>
-                  {coupon.isActive && <span style={{ background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>ACTIVE</span>}
+            <div key={coupon._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', border: '2px dashed #cbd5e1', borderRadius: '16px', background: 'linear-gradient(to right, #f8fafc, #ffffff)', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+              {/* Ticket Notch Left */}
+              <div style={{ position: 'absolute', left: '-10px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', borderRight: '2px dashed #cbd5e1' }}></div>
+              
+              <div style={{ marginLeft: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <h4 style={{ margin: 0, fontSize: '20px', color: '#0f172a', fontWeight: '800', letterSpacing: '1px' }}>{coupon.code}</h4>
+                  {coupon.isActive && <span style={{ background: '#dcfce7', color: '#16a34a', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '800', border: '1px solid #bbf7d0' }}>ACTIVE</span>}
                 </div>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#666' }}>
+                <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#475569', fontWeight: '500' }}>
                   {coupon.discountType === 'FLAT' ? `Flat ₹${coupon.discountValue} Off` : `${coupon.discountValue}% Off (Up to ₹${coupon.maxDiscount})`} 
-                  {' | '} Min ₹{coupon.minCartValue}
+                  <span style={{ color: '#cbd5e1', margin: '0 8px' }}>|</span> Min ₹{coupon.minCartValue}
                 </p>
-                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#999' }}>
-                  Used: {coupon.usedCount} / {coupon.usageLimit} | Expires: {new Date(coupon.expiryDate).toLocaleDateString()}
-                </p>
+                <div style={{ display: 'flex', gap: '16px', margin: '12px 0 0', fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle size={14} /> Used: {coupon.usedCount} / {coupon.usageLimit}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Tag size={14} /> Expires: {new Date(coupon.expiryDate).toLocaleDateString()}</span>
+                </div>
               </div>
-              <button className="btn btn-outline" style={{ color: '#d32f2f', borderColor: '#d32f2f', padding: '6px 10px' }} onClick={() => handleDelete(coupon._id)}>
-                <Trash2 size={16} />
+              
+              <button className="btn btn-outline" style={{ color: '#ef4444', borderColor: 'transparent', background: '#fee2e2', borderRadius: '50%', padding: '12px', marginRight: '10px', transition: 'all 0.2s' }} onMouseEnter={e => {e.currentTarget.style.background='#fecaca'; e.currentTarget.style.transform='scale(1.05)'}} onMouseLeave={e => {e.currentTarget.style.background='#fee2e2'; e.currentTarget.style.transform='none'}} onClick={() => handleDelete(coupon._id)} title="Delete Coupon">
+                <Trash2 size={18} />
               </button>
+              
+              {/* Ticket Notch Right */}
+              <div style={{ position: 'absolute', right: '-10px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', borderLeft: '2px dashed #cbd5e1' }}></div>
             </div>
           ))}
           {coupons.length === 0 && <p style={{ textAlign: 'center', color: '#999' }}>No active coupons.</p>}
