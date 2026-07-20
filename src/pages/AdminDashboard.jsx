@@ -115,6 +115,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setOriginalPrice(prod.originalPrice?.toString() || '');
     setRating(prod.rating?.toString() || '4.5');
     setReviewsCount(prod.reviewsCount?.toString() || '120');
+    setBadge(prod.badge || 'none');
     setDescription(prod.description || '');
     setInfluencerCommissionRate(prod.influencerCommissionRate ? (prod.influencerCommissionRate * 100).toString() : '5');
     setUserCommissionRate(prod.userCommissionRate ? (prod.userCommissionRate * 100).toString() : '2');
@@ -172,6 +173,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setOriginalPrice('');
     setMedia([]);
     setDescription('');
+    setBadge('none');
     setSpecs([{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
     setColorModels([]);
   };
@@ -496,6 +498,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
+  const [badge, setBadge] = useState('none');
 
   // Dynamic spec list key-value rows
   const [specs, setSpecs] = useState([
@@ -743,6 +746,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       influencerCommissionRate: Number(infCommission),
       userCommissionRate: Number(userCommission),
       inStock,
+      badge,
       colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined
     };
 
@@ -1184,6 +1188,20 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 <option value="fashion">Fashion</option>
                 <option value="home">Home & Living</option>
                 <option value="appliances">Appliances</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label-txt">Product Badge (Tag)*</label>
+              <select 
+                value={badge}
+                onChange={(e) => setBadge(e.target.value)}
+                className="form-input-field"
+              >
+                <option value="none">None (Standard)</option>
+                <option value="bestseller">🔥 BESTSELLER</option>
+                <option value="trending">📈 TRENDING</option>
+                <option value="new">✨ NEW ARRIVAL</option>
               </select>
             </div>
 

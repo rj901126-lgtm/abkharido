@@ -25,13 +25,17 @@ const ProductCard = ({ product, onNavigateProduct }) => {
       {/* Product Image */}
       <div className="product-card-image-wrapper" style={styles.imageWrapper}>
         {/* Sales Boost: Bestseller / Trending Badges */}
-        {product.rating >= 4.7 ? (
+        {product.badge === 'bestseller' || (!product.badge && product.rating >= 4.7) ? (
           <div style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: '#ef4444', color: 'white', fontSize: '10px', fontWeight: '800', padding: '4px 8px', borderRadius: '4px', zIndex: 2, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(239, 68, 68, 0.3)' }}>
             🔥 BESTSELLER
           </div>
-        ) : product.rating >= 4.4 ? (
+        ) : product.badge === 'trending' || (!product.badge && product.rating >= 4.4) ? (
           <div style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: '#10b981', color: 'white', fontSize: '10px', fontWeight: '800', padding: '4px 8px', borderRadius: '4px', zIndex: 2, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)' }}>
             📈 TRENDING
+          </div>
+        ) : product.badge === 'new' ? (
+          <div style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: '#8b5cf6', color: 'white', fontSize: '10px', fontWeight: '800', padding: '4px 8px', borderRadius: '4px', zIndex: 2, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(139, 92, 246, 0.3)' }}>
+            ✨ NEW ARRIVAL
           </div>
         ) : null}
         
