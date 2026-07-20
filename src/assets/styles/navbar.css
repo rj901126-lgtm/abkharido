@@ -372,6 +372,9 @@
     border-bottom: none !important;
     padding: 4px 0 !important;
     color: #616161 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
   }
   .cat-item::before {
     content: '';
@@ -417,9 +420,12 @@
     border-color: var(--primary-color) !important;
     box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.2);
   }
-  .cat-item.active {
+  .cat-item.active, .cat-item:hover {
     color: var(--primary-color) !important;
     font-weight: 600 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
   }
 
   /* Flipkart Taller Mobile Header Overrides */
