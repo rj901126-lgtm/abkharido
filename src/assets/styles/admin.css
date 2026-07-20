@@ -347,3 +347,57 @@
   background-color: #fee2e2;
   border-color: #fca5a5;
 }
+
+/* --- 7. Admin UI Upgrades (World-Class Features) --- */
+.admin-card-footer {
+  padding: 16px 32px;
+  background-color: #f8fafc;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin: 32px -32px -32px -32px;
+  border-radius: 0 0 20px 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.upload-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.upload-dropzone:hover, .upload-dropzone.active {
+  border-color: var(--primary-color);
+  background-color: #eff6ff;
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.upload-dropzone:hover .upload-icon {
+  color: var(--primary-color);
+}
+
+.live-banner-preview {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+.live-banner-preview:hover {
+  transform: translateY(-4px);
+}

@@ -1541,9 +1541,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 </div>
                 Dynamic Announcement Bar
               </h3>
-              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
-                {isSaving ? 'Saving...' : '💾 SAVE'}
-              </button>
             </div>
             <p style={{ margin: '-8px 0 8px 44px', fontSize: '13px', color: '#64748b' }}>Configure the global site-wide announcement ribbon.</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: announcementShow ? '#ecfdf5' : '#f8fafc', borderRadius: '8px', border: `1px solid ${announcementShow ? '#a7f3d0' : '#e2e8f0'}`, transition: 'all 0.3s ease' }}>
@@ -1587,15 +1584,18 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 </div>
               </>
             )}
+            
+            <div className="admin-card-footer">
+              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent" style={{ padding: '10px 24px' }}>
+                {isSaving ? 'Saving...' : '💾 Save Announcement Config'}
+              </button>
+            </div>
           </div>
 
           {/* Card 2: Flash Sale Countdown Timer & Budget Store */}
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 className="admin-form-title" style={{ margin: 0 }}><Settings size={18} color="var(--primary-color)" /> Flash Sale & Budget Settings</h3>
-              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
-                {isSaving ? 'Saving...' : '💾 SAVE'}
-              </button>
             </div>
             
             <div className="form-group">
@@ -1675,6 +1675,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 Products priced under this amount will automatically show up in the Budget Store homepage section.
               </span>
             </div>
+            
+            <div className="admin-card-footer">
+              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent" style={{ padding: '10px 24px' }}>
+                {isSaving ? 'Saving...' : '💾 Save Flash Sale & Budget Config'}
+              </button>
+            </div>
           </div>
 
           {/* Card 3: Hero Carousel Banners */}
@@ -1687,9 +1693,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 Homepage Slides / Banners 
                 <span style={{ fontSize: '12px', background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', color: '#64748b' }}>{banners.length} Active</span>
               </h3>
-              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
-                {isSaving ? 'Saving...' : '💾 SAVE'}
-              </button>
             </div>
             
             {/* Slide List */}
@@ -1756,207 +1759,235 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             )}
 
             {/* Slide Creator Form */}
-            <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px', marginTop: '10px' }}>
-              <h4 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-primary)' }}>Create New Slide</h4>
+            <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '24px', marginTop: '16px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '16px', color: 'var(--text-primary)' }}>✨ Create New Banner</h4>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                
-                {/* Image Banner Mode Toggles */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', background: 'var(--bg-light)', padding: '12px', borderRadius: '6px', border: '1px solid var(--border-light)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <input 
-                      type="checkbox" 
-                      id="use-custom-img-chk"
-                      checked={newSlideUseImage}
-                      onChange={(e) => {
-                        setNewSlideUseImage(e.target.checked);
-                        if (!e.target.checked) {
-                          setNewSlideImage('');
-                          setNewSlideImageOnly(false);
-                        }
-                      }}
-                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="use-custom-img-chk" style={{ fontSize: '12px', fontWeight: '600', cursor: 'pointer', color: 'var(--text-primary)' }}>
-                      Use Custom Designed Image (Canva/Photoshop Banner)
-                    </label>
-                  </div>
-
-                  {newSlideUseImage && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '24px', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  
+                  {/* Image Banner Mode Toggles */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', background: 'var(--bg-light)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <input 
                         type="checkbox" 
-                        id="image-only-banner-chk"
-                        checked={newSlideImageOnly}
-                        onChange={(e) => setNewSlideImageOnly(e.target.checked)}
-                        style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        id="use-custom-img-chk"
+                        checked={newSlideUseImage}
+                        onChange={(e) => {
+                          setNewSlideUseImage(e.target.checked);
+                          if (!e.target.checked) {
+                            setNewSlideImage('');
+                            setNewSlideImageOnly(false);
+                          }
+                        }}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
                       />
-                      <label htmlFor="image-only-banner-chk" style={{ fontSize: '12px', fontWeight: '600', cursor: 'pointer', color: 'var(--text-primary)' }}>
-                        Image-Only Banner (Hide title/text/button overlays)
+                      <label htmlFor="use-custom-img-chk" style={{ fontSize: '14px', fontWeight: '600', cursor: 'pointer', color: 'var(--text-primary)' }}>
+                        Use Custom Image (Canva/Photoshop Banner)
                       </label>
                     </div>
-                  )}
-                </div>
 
-                {newSlideUseImage && (
-                  <div style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', padding: '12px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#4f46e5' }}>
-                      👉 Recommended Banner Size: 1200 x 400 pixels (aspect ratio 3:1) for optimal high-resolution display on mobile and desktop.
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label className="form-label-txt">Upload Banner Image File (Max 3MB)</label>
+                    {newSlideUseImage && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input 
+                          type="checkbox" 
+                          id="image-only-banner-chk"
+                          checked={newSlideImageOnly}
+                          onChange={(e) => setNewSlideImageOnly(e.target.checked)}
+                          style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+                        />
+                        <label htmlFor="image-only-banner-chk" style={{ fontSize: '14px', fontWeight: '600', cursor: 'pointer', color: 'var(--text-primary)' }}>
+                          Image-Only Banner (No text overlay)
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
+                  {newSlideUseImage && (
+                    <div className="upload-dropzone">
+                      <Image className="upload-icon" />
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Drag & Drop your banner image here</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Recommended size: 1200x400px (Max 10MB)</div>
+                      
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', width: '100%', marginTop: '12px' }}>
                         <input 
                           type="file" 
                           accept="image/*"
                           onChange={handleBannerFileUpload}
                           className="admin-form-input"
-                          style={{ padding: '6px 12px' }}
+                          style={{ flex: 1, cursor: 'pointer' }}
                         />
-                      </div>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label className="form-label-txt">Or paste Image URL directly</label>
+                        <span style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8' }}>OR</span>
                         <input 
                           type="text" 
                           className="admin-form-input" 
-                          placeholder="e.g. https://imgbb.com/my-banner.jpg"
+                          placeholder="Paste image URL here"
                           value={newSlideImage} 
                           onChange={(e) => setNewSlideImage(e.target.value)} 
+                          style={{ flex: 1 }}
                         />
                       </div>
-                    </div>
-                    
-                    {uploadingImage && (
-                      <div style={{ fontSize: '11px', color: '#4f46e5', fontWeight: 'bold' }}>
-                        Uploading image file... Please wait.
-                      </div>
-                    )}
-
-                    {newSlideImage && (
-                      <div style={{ marginTop: '4px' }}>
-                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Uploaded Image URL: <code>{newSlideImage}</code></div>
-                        <img 
-                          src={newSlideImage} 
-                          alt="Uploaded Banner Preview" 
-                          style={{ marginTop: '6px', width: '100%', maxHeight: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-light)' }} 
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {(!newSlideUseImage || !newSlideImageOnly) ? (
-                  <>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <div style={{ flex: 1 }}>
-                        <label className="form-label-txt">Slide Title*</label>
-                        <input 
-                          type="text" 
-                          className="admin-form-input" 
-                          value={newSlideTitle} 
-                          onChange={(e) => setNewSlideTitle(e.target.value)} 
-                          placeholder="e.g. Monsoon Sale Live!"
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <label className="form-label-txt">Tag Ribbon text</label>
-                        <input 
-                          type="text" 
-                          className="admin-form-input" 
-                          value={newSlideTag} 
-                          onChange={(e) => setNewSlideTag(e.target.value)} 
-                          placeholder="e.g. LIMITED OFFER"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="form-label-txt">Slide Description*</label>
-                      <input 
-                        type="text" 
-                        className="admin-form-input" 
-                        value={newSlideDesc} 
-                        onChange={(e) => setNewSlideDesc(e.target.value)} 
-                        placeholder="e.g. Get up to 60% cashback on fashion catalog today."
-                      />
-                    </div>
-                  </>
-                ) : null}
-
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label className="form-label-txt">Click Target Category*</label>
-                    <select 
-                      className="admin-form-input"
-                      value={newSlideCat}
-                      onChange={(e) => setNewSlideCat(e.target.value)}
-                    >
-                      <option value="all">All Categories</option>
-                      <option value="mobiles">Mobiles</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="fashion">Fashion</option>
-                      <option value="home">Home & Kitchen</option>
-                      <option value="appliances">Appliances</option>
-                    </select>
-                  </div>
-                  
-                  {!newSlideUseImage && (
-                    <div style={{ flex: 1 }}>
-                      <label className="form-label-txt">Background color/gradient*</label>
-                      <select 
-                        className="admin-form-input"
-                        value={newSlideBg}
-                        onChange={(e) => setNewSlideBg(e.target.value)}
-                      >
-                        <option value="linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)">Electric Indigo (Brand Primary)</option>
-                        <option value="linear-gradient(135deg, #fda4af 0%, #f43f5e 100%)">Vivid Coral Rose (Accent Brand)</option>
-                        <option value="linear-gradient(135deg, #093129 0%, #00796b 100%)">Deep Teal</option>
-                        <option value="linear-gradient(135deg, #0f172a 0%, #334155 100%)">Dark Slate</option>
-                        <option value="linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)">Neon Purple</option>
-                        <option value="linear-gradient(135deg, #ca8a04 0%, #eab308 100%)">Sunset Yellow</option>
-                      </select>
+                      
+                      {uploadingImage && (
+                        <div style={{ fontSize: '13px', color: '#4f46e5', fontWeight: '600', marginTop: '8px' }}>
+                          <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⏳</span> Uploading to Cloudinary...
+                        </div>
+                      )}
                     </div>
                   )}
+
+                  {(!newSlideUseImage || !newSlideImageOnly) ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#ffffff', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        <div style={{ flex: 1 }}>
+                          <label className="form-label-txt">Headline*</label>
+                          <input 
+                            type="text" 
+                            className="admin-form-input" 
+                            value={newSlideTitle} 
+                            onChange={(e) => setNewSlideTitle(e.target.value)} 
+                            placeholder="e.g. Monsoon Sale Live!"
+                          />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <label className="form-label-txt">Ribbon Tag</label>
+                          <input 
+                            type="text" 
+                            className="admin-form-input" 
+                            value={newSlideTag} 
+                            onChange={(e) => setNewSlideTag(e.target.value)} 
+                            placeholder="e.g. LIMITED OFFER"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label-txt">Subtext Description*</label>
+                        <input 
+                          type="text" 
+                          className="admin-form-input" 
+                          value={newSlideDesc} 
+                          onChange={(e) => setNewSlideDesc(e.target.value)} 
+                          placeholder="e.g. Get up to 60% cashback on fashion."
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="form-label-txt">Target Category*</label>
+                      <select 
+                        className="admin-form-input"
+                        value={newSlideCat}
+                        onChange={(e) => setNewSlideCat(e.target.value)}
+                      >
+                        <option value="all">All Categories</option>
+                        <option value="mobiles">Mobiles</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="home">Home & Kitchen</option>
+                        <option value="appliances">Appliances</option>
+                      </select>
+                    </div>
+                    
+                    {!newSlideUseImage && (
+                      <div style={{ flex: 1 }}>
+                        <label className="form-label-txt">Background Theme*</label>
+                        <select 
+                          className="admin-form-input"
+                          value={newSlideBg}
+                          onChange={(e) => setNewSlideBg(e.target.value)}
+                        >
+                          <option value="linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)">Electric Indigo</option>
+                          <option value="linear-gradient(135deg, #fda4af 0%, #f43f5e 100%)">Vivid Coral</option>
+                          <option value="linear-gradient(135deg, #093129 0%, #00796b 100%)">Deep Teal</option>
+                          <option value="linear-gradient(135deg, #0f172a 0%, #334155 100%)">Dark Slate</option>
+                          <option value="linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)">Neon Purple</option>
+                          <option value="linear-gradient(135deg, #ca8a04 0%, #eab308 100%)">Sunset Yellow</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      if (newSlideUseImage && !newSlideImage) {
+                        showToast('Please upload or enter an image URL for the banner.', 'error');
+                        return;
+                      }
+                      if ((!newSlideUseImage || !newSlideImageOnly) && (!newSlideTitle || !newSlideDesc)) {
+                        showToast('Please enter Title and Description for the slide.', 'error');
+                        return;
+                      }
+
+                      const slide = {
+                        title: newSlideImageOnly ? '' : newSlideTitle,
+                        desc: newSlideImageOnly ? '' : newSlideDesc,
+                        tag: newSlideImageOnly ? '' : (newSlideTag || 'OFFER'),
+                        cat: newSlideCat,
+                        bg: newSlideBg,
+                        image: newSlideUseImage ? newSlideImage : undefined,
+                        imageOnly: newSlideUseImage ? newSlideImageOnly : false
+                      };
+
+                      setBanners([...banners, slide]);
+
+                      setNewSlideTitle('');
+                      setNewSlideDesc('');
+                      setNewSlideTag('');
+                      setNewSlideImage('');
+                      setNewSlideUseImage(false);
+                      setNewSlideImageOnly(false);
+                    }}
+                    className="btn btn-outline"
+                    style={{ padding: '12px', fontSize: '15px', fontWeight: '600' }}
+                  >
+                    + ADD SLIDE TO CAROUSEL
+                  </button>
+                </div>
+                
+                {/* Real-time Preview Pane */}
+                <div style={{ position: 'sticky', top: '100px' }}>
+                  <h4 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '8px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Live Preview</h4>
+                  <div className="live-banner-preview" style={{
+                    height: '200px',
+                    background: newSlideImage && newSlideUseImage ? `url(${newSlideImage}) no-repeat center center` : (newSlideBg || 'var(--primary-color)'),
+                    backgroundSize: 'cover',
+                    color: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: '20px',
+                    position: 'relative'
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        {(!newSlideImageOnly || newSlideTag) && (
+                           <div style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '6px', backdropFilter: 'blur(4px)' }}>
+                             {newSlideImageOnly ? (newSlideTag || 'IMAGE ONLY') : (newSlideTag || 'OFFER TAG')}
+                           </div>
+                        )}
+                      </div>
+                      
+                      {!newSlideImageOnly && (
+                        <div style={{ marginTop: '16px' }}>
+                          <div style={{ fontSize: '22px', fontWeight: '800', lineHeight: '1.2' }}>{newSlideTitle || 'Enter Headline Here'}</div>
+                          <div style={{ fontSize: '14px', opacity: 0.9, marginTop: '6px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                            {newSlideDesc || 'Your subtext description will appear here...'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <button 
-                  onClick={() => {
-                    if (newSlideUseImage && !newSlideImage) {
-                      showToast('Please upload or enter an image URL for the banner.', 'error');
-                      return;
-                    }
-                    if ((!newSlideUseImage || !newSlideImageOnly) && (!newSlideTitle || !newSlideDesc)) {
-                      showToast('Please enter Title and Description for the slide.', 'error');
-                      return;
-                    }
-
-                    const slide = {
-                      title: newSlideImageOnly ? '' : newSlideTitle,
-                      desc: newSlideImageOnly ? '' : newSlideDesc,
-                      tag: newSlideImageOnly ? '' : (newSlideTag || 'OFFER'),
-                      cat: newSlideCat,
-                      bg: newSlideBg,
-                      image: newSlideUseImage ? newSlideImage : undefined,
-                      imageOnly: newSlideUseImage ? newSlideImageOnly : false
-                    };
-
-                    setBanners([...banners, slide]);
-
-                    // Reset form inputs
-                    setNewSlideTitle('');
-                    setNewSlideDesc('');
-                    setNewSlideTag('');
-                    setNewSlideImage('');
-                    setNewSlideUseImage(false);
-                    setNewSlideImageOnly(false);
-                  }}
-                  className="btn btn-outline btn-sm"
-                  style={{ display: 'flex', gap: '6px', justifyContent: 'center', width: 'fit-content' }}
-                >
-                  <PlusCircle size={14} /> Add Slide to List
-                </button>
               </div>
+            </div>
+            
+            <div className="admin-card-footer">
+              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent" style={{ padding: '10px 24px' }}>
+                {isSaving ? 'Saving...' : '💾 Save Homepage Slides'}
+              </button>
             </div>
           </div>
 
@@ -1964,9 +1995,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 className="admin-form-title" style={{ margin: 0 }}><Layers size={18} color="var(--primary-color)" /> Category Page Banners</h3>
-              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
-                {isSaving ? 'Saving...' : '💾 SAVE'}
-              </button>
             </div>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '-10px' }}>
               👉 Recommended size: <strong>1200 × 300 px</strong> (4:1). Each category supports multiple banner slides — they auto-rotate on the category page.
