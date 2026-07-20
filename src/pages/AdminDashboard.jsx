@@ -1532,25 +1532,19 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {activeTab === 'promotions' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '-10px', position: 'sticky', top: '70px', zIndex: 10 }}>
-            <button 
-              disabled={isSaving}
-              onClick={handleSavePromotions}
-              className="btn btn-accent"
-              style={{ padding: '8px 24px', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', opacity: isSaving ? 0.7 : 1 }}
-            >
-              {isSaving ? 'Saving...' : '💾 SAVE ALL PROMOTIONS'}
-            </button>
-          </div>
-
           {/* Card 1: Announcement Bar */}
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'linear-gradient(145deg, #ffffff, #f5f7fa)', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-            <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', margin: 0 }}>
-              <div style={{ padding: '8px', background: '#eef2ff', borderRadius: '8px' }}>
-                <Tag size={20} color="#4f46e5" />
-              </div>
-              Dynamic Announcement Bar
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', margin: 0 }}>
+                <div style={{ padding: '8px', background: '#eef2ff', borderRadius: '8px' }}>
+                  <Tag size={20} color="#4f46e5" />
+                </div>
+                Dynamic Announcement Bar
+              </h3>
+              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
+                {isSaving ? 'Saving...' : '💾 SAVE'}
+              </button>
+            </div>
             <p style={{ margin: '-8px 0 8px 44px', fontSize: '13px', color: '#64748b' }}>Configure the global site-wide announcement ribbon.</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: announcementShow ? '#ecfdf5' : '#f8fafc', borderRadius: '8px', border: `1px solid ${announcementShow ? '#a7f3d0' : '#e2e8f0'}`, transition: 'all 0.3s ease' }}>
               <input 
@@ -1597,7 +1591,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
           {/* Card 2: Flash Sale Countdown Timer & Budget Store */}
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 className="admin-form-title"><Settings size={18} color="var(--primary-color)" /> Flash Sale & Budget Settings</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="admin-form-title" style={{ margin: 0 }}><Settings size={18} color="var(--primary-color)" /> Flash Sale & Budget Settings</h3>
+              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
+                {isSaving ? 'Saving...' : '💾 SAVE'}
+              </button>
+            </div>
             
             <div className="form-group">
               <label className="form-label-txt">Deals of the Day Countdown Timer End Date/Time*</label>
@@ -1688,6 +1687,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 Homepage Slides / Banners 
                 <span style={{ fontSize: '12px', background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', color: '#64748b' }}>{banners.length} Active</span>
               </h3>
+              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
+                {isSaving ? 'Saving...' : '💾 SAVE'}
+              </button>
             </div>
             
             {/* Slide List */}
@@ -1960,7 +1962,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
           {/* Card 4: Category Page Banners — Multi-Slide */}
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h3 className="admin-form-title"><Layers size={18} color="var(--primary-color)" /> Category Page Banners</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="admin-form-title" style={{ margin: 0 }}><Layers size={18} color="var(--primary-color)" /> Category Page Banners</h3>
+              <button disabled={isSaving} onClick={handleSavePromotions} className="btn btn-accent btn-sm" style={{ padding: '6px 12px', fontSize: '12px', opacity: isSaving ? 0.7 : 1 }}>
+                {isSaving ? 'Saving...' : '💾 SAVE'}
+              </button>
+            </div>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '-10px' }}>
               👉 Recommended size: <strong>1200 × 300 px</strong> (4:1). Each category supports multiple banner slides — they auto-rotate on the category page.
             </span>
