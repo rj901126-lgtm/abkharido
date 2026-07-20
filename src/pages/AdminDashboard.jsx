@@ -1144,7 +1144,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
                 <div style={{ padding: '8px', background: '#dcfce7', borderRadius: '8px', color: '#16a34a' }}><PlusCircle size={20} /></div>
-                {editingProductId ? 'Edit Product Details' : 'Add New Product'}
+                {editMode ? 'Edit Product Details' : 'Add New Product'}
               </h3>
 
             
