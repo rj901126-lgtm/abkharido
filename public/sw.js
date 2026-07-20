@@ -1,4 +1,4 @@
-const CACHE_NAME = 'abkharido-cache-v1';
+const CACHE_NAME = 'abkharido-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -36,34 +36,28 @@ self.addEventListener('fetch', event => {
   // Don't cache API calls
   if (event.request.url.includes('/api/')) return;
 
+  // Network-First strategy: Always try to fetch from network to get latest updates.
+  // If network fails (offline), fallback to cache.
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        // Cache hit - return response
-        if (response) {
+        // Check if we received a valid response
+        if(!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
-        return fetch(event.request).then(
-          response => {
-            // Check if we received a valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
 
-            // IMPORTANT: Clone the response. A response is a stream
-            // and because we want the browser to consume the response
-            // as well as the cache consuming the response, we need
-            // to clone it so we have two streams.
-            var responseToCache = response.clone();
+        // Clone response and cache it
+        var responseToCache = response.clone();
+        caches.open(CACHE_NAME)
+          .then(cache => {
+            cache.put(event.request, responseToCache);
+          });
 
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
+        return response; // Return fresh network response
+      })
+      .catch(() => {
+        // If network fails, try to return cached version
+        return caches.match(event.request);
       })
   );
 });
