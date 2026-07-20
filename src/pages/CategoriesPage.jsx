@@ -65,7 +65,7 @@ const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
   );
 };
 
-const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions }) => {
+const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions, onSearch }) => {
   const { products, cart } = useApp();
   const [selectedCatId, setSelectedCatId] = useState('mobiles'); // default start on mobiles category
 
@@ -143,7 +143,19 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
 
   const handleViewAllClick = () => {
     onSelectCategory(selectedCatId);
-    onNavigate('catalog'); // correctly go to catalog page, not home
+    if (onSearch) onSearch('');
+    else onNavigate('catalog'); // correctly go to catalog page, not home
+  };
+
+  const handleStoreClick = (store) => {
+    onSelectCategory(selectedCatId);
+    if (onSearch) {
+      // Find a searchable keyword from badge or name
+      const q = store.badge.toLowerCase();
+      onSearch(q);
+    } else {
+      onNavigate('catalog');
+    }
   };
 
   return (
@@ -198,7 +210,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             <h3 className="panel-section-title">Popular Store</h3>
             <div className="popular-stores-row">
               {activeStores.map((store, idx) => (
-                <div key={idx} className="popular-store-item" onClick={handleViewAllClick}>
+                <div key={idx} className="popular-store-item" onClick={() => handleStoreClick(store)}>
                   <div className="popular-store-circle">
                     <span style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', padding: '4px' }}>
                       {store.badge}

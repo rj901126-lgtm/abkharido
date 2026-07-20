@@ -145,12 +145,37 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     // 2. Search Query Filter
     if (searchQuery && searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(p => {
-        const name = p.name ? p.name.toLowerCase() : '';
-        const description = p.description ? p.description.toLowerCase() : '';
-        const category = p.category ? p.category.toLowerCase() : '';
-        return name.includes(query) || description.includes(query) || category.includes(query);
-      });
+      
+      // Smart search for Popular Store badges
+      if (query.includes('min') && query.includes('off')) {
+        const match = query.match(/(\d+)%/);
+        const targetDiscount = match ? parseInt(match[1]) : 0;
+        filtered = filtered.filter(p => {
+          const discount = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
+          return discount >= targetDiscount;
+        });
+      } else if (query.includes('flat') || query.includes('under') || query.includes('onwards')) {
+        // Price-based queries
+        const match = query.match(/₹([\d,]+)/);
+        const val = match ? parseInt(match[1].replace(/,/g, '')) : 0;
+        if (query.includes('under') && val > 0) {
+          filtered = filtered.filter(p => p.price <= val);
+        } else if (query.includes('onwards') && val > 0) {
+          filtered = filtered.filter(p => p.price >= val);
+        } else if (query.includes('flat')) {
+          filtered = filtered.filter(p => p.originalPrice > p.price);
+        }
+      } else if (query === 'sale live' || query === 'hot' || query === 'new in' || query === 'just in') {
+        filtered = filtered.filter(p => p.originalPrice > p.price); // Just show discounted items
+      } else {
+        // Standard text search
+        filtered = filtered.filter(p => {
+          const name = p.name ? p.name.toLowerCase() : '';
+          const description = p.description ? p.description.toLowerCase() : '';
+          const category = p.category ? p.category.toLowerCase() : '';
+          return name.includes(query) || description.includes(query) || category.includes(query);
+        });
+      }
     }
 
     // 3. Price Filter

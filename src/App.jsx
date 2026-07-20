@@ -424,6 +424,7 @@ const AppContent = () => {
             onSelectCategory={handleSelectCategory}
             onNavigateProduct={handleNavigateProduct}
             promotions={promotions}
+            onSearch={handleSearch}
           />
         );
       case 'cart':
