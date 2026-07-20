@@ -250,8 +250,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
       )}
 
       {/* Affiliate Promo Banner */}
-      {/* Affiliate Promo Banner */}
-      <section style={{ padding: '0 20px', marginBottom: '40px' }}>
+      <section style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginBottom: '40px' }}>
         <div className="premium-affiliate-banner" onClick={() => onNavigate('info')}>
           {/* Decorative background elements */}
           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
