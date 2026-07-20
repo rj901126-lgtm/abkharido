@@ -113,24 +113,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
 
   return (
     <div className="home-container">
-      {/* 0. Promotion Announcement Strip */}
-      {promotions && promotions.announcement && promotions.announcement.show && (
-        <div className="global-promo-strip" style={{
-          background: promotions.announcement.bgColor || '#ffeb3b',
-          color: promotions.announcement.textColor || '#000',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          fontWeight: 'bold'
-        }}>
-          <span>{promotions.announcement.text || '🌟 Use Code NEW100 for Flat ₹100 Off on your first order! 🌟'}</span>
-          <div style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', letterSpacing: '1px' }}>
-            <Timer size={14} /> Ends in {timerString}
-          </div>
-        </div>
-      )}
-
       {/* Hero Carousel */}
       <section 
         className="hero-carousel"
