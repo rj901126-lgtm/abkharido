@@ -8,6 +8,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
   const { products } = useApp();
   const [activeSlide, setActiveSlide] = useState(0);
   const [timerString, setTimerString] = useState('00:00:00');
+  
+  // CMS State
+  const [layoutComponents, setLayoutComponents] = useState([]);
+  const [loadingLayout, setLoadingLayout] = useState(true);
 
   // Dynamic Carousel slides with fallback
   const slides = promotions && Array.isArray(promotions.banners) && promotions.banners.length > 0
@@ -21,22 +25,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
           cat: 'fashion'
         },
         {
-          title: 'Mega Electronics Extravaganza',
-          desc: 'Exclusive laptops, mechanical keyboards, and headphones in stock. Up to 3% cash commissions for creators.',
-          bg: 'linear-gradient(135deg, #093129 0%, #00796b 100%)',
-          tag: 'TECH ZONE REWARDS',
-          cat: 'electronics'
-        },
-        {
-          title: 'Direct-to-Consumer Guarantee',
-          desc: 'No middle sellers, no markups. Just pure authentic inventory backed by AbKharido.com direct shipping.',
-          bg: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
-          tag: 'ABKHARIDO TRUST',
-          cat: 'all'
+          title: 'Latest Smart Mobiles',
+          desc: 'Exchange offers available. Become a creator to share links and earn flat ₹500 on every sale.',
+          bg: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+          tag: 'TOP CREATOR PICKS',
+          cat: 'mobiles'
         }
       ];
 
-  // Carousel transition timer
+  const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % slides.length);
+  const handlePrevSlide = () => setActiveSlide((prev) => (prev - 1 + slides.length) % slides.length);
+
   useEffect(() => {
     const slideTimer = setInterval(() => {
       setActiveSlide(prev => (prev + 1) % slides.length);
@@ -67,86 +66,65 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
       const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-      const fHrs = hrs < 10 ? `0${hrs}` : hrs;
-      const fMins = mins < 10 ? `0${mins}` : mins;
-      const fSecs = secs < 10 ? `0${secs}` : secs;
-
-      setTimerString(`${fHrs}h : ${fMins}m : ${fSecs}s`);
+      setTimerString(`${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`);
     };
 
+    const timerInt = setInterval(updateTimer, 1000);
     updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
+    return () => clearInterval(timerInt);
   }, [promotions]);
 
-  const handleNextSlide = () => {
-    setActiveSlide(prev => (prev + 1) % slides.length);
-  };
-
-  const handlePrevSlide = () => {
-    setActiveSlide(prev => (prev - 1 + slides.length) % slides.length);
-  };
-
-  // Filter products for 8 horizontal carousels (with safety checks)
-  const productList = Array.isArray(products) ? products : [];
-  
-  // Custom Deal of the Day logic
-  const customDealIds = promotions && promotions.dealOfTheDayProducts && Array.isArray(promotions.dealOfTheDayProducts) ? promotions.dealOfTheDayProducts : [];
-  const dealsProducts = customDealIds.length > 0 
-    ? productList.filter(p => customDealIds.includes(p.id))
-    : productList.slice(0, 6);
-  const mobilesProducts = productList.filter(p => p && p.category === 'mobiles');
-  const electronicsProducts = productList.filter(p => p && p.category === 'electronics');
-  const fashionProducts = productList.filter(p => p && p.category === 'fashion');
-  const homeProducts = productList.filter(p => p && (p.category === 'home' || p.category === 'furniture'));
-  const appliancesProducts = productList.filter(p => p && p.category === 'appliances');
-  
-  const budgetThreshold = promotions && typeof promotions.budgetThreshold === 'number'
-    ? promotions.budgetThreshold
-    : 15000;
-  const budgetProducts = productList.filter(p => p && typeof p.price === 'number' && p.price < budgetThreshold);
-  const topRatedProducts = productList.filter(p => p && typeof p.rating === 'number' && p.rating >= 4.5);
+  // Fetch CMS Layout
+  useEffect(() => {
+    const fetchLayout = async () => {
+      try {
+        const res = await fetch('/api/v2/cms/layout/home_page');
+        if (res.ok) {
+          const data = await res.json();
+          // Sort components by order
+          const sorted = (data.components || []).sort((a, b) => (a.order || 0) - (b.order || 0));
+          setLayoutComponents(sorted);
+        }
+      } catch (err) {
+        console.error('Failed to load CMS layout', err);
+      } finally {
+        setLoadingLayout(false);
+      }
+    };
+    fetchLayout();
+  }, []);
 
   return (
-    <div className="container home-container animate-fade-in">
+    <div className="home-container">
+      {/* 0. Promotion Announcement Strip */}
+      {promotions && promotions.announcement && promotions.announcement.show && (
+        <div className="global-promo-strip" style={{
+          background: promotions.announcement.bgColor || '#ffeb3b',
+          color: promotions.announcement.textColor || '#000'
+        }}>
+          {promotions.announcement.text || '🌟 Use Code NEW100 for Flat ₹100 Off on your first order! 🌟'}
+        </div>
+      )}
+
       {/* Hero Carousel */}
       <section className="hero-carousel">
         {slides.map((slide, idx) => (
-          <div
-            key={idx}
+          <div 
+            key={idx} 
             className={`carousel-slide ${idx === activeSlide ? 'active' : ''}`}
-            style={{ 
-              background: slide.image ? `url(${slide.image}) no-repeat center center` : slide.bg,
-              backgroundSize: 'cover',
-              cursor: slide.imageOnly ? 'pointer' : 'default'
-            }}
-            onClick={() => {
-              if (slide.imageOnly) {
-                onSelectCategory(slide.cat || 'all');
-              }
-            }}
+            style={{ background: slide.bg }}
           >
-            {!slide.imageOnly && (
-              <div className="slide-content">
-                <span className="slide-tag">{slide.tag}</span>
-                <h2 className="slide-title">{slide.title}</h2>
-                <p className="slide-desc">{slide.desc}</p>
-                <button
-                  className="btn btn-secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectCategory(slide.cat || 'all');
-                  }}
-                >
-                  Explore Sale <ArrowRight size={16} />
-                </button>
-              </div>
-            )}
-            {/* Visual element on right of slide */}
-            {!slide.imageOnly && (
-              <div className="slide-visual-icon" style={{ marginRight: '40px', opacity: 0.15 }}>
-                <Award size={180} color="white" />
-              </div>
+            {slide.tag && <span className="hero-tag"><Sparkles size={14} /> {slide.tag}</span>}
+            <h1 className="hero-title">{slide.title}</h1>
+            <p className="hero-subtitle">{slide.desc}</p>
+            {slide.cat && (
+              <button 
+                className="btn btn-primary" 
+                style={{ marginTop: '20px', borderRadius: '24px', padding: '12px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                onClick={() => onSelectCategory(slide.cat)}
+              >
+                Explore Category <ArrowRight size={18} />
+              </button>
             )}
           </div>
         ))}
@@ -169,227 +147,90 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
         </div>
       </section>
 
-      {/* 1. Deals of the Day (With Timer) */}
-      <section className="deals-container">
-        <div className="deals-header">
-          <div className="deals-title-area">
-            <span className="deals-title">Deals of the Day</span>
-            <div className="deals-timer">
-              <Timer size={18} color="#d32f2f" />
-              <span>Ends In: </span>
-              <span className="timer-box">{timerString}</span>
-            </div>
+      {/* DYNAMIC CMS SECTIONS */}
+      {loadingLayout ? (
+        <div style={{ textAlign: 'center', padding: '50px', color: '#666' }}>Loading Store...</div>
+      ) : (
+        layoutComponents.map((comp) => {
+          if (comp.type === 'deals_row') {
+            const dealsProducts = products
+              .filter(p => promotions && promotions.dealsProducts ? promotions.dealsProducts.includes(p.id) : p.mrp > p.price)
+              .sort((a,b) => ((b.mrp - b.price)/b.mrp) - ((a.mrp - a.price)/a.mrp))
+              .slice(0, 5);
+            
+            return (
+              <section key={comp.id} className="deals-container">
+                <div className="deals-header">
+                  <div className="deals-title-area">
+                    <span className="deals-title">{comp.title || 'Deals of the Day'}</span>
+                    <div className="deals-timer">
+                      <Timer size={18} color="#d32f2f" />
+                      <span>Ends In: </span>
+                      <span className="timer-box">{timerString}</span>
+                    </div>
+                  </div>
+                  <button className="btn btn-primary btn-outline btn-sm" onClick={() => onSelectCategory('all')}>
+                    View All
+                  </button>
+                </div>
+                <div className="home-carousel-row">
+                  {dealsProducts.map(product => (
+                    <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
+                  ))}
+                </div>
+              </section>
+            );
+          }
+
+          if (comp.type === 'category_row') {
+            const catProducts = products.filter(p => p.category === comp.data).slice(0, 5);
+            
+            return (
+              <section key={comp.id} className="deals-container">
+                <div className="deals-header">
+                  <span className="deals-title">{comp.title || 'Category'}</span>
+                  <button className="btn btn-outline btn-sm" onClick={() => onSelectCategory(comp.data)}>
+                    Explore
+                  </button>
+                </div>
+                <div className="home-carousel-row">
+                  {catProducts.map(product => (
+                    <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
+                  ))}
+                </div>
+              </section>
+            );
+          }
+
+          if (comp.type === 'banner') {
+            return (
+              <section key={comp.id} style={{ margin: '20px', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ background: '#2874f0', color: 'white', padding: '30px', textAlign: 'center' }}>
+                  <h2>{comp.title || 'Special Promotion'}</h2>
+                  <p>{comp.data || 'Check out our latest offers!'}</p>
+                </div>
+              </section>
+            );
+          }
+
+          return null;
+        })
+      )}
+
+      {/* Affiliate Promo Banner */}
+      <section style={{ padding: '0 20px', marginBottom: '30px' }}>
+        <div className="affiliate-promo-banner" onClick={() => onNavigate('info')}>
+          <div className="promo-icon"><Award size={32} color="#fff" /></div>
+          <div className="promo-text">
+            <h3>Start Earning With Us</h3>
+            <p>Join the AbKharido Creator Program. Share links and earn up to 7% instant cash on every sale.</p>
           </div>
-          <button 
-            className="btn btn-primary btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('all');
-            }}
-          >
-            View All
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {dealsProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 2. Mobiles & Smart Devices */}
-      <section className="deals-container">
-        <div className="deals-header">
-          <span className="deals-title">Smart Mobiles & Accessories</span>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('mobiles');
-            }}
-          >
-            Explore
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {mobilesProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 3. Tech & Electronics */}
-      <section className="deals-container">
-        <div className="deals-header">
-          <span className="deals-title">Best of Tech & Electronics</span>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('electronics');
-            }}
-          >
-            Explore
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {electronicsProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 4. Trends in Fashion */}
-      <section className="deals-container">
-        <div className="deals-header">
-          <span className="deals-title">Top Trends in Fashion</span>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('fashion');
-            }}
-          >
-            Explore
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {fashionProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Partner Program Banner */}
-      <section className="affiliate-promo-panel">
-        <div className="promo-left">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Sparkles size={20} color="var(--secondary-color)" />
-            <h3 className="promo-heading">AbKharido Share & Earn Program</h3>
-          </div>
-          <p className="promo-subheading">
-            You don't need to be a seller to earn! Share dynamic tracking links for any of our high-quality products. 
-            Normal customers earn shopping discount coins (up to 3%), and verified influencers earn cash withdrawals (up to 7% payout) on every purchase made.
-          </p>
-        </div>
-        <div className="promo-right">
-          <span className="promo-badge-tag">Earn Up To 7% Commissions</span>
-          <button 
-            className="btn btn-secondary"
-            onClick={() => onNavigate('partner')}
-          >
-            Visit Partner Center
+          <button className="btn" style={{ background: '#fff', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+            Learn More
           </button>
         </div>
       </section>
 
-      {/* 5. Home & Kitchen Essentials */}
-      <section className="deals-container">
-        <div className="deals-header">
-          <span className="deals-title">Home & Kitchen Essentials</span>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('home');
-            }}
-          >
-            Explore
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {homeProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 6. Smart Household Appliances */}
-      <section className="deals-container">
-        <div className="deals-header">
-          <span className="deals-title">Smart Household Appliances</span>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('appliances');
-            }}
-          >
-            Explore
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {appliancesProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 7. Budget Buys & Super Savers */}
-      <section className="deals-container">
-        <div className="deals-header">
-          <span className="deals-title">Budget Buys & Super Savers (Under ₹{budgetThreshold.toLocaleString('en-IN')})</span>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('all');
-            }}
-          >
-            Explore
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {budgetProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 8. Customer Favorites & Top Rated */}
-      <section className="deals-container" style={{ marginBottom: '24px' }}>
-        <div className="deals-header">
-          <span className="deals-title">Customer Favorites (Top Rated 4.5+ ★)</span>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              onSelectCategory('all');
-            }}
-          >
-            Explore
-          </button>
-        </div>
-        <div className="home-carousel-row">
-          {topRatedProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onNavigateProduct={onNavigateProduct} 
-            />
-          ))}
-        </div>
-      </section>
     </div>
   );
 };

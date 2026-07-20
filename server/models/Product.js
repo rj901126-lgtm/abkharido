@@ -45,6 +45,13 @@ const productSchema = new mongoose.Schema({
   rating: { type: Number, default: 4.5 },
   reviewsCount: { type: Number, default: 0 },
   
+  // SEO
+  seo: {
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    keywords: { type: String }
+  },
+  
   // Affiliation / Creator Economy
   influencerCommissionRate: { type: Number, default: 0.05 },
   userCommissionRate: { type: Number, default: 0.02 },

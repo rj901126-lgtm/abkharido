@@ -16,11 +16,13 @@ import {
   Users,
   ShieldAlert,
   Store,
-  TrendingUp
+  TrendingUp,
+  LayoutTemplate
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';
 import AdminAnalytics from '../components/AdminAnalytics';
+import AdminCMSBuilder from '../components/AdminCMSBuilder';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -821,6 +823,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           <TrendingUp size={16} /> Analytics Dashboard
         </button>
         <button 
+          onClick={() => setActiveTab('cms')}
+          className={`btn ${activeTab === 'cms' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <LayoutTemplate size={16} /> CMS & Layout
+        </button>
+        <button 
           onClick={() => setActiveTab('inventory')}
           className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-outline'}`}
           style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
@@ -853,6 +862,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {/* CONDITIONAL RENDER: ANALYTICS TAB */}
       {activeTab === 'analytics' && (
         <AdminAnalytics />
+      )}
+
+      {/* CONDITIONAL RENDER: CMS TAB */}
+      {activeTab === 'cms' && (
+        <AdminCMSBuilder />
       )}
 
       {/* CONDITIONAL RENDER: ORDERS TAB */}
