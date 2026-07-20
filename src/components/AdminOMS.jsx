@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, CheckSquare, Settings, Truck, Printer, Search } from 'lucide-react';
+import { FileText, CheckSquare, Settings, Truck, Printer, Search, XCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const AdminOMS = () => {
@@ -80,6 +80,23 @@ const AdminOMS = () => {
     } catch (err) {
       console.error(err);
       showToast('Failed to update order status', 'error');
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) return;
+    
+    try {
+      const res = await fetch(`/api/orders/${orderId}/cancel`, { method: 'POST' });
+      if (res.ok) {
+        showToast(`Order ${orderId} cancelled successfully`, 'success');
+        fetchOrders();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to cancel order', 'error');
+      }
+    } catch (err) {
+      showToast('Network error while cancelling order', 'error');
     }
   };
 
@@ -211,9 +228,11 @@ const AdminOMS = () => {
                   </span>
                 </td>
                 <td>
-                  {order.paymentStatus === 'SUCCESS' || order.isPaid ? 
-                    <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>Paid</span> : 
-                    <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>{order.paymentMethod || 'COD/Unpaid'}</span>
+                  {order.paymentMethod === 'Cash on Delivery' ? 
+                    <span style={{ color: '#e65100', fontWeight: 'bold' }}>COD/Unpaid</span> :
+                   order.paymentStatus === 'SUCCESS' || order.isPaid ? 
+                    <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>Paid Online</span> : 
+                    <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>{order.paymentMethod || 'Unpaid'}</span>
                   }
                 </td>
                 <td>
@@ -234,6 +253,16 @@ const AdminOMS = () => {
                     >
                       <Printer size={14} /> Invoice
                     </button>
+                    {order.status !== 'CANCELLED' && order.status !== 'Delivered' && (
+                      <button 
+                        className="btn btn-outline" 
+                        style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px', color: '#d32f2f', borderColor: '#d32f2f' }}
+                        title="Cancel Order"
+                        onClick={() => handleCancelOrder(order.id || order._id)}
+                      >
+                        <XCircle size={14} /> Cancel
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
