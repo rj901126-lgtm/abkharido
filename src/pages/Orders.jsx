@@ -53,9 +53,9 @@ const Orders = ({ onNavigate }) => {
         <History size={24} color="var(--primary-color)" /> Order History
       </h1>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {orders.map(order => (
-          <div key={order.id} className="card" style={{ padding: '20px', border: '1px solid var(--border-light)' }}>
+          <div key={order.id} className="card" style={{ padding: '24px', border: '1px solid rgba(0,0,0,0.03)', borderRadius: '24px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', backgroundColor: '#ffffff', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(79,70,229,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.04)'; }}>
             
             {/* Order Card Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
@@ -355,28 +355,31 @@ const Orders = ({ onNavigate }) => {
 
             {/* Order Items */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px', marginBottom: '16px' }}>
-              {order.items.map(item => (
-                <div key={item.product.id} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <img 
-                    src={item.product.image} 
-                    alt={item.product.name} 
-                    style={{ width: '60px', height: '60px', objectFit: 'contain', border: '1px solid #eee', padding: '2px', borderRadius: '4px', backgroundColor: 'white' }} 
-                  />
+              {order.items.map(item => { 
+                const prod = item.product; 
+                return (
+                <div key={prod.id} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <div style={{ width: '80px', height: '80px', backgroundColor: '#f8fafc', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
+                    <img src={prod.image} alt={prod.name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+                  </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.product.name}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      Price: ₹{(item.product.price || 0).toLocaleString('en-IN')} | Quantity: {item.quantity}
+                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>{prod.name}</h4>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      Qty: {item.quantity} | {item.selectedColor} | {item.selectedVariant}
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: '800', color: 'var(--primary-color)', marginTop: '6px' }}>
+                      ₹{item.price.toLocaleString('en-IN')}
                     </div>
                   </div>
                   <button 
                     className="btn btn-outline btn-sm" 
                     style={{ fontSize: '12px', padding: '4px 10px' }}
-                    onClick={() => onNavigate(`product-${item.product.id}`)}
+                    onClick={() => onNavigate(`product-${prod.id}`)}
                   >
                     Buy Again
                   </button>
                 </div>
-              ))}
+              )})}
             </div>
 
             {/* Bottom Meta & Referral info */}
