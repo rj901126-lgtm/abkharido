@@ -3,21 +3,21 @@ import { ShoppingBag, Award, Heart, HelpCircle, ShieldCheck } from 'lucide-react
 
 const Footer = ({ onNavigate }) => {
   return (
-    <footer className="app-footer" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', color: '#94a3b8', fontSize: '13px', marginTop: 'auto' }}>
+    <footer className="app-footer" style={styles.footer}>
       {/* Newsletter Section */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '60px 0' }}>
-        <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '32px' }}>
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '40px 0' }}>
+        <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
           <div>
-            <h3 style={{ color: 'white', fontSize: '24px', fontWeight: '800', marginBottom: '8px', letterSpacing: '0.5px' }}>Join the AbKharido Club</h3>
-            <p style={{ color: '#94a3b8', fontSize: '15px' }}>Get exclusive early access to deals, product drops, and insider rewards.</p>
+            <h3 style={{ color: 'white', fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Join the AbKharido Club</h3>
+            <p style={{ color: '#94a3b8', fontSize: '14px' }}>Get exclusive early access to deals, product drops, and insider rewards.</p>
           </div>
-          <div style={{ display: 'flex', gap: '8px', width: '100%', maxWidth: '420px', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', gap: '8px', width: '100%', maxWidth: '400px' }}>
             <input 
               type="email" 
               placeholder="Enter your email address" 
-              style={{ flex: 1, padding: '14px 16px', borderRadius: '8px', border: 'none', background: 'transparent', color: 'white', outline: 'none', fontSize: '14px' }}
+              style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none' }}
             />
-            <button style={{ padding: '0 28px', borderRadius: '8px', background: '#4f46e5', color: 'white', fontWeight: '700', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#4338ca'} onMouseLeave={e => e.currentTarget.style.background = '#4f46e5'}>
+            <button style={{ padding: '0 24px', borderRadius: '8px', background: 'var(--primary-color)', color: 'white', fontWeight: '600', border: 'none', cursor: 'pointer' }}>
               Subscribe
             </button>
           </div>
@@ -25,42 +25,34 @@ const Footer = ({ onNavigate }) => {
       </div>
 
       {/* Upper footer features */}
-      <div style={{ padding: '60px 0' }}>
-        <div className="container footer-features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px' }}>
-          <div className="footer-feature-item" style={{ display: 'flex', gap: '16px', color: 'white', alignItems: 'flex-start' }}>
-            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '12px', borderRadius: '12px', color: '#818cf8' }}>
-              <ShoppingBag size={24} />
-            </div>
+      <div style={styles.featuresSection}>
+        <div className="container footer-features-grid" style={styles.featuresGrid}>
+          <div className="footer-feature-item" style={styles.featureItem}>
+            <ShoppingBag size={24} color="#818cf8" />
             <div>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>100% Direct Sales</h4>
-              <p style={{ color: '#64748b', fontSize: '13px', lineHeight: '1.5' }}>No 3rd party sellers. Direct inventory & guaranteed warranty.</p>
+              <h4 style={styles.featureTitle}>100% Direct Sales</h4>
+              <p style={styles.featureDesc}>No 3rd party sellers. Direct inventory & warranty.</p>
             </div>
           </div>
-          <div className="footer-feature-item" style={{ display: 'flex', gap: '16px', color: 'white', alignItems: 'flex-start' }}>
-            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '12px', borderRadius: '12px', color: '#818cf8' }}>
-              <Award size={24} />
-            </div>
+          <div className="footer-feature-item" style={styles.featureItem}>
+            <Award size={24} color="#818cf8" />
             <div>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Affiliate Program</h4>
-              <p style={{ color: '#64748b', fontSize: '13px', lineHeight: '1.5' }}>Share products & earn up to 7% instant cash commission.</p>
+              <h4 style={styles.featureTitle}>Affiliate Program</h4>
+              <p style={styles.featureDesc}>Share links & earn up to 7% commission.</p>
             </div>
           </div>
-          <div className="footer-feature-item" style={{ display: 'flex', gap: '16px', color: 'white', alignItems: 'flex-start' }}>
-            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '12px', borderRadius: '12px', color: '#818cf8' }}>
-              <ShieldCheck size={24} />
-            </div>
+          <div className="footer-feature-item" style={styles.featureItem}>
+            <ShieldCheck size={24} color="#818cf8" />
             <div>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Secure Payments</h4>
-              <p style={{ color: '#64748b', fontSize: '13px', lineHeight: '1.5' }}>Netbanking, UPI, Cards, and Cash on Delivery options.</p>
+              <h4 style={styles.featureTitle}>Secure Payments</h4>
+              <p style={styles.featureDesc}>Netbanking, UPI, Cards, and COD options.</p>
             </div>
           </div>
-          <div className="footer-feature-item" style={{ display: 'flex', gap: '16px', color: 'white', alignItems: 'flex-start' }}>
-            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '12px', borderRadius: '12px', color: '#818cf8' }}>
-              <HelpCircle size={24} />
-            </div>
+          <div className="footer-feature-item" style={styles.featureItem}>
+            <HelpCircle size={24} color="#818cf8" />
             <div>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>24/7 Priority Support</h4>
-              <p style={{ color: '#64748b', fontSize: '13px', lineHeight: '1.5' }}>Rapid resolution directly handled by our service crew.</p>
+              <h4 style={styles.featureTitle}>24/7 Dedicated Support</h4>
+              <p style={styles.featureDesc}>Rapid resolution directly by our service crew.</p>
             </div>
           </div>
         </div>
@@ -69,16 +61,88 @@ const Footer = ({ onNavigate }) => {
       {/* Main links block removed as they are shifted to the profile tab info sections */}
 
       {/* Footer Bottom copyright */}
-      <div className="footer-bottom-bar" style={{ backgroundColor: '#020617', padding: '24px 0', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <p style={{ color: '#475569', fontSize: '13px' }}>© 2026 AbKharido.com. All rights reserved. Self-Operated Premium E-Commerce Platform.</p>
-          <p style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#475569', fontSize: '13px', fontWeight: '500' }}>
-            Made with <Heart size={14} color="#ef4444" fill="#ef4444" /> for Smart Shoppers & Creators.
+      <div className="footer-bottom-bar" style={styles.bottomBar}>
+        <div className="container" style={styles.bottomContent}>
+          <p>© 2026 AbKharido.com. All rights reserved. Self-Operated E-Commerce Platform.</p>
+          <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            Made with <Heart size={14} color="#f44336" fill="#f44336" /> for Smart Shoppers & Creators.
           </p>
         </div>
       </div>
     </footer>
   );
 };
+
+const styles = {
+  footer: {
+    backgroundColor: 'var(--accent-color)',
+    color: '#94a3b8',
+    fontSize: '13px',
+    marginTop: 'auto',
+  },
+  featuresSection: {
+    padding: '40px 0',
+  },
+  featuresGrid: {
+    gap: '24px',
+  },
+  featureItem: {
+    display: 'flex',
+    gap: '12px',
+    color: 'white',
+  },
+  featureTitle: {
+    fontSize: '14px',
+    fontWeight: '500',
+    marginBottom: '2px',
+  },
+  featureDesc: {
+    color: '#a3a3a3',
+    fontSize: '12px',
+  },
+  linksGrid: {
+    gap: '32px',
+    paddingTop: '40px',
+    paddingBottom: '40px',
+  },
+  heading: {
+    color: '#a3a3a3',
+    fontWeight: '600',
+    fontSize: '12px',
+    marginBottom: '12px',
+    letterSpacing: '0.5px',
+  },
+  list: {
+    listStyle: 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  listItem: {
+    color: 'white',
+    fontSize: '13px',
+  },
+  fulfillmentText: {
+    color: '#cccccc',
+    lineHeight: '1.6',
+    fontSize: '13px',
+  },
+  bottomBar: {
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    padding: '24px 0',
+    borderTop: '1px solid rgba(255,255,255,0.05)',
+    textAlign: 'center',
+  },
+  bottomContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px',
+  },
+};
+
+// Add media query inline support if needed, but since it's desktop grid, grid responsiveness can be handled in stylesheet if needed.
+// To keep it simple, the layout works well.
 
 export default Footer;

@@ -654,24 +654,36 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
                 Variant: <span style={{ color: '#212121', fontWeight: 'bold' }}>{activeVariant ? activeVariant.name : ''}</span>
               </div>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 {variantsList.map((v, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedVariant(v)}
-                    className={`product-variant-btn ${activeVariant && activeVariant.name === v.name ? 'active' : ''}`}
+                    style={{
+                      border: activeVariant && activeVariant.name === v.name ? '2px solid #212121' : '1px solid #e0e0e0',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      backgroundColor: 'white',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      minWidth: '120px',
+                      boxSizing: 'border-box',
+                      boxShadow: activeVariant && activeVariant.name === v.name ? '0 1px 5px rgba(0,0,0,0.05)' : 'none',
+                      transition: 'all 0.1s',
+                      position: 'relative'
+                    }}
                   >
-                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>{v.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
-                       <span style={{ fontSize: '11px', fontWeight: '800', color: '#10b981', background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px' }}>↓{v.discount}%</span>
-                       <span style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#212121' }}>{v.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                       <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#388e3c' }}>↓{v.discount}%</span>
+                       <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
                     </div>
-                    <div style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', marginTop: '4px' }}>₹{(v.price || 0).toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginTop: '2px' }}>₹{(v.price || 0).toLocaleString('en-IN')}</div>
                     
                     {/* Low stock tag */}
                     {v.stock <= 3 && (
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#ef4444', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Zap size={10} fill="#ef4444" /> Only {v.stock} left
+                      <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#d32f2f', marginTop: '4px' }}>
+                        {v.stock} left
                       </div>
                     )}
                   </button>
@@ -680,11 +692,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           )}
           {/* Pricing Details */}
-          <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0, marginTop: '24px', marginBottom: '24px' }}>
-            <div className="details-price-row">
-              <span className="details-price" style={{ fontSize: '32px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
-              <span className="details-original" style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
-              <span className="details-discount" style={{ fontSize: '16px', fontWeight: '800', color: '#10b981', background: '#ecfdf5', padding: '4px 10px', borderRadius: '6px' }}>{currentDisplayDiscount}% off</span>
+          <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0, marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
+            <div className="details-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+              <span className="details-price" style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
+              <span className="details-original" style={{ fontSize: '14px', color: '#878787', textDecoration: 'line-through' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
+              <span className="details-discount" style={{ fontSize: '14px', fontWeight: 'bold', color: '#388e3c' }}>{currentDisplayDiscount}% off</span>
             </div>
           </div>
 
