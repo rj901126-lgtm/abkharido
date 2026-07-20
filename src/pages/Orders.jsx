@@ -365,10 +365,10 @@ const Orders = ({ onNavigate }) => {
                   <div style={{ flex: 1 }}>
                     <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>{prod.name}</h4>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                      Qty: {item.quantity} | {item.selectedColor} | {item.selectedVariant}
+                      Qty: {item.quantity} {item.selectedColor ? `| ${item.selectedColor}` : ''} {item.selectedVariant ? `| ${item.selectedVariant}` : ''}
                     </div>
                     <div style={{ fontSize: '14px', fontWeight: '800', color: 'var(--primary-color)', marginTop: '6px' }}>
-                      ₹{item.price.toLocaleString('en-IN')}
+                      ₹{(prod.price || 0).toLocaleString('en-IN')}
                     </div>
                   </div>
                   <button 
