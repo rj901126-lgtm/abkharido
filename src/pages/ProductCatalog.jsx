@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
@@ -343,7 +344,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
 
       {/* Sort Bottom Sheet Modal */}
-      {showSortModal && (
+      {showSortModal && createPortal(
         <div className="bottom-sheet-backdrop" onClick={() => setShowSortModal(false)}>
           <div className="bottom-sheet-content" onClick={(e) => e.stopPropagation()}>
             <h4 className="bottom-sheet-title" style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Sort By</h4>
@@ -366,11 +367,12 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
               ))}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Filter Slide-in Drawer Modal */}
-      {showFilterDrawer && (
+      {showFilterDrawer && createPortal(
         <div className="filter-drawer-backdrop" onClick={() => setShowFilterDrawer(false)}>
           <div className="filter-drawer-content" onClick={(e) => e.stopPropagation()}>
             <div className="filter-drawer-header">
@@ -453,7 +455,8 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
