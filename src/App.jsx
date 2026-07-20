@@ -20,6 +20,7 @@ import SellerDashboard from './pages/SellerDashboard';
 import CategoriesPage from './pages/CategoriesPage';
 import SpinWheel from './components/SpinWheel';
 import LivePurchasePopup from './components/LivePurchasePopup';
+import CartDrawer from './components/CartDrawer';
 
 const OnboardingModal = () => {
   const { currentUser, updateUserProfile, showToast } = useApp();
@@ -206,6 +207,7 @@ const AppContent = () => {
   const [activeProductId, setActiveProductId] = useState(null);
   const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
   const [promotions, setPromotions] = useState(null);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
 
   const fetchPromotions = async () => {
     try {
@@ -507,6 +509,7 @@ const AppContent = () => {
           onSearch={handleSearch}
           currentCategory={currentCategory}
           onSelectCategory={handleSelectCategory}
+          onCartClick={() => setIsCartDrawerOpen(true)}
           style={{ top: showAnnouncement ? '30px' : '0' }}
         />
       )}

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
-const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, style }) => {
+const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, onCartClick, style }) => {
   const { currentUser, cart, logout, resetDatabase, products } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -233,7 +233,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             <a 
               href="#cart" 
               className="nav-item" 
-              onClick={(e) => { e.preventDefault(); onNavigate('cart'); }}
+              onClick={(e) => { 
+                e.preventDefault(); 
+                if (onCartClick) {
+                  onCartClick();
+                } else {
+                  onNavigate('cart');
+                }
+              }}
             >
               <div className="cart-icon-wrapper">
                 <ShoppingCart size={20} />

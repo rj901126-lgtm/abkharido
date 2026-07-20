@@ -218,41 +218,69 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       <aside className="filters-sidebar">
         {/* Sort By section */}
         <div className="filter-section">
-          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Sort By</h5>
-          <select 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-            style={{ width: '100%', padding: '8px', border: '1px solid var(--border-light)', borderRadius: '4px', backgroundColor: 'white', fontSize: '13px' }}
-          >
-            <option value="popularity">Popularity</option>
-            <option value="priceLow">Price: Low to High</option>
-            <option value="priceHigh">Price: High to Low</option>
-            <option value="rating">Highest Rated</option>
-          </select>
+          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px' }}>Sort By</h5>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {[
+              { id: 'popularity', label: 'Popularity' },
+              { id: 'priceLow', label: 'Price: Low to High' },
+              { id: 'priceHigh', label: 'Price: High to Low' },
+              { id: 'rating', label: 'Highest Rated' }
+            ].map(opt => (
+              <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', cursor: 'pointer', padding: '6px 8px', borderRadius: '6px', background: sortBy === opt.id ? 'var(--primary-light)' : 'transparent', color: sortBy === opt.id ? 'var(--primary-color)' : 'var(--text-primary)', fontWeight: sortBy === opt.id ? '600' : '500', transition: 'all 0.2s' }}>
+                <input 
+                  type="radio" 
+                  name="desktop-sort" 
+                  checked={sortBy === opt.id} 
+                  onChange={() => setSortBy(opt.id)}
+                  style={{ accentColor: 'var(--primary-color)', width: '16px', height: '16px' }}
+                />
+                {opt.label}
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* Category section */}
         <div className="filter-section">
-          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Category</h5>
-          <select 
-            value={currentCategory} 
-            onChange={(e) => onSelectCategory(e.target.value)}
-            style={{ width: '100%', padding: '8px', border: '1px solid var(--border-light)', borderRadius: '4px', backgroundColor: 'white', fontSize: '13px' }}
-          >
-            <option value="all">All Categories</option>
-            <option value="mobiles">Mobiles</option>
-            <option value="electronics">Electronics</option>
-            <option value="fashion">Fashion</option>
-            <option value="home">Home &amp; Living</option>
-            <option value="appliances">Appliances</option>
-          </select>
+          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px' }}>Category</h5>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {[
+              { id: 'all', label: 'All Categories' },
+              { id: 'mobiles', label: 'Mobiles' },
+              { id: 'electronics', label: 'Electronics' },
+              { id: 'fashion', label: 'Fashion' },
+              { id: 'home', label: 'Home & Living' },
+              { id: 'appliances', label: 'Appliances' }
+            ].map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => onSelectCategory(cat.id)}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  border: currentCategory === cat.id ? '1px solid var(--primary-color)' : '1px solid #e2e8f0',
+                  background: currentCategory === cat.id ? 'var(--primary-color)' : 'white',
+                  color: currentCategory === cat.id ? 'white' : '#64748b',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: currentCategory === cat.id ? '0 2px 8px rgba(79,70,229,0.25)' : 'none'
+                }}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Price section */}
         <div className="filter-section">
-          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Price Range</h5>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Max Price: ₹{maxPrice.toLocaleString('en-IN')}</label>
+          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
+            <span>Price Range</span>
+            <span style={{ color: 'var(--primary-color)', fontWeight: '800' }}>₹{maxPrice.toLocaleString('en-IN')}</span>
+          </h5>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <input 
               type="range" 
               min="1000" 
@@ -260,40 +288,44 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
               step="1000"
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
-              style={{ width: '100%', cursor: 'pointer' }}
+              style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
             />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>
+              <span>₹1k</span>
+              <span>₹150k</span>
+            </div>
           </div>
         </div>
 
         {/* Ratings section */}
         <div className="filter-section">
-          <h5 className="filter-title" style={{ fontSize: '12px', letterSpacing: '0.5px', marginBottom: '10px' }}>Ratings</h5>
-          <ul className="filter-list" style={{ padding: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px' }}>Customer Ratings</h5>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[4, 3, 2].map(stars => (
-              <li key={stars}>
-                <label className="filter-item-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
-                  <input 
-                    type="radio" 
-                    name="sidebar-rating-filter" 
-                    checked={selectedRating === stars}
-                    onChange={() => setSelectedRating(stars)}
-                  />
-                  <span>{stars}★ &amp; above</span>
-                </label>
-              </li>
-            ))}
-            <li>
-              <label className="filter-item-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+              <label key={stars} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', cursor: 'pointer', padding: '6px 8px', borderRadius: '6px', background: selectedRating === stars ? 'var(--primary-light)' : 'transparent', color: selectedRating === stars ? 'var(--primary-color)' : 'var(--text-primary)', fontWeight: selectedRating === stars ? '600' : '500', transition: 'all 0.2s' }}>
                 <input 
                   type="radio" 
                   name="sidebar-rating-filter" 
-                  checked={selectedRating === null}
-                  onChange={() => setSelectedRating(null)}
+                  checked={selectedRating === stars}
+                  onChange={() => setSelectedRating(stars)}
+                  style={{ accentColor: 'var(--primary-color)', width: '16px', height: '16px' }}
                 />
-                <span>All Ratings</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {stars} <Star size={12} fill={selectedRating === stars ? "var(--primary-color)" : "#cbd5e1"} stroke="none" /> & above
+                </span>
               </label>
-            </li>
-          </ul>
+            ))}
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', cursor: 'pointer', padding: '6px 8px', borderRadius: '6px', background: selectedRating === null ? 'var(--primary-light)' : 'transparent', color: selectedRating === null ? 'var(--primary-color)' : 'var(--text-primary)', fontWeight: selectedRating === null ? '600' : '500', transition: 'all 0.2s' }}>
+              <input 
+                type="radio" 
+                name="sidebar-rating-filter" 
+                checked={selectedRating === null}
+                onChange={() => setSelectedRating(null)}
+                style={{ accentColor: 'var(--primary-color)', width: '16px', height: '16px' }}
+              />
+              All Ratings
+            </label>
+          </div>
         </div>
 
         {/* Reset button */}
