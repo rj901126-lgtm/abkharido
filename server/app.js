@@ -10,6 +10,8 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import shippingRoutes from './routes/shippingRoutes.js';
 
 dotenv.config();
 
@@ -42,6 +44,8 @@ app.use('/api', apiLimiter);
 app.use('/api/v2/auth', authRoutes);
 app.use('/api/v2/products', productRoutes);
 app.use('/api/v2/orders', orderRoutes);
+app.use('/api/v2/payment', paymentRoutes);
+app.use('/api/v2/shipping', shippingRoutes);
 
 // --- LEGACY ROUTES WILL BE MOUNTED HERE BY api/index.js ---
 
