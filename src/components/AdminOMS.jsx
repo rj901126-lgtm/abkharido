@@ -38,7 +38,7 @@ const AdminOMS = () => {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedOrders(orders.map(o => o._id));
+      setSelectedOrders(orders.map(o => o.id || o._id));
     } else {
       setSelectedOrders([]);
     }
@@ -190,17 +190,17 @@ const AdminOMS = () => {
           </thead>
           <tbody>
             {orders.map(order => (
-              <tr key={order._id} style={{ backgroundColor: selectedOrders.includes(order._id) ? '#f0f8ff' : 'transparent' }}>
+              <tr key={order.id || order._id} style={{ backgroundColor: selectedOrders.includes(order.id || order._id) ? '#f0f8ff' : 'transparent' }}>
                 <td>
                   <input 
                     type="checkbox" 
-                    checked={selectedOrders.includes(order._id)}
-                    onChange={() => handleSelectOne(order._id)}
+                    checked={selectedOrders.includes(order.id || order._id)}
+                    onChange={() => handleSelectOne(order.id || order._id)}
                   />
                 </td>
-                <td style={{ fontWeight: '600', fontSize: '13px' }}>{order._id}</td>
-                <td>{order.user?.email || 'N/A'}</td>
-                <td style={{ fontWeight: 'bold' }}>₹{order.totalPrice?.toLocaleString()}</td>
+                <td style={{ fontWeight: '600', fontSize: '13px' }}>{order.id || order._id}</td>
+                <td>{order.customerUsername || order.user?.email || 'N/A'}</td>
+                <td style={{ fontWeight: 'bold' }}>₹{(order.finalAmount || order.totalPrice || 0).toLocaleString()}</td>
                 <td>
                   <span style={{ 
                     padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold',
@@ -211,9 +211,9 @@ const AdminOMS = () => {
                   </span>
                 </td>
                 <td>
-                  {order.isPaid ? 
+                  {order.paymentStatus === 'SUCCESS' || order.isPaid ? 
                     <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>Paid</span> : 
-                    <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>COD/Unpaid</span>
+                    <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>{order.paymentMethod || 'COD/Unpaid'}</span>
                   }
                 </td>
                 <td>
@@ -222,7 +222,7 @@ const AdminOMS = () => {
                       className="btn btn-outline" 
                       style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px' }}
                       title="Generate Shiprocket AWB"
-                      onClick={() => generateAWB(order._id)}
+                      onClick={() => generateAWB(order.id || order._id)}
                     >
                       <Truck size={14} /> Ship
                     </button>
