@@ -205,9 +205,30 @@ const Login = ({ onNavigate }) => {
   };
 
   const handleOtpChange = (element, index) => {
-    if (isNaN(element.value)) return;
-    setOtpCode([...otpCode.map((d, idx) => (idx === index ? element.value : d))]);
-    if (element.nextSibling && element.value) element.nextSibling.focus();
+    const val = element.value;
+    if (isNaN(val)) return;
+    
+    // Handle Autofill or Paste (multiple digits)
+    if (val.length > 1) {
+      const chars = val.replace(/\D/g, '').split('').slice(0, 6);
+      const newOtp = [...otpCode];
+      chars.forEach((char, i) => {
+        if (i < 6) newOtp[i] = char; // fill from beginning
+      });
+      setOtpCode(newOtp);
+      
+      // Focus the appropriate box
+      const focusIndex = Math.min(chars.length, 5);
+      const parent = element.parentNode;
+      if (parent && parent.childNodes[focusIndex]) {
+        parent.childNodes[focusIndex].focus();
+      }
+      return;
+    }
+
+    // Normal single-character typing
+    setOtpCode([...otpCode.map((d, idx) => (idx === index ? val : d))]);
+    if (element.nextSibling && val) element.nextSibling.focus();
   };
 
   const handleOtpKeyDown = (e, index) => {
@@ -304,7 +325,8 @@ const Login = ({ onNavigate }) => {
                       key={index}
                       type="text"
                       name="otp"
-                      maxLength="1"
+                      maxLength="6"
+                      autoComplete={index === 0 ? "one-time-code" : "off"}
                       value={data}
                       onChange={(e) => handleOtpChange(e.target, index)}
                       onKeyDown={(e) => handleOtpKeyDown(e, index)}
