@@ -68,6 +68,23 @@ const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   });
 };
 
+const uploadToCloudinary = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'abkharido_uploads');
+  formData.append('cloud_name', 'rx1klbob');
+  
+  const res = await fetch('https://api.cloudinary.com/v1_1/rx1klbob/auto/upload', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (data.secure_url) {
+    return data.secure_url;
+  }
+  throw new Error(data.error?.message || 'Cloudinary upload failed');
+};
+
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, removeProduct, showToast } = useApp();
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'users' | 'promotions'
@@ -130,82 +147,46 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 3 * 1024 * 1024) {
-      showToast('Image file size must be under 3MB.', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Image file size must be under 10MB.', 'error');
       return;
     }
 
     setUploadingImage(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Data = reader.result;
-      const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      try {
-        const res = await fetch('/api/admin/upload-banner', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-token': token
-          },
-          body: JSON.stringify({
-            base64Data,
-            fileName: file.name
-          })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data.imageUrl) {
-            setNewSlideImage(data.imageUrl);
-            showToast('Banner image uploaded successfully!', 'success');
-          }
-        } else {
-          showToast('Failed to upload banner file to server.', 'error');
-        }
-      } catch (err) {
-        showToast('Network error during file upload.', 'error');
-      } finally {
-        setUploadingImage(false);
-      }
-    };
-    reader.readAsDataURL(file);
+    showToast('Uploading banner to Cloudinary...', 'info');
+    try {
+      const secureUrl = await uploadToCloudinary(file);
+      setNewSlideImage(secureUrl);
+      showToast('Banner image uploaded successfully!', 'success');
+    } catch (err) {
+      console.error('Banner upload error:', err);
+      showToast('Network error during file upload.', 'error');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // Upload image for a category slide form
   const handleCatSlideImageUpload = async (catKey, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 3 * 1024 * 1024) {
-      showToast('Image must be under 3MB.', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Image must be under 10MB.', 'error');
       return;
     }
+    
     setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], uploading: true } }));
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Data = reader.result;
-      const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      try {
-        const res = await fetch('/api/admin/upload-banner', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
-          body: JSON.stringify({ base64Data, fileName: `${catKey}-slide-${file.name}` })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.imageUrl) {
-            setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], image: data.imageUrl, uploading: false } }));
-            showToast('Image uploaded!', 'success');
-          }
-        } else {
-          showToast('Upload failed.', 'error');
-          setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], uploading: false } }));
-        }
-      } catch {
-        showToast('Network error.', 'error');
-        setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], uploading: false } }));
-      }
-    };
-    reader.readAsDataURL(file);
+    showToast(`Uploading ${catKey} slide to Cloudinary...`, 'info');
+    
+    try {
+      const secureUrl = await uploadToCloudinary(file);
+      setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], image: secureUrl, uploading: false } }));
+      showToast('Image uploaded!', 'success');
+    } catch (err) {
+      console.error('Slide upload error:', err);
+      showToast('Upload failed or network error.', 'error');
+      setCatSlideForm(prev => ({ ...prev, [catKey]: { ...prev[catKey], uploading: false } }));
+    }
   };
 
   // Synchronize state when promotions prop loads
@@ -472,33 +453,21 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Image size should be less than 5MB', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Image size should be less than 10MB', 'error');
       e.target.value = '';
       return;
     }
 
-    showToast('Processing variant image...', 'info');
+    showToast('Uploading variant image to Cloudinary...', 'info');
 
     try {
-      let finalBase64;
-      try {
-        finalBase64 = await compressImage(file, 800, 800, 0.7);
-      } catch (compressionErr) {
-        console.warn('Canvas compression failed, falling back to raw data URI:', compressionErr);
-        finalBase64 = await new Promise((res, rej) => {
-          const reader = new FileReader();
-          reader.onload = (event) => res(event.target.result);
-          reader.onerror = (error) => rej(error);
-          reader.readAsDataURL(file);
-        });
-      }
-
-      handleColorModelChange(colorIdx, 'primaryImage', finalBase64);
-      showToast('Variant image processed successfully', 'success');
+      const secureUrl = await uploadToCloudinary(file);
+      handleColorModelChange(colorIdx, 'primaryImage', secureUrl);
+      showToast('Variant image uploaded successfully', 'success');
     } catch (err) {
-      console.error('Variant image processing failed:', err);
-      showToast('Error processing image', 'error');
+      console.error('Variant image upload failed:', err);
+      showToast('Error uploading image to Cloudinary', 'error');
     }
   };
 
@@ -605,54 +574,30 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
 
     setIsUploadingImage(true);
-    showToast(`Processing ${files.length} file(s)...`, 'info');
+    showToast(`Uploading ${files.length} file(s) to Cloudinary...`, 'info');
 
     let newMedia = [];
     for (const file of files) {
       const isVideo = file.type.startsWith('video/');
-      if (isVideo) {
-        if (file.size > 10 * 1024 * 1024) {
-          showToast(`Video ${file.name} exceeds 10MB limit. Skipped.`, 'error');
-          continue;
-        }
-        try {
-          const rawBase64 = await new Promise((res, rej) => {
-            const reader = new FileReader();
-            reader.onload = (event) => res(event.target.result);
-            reader.onerror = (error) => rej(error);
-            reader.readAsDataURL(file);
-          });
-          newMedia.push(rawBase64);
-        } catch (err) {
-          console.error('Video processing failed:', err);
-        }
-      } else {
-        if (file.size > 5 * 1024 * 1024) {
-          showToast(`Image ${file.name} exceeds 5MB limit. Skipped.`, 'error');
-          continue;
-        }
-        try {
-          let finalBase64;
-          try {
-            finalBase64 = await compressImage(file, 800, 800, 0.7);
-          } catch (compressionErr) {
-            console.warn('Canvas compression failed, falling back to raw data URI:', compressionErr);
-            finalBase64 = await new Promise((res, rej) => {
-              const reader = new FileReader();
-              reader.onload = (event) => res(event.target.result);
-              reader.onerror = (error) => rej(error);
-              reader.readAsDataURL(file);
-            });
-          }
-          newMedia.push(finalBase64);
-        } catch (err) {
-          console.error('Image processing failed:', err);
-        }
+      if (isVideo && file.size > 100 * 1024 * 1024) {
+        showToast(`Video ${file.name} exceeds 100MB Cloudinary limit. Skipped.`, 'error');
+        continue;
+      } else if (!isVideo && file.size > 10 * 1024 * 1024) {
+        showToast(`Image ${file.name} exceeds 10MB limit. Skipped.`, 'error');
+        continue;
+      }
+
+      try {
+        const secureUrl = await uploadToCloudinary(file);
+        newMedia.push(secureUrl);
+      } catch (err) {
+        console.error('Cloudinary upload failed:', err);
+        showToast(`Network error while uploading ${file.name}`, 'error');
       }
     }
 
     setMedia(prev => [...prev, ...newMedia]);
-    if (newMedia.length > 0) showToast('Media processed successfully', 'success');
+    if (newMedia.length > 0) showToast('Media uploaded to Cloud successfully', 'success');
     setIsUploadingImage(false);
     e.target.value = '';
   };

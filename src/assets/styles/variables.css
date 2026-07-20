@@ -1,14 +1,14 @@
 /* CSS Brand Tokens for AbKharido.com - Premium Modern E-Commerce Palette */
 
 :root {
-  /* Brand Colors - High Conversion Modern Indigo & Vivid Coral */
-  --primary-color: #4f46e5;       /* Premium Electric Indigo (Modern, high-trust) */
-  --primary-light: #eef2ff;       /* Soft indigo tint for background wrappers */
-  --primary-dark: #3730a3;        /* Deep navy-indigo for hover actions */
+  /* Brand Colors - Flipkart Inspired Theme */
+  --primary-color: #2874f0;       /* Flipkart Blue */
+  --primary-light: #f1f3f6;       /* Soft gray/blue background wrapper */
+  --primary-dark: #1c5ecc;        /* Dark blue hover */
   
-  --secondary-color: #f59e0b;     /* Sophisticated Amber Gold for ratings and stars */
-  --accent-color: #ff5a5f;        /* Vivid Coral-Rose (Airbnb style) for CTAs / Buy Now */
-  --accent-light: #ff7e82;       /* Bright coral highlight / Add to Cart */
+  --secondary-color: #388e3c;     /* Flipkart Green (for offers/ratings) */
+  --accent-color: #ff9f00;        /* Flipkart Yellow (Add to Cart) */
+  --accent-light: #fb641b;        /* Flipkart Orange (Buy Now) */
   
   /* Status Colors */
   --success: #10b981;             /* Emerald Green */
@@ -19,7 +19,7 @@
   /* Neutral Colors - Slate Design System */
   --text-primary: #0f172a;        /* Soft Slate 900 for premium typography */
   --text-secondary: #64748b;      /* Slate 500 for secondary copy */
-  --bg-page: #f8fafc;            /* Clean Slate 50 page backdrop */
+  --bg-page: #f1f3f6;            /* Flipkart classic background */
   --bg-card: #ffffff;            /* Pure white containers */
   --border-light: #e2e8f0;       /* Muted Slate 200 grid lines */
   --border-focus: #4f46e5;       /* Indigo focus indicators */
