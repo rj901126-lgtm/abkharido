@@ -430,7 +430,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [originalPrice, setOriginalPrice] = useState('');
   const [rating, setRating] = useState('4.5');
   const [reviewsCount, setReviewsCount] = useState('10');
-  const [image, setImage] = useState('');
+  const [media, setMedia] = useState([]);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
@@ -595,46 +595,76 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   };
 
   const handleProductImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Image size should be less than 5MB', 'error');
+    if (media.length + files.length > 10) {
+      showToast('You can only upload up to 10 photos/videos combined.', 'error');
       e.target.value = '';
       return;
     }
 
     setIsUploadingImage(true);
-    showToast('Processing main product image...', 'info');
+    showToast(`Processing ${files.length} file(s)...`, 'info');
 
-    try {
-      let finalBase64;
-      try {
-        finalBase64 = await compressImage(file, 800, 800, 0.7);
-      } catch (compressionErr) {
-        console.warn('Canvas compression failed, falling back to raw data URI:', compressionErr);
-        finalBase64 = await new Promise((res, rej) => {
-          const reader = new FileReader();
-          reader.onload = (event) => res(event.target.result);
-          reader.onerror = (error) => rej(error);
-          reader.readAsDataURL(file);
-        });
+    let newMedia = [];
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      if (isVideo) {
+        if (file.size > 10 * 1024 * 1024) {
+          showToast(`Video ${file.name} exceeds 10MB limit. Skipped.`, 'error');
+          continue;
+        }
+        try {
+          const rawBase64 = await new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = (event) => res(event.target.result);
+            reader.onerror = (error) => rej(error);
+            reader.readAsDataURL(file);
+          });
+          newMedia.push(rawBase64);
+        } catch (err) {
+          console.error('Video processing failed:', err);
+        }
+      } else {
+        if (file.size > 5 * 1024 * 1024) {
+          showToast(`Image ${file.name} exceeds 5MB limit. Skipped.`, 'error');
+          continue;
+        }
+        try {
+          let finalBase64;
+          try {
+            finalBase64 = await compressImage(file, 800, 800, 0.7);
+          } catch (compressionErr) {
+            console.warn('Canvas compression failed, falling back to raw data URI:', compressionErr);
+            finalBase64 = await new Promise((res, rej) => {
+              const reader = new FileReader();
+              reader.onload = (event) => res(event.target.result);
+              reader.onerror = (error) => rej(error);
+              reader.readAsDataURL(file);
+            });
+          }
+          newMedia.push(finalBase64);
+        } catch (err) {
+          console.error('Image processing failed:', err);
+        }
       }
-      
-      setImage(finalBase64);
-      showToast('Image processed successfully', 'success');
-    } catch (err) {
-      console.error('Image processing failed:', err);
-      showToast('Error processing image', 'error');
-    } finally {
-      setIsUploadingImage(false);
     }
+
+    setMedia(prev => [...prev, ...newMedia]);
+    if (newMedia.length > 0) showToast('Media processed successfully', 'success');
+    setIsUploadingImage(false);
+    e.target.value = '';
+  };
+
+  const handleRemoveMedia = (idx) => {
+    setMedia(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!id || !name || !price || !originalPrice || !image || !description) {
+    if (!id || !name || !price || !originalPrice || media.length === 0 || !description) {
       showToast('Please fill out all required fields.', 'error');
       return;
     }
@@ -680,7 +710,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       originalPrice: Number(originalPrice),
       rating: Number(rating),
       reviewsCount: Number(reviewsCount),
-      image,
+      image: media[0],
+      images: media,
       description,
       specifications: cleanSpecs,
       influencerCommissionRate: Number(infCommission),
@@ -697,7 +728,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setName('');
     setPrice('');
     setOriginalPrice('');
-    setImage('');
+    setMedia([]);
     setDescription('');
     setSpecs([
       { key: 'Brand', value: '' },
@@ -1308,22 +1339,32 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </div>
 
             <div className="form-group">
-              <label className="form-label-txt">Product Image*</label>
+              <label className="form-label-txt">Product Media (Up to 10 photos/videos)*</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input 
                   type="file" 
-                  accept="image/*"
+                  multiple
+                  accept="image/*,video/mp4,video/webm"
                   onChange={handleProductImageUpload}
                   className="form-input-field"
                   style={{ flex: 1, padding: '6px' }}
-                  required={!image}
+                  required={media.length === 0}
+                  disabled={isUploadingImage || media.length >= 10}
                 />
                 {isUploadingImage && <span style={{ fontSize: '12px', color: 'var(--primary-color)' }}>Uploading...</span>}
               </div>
-              {image && (
-                <div style={{ marginTop: '8px', position: 'relative', display: 'inline-block' }}>
-                  <img src={image} alt="Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-light)' }} />
-                  <button type="button" onClick={() => setImage('')} style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'white', border: '1px solid #ccc', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              {media.length > 0 && (
+                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {media.map((src, idx) => (
+                    <div key={idx} style={{ position: 'relative', width: '80px', height: '80px' }}>
+                      {src.startsWith('data:video/') ? (
+                        <video src={src} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} muted />
+                      ) : (
+                        <img src={src} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                      )}
+                      <button type="button" onClick={() => handleRemoveMedia(idx)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--error)', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>×</button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

@@ -495,11 +495,18 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
           >
             {/* Sliding Track */}
             <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(-${activeImageIndex * 100}%)`, transition: 'transform 0.3s ease-out' }}>
-              {imagesList.map((imgUrl, index) => (
-                <div key={index} className="main-image-slide">
-                  <img src={imgUrl} alt={`${product.name} View ${index}`} />
-                </div>
-              ))}
+              {imagesList.map((imgUrl, index) => {
+                const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
+                return (
+                  <div key={index} className="main-image-slide">
+                    {isVideo ? (
+                      <video src={imgUrl} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <img src={imgUrl} alt={`${product.name} View ${index}`} />
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
 
@@ -594,25 +601,38 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
           {/* Multiple preview thumbnails (desktop layout style thumbnails below) */}
           {imagesList.length > 1 && (
             <div className="desktop-thumbnails-container" style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '4px 0 12px 0', flexWrap: 'wrap' }}>
-              {imagesList.map((imgUrl, index) => (
-                <img
-                  key={index}
-                  src={imgUrl}
-                  alt={`Preview ${index}`}
-                  onClick={() => setActiveImageIndex(index)}
-                  style={{
-                    width: '52px',
-                    height: '52px',
-                    objectFit: 'contain',
-                    border: activeImageIndex === index ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
-                    borderRadius: '4px',
-                    padding: '2px',
-                    cursor: 'pointer',
-                    backgroundColor: 'white',
-                    transition: 'all 0.1s'
-                  }}
-                />
-              ))}
+              {imagesList.map((imgUrl, index) => {
+                const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
+                const baseStyle = {
+                  width: '52px',
+                  height: '52px',
+                  objectFit: 'contain',
+                  border: activeImageIndex === index ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
+                  borderRadius: '4px',
+                  padding: '2px',
+                  cursor: 'pointer',
+                  backgroundColor: 'white',
+                  transition: 'all 0.1s'
+                };
+                
+                return isVideo ? (
+                  <video
+                    key={index}
+                    src={imgUrl}
+                    onClick={() => setActiveImageIndex(index)}
+                    style={{ ...baseStyle, objectFit: 'cover' }}
+                    muted
+                  />
+                ) : (
+                  <img
+                    key={index}
+                    src={imgUrl}
+                    alt={`Preview ${index}`}
+                    onClick={() => setActiveImageIndex(index)}
+                    style={baseStyle}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
