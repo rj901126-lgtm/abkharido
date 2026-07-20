@@ -176,7 +176,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
 
       {/* DYNAMIC CMS SECTIONS */}
       {loadingLayout ? (
-        <div style={{ textAlign: 'center', padding: '50px', color: '#666' }}>Loading Store...</div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '20px' }}>
+          <div style={{ width: '48px', height: '48px', border: '5px solid #f3f4f6', borderTop: '5px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+          <div style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', letterSpacing: '0.5px' }}>Loading AbKharido Storefront...</div>
+          <p style={{ color: '#64748b', fontSize: '14px', marginTop: '-10px' }}>Fetching the best deals for you</p>
+        </div>
       ) : (
         layoutComponents.map((comp) => {
           if (comp.type === 'deals_row') {
@@ -245,14 +250,23 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
       )}
 
       {/* Affiliate Promo Banner */}
-      <section style={{ padding: '0 20px', marginBottom: '30px' }}>
-        <div className="affiliate-promo-banner" onClick={() => onNavigate('info')}>
-          <div className="promo-icon"><Award size={32} color="#fff" /></div>
-          <div className="promo-text">
-            <h3>Start Earning With Us</h3>
-            <p>Join the AbKharido Creator Program. Share links and earn up to 7% instant cash on every sale.</p>
+      {/* Affiliate Promo Banner */}
+      <section style={{ padding: '0 20px', marginBottom: '40px' }}>
+        <div style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', borderRadius: '24px', padding: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 30px rgba(79, 70, 229, 0.3)', color: 'white', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.3s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'} onClick={() => onNavigate('info')}>
+          {/* Decorative background elements */}
+          <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
+          <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '100px', height: '100px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', zIndex: 1 }}>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '20px', borderRadius: '20px', backdropFilter: 'blur(10px)' }}>
+              <Award size={40} color="#fff" strokeWidth={2} />
+            </div>
+            <div>
+              <h3 style={{ margin: '0 0 10px 0', fontSize: '28px', fontWeight: '800', letterSpacing: '1px' }}>Start Earning With Us</h3>
+              <p style={{ margin: 0, fontSize: '16px', color: '#e0e7ff', maxWidth: '600px', lineHeight: '1.5' }}>Join the exclusive AbKharido Creator Program. Share links and earn up to <strong style={{ color: '#fef08a' }}>7% instant cash</strong> on every sale you refer.</p>
+            </div>
           </div>
-          <button className="btn" style={{ background: '#fff', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+          <button className="btn" style={{ background: '#fff', color: '#4f46e5', fontWeight: '800', padding: '14px 28px', borderRadius: '12px', fontSize: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 1, border: 'none', cursor: 'pointer' }}>
             Learn More
           </button>
         </div>
