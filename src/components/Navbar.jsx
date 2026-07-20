@@ -68,7 +68,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 AbKharido<span className="logo-plus">.com</span>
               </span>
               <span className="logo-sub">
-                Direct Buy <span style={{ color: '#ffffff', fontWeight: 'bold' }}>& Earn</span>
+                Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
               </span>
             </a>
           </div>

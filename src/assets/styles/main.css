@@ -375,12 +375,9 @@ img {
     display: none !important;
   }
 
-  /* Make cards look taller and flatter like Flipkart */
+  /* Make cards fit in grid */
   .grid-cols-4 .card, .deals-grid .card, .product-card {
-    border-radius: 2px !important;
-    padding: 6px !important;
-    box-shadow: none !important;
-    border: 1px solid #eaeaea !important;
+    padding: 8px !important;
     margin: 0 !important;
     height: 100% !important;
   }
@@ -649,9 +646,10 @@ img {
 }
 
 .product-add-to-cart-btn:hover {
-  background-color: var(--primary-color) !important;
+  background-color: var(--primary-dark) !important;
   color: white !important;
-  border-color: var(--primary-color) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .otp-input-field:focus {
