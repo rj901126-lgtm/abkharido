@@ -1219,6 +1219,32 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         </div>
 
       </div>
+
+      {/* Sticky Mobile Cart Bar */}
+      <div className="mobile-sticky-cart-bar">
+        <div className="mobile-sticky-cart-price">
+          <span className="price">₹{product.price.toLocaleString('en-IN')}</span>
+          {product.mrp > product.price && (
+            <span className="mrp">₹{product.mrp.toLocaleString('en-IN')}</span>
+          )}
+        </div>
+        <div className="mobile-sticky-cart-actions">
+          <button 
+            className="btn btn-primary" 
+            style={{ flex: 1, backgroundColor: 'white', color: 'var(--primary-color)', border: '1px solid var(--border-light)' }} 
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart size={18} /> Add
+          </button>
+          <button 
+            className="btn btn-accent" 
+            style={{ flex: 1, backgroundColor: 'var(--primary-color)' }} 
+            onClick={() => onBuyNow(product)}
+          >
+            <Zap size={18} /> Buy
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

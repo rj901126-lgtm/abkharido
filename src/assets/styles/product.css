@@ -797,3 +797,61 @@
     display: flex !important;
   }
 }
+
+/* Sticky Mobile Cart Bar */
+.mobile-sticky-cart-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-sticky-cart-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-sticky-cart-price {
+    display: flex;
+    flex-direction: column;
+    min-width: 80px;
+  }
+
+  .mobile-sticky-cart-price .price {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .mobile-sticky-cart-price .mrp {
+    font-size: 12px;
+    text-decoration: line-through;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .mobile-sticky-cart-actions {
+    display: flex;
+    flex: 1;
+    gap: 8px;
+  }
+
+  /* Add padding to the bottom of the details container so content isn't hidden behind the sticky bar */
+  .mobile-only-spacer {
+    height: 80px;
+    width: 100%;
+  }
+}

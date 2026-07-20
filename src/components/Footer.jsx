@@ -4,32 +4,52 @@ import { ShoppingBag, Award, Heart, HelpCircle, ShieldCheck } from 'lucide-react
 const Footer = ({ onNavigate }) => {
   return (
     <footer className="app-footer" style={styles.footer}>
+      {/* Newsletter Section */}
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '40px 0' }}>
+        <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
+          <div>
+            <h3 style={{ color: 'white', fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Join the AbKharido Club</h3>
+            <p style={{ color: '#94a3b8', fontSize: '14px' }}>Get exclusive early access to deals, product drops, and insider rewards.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', width: '100%', maxWidth: '400px' }}>
+            <input 
+              type="email" 
+              placeholder="Enter your email address" 
+              style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none' }}
+            />
+            <button style={{ padding: '0 24px', borderRadius: '8px', background: 'var(--primary-color)', color: 'white', fontWeight: '600', border: 'none', cursor: 'pointer' }}>
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Upper footer features */}
       <div style={styles.featuresSection}>
         <div className="container footer-features-grid" style={styles.featuresGrid}>
           <div className="footer-feature-item" style={styles.featureItem}>
-            <ShoppingBag size={22} color="#ffe500" />
+            <ShoppingBag size={24} color="#818cf8" />
             <div>
               <h4 style={styles.featureTitle}>100% Direct Sales</h4>
               <p style={styles.featureDesc}>No 3rd party sellers. Direct inventory & warranty.</p>
             </div>
           </div>
           <div className="footer-feature-item" style={styles.featureItem}>
-            <Award size={22} color="#ffe500" />
+            <Award size={24} color="#818cf8" />
             <div>
               <h4 style={styles.featureTitle}>Affiliate Program</h4>
               <p style={styles.featureDesc}>Share links & earn up to 7% commission.</p>
             </div>
           </div>
           <div className="footer-feature-item" style={styles.featureItem}>
-            <ShieldCheck size={22} color="#ffe500" />
+            <ShieldCheck size={24} color="#818cf8" />
             <div>
               <h4 style={styles.featureTitle}>Secure Payments</h4>
               <p style={styles.featureDesc}>Netbanking, UPI, Cards, and COD options.</p>
             </div>
           </div>
           <div className="footer-feature-item" style={styles.featureItem}>
-            <HelpCircle size={22} color="#ffe500" />
+            <HelpCircle size={24} color="#818cf8" />
             <div>
               <h4 style={styles.featureTitle}>24/7 Dedicated Support</h4>
               <p style={styles.featureDesc}>Rapid resolution directly by our service crew.</p>
@@ -55,14 +75,13 @@ const Footer = ({ onNavigate }) => {
 
 const styles = {
   footer: {
-    backgroundColor: '#172337',
-    color: '#878787',
-    fontSize: '12px',
+    backgroundColor: 'var(--accent-color)',
+    color: '#94a3b8',
+    fontSize: '13px',
     marginTop: 'auto',
   },
   featuresSection: {
-    borderBottom: '1px solid #2e3e54',
-    padding: '24px 0',
+    padding: '40px 0',
   },
   featuresGrid: {
     gap: '24px',
@@ -109,9 +128,9 @@ const styles = {
     fontSize: '13px',
   },
   bottomBar: {
-    backgroundColor: '#101724',
-    padding: '20px 0',
-    borderTop: '1px solid #243040',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    padding: '24px 0',
+    borderTop: '1px solid rgba(255,255,255,0.05)',
     textAlign: 'center',
   },
   bottomContent: {
