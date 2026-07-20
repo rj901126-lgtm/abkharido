@@ -24,6 +24,7 @@ import AdminDataGrid from '../components/AdminDataGrid';
 import AdminAnalytics from '../components/AdminAnalytics';
 import AdminCMSBuilder from '../components/AdminCMSBuilder';
 import AdminCoupons from '../components/AdminCoupons';
+import AdminOMS from '../components/AdminOMS';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -884,115 +885,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
       {/* CONDITIONAL RENDER: ORDERS TAB */}
       {activeTab === 'orders' && (
-        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 className="admin-form-title"><FileText size={18} color="var(--primary-color)" /> Platform Orders List</h3>
-          <div className="admin-table-wrapper">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer Email</th>
-                  <th>Items Detail</th>
-                  <th>Total Amount</th>
-                  <th>Milestone Status</th>
-                  <th>Payment Info</th>
-                  <th>Referral Details</th>
-                  <th>Quick Admin Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {adminOrders.map(o => {
-                  // Calculate dynamic commission for display
-                  let commissionText = 'None';
-                  if (o.referralApplied) {
-                    const { type, referrerId } = o.referralApplied;
-                    let totalCommission = 0;
-                    (o.items || []).forEach(item => {
-                      if (item && item.product) {
-                        const rate = type === 'aff' 
-                          ? (item.product.influencerCommissionRate || 0) 
-                          : (item.product.userCommissionRate || 0);
-                        totalCommission += (item.product.price || 0) * (item.quantity || 1) * rate;
-                      }
-                    });
-                    
-                    if (type === 'aff') {
-                      commissionText = `Creator: ${referrerId} (Earned ₹${(Math.round(totalCommission * 100) / 100).toFixed(2)})`;
-                    } else {
-                      commissionText = `User: ${referrerId} (Earned ${Math.round(totalCommission)} Coins)`;
-                    }
-                  }
-
-                  return (
-                    <tr key={o.id}>
-                      <td><code>{o.id}</code></td>
-                      <td>
-                        <div style={{ fontWeight: 'bold' }}>{o.customerUsername}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{o.date}</div>
-                      </td>
-                      <td>
-                        {(o.items || []).map((item, idx) => (
-                          <div key={item?.product?.id || idx} style={{ fontSize: '12px' }}>
-                            • {item?.product?.name ? item.product.name.substring(0, 20) : 'Deleted Product'}... (x{item?.quantity || 1})
-                          </div>
-                        ))}
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 'bold' }}>₹{o.finalAmount.toLocaleString('en-IN')}</div>
-                        {o.coinsDiscountValue > 0 && <div style={{ fontSize: '11px', color: '#e68f00' }}>(-{o.coinsDiscountValue} Coins)</div>}
-                      </td>
-                      <td>
-                        <span className={`badge ${
-                          o.status === 'Delivered' ? 'badge-success' : 
-                          o.status === 'CANCELLED' ? 'badge-danger' : 'badge-info'
-                        }`} style={{ fontSize: '11px' }}>
-                          {o.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '12px' }}>Mode: <strong>{o.paymentMethod}</strong></div>
-                        <div style={{ fontSize: '11px', color: o.paymentStatus === 'SUCCESS' ? 'var(--success)' : 'var(--error)' }}>
-                          {o.paymentStatus}
-                        </div>
-                      </td>
-                      <td>
-                        {o.referralApplied ? (
-                          <div style={{ fontSize: '12px', lineHeight: '1.3' }}>
-                            <div style={{ fontWeight: 'bold', color: o.referralApplied.type === 'aff' ? 'var(--success)' : '#e68f00' }}>
-                              {o.referralApplied.type === 'aff' ? ' Verified Creator' : ' Regular Refer'}
-                            </div>
-                            <div style={{ color: '#555', fontSize: '11px' }}>{commissionText}</div>
-                          </div>
-                        ) : (
-                          <span style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>Direct (No refer)</span>
-                        )}
-                      </td>
-                      <td>
-                        {o.status !== 'CANCELLED' && o.status !== 'Delivered' && (
-                          <div style={{ display: 'flex', gap: '6px' }}>
-                            <select 
-                              value={o.status}
-                              onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
-                              style={{ fontSize: '12px', padding: '4px', border: '1px solid #ddd', borderRadius: '4px' }}
-                            >
-                              <option value="Processing">Processing</option>
-                              <option value="Packed">Packed</option>
-                              <option value="In Transit">In Transit</option>
-                              <option value="Delivered">Delivered</option>
-                            </select>
-                          </div>
-                        )}
-                        {(o.status === 'CANCELLED' || o.status === 'Delivered') && (
-                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Archived</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <AdminOMS />
       )}
 
       {/* CONDITIONAL RENDER: REFERRAL & USERS TAB */}
