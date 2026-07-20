@@ -40,7 +40,10 @@ const decodeJwtPayload = (token) => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
+import newApp from '../server/app.js';
+import { notFound, errorHandler } from '../server/middleware/errorMiddleware.js';
+
+const app = newApp;
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS and parsing middlewares
@@ -2176,6 +2179,10 @@ app.post('/api/admin/upload-image', verifyAdminOrSellerToken, async (req, res) =
     res.status(500).json({ error: 'Failed to upload image file' });
   }
 });
+
+// Mount Enterprise Error Handlers after all legacy routes
+app.use(notFound);
+app.use(errorHandler);
 
 // Start Express server on localhost
 app.listen(PORT, () => {
