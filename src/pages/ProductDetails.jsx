@@ -320,9 +320,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   const activeColor = selectedColor || colorModels[0];
 
-  const imagesList = activeColor && activeColor.images && activeColor.images.length > 0 
+  const imagesList = product?.colorModels && activeColor && activeColor.images && activeColor.images.length > 0 
     ? activeColor.images 
-    : (product ? [product.image] : []);
+    : (product ? (product.images && product.images.length > 0 ? product.images : [product.image]) : []);
 
   const variantsList = activeColor && activeColor.variants ? activeColor.variants : [];
 
