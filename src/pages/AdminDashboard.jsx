@@ -481,8 +481,20 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     showToast('Processing variant image...', 'info');
 
     try {
-      const compressedBase64 = await compressImage(file, 800, 800, 0.7);
-      handleColorModelChange(colorIdx, 'primaryImage', compressedBase64);
+      let finalBase64;
+      try {
+        finalBase64 = await compressImage(file, 800, 800, 0.7);
+      } catch (compressionErr) {
+        console.warn('Canvas compression failed, falling back to raw data URI:', compressionErr);
+        finalBase64 = await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onload = (event) => res(event.target.result);
+          reader.onerror = (error) => rej(error);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      handleColorModelChange(colorIdx, 'primaryImage', finalBase64);
       showToast('Variant image processed successfully', 'success');
     } catch (err) {
       console.error('Variant image processing failed:', err);
@@ -596,8 +608,20 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     showToast('Processing main product image...', 'info');
 
     try {
-      const compressedBase64 = await compressImage(file, 800, 800, 0.7);
-      setImage(compressedBase64);
+      let finalBase64;
+      try {
+        finalBase64 = await compressImage(file, 800, 800, 0.7);
+      } catch (compressionErr) {
+        console.warn('Canvas compression failed, falling back to raw data URI:', compressionErr);
+        finalBase64 = await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onload = (event) => res(event.target.result);
+          reader.onerror = (error) => rej(error);
+          reader.readAsDataURL(file);
+        });
+      }
+      
+      setImage(finalBase64);
       showToast('Image processed successfully', 'success');
     } catch (err) {
       console.error('Image processing failed:', err);
