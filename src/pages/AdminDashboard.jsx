@@ -25,6 +25,7 @@ import AdminAnalytics from '../components/AdminAnalytics';
 import AdminCMSBuilder from '../components/AdminCMSBuilder';
 import AdminCoupons from '../components/AdminCoupons';
 import AdminOMS from '../components/AdminOMS';
+import AdminCRM from '../components/AdminCRM';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -839,6 +840,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           <Tag size={16} /> Marketing & Coupons
         </button>
         <button 
+          onClick={() => setActiveTab('crm')}
+          className={`btn ${activeTab === 'crm' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <Settings size={16} /> CRM & Settings
+        </button>
+        <button 
           onClick={() => setActiveTab('inventory')}
           className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-outline'}`}
           style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
@@ -881,6 +889,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {/* CONDITIONAL RENDER: COUPONS TAB */}
       {activeTab === 'coupons' && (
         <AdminCoupons />
+      )}
+
+      {/* CONDITIONAL RENDER: CRM TAB */}
+      {activeTab === 'crm' && (
+        <AdminCRM />
       )}
 
       {/* CONDITIONAL RENDER: ORDERS TAB */}
