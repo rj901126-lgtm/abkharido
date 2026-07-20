@@ -272,6 +272,47 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   };
 
+  const handleSavePromotions = async () => {
+    if (announcementShow && !announcementText) {
+      showToast('Please enter the announcement text.', 'error');
+      return;
+    }
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    if (!token) { showToast('Session expired. Please re-login to admin.', 'error'); return; }
+    
+    const defaultTimer = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
+    let timerIso = defaultTimer;
+    try { if (promoDealsTimer) timerIso = new Date(promoDealsTimer).toISOString(); } catch { timerIso = defaultTimer; }
+    
+    setIsSaving(true);
+    console.log('[ADMIN SAVE] categoryBanners being saved:', JSON.stringify(categoryBanners, null, 2));
+    
+    try {
+      const payload = { dealsTimer: timerIso, budgetThreshold: Number(promoBudgetThreshold), announcement: { show: announcementShow, text: announcementText, link: announcementLink }, banners, categoryBanners, dealOfTheDayProducts };
+      const res = await fetch('/api/promotions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ Saved! Config is now live on the website.', 'success');
+          if (onUpdatePromotions) onUpdatePromotions(payload);
+        } else {
+          showToast(`Save failed: ${data.error || 'Unknown error from server.'}`, 'error');
+        }
+      } else {
+        const errText = await res.text().catch(() => '');
+        showToast(`Save failed (HTTP ${res.status}): ${errText.substring(0, 80)}`, 'error');
+      }
+    } catch (err) {
+      showToast(`Network error: ${err.message}`, 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Synchronize state when promotions prop loads
   React.useEffect(() => {
     if (promotions) {
@@ -1491,6 +1532,17 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {activeTab === 'promotions' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '-10px', position: 'sticky', top: '70px', zIndex: 10 }}>
+            <button 
+              disabled={isSaving}
+              onClick={handleSavePromotions}
+              className="btn btn-accent"
+              style={{ padding: '8px 24px', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', opacity: isSaving ? 0.7 : 1 }}
+            >
+              {isSaving ? 'Saving...' : '💾 SAVE ALL PROMOTIONS'}
+            </button>
+          </div>
+
           {/* Card 1: Announcement Bar */}
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'linear-gradient(145deg, #ffffff, #f5f7fa)', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
             <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', margin: 0 }}>
@@ -2119,46 +2171,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             })}
           </div>
 
-          {/* Save Promotions Button */}
+          {/* Save Promotions Button (Bottom) */}
           <button 
             disabled={isSaving}
-            onClick={async () => {
-              if (announcementShow && !announcementText) {
-                showToast('Please enter the announcement text.', 'error');
-                return;
-              }
-              const token = sessionStorage.getItem('abkharido_admin_token') || '';
-              if (!token) { showToast('Session expired. Please re-login to admin.', 'error'); return; }
-              const defaultTimer = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
-              let timerIso = defaultTimer;
-              try { if (promoDealsTimer) timerIso = new Date(promoDealsTimer).toISOString(); } catch { timerIso = defaultTimer; }
-              setIsSaving(true);
-              console.log('[ADMIN SAVE] categoryBanners being saved:', JSON.stringify(categoryBanners, null, 2));
-              try {
-                const payload = { dealsTimer: timerIso, budgetThreshold: Number(promoBudgetThreshold), announcement: { show: announcementShow, text: announcementText, link: announcementLink }, banners, categoryBanners, dealOfTheDayProducts };
-                const res = await fetch('/api/promotions', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
-                  body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                  const data = await res.json();
-                  if (data.success) {
-                    showToast('✅ Saved! Banners are now live on the website.', 'success');
-                    if (onUpdatePromotions) onUpdatePromotions(payload);
-                  } else {
-                    showToast(`Save failed: ${data.error || 'Unknown error from server.'}`, 'error');
-                  }
-                } else {
-                  const errText = await res.text().catch(() => '');
-                  showToast(`Save failed (HTTP ${res.status}): ${errText.substring(0, 80)}`, 'error');
-                }
-              } catch (err) {
-                showToast(`Network error: ${err.message}`, 'error');
-              } finally {
-                setIsSaving(false);
-              }
-            }}
+            onClick={handleSavePromotions}
             className="btn btn-accent btn-lg"
             style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center', opacity: isSaving ? 0.7 : 1 }}
           >
