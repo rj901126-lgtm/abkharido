@@ -24,6 +24,17 @@ const ProductCard = ({ product, onNavigateProduct }) => {
     <div className="card product-card" style={styles.card} onClick={() => onNavigateProduct(product.id)}>
       {/* Product Image */}
       <div className="product-card-image-wrapper" style={styles.imageWrapper}>
+        {/* Sales Boost: Bestseller / Trending Badges */}
+        {product.rating >= 4.7 ? (
+          <div style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: '#ef4444', color: 'white', fontSize: '10px', fontWeight: '800', padding: '4px 8px', borderRadius: '4px', zIndex: 2, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(239, 68, 68, 0.3)' }}>
+            🔥 BESTSELLER
+          </div>
+        ) : product.rating >= 4.4 ? (
+          <div style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: '#10b981', color: 'white', fontSize: '10px', fontWeight: '800', padding: '4px 8px', borderRadius: '4px', zIndex: 2, display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)' }}>
+            📈 TRENDING
+          </div>
+        ) : null}
+        
         <img src={product.image} alt={product.name} style={styles.image} loading="lazy" />
       </div>
 

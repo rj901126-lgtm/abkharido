@@ -681,9 +681,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                     <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginTop: '2px' }}>₹{(v.price || 0).toLocaleString('en-IN')}</div>
                     
                     {/* Low stock tag */}
-                    {v.stock <= 3 && (
-                      <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#d32f2f', marginTop: '4px' }}>
-                        {v.stock} left
+                    {v.stock <= 5 && (
+                      <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: '#ef4444', padding: '2px 4px', borderRadius: '4px', marginTop: '6px', display: 'inline-block' }}>
+                        Hurry! Only {v.stock} left
                       </div>
                     )}
                   </button>
@@ -792,6 +792,44 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
                 <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
                 <span><strong>Express Shipping:</strong> Shop for more than ₹500 and get free express home shipping.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Sales Boost: Frequently Bought Together (Upsell) */}
+          <div style={{ marginTop: '24px', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', backgroundColor: '#f8fafc' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', marginBottom: '16px' }}>Frequently Bought Together</h4>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '80px' }}>
+                <img src={imagesList[0]} alt="Item 1" style={{ width: '60px', height: '60px', objectFit: 'contain', backgroundColor: 'white', padding: '4px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                <span style={{ fontSize: '11px', textAlign: 'center', marginTop: '8px', fontWeight: '600' }}>This Item</span>
+                <span style={{ fontSize: '12px', fontWeight: '800', marginTop: '2px' }}>₹{(currentDisplayPrice || 0).toLocaleString()}</span>
+              </div>
+              
+              <div style={{ fontSize: '20px', color: '#94a3b8', fontWeight: 'bold' }}>+</div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '80px' }}>
+                <div style={{ width: '60px', height: '60px', backgroundColor: '#e2e8f0', borderRadius: '8px', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🛡️</div>
+                <span style={{ fontSize: '11px', textAlign: 'center', marginTop: '8px', color: '#475569' }}>Pro Care Plan</span>
+                <span style={{ fontSize: '12px', fontWeight: '800', marginTop: '2px' }}>₹499</span>
+              </div>
+
+              <div style={{ fontSize: '20px', color: '#94a3b8', fontWeight: 'bold' }}>=</div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 'auto' }}>
+                <span style={{ fontSize: '12px', color: '#64748b' }}>Total Price:</span>
+                <span style={{ fontSize: '18px', fontWeight: '900', color: '#ef4444' }}>₹{((currentDisplayPrice || 0) + 499).toLocaleString()}</span>
+                <button 
+                  onClick={() => {
+                    const customProduct = { ...product, price: currentDisplayPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                    addToCart(customProduct);
+                    addToCart({ id: 'pro-care', name: 'Pro Care Plan', price: 499, originalPrice: 999, image: 'https://via.placeholder.com/150?text=Care', category: 'Services' });
+                    showToast('Bundle added to cart!', 'success');
+                  }}
+                  style={{ marginTop: '8px', backgroundColor: '#0f172a', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                >
+                  Add Both to Cart
+                </button>
               </div>
             </div>
           </div>

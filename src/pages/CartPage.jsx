@@ -73,8 +73,27 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       
       {/* Left side: Cart Items list */}
       <div className="cart-items-section">
-        <div className="cart-card-header">
-          My Cart ({cart.reduce((acc, item) => acc + item.quantity, 0)} Items)
+        <div className="cart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>My Cart ({cart.reduce((acc, item) => acc + item.quantity, 0)} Items)</span>
+        </div>
+
+        {/* Sales Boost: Free Shipping Progress */}
+        <div style={{ backgroundColor: 'white', padding: '16px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+          {itemsPrice >= 500 ? (
+            <div style={{ color: '#10b981', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ display: 'inline-flex', background: '#ecfdf5', padding: '4px', borderRadius: '50%' }}>🎉</span>
+              You have unlocked FREE Express Shipping!
+            </div>
+          ) : (
+            <>
+              <div style={{ color: '#0f172a', fontWeight: '600', fontSize: '14px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Add <span style={{ color: '#ef4444', fontWeight: '800' }}>₹{500 - itemsPrice}</span> more to get FREE Shipping!</span>
+              </div>
+              <div style={{ width: '100%', height: '8px', backgroundColor: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: `${Math.min((itemsPrice / 500) * 100, 100)}%`, height: '100%', backgroundColor: '#ef4444', transition: 'width 0.5s ease', borderRadius: '4px' }} />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Active Referral Confirmation Banner */}
@@ -151,6 +170,14 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       {/* Right side: Summary Details */}
       <div className="price-details-card">
         <div className="price-card-title">Price Details</div>
+
+        {/* Sales Boost: FOMO Cart Warning */}
+        <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px', display: 'flex', gap: '8px', alignItems: 'flex-start', marginTop: '-4px' }}>
+          <span style={{ fontSize: '16px', lineHeight: '1.2' }}>🔥</span>
+          <div style={{ fontSize: '12px', color: '#991b1b' }}>
+            <span style={{ fontWeight: '800' }}>High Demand!</span> Items in your cart are not reserved. Checkout now to avoid stockouts.
+          </div>
+        </div>
 
         {/* AbKharido Loyalty Coins Redemption */}
         {currentUser?.walletCoins > 0 && (

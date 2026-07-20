@@ -18,6 +18,9 @@ import BottomNavigation from './components/BottomNavigation';
 import InfoPage from './pages/InfoPage';
 import SellerDashboard from './pages/SellerDashboard';
 import CategoriesPage from './pages/CategoriesPage';
+import SpinWheel from './components/SpinWheel';
+import LivePurchasePopup from './components/LivePurchasePopup';
+
 const OnboardingModal = () => {
   const { currentUser, updateUserProfile, showToast } = useApp();
   const [fName, setFName] = React.useState('');
@@ -533,6 +536,12 @@ const AppContent = () => {
       {currentUser && (!currentUser.firstName || !currentUser.lastName || !currentUser.address) && (
         <OnboardingModal />
       )}
+
+      {/* Sales Boost: Global Gamification Popup */}
+      <SpinWheel />
+
+      {/* Sales Boost: Social Proof Live Purchases */}
+      <LivePurchasePopup />
     </div>
   );
 };
