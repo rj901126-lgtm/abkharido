@@ -153,8 +153,24 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
               <p className="slide-desc">{slide.desc}</p>
               {slide.cat && (
                 <button 
-                  className="btn btn-primary animate-fade-in" 
-                  style={{ borderRadius: '24px', padding: '12px 28px', display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', fontWeight: '700', fontSize: '15px' }}
+                  className="btn animate-fade-in" 
+                  style={{ 
+                    background: 'linear-gradient(90deg, var(--primary-color) 0%, #6366f1 100%)',
+                    color: 'white',
+                    borderRadius: '30px', 
+                    padding: '14px 32px', 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '10px', 
+                    border: 'none', 
+                    fontWeight: '800', 
+                    fontSize: '15px',
+                    boxShadow: '0 10px 20px -5px rgba(79, 70, 229, 0.4)',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 25px -5px rgba(79, 70, 229, 0.5)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(79, 70, 229, 0.4)'; }}
                   onClick={() => onSelectCategory(slide.cat)}
                 >
                   Explore Now <ArrowRight size={18} />
