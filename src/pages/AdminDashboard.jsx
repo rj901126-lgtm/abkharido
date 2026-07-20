@@ -20,11 +20,10 @@ import {
 import '../assets/styles/admin.css';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
-      img.src = event.target.result;
       img.onload = () => {
         const canvas = document.createElement('canvas');
         let width = img.width;
@@ -48,7 +47,13 @@ const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
+      img.onerror = (error) => {
+        console.error("Image load failed in compressImage");
+        reject(error);
+      };
+      img.src = event.target.result;
     };
+    reader.onerror = (error) => reject(error);
     reader.readAsDataURL(file);
   });
 };
