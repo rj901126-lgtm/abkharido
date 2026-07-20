@@ -99,6 +99,11 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   const [showSortModal, setShowSortModal] = useState(false);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
 
+  // Scroll to top when category changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentCategory]);
+
   // Synchronize category or resets
   useEffect(() => {
     // When category changes, we can reset some filters if needed
@@ -332,7 +337,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
                     type="radio" 
                     name="mobile-sort" 
                     checked={sortBy === opt.value} 
-                    onChange={() => { setSortBy(opt.value); setShowSortModal(false); }}
+                    onChange={() => { setSortBy(opt.value); setShowSortModal(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   />
                   <span>{opt.label}</span>
                 </label>
@@ -421,7 +426,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
             </div>
 
             <div className="filter-drawer-footer">
-              <button className="btn btn-accent btn-block" onClick={() => setShowFilterDrawer(false)} style={{ width: '100%', height: '42px', fontWeight: 'bold' }}>
+              <button className="btn btn-accent btn-block" onClick={() => { setShowFilterDrawer(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ width: '100%', height: '42px', fontWeight: 'bold' }}>
                 APPLY FILTERS ({filteredProducts.length} items)
               </button>
             </div>
