@@ -324,9 +324,9 @@ const Login = ({ onNavigate }) => {
                     <input
                       key={index}
                       type="text"
-                      name="otp"
+                      name="one-time-code"
                       maxLength="6"
-                      autoComplete={index === 0 ? "one-time-code" : "off"}
+                      autoComplete="one-time-code"
                       value={data}
                       onChange={(e) => handleOtpChange(e.target, index)}
                       onKeyDown={(e) => handleOtpKeyDown(e, index)}
