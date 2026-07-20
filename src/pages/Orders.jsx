@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp } from 'lucide-react';
 
 const Orders = ({ onNavigate }) => {
-  const { orders, currentUser, fetchOrders, cancelOrder } = useApp();
+  const { orders, currentUser, fetchOrders, cancelOrder, addToCart } = useApp();
   const [activeTrackingId, setActiveTrackingId] = useState(null);
 
   React.useEffect(() => {
@@ -374,7 +374,11 @@ const Orders = ({ onNavigate }) => {
                   <button 
                     className="btn btn-outline btn-sm" 
                     style={{ fontSize: '12px', padding: '4px 10px' }}
-                    onClick={() => onNavigate(`product-${prod.id}`)}
+                    onClick={() => {
+                      const productToAdd = { ...prod, selectedColor: item.selectedColor, selectedVariant: item.selectedVariant };
+                      addToCart(productToAdd, 1);
+                      onNavigate('cart');
+                    }}
                   >
                     Buy Again
                   </button>
