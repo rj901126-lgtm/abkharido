@@ -18,18 +18,18 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
     ? promotions.banners
     : [
         {
-          title: 'Fashion Trendsetters - Min 50% Off',
-          desc: 'Top styles directly from manufacturers. Share links & earn the highest 7% cash or 3% coins reward!',
-          bg: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-          tag: 'HOT FASHION AFFILIATE DEALS',
-          cat: 'fashion'
+          title: 'Premium Sound. Zero Distractions.',
+          desc: 'Experience our best noise-cancelling headphones yet. Up to 40 hours of battery life and studio-quality sound.',
+          bg: 'url(https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1200&auto=format&fit=crop) center/cover no-repeat',
+          tag: 'AUDIO WEEK DEAL',
+          cat: 'electronics'
         },
         {
-          title: 'Latest Smart Mobiles',
-          desc: 'Exchange offers available. Become a creator to share links and earn flat ₹500 on every sale.',
-          bg: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
-          tag: 'TOP CREATOR PICKS',
-          cat: 'mobiles'
+          title: 'The New Standard in Fashion',
+          desc: 'Elevate your wardrobe with our latest direct-from-manufacturer collection. Uncompromising quality at unbeatable prices.',
+          bg: 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop) center/cover no-repeat',
+          tag: 'SUMMER COLLECTION',
+          cat: 'fashion'
         }
       ];
 
@@ -114,18 +114,23 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
             className={`carousel-slide ${idx === activeSlide ? 'active' : ''}`}
             style={{ background: slide.bg }}
           >
-            {slide.tag && <span className="hero-tag"><Sparkles size={14} /> {slide.tag}</span>}
-            <h1 className="hero-title">{slide.title}</h1>
-            <p className="hero-subtitle">{slide.desc}</p>
-            {slide.cat && (
-              <button 
-                className="btn btn-primary" 
-                style={{ marginTop: '20px', borderRadius: '24px', padding: '12px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-                onClick={() => onSelectCategory(slide.cat)}
-              >
-                Explore Category <ArrowRight size={18} />
-              </button>
-            )}
+            {/* Dark overlay for text readability if needed, though glass box helps */}
+            <div className="carousel-slide-overlay"></div>
+            
+            <div className="slide-content-box">
+              {slide.tag && <span className="slide-tag"><Sparkles size={14} /> {slide.tag}</span>}
+              <h1 className="slide-title">{slide.title}</h1>
+              <p className="slide-desc">{slide.desc}</p>
+              {slide.cat && (
+                <button 
+                  className="btn btn-primary animate-fade-in" 
+                  style={{ borderRadius: '24px', padding: '12px 28px', display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', fontWeight: '700', fontSize: '15px' }}
+                  onClick={() => onSelectCategory(slide.cat)}
+                >
+                  Explore Now <ArrowRight size={18} />
+                </button>
+              )}
+            </div>
           </div>
         ))}
 
