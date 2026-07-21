@@ -238,7 +238,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   };
 
   return (
-    <div className="container catalog-page-layout-container animate-fade-in">
+    <div className="container catalog-page-layout-container animate-fade-in-only">
       
       {/* 1. DESKTOP FILTERS SIDEBAR (Visible on screens > 768px via CSS) */}
       <aside className="filters-sidebar">
