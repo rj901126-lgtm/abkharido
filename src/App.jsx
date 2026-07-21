@@ -545,6 +545,13 @@ const AppContent = () => {
 
       {/* Sales Boost: Social Proof Live Purchases */}
       <LivePurchasePopup />
+
+      {/* Global Slide-Out Cart Drawer */}
+      <CartDrawer 
+        isOpen={isCartDrawerOpen} 
+        onClose={() => setIsCartDrawerOpen(false)} 
+        onNavigate={handleNavigate}
+      />
     </div>
   );
 };
