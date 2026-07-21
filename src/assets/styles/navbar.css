@@ -314,13 +314,11 @@
   border: 1px solid transparent;
   transition: all 0.25s ease;
   white-space: nowrap;
-  transform: translateZ(0); /* Force hardware acceleration constantly to prevent text width shifts */
 }
 
 .cat-item:hover, .cat-item.active {
   background-color: var(--primary-color);
   color: white;
-  transform: translateZ(0) translateY(-2px);
   box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
 }@media (max-width: 900px) {
   .simulator-panel {
