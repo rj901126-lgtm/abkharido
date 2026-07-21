@@ -17,7 +17,7 @@
 .catalog-container {
   display: flex;
   gap: 20px;
-  padding: 20px 0;
+  padding: 20px 16px;
 }
 
 .filters-sidebar {
