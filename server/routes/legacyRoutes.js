@@ -69,11 +69,15 @@ router.get('/migrate-data', async (req, res) => {
     const mongoose = mongooseModule.default;
     if (mongoose.connection.readyState !== 1) {
        const uri = process.env.MONGODB_URI || 'UNDEFINED';
+       const pwdMatch = uri.match(/:([^:@]+)@/);
+       const pwd = pwdMatch ? pwdMatch[1] : '';
+       const pwdHint = pwd.length > 2 ? `${pwd[0]}...${pwd[pwd.length - 1]} (Length: ${pwd.length})` : 'none';
        const maskedUri = uri.replace(/:([^:@]+)@/, ':***@');
        return res.status(500).json({ 
            error: 'Database is not connected!', 
            readyState: mongoose.connection.readyState,
            maskedUri: maskedUri,
+           pwdHint: pwdHint,
            hint: 'This means your username, password, or cluster link is wrong in Vercel MONGODB_URI. Make sure you removed the < > symbols from the password in the link.'
        });
     }
