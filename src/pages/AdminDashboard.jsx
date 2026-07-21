@@ -95,7 +95,12 @@ const uploadToCloudinary = async (file) => {
 
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, editProduct, removeProduct, showToast } = useApp();
-  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'inventory' | 'orders' | 'users' | 'promotions'
+  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); // 'analytics' | 'inventory' | 'orders' | 'users' | 'promotions' | 'cms' | 'crm' | 'coupons'
+  
+  useEffect(() => {
+    sessionStorage.setItem('adminActiveTab', activeTab);
+  }, [activeTab]);
+
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
