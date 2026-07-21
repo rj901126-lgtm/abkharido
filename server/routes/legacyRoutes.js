@@ -70,9 +70,7 @@ router.get('/migrate-data', async (req, res) => {
     const fs = await import('fs');
     const path = await import('path');
     const { fileURLToPath } = await import('url');
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    
-    const productsPath = path.join(__dirname, '..', '..', 'api', 'data', 'products.json');
+    const productsPath = path.join(process.cwd(), 'api', 'data', 'products.json');
     if (!fs.existsSync(productsPath)) {
       return res.json({ error: 'Products JSON not found' });
     }

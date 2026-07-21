@@ -15,7 +15,7 @@ export const getProducts = async (req, res, next) => {
     
     // JSON Fallback for Vercel if MongoDB is not configured
     if (!process.env.MONGODB_URI) {
-      const productsPath = path.join(__dirname, '..', '..', 'api', 'data', 'products.json');
+      const productsPath = path.join(process.cwd(), 'api', 'data', 'products.json');
       if (fs.existsSync(productsPath)) {
         let allProducts = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
         if (category && category !== 'all') {
@@ -77,7 +77,7 @@ export const getProductById = async (req, res, next) => {
   try {
     // JSON Fallback for Vercel if MongoDB is not configured
     if (!process.env.MONGODB_URI) {
-      const productsPath = path.join(__dirname, '..', '..', 'api', 'data', 'products.json');
+      const productsPath = path.join(process.cwd(), 'api', 'data', 'products.json');
       if (fs.existsSync(productsPath)) {
         const allProducts = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
         const product = allProducts.find(p => p.id === req.params.id);
