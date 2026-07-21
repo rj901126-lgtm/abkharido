@@ -131,14 +131,8 @@ const CatBannerCarousel = ({ slides }) => {
             display: 'flex', 
             flexDirection: 'column', 
             gap: '12px', 
-            maxWidth: '65%',
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            padding: '24px 32px',
-            borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)'
+            maxWidth: '70%',
+            padding: '0 12px'
           }}>
             {slide.tag && (
               <span style={{ 
