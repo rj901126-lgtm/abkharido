@@ -1,9 +1,5 @@
 import Product from '../models/Product.js';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-// @desc    Fetch all products (with pagination & search)
-// @route   GET /api/products
+import productsData from '../../api/data/productsData.js';
 // @access  Public
 export const getProducts = async (req, res, next) => {
   try {
@@ -12,7 +8,7 @@ export const getProducts = async (req, res, next) => {
     // JSON Fallback for Vercel if MongoDB is not configured
     if (!process.env.MONGODB_URI) {
       try {
-        let allProducts = require('../../api/data/products.json');
+        let allProducts = productsData;
         if (category && category !== 'all') {
           allProducts = allProducts.filter(p => p.category === category);
         }
@@ -75,7 +71,7 @@ export const getProductById = async (req, res, next) => {
     // JSON Fallback for Vercel if MongoDB is not configured
     if (!process.env.MONGODB_URI) {
       try {
-        const allProducts = require('../../api/data/products.json');
+        const allProducts = productsData;
         const product = allProducts.find(p => p.id === req.params.id);
         if (product) return res.json(product);
         res.status(404);

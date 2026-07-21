@@ -3,6 +3,7 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
+import productsData from '../../api/data/productsData.js';
 
 const router = express.Router();
 
@@ -67,9 +68,6 @@ router.get('/seller/orders', (req, res) => {
 // TEMPORARY ROUTE TO MIGRATE DATA ON VERCEL
 router.get('/migrate-data', async (req, res) => {
   try {
-    const { createRequire } = await import('module');
-    const require = createRequire(import.meta.url);
-    const productsData = require('../../api/data/products.json');
     
     // Clear existing to avoid duplicates if run multiple times
     await Product.deleteMany({});
