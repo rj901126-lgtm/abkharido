@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp } from 'lucide-react';
+import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Orders = ({ onNavigate }) => {
   const { orders, currentUser, fetchOrders, cancelOrder, addToCart } = useApp();
@@ -11,6 +12,17 @@ const Orders = ({ onNavigate }) => {
       fetchOrders(currentUser.username || currentUser.email);
     }
   }, [currentUser]); // re-fetch if user changes
+
+  const invoiceRefs = useRef({});
+  const [downloadingOrderId, setDownloadingOrderId] = useState(null);
+
+  const handleDownloadInvoice = (orderId) => {
+    const ref = invoiceRefs.current[orderId];
+    if (ref && !downloadingOrderId) {
+      setDownloadingOrderId(orderId);
+      ref.generatePDF().finally(() => setDownloadingOrderId(null));
+    }
+  };
 
   const [isLoading, setIsLoading] = React.useState(true);
   React.useEffect(() => {
@@ -437,7 +449,20 @@ const Orders = ({ onNavigate }) => {
                     Cancel Order
                   </button>
                 )}
+                
+                <button
+                  className="btn btn-primary"
+                  style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '4px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => handleDownloadInvoice(order.id)}
+                  disabled={downloadingOrderId === order.id}
+                >
+                  <Download size={14} />
+                  {downloadingOrderId === order.id ? 'Generating...' : 'Invoice'}
+                </button>
               </div>
+
+              {/* Hidden Premium Invoice Renderer */}
+              <WorldClassInvoice ref={el => invoiceRefs.current[order.id] = el} order={order} />
 
               {/* Referral attribution display */}
               {order.referralApplied ? (

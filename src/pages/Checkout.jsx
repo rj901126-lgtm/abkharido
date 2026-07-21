@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag } from 'lucide-react';
+import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag, Download } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const { cart, currentUser, placeOrder, showToast, verifyPayment } = useApp();
@@ -23,6 +24,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
   const [createdOrder, setCreatedOrder] = useState(null);
+  
+  const invoiceRef = useRef();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Coupon states
   const [couponCode, setCouponCode] = useState('');
@@ -177,6 +181,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         setCreatedOrder(orderDetails);
         setStep(4);
         triggerConfetti();
+        // Auto-generate invoice after a short delay so DOM is ready
+        setTimeout(() => triggerInvoiceDownload(), 500);
       }
       return;
     }
@@ -233,6 +239,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           });
           setStep(4);
           triggerConfetti();
+          setTimeout(() => triggerInvoiceDownload(), 500);
         } else {
           showToast('Simulated payment verification failed.', 'error');
         }
@@ -282,6 +289,16 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         requestAnimationFrame(frame);
       }
     }());
+  };
+
+  const triggerInvoiceDownload = () => {
+    if (invoiceRef.current && !isDownloading) {
+      setIsDownloading(true);
+      showToast('Generating your Premium Invoice...', 'info');
+      invoiceRef.current.generatePDF().finally(() => {
+        setIsDownloading(false);
+      });
+    }
   };
 
   if (!currentUser) {
@@ -615,6 +632,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           <button className="btn btn-primary" style={{ marginTop: '12px' }} onClick={() => onNavigate('home')}>
             Continue Shopping
           </button>
+
+          <button 
+            className="btn btn-outline" 
+            style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }} 
+            onClick={triggerInvoiceDownload}
+            disabled={isDownloading}
+          >
+            <Download size={16} /> 
+            {isDownloading ? 'Generating PDF...' : 'Download Invoice PDF'}
+          </button>
+
+          {/* Hidden Premium Invoice Renderer */}
+          <WorldClassInvoice ref={invoiceRef} order={createdOrder} />
         </div>
       )}
 
