@@ -43,72 +43,144 @@ const CatBannerCarousel = ({ slides }) => {
 
   return (
     <div 
-      style={{ position: 'relative', width: '100%', marginBottom: '24px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
+      style={{ 
+        position: 'relative', 
+        width: '100%', 
+        marginBottom: '32px', 
+        borderRadius: '24px', 
+        overflow: 'hidden', 
+        boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)',
+        backgroundColor: '#0f172a' 
+      }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      <style>{`
+        .world-class-btn {
+          background: linear-gradient(135deg, #fef08a 0%, #f59e0b 100%);
+          color: #78350f;
+          border: none;
+          padding: 10px 24px;
+          border-radius: 30px;
+          font-size: 14px;
+          font-weight: 800;
+          cursor: pointer;
+          width: fit-content;
+          box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .world-class-btn:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        .animated-gradient-bg {
+          background: linear-gradient(-45deg, #4f46e5, #3b82f6, #8b5cf6, #ec4899);
+          background-size: 400% 400%;
+          animation: gradientBg 10s ease infinite;
+        }
+        @keyframes gradientBg {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .floating-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(40px);
+          opacity: 0.6;
+          z-index: 0;
+        }
+      `}</style>
+      
       <div
-        className="animate-fade-in"
+        className={!hasImage ? "animated-gradient-bg" : ""}
         style={{
           width: '100%',
-          height: '180px',
+          height: '220px',
           background: hasImage 
-            ? `url(${slide.image}) no-repeat right center / contain, ${slide.bg || 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'}` 
-            : `linear-gradient(135deg, rgba(79,70,229,0.95) 0%, rgba(139,92,246,0.95) 100%), url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            ? `url(${slide.image}) no-repeat right center / contain, ${slide.bg || 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)'}` 
+            : undefined,
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          padding: hasImage && isImageOnly ? '0' : '24px 32px'
+          padding: hasImage && isImageOnly ? '0' : '32px 40px'
         }}
       >
-        {/* Dark overlay for text readability on images */}
-        {hasImage && !isImageOnly && (
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 100%)' }} />
+        {/* Decorative Floating Orbs when no image */}
+        {!hasImage && (
+          <>
+            <div className="floating-orb" style={{ top: '-20%', left: '-10%', width: '150px', height: '150px', background: '#f472b6' }}></div>
+            <div className="floating-orb" style={{ bottom: '-30%', right: '10%', width: '200px', height: '200px', background: '#60a5fa' }}></div>
+            <div className="floating-orb" style={{ top: '20%', right: '40%', width: '100px', height: '100px', background: '#c084fc' }}></div>
+          </>
         )}
 
-        {/* Text content overlay */}
+        {/* Dark overlay for text readability on images */}
+        {hasImage && !isImageOnly && (
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 100%)', zIndex: 0 }} />
+        )}
+
+        {/* Premium Text Content Overlay */}
         {!isImageOnly && (
           <div style={{ 
             position: 'relative', 
             zIndex: 1, 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: '8px', 
-            maxWidth: '60%',
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
+            gap: '12px', 
+            maxWidth: '65%',
+            background: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            padding: '24px 32px',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)'
           }}>
             {slide.tag && (
-              <span style={{ fontSize: '10px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', color: '#fff', background: 'var(--primary-color)', borderRadius: '4px', padding: '4px 8px', width: 'fit-content' }}>
+              <span style={{ 
+                fontSize: '11px', 
+                fontWeight: '900', 
+                letterSpacing: '1.5px', 
+                textTransform: 'uppercase', 
+                color: '#fff', 
+                background: 'linear-gradient(90deg, #ec4899 0%, #f43f5e 100%)', 
+                borderRadius: '6px', 
+                padding: '4px 10px', 
+                width: 'fit-content',
+                boxShadow: '0 2px 10px rgba(236, 72, 153, 0.4)'
+              }}>
                 {slide.tag}
               </span>
             )}
             {slide.title && (
-              <span style={{ fontSize: '24px', fontWeight: '900', color: '#fff', lineHeight: 1.2, textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+              <span style={{ 
+                fontSize: '32px', 
+                fontWeight: '900', 
+                color: '#ffffff', 
+                lineHeight: 1.1, 
+                letterSpacing: '-0.5px',
+                textShadow: '0 2px 10px rgba(0,0,0,0.3)' 
+              }}>
                 {slide.title}
               </span>
             )}
             {slide.desc && (
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.9)', lineHeight: 1.4, marginBottom: '8px' }}>
+              <span style={{ 
+                fontSize: '15px', 
+                color: 'rgba(255,255,255,0.9)', 
+                lineHeight: 1.5, 
+                fontWeight: '500',
+                marginBottom: '8px',
+                textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+              }}>
                 {slide.desc}
               </span>
             )}
-            <button style={{
-              background: 'white',
-              color: 'var(--primary-color)',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              width: 'fit-content',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-            }}>
+            <button className="world-class-btn">
               Explore Collection
             </button>
           </div>
@@ -117,16 +189,16 @@ const CatBannerCarousel = ({ slides }) => {
 
       {/* Dot indicators */}
       {slides.length > 1 && (
-        <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px' }}>
+        <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 2 }}>
           {slides.map((_, i) => (
             <div
               key={i}
               onClick={() => { setIdx(i); clearInterval(timerRef.current); }}
               style={{
-                width: i === idx ? '18px' : '6px',
-                height: '6px',
-                borderRadius: '3px',
-                background: i === idx ? '#fff' : 'rgba(255,255,255,0.5)',
+                width: i === idx ? '24px' : '8px',
+                height: '8px',
+                borderRadius: '4px',
+                background: i === idx ? '#fff' : 'rgba(255,255,255,0.4)',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
