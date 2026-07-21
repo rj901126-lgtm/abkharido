@@ -788,6 +788,16 @@
   }
 }
 
+.product-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0,0,0,0.12);
+}
+
 /* Flipkart Mobile Product Layout alignment overrides */
 .desktop-only {
   display: block;

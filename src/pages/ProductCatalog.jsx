@@ -43,7 +43,7 @@ const CatBannerCarousel = ({ slides }) => {
 
   return (
     <div 
-      style={{ position: 'relative', width: '100%', marginBottom: '16px', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}
+      style={{ position: 'relative', width: '100%', marginBottom: '24px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -52,14 +52,14 @@ const CatBannerCarousel = ({ slides }) => {
         className="animate-fade-in"
         style={{
           width: '100%',
-          height: '140px',
+          height: '180px',
           background: hasImage 
-            ? `url(${slide.image}) no-repeat center center / cover, ${slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'}` 
-            : (slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'),
+            ? `url(${slide.image}) no-repeat right center / contain, ${slide.bg || 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'}` 
+            : (slide.bg || 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'),
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          padding: hasImage && isImageOnly ? '0' : '16px 20px'
+          padding: hasImage && isImageOnly ? '0' : '24px 32px'
         }}
       >
         {/* Dark overlay for text readability on images */}
@@ -69,22 +69,48 @@ const CatBannerCarousel = ({ slides }) => {
 
         {/* Text content overlay */}
         {!isImageOnly && (
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '75%' }}>
+          <div style={{ 
+            position: 'relative', 
+            zIndex: 1, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '8px', 
+            maxWidth: '60%',
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            padding: '20px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
             {slide.tag && (
-              <span style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', color: '#fff', background: 'rgba(255,255,255,0.22)', borderRadius: '3px', padding: '2px 7px', width: 'fit-content' }}>
+              <span style={{ fontSize: '10px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', color: '#fff', background: 'var(--primary-color)', borderRadius: '4px', padding: '4px 8px', width: 'fit-content' }}>
                 {slide.tag}
               </span>
             )}
             {slide.title && (
-              <span style={{ fontSize: '15px', fontWeight: '800', color: '#fff', lineHeight: 1.2, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+              <span style={{ fontSize: '24px', fontWeight: '900', color: '#fff', lineHeight: 1.2, textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
                 {slide.title}
               </span>
             )}
             {slide.desc && (
-              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.88)', lineHeight: 1.3 }}>
+              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.9)', lineHeight: 1.4, marginBottom: '8px' }}>
                 {slide.desc}
               </span>
             )}
+            <button style={{
+              background: 'white',
+              color: 'var(--primary-color)',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              width: 'fit-content',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}>
+              Explore Collection
+            </button>
           </div>
         )}
       </div>

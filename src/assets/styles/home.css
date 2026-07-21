@@ -1,10 +1,12 @@
 /* Homepage and banner styles for AbKharido.com */
 
 .home-container {
-  padding: 16px 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 /* Category Quick Bar grid (if icons used) */
@@ -286,11 +288,13 @@
 }
 
 .timer-box {
-  background-color: #f44336;
+  background-color: #ef4444;
   color: white;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 2px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
 .deals-grid {
