@@ -129,7 +129,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     if (!couponCode) return;
     setApplyingCoupon(true);
     try {
-      const res = await fetch('/api/v2/coupons/validate', {
+      const res = await fetch('/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: couponCode, cartValue: itemsPrice })
@@ -197,7 +197,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     // Cashfree PG integration
     try {
       showToast('Initializing Cashfree gateway...', 'info');
-      const res = await fetch('/api/v2/payment/session', {
+      const res = await fetch('/api/payment/session', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

@@ -113,7 +113,7 @@ export const AppProvider = ({ children }) => {
   // --- API Fetches ---
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch('/api/products?limit=100');
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || data);
@@ -522,7 +522,7 @@ export const AppProvider = ({ children }) => {
   const verifyPayment = async (orderId) => {
     try {
       const token = currentUser?.token;
-      const res = await fetch('/api/v2/payment/verify', {
+      const res = await fetch('/api/payment/verify', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

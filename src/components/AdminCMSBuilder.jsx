@@ -12,7 +12,7 @@ const AdminCMSBuilder = () => {
 
   const fetchLayout = async () => {
     try {
-      const res = await fetch('/api/v2/cms/layout/home_page');
+      const res = await fetch('/api/cms/layout/home_page');
       if (res.ok) {
         const data = await res.json();
         setLayout(data);
@@ -28,7 +28,7 @@ const AdminCMSBuilder = () => {
     setSaving(true);
     try {
       // In a real app with auth, pass JWT token
-      await fetch('/api/v2/cms/layout/home_page', {
+      await fetch('/api/cms/layout/home_page', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ components: layout.components })

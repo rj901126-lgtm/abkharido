@@ -95,7 +95,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
   useEffect(() => {
     const fetchLayout = async () => {
       try {
-        const res = await fetch('/api/v2/cms/layout/home_page');
+        const res = await fetch('/api/cms/layout/home_page');
         if (res.ok) {
           const data = await res.json();
           // Sort components by order
@@ -192,8 +192,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
         layoutComponents.map((comp) => {
           if (comp.type === 'deals_row') {
             const dealsProducts = products
-              .filter(p => promotions && promotions.dealsProducts ? promotions.dealsProducts.includes(p.id) : p.mrp > p.price)
-              .sort((a,b) => ((b.mrp - b.price)/b.mrp) - ((a.mrp - a.price)/a.mrp))
+              .filter(p => promotions && promotions.dealsProducts ? promotions.dealsProducts.includes(p.id) : p.originalPrice > p.price)
+              .sort((a,b) => ((b.originalPrice - b.price)/b.originalPrice) - ((a.originalPrice - a.price)/a.originalPrice))
               .slice(0, 5);
             
             return (
