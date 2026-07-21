@@ -1,4 +1,10 @@
 import Product from '../models/Product.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // @desc    Fetch all products (with pagination & search)
 // @route   GET /api/products
@@ -7,6 +13,32 @@ export const getProducts = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, search = '', category = '' } = req.query;
     
+    // JSON Fallback for Vercel if MongoDB is not configured
+    if (!process.env.MONGODB_URI) {
+      const productsPath = path.join(__dirname, '..', '..', 'api', 'data', 'products.json');
+      if (fs.existsSync(productsPath)) {
+        let allProducts = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
+        if (category && category !== 'all') {
+          allProducts = allProducts.filter(p => p.category === category);
+        }
+        if (search) {
+          allProducts = allProducts.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
+        }
+        const total = allProducts.length;
+        if (Number(limit) > 0) {
+          const skip = (Number(page) - 1) * Number(limit);
+          allProducts = allProducts.slice(skip, skip + Number(limit));
+        }
+        return res.json({
+          products: allProducts,
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Number(limit) > 0 ? Math.ceil(total / Number(limit)) : 1
+        });
+      }
+    }
+
     let filter = {};
     if (category && category !== 'all') filter.category = category;
     if (search) {
@@ -43,6 +75,18 @@ export const getProducts = async (req, res, next) => {
 // @access  Public
 export const getProductById = async (req, res, next) => {
   try {
+    // JSON Fallback for Vercel if MongoDB is not configured
+    if (!process.env.MONGODB_URI) {
+      const productsPath = path.join(__dirname, '..', '..', 'api', 'data', 'products.json');
+      if (fs.existsSync(productsPath)) {
+        const allProducts = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
+        const product = allProducts.find(p => p.id === req.params.id);
+        if (product) return res.json(product);
+        res.status(404);
+        return res.json({ error: 'Product not found' });
+      }
+    }
+
     // Lookup by the custom string `id` field, not the MongoDB `_id`
     const product = await Product.findOne({ id: req.params.id });
 
