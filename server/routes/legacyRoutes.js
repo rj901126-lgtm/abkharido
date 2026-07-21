@@ -1,5 +1,8 @@
 import express from 'express';
 import { protect, admin } from '../middleware/authMiddleware.js';
+import User from '../models/User.js';
+import Product from '../models/Product.js';
+import Order from '../models/Order.js';
 
 const router = express.Router();
 
@@ -60,6 +63,43 @@ router.get('/seller/products', (req, res) => {
 router.get('/seller/orders', (req, res) => {
   res.json([]);
 });
+router.get('/admin/analytics', protect, admin, async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalProducts = await Product.countDocuments();
+    const totalOrders = await Order.countDocuments();
+    
+    // Calculate total revenue
+    const revenueAgg = await Order.aggregate([
+      { $match: { isPaid: true } },
+      { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+    ]);
+    const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
+
+    // Dummy sales data for graph
+    const salesData = [
+      { date: '2026-07-15', revenue: 12000, orders: 4 },
+      { date: '2026-07-16', revenue: 15000, orders: 5 },
+      { date: '2026-07-17', revenue: 9000, orders: 3 },
+      { date: '2026-07-18', revenue: 22000, orders: 8 },
+      { date: '2026-07-19', revenue: 18000, orders: 6 },
+      { date: '2026-07-20', revenue: 25000, orders: 10 }
+    ];
+
+    res.json({
+      kpis: {
+        totalUsers,
+        totalProducts,
+        totalOrders,
+        totalRevenue
+      },
+      salesData
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
+});
+
 router.post('/shipping/serviceability', (req, res) => {
   res.json({ success: true, status: 'Deliverable', estimatedDays: 3 });
 });
