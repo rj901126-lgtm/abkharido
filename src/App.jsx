@@ -18,7 +18,6 @@ import BottomNavigation from './components/BottomNavigation';
 import InfoPage from './pages/InfoPage';
 import SellerDashboard from './pages/SellerDashboard';
 import CategoriesPage from './pages/CategoriesPage';
-import SpinWheel from './components/SpinWheel';
 import LivePurchasePopup from './components/LivePurchasePopup';
 import CartDrawer from './components/CartDrawer';
 
@@ -541,7 +540,6 @@ const AppContent = () => {
       )}
 
       {/* Sales Boost: Global Gamification Popup */}
-      <SpinWheel />
 
       {/* Sales Boost: Social Proof Live Purchases */}
       <LivePurchasePopup />
