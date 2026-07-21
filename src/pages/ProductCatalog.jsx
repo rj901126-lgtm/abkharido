@@ -93,10 +93,47 @@ const CatBannerCarousel = ({ slides }) => {
           opacity: 0.6;
           z-index: 0;
         }
+        .cat-banner-title {
+          font-size: 32px;
+          font-weight: 900;
+          color: #ffffff;
+          line-height: 1.1;
+          letter-spacing: -0.5px;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .cat-banner-desc {
+          font-size: 15px;
+          color: rgba(255,255,255,0.9);
+          line-height: 1.5;
+          font-weight: 500;
+          margin-bottom: 8px;
+          text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width: 768px) {
+          .cat-banner-inner {
+            height: 180px !important;
+            padding: 24px 20px !important;
+          }
+          .cat-banner-text-wrap {
+            max-width: 90% !important;
+            padding: 0 8px !important;
+          }
+          .cat-banner-title {
+            font-size: 24px !important;
+          }
+          .cat-banner-desc {
+            font-size: 13px !important;
+          }
+          .world-class-btn {
+            font-size: 12px !important;
+            padding: 8px 16px !important;
+          }
+        }
       `}</style>
       
       <div
-        className={!hasImage ? "animated-gradient-bg" : ""}
+        className={`cat-banner-inner ${!hasImage ? "animated-gradient-bg" : ""}`}
         style={{
           width: '100%',
           height: '220px',
@@ -125,7 +162,7 @@ const CatBannerCarousel = ({ slides }) => {
 
         {/* Premium Text Content Overlay */}
         {!isImageOnly && (
-          <div style={{ 
+          <div className="cat-banner-text-wrap" style={{ 
             position: 'relative', 
             zIndex: 1, 
             display: 'flex', 
@@ -151,30 +188,22 @@ const CatBannerCarousel = ({ slides }) => {
               </span>
             )}
             {slide.title && (
-              <span style={{ 
-                fontSize: '32px', 
-                fontWeight: '900', 
-                color: '#ffffff', 
-                lineHeight: 1.1, 
-                letterSpacing: '-0.5px',
-                textShadow: '0 2px 10px rgba(0,0,0,0.3)' 
-              }}>
+              <span className="cat-banner-title">
                 {slide.title}
               </span>
             )}
             {slide.desc && (
-              <span style={{ 
-                fontSize: '15px', 
-                color: 'rgba(255,255,255,0.9)', 
-                lineHeight: 1.5, 
-                fontWeight: '500',
-                marginBottom: '8px',
-                textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-              }}>
+              <span className="cat-banner-desc">
                 {slide.desc}
               </span>
             )}
-            <button className="world-class-btn">
+            <button 
+              className="world-class-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.scrollBy({ top: 500, behavior: 'smooth' });
+              }}
+            >
               Explore Collection
             </button>
           </div>
