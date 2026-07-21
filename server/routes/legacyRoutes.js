@@ -65,6 +65,19 @@ router.get('/seller/orders', (req, res) => {
   res.json([]);
 });
 
+router.get('/test-db', async (req, res) => {
+  try {
+    const mongoose = await import('mongoose');
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 2000,
+      socketTimeoutMS: 2000
+    });
+    res.json({ success: true, message: 'Connected to MongoDB Atlas!' });
+  } catch (error) {
+    res.json({ success: false, error: error.message, stack: error.stack, name: error.name });
+  }
+});
+
 // TEMPORARY ROUTE TO MIGRATE DATA ON VERCEL
 router.get('/migrate-data', async (req, res) => {
   try {

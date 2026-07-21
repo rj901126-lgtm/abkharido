@@ -57,6 +57,7 @@ app.use('/api/shipping', shippingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/cms', cmsRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api', legacyRoutes);
 
 // --- LEGACY ROUTES WILL BE MOUNTED HERE BY api/index.js ---
 app.use('/api', legacyRoutes);

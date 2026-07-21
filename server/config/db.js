@@ -28,10 +28,8 @@ const connectDB = async () => {
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     
-    // Auto-seed if empty and using memory server
-    if (!process.env.MONGODB_URI) {
-      await seedDatabaseIfEmpty();
-    }
+    // Auto-seed if empty
+    await seedDatabaseIfEmpty();
   } catch (error) {
     console.error(`Error: ${error.message}`);
     // Do not exit process in serverless env, just throw error
