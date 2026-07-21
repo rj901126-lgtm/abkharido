@@ -1,10 +1,6 @@
 import Product from '../models/Product.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 // @desc    Fetch all products (with pagination & search)
 // @route   GET /api/products
@@ -15,9 +11,8 @@ export const getProducts = async (req, res, next) => {
     
     // JSON Fallback for Vercel if MongoDB is not configured
     if (!process.env.MONGODB_URI) {
-      const productsPath = path.join(process.cwd(), 'api', 'data', 'products.json');
-      if (fs.existsSync(productsPath)) {
-        let allProducts = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
+      try {
+        let allProducts = require('../../api/data/products.json');
         if (category && category !== 'all') {
           allProducts = allProducts.filter(p => p.category === category);
         }
@@ -36,6 +31,8 @@ export const getProducts = async (req, res, next) => {
           limit: Number(limit),
           totalPages: Number(limit) > 0 ? Math.ceil(total / Number(limit)) : 1
         });
+      } catch (e) {
+        console.error('JSON Fallback Error:', e);
       }
     }
 
@@ -77,14 +74,13 @@ export const getProductById = async (req, res, next) => {
   try {
     // JSON Fallback for Vercel if MongoDB is not configured
     if (!process.env.MONGODB_URI) {
-      const productsPath = path.join(process.cwd(), 'api', 'data', 'products.json');
-      if (fs.existsSync(productsPath)) {
-        const allProducts = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
+      try {
+        const allProducts = require('../../api/data/products.json');
         const product = allProducts.find(p => p.id === req.params.id);
         if (product) return res.json(product);
         res.status(404);
         return res.json({ error: 'Product not found' });
-      }
+      } catch(e) {}
     }
 
     // Lookup by the custom string `id` field, not the MongoDB `_id`

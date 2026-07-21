@@ -67,15 +67,9 @@ router.get('/seller/orders', (req, res) => {
 // TEMPORARY ROUTE TO MIGRATE DATA ON VERCEL
 router.get('/migrate-data', async (req, res) => {
   try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const { fileURLToPath } = await import('url');
-    const productsPath = path.join(process.cwd(), 'api', 'data', 'products.json');
-    if (!fs.existsSync(productsPath)) {
-      return res.json({ error: 'Products JSON not found' });
-    }
-    
-    const productsData = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const productsData = require('../../api/data/products.json');
     
     // Clear existing to avoid duplicates if run multiple times
     await Product.deleteMany({});
