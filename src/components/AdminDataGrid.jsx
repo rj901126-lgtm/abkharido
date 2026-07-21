@@ -19,7 +19,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
         search: searchQuery,
         category: catQuery
       });
-      const res = await fetch(`/api/admin/products/paginated?${queryParams.toString()}`, {
+      const res = await fetch(`/api/products?${queryParams.toString()}`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
