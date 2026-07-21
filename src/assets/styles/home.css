@@ -385,7 +385,7 @@
 }
 
 @media (max-width: 768px) {
-  .home-container {
+  .home-container, .home-page-layout-container {
     padding: 0 !important;
     gap: 8px !important;
   }
