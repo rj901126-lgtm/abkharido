@@ -61,8 +61,45 @@ router.post('/seller/login', (req, res) => {
 router.get('/seller/products', (req, res) => {
   res.json([]);
 });
-router.get('/seller/orders', (req, res) => {
 
+// TEMPORARY ROUTE TO MIGRATE DATA ON VERCEL
+router.get('/migrate-data', async (req, res) => {
+  try {
+    const { default: Product } = await import('../models/Product.js');
+    const { default: User } = await import('../models/User.js');
+    const { default: productsData } = await import('../data/productsData.js');
+
+    await Product.deleteMany({});
+    
+    const docs = productsData.map(p => ({
+       ...p,
+       originalPrice: p.originalPrice || p.price + 500,
+       inStock: p.inStock !== undefined ? p.inStock : true,
+       soldCount: p.soldCount || 0
+    }));
+    
+    await Product.insertMany(docs);
+    
+    const adminExists = await User.findOne({ role: 'admin' });
+    if (!adminExists) {
+        await User.create({
+            username: 'admin',
+            email: 'admin@abkharido.com',
+            password: 'admin',
+            role: 'admin',
+            fullName: 'System Administrator'
+        });
+    }
+    
+    res.json({ success: true, message: `Migrated ${docs.length} products to MongoDB successfully.` });
+  } catch (error) {
+    res.status(500).json({ error: 'Migration failed: ' + error.message });
+  }
+});
+
+router.get('/seller/orders', (req, res) => {
+  res.json([]);
+});
 
 router.get('/admin/analytics', protect, admin, async (req, res) => {
   try {
