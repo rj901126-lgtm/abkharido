@@ -211,19 +211,19 @@ export const sendInvoiceEmail = async (order, user) => {
     }
 
     if (!user.isEmailVerified) {
-      console.log(\`Skipping invoice email for \${user.email} because email is not verified.\`);
+      console.log(`Skipping invoice email for ${user.email} because email is not verified.`);
       return false;
     }
 
     const htmlContent = generateHTMLInvoice(order, user);
 
-    console.log(\`[Email Service] Simulating sending invoice to: \${user.email} for order #\${order.id || order._id}\`);
+    console.log(`[Email Service] Simulating sending invoice to: ${user.email} for order #${order.id || order._id}`);
     
     // In a real environment with credentials, we would call:
     // await transporter.sendMail({
     //   from: '"AbKharido" <noreply@abkharido.com>',
     //   to: user.email,
-    //   subject: \`Invoice for your order #\${order.id || order._id}\`,
+    //   subject: `Invoice for your order #${order.id || order._id}`,
     //   html: htmlContent
     // });
 
