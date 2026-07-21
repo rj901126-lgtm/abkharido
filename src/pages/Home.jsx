@@ -112,7 +112,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
   }, []);
 
   return (
-    <div className="home-container">
+    <div className="home-page-layout-container">
       {/* Hero Carousel */}
       <section 
         className="hero-carousel"

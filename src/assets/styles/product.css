@@ -14,7 +14,7 @@
 }
 
 /* --- CATALOG PAGE --- */
-.catalog-container {
+.catalog-page-layout-container {
   display: flex;
   gap: 20px;
   padding: 20px 16px;
@@ -369,7 +369,7 @@
 
 /* Responsive adjust */
 @media (max-width: 900px) {
-  .catalog-container {
+  .catalog-page-layout-container {
     flex-direction: column;
   }
   .filters-sidebar {
@@ -538,7 +538,7 @@
   .sort-wrapper {
     display: none !important; /* Hide sorting drop-down */
   }
-  .catalog-container {
+  .catalog-page-layout-container {
     padding: 0 !important;
   }
   .catalog-main {

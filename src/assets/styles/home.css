@@ -1,6 +1,7 @@
 /* Homepage and banner styles for AbKharido.com */
 
-.home-container {
+.home-page-layout-container {
+  width: 100%;
   max-width: var(--max-width-content);
   margin: 0 auto;
   padding: 24px 16px;
