@@ -62,55 +62,7 @@ router.get('/seller/products', (req, res) => {
   res.json([]);
 });
 router.get('/seller/orders', (req, res) => {
-  res.json([]);
-});
 
-router.get('/test-db', async (req, res) => {
-  try {
-    const mongoose = await import('mongoose');
-    await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 2000,
-      socketTimeoutMS: 2000
-    });
-    res.json({ success: true, message: 'Connected to MongoDB Atlas!' });
-  } catch (error) {
-    res.json({ success: false, error: error.message, stack: error.stack, name: error.name });
-  }
-});
-
-// TEMPORARY ROUTE TO MIGRATE DATA ON VERCEL
-router.get('/migrate-data', async (req, res) => {
-  try {
-    
-    // Clear existing to avoid duplicates if run multiple times
-    await Product.deleteMany({});
-    
-    const docs = productsData.map(p => ({
-       ...p,
-       originalPrice: p.originalPrice || p.price + 500,
-       inStock: p.inStock !== undefined ? p.inStock : true,
-       soldCount: p.soldCount || 0
-    }));
-    
-    await Product.insertMany(docs);
-    
-    // Check if admin user exists
-    const adminExists = await User.findOne({ role: 'admin' });
-    if (!adminExists) {
-        await User.create({
-            username: 'admin',
-            email: 'admin@abkharido.com',
-            password: 'admin',
-            role: 'admin',
-            fullName: 'System Administrator'
-        });
-    }
-    
-    res.json({ success: true, message: `Migrated ${docs.length} products to MongoDB successfully. Admin user also ensured.` });
-  } catch (error) {
-    res.status(500).json({ error: 'Migration failed: ' + error.message });
-  }
-});
 
 router.get('/admin/analytics', protect, admin, async (req, res) => {
   try {
