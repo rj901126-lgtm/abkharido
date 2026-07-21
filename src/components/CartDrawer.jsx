@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { createPortal } from 'react-dom';
 
 const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
-  const { cart, updateQuantity, removeFromCart } = useApp();
+  const { cart, updateCartQty, removeFromCart } = useApp();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -117,9 +117,9 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '6px', overflow: 'hidden' }}>
-                        <button onClick={() => updateQuantity(item.product.id, -1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
+                        <button onClick={() => updateCartQty(item.product.id, item.quantity - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
                         <span style={{ padding: '0 12px', fontSize: '13px', fontWeight: '600' }}>{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
+                        <button onClick={() => updateCartQty(item.product.id, item.quantity + 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
                       </div>
                       <button onClick={() => removeFromCart(item.product.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
                         <Trash2 size={16} />

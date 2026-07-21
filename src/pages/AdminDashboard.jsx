@@ -466,6 +466,32 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   }, [activeTab, authorized]);
 
+  const handleToggleEmailVerify = async (userObj) => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    const targetState = !userObj.isEmailVerified;
+    
+    try {
+      const res = await fetch(`/api/users/${userObj.username}/update`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
+        body: JSON.stringify({
+          isEmailVerified: targetState
+        })
+      });
+      if (res.ok) {
+        showToast(`Email verification status updated!`, 'success');
+        fetchAllUsers();
+      } else {
+        showToast('Failed to update email verification.', 'error');
+      }
+    } catch (err) {
+      console.error('Failed to update email verification:', err);
+    }
+  };
+
   const handleToggleUserRole = async (userObj) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     const isCurrentlyCreator = userObj.isInfluencer;
@@ -1023,9 +1049,18 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           <td style={{ color: '#334155', fontWeight: '500' }}>{u.fullName || 'Guest User'}</td>
                           <td style={{ color: '#475569' }}>{u.email || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Not provided</span>}</td>
                           <td>
-                            <span style={{ fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px', background: u.emailVerified ? '#dcfce7' : '#fee2e2', color: u.emailVerified ? '#16a34a' : '#ef4444' }}>
-                              {u.emailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
-                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px', background: u.isEmailVerified ? '#dcfce7' : '#fee2e2', color: u.isEmailVerified ? '#16a34a' : '#ef4444' }}>
+                                {u.isEmailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
+                              </span>
+                              <button 
+                                onClick={() => handleToggleEmailVerify(u)} 
+                                style={{ background: 'none', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px 6px', fontSize: '11px', cursor: 'pointer', color: '#475569' }}
+                                title="Toggle Email Verification"
+                              >
+                                Toggle
+                              </button>
+                            </div>
                           </td>
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>

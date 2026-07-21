@@ -24,6 +24,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
   const [createdOrder, setCreatedOrder] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   
   const invoiceRef = useRef();
   const [isDownloading, setIsDownloading] = useState(false);
@@ -169,6 +171,11 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Handle Payment Submit and Order Placement (Cashfree Integration)
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
+    
+    // Prevent double submission synchronously with ref
+    if (isSubmittingRef.current || isSubmitting) return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
 
     if (paymentMethod === 'cod') {
       // Direct Cash on Delivery placement
@@ -221,6 +228,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
       if (!orderDetails) {
         showToast('Failed to register order transaction.', 'error');
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
         return;
       }
       
@@ -242,12 +251,14 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           setTimeout(() => triggerInvoiceDownload(), 500);
         } else {
           showToast('Simulated payment verification failed.', 'error');
+          isSubmittingRef.current = false;
+          setIsSubmitting(false);
         }
       } else {
         // Real Cashfree integration
         showToast('Launching Cashfree Gateway...', 'success');
         if (window.Cashfree) {
-        const isProd = import.meta.env.VITE_CASHFREE_PROD === 'true';
+          const isProd = import.meta.env.VITE_CASHFREE_PROD === 'true';
           const cashfree = window.Cashfree({
             mode: isProd ? "production" : "sandbox"
           });
@@ -255,14 +266,21 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           cashfree.checkout({
             paymentSessionId: data.paymentSessionId,
             redirectTarget: "_self" // Redirects to return_url configured in backend
+          }).then(() => {
+            isSubmittingRef.current = false;
+            setIsSubmitting(false);
           });
         } else {
           showToast('Cashfree SDK script failed to load.', 'error');
+          isSubmittingRef.current = false;
+          setIsSubmitting(false);
         }
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('Payment checkout failed:', err);
       showToast('Checkout transaction communication error.', 'error');
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -587,8 +605,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setStep(2)}>BACK</button>
-              <button type="submit" className="btn btn-accent" style={{ flex: 2 }}>PLACE ORDER (₹{finalAmount.toLocaleString('en-IN')})</button>
+              <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setStep(2)} disabled={isSubmitting}>BACK</button>
+              <button type="submit" className="btn btn-accent" style={{ flex: 2 }} disabled={isSubmitting}>
+                {isSubmitting ? 'PROCESSING...' : `PLACE ORDER (₹${finalAmount.toLocaleString('en-IN')})`}
+              </button>
             </div>
           </form>
         </div>

@@ -16,8 +16,8 @@
 /* --- CATALOG PAGE --- */
 .catalog-page-layout-container {
   display: flex;
-  gap: 20px;
-  padding: 20px 16px;
+  gap: 24px;
+  padding: 24px;
 }
 
 .filters-sidebar {

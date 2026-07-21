@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FileText, CheckSquare, Settings, Truck, Printer, Search, XCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import WorldClassInvoice from './WorldClassInvoice';
 
 const AdminOMS = () => {
   const [orders, setOrders] = useState([]);
@@ -8,6 +9,10 @@ const AdminOMS = () => {
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [bulkStatus, setBulkStatus] = useState('');
   const { showToast } = useApp();
+
+  const invoiceRefs = useRef({});
+  const [downloadingOrderId, setDownloadingOrderId] = useState(null);
+  const [emailingOrderId, setEmailingOrderId] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -112,50 +117,41 @@ const AdminOMS = () => {
     }
   };
 
-  const printInvoice = (order) => {
-    // A lightweight HTML print logic for invoices
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Invoice - ${order._id}</title>
-          <style>
-            body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
-            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-            .logo { font-size: 24px; font-weight: 900; color: #2874f0; }
-            table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-            th { background: #f9f9f9; }
-            .total { text-align: right; margin-top: 20px; font-size: 18px; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="logo">AbKharido Enterprise</div>
-            <div>
-              <h3>TAX INVOICE</h3>
-              <p>Order ID: ${order._id}</p>
-              <p>Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
-            </div>
-          </div>
-          <div style="margin-top: 30px;">
-            <h4>Billed To:</h4>
-            <p>${order.user?.email || 'Guest Customer'}</p>
-          </div>
-          <table>
-            <tr><th>Description</th><th>Amount</th></tr>
-            <tr><td>Goods Purchased (Order Total)</td><td>Rs. ${order.totalPrice}</td></tr>
-          </table>
-          <div class="total">Total Payable: Rs. ${order.totalPrice}</div>
-          <p style="margin-top: 50px; text-align: center; color: #888; font-size: 12px;">Thank you for shopping with AbKharido!</p>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-    }, 500);
+  const handleDownloadPremiumInvoice = (order) => {
+    const orderId = order.id || order._id;
+    const ref = invoiceRefs.current[orderId];
+    if (ref && !downloadingOrderId) {
+      setDownloadingOrderId(orderId);
+      showToast(`Generating premium invoice for ${orderId}...`, 'info');
+      ref.generatePDF().finally(() => setDownloadingOrderId(null));
+    }
+  };
+
+  const handleSendInvoiceEmail = async (order) => {
+    if (!order.user || !order.user.isEmailVerified) {
+      showToast('Customer email is not verified.', 'error');
+      return;
+    }
+    const orderId = order.id || order._id;
+    setEmailingOrderId(orderId);
+    showToast(`Sending invoice email for ${orderId}...`, 'info');
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token');
+      const res = await fetch(`/api/orders/${orderId}/email-invoice`, {
+        method: 'POST',
+        headers: { 'x-admin-token': token }
+      });
+      if (res.ok) {
+        showToast('Invoice email sent successfully!', 'success');
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to send email', 'error');
+      }
+    } catch (err) {
+      showToast('Network error while sending email', 'error');
+    } finally {
+      setEmailingOrderId(null);
+    }
   };
 
   if (loading) {
@@ -224,7 +220,16 @@ const AdminOMS = () => {
                   />
                 </td>
                 <td style={{ fontWeight: '600', fontSize: '13px' }}>{order.id || order._id}</td>
-                <td>{order.customerUsername || order.user?.email || 'N/A'}</td>
+                <td>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span>{order.customerUsername || order.user?.email || 'N/A'}</span>
+                    {order.user && (
+                      <span style={{ fontSize: '10px', fontWeight: 'bold', color: order.user.isEmailVerified ? '#2e7d32' : '#d32f2f' }}>
+                        {order.user.isEmailVerified ? '✓ Email Verified' : '✗ Unverified Email'}
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td style={{ fontWeight: 'bold' }}>₹{(order.finalAmount || order.totalPrice || 0).toLocaleString()}</td>
                 <td>
                   <span style={{ 
@@ -255,12 +260,26 @@ const AdminOMS = () => {
                     </button>
                     <button 
                       className="btn btn-outline" 
-                      style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px', color: '#2874f0', borderColor: '#2874f0' }}
-                      title="Print Invoice"
-                      onClick={() => printInvoice(order)}
+                      style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px', color: '#2874f0', borderColor: '#2874f0', opacity: downloadingOrderId === (order.id || order._id) ? 0.6 : 1 }}
+                      title="Download Premium Invoice"
+                      onClick={() => handleDownloadPremiumInvoice(order)}
+                      disabled={downloadingOrderId === (order.id || order._id)}
                     >
-                      <Printer size={14} /> Invoice
+                      <Printer size={14} /> {downloadingOrderId === (order.id || order._id) ? 'Generating...' : 'Invoice'}
                     </button>
+                    <button 
+                      className="btn btn-outline" 
+                      style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px', color: '#10b981', borderColor: '#10b981', opacity: emailingOrderId === (order.id || order._id) || !order.user?.isEmailVerified ? 0.6 : 1 }}
+                      title="Email Invoice to Customer"
+                      onClick={() => handleSendInvoiceEmail(order)}
+                      disabled={emailingOrderId === (order.id || order._id) || !order.user?.isEmailVerified}
+                    >
+                      <FileText size={14} /> {emailingOrderId === (order.id || order._id) ? 'Sending...' : 'Email'}
+                    </button>
+                    {/* Hidden Premium Invoice Renderer */}
+                    <div style={{ display: 'none' }}>
+                      <WorldClassInvoice ref={el => invoiceRefs.current[order.id || order._id] = el} order={order} />
+                    </div>
                     {order.status !== 'CANCELLED' && order.status !== 'Delivered' && (
                       <button 
                         className="btn btn-outline" 

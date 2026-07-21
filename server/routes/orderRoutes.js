@@ -4,6 +4,7 @@ import {
   getOrderById,
   getMyOrders,
   getOrders,
+  sendOrderInvoiceEmail,
 } from '../controllers/orderController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -16,5 +17,7 @@ router.route('/')
 router.route('/myorders').get(protect, getMyOrders);
 
 router.route('/:id').get(protect, getOrderById);
+
+router.route('/:id/email-invoice').post(protect, admin, sendOrderInvoiceEmail);
 
 export default router;

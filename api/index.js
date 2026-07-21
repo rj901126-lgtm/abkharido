@@ -1213,7 +1213,7 @@ app.post('/api/auth/verify-otp', async (req, res) => {
         lastName: fullName ? fullName.split(' ').slice(1).join(' ') : '',
         phone: recipient,
         email: email || '',
-        emailVerified: false,
+        isEmailVerified: false,
         pincode: '',
         address: '',
         isInfluencer: false,
@@ -1280,7 +1280,7 @@ app.post('/api/auth/verify-firebase', async (req, res) => {
         lastName: fullName ? fullName.split(' ').slice(1).join(' ') : '',
         phone: cleanPhone,
         email: email || '',
-        emailVerified: false,
+        isEmailVerified: false,
         pincode: '',
         address: '',
         isInfluencer: false,
@@ -1322,7 +1322,7 @@ app.post('/api/users/:username/update', async (req, res) => {
   try {
     const users = await getUsersMap();
     const { username } = req.params;
-    const { firstName, lastName, email, pincode, address, emailVerified, isInfluencer, creatorCode, influencerId, walletCoins, walletCash, isSeller, sellerDetails } = req.body;
+    const { firstName, lastName, email, pincode, address, isEmailVerified, isInfluencer, creatorCode, influencerId, walletCoins, walletCash, isSeller, sellerDetails } = req.body;
 
     // Security check: Only admins can modify creator/seller roles and balances
     if (isInfluencer !== undefined || creatorCode !== undefined || influencerId !== undefined || walletCoins !== undefined || walletCash !== undefined || isSeller !== undefined) {
@@ -1343,7 +1343,7 @@ app.post('/api/users/:username/update', async (req, res) => {
     if (email !== undefined) user.email = email;
     if (pincode !== undefined) user.pincode = pincode;
     if (address !== undefined) user.address = address;
-    if (emailVerified !== undefined) user.emailVerified = emailVerified;
+    if (isEmailVerified !== undefined) user.isEmailVerified = isEmailVerified;
     if (isInfluencer !== undefined) user.isInfluencer = isInfluencer;
     if (creatorCode !== undefined) user.creatorCode = creatorCode;
     if (influencerId !== undefined) user.influencerId = influencerId;
@@ -1690,6 +1690,9 @@ const creditSellersForOrder = (order, sellers, stats) => {
   });
 };
 
+// In-memory locks to prevent duplicate order submissions (Idempotency)
+const orderSubmissionLocks = new Set();
+
 app.post('/api/orders', async (req, res) => {
   try {
     const orders = await getOrders();
@@ -1706,6 +1709,21 @@ app.post('/api/orders', async (req, res) => {
     const coinsDiscountValue = useCoinsDiscount ? Math.min(user.walletCoins, itemsPrice) : 0;
     const deliveryCharge = itemsPrice > 500 ? 0 : 40;
     const finalAmount = itemsPrice - coinsDiscountValue + deliveryCharge;
+
+    // --- IDEMPOTENCY / DEBOUNCE LOCK ---
+    // Create a unique hash for this user's current order attempt to prevent spam-clicks
+    const lockKey = `${username}_${itemsPrice}_${cart.length}_${finalAmount}`;
+    if (orderSubmissionLocks.has(lockKey)) {
+      return res.status(429).json({ error: 'Order is currently being processed. Please wait.' });
+    }
+    // Set lock
+    orderSubmissionLocks.add(lockKey);
+    
+    // Clear the lock after 10 seconds (gives enough time for UI to redirect or order to finalize)
+    setTimeout(() => {
+      orderSubmissionLocks.delete(lockKey);
+    }, 10000);
+    // ------------------------------------
 
     const orderId = `OD-${Math.floor(10000000 + Math.random() * 90000000)}`;
     const isCod = paymentMethod === 'Cash on Delivery';

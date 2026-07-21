@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
   },
   fullName: { type: String },
   email: { type: String, unique: true, sparse: true },
+  isEmailVerified: { type: Boolean, default: false },
   phone: { type: String },
   avatar: { type: String, default: 'https://i.pravatar.cc/150' },
   address: { type: String },

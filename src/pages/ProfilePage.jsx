@@ -13,15 +13,26 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   
   if (!currentUser) {
     return (
-      <div className="container" style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <h2 style={{ fontWeight: 'bold' }}>Please Log In</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Log in to view and manage your profile details.</p>
-        <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={() => onNavigate('login')}>
-          Go to Login
+      <div className="container animate-fade-in" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '80px', height: '80px', backgroundColor: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+          <User size={40} color="#94a3b8" />
+        </div>
+        <h2 style={{ fontWeight: '800', fontSize: '28px', color: '#1e293b', marginBottom: '12px' }}>Please Log In</h2>
+        <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', marginBottom: '32px' }}>Access your personalized profile, order history, and exclusive AbKharido rewards by logging in to your account.</p>
+        <button className="btn btn-primary" style={{ padding: '14px 32px', fontSize: '16px', borderRadius: '12px', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.2)' }} onClick={() => onNavigate('login')}>
+          Sign In / Register
         </button>
       </div>
     );
   }
+
+  // Helper for Avatar Initials
+  const getInitials = (f, l, u) => {
+    if (f && l) return (f[0] + l[0]).toUpperCase();
+    if (f) return f.substring(0, 2).toUpperCase();
+    if (u) return u.substring(0, 2).toUpperCase();
+    return 'U';
+  };
 
   // State hooks
   const [firstName, setFirstName] = useState(currentUser.firstName || '');
@@ -126,168 +137,201 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   };
 
   return (
-    <div className="container animate-fade-in" style={{ padding: '20px 16px', maxWidth: '650px' }}>
-      {/* Profile Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: '800', color: '#212121', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <User size={22} color="var(--primary-color)" /> My Profile
+    <div className="container animate-fade-in" style={{ padding: '32px 16px', maxWidth: '850px' }}>
+      
+      {/* Profile Header Action Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.5px' }}>
+          My Account
         </h1>
         <button 
           onClick={logout} 
-          style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#ffebee', color: '#c62828', border: 'none', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'white', color: '#ef4444', border: '1px solid #fee2e2', padding: '8px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fca5a5'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#fee2e2'; }}
         >
-          <LogOut size={14} /> Log Out
+          <LogOut size={16} /> Log Out
         </button>
       </div>
 
       {/* Account Info Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px' }}>
         
-        {/* Premium Profile Header Card */}
-        <div className="card" style={{ padding: '32px', border: 'none', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', background: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%)', color: 'white', boxShadow: '0 16px 40px rgba(55, 48, 163, 0.2)' }}>
-          {/* Wallet / Loyalty Balance */}
-          <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', padding: '16px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.2)' }}>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: 'bold' }}>WALLET BALANCE</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
-              {currentUser.isInfluencer ? (
-                <>
-                  <Award size={20} color="var(--success)" />
-                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--success)' }}>₹{(currentUser.walletCash || 0).toFixed(2)} Cash</span>
-                </>
-              ) : (
-                <>
-                  <Coins size={20} color="#e68f00" />
-                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#e68f00' }}>{currentUser.walletCoins} Coins</span>
-                </>
-              )}
+        {/* Premium Profile Banner Card */}
+        <div style={{ padding: '32px', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '24px', background: 'linear-gradient(135deg, #0f172a 0%, #3730a3 100%)', color: 'white', boxShadow: '0 20px 40px -10px rgba(55, 48, 163, 0.4)', position: 'relative', overflow: 'hidden' }}>
+          {/* Decorative background elements */}
+          <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(168,85,247,0.3) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+          
+          {/* User Info (Left) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 1 }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: '900', color: 'white', boxShadow: '0 10px 20px rgba(0,0,0,0.2)' }}>
+              {getInitials(currentUser.firstName, currentUser.lastName, currentUser.username)}
+            </div>
+            <div>
+              <h2 style={{ fontSize: '24px', fontWeight: '800', margin: '0 0 4px 0', letterSpacing: '-0.5px', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                {currentUser.firstName || currentUser.lastName ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() : currentUser.username}
+              </h2>
+              <p style={{ margin: 0, fontSize: '14px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
+                <Mail size={14} /> {currentUser.email || 'No email provided'}
+              </p>
             </div>
           </div>
-          <div style={{ fontSize: '11px', backgroundColor: '#e2edff', color: 'var(--primary-color)', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
-            {currentUser.isInfluencer ? 'Creator Mode Active' : 'User Rewards Active'}
+
+          {/* Wallet / Loyalty Balance (Right) */}
+          <div style={{ zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+            <div style={{ fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', color: 'white', padding: '6px 12px', borderRadius: '20px', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase', border: '1px solid rgba(255,255,255,0.1)' }}>
+              {currentUser.isInfluencer ? 'Creator Mode Active' : 'User Rewards Active'}
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)', padding: '16px 24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: '160px' }}>
+              <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', letterSpacing: '0.5px', marginBottom: '4px' }}>AVAILABLE BALANCE</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {currentUser.isInfluencer ? (
+                  <>
+                    <Award size={24} color="#34d399" />
+                    <span style={{ fontSize: '24px', fontWeight: '900', color: '#34d399', letterSpacing: '-0.5px' }}>₹{(currentUser.walletCash || 0).toFixed(2)}</span>
+                  </>
+                ) : (
+                  <>
+                    <Coins size={24} color="#fbbf24" />
+                    <span style={{ fontSize: '24px', fontWeight: '900', color: '#fbbf24', letterSpacing: '-0.5px' }}>{currentUser.walletCoins}</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Profile Details Edit Form */}
-        <form className="card" onSubmit={handleUpdateProfile} style={{ padding: '32px', border: 'none', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary-color)', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '16px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Personal Details</span>
+        <form onSubmit={handleUpdateProfile} style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '28px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', margin: 0 }}>Personal Details</h3>
             <button 
               type="button" 
               onClick={() => setIsEditing(!isEditing)} 
-              style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+              style={{ background: isEditing ? '#fef2f2' : '#f0fdf4', border: 'none', color: isEditing ? '#ef4444' : '#16a34a', fontWeight: '700', fontSize: '13px', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
             >
-              <Edit2 size={12} /> {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+              <Edit2 size={14} /> {isEditing ? 'Cancel Edit' : 'Edit Profile'}
             </button>
-          </h3>
+          </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-            <div style={{ flex: '1 1 240px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px' }}>FIRST NAME *</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>FIRST NAME *</label>
               <input 
                 type="text" 
                 value={firstName} 
                 onChange={(e) => setFirstName(e.target.value)} 
-                placeholder="First name"
+                placeholder="Enter first name"
                 disabled={!isEditing}
-                style={{ width: '100%', height: '48px', padding: '0 16px', border: '1px solid var(--border-light)', borderRadius: '12px', fontSize: '14px', backgroundColor: !isEditing ? '#f8fafc' : 'white' }}
+                style={{ width: '100%', boxSizing: 'border-box', height: '52px', padding: '0 16px', border: isEditing ? '2px solid #6366f1' : '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', fontWeight: '500', backgroundColor: !isEditing ? '#f8fafc' : 'white', outline: 'none', transition: 'all 0.2s', color: '#0f172a' }}
                 required
               />
             </div>
-            <div style={{ flex: '1 1 240px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px' }}>SURNAME *</label>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>SURNAME *</label>
               <input 
                 type="text" 
                 value={lastName} 
                 onChange={(e) => setLastName(e.target.value)} 
-                placeholder="Surname"
+                placeholder="Enter surname"
                 disabled={!isEditing}
-                style={{ width: '100%', height: '48px', padding: '0 16px', border: '1px solid var(--border-light)', borderRadius: '12px', fontSize: '14px', backgroundColor: !isEditing ? '#f8fafc' : 'white' }}
+                style={{ width: '100%', boxSizing: 'border-box', height: '52px', padding: '0 16px', border: isEditing ? '2px solid #6366f1' : '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', fontWeight: '500', backgroundColor: !isEditing ? '#f8fafc' : 'white', outline: 'none', transition: 'all 0.2s', color: '#0f172a' }}
                 required
               />
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>MOBILE NUMBER (VERIFIED)</label>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>MOBILE NUMBER (VERIFIED)</label>
             <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', left: '16px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+                <span style={{ fontSize: '15px', fontWeight: '700', color: '#94a3b8' }}>+91</span>
+              </div>
               <input 
                 type="text" 
                 value={currentUser.phone || currentUser.username} 
                 readOnly
-                style={{ width: '100%', height: '40px', padding: '0 10px 0 45px', border: '1px solid #eaeaea', borderRadius: '4px', fontSize: '13px', backgroundColor: '#f9f9f9', color: '#666' }}
+                style={{ width: '100%', boxSizing: 'border-box', height: '52px', padding: '0 16px 0 54px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', fontWeight: '600', backgroundColor: '#f8fafc', color: '#475569', outline: 'none' }}
               />
-              <span style={{ position: 'absolute', left: '12px', top: '11px', fontSize: '13px', fontWeight: 'bold', color: '#888' }}>+91</span>
+              <div style={{ position: 'absolute', right: '16px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+                <CheckCircle size={20} color="#10b981" />
+              </div>
             </div>
           </div>
 
           {/* Email Settings Section */}
-          <div style={{ borderTop: '1px dashed #eee', paddingTop: '16px', marginTop: '4px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>
-              EMAIL ID {currentUser.emailVerified ? <span style={{ color: 'var(--success)' }}>(VERIFIED ✓)</span> : <span style={{ color: '#d84315' }}>(PENDING)</span>}
+          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>
+              EMAIL ID 
+              {currentUser.emailVerified ? 
+                <span style={{ color: '#10b981', background: '#d1fae5', padding: '2px 8px', borderRadius: '10px', fontSize: '10px' }}>VERIFIED ✓</span> : 
+                <span style={{ color: '#ea580c', background: '#ffedd5', padding: '2px 8px', borderRadius: '10px', fontSize: '10px' }}>PENDING</span>
+              }
             </label>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
               <input 
                 type="email" 
                 value={emailInput} 
                 onChange={(e) => setEmailInput(e.target.value)} 
-                placeholder="Add your email ID"
+                placeholder="Enter your email address"
                 readOnly={currentUser.emailVerified}
-                style={{ flex: 1, height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: currentUser.emailVerified ? '#f9f9f9' : 'white' }}
+                style={{ flex: 1, boxSizing: 'border-box', height: '52px', padding: '0 16px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', fontWeight: '500', backgroundColor: currentUser.emailVerified ? '#f8fafc' : 'white', outline: 'none', color: '#0f172a' }}
               />
               {!currentUser.emailVerified && (
                 <button 
                   type="button" 
                   onClick={handleVerifyEmail}
                   disabled={isVerifyingEmail || !emailInput}
-                  style={{ background: 'var(--primary-color)', color: 'white', border: 'none', padding: '0 16px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                  style={{ background: '#0f172a', color: 'white', border: 'none', padding: '0 24px', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', opacity: (isVerifyingEmail || !emailInput) ? 0.7 : 1 }}
                 >
-                  {isVerifyingEmail ? 'Verifying...' : 'Verify'}
+                  {isVerifyingEmail ? 'Verifying...' : 'Verify Now'}
                 </button>
               )}
             </div>
             {!currentUser.emailVerified && (
-              <span style={{ fontSize: '11px', color: '#888', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-                <ShieldAlert size={12} color="#d84315" /> Verify your email to complete safety checkpoints.
+              <span style={{ fontSize: '13px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontWeight: '500' }}>
+                <ShieldAlert size={16} /> Verify your email for important security alerts and order updates.
               </span>
             )}
           </div>
 
           {/* Address Settings Section */}
-          <div style={{ borderTop: '1px dashed #eee', paddingTop: '16px', marginTop: '4px' }}>
-            <h4 style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '12px' }}>Delivery Address</h4>
+          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', margin: '0 0 16px 0' }}>Delivery Address</h4>
             
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>PINCODE *</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>PINCODE *</label>
+              <div style={{ display: 'flex', gap: '12px' }}>
                 <input 
                   type="text" 
                   maxLength="6"
                   value={pincodeInput} 
                   onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
-                  placeholder="6-digit pincode"
+                  placeholder="e.g. 400001"
                   disabled={!isEditing}
-                  style={{ width: '150px', height: '40px', padding: '0 10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
+                  style={{ width: '180px', boxSizing: 'border-box', height: '52px', padding: '0 16px', border: isEditing ? '2px solid #6366f1' : '1px solid #e2e8f0', borderRadius: '12px', fontSize: '16px', fontWeight: '600', backgroundColor: !isEditing ? '#f8fafc' : 'white', outline: 'none', color: '#0f172a', letterSpacing: '2px' }}
                   required
                 />
                 <button 
                   type="button" 
                   onClick={handleGeolocate}
                   disabled={!isEditing}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px', background: !isEditing ? '#eaeaea' : '#f5f5f5', color: !isEditing ? '#888' : '#333', border: '1px solid #ccc', padding: '0 12px', borderRadius: '4px', fontSize: '12px', fontWeight: '500', cursor: !isEditing ? 'not-allowed' : 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', background: !isEditing ? '#f1f5f9' : '#eff6ff', color: !isEditing ? '#94a3b8' : '#3b82f6', border: !isEditing ? '1px solid #e2e8f0' : '1px solid #bfdbfe', padding: '0 20px', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: !isEditing ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
                 >
-                  <MapPin size={14} color={!isEditing ? '#888' : 'var(--primary-color)'} /> Detect Location
+                  <MapPin size={18} /> Detect Location
                 </button>
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>STREET ADDRESS (MUST BE FILLED) *</label>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#64748b', marginBottom: '8px', letterSpacing: '0.5px' }}>STREET ADDRESS (MUST BE FILLED) *</label>
               <textarea 
                 value={addressInput} 
                 onChange={(e) => setAddressInput(e.target.value)} 
                 placeholder="House No, Building Name, Street Area, City & State"
                 disabled={!isEditing}
-                style={{ width: '100%', height: '80px', padding: '10px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '13px', resize: 'vertical', backgroundColor: !isEditing ? '#f9f9f9' : 'white' }}
+                style={{ width: '100%', boxSizing: 'border-box', height: '100px', padding: '16px', border: isEditing ? '2px solid #6366f1' : '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', fontWeight: '500', resize: 'vertical', backgroundColor: !isEditing ? '#f8fafc' : 'white', outline: 'none', color: '#0f172a', lineHeight: '1.5' }}
                 required
               />
             </div>
@@ -295,27 +339,31 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
           <button 
             type="submit" 
-            className="btn btn-accent" 
             style={{ 
               width: '100%', 
-              height: '44px', 
-              fontWeight: 'bold', 
-              marginTop: '10px',
-              backgroundColor: (!isEditing || !hasChanges) ? '#cccccc' : 'var(--accent-color)',
-              color: (!isEditing || !hasChanges) ? '#666666' : 'white',
+              height: '56px', 
+              fontSize: '16px',
+              fontWeight: '800', 
+              letterSpacing: '0.5px',
+              marginTop: '8px',
+              borderRadius: '14px',
+              backgroundColor: (!isEditing || !hasChanges) ? '#e2e8f0' : '#4f46e5',
+              color: (!isEditing || !hasChanges) ? '#94a3b8' : 'white',
               border: 'none',
-              cursor: (!isEditing || !hasChanges) ? 'not-allowed' : 'pointer'
+              cursor: (!isEditing || !hasChanges) ? 'not-allowed' : 'pointer',
+              boxShadow: (!isEditing || !hasChanges) ? 'none' : '0 10px 20px rgba(79, 70, 229, 0.3)',
+              transition: 'all 0.2s'
             }}
             disabled={isUpdating || !isEditing || !hasChanges}
           >
-            {isUpdating ? 'SAVING DETAILS...' : 'SAVE & UPDATE DETAILS'}
+            {isUpdating ? 'SAVING CHANGES...' : 'SAVE & UPDATE DETAILS'}
           </button>
         </form>
 
         {/* Wishlist Section */}
-        <div id="wishlist-section" className="card" style={{ padding: '20px', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>
-          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#212121', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Heart size={16} fill="#d32f2f" color="#d32f2f" />
+        <div id="wishlist-section" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Heart size={20} fill="#ef4444" color="#ef4444" />
             <span>My Wishlist ({wishlistProducts.length})</span>
           </h3>
 

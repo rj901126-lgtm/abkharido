@@ -1,4 +1,6 @@
 import Order from '../models/Order.js';
+import User from '../models/User.js';
+import { sendInvoiceEmail } from '../utils/emailService.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -31,6 +33,13 @@ export const addOrderItems = async (req, res, next) => {
       });
 
       const createdOrder = await order.save();
+      
+      // Fetch user to check email verification
+      const user = await User.findById(req.user._id);
+      if (user && user.isEmailVerified && user.email) {
+        // Send email asynchronously without blocking the response
+        sendInvoiceEmail(createdOrder, user).catch(err => console.error("Failed to send invoice:", err));
+      }
 
       res.status(201).json(createdOrder);
     }
@@ -82,8 +91,45 @@ export const getMyOrders = async (req, res, next) => {
 // @access  Private/Admin
 export const getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({}).populate('user', 'id username');
+    const orders = await Order.find({}).populate('user', 'id username email isEmailVerified fullName');
     res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Manually send invoice email
+// @route   POST /api/orders/:id/email-invoice
+// @access  Private/Admin
+export const sendOrderInvoiceEmail = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('user', 'username email isEmailVerified fullName');
+    
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+
+    if (!order.user.email) {
+      res.status(400);
+      throw new Error('Customer does not have an email address');
+    }
+
+    // Force send it even if not verified if admin is doing it? 
+    // The user requirement says "mail tabhi hoga agar customer ne mail verified kiya hai"
+    // So we should enforce it even here.
+    if (!order.user.isEmailVerified) {
+      res.status(400);
+      throw new Error('Customer email is not verified. Cannot send invoice.');
+    }
+
+    const sent = await sendInvoiceEmail(order, order.user);
+    if (sent) {
+      res.json({ message: 'Invoice email sent successfully' });
+    } else {
+      res.status(500);
+      throw new Error('Failed to send invoice email');
+    }
   } catch (error) {
     next(error);
   }
