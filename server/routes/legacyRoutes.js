@@ -3,7 +3,7 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
-import productsData from '../../api/data/productsData.js';
+import productsData from '../data/productsData.js';
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import Product from '../models/Product.js';
-import productsData from '../../api/data/productsData.js';
+import productsData from '../data/productsData.js';
 // @access  Public
 export const getProducts = async (req, res, next) => {
   try {
