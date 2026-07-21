@@ -116,7 +116,7 @@ export const AppProvider = ({ children }) => {
       const res = await fetch('/api/products');
       if (res.ok) {
         const data = await res.json();
-        setProducts(data);
+        setProducts(data.products || data);
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('Failed to load products:', err);

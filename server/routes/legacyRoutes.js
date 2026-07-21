@@ -6,7 +6,13 @@ const router = express.Router();
 // Mock endpoints to satisfy frontend calls while using new architecture
 
 router.get('/promotions', (req, res) => {
-  res.json({ success: true, promotions: [] });
+  res.json({
+    dealsTimer: '2026-12-31T23:59:59',
+    budgetThreshold: 15000,
+    dealOfTheDayProducts: [],
+    banners: [],
+    categoryBanners: { all: { slides: [], show: false } }
+  });
 });
 
 router.post('/promotions', protect, admin, (req, res) => {
@@ -47,6 +53,12 @@ router.post('/seller/signup', (req, res) => {
 });
 router.post('/seller/login', (req, res) => {
   res.json({ success: true, token: 'mock_token', username: 'mock_seller' });
+});
+router.get('/seller/products', (req, res) => {
+  res.json([]);
+});
+router.get('/seller/orders', (req, res) => {
+  res.json([]);
 });
 router.post('/shipping/serviceability', (req, res) => {
   res.json({ success: true, status: 'Deliverable', estimatedDays: 3 });
