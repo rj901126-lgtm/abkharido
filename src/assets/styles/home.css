@@ -4,10 +4,11 @@
   width: 100%;
   max-width: var(--max-width-content);
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  box-sizing: border-box;
 }
 
 /* Category Quick Bar grid (if icons used) */
