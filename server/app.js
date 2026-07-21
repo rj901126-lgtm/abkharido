@@ -15,6 +15,9 @@ import shippingRoutes from './routes/shippingRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import cmsRoutes from './routes/cmsRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import sellerRoutes from './routes/sellerRoutes.js';
+import legacyRoutes from './routes/legacyRoutes.js';
 
 dotenv.config();
 
@@ -44,15 +47,20 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter);
 
 // --- NEW MVC ROUTES ---
-app.use('/api/v2/auth', authRoutes);
-app.use('/api/v2/products', productRoutes);
-app.use('/api/v2/orders', orderRoutes);
-app.use('/api/v2/payment', paymentRoutes);
-app.use('/api/v2/shipping', shippingRoutes);
-app.use('/api/v2/analytics', analyticsRoutes);
-app.use('/api/v2/cms', cmsRoutes);
-app.use('/api/v2/coupons', couponRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/sellers', sellerRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/shipping', shippingRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/cms', cmsRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // --- LEGACY ROUTES WILL BE MOUNTED HERE BY api/index.js ---
+app.use('/api', legacyRoutes);
+
+// Mount Enterprise Error Handlers
 
 export default app;
