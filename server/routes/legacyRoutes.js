@@ -65,6 +65,15 @@ router.get('/seller/products', (req, res) => {
 // TEMPORARY ROUTE TO MIGRATE DATA ON VERCEL
 router.get('/migrate-data', async (req, res) => {
   try {
+    const mongoose = await import('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+       return res.status(500).json({ 
+           error: 'Database is not connected!', 
+           readyState: mongoose.connection.readyState,
+           hint: 'This means your username, password, or cluster link is wrong in Vercel MONGODB_URI. Make sure you removed the < > symbols from the password in the link.'
+       });
+    }
+
     const { default: Product } = await import('../models/Product.js');
     const { default: User } = await import('../models/User.js');
     const { default: productsData } = await import('../data/productsData.js');
