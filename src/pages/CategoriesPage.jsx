@@ -11,7 +11,8 @@ import {
   Laptop,
   Shirt,
   Home as HomeIcon,
-  Tv
+  Tv,
+  Plus
 } from 'lucide-react';
 import '../assets/styles/categories.css';
 
@@ -179,7 +180,14 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
         </div>
 
         {/* Right Details Panel */}
-        <div className="categories-content-panel">
+        <div className="categories-content-panel" key={selectedCatId}>
+          {/* Dynamic Category Header */}
+          <div className="dynamic-category-header">
+            <h2 className="dynamic-category-title">
+              Explore {CATEGORIES.find(c => c.id === selectedCatId)?.name || 'All'}
+            </h2>
+          </div>
+
           {/* Category Banner Carousel */}
           {(() => {
             const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[selectedCatId];
@@ -222,9 +230,13 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                     <div className="category-item-image-wrapper">
                       <img src={prod.image} alt={prod.name} className="category-item-image" />
                     </div>
-                    <span className="category-item-badge">Buy Now</span>
-                    <span className="category-item-name">{prod.name}</span>
-                    <span className="category-item-price">₹{(prod.price || 0).toLocaleString('en-IN')}</span>
+                    <div className="category-item-details">
+                      <span className="category-item-name">{prod.name}</span>
+                      <span className="category-item-price">₹{(prod.price || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                    <button className="category-item-add-btn" onClick={(e) => { e.stopPropagation(); onNavigateProduct(prod.id); }}>
+                      <Plus size={18} />
+                    </button>
                   </div>
                 );
               })}
