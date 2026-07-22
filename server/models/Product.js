@@ -5,7 +5,8 @@ const variantSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   originalPrice: { type: Number, required: true },
   discount: { type: Number },
-  stock: { type: Number, default: 0 }
+  stock: { type: Number, default: 0 },
+  sku: { type: String }
 }, { _id: false });
 
 const colorModelSchema = new mongoose.Schema({
@@ -36,6 +37,14 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   originalPrice: { type: Number, required: true },
   inStock: { type: Boolean, default: true },
+  stock: { type: Number, default: 0 },
+  sku: { type: String, sparse: true },
+  hsnCode: { type: String },
+  vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  seo: {
+    metaTitle: { type: String },
+    metaDescription: { type: String }
+  },
   
   // Imagery
   image: { type: String, required: true },

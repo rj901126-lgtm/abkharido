@@ -129,6 +129,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setSpecs(prod.specs?.length ? prod.specs : [{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
     setMedia(prod.images || [prod.image].filter(Boolean));
     
+    // Set PIM Fields
+    setMetaTitle(prod.seo?.metaTitle || '');
+    setMetaDescription(prod.seo?.metaDescription || '');
+    setHsnCode(prod.hsnCode || '');
+    setVendorId(prod.vendorId || '');
+    
     let initialColorModels = prod.colorModels;
     if (!initialColorModels || initialColorModels.length === 0) {
       if (prod.category === 'mobiles' || prod.category === 'electronics') {
@@ -611,6 +617,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
   const [badge, setBadge] = useState('none');
+  
+  // Enterprise PIM State
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [hsnCode, setHsnCode] = useState('');
+  const [vendorId, setVendorId] = useState('');
 
   // Dynamic spec list key-value rows
   const [specs, setSpecs] = useState([
@@ -859,7 +871,14 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       userCommissionRate: Number(userCommission),
       inStock,
       badge,
-      colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined
+      colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined,
+      // PIM Fields
+      hsnCode: hsnCode.trim(),
+      vendorId: vendorId.trim() || undefined,
+      seo: {
+        metaTitle: metaTitle.trim(),
+        metaDescription: metaDescription.trim()
+      }
     };
 
     if (editMode) {
@@ -1362,6 +1381,60 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 <option value="trending">📈 TRENDING</option>
                 <option value="new">✨ NEW ARRIVAL</option>
               </select>
+            </div>
+            
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <h4 style={{ margin: 0, fontSize: '14px', color: '#334155', fontWeight: 'bold' }}>Enterprise PIM (Compliance & SEO)</h4>
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label className="form-label-txt" style={{ color: '#475569' }}>SEO Meta Title</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Buy Apple iPhone 16 Pro Online in India" 
+                    value={metaTitle}
+                    onChange={(e) => setMetaTitle(e.target.value)}
+                    className="form-input-field"
+                    style={{ background: '#fff' }}
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label className="form-label-txt" style={{ color: '#475569' }}>SEO Meta Description</label>
+                  <input 
+                    type="text" 
+                    placeholder="Brief description for search engines..." 
+                    value={metaDescription}
+                    onChange={(e) => setMetaDescription(e.target.value)}
+                    className="form-input-field"
+                    style={{ background: '#fff' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label className="form-label-txt" style={{ color: '#475569' }}>HSN Code (GST Billing)</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 85171219" 
+                    value={hsnCode}
+                    onChange={(e) => setHsnCode(e.target.value)}
+                    className="form-input-field"
+                    style={{ background: '#fff' }}
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label className="form-label-txt" style={{ color: '#475569' }}>Linked Vendor ID (Optional)</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 64b8f... (Seller's Object ID)" 
+                    value={vendorId}
+                    onChange={(e) => setVendorId(e.target.value)}
+                    className="form-input-field"
+                    style={{ background: '#fff' }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>

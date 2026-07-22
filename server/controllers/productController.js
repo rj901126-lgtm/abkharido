@@ -187,3 +187,33 @@ export const deleteProduct = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Quick inline update for product stock
+// @route   POST /api/products/:id/stock
+// @access  Private/Admin or Seller
+export const updateProductStock = async (req, res, next) => {
+  try {
+    const { stock } = req.body;
+    const product = await Product.findOne({ id: req.params.id });
+
+    if (product) {
+      if (req.user.role === 'seller' && product.sellerId?.toString() !== req.user._id.toString()) {
+        res.status(403);
+        throw new Error('Not authorized to edit this product');
+      }
+
+      product.stock = Number(stock);
+      // We also update inStock based on the new stock
+      product.inStock = product.stock > 0;
+      
+      const updatedProduct = await product.save();
+      await clearCache('cache:/api/products*');
+      res.json({ message: 'Stock updated successfully', product: updatedProduct });
+    } else {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};

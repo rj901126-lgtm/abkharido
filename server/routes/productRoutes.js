@@ -4,7 +4,8 @@ import {
   getProductById, 
   createProduct, 
   updateProduct, 
-  deleteProduct 
+  deleteProduct,
+  updateProductStock
 } from '../controllers/productController.js';
 import { protect, seller, admin } from '../middleware/authMiddleware.js';
 import { cache } from '../middleware/cacheMiddleware.js';
@@ -23,5 +24,8 @@ router.route('/:id')
   .get(cache(300), getProductById)
   .put(protect, seller, logAdminAction('UPDATE_PRODUCT', 'Product'), updateProduct)
   .delete(protect, seller, logAdminAction('DELETE_PRODUCT', 'Product'), deleteProduct);
+
+router.route('/:id/stock')
+  .post(protect, seller, logAdminAction('QUICK_UPDATE_STOCK', 'Product'), updateProductStock);
 
 export default router;

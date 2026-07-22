@@ -63,6 +63,34 @@ const AdminDataGrid = ({ onEditProduct }) => {
     }
   };
 
+  const handleQuickUpdateStock = async (productObj) => {
+    const newStockStr = window.prompt(`Enter new stock quantity for ${productObj.name}:`, productObj.stock || '0');
+    if (newStockStr === null) return;
+    const newStock = Number(newStockStr);
+    if (isNaN(newStock)) {
+      showToast('Invalid stock quantity', 'error');
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || '';
+      const res = await fetch(`/api/products/${productObj.id}/stock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ stock: newStock })
+      });
+      
+      if (res.ok) {
+        showToast(`Stock updated to ${newStock} successfully!`, 'success');
+        fetchPaginatedProducts(data.page, search, category);
+      } else {
+        showToast('Failed to update stock', 'error');
+      }
+    } catch (err) {
+      showToast('Network error updating stock', 'error');
+    }
+  };
+
   return (
     <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
@@ -114,6 +142,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
                 <th>Preview</th>
                 <th>ID / Name</th>
                 <th>Category</th>
+                <th>SKU / Stock</th>
                 <th>Price</th>
                 <th>Payouts</th>
                 <th>Actions</th>
@@ -122,7 +151,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
             <tbody>
               {data.products.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>
                     No products found.
                   </td>
                 </tr>
@@ -138,6 +167,25 @@ const AdminDataGrid = ({ onEditProduct }) => {
                     </td>
                     <td style={{ textTransform: 'capitalize', color: '#475569', fontWeight: '500' }}>
                       <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: '20px', fontSize: '12px' }}>{prod.category || 'Uncategorized'}</span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                        <code style={{ fontSize: '11px', color: '#64748b' }}>{prod.sku || 'NO-SKU'}</code>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontWeight: 'bold', color: prod.stock < 10 ? '#ef4444' : '#10b981', fontSize: '13px' }}>
+                            {prod.stock || 0} units
+                          </span>
+                          {prod.stock < 10 && (
+                            <span style={{ background: '#fee2e2', color: '#ef4444', fontSize: '10px', padding: '2px 6px', borderRadius: '12px', fontWeight: 'bold' }}>LOW</span>
+                          )}
+                        </div>
+                        <button 
+                          onClick={() => handleQuickUpdateStock(prod)}
+                          style={{ background: 'none', border: '1px dashed #cbd5e1', color: '#475569', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', marginTop: '2px' }}
+                        >
+                          Update
+                        </button>
+                      </div>
                     </td>
                     <td>
                       <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '14px' }}>₹{(prod.price || 0).toLocaleString('en-IN')}</div>
