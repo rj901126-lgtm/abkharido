@@ -241,9 +241,7 @@ const Login = ({ onNavigate }) => {
           <h1 className="lp-left-title">
             {showOtpScreen
               ? 'Verify your\nnumber'
-              : authMode === 'login'
-              ? 'Welcome\nback!'
-              : "Looks like\nyou're new\nhere!"}
+              : 'Welcome\nto Abkharido'}
           </h1>
           <p className="lp-left-sub">
             {showOtpScreen
