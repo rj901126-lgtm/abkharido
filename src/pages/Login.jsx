@@ -56,12 +56,11 @@ const Login = ({ onNavigate }) => {
       try {
         if (!window.recaptchaVerifier) {
           window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
-            size: 'normal',
-            callback: (response) => {
-              // reCAPTCHA solved - OTP will be sent automatically
+            size: 'invisible', // Invisible reCAPTCHA for ultra-smooth experience
+            callback: () => {
+              // Automatically handled
             },
             'expired-callback': () => {
-              showToast('reCAPTCHA expired. Please try again.', 'error');
               window.recaptchaVerifier = null;
             }
           });
@@ -220,14 +219,7 @@ const Login = ({ onNavigate }) => {
 
   return (
     <div className="lp-wrapper animate-fade-in" style={{ alignItems: 'stretch', flexWrap: 'nowrap' }}>
-      <div 
-        id="recaptcha-container" 
-        style={{ 
-          display: isSending ? 'flex' : 'none',
-          justifyContent: 'center',
-          margin: '12px 0'
-        }}
-      ></div>
+      <div id="recaptcha-container"></div>
 
       {/* ── Desktop: Left Blue Panel ── */}
       <div className="lp-left">
