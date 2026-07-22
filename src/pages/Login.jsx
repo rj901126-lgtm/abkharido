@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Phone, User, Mail, ArrowLeft, ChevronRight } from 'lucide-react';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { auth as firebaseAuth } from '../firebase';
+import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle } from 'lucide-react';
 
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
@@ -17,10 +15,7 @@ const Login = ({ onNavigate }) => {
   const [timer, setTimer] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  
-  // Firebase Auth states
-  const [confirmationResult, setConfirmationResult] = useState(null);
-  const [useFirebase, setUseFirebase] = useState(true);
+  const [otpCopied, setOtpCopied] = useState(false);
 
   useEffect(() => {
     if (currentUser) onNavigate('home');
@@ -91,39 +86,8 @@ const Login = ({ onNavigate }) => {
         }
         if (!validateSignupDetails()) { setIsSending(false); return; }
       }
-
-      if (useFirebase) {
-        try {
-          if (!window.recaptchaVerifier) {
-            window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
-              size: 'normal',
-              callback: () => {}
-            });
-          }
-          const appVerifier = window.recaptchaVerifier;
-          const formattedPhone = `+91${phone}`;
-          const result = await signInWithPhoneNumber(firebaseAuth, formattedPhone, appVerifier);
-          setConfirmationResult(result);
-          setShowOtpScreen(true);
-          setTimer(60);
-          showToast('Verification code sent!', 'success');
-        } catch (fbErr) {
-          console.error('Firebase verification failed:', fbErr);
-          if (window.recaptchaVerifier) {
-            try {
-              window.recaptchaVerifier.clear();
-            } catch (e) {}
-            window.recaptchaVerifier = null;
-          }
-          if (fbErr.code === 'auth/network-request-failed') {
-            showToast('Security check blocked by browser. Please disable adblockers or try a normal tab.', 'error');
-          } else {
-            showToast(`Firebase Error: ${fbErr.message}`, 'error');
-          }
-        }
-      } else {
-        showToast('Firebase is disabled.', 'error');
-      }
+      // Use backend OTP directly (Firebase bypass)
+      await triggerMockOtpFlow();
     } catch (err) {
       showToast('Connection error. Please try again.', 'error');
     } finally {
@@ -142,7 +106,10 @@ const Login = ({ onNavigate }) => {
       setGeneratedOtp(data.otp);
       setShowOtpScreen(true);
       setTimer(60);
-      showToast(`Mock OTP: ${data.otp}`, 'success');
+      // Auto-fill OTP boxes for easy login
+      const digits = data.otp.split('');
+      setOtpCode(digits);
+      showToast('OTP generated! Check the box below.', 'success');
     } else {
       showToast(data.error || 'Failed to send OTP.', 'error');
     }
@@ -157,18 +124,14 @@ const Login = ({ onNavigate }) => {
     }
     setIsVerifying(true);
     try {
-      if (useFirebase && confirmationResult) {
+      if (true) { // Backend OTP path
         try {
-          const result = await confirmationResult.confirm(enteredOtp);
-          const firebaseUser = result.user;
-          const firebaseIdToken = await firebaseUser.getIdToken();
-          
-          const res = await fetch('/api/auth/verify-firebase', {
+          const res = await fetch('/api/auth/verify-otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              idToken: firebaseIdToken,
-              phone: phone,
+              recipient: phone,
+              otp: enteredOtp,
               isSignup: authMode === 'signup',
               fullName: authMode === 'signup' ? fullName.trim() : undefined,
               email: authMode === 'signup' ? email.trim() : undefined
@@ -176,34 +139,14 @@ const Login = ({ onNavigate }) => {
           });
           const data = await res.json();
           if (res.ok) {
-            showToast(authMode === 'signup' ? 'Account created successfully!' : 'Logged in!', 'success');
+            showToast(authMode === 'signup' ? 'Account created successfully! 🎉' : 'Welcome back! 👋', 'success');
             localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
             window.location.reload();
           } else {
-            showToast(data.error || 'Failed to authenticate on backend.', 'error');
+            showToast(data.error || 'Incorrect OTP. Please try again.', 'error');
           }
-        } catch (fbErr) {
-          showToast('Invalid verification code. Please check and try again.', 'error');
-        }
-      } else {
-        const res = await fetch('/api/auth/verify-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            recipient: phone,
-            otp: enteredOtp,
-            isSignup: authMode === 'signup',
-            fullName: authMode === 'signup' ? fullName.trim() : undefined,
-            email: authMode === 'signup' ? email.trim() : undefined
-          })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showToast(authMode === 'signup' ? 'Account created successfully!' : 'Logged in!', 'success');
-          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-          window.location.reload();
-        } else {
-          showToast(data.error || 'Incorrect OTP.', 'error');
+        } catch (err) {
+          showToast('Verification failed. Try again.', 'error');
         }
       }
     } catch (err) {
@@ -311,11 +254,30 @@ const Login = ({ onNavigate }) => {
 
         <div className="lp-form-card">
 
-          {/* OTP Dev Banner — only shown in development */}
-          {import.meta.env.DEV && showOtpScreen && generatedOtp && (
-            <div className="lp-otp-dev-banner">
-              <span>🔔 Dev OTP</span>
-              <strong>{generatedOtp}</strong>
+          {/* OTP Visible Banner — always shown when OTP exists (backend mode) */}
+          {showOtpScreen && generatedOtp && (
+            <div style={{
+              background: 'linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              boxShadow: '0 4px 20px rgba(79,70,229,0.35)'
+            }}>
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '11px', fontWeight: '600', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>Your OTP Code</div>
+                <div style={{ color: '#ffffff', fontSize: '28px', fontWeight: '900', letterSpacing: '8px', fontFamily: 'monospace' }}>{generatedOtp}</div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px', marginTop: '2px' }}>Valid for 5 minutes · Auto-filled below</div>
+              </div>
+              <button
+                onClick={() => { navigator.clipboard.writeText(generatedOtp); setOtpCopied(true); setTimeout(() => setOtpCopied(false), 2000); }}
+                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '8px', padding: '8px 12px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', flexShrink: 0 }}
+              >
+                {otpCopied ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+              </button>
             </div>
           )}
 

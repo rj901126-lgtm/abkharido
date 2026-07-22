@@ -716,10 +716,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 addToCart(customProduct);
               }}
               style={{
-                border: '1px solid #dcdcdc',
+                border: 'none',
                 borderRadius: '8px',
-                backgroundColor: 'white',
-                color: '#212121',
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                color: '#ffffff',
                 height: '46px',
                 cursor: 'pointer',
                 width: '100%',
@@ -727,11 +727,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: '600',
-                fontSize: '14px'
+                fontWeight: '700',
+                fontSize: '14px',
+                letterSpacing: '0.3px',
+                boxShadow: '0 2px 8px rgba(79, 70, 229, 0.4)',
+                transition: 'all 0.2s ease',
               }}
             >
-              Add to cart
+              🛒 Add to Cart
             </button>
 
             {/* 2. Yellow Buy Now Option */}

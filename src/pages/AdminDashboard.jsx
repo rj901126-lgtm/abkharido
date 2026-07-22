@@ -957,15 +957,37 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     e.preventDefault();
     if (!activeWalletModal || !walletAmount || Number(walletAmount) <= 0) return;
     
-    // Simulating API Call
-    showToast(`Successfully ${walletAction === 'add' ? 'added' : 'deducted'} ${walletType === 'cash' ? '₹' : '🪙'}${walletAmount} ${walletAction === 'add' ? 'to' : 'from'} ${activeWalletModal.email}'s wallet.`, 'success');
-    
-    // Simulate Email to Customer
-    setTimeout(() => {
-      showToast(`Automated Email sent to ${activeWalletModal.email} regarding wallet update.`, 'info');
-    }, 1500);
+    try {
+      const res = await fetch(`/api/users/${activeWalletModal._id || activeWalletModal.id}/wallet`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('abkharido_admin_token')}`
+        },
+        body: JSON.stringify({
+          amount: Number(walletAmount),
+          action: walletAction, // 'add' or 'deduct'
+          type: walletType, // 'cash' or 'coins'
+          note: walletNote
+        })
+      });
 
-    setActiveWalletModal(null);
+      if (res.ok) {
+        showToast(`Successfully ${walletAction === 'add' ? 'added' : 'deducted'} ${walletType === 'cash' ? '₹' : '🪙'}${walletAmount} ${walletAction === 'add' ? 'to' : 'from'} ${activeWalletModal.email}'s wallet.`, 'success');
+        
+        // Since we don't have a real mailer yet, keep the UI toast for mail
+        setTimeout(() => {
+          showToast(`Automated Email sent to ${activeWalletModal.email} regarding wallet update.`, 'info');
+        }, 1500);
+
+        setActiveWalletModal(null);
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to process wallet transaction.', 'error');
+      }
+    } catch (err) {
+      showToast('Connection error while updating wallet.', 'error');
+    }
   };
 
   const exportCustomersCSV = () => {

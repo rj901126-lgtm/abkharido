@@ -125,9 +125,14 @@ export const AppProvider = ({ children }) => {
 
   const fetchUser = async (username) => {
     try {
-      const res = await fetch(`/api/users/${username}`);
+      const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session'))?.token;
+      const res = await fetch(`/api/users/${username}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         const data = await res.json();
+        // Preserve the token in the session since the profile endpoint might not return it
+        data.token = token;
         setCurrentUser(data);
         localStorage.setItem('abkharido_user_session', JSON.stringify(data));
       }
@@ -141,7 +146,11 @@ export const AppProvider = ({ children }) => {
       const user = currentUser;
       const username = user ? user.username : '';
       const emailVal = emailOrUsername || (user ? user.email : '');
-      const res = await fetch(`/api/orders?username=${username}&email=${emailVal || ''}`);
+      const token = user?.token;
+      
+      const res = await fetch(`/api/orders?username=${username}&email=${emailVal || ''}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
@@ -153,10 +162,15 @@ export const AppProvider = ({ children }) => {
 
   const cancelOrder = async (orderId) => {
     try {
-      const res = await fetch(`/api/orders/${orderId}/cancel`, { method: 'POST' });
+      const token = currentUser?.token;
+      const res = await fetch(`/api/orders/${orderId}/cancel`, { 
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.user) {
+          data.user.token = token;
           setCurrentUser(data.user);
           localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
         }

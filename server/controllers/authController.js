@@ -1,6 +1,10 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
+// In-memory OTP store (recipient -> { otp, expiry })
+// For production, replace with Redis
+const otpStore = new Map();
+
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev', {
     expiresIn: '30d',
@@ -106,7 +110,17 @@ export const sendOtp = async (req, res, next) => {
   try {
     const { recipient } = req.body;
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[OTP] Sent OTP ${generatedOtp} to ${recipient}`);
+    
+    // Store OTP with 5 minute expiry
+    otpStore.set(recipient, {
+      otp: generatedOtp,
+      expiry: Date.now() + 5 * 60 * 1000
+    });
+    
+    console.log(`[OTP] Generated OTP ${generatedOtp} for ${recipient}`);
+    
+    // Return OTP in response so frontend can show it to user
+    // In production with SMS gateway, remove 'otp' from response
     res.json({ success: true, otp: generatedOtp });
   } catch (error) {
     next(error);
@@ -118,20 +132,54 @@ export const sendOtp = async (req, res, next) => {
 // @access  Public
 export const verifyOtp = async (req, res, next) => {
   try {
-    const { recipient, otp } = req.body;
-    // Stub implementation: accept any 6 digit OTP for now
-    if (otp && otp.length >= 4) {
-      let user = await User.findOne({ $or: [{ email: recipient }, { phone: recipient }] });
-      if (!user) {
-        // Create an anonymous/placeholder user if it doesn't exist
-        const username = recipient.split('@')[0] + Math.floor(Math.random() * 1000);
-        user = await User.create({ username, email: recipient.includes('@') ? recipient : undefined, phone: !recipient.includes('@') ? recipient : undefined, password: 'password123' });
-      }
-      res.json({ success: true, token: generateToken(user._id), username: user.username });
-    } else {
-      res.status(400);
-      throw new Error('Invalid OTP');
+    const { recipient, otp, fullName, isSignup } = req.body;
+
+    // Validate OTP from store
+    const stored = otpStore.get(recipient);
+    if (!stored) {
+      return res.status(400).json({ error: 'OTP expired or not found. Please request a new OTP.' });
     }
+    if (Date.now() > stored.expiry) {
+      otpStore.delete(recipient);
+      return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
+    }
+    if (stored.otp !== otp) {
+      return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
+    }
+    // OTP is valid — create or find user
+    let user = await User.findOne({ $or: [{ email: recipient }, { phone: recipient }] });
+    if (!user) {
+      const baseUsername = recipient.includes('@') 
+        ? recipient.split('@')[0] 
+        : recipient;
+      const username = baseUsername + Math.floor(Math.random() * 1000);
+      user = await User.create({ 
+        username, 
+        email: recipient.includes('@') ? recipient : (fullName ? undefined : undefined),
+        phone: !recipient.includes('@') ? recipient : undefined, 
+        fullName: fullName || 'AbKharido User',
+        password: 'abkharido_otp_user_' + Date.now()
+      });
+    }
+    // Update fullName/email if provided during signup
+    if (fullName && !user.fullName) {
+      user.fullName = fullName;
+      await user.save();
+    }
+    res.json({ 
+      success: true, 
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        fullName: user.fullName,
+        role: user.role,
+        walletCash: user.walletCash || 0,
+        walletCoins: user.walletCoins || 0,
+        token: generateToken(user._id),
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -186,8 +234,10 @@ export const verifyFirebase = async (req, res, next) => {
 // @access  Public
 export const checkUser = async (req, res, next) => {
   try {
-    const { username } = req.body;
-    const user = await User.findOne({ $or: [{ username }, { email: username }, { phone: username }] });
+    // Frontend sends 'recipient' (phone number) not 'username'
+    const { username, recipient } = req.body;
+    const lookup = recipient || username;
+    const user = await User.findOne({ $or: [{ username: lookup }, { email: lookup }, { phone: lookup }] });
     if (user) {
       res.json({ exists: true, message: 'User found', role: user.role });
     } else {
