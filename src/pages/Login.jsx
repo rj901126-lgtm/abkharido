@@ -109,14 +109,16 @@ const Login = ({ onNavigate }) => {
           showToast('Verification code sent!', 'success');
         } catch (fbErr) {
           console.error('Firebase verification failed:', fbErr);
-          showToast(`Firebase Error: ${fbErr.message}`, 'error');
-          
-          // Clear broken recaptcha instance so user can try again
           if (window.recaptchaVerifier) {
             try {
               window.recaptchaVerifier.clear();
             } catch (e) {}
             window.recaptchaVerifier = null;
+          }
+          if (fbErr.code === 'auth/network-request-failed') {
+            showToast('Security check blocked by browser. Please disable adblockers or try a normal tab.', 'error');
+          } else {
+            showToast(`Firebase Error: ${fbErr.message}`, 'error');
           }
         }
       } else {
