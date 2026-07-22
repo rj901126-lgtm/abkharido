@@ -279,16 +279,16 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
           <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '100px', height: '100px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
           
-          <div className="premium-affiliate-content" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '12px', borderRadius: '16px', backdropFilter: 'blur(10px)' }}>
-              <Award size={24} color="#fff" strokeWidth={2} />
+          <div className="premium-affiliate-content" style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px', backdropFilter: 'blur(10px)', flexShrink: 0 }}>
+              <Award size={20} color="#fff" strokeWidth={2} />
             </div>
             <div className="premium-affiliate-text" style={{ textAlign: 'left' }}>
-              <h3 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '800', letterSpacing: '0.5px' }}>Start Earning With Us</h3>
-              <p style={{ margin: 0, fontSize: '13px', color: '#e0e7ff', lineHeight: '1.4' }}>Join the Creator Program. Earn up to <strong style={{ color: '#fef08a' }}>7% instant cash</strong> on every sale.</p>
+              <h3 style={{ margin: '0 0 2px 0', fontSize: '16px', fontWeight: '800', letterSpacing: '0.5px' }}>Start Earning With Us</h3>
+              <p style={{ margin: 0, fontSize: '12px', color: '#e0e7ff', lineHeight: '1.3' }}>Join Creator Program & Earn 7% cash.</p>
             </div>
           </div>
-          <button className="btn-glass-light" style={{ padding: '8px 16px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+          <button className="btn-glass-light" style={{ padding: '8px 16px', fontSize: '12px', whiteSpace: 'nowrap', marginTop: 'auto', marginBottom: 'auto' }}>
             Learn More <ArrowRight size={14} />
           </button>
         </div>
