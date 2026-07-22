@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
@@ -18,9 +19,6 @@ import couponRoutes from './routes/couponRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import sellerRoutes from './routes/sellerRoutes.js';
 import legacyRoutes from './routes/legacyRoutes.js';
-import { connectDB } from './config/db.js';
-import mongoose from 'mongoose';
-
 dotenv.config();
 
 const app = express();
