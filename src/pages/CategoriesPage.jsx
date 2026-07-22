@@ -98,39 +98,39 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
     switch (catId) {
       case 'mobiles':
         return [
-          { name: 'Big Bachat Days', badge: 'SALE LIVE' },
-          { name: 'Apple Authorized', badge: 'NEW S24' },
-          { name: 'Refurbished Hub', badge: 'MIN 40% OFF' }
+          { name: 'Big Bachat Days', badge: 'SALE LIVE', img: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=150&q=80' },
+          { name: 'Apple Authorized', badge: 'NEW S24', img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=150&q=80' },
+          { name: 'Refurbished Hub', badge: 'MIN 40% OFF', img: 'https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=150&q=80' }
         ];
       case 'electronics':
         return [
-          { name: 'Intel Zone', badge: 'GEN 14' },
-          { name: 'Audio Fest', badge: 'UP TO 50%' },
-          { name: 'Gaming Hub', badge: 'RTX 4090' }
+          { name: 'Intel Zone', badge: 'GEN 14', img: 'https://images.unsplash.com/photo-1531297172867-4f444c66657c?w=150&q=80' },
+          { name: 'Audio Fest', badge: 'UP TO 50%', img: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=150&q=80' },
+          { name: 'Gaming Hub', badge: 'RTX 4090', img: 'https://images.unsplash.com/photo-1600861194942-f88481e1d071?w=150&q=80' }
         ];
       case 'fashion':
         return [
-          { name: 'Trending Styles', badge: '70% OFF' },
-          { name: 'Shoes & Clogs', badge: 'FLAT ₹500' },
-          { name: 'Premium Brands', badge: 'NEW IN' }
+          { name: 'Trending Styles', badge: '70% OFF', img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=150&q=80' },
+          { name: 'Shoes & Clogs', badge: 'FLAT ₹500', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&q=80' },
+          { name: 'Premium Brands', badge: 'NEW IN', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=150&q=80' }
         ];
       case 'home':
         return [
-          { name: 'Bedsheets Club', badge: 'BUY 1 GET 1' },
-          { name: 'Kitchen Tools', badge: 'MIN 30% OFF' },
-          { name: 'Home Decor', badge: 'UNDER ₹499' }
+          { name: 'Bedsheets Club', badge: 'BUY 1 GET 1', img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=150&q=80' },
+          { name: 'Kitchen Tools', badge: 'MIN 30% OFF', img: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=150&q=80' },
+          { name: 'Home Decor', badge: 'UNDER ₹499', img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=150&q=80' }
         ];
       case 'appliances':
         return [
-          { name: 'Smart TVs', badge: '₹8,990 ONWARDS' },
-          { name: 'Cooling Fest', badge: 'AC OFFERS' },
-          { name: 'Direct Cooling', badge: 'MIN 20% OFF' }
+          { name: 'Smart TVs', badge: '₹8,990 ONWARDS', img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=150&q=80' },
+          { name: 'Cooling Fest', badge: 'AC OFFERS', img: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150&q=80' },
+          { name: 'Direct Cooling', badge: 'MIN 20% OFF', img: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=150&q=80' }
         ];
       default:
         return [
-          { name: 'Best Offers', badge: 'SALE LIVE' },
-          { name: 'New Launches', badge: 'JUST IN' },
-          { name: 'Hot Sellers', badge: 'HOT' }
+          { name: 'Best Offers', badge: 'SALE LIVE', img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=150&q=80' },
+          { name: 'New Launches', badge: 'JUST IN', img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&q=80' },
+          { name: 'Hot Sellers', badge: 'HOT', img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150&q=80' }
         ];
     }
   };
@@ -194,10 +194,12 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             <div className="popular-stores-row">
               {activeStores.map((store, idx) => (
                 <div key={idx} className="popular-store-item" onClick={() => handleStoreClick(store)}>
-                  <div className="popular-store-circle">
-                    <span style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', padding: '4px' }}>
-                      {store.badge}
-                    </span>
+                  <div className="popular-store-circle" style={{ backgroundImage: `url(${store.img})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.9)', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', padding: '4px', color: 'var(--primary-color)' }}>
+                        {store.badge}
+                      </span>
+                    </div>
                   </div>
                   <span className="popular-store-label">{store.name}</span>
                 </div>
