@@ -164,6 +164,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 className="nav-item" 
                 onMouseEnter={() => setDropdownOpen(true)}
                 onMouseLeave={() => setDropdownOpen(false)}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
                 style={{ position: 'relative' }}
               >
                 <User size={18} />
@@ -188,30 +189,30 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                     )}
 
                     {currentUser.isInfluencer && (
-                      <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('partner'); }}>
+                      <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('partner'); }}>
                         <Award size={16} /> Creator Dashboard
                       </a>
                     )}
 
-                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('profile'); }}>
+                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile'); }}>
                       <User size={16} /> My Profile
                     </a>
 
-                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('profile'); setTimeout(() => { document.getElementById('wishlist-section')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}>
+                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile'); setTimeout(() => { document.getElementById('wishlist-section')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}>
                       <Heart size={16} fill="#d32f2f" color="#d32f2f" /> My Wishlist
                     </a>
 
-                    <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('orders'); }}>
+                    <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('orders'); }}>
                       <History size={16} /> My Orders
                     </a>
 
-                    <a href="#seller" className="dropdown-item" onClick={(e) => { e.preventDefault(); onNavigate('seller'); }}>
+                    <a href="#seller" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('seller'); }}>
                       <Store size={16} /> Sell on AbKharido
                     </a>
 
                     <div className="dropdown-divider"></div>
 
-                    <button className="dropdown-item" onClick={logout} style={{ color: 'var(--error)' }}>
+                    <button className="dropdown-item" onClick={() => { setDropdownOpen(false); logout(); }} style={{ color: 'var(--error)' }}>
                       <LogOut size={16} /> Logout Account
                     </button>
                   </div>
