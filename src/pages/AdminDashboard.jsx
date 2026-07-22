@@ -26,6 +26,7 @@ import AdminCMSBuilder from '../components/AdminCMSBuilder';
 import AdminCoupons from '../components/AdminCoupons';
 import AdminOMS from '../components/AdminOMS';
 import AdminCRM from '../components/AdminCRM';
+import AdminAuditLogs from '../components/AdminAuditLogs';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -939,6 +940,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             onClick={() => { setActiveTab('promotions'); setMobileMenuOpen(false); }}
           >
             <Image size={18} /> Banners
+          </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'audit' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('audit'); setMobileMenuOpen(false); }}
+          >
+            <ShieldAlert size={18} /> Audit Logs
           </div>
         </nav>
       </aside>

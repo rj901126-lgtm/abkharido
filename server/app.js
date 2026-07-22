@@ -17,6 +17,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import shippingRoutes from './routes/shippingRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import cmsRoutes from './routes/cmsRoutes.js';
+import auditRoutes from './routes/auditRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import sellerRoutes from './routes/sellerRoutes.js';
@@ -81,10 +82,10 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/shipping', shippingRoutes);
-app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/cms', cmsRoutes);
+app.use('/api/audit-logs', auditRoutes);
 app.use('/api/coupons', couponRoutes);
-app.use('/api', legacyRoutes);
 
 // --- LEGACY ROUTES WILL BE MOUNTED HERE BY api/index.js ---
 app.use('/api', legacyRoutes);

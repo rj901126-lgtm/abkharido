@@ -173,3 +173,41 @@ export const exportOrdersBulk = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Update order status
+// @route   POST /api/orders/:id/status
+// @access  Private/Admin
+export const updateOrderStatus = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+    
+    order.status = req.body.status;
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Cancel order
+// @route   POST /api/orders/:id/cancel
+// @access  Private/Admin
+export const cancelOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+    
+    order.status = 'Cancelled';
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
