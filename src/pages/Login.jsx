@@ -261,8 +261,8 @@ const Login = ({ onNavigate }) => {
   };
 
   return (
-    <div className="lp-wrapper animate-fade-in">
-      <div id="recaptcha-container"></div>
+    <div className="lp-wrapper animate-fade-in" style={{ alignItems: 'stretch', flexWrap: 'nowrap' }}>
+      <div id="recaptcha-container" style={{ position: 'absolute', bottom: '10px', right: '10px', zIndex: 100 }}></div>
 
       {/* ── Desktop: Left Blue Panel ── */}
       <div className="lp-left">
