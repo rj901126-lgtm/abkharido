@@ -251,7 +251,9 @@ const Login = ({ onNavigate }) => {
   };
 
   return (
-    <div className="lp-wrapper">
+    <div className="lp-container animate-fade-in">
+      <div id="recaptcha-container"></div>
+
       {/* ── Desktop: Left Blue Panel ── */}
       <div className="lp-left">
         <div className="lp-left-content">
@@ -368,9 +370,6 @@ const Login = ({ onNavigate }) => {
               </p>
 
               <form onSubmit={handleRequestOtp} className="lp-form">
-                {/* Firebase reCAPTCHA invisible target */}
-                <div id="recaptcha-container"></div>
-
                 {/* Phone Input */}
                 <div className="lp-input-group">
                   <span className="lp-input-prefix">+91</span>
