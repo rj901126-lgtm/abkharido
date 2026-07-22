@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
+import redisClient from './config/redis.js';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -62,9 +64,12 @@ if (process.env.NODE_ENV === 'development') {
 // Rate Limiting (Basic protection)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 100 requests per `window`
+  max: 1000, // Limit each IP to 1000 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  store: redisClient ? new RedisStore({
+    sendCommand: (...args) => redisClient.call(...args),
+  }) : undefined, // Fallback to memory if Redis is down
 });
 app.use('/api', apiLimiter);
 

@@ -1,5 +1,6 @@
 import Product from '../models/Product.js';
 import productsData from '../data/productsData.js';
+import { clearCache } from '../middleware/cacheMiddleware.js';
 // @access  Public
 export const getProducts = async (req, res, next) => {
   try {
@@ -103,6 +104,7 @@ export const createProduct = async (req, res, next) => {
       sellerId: req.user._id === 'master_admin_legacy' ? null : req.user._id
     });
     const createdProduct = await product.save();
+    await clearCache('cache:/api/products*');
     res.status(201).json(createdProduct);
   } catch (error) {
     next(error);
@@ -125,6 +127,7 @@ export const updateProduct = async (req, res, next) => {
 
       Object.assign(product, req.body);
       const updatedProduct = await product.save();
+      await clearCache('cache:/api/products*');
       res.json(updatedProduct);
     } else {
       res.status(404);
@@ -148,7 +151,8 @@ export const deleteProduct = async (req, res, next) => {
         throw new Error('Not authorized to delete this product');
       }
       
-      await Product.deleteOne({ id: req.params.id });
+      await product.deleteOne();
+      await clearCache('cache:/api/products*');
       res.json({ message: 'Product removed' });
     } else {
       res.status(404);

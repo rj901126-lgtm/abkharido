@@ -1,5 +1,6 @@
 import Layout from '../models/Layout.js';
 import Category from '../models/Category.js';
+import { clearCache } from '../middleware/cacheMiddleware.js';
 
 // @desc    Get Layout by Type
 // @route   GET /api/v2/cms/layout/:type
@@ -47,6 +48,7 @@ export const updateLayout = async (req, res, next) => {
       });
     }
 
+    await clearCache('cache:/api/v2/cms/layout*');
     res.json(layout);
   } catch (error) {
     next(error);
@@ -71,6 +73,8 @@ export const getCategories = async (req, res, next) => {
 export const createCategory = async (req, res, next) => {
   try {
     const category = await Category.create(req.body);
+    
+    await clearCache('cache:/api/v2/cms/categories*');
     res.status(201).json(category);
   } catch (error) {
     next(error);
