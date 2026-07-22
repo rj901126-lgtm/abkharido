@@ -288,7 +288,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
               <p style={{ margin: 0, fontSize: '12px', color: '#e0e7ff', lineHeight: '1.3' }}>Join Creator Program & Earn 7% cash.</p>
             </div>
           </div>
-          <button className="btn-glass-light" style={{ padding: '8px 16px', fontSize: '12px', whiteSpace: 'nowrap', marginTop: 'auto', marginBottom: 'auto' }}>
+          <button className="btn-glass-light banner-action-btn" style={{ padding: '8px 16px', fontSize: '13px', whiteSpace: 'nowrap' }}>
             Learn More <ArrowRight size={14} />
           </button>
         </div>

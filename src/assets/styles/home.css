@@ -263,6 +263,37 @@
   line-height: 1.2;
 }
 
+/* Glowing Glass Button for Dark Backgrounds */
+.btn-glass-light {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1; /* Keep it below navbar */
+}
+
+.btn-glass-light:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2), 0 0 15px rgba(255,255,255,0.15);
+}
+
+.btn-glass-light:active {
+  transform: scale(0.95);
+}
+
 /* Premium Deals Section */
 .deals-container {
   background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
@@ -456,14 +487,19 @@
     font-size: 18px !important;
   }
   .premium-affiliate-banner {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     text-align: left;
-    gap: 12px;
+    gap: 16px;
     padding: 16px;
     margin: 0 16px;
     border-radius: 16px !important;
+  }
+  .banner-action-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
   }
   .promo-heading {
     font-size: 22px !important;
