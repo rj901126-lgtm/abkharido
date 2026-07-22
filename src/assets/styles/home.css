@@ -385,48 +385,70 @@
 }
 
 @media (max-width: 768px) {
-  .home-container, .home-page-layout-container {
-    padding: 0 !important;
-    gap: 8px !important;
+  .home-page-layout-container {
+    padding: 0 0 16px 0 !important;
+    gap: 16px !important;
   }
   .hero-carousel {
-    height: 180px !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    height: 380px !important;
+    border-radius: 0 0 24px 24px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
   }
   .carousel-slide {
-    padding: 16px 24px !important;
+    padding: 24px 20px !important;
+    justify-content: center;
+    text-align: center;
+  }
+  .slide-content-box {
+    padding: 24px 20px !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
   }
   .slide-title {
-    font-size: 20px !important;
+    font-size: 28px !important;
+    margin-bottom: 12px !important;
   }
   .slide-desc {
-    font-size: 12px !important;
-    margin-bottom: 10px !important;
+    font-size: 14px !important;
+    margin-bottom: 16px !important;
   }
   .carousel-nav-btn {
     display: none !important; /* Hide nav arrows on mobile */
   }
   .deals-container {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 12px !important;
+    border-radius: 16px !important;
+    margin: 0 16px !important;
+    box-shadow: var(--shadow-md) !important;
+    padding: 16px !important;
   }
   .deals-title {
-    font-size: 16px !important;
+    font-size: 18px !important;
   }
   .affiliate-promo-panel {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 16px;
-    border-radius: 0 !important;
+    align-items: stretch;
+    text-align: center;
+    gap: 20px;
+    padding: 24px;
+    margin: 0 16px;
+    border-radius: 20px !important;
   }
   .promo-heading {
-    font-size: 20px !important;
+    font-size: 22px !important;
   }
   .promo-right {
-    align-items: flex-start;
+    align-items: center;
+    width: 100%;
+  }
+  .promo-right .premium-affiliate-btn {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100px;
   }
 }
 
@@ -438,6 +460,8 @@
   padding: 8px 4px 16px 4px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 16px;
 }
 .home-carousel-row::-webkit-scrollbar {
   height: 6px;
@@ -457,16 +481,19 @@
   flex: 0 0 220px !important;
   width: 220px !important;
   max-width: 220px !important;
+  scroll-snap-align: start;
 }
 
 @media (max-width: 600px) {
   .home-carousel-row {
     gap: 12px;
     padding-bottom: 12px;
+    padding-left: 0;
   }
   .home-carousel-row .product-card {
     flex: 0 0 165px !important;
     width: 165px !important;
     max-width: 165px !important;
+    scroll-snap-align: start;
   }
 }

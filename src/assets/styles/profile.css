@@ -292,22 +292,26 @@
   transform: scale(0.96);
 }
 
-/* Mobile Overrides */
+/* Mobile Overrides - 100 Crore Enterprise Look */
 @media (max-width: 768px) {
   .profile-page-container {
-    padding: 16px;
+    padding: 0 0 40px 0;
+    background: #f8fafc;
   }
   
   .profile-header-bar {
-    margin-bottom: 16px;
+    margin: 0;
+    padding: 16px 20px;
+    background: white;
   }
   
   .profile-banner-card {
     flex-direction: column;
-    padding: 24px;
+    padding: 40px 20px 60px 20px;
     align-items: center;
     text-align: center;
-    border-radius: 20px;
+    border-radius: 0 0 32px 32px;
+    box-shadow: 0 20px 40px -10px rgba(55, 48, 163, 0.4);
   }
 
   .profile-user-info {
@@ -316,7 +320,7 @@
   }
   
   .profile-user-name {
-    font-size: 20px;
+    font-size: 22px;
   }
   
   .profile-wallet-container {
@@ -330,13 +334,23 @@
   }
   
   .profile-form-card {
-    padding: 20px;
-    border-radius: 20px;
-    gap: 20px;
+    padding: 24px 20px;
+    border-radius: 24px;
+    gap: 24px;
+    margin: -30px 16px 20px 16px;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
   }
   
   .profile-input-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
+
+  .profile-submit-btn {
+    width: 100%;
+    flex: 1 1 100% !important;
+  }
 }
+
