@@ -161,7 +161,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   const getProductColorModels = (prod) => {
     if (!prod) return [];
-    if (prod.colorModels) return prod.colorModels;
+    if (prod.colorModels && prod.colorModels.length > 0) return prod.colorModels;
     
     // Dynamic models builder based on product category
     if (prod.category === 'mobiles') {
