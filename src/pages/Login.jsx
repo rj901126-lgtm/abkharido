@@ -108,12 +108,19 @@ const Login = ({ onNavigate }) => {
           setTimer(60);
           showToast('Verification code sent!', 'success');
         } catch (fbErr) {
-          console.warn('Firebase verification failed, falling back to local OTP:', fbErr.message);
-          setUseFirebase(false);
-          await triggerMockOtpFlow();
+          console.error('Firebase verification failed:', fbErr);
+          showToast(`Firebase Error: ${fbErr.message}`, 'error');
+          
+          // Clear broken recaptcha instance so user can try again
+          if (window.recaptchaVerifier) {
+            try {
+              window.recaptchaVerifier.clear();
+            } catch (e) {}
+            window.recaptchaVerifier = null;
+          }
         }
       } else {
-        await triggerMockOtpFlow();
+        showToast('Firebase is disabled.', 'error');
       }
     } catch (err) {
       showToast('Connection error. Please try again.', 'error');
