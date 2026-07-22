@@ -30,6 +30,8 @@ import AdminOMS from '../components/AdminOMS';
 import AdminCRM from '../components/AdminCRM';
 import AdminAuditLogs from '../components/AdminAuditLogs';
 import AdminFinance from '../components/AdminFinance';
+import AdminHelpdesk from '../components/AdminHelpdesk';
+import AdminStaff from '../components/AdminStaff';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -98,8 +100,16 @@ const uploadToCloudinary = async (file) => {
 };
 
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
-  const { products, addProduct, editProduct, removeProduct, showToast } = useApp();
-  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); // 'analytics' | 'inventory' | 'orders' | 'users' | 'promotions' | 'cms' | 'crm' | 'coupons' | 'finance'
+  const { products, addProduct, editProduct, removeProduct, showToast, currentUser } = useApp();
+  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); 
+  
+  const userRole = currentUser?.role || (sessionStorage.getItem('abkharido_admin_token') === 'abkharido_master_admin_2024' ? 'super_admin' : 'admin');
+  
+  // RBAC Helpers
+  const isSuperAdmin = userRole === 'super_admin';
+  const canManageCatalog = userRole === 'catalog_manager' || userRole === 'admin' || isSuperAdmin;
+  const canManageSupport = userRole === 'support_agent' || userRole === 'admin' || isSuperAdmin;
+  const canManageFinance = isSuperAdmin;
   
   useEffect(() => {
     sessionStorage.setItem('adminActiveTab', activeTab);
@@ -960,67 +970,95 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           >
             <TrendingUp size={18} /> Dashboard
           </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'cms' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('cms'); setMobileMenuOpen(false); }}
-          >
-            <LayoutTemplate size={18} /> CMS & Layout
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'coupons' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('coupons'); setMobileMenuOpen(false); }}
-          >
-            <Tag size={18} /> Marketing
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'crm' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('crm'); setMobileMenuOpen(false); }}
-          >
-            <Settings size={18} /> CRM Settings
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('inventory'); setMobileMenuOpen(false); }}
-          >
-            <Package size={18} /> Inventory
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('orders'); setMobileMenuOpen(false); }}
-          >
-            <FileText size={18} /> Orders
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
-          >
-            <Users size={18} /> Users
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'helpdesk' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('helpdesk'); setMobileMenuOpen(false); }}
-          >
-            <HeadphonesIcon size={18} /> Helpdesk
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'promotions' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('promotions'); setMobileMenuOpen(false); }}
-          >
-            <Image size={18} /> Banners
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'audit' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('audit'); setMobileMenuOpen(false); }}
-          >
-            <ShieldAlert size={18} /> Audit Logs
-          </div>
-          <div 
-            className={`admin-nav-item ${activeTab === 'finance' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('finance'); setMobileMenuOpen(false); }}
-            style={{ marginTop: 'auto' }}
-          >
-            <Banknote size={18} /> Finance & Payouts
-          </div>
+          
+          {canManageCatalog && (
+            <>
+              <div 
+                className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('inventory'); setMobileMenuOpen(false); }}
+              >
+                <Package size={18} /> Inventory
+              </div>
+              <div 
+                className={`admin-nav-item ${activeTab === 'cms' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('cms'); setMobileMenuOpen(false); }}
+              >
+                <LayoutTemplate size={18} /> CMS & Layout
+              </div>
+              <div 
+                className={`admin-nav-item ${activeTab === 'promotions' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('promotions'); setMobileMenuOpen(false); }}
+              >
+                <Image size={18} /> Banners
+              </div>
+            </>
+          )}
+
+          {(canManageCatalog || canManageSupport) && (
+            <div 
+              className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('orders'); setMobileMenuOpen(false); }}
+            >
+              <FileText size={18} /> Orders
+            </div>
+          )}
+
+          {canManageSupport && (
+            <>
+              <div 
+                className={`admin-nav-item ${activeTab === 'helpdesk' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('helpdesk'); setMobileMenuOpen(false); }}
+              >
+                <HeadphonesIcon size={18} /> Helpdesk
+              </div>
+              <div 
+                className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
+              >
+                <Users size={18} /> Users
+              </div>
+            </>
+          )}
+
+          {isSuperAdmin && (
+            <>
+              <div 
+                className={`admin-nav-item ${activeTab === 'coupons' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('coupons'); setMobileMenuOpen(false); }}
+              >
+                <Tag size={18} /> Marketing
+              </div>
+              <div 
+                className={`admin-nav-item ${activeTab === 'crm' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('crm'); setMobileMenuOpen(false); }}
+              >
+                <Settings size={18} /> CRM Settings
+              </div>
+              <div 
+                className={`admin-nav-item ${activeTab === 'audit' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('audit'); setMobileMenuOpen(false); }}
+              >
+                <ShieldAlert size={18} /> Audit Logs
+              </div>
+              <div 
+                className={`admin-nav-item ${activeTab === 'staff' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('staff'); setMobileMenuOpen(false); }}
+                style={{ marginTop: 'auto', color: '#6366f1' }}
+              >
+                <User size={18} /> Team & Staff
+              </div>
+            </>
+          )}
+
+          {canManageFinance && (
+            <div 
+              className={`admin-nav-item ${activeTab === 'finance' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('finance'); setMobileMenuOpen(false); }}
+              style={{ marginTop: isSuperAdmin ? '0' : 'auto' }}
+            >
+              <Banknote size={18} /> Finance & Payouts
+            </div>
+          )}
         </nav>
       </aside>
 
@@ -1048,6 +1086,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
         {/* CONDITIONAL RENDER: FINANCE TAB */}
         {activeTab === 'finance' && <AdminFinance />}
+
+        {/* CONDITIONAL RENDER: STAFF TAB */}
+        {activeTab === 'staff' && <AdminStaff />}
 
       {/* CONDITIONAL RENDER: ANALYTICS TAB */}
       {activeTab === 'analytics' && (

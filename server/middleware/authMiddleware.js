@@ -22,7 +22,7 @@ export const protect = async (req, res, next) => {
     // Fallback for legacy admin token during migration
     const adminToken = req.headers['x-admin-token'];
     if (adminToken === 'abkharido_master_admin_2024') {
-      req.user = { role: 'admin', _id: 'master_admin_legacy' };
+      req.user = { role: 'super_admin', _id: 'master_admin_legacy' };
       return next();
     }
 
@@ -31,15 +31,33 @@ export const protect = async (req, res, next) => {
 };
 
 export const admin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'super_admin')) {
     next();
   } else {
     res.status(403).json({ error: 'Not authorized as an admin' });
   }
 };
 
+// Authorize specific roles
+export const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Not logged in' });
+    }
+    if (req.user.role === 'super_admin') {
+      return next(); // Super admin has access to everything
+    }
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        error: `Role (${req.user.role}) is not allowed to access this resource` 
+      });
+    }
+    next();
+  };
+};
+
 export const seller = (req, res, next) => {
-  if (req.user && (req.user.role === 'seller' || req.user.role === 'admin')) {
+  if (req.user && (req.user.role === 'seller' || req.user.role === 'admin' || req.user.role === 'super_admin')) {
     next();
   } else {
     res.status(403).json({ error: 'Not authorized as a seller' });
