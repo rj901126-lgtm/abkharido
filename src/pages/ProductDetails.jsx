@@ -698,86 +698,106 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
           {/* Pricing Details */}
           <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0, marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
             <div className="details-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <span className="details-price" style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
-              <span className="details-original" style={{ fontSize: '14px', color: '#878787', textDecoration: 'line-through' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
-              <span className="details-discount" style={{ fontSize: '14px', fontWeight: 'bold', color: '#388e3c' }}>{currentDisplayDiscount}% off</span>
+              <span className="details-price" style={{ fontSize: '32px', fontWeight: '800', color: '#0f172a', letterSpacing: '-1px' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
+              <span className="details-original" style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
+              <span className="details-discount" style={{ fontSize: '14px', fontWeight: '800', color: '#10b981', background: '#ecfdf5', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
+            </div>
+          </div>
+
+          {/* Trust Badges */}
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <ShieldCheck size={16} color="#4f46e5" /> 100% Original
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <Zap size={16} color="#eab308" /> Fast Delivery
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <Check size={16} color="#10b981" /> Easy Returns
             </div>
           </div>
 
           {/* AbKharido Inline Action Buttons Row for Immediate Purchase */}
-          <div className="action-buttons-row" style={{ margin: '16px 0', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' }}>
-            {/* 1. Add to Cart Option */}
-            <button 
-              className="action-btn-add-cart" 
-              onClick={() => {
-                const customProduct = {
-                  ...product,
-                  price: currentDisplayPrice,
-                  originalPrice: currentDisplayOriginalPrice,
-                  selectedColor: activeColor ? activeColor.name : '',
-                  selectedVariant: activeVariant ? activeVariant.name : ''
-                };
-                addToCart(customProduct);
-              }}
-              style={{
-                border: 'none',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                color: '#ffffff',
-                height: '46px',
-                cursor: 'pointer',
-                width: '100%',
-                boxSizing: 'border-box',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '700',
-                fontSize: '14px',
-                letterSpacing: '0.3px',
-                boxShadow: '0 2px 8px rgba(79, 70, 229, 0.4)',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              🛒 Add to Cart
-            </button>
+          <div className="action-buttons-container">
+            <div className="action-buttons-row" style={{ margin: '24px 0', borderBottom: '1px solid #f0f0f0', paddingBottom: '24px' }}>
+              {/* 1. Add to Cart Option */}
+              <button 
+                className="action-btn-add-cart" 
+                onClick={() => {
+                  const customProduct = {
+                    ...product,
+                    price: currentDisplayPrice,
+                    originalPrice: currentDisplayOriginalPrice,
+                    selectedColor: activeColor ? activeColor.name : '',
+                    selectedVariant: activeVariant ? activeVariant.name : ''
+                  };
+                  addToCart(customProduct);
+                }}
+                style={{
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  height: '52px',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                  transition: 'all 0.2s ease',
+                  gap: '8px'
+                }}
+              >
+                <ShoppingCart size={18} /> Add to Cart
+              </button>
 
-            {/* 2. Yellow Buy Now Option */}
-            <button 
-              className="action-btn-buy" 
-              onClick={() => {
-                const customProduct = {
-                  ...product,
-                  price: currentDisplayPrice,
-                  originalPrice: currentDisplayOriginalPrice,
-                  selectedColor: activeColor ? activeColor.name : '',
-                  selectedVariant: activeVariant ? activeVariant.name : ''
-                };
-                addToCart(customProduct, 1);
-                onBuyNow(customProduct);
-              }}
-              style={{
-                border: 'none',
-                borderRadius: '8px',
-                backgroundColor: '#ffd203',
-                color: '#212121',
-                height: '46px',
-                cursor: 'pointer',
-                width: '100%',
-                boxSizing: 'border-box',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 'bold'
-              }}
-            >
-              {/* Desktop Text */}
-              <span className="desktop-only">Buy at ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
-              {/* Mobile Text */}
-              <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
-                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Buy now</span>
-                <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,0,0,0.6)' }}>at ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
-              </div>
-            </button>
+              {/* 2. Buy Now Option */}
+              <button 
+                className="action-btn-buy" 
+                onClick={() => {
+                  const customProduct = {
+                    ...product,
+                    price: currentDisplayPrice,
+                    originalPrice: currentDisplayOriginalPrice,
+                    selectedColor: activeColor ? activeColor.name : '',
+                    selectedVariant: activeVariant ? activeVariant.name : ''
+                  };
+                  addToCart(customProduct, 1);
+                  onBuyNow(customProduct);
+                }}
+                style={{
+                  border: 'none',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  color: '#ffffff',
+                  height: '52px',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  boxShadow: '0 4px 16px rgba(79, 70, 229, 0.25)',
+                  transition: 'all 0.2s ease',
+                  gap: '8px'
+                }}
+              >
+                {/* Desktop Text */}
+                <Zap size={18} fill="white" />
+                <span className="desktop-only">Buy Now for ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
+                {/* Mobile Text */}
+                <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '800' }}>Buy Now</span>
+                  <span style={{ fontSize: '10px', fontWeight: '600', color: 'rgba(255,255,255,0.8)' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
+                </div>
+              </button>
+            </div>
           </div>
 
           {/* AbKharido-Style Available Offers */}
@@ -894,40 +914,41 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
 
           {/* Product Description */}
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
-              Product Description
-            </h3>
-            <p style={{ fontSize: '14px', color: '#444444', marginTop: '8px', lineHeight: '1.6' }}>
-              {product.description}
-            </p>
-          </div>
+          <details className="pdp-accordion" open>
+            <summary>Product Description</summary>
+            <div className="accordion-content">
+              <p style={{ fontSize: '14px', color: '#444444', lineHeight: '1.6', margin: 0 }}>
+                {product.description}
+              </p>
+            </div>
+          </details>
 
           {/* Technical Specifications */}
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
-              Specifications
-            </h3>
-            <table className="specs-table">
-              <tbody>
-                {(product.specifications || []).map((spec, index) => (
-                  <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#fafafa' : 'transparent' }}>
-                    <td className="specs-key">{spec.key}</td>
-                    <td className="specs-value">{spec.value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <details className="pdp-accordion">
+            <summary>Specifications</summary>
+            <div className="accordion-content">
+              <table className="specs-table">
+                <tbody>
+                  {(product.specifications || []).map((spec, index) => (
+                    <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8fafc' : 'transparent' }}>
+                      <td className="specs-key">{spec.key}</td>
+                      <td className="specs-value">{spec.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
 
           {/* Ratings & Reviews section */}
-          <div style={{ marginTop: '24px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>Ratings & Reviews</span>
-              <span className="rating-tag" style={{ fontSize: '13px', padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+          <details className="pdp-accordion" id="reviews-section">
+            <summary style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              Ratings & Reviews
+              <span className="rating-tag" style={{ fontSize: '12px', padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: '2px', fontWeight: 'bold' }}>
                 {product.rating} <span style={{ color: 'white' }}>★</span>
               </span>
-            </h3>
+            </summary>
+            <div className="accordion-content">
             
             {/* Visual Bar Chart grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px', margin: '16px 0', alignItems: 'center', backgroundColor: '#fafafa', padding: '16px', borderRadius: '4px' }}>
@@ -1122,7 +1143,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 </form>
               )}
             </div>
-          </div>
+            </div>
+          </details>
 
           {/* Share & Earn Panel (Affiliate/Referral) */}
           <div className="share-earn-box" style={{ marginTop: '24px' }}>
@@ -1210,47 +1232,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
       </div>
 
-      {/* Sticky Mobile Cart Bar */}
-      <div className="mobile-sticky-cart-bar">
-        <div className="mobile-sticky-cart-price">
-          <span className="price">₹{product.price.toLocaleString('en-IN')}</span>
-          {product.mrp > product.price && (
-            <span className="mrp">₹{product.mrp.toLocaleString('en-IN')}</span>
-          )}
-        </div>
-        <div className="mobile-sticky-cart-actions">
-          <button 
-            className="mobile-sticky-cart-btn mobile-sticky-cart-btn-add" 
-            onClick={() => {
-              const customProduct = {
-                ...product,
-                price: currentDisplayPrice,
-                originalPrice: currentDisplayOriginalPrice,
-                selectedColor: activeColor ? activeColor.name : '',
-                selectedVariant: activeVariant ? activeVariant.name : ''
-              };
-              addToCart(customProduct);
-            }}
-          >
-            <ShoppingCart size={18} /> Add
-          </button>
-          <button 
-            className="mobile-sticky-cart-btn mobile-sticky-cart-btn-buy" 
-            onClick={() => {
-              const customProduct = {
-                ...product,
-                price: currentDisplayPrice,
-                originalPrice: currentDisplayOriginalPrice,
-                selectedColor: activeColor ? activeColor.name : '',
-                selectedVariant: activeVariant ? activeVariant.name : ''
-              };
-              onBuyNow(customProduct);
-            }}
-          >
-            <Zap size={18} /> Buy
-          </button>
-        </div>
-      </div>
+
     </div>
   );
 };
