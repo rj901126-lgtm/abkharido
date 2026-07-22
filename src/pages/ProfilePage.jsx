@@ -148,11 +148,18 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
           </div>
           <div className="profile-header-info">
             <h2 className="profile-header-name">
-              {currentUser.firstName || currentUser.lastName ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() : currentUser.username}
+              {(currentUser.firstName || currentUser.lastName)
+                ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
+                : currentUser.fullName || 'AbKharido User'}
             </h2>
             <p className="profile-header-phone">
-              {currentUser.phone || currentUser.email || 'No contact provided'}
+              {currentUser.email || 'No email provided'}
             </p>
+            {currentUser.phone && (
+              <p className="profile-header-phone" style={{ marginTop: '2px', opacity: 0.8, fontSize: '13px' }}>
+                📱 {currentUser.phone}
+              </p>
+            )}
           </div>
         </div>
       </div>
