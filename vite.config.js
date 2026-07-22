@@ -10,6 +10,11 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false
+      },
+      '/__/auth': {
+        target: 'https://abkharido-auth.firebaseapp.com',
+        changeOrigin: true,
+        secure: true
       }
     }
   },
