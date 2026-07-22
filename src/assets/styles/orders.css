@@ -1,0 +1,310 @@
+/* Orders & Tracking Styles for 100-Crore Enterprise AbKharido */
+
+.orders-container {
+  padding: 24px 20px;
+  max-width: 850px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orders-header {
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.order-card {
+  padding: 24px;
+  border: 1px solid rgba(0,0,0,0.03);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+  background-color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.order-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(79,70,229,0.1);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.order-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-meta-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.order-meta-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-status-banner {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid #f1f5f9;
+}
+
+.order-status-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.order-status-text {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.order-delivery-eta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-left: auto;
+  font-weight: 500;
+}
+
+/* Timeline specific styles */
+.timeline-container {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin: 10px 0;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 14px;
+  left: 5%;
+  right: 5%;
+  height: 4px;
+  background-color: #e2e8f0;
+  z-index: 1;
+  border-radius: 2px;
+}
+
+.timeline-line-progress {
+  position: absolute;
+  top: 14px;
+  left: 5%;
+  height: 4px;
+  background-color: var(--success);
+  z-index: 2;
+  transition: width 0.5s ease;
+  border-radius: 2px;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+  width: 25%;
+}
+
+.timeline-node {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 4px #f8fafc;
+}
+
+.timeline-node.completed {
+  background-color: var(--success);
+}
+
+.timeline-node.active {
+  background-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+.timeline-node.cancelled {
+  background-color: var(--error);
+}
+
+.timeline-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.timeline-label.completed {
+  color: var(--success);
+}
+.timeline-label.active {
+  color: var(--primary-color);
+}
+.timeline-label.cancelled {
+  color: var(--error);
+}
+
+/* Order Item Row */
+.order-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.order-item-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.order-item-image {
+  width: 80px;
+  height: 80px;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.order-item-image img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.order-item-info {
+  flex: 1;
+}
+
+.order-item-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: -webkit-box;
+  WebkitLineClamp: 2;
+  WebkitBoxOrient: 'vertical';
+  overflow: hidden;
+}
+
+.order-item-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.order-item-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 6px;
+}
+
+.order-footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Mobile Overrides (100-Crore Enterprise Touch standards) */
+@media (max-width: 768px) {
+  .orders-container {
+    padding: 16px 12px;
+  }
+  
+  .order-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .order-card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .order-meta-item {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f8fafc;
+    padding-bottom: 8px;
+  }
+  
+  .timeline-node {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .timeline-label {
+    font-size: 10px;
+  }
+
+  .order-delivery-eta {
+    display: none; /* Hide on mobile to save space */
+  }
+
+  .order-footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .order-footer-actions > div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .order-footer-actions .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}

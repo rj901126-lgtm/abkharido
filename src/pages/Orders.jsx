@@ -62,32 +62,32 @@ const Orders = ({ onNavigate }) => {
   }
 
   return (
-    <div className="container animate-fade-in" style={{ padding: '24px 0', maxWidth: '850px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <h1 style={{ fontSize: '22px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-light)', paddingBottom: '12px' }}>
+    <div className="orders-container animate-fade-in">
+      <h1 className="orders-header">
         <History size={24} color="var(--primary-color)" /> Order History
       </h1>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {orders.map(order => (
-          <div key={order.id} className="card" style={{ padding: '24px', border: '1px solid rgba(0,0,0,0.03)', borderRadius: '24px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', backgroundColor: '#ffffff', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(79,70,229,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.04)'; }}>
+          <div key={order.id} className="order-card">
             
             {/* Order Card Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-              <div>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>ORDER PLACED</span>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={14} /> {order.date}</div>
+            <div className="order-card-header">
+              <div className="order-meta-item">
+                <span className="order-meta-label">ORDER PLACED</span>
+                <div className="order-meta-value"><Calendar size={14} /> {order.date}</div>
               </div>
-              <div>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>TOTAL AMOUNT</span>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-primary)' }}>₹{order.finalAmount.toLocaleString('en-IN')}</div>
+              <div className="order-meta-item">
+                <span className="order-meta-label">TOTAL AMOUNT</span>
+                <div className="order-meta-value">₹{order.finalAmount.toLocaleString('en-IN')}</div>
               </div>
-              <div>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>SHIP TO</span>
-                <div style={{ fontSize: '13px', fontWeight: '600' }} title={order.shippingAddress.streetAddress}>{order.shippingAddress.name}</div>
+              <div className="order-meta-item">
+                <span className="order-meta-label">SHIP TO</span>
+                <div className="order-meta-value" title={order.shippingAddress.streetAddress}>{order.shippingAddress.name}</div>
               </div>
-              <div>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>ORDER #</span>
-                <div style={{ fontSize: '13px', fontWeight: '600' }}><code>{order.id}</code></div>
+              <div className="order-meta-item">
+                <span className="order-meta-label">ORDER #</span>
+                <div className="order-meta-value"><code>{order.id}</code></div>
               </div>
             </div>
 
@@ -142,15 +142,15 @@ const Orders = ({ onNavigate }) => {
               }
 
               return (
-                <div style={{ backgroundColor: '#f9f9f9', padding: '16px', borderRadius: '4px', marginBottom: '20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #eaeaea', paddingBottom: '12px', marginBottom: '12px' }}>
+                <div className="order-status-banner">
+                  <div className="order-status-header">
                     <Truck size={16} color="var(--primary-color)" />
-                    <span style={{ fontSize: '13px', fontWeight: '600' }}>Status:</span>
-                    <span className={`badge ${status === 'CANCELLED' ? 'badge-error' : 'badge-info'}`} style={{ fontSize: '11px', backgroundColor: status === 'CANCELLED' ? '#d32f2f' : '#2874f0', color: 'white', padding: '2px 6px', borderRadius: '2px' }}>
+                    <span className="order-status-text">Status:</span>
+                    <span className={`badge ${status === 'CANCELLED' ? 'badge-error' : 'badge-info'}`} style={{ backgroundColor: status === 'CANCELLED' ? '#d32f2f' : '#2874f0', color: 'white' }}>
                       {status.toUpperCase()}
                     </span>
                     {status !== 'CANCELLED' && (
-                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: 'auto' }}>
+                      <span className="order-delivery-eta">
                         {status === 'Delivered' ? 'Delivered successfully' : 'Estimated Delivery: Tomorrow'}
                       </span>
                     )}
@@ -162,25 +162,25 @@ const Orders = ({ onNavigate }) => {
                     <div className="timeline-line-progress" style={{ width: width, backgroundColor: status === 'CANCELLED' ? '#d32f2f' : 'var(--success)' }}></div>
                     
                     <div className="timeline-step">
-                      <div className={`timeline-node ${orderedClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: orderedClass === 'cancelled' ? '#d32f2f' : (orderedClass === 'completed' ? 'var(--success)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className={`timeline-node ${orderedClass}`}>
                         {orderedIcon}
                       </div>
                       <span className={`timeline-label ${orderedClass}`}>{status === 'CANCELLED' ? 'Cancelled' : 'Ordered'}</span>
                     </div>
                     <div className="timeline-step">
-                      <div className={`timeline-node ${packedClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: packedClass === 'completed' ? 'var(--success)' : (packedClass === 'active' ? 'var(--primary-color)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className={`timeline-node ${packedClass}`}>
                         {packedIcon}
                       </div>
                       <span className={`timeline-label ${packedClass}`}>Packed</span>
                     </div>
                     <div className="timeline-step">
-                      <div className={`timeline-node ${transitClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: transitClass === 'completed' ? 'var(--success)' : (transitClass === 'active' ? 'var(--primary-color)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className={`timeline-node ${transitClass}`}>
                         {transitIcon}
                       </div>
                       <span className={`timeline-label ${transitClass}`}>In Transit</span>
                     </div>
                     <div className="timeline-step">
-                      <div className={`timeline-node ${deliveredClass}`} style={{ fontSize: '11px', color: 'white', fontWeight: 'bold', backgroundColor: deliveredClass === 'completed' ? 'var(--success)' : (deliveredClass === 'active' ? 'var(--primary-color)' : '#eaeaea'), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className={`timeline-node ${deliveredClass}`}>
                         {deliveredIcon}
                       </div>
                       <span className={`timeline-label ${deliveredClass}`}>Delivered</span>
@@ -368,26 +368,25 @@ const Orders = ({ onNavigate }) => {
             })()}
 
             {/* Order Items */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px', marginBottom: '16px' }}>
+            <div className="order-item-list">
               {order.items.map(item => { 
                 const prod = item.product; 
                 return (
-                <div key={prod.id} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <div style={{ width: '80px', height: '80px', backgroundColor: '#f8fafc', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
-                    <img src={prod.image} alt={prod.name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+                <div key={prod.id} className="order-item-row">
+                  <div className="order-item-image">
+                    <img src={prod.image} alt={prod.name} />
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>{prod.name}</h4>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                  <div className="order-item-info">
+                    <h4 className="order-item-title">{prod.name}</h4>
+                    <div className="order-item-meta">
                       Qty: {item.quantity} {item.selectedColor ? `| ${item.selectedColor}` : ''} {item.selectedVariant ? `| ${item.selectedVariant}` : ''}
                     </div>
-                    <div style={{ fontSize: '14px', fontWeight: '800', color: 'var(--primary-color)', marginTop: '6px' }}>
+                    <div className="order-item-price">
                       ₹{(prod.price || 0).toLocaleString('en-IN')}
                     </div>
                   </div>
                   <button 
                     className="btn btn-outline btn-sm" 
-                    style={{ fontSize: '12px', padding: '4px 10px' }}
                     onClick={() => {
                       const productToAdd = { ...prod, selectedColor: item.selectedColor, selectedVariant: item.selectedVariant };
                       addToCart(productToAdd, 1);
@@ -401,7 +400,7 @@ const Orders = ({ onNavigate }) => {
             </div>
 
             {/* Bottom Meta & Referral info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <div className="order-footer-actions">
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
                 <CreditCard size={14} />
                 <span>Payment Mode: <strong>{order.paymentMethod}</strong></span>
@@ -410,21 +409,13 @@ const Orders = ({ onNavigate }) => {
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {order.status !== 'CANCELLED' && (
                   <button
                     className="btn btn-outline"
                     style={{
                       borderColor: 'var(--primary-color)',
                       color: 'var(--primary-color)',
-                      fontSize: '12px',
-                      padding: '6px 14px',
-                      borderRadius: '4px',
-                      fontWeight: 'bold',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      cursor: 'pointer',
                       backgroundColor: activeTrackingId === order.id ? '#f0f4ff' : 'transparent'
                     }}
                     onClick={() => setActiveTrackingId(activeTrackingId === order.id ? null : order.id)}
@@ -439,7 +430,7 @@ const Orders = ({ onNavigate }) => {
                 {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'CANCELLED' && (
                   <button
                     className="btn btn-outline"
-                    style={{ borderColor: 'var(--error)', color: 'var(--error)', fontSize: '12px', padding: '6px 14px', borderRadius: '4px', fontWeight: 'bold' }}
+                    style={{ borderColor: 'var(--error)', color: 'var(--error)' }}
                     onClick={() => {
                       if (window.confirm('Are you sure you want to cancel this order?')) {
                         cancelOrder(order.id);
@@ -452,7 +443,6 @@ const Orders = ({ onNavigate }) => {
                 
                 <button
                   className="btn btn-primary"
-                  style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '4px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}
                   onClick={() => handleDownloadInvoice(order.id)}
                   disabled={downloadingOrderId === order.id}
                 >
