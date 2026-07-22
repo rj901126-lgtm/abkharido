@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "bullmq": "^5.80.10",
     "canvas-confetti": "^1.9.4",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.6",

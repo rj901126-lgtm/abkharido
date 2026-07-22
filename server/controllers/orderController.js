@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import { sendInvoiceEmail } from '../utils/emailService.js';
+import { addOrderToQueue } from '../utils/queue.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -40,6 +41,9 @@ export const addOrderItems = async (req, res, next) => {
         // Send email asynchronously without blocking the response
         sendInvoiceEmail(createdOrder, user).catch(err => console.error("Failed to send invoice:", err));
       }
+
+      // Add to enterprise background queue (Phase 2)
+      await addOrderToQueue(createdOrder._id);
 
       res.status(201).json(createdOrder);
     }

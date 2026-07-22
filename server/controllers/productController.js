@@ -35,16 +35,41 @@ export const getProducts = async (req, res, next) => {
 
     let filter = {};
     if (category && category !== 'all') filter.category = category;
+    
+    let sortOptions = {};
+    let projection = {};
+    
     if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { id: { $regex: search, $options: 'i' } }
-      ];
+      // Try using Advanced Search Engine ($text index)
+      filter.$text = { $search: search };
+      projection = { score: { $meta: 'textScore' } };
+      sortOptions = { score: { $meta: 'textScore' } };
     }
 
-    const total = await Product.countDocuments(filter);
+    let total = 0;
+    try {
+      total = await Product.countDocuments(filter);
+    } catch (err) {
+      // Fallback to regex if text index is missing or building
+      if (search) {
+        delete filter.$text;
+        filter.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { id: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ];
+        projection = {};
+        sortOptions = {};
+        total = await Product.countDocuments(filter);
+      }
+    }
     
-    let query = Product.find(filter);
+    let query = Product.find(filter, projection);
+    
+    if (Object.keys(sortOptions).length > 0) {
+      query = query.sort(sortOptions);
+    }
+    
     if (Number(limit) > 0) {
       const skip = (Number(page) - 1) * Number(limit);
       query = query.skip(skip).limit(Number(limit));

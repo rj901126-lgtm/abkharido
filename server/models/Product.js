@@ -58,11 +58,29 @@ const productSchema = new mongoose.Schema({
   sellerId: { type: String, ref: 'User' },
   
   // Nested structured data
+  highlights: [{ type: String }],
+  features: [{ type: String }],
   specs: [specSchema],
   colorModels: [colorModelSchema]
-}, {
-  timestamps: true
+}, { 
+  timestamps: true 
 });
 
-const Product = mongoose.model('Product', productSchema);
+// Phase 3: Advanced Search Engine Text Index
+productSchema.index({
+  name: 'text',
+  category: 'text',
+  description: 'text',
+  'colorModels.name': 'text'
+}, {
+  weights: {
+    name: 10,
+    category: 5,
+    'colorModels.name': 3,
+    description: 1
+  },
+  name: 'AdvancedProductSearchIndex'
+});
+
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 export default Product;
