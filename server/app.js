@@ -23,6 +23,7 @@ import userRoutes from './routes/userRoutes.js';
 import sellerRoutes from './routes/sellerRoutes.js';
 import legacyRoutes from './routes/legacyRoutes.js';
 import financeRoutes from './routes/financeRoutes.js';
+import ticketRoutes from './routes/ticketRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -88,6 +89,7 @@ app.use('/api/cms', cmsRoutes);
 app.use('/api/audit-logs', auditRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/finance', financeRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 // --- LEGACY ROUTES WILL BE MOUNTED HERE BY api/index.js ---
 app.use('/api', legacyRoutes);

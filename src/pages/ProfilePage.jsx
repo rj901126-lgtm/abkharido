@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import CustomerTickets from '../components/CustomerTickets';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist } = useApp();
@@ -359,6 +360,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             {isUpdating ? 'SAVING CHANGES...' : 'SAVE & UPDATE DETAILS'}
           </button>
         </form>
+
+        {/* Helpdesk / Customer Tickets Section */}
+        <div style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', marginBottom: '24px' }}>
+          <CustomerTickets />
+        </div>
 
         {/* Wishlist Section */}
         <div id="wishlist-section" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>

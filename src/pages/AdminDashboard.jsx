@@ -18,7 +18,8 @@ import {
   Store,
   TrendingUp,
   LayoutTemplate,
-  Banknote
+  Banknote,
+  HeadphonesIcon
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';
@@ -996,6 +997,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             <Users size={18} /> Users
           </div>
           <div 
+            className={`admin-nav-item ${activeTab === 'helpdesk' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('helpdesk'); setMobileMenuOpen(false); }}
+          >
+            <HeadphonesIcon size={18} /> Helpdesk
+          </div>
+          <div 
             className={`admin-nav-item ${activeTab === 'promotions' ? 'active' : ''}`}
             onClick={() => { setActiveTab('promotions'); setMobileMenuOpen(false); }}
           >
@@ -1035,6 +1042,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         </header>
 
         <div className="admin-content-inner">
+
+        {/* CONDITIONAL RENDER: HELPDESK TAB */}
+        {activeTab === 'helpdesk' && <AdminHelpdesk />}
 
         {/* CONDITIONAL RENDER: FINANCE TAB */}
         {activeTab === 'finance' && <AdminFinance />}
