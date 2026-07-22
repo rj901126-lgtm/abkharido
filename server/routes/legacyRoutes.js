@@ -67,6 +67,17 @@ router.get('/migrate-data', async (req, res) => {
   try {
     const mongooseModule = await import('mongoose');
     const mongoose = mongooseModule.default;
+    
+    // Force connect if disconnected
+    if (mongoose.connection.readyState === 0) {
+        console.log("Mongoose disconnected, attempting to connect within route...");
+        await mongoose.connect(process.env.MONGODB_URI, {
+            maxPoolSize: 10,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
+    }
+
     if (mongoose.connection.readyState !== 1) {
        const uri = process.env.MONGODB_URI || 'UNDEFINED';
        const pwdMatch = uri.match(/:([^:@]+)@/);
@@ -74,11 +85,11 @@ router.get('/migrate-data', async (req, res) => {
        const pwdHint = pwd.length > 2 ? `${pwd[0]}...${pwd[pwd.length - 1]} (Length: ${pwd.length})` : 'none';
        const maskedUri = uri.replace(/:([^:@]+)@/, ':***@');
        return res.status(500).json({ 
-           error: 'Database is not connected!', 
+           error: 'Database is not connected after forced attempt!', 
            readyState: mongoose.connection.readyState,
            maskedUri: maskedUri,
            pwdHint: pwdHint,
-           hint: 'This means your username, password, or cluster link is wrong in Vercel MONGODB_URI. Make sure you removed the < > symbols from the password in the link.'
+           hint: 'Your Username/Password/IP is definitely wrong or blocked.'
        });
     }
 
