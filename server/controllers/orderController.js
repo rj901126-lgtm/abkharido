@@ -138,3 +138,38 @@ export const sendOrderInvoiceEmail = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Bulk Export Orders to CSV (Delhivery / BlueDart format)
+// @route   POST /api/orders/bulk-export
+// @access  Private/Admin
+export const exportOrdersBulk = async (req, res, next) => {
+  try {
+    const { orderIds } = req.body;
+    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+      res.status(400);
+      throw new Error('Please provide an array of orderIds');
+    }
+
+    const orders = await Order.find({ _id: { $in: orderIds } }).populate('user', 'username email');
+    
+    // Create CSV Header
+    let csvStr = "Order_ID,Customer_Name,Customer_Email,Address,City,PostalCode,Country,Total_Price,Payment_Method,Status\n";
+
+    orders.forEach(o => {
+      const addr = `${o.shippingAddress.address}`.replace(/,/g, ' '); // Remove commas for CSV safety
+      const city = `${o.shippingAddress.city}`.replace(/,/g, '');
+      const zip = `${o.shippingAddress.postalCode}`;
+      const country = `${o.shippingAddress.country}`.replace(/,/g, '');
+      const name = o.user ? o.user.username : 'Guest';
+      const email = o.user ? o.user.email : 'N/A';
+      
+      csvStr += `${o._id},${name},${email},${addr},${city},${zip},${country},${o.totalPrice},${o.paymentMethod},${o.isPaid ? 'Paid' : 'Pending'}\n`;
+    });
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('bulk_shipping_manifest.csv');
+    return res.send(csvStr);
+  } catch (error) {
+    next(error);
+  }
+};

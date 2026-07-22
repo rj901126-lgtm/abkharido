@@ -11,8 +11,13 @@ const AdminAnalytics = () => {
     totalUsers: 0,
     totalProducts: 0,
     totalOrders: 0,
-    totalRevenue: 0
+    totalProducts: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    clv: 0,
+    retentionRate: 0
   });
+  const [predictions, setPredictions] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +36,13 @@ const AdminAnalytics = () => {
         setKpis(data.kpis);
         // Reverse salesData so it goes from oldest to newest (left to right on the chart)
         setSalesData(data.salesData.reverse());
+      }
+      
+      const predRes = await fetch('/api/admin/analytics/inventory-predict', {
+        headers: { 'x-admin-token': token }
+      });
+      if (predRes.ok) {
+        setPredictions(await predRes.json());
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
@@ -52,8 +64,28 @@ const AdminAnalytics = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
+      {predictions.length > 0 && (
+        <div style={{ backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
+          <h3 style={{ color: '#be123c', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 16px 0' }}>
+            <span style={{ fontSize: '1.2rem' }}>⚠️</span> Predictive Inventory Alerts (High Risk)
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {predictions.map(p => (
+              <div key={p.productId} style={{ display: 'flex', justifyContent: 'space-between', background: 'white', padding: '12px', borderRadius: '8px' }}>
+                <strong style={{ color: '#334155' }}>{p.name}</strong>
+                <span style={{ color: p.daysUntilOos <= 3 ? '#e11d48' : '#d97706', fontWeight: 'bold' }}>
+                  {p.daysUntilOos === 0 ? 'Out of Stock!' : `Runs out in ~${p.daysUntilOos} days`} 
+                  <span style={{ fontWeight: 'normal', color: '#64748b', marginLeft: '8px', fontSize: '12px' }}>(Velocity: {p.velocity}/day)</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+        
         <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
           <div style={{ padding: '14px', background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', borderRadius: '12px', color: '#0284c7', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.15)' }}>
             <DollarSign size={26} strokeWidth={2.5} />
@@ -91,6 +123,26 @@ const AdminAnalytics = () => {
           <div>
             <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Products</p>
             <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>{kpis.totalProducts}</h3>
+          </div>
+        </div>
+
+        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+          <div style={{ padding: '14px', background: 'linear-gradient(135deg, #fdf2f8 0%, #fbcfe8 100%)', borderRadius: '12px', color: '#db2777', boxShadow: '0 4px 12px rgba(219, 39, 119, 0.15)' }}>
+            <DollarSign size={26} strokeWidth={2.5} />
+          </div>
+          <div>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CLV (Avg Rev/User)</p>
+            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>₹{kpis.clv?.toLocaleString() || '0'}</h3>
+          </div>
+        </div>
+
+        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+          <div style={{ padding: '14px', background: 'linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%)', borderRadius: '12px', color: '#65a30d', boxShadow: '0 4px 12px rgba(101, 163, 13, 0.15)' }}>
+            <Users size={26} strokeWidth={2.5} />
+          </div>
+          <div>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Retention Rate</p>
+            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>{kpis.retentionRate || '0'}%</h3>
           </div>
         </div>
       </div>

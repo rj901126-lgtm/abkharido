@@ -5,6 +5,7 @@ import {
   getMyOrders,
   getOrders,
   sendOrderInvoiceEmail,
+  exportOrdersBulk
 } from '../controllers/orderController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -15,6 +16,8 @@ router.route('/')
   .get(protect, admin, getOrders);
 
 router.route('/myorders').get(protect, getMyOrders);
+
+router.route('/bulk-export').post(protect, admin, exportOrdersBulk);
 
 router.route('/:id').get(protect, getOrderById);
 

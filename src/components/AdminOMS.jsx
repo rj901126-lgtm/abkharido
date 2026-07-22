@@ -88,6 +88,43 @@ const AdminOMS = () => {
     }
   };
 
+  const handleBulkExport = async () => {
+    if (selectedOrders.length === 0) {
+      showToast('Select at least one order to export', 'error');
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token');
+      const res = await fetch('/api/orders/bulk-export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
+        body: JSON.stringify({ orderIds: selectedOrders })
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `shipping_manifest_${new Date().getTime()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast(`Exported ${selectedOrders.length} orders successfully`, 'success');
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to export orders', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Network error during export', 'error');
+    }
+  };
+
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) return;
     
@@ -187,6 +224,16 @@ const AdminOMS = () => {
             <option value="Cancelled">Cancelled</option>
           </select>
           <button className="btn btn-primary btn-sm" onClick={handleBulkUpdate}>Apply</button>
+          
+          <div style={{ width: '1px', height: '24px', background: '#ccc', margin: '0 8px' }}></div>
+          
+          <button 
+            className="btn btn-outline btn-sm" 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', borderColor: '#4f46e5', color: '#4f46e5' }}
+            onClick={handleBulkExport}
+          >
+            <Printer size={14} /> Export Labels
+          </button>
         </div>
       </div>
 
