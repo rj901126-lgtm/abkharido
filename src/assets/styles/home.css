@@ -169,6 +169,24 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.deals-container .product-card {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05);
+  background: white; /* Make sure the card itself is white */
+}
+
+@media (max-width: 600px) {
+  .deals-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .deals-title-area {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
 .deals-grid {
   display: flex;
   gap: 16px;
@@ -187,7 +205,7 @@
 }
 
 /* Affiliate Promo Panel */
-.affiliate-promo-panel {
+.premium-affiliate-banner {
   background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
   border-radius: var(--radius-sm);
   padding: 32px;
@@ -200,7 +218,7 @@
   overflow: hidden;
 }
 
-.affiliate-promo-panel::before {
+.premium-affiliate-banner::before {
   content: '';
   position: absolute;
   top: -50px;
@@ -288,7 +306,7 @@
   .deals-title {
     font-size: 18px !important;
   }
-  .affiliate-promo-panel {
+  .premium-affiliate-banner {
     flex-direction: column;
     align-items: stretch;
     text-align: center;

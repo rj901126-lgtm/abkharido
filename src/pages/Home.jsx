@@ -242,8 +242,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
                       <span className="timer-box">{timerString}</span>
                     </div>
                   </div>
-                  <button className="btn btn-primary btn-outline btn-sm" onClick={() => onSelectCategory('all')}>
-                    View All
+                  <button className="btn-glass-light" onClick={() => onSelectCategory('all')}>
+                    View All <ArrowRight size={14} />
                   </button>
                 </div>
                 <div className="home-carousel-row">
@@ -262,8 +262,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
               <section key={comp.id} className="deals-container">
                 <div className="deals-header">
                   <span className="deals-title">{comp.title || 'Category'}</span>
-                  <button className="btn btn-outline btn-sm" onClick={() => onSelectCategory(comp.data)}>
-                    Explore
+                  <button className="btn-glass-light" onClick={() => onSelectCategory(comp.data)}>
+                    Explore <ArrowRight size={14} />
                   </button>
                 </div>
                 <div className="home-carousel-row">
@@ -307,8 +307,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
               <p style={{ margin: 0, fontSize: '16px', color: '#e0e7ff', lineHeight: '1.5' }}>Join the exclusive AbKharido Creator Program. Share links and earn up to <strong style={{ color: '#fef08a' }}>7% instant cash</strong> on every sale you refer.</p>
             </div>
           </div>
-          <button className="premium-affiliate-btn">
-            Learn More
+          <button className="btn-glass-light" style={{ padding: '12px 24px', fontSize: '15px' }}>
+            Learn More <ArrowRight size={16} />
           </button>
         </div>
       </section>
