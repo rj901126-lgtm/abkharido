@@ -96,7 +96,7 @@ const Login = ({ onNavigate }) => {
         try {
           if (!window.recaptchaVerifier) {
             window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
-              size: 'invisible',
+              size: 'normal',
               callback: () => {}
             });
           }
