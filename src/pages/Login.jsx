@@ -111,7 +111,17 @@ const Login = ({ onNavigate }) => {
           try { window.recaptchaVerifier.clear(); } catch (_) {}
           window.recaptchaVerifier = null;
         }
-        console.warn('Firebase SMS failed, using backend OTP:', fbErr.code);
+        console.error('Firebase SMS error:', fbErr.code, fbErr.message);
+        // Show specific error to help diagnose
+        const fbErrMsg = {
+          'auth/unauthorized-domain': 'Domain not authorized in Firebase. Add domain in Firebase Console → Auth → Settings.',
+          'auth/network-request-failed': 'Network blocked Firebase (try disabling adblocker or use incognito).',
+          'auth/too-many-requests': 'Too many OTP requests. Wait a few minutes.',
+          'auth/quota-exceeded': 'Firebase SMS quota exceeded for today.',
+          'auth/captcha-check-failed': 'reCAPTCHA verification failed. Refresh and try again.',
+          'auth/invalid-phone-number': 'Invalid phone number format.',
+        }[fbErr.code] || `Firebase error: ${fbErr.code}`;
+        showToast(`⚠️ ${fbErrMsg} — Using backup OTP.`, 'error');
         // ── Auto-fallback to backend OTP ──
         await triggerBackendOtp();
       }
