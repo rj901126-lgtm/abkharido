@@ -2,7 +2,7 @@
 
 .orders-container {
   padding: 24px 20px;
-  max-width: 850px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -10,29 +10,50 @@
 }
 
 .orders-header {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 900;
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 16px;
-  color: var(--text-primary);
+  padding-bottom: 20px;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  border-bottom: 2px solid #f1f5f9;
 }
 
 .order-card {
   padding: 24px;
-  border: 1px solid rgba(0,0,0,0.03);
+  border: 1px solid #f1f5f9;
   border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04);
   background-color: #ffffff;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .order-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(79,70,229,0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(79,70,229,0.08);
+  border-color: rgba(79,70,229,0.1);
 }
+
+/* Color-coded status badges */
+.order-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.order-status-badge.delivered  { background: #ecfdf5; color: #059669; }
+.order-status-badge.processing { background: #eff6ff; color: #2563eb; }
+.order-status-badge.pending    { background: #fff7ed; color: #ea580c; }
+.order-status-badge.cancelled  { background: #fef2f2; color: #dc2626; }
+.order-status-badge.shipped    { background: #f0fdf4; color: #16a34a; }
 
 .order-card-header {
   display: flex;
