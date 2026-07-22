@@ -24,6 +24,7 @@ const connectDB = async () => {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
+      family: 4, // Force IPv4 to avoid Vercel Node 18+ DNS fallback issues
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
