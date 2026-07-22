@@ -18,13 +18,37 @@ import couponRoutes from './routes/couponRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import sellerRoutes from './routes/sellerRoutes.js';
 import legacyRoutes from './routes/legacyRoutes.js';
+import { connectDB } from './config/db.js';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
-// Connect to MongoDB
-connectDB().catch(err => console.error('DB Connection Failed', err));
-
 const app = express();
+
+// Ensure DB is connected before processing any requests in Vercel Serverless Environment
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1 && mongoose.connection.readyState !== 2) {
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error('DB Connection Failed', err);
+    }
+  } else if (mongoose.connection.readyState === 2) {
+    // If it's currently connecting, wait for it
+    await new Promise(resolve => {
+      const checkInterval = setInterval(() => {
+        if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 0) {
+          clearInterval(checkInterval);
+          resolve();
+        }
+      }, 100);
+    });
+  }
+  next();
+});
+
+// Trust proxy for rate limiting behind Vercel/Load Balancers
+app.set('trust proxy', 1);
 
 // Security Middleware
 app.use(helmet());
