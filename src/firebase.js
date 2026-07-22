@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBelERlA93mJok7ibKf6AMEYTROS4yNFKY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "www.abkharido.com",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "abkharido-auth.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "abkharido-auth",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "abkharido-auth.firebasestorage.app",
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "765362198864",
