@@ -28,7 +28,30 @@ const Login = ({ onNavigate }) => {
     } else {
       clearInterval(interval);
     }
-    return () => clearInterval(interval);
+
+    // Web OTP API for seamless Android auto-fill
+    let ac;
+    if (showOtpScreen && 'OTPCredential' in window) {
+      ac = new AbortController();
+      navigator.credentials.get({
+        otp: { transport: ['sms'] },
+        signal: ac.signal
+      }).then(otp => {
+        if (otp && otp.code) {
+           const chars = otp.code.replace(/\D/g, '').split('').slice(0, 6);
+           const newOtp = [...chars];
+           while(newOtp.length < 6) newOtp.push('');
+           setOtpCode(newOtp);
+        }
+      }).catch(err => {
+        console.log('Web OTP API Error:', err);
+      });
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (ac) ac.abort();
+    };
   }, [showOtpScreen, timer]);
 
   const validatePhone = () => {
@@ -307,9 +330,9 @@ const Login = ({ onNavigate }) => {
                     <input
                       key={index}
                       type="text"
-                      name="one-time-code"
+                      name={index === 0 ? "one-time-code" : `otp-${index}`}
                       maxLength="6"
-                      autoComplete="one-time-code"
+                      autoComplete={index === 0 ? "one-time-code" : "off"}
                       value={data}
                       onChange={(e) => handleOtpChange(e.target, index)}
                       onKeyDown={(e) => handleOtpKeyDown(e, index)}
