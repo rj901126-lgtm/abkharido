@@ -942,7 +942,55 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
 
     resetForm();
-  };;
+  };
+
+  // --- ADVANCED CRM HANDLERS ---
+  const handleOpenWalletModal = (user) => {
+    setActiveWalletModal(user);
+    setWalletAmount('');
+    setWalletNote('');
+    setWalletType('cash');
+    setWalletAction('add');
+  };
+
+  const handleProcessWalletTransaction = async (e) => {
+    e.preventDefault();
+    if (!activeWalletModal || !walletAmount || Number(walletAmount) <= 0) return;
+    
+    // Simulating API Call
+    showToast(`Successfully ${walletAction === 'add' ? 'added' : 'deducted'} ${walletType === 'cash' ? '₹' : '🪙'}${walletAmount} ${walletAction === 'add' ? 'to' : 'from'} ${activeWalletModal.email}'s wallet.`, 'success');
+    
+    // Simulate Email to Customer
+    setTimeout(() => {
+      showToast(`Automated Email sent to ${activeWalletModal.email} regarding wallet update.`, 'info');
+    }, 1500);
+
+    setActiveWalletModal(null);
+  };
+
+  const exportCustomersCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8,Username,Email,Phone,Wallet Cash,Wallet Coins\n" + 
+      adminUsers.map(u => `${u.username},${u.email || ''},${u.phone || ''},${u.walletCash || 0},${u.walletCoins || 0}`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "customers_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportMerchantsCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8,Shop Name,Email,Status,Wallet Cash\n" + 
+      adminSellers.map(s => `${s.shopName},${s.email},${s.sellerStatus},${s.walletCash || 0}`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "merchants_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (!authorized) {
     return (
