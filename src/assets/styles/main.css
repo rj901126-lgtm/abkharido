@@ -92,6 +92,13 @@ img {
   padding-right: 24px;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
 /* Common Layout Components */
 .card {
   background-color: var(--bg-card);
@@ -106,6 +113,14 @@ img {
   box-shadow: var(--shadow-md);
 }
 
+@media (max-width: 768px) {
+  .card {
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border-radius: 12px;
+  }
+}
+
 /* Common Button Styles */
 .btn {
   display: inline-flex;
@@ -115,8 +130,19 @@ img {
   font-weight: 500;
   padding: 10px 20px;
   border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  transition: all 0.15s ease;
   font-size: 14px;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 768px) {
+  .btn {
+    min-height: 48px;
+    border-radius: 8px;
+  }
 }
 
 .btn-primary {
@@ -140,6 +166,10 @@ img {
   background-color: #e25207;
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+}
+
+.btn-accent:active {
+  transform: scale(0.96) !important;
 }
 
 .btn-secondary {
@@ -229,6 +259,7 @@ img {
 @media (max-width: 768px) {
   .grid-cols-4 {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 
@@ -335,7 +366,12 @@ img {
   /* Global Page Margins */
   .main-content {
     margin-top: 104px !important;
-    padding-bottom: 80px !important;
+    padding-bottom: env(safe-area-inset-bottom, 80px) !important;
+  }
+  
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS auto-zoom */
+    min-height: 48px;
   }
 
   /* Grid Layouts - 2 Columns instead of 1 on mobile */
