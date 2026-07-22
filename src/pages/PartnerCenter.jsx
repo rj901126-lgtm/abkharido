@@ -365,10 +365,11 @@ const PartnerCenter = () => {
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                     Our B2C store rewards vary depending on the product category. Fashion products reward highest referral margins!
                   </p>
-                  <table style={{ width: '100%', fontSize: '13px', textAlign: 'left' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid #eee' }}>
-                        <th style={{ padding: '4px 0' }}>Category</th>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table className="partner-table" style={{ width: '100%', fontSize: '13px', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid #eee' }}>
+                          <th style={{ padding: '4px 0' }}>Category</th>
                         <th>User Coins</th>
                         <th>Creator Cash</th>
                       </tr>
@@ -401,6 +402,7 @@ const PartnerCenter = () => {
                       </tr>
                     </tbody>
                   </table>
+                  </div>
                 </div>
 
                 <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -613,10 +615,11 @@ const PartnerCenter = () => {
                 <div className="card" style={{ padding: '20px', display: 'flex', flex: 'column', gap: '10px' }}>
                   <h4 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '12px' }}>Withdrawal Payouts History</h4>
                   {partnerStats.payouts.length > 0 ? (
-                    <table style={{ width: '100%', fontSize: '13px', textAlign: 'left' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid #eee' }}>
-                          <th style={{ padding: '6px 0' }}>Date</th>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table className="partner-table" style={{ width: '100%', fontSize: '13px', textAlign: 'left' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid #eee' }}>
+                            <th style={{ padding: '6px 0' }}>Date</th>
                           <th>Amount</th>
                           <th>Method</th>
                           <th>Status</th>
@@ -633,6 +636,7 @@ const PartnerCenter = () => {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   ) : (
                     <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--text-secondary)', fontSize: '13px' }}>
                       No withdrawals requested yet.
