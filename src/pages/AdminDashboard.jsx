@@ -532,20 +532,59 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   };
 
-  const handleToggleSellerRole = async (sellerObj) => {
+  const handleSuspendUser = async (userObj) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
-    const isCurrentlySeller = sellerObj.isApproved;
-    const targetState = !isCurrentlySeller;
+    const newStatus = userObj.status === 'Suspended' ? 'Active' : 'Suspended';
+    if (!window.confirm(`Are you sure you want to ${newStatus === 'Suspended' ? 'suspend' : 'activate'} ${userObj.username}?`)) return;
 
     try {
-      const res = await fetch(`/api/sellers/${sellerObj.email}/verify`, {
+      const res = await fetch(`/api/users/${userObj._id}/suspend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        showToast(`User ${newStatus === 'Suspended' ? 'suspended' : 'activated'} successfully!`, 'success');
+        fetchAllUsers();
+      }
+    } catch (err) {
+      showToast('Failed to update user status.', 'error');
+    }
+  };
+
+  const handleAddWallet = async (userObj) => {
+    const amount = window.prompt(`Enter amount to add to ${userObj.username}'s wallet (Refund/Cashback):`, "0");
+    if (!amount || isNaN(amount) || Number(amount) <= 0) return;
+
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    try {
+      const res = await fetch(`/api/users/${userObj._id}/wallet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ amount: Number(amount) })
+      });
+      if (res.ok) {
+        showToast(`Added ₹${amount} to wallet successfully!`, 'success');
+        fetchAllUsers();
+      }
+    } catch (err) {
+      showToast('Failed to add wallet balance.', 'error');
+    }
+  };
+
+  const handleToggleSellerRole = async (sellerObj) => {
+    const token = sessionStorage.getItem('abkharido_admin_token') || '';
+    const newStatus = sellerObj.sellerStatus === 'Approved' ? 'Rejected' : 'Approved';
+
+    try {
+      const res = await fetch(`/api/users/${sellerObj._id}/seller-status`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'x-admin-token': token
         },
         body: JSON.stringify({
-          isApproved: targetState
+          status: newStatus
         })
       });
       if (res.ok) {
@@ -1132,6 +1171,38 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                               >
                                 {u.isInfluencer ? 'Demote Creator' : 'Verify Creator'}
                               </button>
+                              
+                              <button
+                                className="btn btn-sm btn-outline"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '4px 8px',
+                                  borderRadius: '6px',
+                                  fontWeight: '600',
+                                  background: u.status === 'Suspended' ? '#f0fdf4' : '#fff1f2',
+                                  borderColor: u.status === 'Suspended' ? '#bbf7d0' : '#fecaca',
+                                  color: u.status === 'Suspended' ? '#16a34a' : '#e11d48'
+                                }}
+                                onClick={() => handleSuspendUser(u)}
+                              >
+                                {u.status === 'Suspended' ? 'Unsuspend' : 'Suspend'}
+                              </button>
+
+                              <button
+                                className="btn btn-sm"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '4px 8px',
+                                  borderRadius: '6px',
+                                  fontWeight: '600',
+                                  background: '#fef3c7',
+                                  color: '#d97706',
+                                  border: '1px solid #fde68a'
+                                }}
+                                onClick={() => handleAddWallet(u)}
+                              >
+                                + Add Wallet
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -1192,8 +1263,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           </td>
                           <td style={{ fontWeight: 'bold', color: 'var(--success)' }}>₹{(s.walletCash || 0).toFixed(2)}</td>
                           <td>
-                            <span className={`badge ${s.isApproved ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '11px' }}>
-                              {s.isApproved ? 'Approved Merchant' : 'Awaiting Audit'}
+                            <span className={`badge ${s.sellerStatus === 'Approved' ? 'badge-success' : s.sellerStatus === 'Rejected' ? 'badge-error' : 'badge-warning'}`} style={{ fontSize: '11px', background: s.sellerStatus === 'Approved' ? '#dcfce7' : s.sellerStatus === 'Rejected' ? '#fee2e2' : '#fef3c7', color: s.sellerStatus === 'Approved' ? '#16a34a' : s.sellerStatus === 'Rejected' ? '#ef4444' : '#d97706', padding: '4px 8px', borderRadius: '4px' }}>
+                              {s.sellerStatus === 'Approved' ? 'Approved Merchant' : s.sellerStatus === 'Rejected' ? 'Rejected' : 'Awaiting Audit'}
                             </span>
                           </td>
                           <td>
@@ -1202,13 +1273,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                               style={{
                                 fontSize: '11px',
                                 padding: '4px 8px',
-                                borderColor: s.isApproved ? 'var(--error)' : 'var(--primary-color)',
-                                color: s.isApproved ? 'var(--error)' : 'var(--primary-color)',
+                                borderColor: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
+                                color: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
                                 height: '28px'
                               }}
                               onClick={() => handleToggleSellerRole(s)}
                             >
-                              {s.isApproved ? 'Demote Merchant' : 'Approve Merchant'}
+                              {s.sellerStatus === 'Approved' ? 'Reject Merchant' : 'Approve Merchant'}
                             </button>
                           </td>
                         </tr>

@@ -78,3 +78,65 @@ export const getUsers = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Suspend or unsuspend a user
+// @route   POST /api/users/:id/suspend
+// @access  Private/Admin
+export const suspendUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+    user.status = req.body.status || 'Suspended';
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Add wallet balance (Refund/Cashback)
+// @route   POST /api/users/:id/wallet
+// @access  Private/Admin
+export const addWalletBalance = async (req, res, next) => {
+  try {
+    const { amount } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+    user.walletCash = (user.walletCash || 0) + Number(amount);
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update Seller Status (VMS Workflow)
+// @route   POST /api/users/:id/seller-status
+// @access  Private/Admin
+export const updateSellerStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+    user.sellerStatus = status;
+    // If approved, give them the seller role so they can access seller panel
+    if (status === 'Approved') {
+      user.role = 'seller';
+    } else if (status === 'Rejected' || status === 'Suspended') {
+      user.role = 'user'; // Demote
+    }
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
