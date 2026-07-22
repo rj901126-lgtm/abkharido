@@ -410,52 +410,9 @@
   .specs-key {
     width: 40% !important;
   }
-  /* Constant Flipkart sticky action footer at the absolute bottom of the screen */
+  /* Hide desktop inline action buttons on mobile, as we use mobile-sticky-cart-bar instead */
   .action-buttons-row {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    background-color: white !important;
-    padding: 6px 10px !important;
-    box-shadow: 0 -3px 10px rgba(0,0,0,0.08) !important;
-    z-index: 1000 !important;
-    display: flex !important;
-    flex-direction: row !important;
-    margin: 0 !important;
-    gap: 8px !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
-    border-radius: 0 !important;
-    border: none !important;
-    border-top: 1px solid #eaeaea !important;
-    height: calc(56px + env(safe-area-inset-bottom)) !important;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
-  }
-  .action-buttons-row button {
-    margin: 0 !important;
-    border-radius: 4px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 44px !important;
-    box-sizing: border-box !important;
-  }
-  .action-buttons-row .action-btn-add-cart {
-    flex: 1 !important;
-    border: 1px solid #dcdcdc !important;
-    background-color: white !important;
-    color: #212121 !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-  }
-  .action-buttons-row .action-btn-buy {
-    flex: 1 !important;
-    border: none !important;
-    background-color: #ffd54f !important;
-    color: #212121 !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
+    display: none !important;
   }
   /* Add padding at the bottom of details page so content doesn't get covered by sticky buttons */
   .details-page-grid {
