@@ -261,7 +261,7 @@ const Login = ({ onNavigate }) => {
   };
 
   return (
-    <div className="lp-container animate-fade-in">
+    <div className="lp-wrapper animate-fade-in">
       <div id="recaptcha-container"></div>
 
       {/* ── Desktop: Left Blue Panel ── */}
