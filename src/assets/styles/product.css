@@ -499,7 +499,20 @@
   body.product-details-active .bottom-nav {
     display: none !important;
   }
+  /* Keep navbar visible on product page — but make it compact */
   body.product-details-active .navbar-header {
+    display: flex !important;
+    background: rgba(255,255,255,0.96) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  }
+  /* On product page hide the search bar and category text, show only logo + cart */
+  body.product-details-active .search-form {
+    display: none !important;
+  }
+  body.product-details-active .navbar-left .logo-sub {
     display: none !important;
   }
   body.product-details-active .cat-bar {
