@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
 
@@ -138,80 +138,55 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   };
 
   return (
-    <div className="profile-page-container animate-fade-in">
+    <div className="profile-page-container animate-fade-in" style={{ padding: '0', background: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* Profile Header Action Bar */}
-      <div className="profile-header-bar">
-        <h1 className="profile-header-title">
-          My Account
-        </h1>
-        <button 
-          onClick={logout} 
-          className="profile-logout-btn"
-        >
-          <LogOut size={16} /> Log Out
-        </button>
+      {/* 1. Clean Minimal Header */}
+      <div className="profile-dashboard-header">
+        <div className="profile-header-user">
+          <div className="profile-header-avatar">
+            {getInitials(currentUser.firstName, currentUser.lastName, currentUser.username)}
+          </div>
+          <div className="profile-header-info">
+            <h2 className="profile-header-name">
+              {currentUser.firstName || currentUser.lastName ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() : currentUser.username}
+            </h2>
+            <p className="profile-header-phone">
+              {currentUser.phone || currentUser.email || 'No contact provided'}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Account Info Cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px' }}>
+      <div style={{ padding: '0 16px', marginTop: '-20px', position: 'relative', zIndex: 10 }}>
         
-        {/* Premium Profile Banner Card */}
-        <div className="profile-banner-card">
-          {/* Decorative background elements */}
-          <div className="profile-banner-dec-1"></div>
-          <div className="profile-banner-dec-2"></div>
-          
-          {/* User Info (Left) */}
-          <div className="profile-user-info">
-            <div className="profile-avatar">
-              {getInitials(currentUser.firstName, currentUser.lastName, currentUser.username)}
-            </div>
-            <div>
-              <h2 className="profile-user-name">
-                {currentUser.firstName || currentUser.lastName ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() : currentUser.username}
-              </h2>
-              <p className="profile-user-email">
-                <Mail size={14} /> {currentUser.email || 'No email provided'}
-              </p>
-            </div>
+        {/* 2. Quick Action Grid (2x2) */}
+        <div className="profile-quick-actions">
+          <div className="quick-action-card" onClick={() => onNavigate('orders')}>
+            <ShoppingBag size={24} color="#4f46e5" /> 
+            <span>My Orders</span>
           </div>
-
-          {/* Wallet / Loyalty Balance (Right) */}
-          <div className="profile-wallet-container">
-            <div className="profile-wallet-badge">
-              {currentUser.isInfluencer ? 'Creator Mode Active' : 'User Rewards Active'}
-            </div>
-            <div className="profile-wallet-box">
-              <div className="profile-wallet-label">AVAILABLE BALANCE</div>
-              <div className="profile-wallet-amount">
-                {currentUser.isInfluencer ? (
-                  <>
-                    <Award size={24} color="#34d399" />
-                    <span className="profile-wallet-val" style={{ color: '#34d399' }}>₹{(currentUser.walletCash || 0).toFixed(2)}</span>
-                  </>
-                ) : (
-                  <>
-                    <Coins size={24} color="#fbbf24" />
-                    <span className="profile-wallet-val" style={{ color: '#fbbf24' }}>{currentUser.walletCoins}</span>
-                  </>
-                )}
-              </div>
-            </div>
+          <div className="quick-action-card" onClick={() => {
+            const el = document.getElementById('wishlist-section');
+            if(el) el.scrollIntoView({ behavior: 'smooth' });
+          }}>
+            <Heart size={24} color="#ec4899" /> 
+            <span>Wishlist</span>
+          </div>
+          <div className="quick-action-card" onClick={() => onNavigate('partner')}>
+            <Award size={24} color="#f59e0b" /> 
+            <span>Creator Hub</span>
+          </div>
+          <div className="quick-action-card" onClick={() => setIsEditing(!isEditing)}>
+            <Edit2 size={24} color="#10b981" /> 
+            <span>{isEditing ? 'Close Settings' : 'Settings'}</span>
           </div>
         </div>
 
-        {/* Profile Details Edit Form */}
-        <form onSubmit={handleUpdateProfile} className="profile-form-card">
+        {/* 3. Settings Form (Hidden by default) */}
+        {isEditing && (
+        <form onSubmit={handleUpdateProfile} className="profile-form-card animate-fade-in" style={{ marginTop: '24px' }}>
           <div className="profile-form-header">
-            <h3 className="profile-form-title">Personal Details</h3>
-            <button 
-              type="button" 
-              onClick={() => setIsEditing(!isEditing)} 
-              className={`profile-edit-btn ${isEditing ? 'active' : 'inactive'}`}
-            >
-              <Edit2 size={14} /> {isEditing ? 'Cancel Edit' : 'Edit Profile'}
-            </button>
+            <h3 className="profile-form-title">Account Settings</h3>
           </div>
 
           <div className="profile-input-grid">
@@ -357,6 +332,31 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             {isUpdating ? 'Saving Changes...' : (isEditing && hasChanges) ? 'Save Changes' : 'Update Details to Save'}
           </button>
         </form>
+        )}
+
+        {/* 4. Menu List */}
+        <div className="profile-menu-list">
+          <div className="profile-menu-item" onClick={() => setIsEditing(!isEditing)}>
+            <div className="menu-item-left">
+              <MapPin size={20} color="#64748b" />
+              <span>Saved Addresses</span>
+            </div>
+            <ArrowRight size={16} color="#cbd5e1" />
+          </div>
+          <div className="profile-menu-item" onClick={() => setIsEditing(!isEditing)}>
+            <div className="menu-item-left">
+              <ShieldAlert size={20} color="#64748b" />
+              <span>Security & Passwords</span>
+            </div>
+            <ArrowRight size={16} color="#cbd5e1" />
+          </div>
+          <div className="profile-menu-item logout-item" onClick={logout}>
+            <div className="menu-item-left">
+              <LogOut size={20} color="#ef4444" />
+              <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Log Out</span>
+            </div>
+          </div>
+        </div>
 
         {/* Helpdesk / Customer Tickets Section */}
         <div style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', marginBottom: '24px' }}>
