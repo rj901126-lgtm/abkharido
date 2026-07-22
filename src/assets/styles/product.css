@@ -878,6 +878,37 @@
     gap: 8px;
   }
 
+  .mobile-sticky-cart-btn {
+    flex: 1;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+  }
+  
+  .mobile-sticky-cart-btn:active {
+    transform: scale(0.96);
+  }
+
+  .mobile-sticky-cart-btn-add {
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--border-light);
+  }
+
+  .mobile-sticky-cart-btn-buy {
+    background-color: #fb641b;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(251, 100, 27, 0.2);
+  }
+
   /* Add padding to the bottom of the details container so content isn't hidden behind the sticky bar */
   .mobile-only-spacer {
     height: 80px;

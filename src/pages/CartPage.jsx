@@ -9,17 +9,16 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
   if (cart.length === 0) {
     return (
-      <div className="container" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ display: 'inline-flex', padding: '24px', borderRadius: '50%', background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', boxShadow: '0 8px 32px rgba(0,0,0,0.06), inset 0 2px 4px white', border: '1px solid rgba(255,255,255,0.8)', marginBottom: '24px' }}>
+      <div className="container cart-empty-container">
+        <div className="cart-empty-icon">
           <ShoppingBag size={56} color="var(--primary-color)" strokeWidth={1.5} />
         </div>
-        <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '12px' }}>Your cart is empty!</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '15px', maxWidth: '300px', margin: '0 auto 32px' }}>
+        <h2 className="cart-empty-title">Your cart is empty!</h2>
+        <p className="cart-empty-text">
           Explore our wide range of premium products and find something you love.
         </p>
         <button 
-          className="btn btn-primary" 
-          style={{ padding: '14px 40px', fontSize: '15px', borderRadius: '12px', fontWeight: '700', boxShadow: '0 8px 20px rgba(79, 70, 229, 0.3)' }} 
+          className="btn btn-primary cart-empty-btn" 
           onClick={() => onNavigate('home')}
         >
           Start Shopping
@@ -73,24 +72,27 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       
       {/* Left side: Cart Items list */}
       <div className="cart-items-section">
-        <div className="cart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="cart-card-header cart-card-header-flex">
           <span>My Cart ({cart.reduce((acc, item) => acc + item.quantity, 0)} Items)</span>
         </div>
 
         {/* Sales Boost: Free Shipping Progress */}
-        <div style={{ backgroundColor: 'white', padding: '16px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+        <div className="cart-promo-banner">
           {itemsPrice >= 500 ? (
-            <div style={{ color: '#10b981', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ display: 'inline-flex', background: '#ecfdf5', padding: '4px', borderRadius: '50%' }}>🎉</span>
+            <div className="cart-promo-success">
+              <span className="cart-promo-icon">🎉</span>
               You have unlocked FREE Express Shipping!
             </div>
           ) : (
             <>
-              <div style={{ color: '#0f172a', fontWeight: '600', fontSize: '14px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                <span>Add <span style={{ color: '#ef4444', fontWeight: '800' }}>₹{500 - itemsPrice}</span> more to get FREE Shipping!</span>
+              <div className="cart-promo-text">
+                <span>Add <span className="cart-promo-highlight">₹{500 - itemsPrice}</span> more to get FREE Shipping!</span>
               </div>
-              <div style={{ width: '100%', height: '8px', backgroundColor: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: `${Math.min((itemsPrice / 500) * 100, 100)}%`, height: '100%', backgroundColor: '#ef4444', transition: 'width 0.5s ease', borderRadius: '4px' }} />
+              <div className="cart-progress-bar-bg">
+                <div 
+                  className="cart-progress-bar-fill" 
+                  style={{ width: `${Math.min((itemsPrice / 500) * 100, 100)}%` }} 
+                />
               </div>
             </>
           )}
@@ -170,80 +172,82 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       {/* Right side: Summary Details */}
       <div className="price-details-card">
         <div className="price-card-title">Price Details</div>
-
-        {/* Sales Boost: FOMO Cart Warning */}
-        <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px', display: 'flex', gap: '8px', alignItems: 'flex-start', marginTop: '-4px' }}>
-          <span style={{ fontSize: '16px', lineHeight: '1.2' }}>🔥</span>
-          <div style={{ fontSize: '12px', color: '#991b1b' }}>
-            <span style={{ fontWeight: '800' }}>High Demand!</span> Items in your cart are not reserved. Checkout now to avoid stockouts.
+        
+        {/* Urgency Trigger */}
+        <div className="cart-urgent-banner">
+          <span className="cart-urgent-icon">🔥</span>
+          <div className="cart-urgent-text">
+            <span className="cart-urgent-bold">High Demand!</span> Items in your cart are not reserved. Checkout now to avoid stockouts.
           </div>
         </div>
 
-        {/* AbKharido Loyalty Coins Redemption */}
-        {currentUser?.walletCoins > 0 && (
+        {currentUser && userCoins > 0 && (
           <div className="coins-redeem-banner">
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <Coins size={18} color="#e68f00" />
-              <div style={{ fontSize: '12px' }}>
-                <div style={{ fontWeight: 'bold', color: '#854d0e' }}>Redeem Coins</div>
-                <div style={{ color: '#854d0e' }}>Apply max {maxCoinsToRedeem} coins (Save ₹{maxCoinsToRedeem})</div>
+            <div className="cart-coins-details">
+              <Coins size={24} color="#f59e0b" />
+              <div className="cart-coins-text-group">
+                <div className="cart-coins-title">Redeem Coins</div>
+                <div className="cart-coins-subtitle">Apply max {maxCoinsToRedeem} coins (Save ₹{maxCoinsToRedeem})</div>
               </div>
             </div>
             <input 
               type="checkbox" 
-              className="coins-checkbox" 
               checked={useCoinsDiscount}
-              onChange={(e) => setUseCoinsDiscount(e.target.checked)}
+              onChange={() => setUseCoinsDiscount(!useCoinsDiscount)}
+              className="coins-checkbox" 
             />
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid var(--border-light)', paddingBottom: '16px' }}>
+        <div className="cart-price-summary-list">
           <div className="price-row-item">
-            <span>Price ({cart.reduce((t, i) => t + (i.quantity || 1), 0)} items)</span>
+            <span>Price ({cart.length} items)</span>
             <span>₹{originalItemsPrice.toLocaleString('en-IN')}</span>
           </div>
-          <div className="price-row-item">
-            <span>Product Discount</span>
-            <span style={{ color: 'var(--success)' }}>- ₹{discountValue.toLocaleString('en-IN')}</span>
-          </div>
           
-          {useCoinsDiscount && (
+          {discountValue > 0 && (
             <div className="price-row-item">
-              <span>Redeemed Coins Discount</span>
-              <span style={{ color: '#e68f00' }}>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
+              <span>Discount</span>
+              <span className="cart-discount-value">- ₹{discountValue.toLocaleString('en-IN')}</span>
+            </div>
+          )}
+
+          {coinsDiscount > 0 && (
+            <div className="price-row-item">
+              <span>Coins Redeemed</span>
+              <span className="cart-coins-value">- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
             </div>
           )}
 
           <div className="price-row-item">
             <span>Delivery Charges</span>
-            <span>{deliveryCharge > 0 ? `₹${deliveryCharge}` : <span style={{ color: 'var(--success)' }}>FREE</span>}</span>
+            <span>{deliveryCharge > 0 ? `₹${deliveryCharge}` : <span className="cart-delivery-free">FREE</span>}</span>
           </div>
         </div>
 
         <div className="price-total-row">
-          <span>Amount Payable</span>
+          <span>Total Amount</span>
           <span>₹{finalAmount.toLocaleString('en-IN')}</span>
         </div>
 
         {discountValue + coinsDiscount > 0 && (
           <div className="price-savings-notice">
-            You will save ₹{(discountValue + coinsDiscount).toLocaleString('en-IN')} on this order!
+            You will save ₹{(discountValue + coinsDiscount).toLocaleString('en-IN')} on this order
           </div>
         )}
 
+        {/* Desktop Checkout Button */}
         <button 
-          className="btn btn-accent btn-lg" 
-          style={{ width: '100%', marginTop: '8px', display: 'flex', justifyContent: 'center', gap: '8px' }}
+          className="btn btn-accent btn-lg cart-checkout-btn-desktop" 
           onClick={() => onCheckout(useCoinsDiscount)}
         >
-          PLACE ORDER <ArrowRight size={16} />
+          <Lock size={18} /> PLACE ORDER
         </button>
 
-        {/* Flipkart Style Trust Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '11px', color: '#7f7f7f', marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '12px' }}>
-          <ShieldCheck size={14} color="#388e3c" style={{ flexShrink: 0 }} />
-          <span>Safe and Secure Payments. 100% Authentic Products.</span>
+        {/* Trust Badges */}
+        <div className="cart-safe-footer">
+          <ShieldCheck size={14} color="#388e3c" className="cart-safe-icon" />
+          <span>Safe and Secure Payments. 100% Authentic products.</span>
         </div>
       </div>
 

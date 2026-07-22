@@ -4,6 +4,7 @@
 @import url('./variables.css');
 @import url('./admin.css');
 @import url('./profile.css');
+@import url('./checkout.css');
 
 * {
   box-sizing: border-box;
@@ -142,8 +143,15 @@ img {
 @media (max-width: 768px) {
   .btn {
     min-height: 48px;
-    border-radius: 8px;
+    border-radius: 12px;
   }
+}
+
+.btn-icon {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-icon:active {
+  transform: scale(0.9) !important;
 }
 
 .btn-primary {

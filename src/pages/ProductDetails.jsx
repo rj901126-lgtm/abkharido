@@ -459,40 +459,44 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             <div className="desktop-back-arrow" style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 5 }}>
               <button 
                 onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}
+                className="btn-icon"
                 style={{ 
                   border: '1px solid #eaeaea', 
                   borderRadius: '50%', 
                   backgroundColor: 'white', 
-                  width: '36px', 
-                  height: '36px', 
+                  width: '48px', 
+                  height: '48px', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center', 
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.05)', 
-                  cursor: 'pointer' 
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)', 
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease'
                 }}
               >
-                <ArrowLeft size={18} color="#212121" />
+                <ArrowLeft size={24} color="#212121" />
               </button>
             </div>
 
             {/* Wishlist Heart & Share Panel (Top-Right) */}
-            <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
-                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                className="btn-icon"
+                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'transform 0.2s ease' }}
               >
                 {wishlist && wishlist.includes(product.id) ? (
-                  <Heart size={16} fill="#d32f2f" color="#d32f2f" />
+                  <Heart size={24} fill="#d32f2f" color="#d32f2f" />
                 ) : (
-                  <Heart size={16} color="#777" />
+                  <Heart size={24} color="#777" />
                 )}
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleShareWhatsApp(); }}
-                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                className="btn-icon"
+                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'transform 0.2s ease' }}
               >
-                <Share2 size={16} color="#777" />
+                <Share2 size={24} color="#777" />
               </button>
             </div>
 
@@ -1111,7 +1115,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                     type="submit" 
                     className="btn btn-accent" 
                     disabled={isSubmittingReview || wordCount > 500}
-                    style={{ height: '40px', fontWeight: 'bold', width: '100%', marginTop: '8px' }}
+                    style={{ fontWeight: 'bold', width: '100%', marginTop: '8px' }}
                   >
                     {isSubmittingReview ? 'SUBMITTING...' : 'SUBMIT CUSTOMER REVIEW'}
                   </button>
@@ -1216,8 +1220,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         </div>
         <div className="mobile-sticky-cart-actions">
           <button 
-            className="btn btn-primary" 
-            style={{ flex: 1, backgroundColor: 'white', color: 'var(--primary-color)', border: '1px solid var(--border-light)' }} 
+            className="mobile-sticky-cart-btn mobile-sticky-cart-btn-add" 
             onClick={() => {
               const customProduct = {
                 ...product,
@@ -1232,8 +1235,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             <ShoppingCart size={18} /> Add
           </button>
           <button 
-            className="btn btn-accent" 
-            style={{ flex: 1, backgroundColor: 'var(--primary-color)' }} 
+            className="mobile-sticky-cart-btn mobile-sticky-cart-btn-buy" 
             onClick={() => {
               const customProduct = {
                 ...product,

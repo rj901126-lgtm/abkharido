@@ -122,28 +122,32 @@
 .qty-btn {
   background-color: #fafafa;
   border: none;
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .qty-btn:hover {
   background-color: #eeeeee;
 }
 
+.qty-btn:active {
+  transform: scale(0.92);
+}
+
 .qty-input {
-  width: 40px;
-  height: 28px;
+  width: 50px;
+  height: 40px;
   border: none;
   border-left: 1px solid var(--border-light);
   border-right: 1px solid var(--border-light);
   text-align: center;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: bold;
 }
 
@@ -248,56 +252,43 @@
   }
 }
 
-/* Mobile Sticky Checkout Bar (Flipkart App Match) */
+/* Mobile Sticky Checkout Bar (100-Crore Enterprise Match) */
 .mobile-cart-sticky-bar {
   position: fixed;
-  bottom: calc(56px + env(safe-area-inset-bottom)) !important;
-  left: 16px !important;
-  right: 16px !important;
-  height: 60px;
-  background-color: #ffffff;
-  border: 1px solid #eaeaea !important;
-  border-radius: 8px !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: calc(80px + env(safe-area-inset-bottom));
+  padding: 16px 20px calc(16px + env(safe-area-inset-bottom)) 20px;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0,0,0,0.05) !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  box-shadow: 0 -3px 10px rgba(0,0,0,0.06);
-  z-index: 1000;
-  display: none; /* Hidden on desktop */
-  box-sizing: border-box !important;
-}
-
-.mobile-cart-price-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.mobile-cart-amount {
-  font-size: 18px;
-  font-weight: 800;
-  color: #212121;
-}
-
-.mobile-cart-saving {
-  font-size: 11px;
-  color: var(--success);
-  font-weight: 600;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.06);
+  font-weight: 700;
 }
 
 .mobile-cart-checkout-btn {
   background-color: #fb641b !important;
   color: white !important;
-  font-weight: bold !important;
+  font-weight: 800 !important;
   text-transform: uppercase !important;
-  height: 40px !important;
-  border-radius: 2px !important;
-  padding: 0 24px !important;
-  font-size: 13px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  padding: 0 32px !important;
+  font-size: 15px !important;
   border: none !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px rgba(251, 100, 27, 0.2);
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-cart-checkout-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 4px 8px rgba(251, 100, 27, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -353,3 +344,41 @@
     font-size: 12px !important;
   }
 }
+
+/* New 100-Crore Enterprise Classes for CartPage */
+.cart-empty-container { text-align: center; padding: 100px 20px; min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.cart-empty-icon { display: inline-flex; padding: 24px; border-radius: 50%; background: linear-gradient(135deg, #f8fafc, #f1f5f9); box-shadow: 0 8px 32px rgba(0,0,0,0.06), inset 0 2px 4px white; border: 1px solid rgba(255,255,255,0.8); margin-bottom: 24px; }
+.cart-empty-title { font-size: 24px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
+.cart-empty-text { color: var(--text-secondary); font-size: 15px; max-width: 300px; margin: 0 auto 32px; }
+.cart-empty-btn { padding: 14px 40px; font-size: 15px; border-radius: 12px; font-weight: 700; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3); transition: all 0.2s; }
+.cart-empty-btn:active { transform: scale(0.96); }
+
+.cart-card-header-flex { display: flex; justify-content: space-between; align-items: center; }
+.cart-promo-banner { background-color: white; padding: 16px 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.cart-promo-success { color: #10b981; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.cart-promo-icon { display: inline-flex; background: #ecfdf5; padding: 4px; border-radius: 50%; }
+.cart-promo-text { color: #0f172a; font-weight: 600; font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+.cart-promo-highlight { color: #ef4444; font-weight: 800; }
+.cart-progress-bar-bg { width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.cart-progress-bar-fill { height: 100%; background-color: #ef4444; transition: width 0.5s ease; border-radius: 4px; }
+
+.cart-urgent-banner { background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; display: flex; gap: 8px; align-items: flex-start; margin-top: -4px; }
+.cart-urgent-icon { font-size: 16px; line-height: 1.2; }
+.cart-urgent-text { font-size: 12px; color: #991b1b; }
+.cart-urgent-bold { font-weight: 800; }
+
+.cart-coins-details { display: flex; gap: 8px; align-items: center; }
+.cart-coins-text-group { font-size: 12px; }
+.cart-coins-title { font-weight: bold; color: #854d0e; }
+.cart-coins-subtitle { color: #854d0e; }
+
+.cart-price-summary-list { display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--border-light); padding-bottom: 16px; }
+.cart-discount-value { color: var(--success); }
+.cart-coins-value { color: #e68f00; }
+.cart-delivery-free { color: var(--success); }
+
+.cart-checkout-btn-desktop { width: 100%; margin-top: 8px; display: flex; justify-content: center; gap: 8px; height: 48px; border-radius: 12px; font-weight: 800; transition: all 0.2s; }
+.cart-checkout-btn-desktop:active { transform: scale(0.96); }
+
+.cart-safe-footer { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: #7f7f7f; margin-top: 16px; border-top: 1px solid #f0f0f0; padding-top: 12px; }
+.cart-safe-icon { flex-shrink: 0; }
