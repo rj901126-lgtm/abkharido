@@ -124,6 +124,16 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [sellerSearchQuery, setSellerSearchQuery] = useState('');
   const [userInnerTab, setUserInnerTab] = useState('customers');
+  
+  // Advanced CRM Controls State
+  const [activeWalletModal, setActiveWalletModal] = useState(null);
+  const [walletAmount, setWalletAmount] = useState('');
+  const [walletNote, setWalletNote] = useState('');
+  const [walletType, setWalletType] = useState('cash');
+  const [walletAction, setWalletAction] = useState('add');
+  const [activeOrderHistoryModal, setActiveOrderHistoryModal] = useState(null);
+  const [activeCatalogModal, setActiveCatalogModal] = useState(null);
+  
   const [inventorySearchQuery, setInventorySearchQuery] = useState('');
 
   // Command Center Search
@@ -1237,16 +1247,25 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 Platform Customer Accounts & Referral Data
               </h3>
               
-              {/* Search Input */}
-              <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', height: '40px', width: '300px', background: '#f8fafc', alignItems: 'center', padding: '0 12px', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}>
-                <Users size={16} color="#94a3b8" />
-                <input 
-                  type="text" 
-                  placeholder="Search mobile number or name..." 
-                  value={userSearchQuery}
-                  onChange={(e) => setUserSearchQuery(e.target.value)}
-                  style={{ border: 'none', padding: '0 10px', fontSize: '14px', outline: 'none', width: '100%', background: 'transparent', color: '#334155' }}
-                />
+              {/* Search & Actions */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', height: '40px', width: '300px', background: '#f8fafc', alignItems: 'center', padding: '0 12px', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}>
+                  <Users size={16} color="#94a3b8" />
+                  <input 
+                    type="text" 
+                    placeholder="Search mobile number or name..." 
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    style={{ border: 'none', padding: '0 10px', fontSize: '14px', outline: 'none', width: '100%', background: 'transparent', color: '#334155' }}
+                  />
+                </div>
+                <button 
+                  onClick={exportCustomersCSV}
+                  className="btn btn-outline" 
+                  style={{ height: '40px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px', fontWeight: '600', color: '#0f172a', borderColor: '#e2e8f0' }}
+                >
+                  <FileText size={16} /> Export CSV
+                </button>
               </div>
             </div>
 
@@ -1392,9 +1411,24 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                                   color: '#d97706',
                                   border: '1px solid #fde68a'
                                 }}
-                                onClick={() => handleAddWallet(u)}
+                                onClick={() => handleOpenWalletModal(u)}
                               >
-                                + Add Wallet
+                                💳 Manage Wallet
+                              </button>
+
+                              <button
+                                className="btn btn-sm btn-outline"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '4px 8px',
+                                  borderRadius: '6px',
+                                  fontWeight: '600',
+                                  borderColor: '#e0e7ff',
+                                  color: '#4f46e5'
+                                }}
+                                onClick={() => setActiveOrderHistoryModal(u)}
+                              >
+                                📦 View Orders
                               </button>
                             </div>
                           </td>
@@ -1412,14 +1446,24 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <h3 className="admin-form-title" style={{ margin: 0 }}><Store size={18} color="var(--primary-color)" /> Marketplace Merchant Shops (Decoupled Registry)</h3>
-              <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
-                <input 
-                  type="text" 
-                  placeholder="Search shop name or email..." 
-                  value={sellerSearchQuery}
-                  onChange={(e) => setSellerSearchQuery(e.target.value)}
-                  style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
-                />
+              {/* Search & Export */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search shop name or email..." 
+                    value={sellerSearchQuery}
+                    onChange={(e) => setSellerSearchQuery(e.target.value)}
+                    style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
+                  />
+                </div>
+                <button 
+                  onClick={exportMerchantsCSV}
+                  className="btn btn-outline" 
+                  style={{ height: '34px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 12px', fontSize: '13px', color: '#0f172a', borderColor: '#e2e8f0' }}
+                >
+                  <FileText size={14} /> Export CSV
+                </button>
               </div>
             </div>
 
@@ -1463,19 +1507,36 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                             </span>
                           </td>
                           <td>
-                            <button
-                              className="btn btn-sm btn-outline"
-                              style={{
-                                fontSize: '11px',
-                                padding: '4px 8px',
-                                borderColor: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
-                                color: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
-                                height: '28px'
-                              }}
-                              onClick={() => handleToggleSellerRole(s)}
-                            >
-                              {s.sellerStatus === 'Approved' ? 'Reject Merchant' : 'Approve Merchant'}
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <button
+                                className="btn btn-sm btn-outline"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '4px 8px',
+                                  borderColor: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
+                                  color: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
+                                  height: '28px'
+                                }}
+                                onClick={() => handleToggleSellerRole(s)}
+                              >
+                                {s.sellerStatus === 'Approved' ? 'Reject Merchant' : 'Approve Merchant'}
+                              </button>
+                              
+                              <button
+                                className="btn btn-sm btn-outline"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '4px 8px',
+                                  borderRadius: '6px',
+                                  fontWeight: '600',
+                                  borderColor: '#e0e7ff',
+                                  color: '#4f46e5'
+                                }}
+                                onClick={() => setActiveCatalogModal(s)}
+                              >
+                                📦 View Catalog
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -2587,6 +2648,188 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       )}
 
         </div>
+
+        {/* ── ADVANCED CRM MODALS ── */}
+        
+        {/* Wallet Manager Modal */}
+        {activeWalletModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+            <div className="admin-panel-card animate-fade-in" style={{ width: '400px', background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+              
+              <div style={{ background: 'linear-gradient(to right, #4f46e5, #3730a3)', padding: '20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Manage Wallet</h3>
+                  <div style={{ fontSize: '12px', opacity: 0.9 }}>{activeWalletModal.fullName || activeWalletModal.username} ({activeWalletModal.email})</div>
+                </div>
+                <button onClick={() => setActiveWalletModal(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={16} /></button>
+              </div>
+              
+              <form onSubmit={handleProcessWalletTransaction} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>Current Cash</span>
+                    <span style={{ fontSize: '16px', fontWeight: '800', color: '#16a34a' }}>₹{activeWalletModal.walletCash || 0}</span>
+                  </div>
+                  <div style={{ width: '1px', background: '#e2e8f0' }}></div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>Current Coins</span>
+                    <span style={{ fontSize: '16px', fontWeight: '800', color: '#ca8a04' }}>🪙 {activeWalletModal.walletCoins || 0}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label-txt" style={{ fontSize: '12px' }}>Action</label>
+                    <select className="admin-form-input" value={walletAction} onChange={(e) => setWalletAction(e.target.value)}>
+                      <option value="add">Add Funds</option>
+                      <option value="deduct">Deduct Funds</option>
+                    </select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label-txt" style={{ fontSize: '12px' }}>Fund Type</label>
+                    <select className="admin-form-input" value={walletType} onChange={(e) => setWalletType(e.target.value)}>
+                      <option value="cash">Cash (INR)</option>
+                      <option value="coins">Reward Coins</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="form-label-txt" style={{ fontSize: '12px' }}>Amount</label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontWeight: 'bold' }}>{walletType === 'cash' ? '₹' : '🪙'}</span>
+                    <input type="number" required min="1" className="admin-form-input" value={walletAmount} onChange={(e) => setWalletAmount(e.target.value)} placeholder="0.00" style={{ paddingLeft: '32px', fontSize: '16px', fontWeight: 'bold' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="form-label-txt" style={{ fontSize: '12px' }}>Internal Note / Reason (Sent to user)</label>
+                  <input type="text" required className="admin-form-input" value={walletNote} onChange={(e) => setWalletNote(e.target.value)} placeholder="e.g. Refund for Order #123" />
+                </div>
+
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', background: walletAction === 'add' ? '#16a34a' : '#ef4444', border: 'none', fontSize: '14px', fontWeight: 'bold', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                  {walletAction === 'add' ? <PlusCircle size={18} /> : <MinusCircle size={18} />}
+                  {walletAction === 'add' ? 'ADD FUNDS' : 'DEDUCT FUNDS'}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* View Order History Modal */}
+        {activeOrderHistoryModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+            <div className="admin-panel-card animate-fade-in" style={{ width: '800px', maxWidth: '90vw', maxHeight: '80vh', background: '#fff', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+              
+              <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ padding: '10px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Package size={20} /></div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>Order History</h3>
+                    <div style={{ fontSize: '13px', color: '#64748b' }}>{activeOrderHistoryModal.fullName || activeOrderHistoryModal.username}</div>
+                  </div>
+                </div>
+                <button onClick={() => setActiveOrderHistoryModal(null)} style={{ background: '#f1f5f9', border: 'none', color: '#64748b', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={16} /></button>
+              </div>
+              
+              <div style={{ padding: '20px', overflowY: 'auto', flex: 1, background: '#f8fafc' }}>
+                {(() => {
+                  // Find all orders that belong to this user by matching email, phone or userId if available
+                  const userOrders = adminOrders.filter(o => 
+                    (o.customerDetails?.email && o.customerDetails.email === activeOrderHistoryModal.email) ||
+                    (o.customerDetails?.phone && o.customerDetails.phone === activeOrderHistoryModal.phone)
+                  ).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                  if (userOrders.length === 0) {
+                    return (
+                      <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
+                        <Package size={48} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                        <h4 style={{ margin: '0 0 8px 0', color: '#334155' }}>No Orders Found</h4>
+                        <p style={{ margin: 0, fontSize: '14px' }}>This customer hasn't placed any orders yet.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {userOrders.map(order => (
+                        <div key={order.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>{new Date(order.createdAt).toLocaleString()}</div>
+                            <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '15px', marginTop: '4px' }}>Order #{order.id.slice(0,8).toUpperCase()}</div>
+                            <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>{order.items.length} item(s)</div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#16a34a' }}>₹{order.finalAmount.toFixed(2)}</div>
+                            <span style={{ display: 'inline-block', marginTop: '6px', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: order.status === 'Delivered' ? '#dcfce7' : order.status === 'Cancelled' ? '#fee2e2' : '#e0e7ff', color: order.status === 'Delivered' ? '#16a34a' : order.status === 'Cancelled' ? '#ef4444' : '#4f46e5' }}>
+                              {order.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* View Merchant Catalog Modal */}
+        {activeCatalogModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+            <div className="admin-panel-card animate-fade-in" style={{ width: '800px', maxWidth: '90vw', maxHeight: '80vh', background: '#fff', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+              
+              <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ padding: '10px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Store size={20} /></div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>Merchant Catalog</h3>
+                    <div style={{ fontSize: '13px', color: '#64748b' }}>{activeCatalogModal.shopName} ({activeCatalogModal.email})</div>
+                  </div>
+                </div>
+                <button onClick={() => setActiveCatalogModal(null)} style={{ background: '#f1f5f9', border: 'none', color: '#64748b', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={16} /></button>
+              </div>
+              
+              <div style={{ padding: '20px', overflowY: 'auto', flex: 1, background: '#f8fafc' }}>
+                {(() => {
+                  const vendorProducts = products.filter(p => p.vendorId === activeCatalogModal.vendorId || p.vendorId === activeCatalogModal.email);
+
+                  if (vendorProducts.length === 0) {
+                    return (
+                      <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
+                        <Package size={48} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                        <h4 style={{ margin: '0 0 8px 0', color: '#334155' }}>No Products Listed</h4>
+                        <p style={{ margin: 0, fontSize: '14px' }}>This merchant hasn't listed any products yet.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {vendorProducts.map(product => (
+                        <div key={product.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                          <img src={product.image} alt={product.name} style={{ width: '60px', height: '60px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #f1f5f9' }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '15px' }}>{product.name}</div>
+                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>SKU: {product.id.slice(0,8).toUpperCase()}</div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a' }}>₹{product.price}</div>
+                            <div style={{ fontSize: '12px', color: product.inStock ? '#16a34a' : '#ef4444', fontWeight: '600', marginTop: '4px' }}>
+                              {product.inStock ? 'In Stock' : 'Out of Stock'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );

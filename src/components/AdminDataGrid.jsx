@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { exportToCSV } from '../utils/csvExport';
 
 const AdminDataGrid = ({ onEditProduct }) => {
-  const { showToast } = useApp();
+  const { showToast, addProduct } = useApp();
   const [data, setData] = useState({ products: [], total: 0, page: 1, limit: 10, totalPages: 1 });
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
@@ -88,12 +88,32 @@ const AdminDataGrid = ({ onEditProduct }) => {
         showToast('Failed to update stock', 'error');
       }
     } catch (err) {
-      showToast('Network error updating stock', 'error');
+      showToast('Error updating stock', 'error');
+    }
+  };
+
+  const handleClone = (prod) => {
+    if (!window.confirm(`Clone product "${prod.name}"?`)) return;
+    
+    // Create a deeply cloned copy without ID
+    const newProduct = JSON.parse(JSON.stringify(prod));
+    const randomSuffix = Math.random().toString(36).substring(2, 6);
+    newProduct.id = `${prod.id}-copy-${randomSuffix}`;
+    newProduct.name = `${prod.name} (Copy)`;
+    
+    // Add product via context
+    if (addProduct) {
+      addProduct(newProduct);
+      showToast(`Product cloned successfully! ID: ${newProduct.id}`, 'success');
+      // Refresh the grid
+      setTimeout(() => fetchPaginatedProducts(data.page, search, category), 500);
+    } else {
+      showToast('Add product function not available', 'error');
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="admin-inventory-module" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* Glassmorphic Header Area */}
       <div className="admin-panel-card" style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', color: 'white', borderRadius: '24px' }}>
@@ -234,6 +254,15 @@ const AdminDataGrid = ({ onEditProduct }) => {
                           onMouseEnter={e => e.currentTarget.style.transform='scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform='none'}
                         >
                           <Edit size={14} /> Edit
+                        </button>
+                        <button 
+                          className="admin-action-btn" 
+                          onClick={() => handleClone(prod)}
+                          title="Clone product"
+                          style={{ padding: '8px 14px', borderRadius: '6px', background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', display: 'flex', gap: '6px', alignItems: 'center', fontWeight: '600', fontSize: '12px', transition: 'all 0.2s' }}
+                          onMouseEnter={e => e.currentTarget.style.transform='scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform='none'}
+                        >
+                          <Package size={14} /> Clone
                         </button>
                         <button 
                           className="admin-action-btn-danger" 
