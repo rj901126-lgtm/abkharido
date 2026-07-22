@@ -98,6 +98,17 @@
   animation-delay: 0.2s;
 }
 
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
   .slide-content-box {
     padding: 32px 24px;
@@ -250,72 +261,6 @@
   color: var(--text-secondary);
   text-align: center;
   line-height: 1.2;
-}
-
-/* Category Quick Bar grid (Premium Scroller) */
-.category-quickbar {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding: 8px 16px;
-  background-color: white;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  border-radius: 20px;
-  margin-bottom: 24px;
-}
-
-.category-quickbar::-webkit-scrollbar {
-  display: none;
-}
-
-.category-quick-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  min-width: 72px;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.category-quick-item:active {
-  transform: scale(0.92);
-}
-
-.category-icon-wrapper {
-  width: 64px;
-  height: 64px;
-  background-color: #f1f5f9;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.category-quick-item:hover .category-icon-wrapper {
-  background: linear-gradient(135deg, var(--primary-color), #7c3aed);
-}
-
-.category-quick-item:hover .category-icon-wrapper img {
-  filter: brightness(0) invert(1);
-}
-
-.category-quick-item img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-  transition: all 0.3s ease;
-}
-
-.category-quick-name {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-align: center;
 }
 
 /* Premium Deals Section */
