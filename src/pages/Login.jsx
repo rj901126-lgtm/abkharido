@@ -393,10 +393,12 @@ const Login = ({ onNavigate }) => {
                   {!isSending && <ChevronRight size={18} />}
                 </button>
               </form>
-
-              <p className="lp-terms">
-                By continuing, you agree to our <a>Terms of Use</a> and <a>Privacy Policy</a>.
-              </p>
+              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '24px' }}>
+                <CheckCircle size={14} color="#10b981" />
+                <span>
+                  By proceeding, you agree to our <a className="lp-policy-link">Terms</a> & <a className="lp-policy-link">Privacy Policy</a>
+                </span>
+              </div>
             </>
           )}
         </div>
