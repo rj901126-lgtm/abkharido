@@ -180,6 +180,41 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
         </div>
       </section>
 
+      {/* Premium Trust Strip */}
+      <div className="trust-strip">
+        <div className="trust-item">
+          <Award size={20} />
+          <span className="trust-text">100% Genuine<br/>Products</span>
+        </div>
+        <div className="trust-item">
+          <Sparkles size={20} />
+          <span className="trust-text">Free Express<br/>Delivery</span>
+        </div>
+        <div className="trust-item">
+          <Timer size={20} />
+          <span className="trust-text">Easy 10-Day<br/>Returns</span>
+        </div>
+      </div>
+
+      {/* Premium Category Quick Scroller */}
+      <div className="category-quickbar">
+        {[
+          { name: 'Mobiles', icon: '📱', id: 'electronics' },
+          { name: 'Fashion', icon: '👕', id: 'fashion' },
+          { name: 'Grocery', icon: '🥬', id: 'grocery' },
+          { name: 'Appliances', icon: '📺', id: 'home' },
+          { name: 'Toys', icon: '🧸', id: 'toys' },
+          { name: 'Beauty', icon: '💄', id: 'beauty' }
+        ].map((cat, i) => (
+          <div key={i} className="category-quick-item" onClick={() => onSelectCategory(cat.id)}>
+            <div className="category-icon-wrapper">
+              <span style={{ fontSize: '28px' }}>{cat.icon}</span>
+            </div>
+            <span className="category-quick-name">{cat.name}</span>
+          </div>
+        ))}
+      </div>
+
       {/* DYNAMIC CMS SECTIONS */}
       {loadingLayout ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '20px' }}>
