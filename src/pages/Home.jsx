@@ -279,17 +279,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
           <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '100px', height: '100px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
           
-          <div className="premium-affiliate-content">
-            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '20px', borderRadius: '20px', backdropFilter: 'blur(10px)' }}>
-              <Award size={40} color="#fff" strokeWidth={2} />
+          <div className="premium-affiliate-content" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '12px', borderRadius: '16px', backdropFilter: 'blur(10px)' }}>
+              <Award size={24} color="#fff" strokeWidth={2} />
             </div>
-            <div className="premium-affiliate-text">
-              <h3 style={{ margin: '0 0 10px 0', fontSize: '28px', fontWeight: '800', letterSpacing: '1px' }}>Start Earning With Us</h3>
-              <p style={{ margin: 0, fontSize: '16px', color: '#e0e7ff', lineHeight: '1.5' }}>Join the exclusive AbKharido Creator Program. Share links and earn up to <strong style={{ color: '#fef08a' }}>7% instant cash</strong> on every sale you refer.</p>
+            <div className="premium-affiliate-text" style={{ textAlign: 'left' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '800', letterSpacing: '0.5px' }}>Start Earning With Us</h3>
+              <p style={{ margin: 0, fontSize: '13px', color: '#e0e7ff', lineHeight: '1.4' }}>Join the Creator Program. Earn up to <strong style={{ color: '#fef08a' }}>7% instant cash</strong> on every sale.</p>
             </div>
           </div>
-          <button className="btn-glass-light" style={{ padding: '12px 24px', fontSize: '15px' }}>
-            Learn More <ArrowRight size={16} />
+          <button className="btn-glass-light" style={{ padding: '8px 16px', fontSize: '13px', whiteSpace: 'nowrap' }}>
+            Learn More <ArrowRight size={14} />
           </button>
         </div>
       </section>
