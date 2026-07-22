@@ -79,6 +79,19 @@ router.get('/migrate-data', async (req, res) => {
         });
     }
 
+    // If connecting (which happens on cold start), wait for it to finish
+    if (mongoose.connection.readyState === 2) {
+        console.log("Mongoose is currently connecting, waiting...");
+        await new Promise(resolve => {
+            const checkInterval = setInterval(() => {
+                if (mongoose.connection.readyState !== 2) {
+                    clearInterval(checkInterval);
+                    resolve();
+                }
+            }, 500);
+        });
+    }
+
     if (mongoose.connection.readyState !== 1) {
        const uri = process.env.MONGODB_URI || 'UNDEFINED';
        const pwdMatch = uri.match(/:([^:@]+)@/);
