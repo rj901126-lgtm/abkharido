@@ -1,17 +1,19 @@
-/* Bottom Navigation Bar for Mobile Viewports (Flipkart App Match) */
+/* Bottom Navigation Bar for Mobile Viewports (100-Crore App Match) */
 
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 56px;
-  background-color: #ffffff;
+  height: 64px;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1px solid #eaeaea;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.04);
   z-index: 2000;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -23,30 +25,50 @@
   justify-content: center;
   background: none;
   border: none;
-  color: #757575;
-  font-size: 11px;
-  font-weight: 500;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 600;
   flex: 1;
   height: 100%;
-  gap: 2px;
+  gap: 4px;
   cursor: pointer;
-  transition: color 0.15s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .bottom-nav-item:focus {
   outline: none;
 }
 
+/* The icon wrapper to hold the pill highlight */
+.nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 32px;
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom-nav-item:active .nav-icon-wrapper {
+  transform: scale(0.9);
+}
+
 .bottom-nav-item.active {
-  color: var(--primary-color);
-  font-weight: 600;
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+.bottom-nav-item.active .nav-icon-wrapper {
+  background-color: #eef2ff;
+  color: #4f46e5;
 }
 
 .bottom-nav-item.active .lucide {
-  transform: translateY(-4px) scale(1.2);
   stroke-width: 2.5px;
-  filter: drop-shadow(0 6px 8px rgba(79, 70, 229, 0.4));
-  color: var(--primary-color);
+  filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.2));
 }
 
 /* Hide bottom nav on desktop screens */
@@ -55,3 +77,4 @@
     display: none !important;
   }
 }
+

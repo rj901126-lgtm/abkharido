@@ -12,7 +12,9 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         className={`bottom-nav-item ${activePage === 'home' ? 'active' : ''}`}
         onClick={() => onNavigate('home')}
       >
-        <Home size={20} />
+        <div className="nav-icon-wrapper">
+          <Home size={22} />
+        </div>
         <span>Home</span>
       </button>
 
@@ -20,7 +22,9 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         className={`bottom-nav-item ${activePage === 'categories' ? 'active' : ''}`}
         onClick={() => onNavigate('categories')}
       >
-        <LayoutGrid size={20} />
+        <div className="nav-icon-wrapper">
+          <LayoutGrid size={22} />
+        </div>
         <span>Categories</span>
       </button>
 
@@ -28,7 +32,9 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         className={`bottom-nav-item ${activePage === 'orders' ? 'active' : ''}`}
         onClick={() => onNavigate('orders')}
       >
-        <History size={20} />
+        <div className="nav-icon-wrapper">
+          <History size={22} />
+        </div>
         <span>Orders</span>
       </button>
 
@@ -37,7 +43,9 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
           className={`bottom-nav-item ${activePage === 'partner' ? 'active' : ''}`}
           onClick={() => onNavigate('partner')}
         >
-          <Award size={20} />
+          <div className="nav-icon-wrapper">
+            <Award size={22} />
+          </div>
           <span>Creator</span>
         </button>
       )}
@@ -46,7 +54,9 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         className={`bottom-nav-item ${activePage === 'login' || activePage === 'profile' ? 'active' : ''}`}
         onClick={() => onNavigate(currentUser ? 'profile' : 'login')}
       >
-        <User size={20} />
+        <div className="nav-icon-wrapper">
+          <User size={22} />
+        </div>
         <span>{currentUser ? 'Profile' : 'Login'}</span>
       </button>
     </div>

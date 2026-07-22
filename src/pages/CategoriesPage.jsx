@@ -160,23 +160,6 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
 
   return (
     <div className="categories-page animate-fade-in">
-      {/* Page Header */}
-      <div className="categories-header">
-        <h1 className="categories-header-title">All Categories</h1>
-        <div className="categories-header-icons">
-          <button className="categories-header-icon-btn" onClick={() => { onNavigate('home'); setTimeout(() => window.dispatchEvent(new CustomEvent('focus-main-search')), 150); }}>
-            <Search size={20} />
-          </button>
-          <button className="categories-header-icon-btn" onClick={() => onNavigate('home')}>
-            <Camera size={20} />
-          </button>
-          <button className="categories-header-icon-btn" onClick={() => onNavigate('cart')}>
-            <ShoppingCart size={20} />
-            {cartCount > 0 && <span className="categories-header-cart-badge">{cartCount}</span>}
-          </button>
-        </div>
-      </div>
-
       {/* Main split viewport */}
       <div className="categories-split-container">
         {/* Sidebar vertical navigation */}
