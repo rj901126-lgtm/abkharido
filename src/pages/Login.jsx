@@ -108,10 +108,8 @@ const Login = ({ onNavigate }) => {
           setTimer(60);
           showToast('Verification code sent!', 'success');
         } catch (fbErr) {
-          console.warn('Firebase verification failed:', fbErr.message);
-          showToast(`Firebase Error: ${fbErr.message}`, 'error');
-          setUseFirebase(false);
-          await triggerMockOtpFlow();
+          console.error('Firebase verification failed:', fbErr);
+          showToast(`Firebase Error: ${fbErr.message}. Please check console.`, 'error');
         }
       } else {
         await triggerMockOtpFlow();
