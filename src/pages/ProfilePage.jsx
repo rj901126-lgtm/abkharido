@@ -152,16 +152,9 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
                 : currentUser.fullName || 'AbKharido User'}
             </h2>
-            {/* Phone — primary contact (from phone field OR username if it's a number) */}
-            <p className="profile-header-phone" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              📱 {currentUser.phone || currentUser.username || 'No phone'}
+            <p className="profile-header-phone">
+              {currentUser.isInfluencer ? '⭐ Verified Creator' : '🛍️ AbKharido Member'}
             </p>
-            {/* Email — secondary contact, only show if set */}
-            {currentUser.email && (
-              <p className="profile-header-phone" style={{ marginTop: '2px', opacity: 0.75, fontSize: '12px' }}>
-                ✉️ {currentUser.email}
-              </p>
-            )}
           </div>
         </div>
       </div>
