@@ -59,7 +59,7 @@ export const getProducts = async (req, res, next) => {
       totalPages: Number(limit) > 0 ? Math.ceil(total / Number(limit)) : 1
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({ error: 'Products API Error', message: error.message });
   }
 };
 
