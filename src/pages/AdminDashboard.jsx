@@ -19,7 +19,9 @@ import {
   TrendingUp,
   LayoutTemplate,
   Banknote,
-  HeadphonesIcon
+  HeadphonesIcon,
+  User,
+  Search
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';
