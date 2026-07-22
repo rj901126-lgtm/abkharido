@@ -25,6 +25,7 @@ import legacyRoutes from './routes/legacyRoutes.js';
 import financeRoutes from './routes/financeRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import staffRoutes from './routes/staffRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -92,6 +93,7 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/admin/search', searchRoutes);
 
 // --- LEGACY ROUTES WILL BE MOUNTED HERE BY api/index.js ---
 app.use('/api', legacyRoutes);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Activity, CheckCircle, Clock } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { exportToCSV } from '../utils/csvExport';
 
 const AdminFinance = () => {
   const { showToast } = useApp();
@@ -109,6 +110,13 @@ const AdminFinance = () => {
             <div style={{ padding: '8px', background: '#f1f5f9', borderRadius: '8px', color: '#475569' }}><ArrowDownRight size={20} /></div>
             Pending Vendor Settlements
           </h3>
+          <button 
+            className="btn btn-outline btn-sm" 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', borderColor: '#10b981', color: '#10b981' }}
+            onClick={() => exportToCSV(vendors, 'abkharido_vendor_payouts.csv')}
+          >
+            Export CSV
+          </button>
         </div>
 
         {loading ? (

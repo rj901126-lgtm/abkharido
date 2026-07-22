@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Trash2, Edit, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { exportToCSV } from '../utils/csvExport';
 
 const AdminDataGrid = ({ onEditProduct }) => {
   const { showToast } = useApp();
@@ -94,9 +95,19 @@ const AdminDataGrid = ({ onEditProduct }) => {
   return (
     <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
-        <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Package size={20} /></div>
-        Live Inventory Data Grid
-      </h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
+          <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Package size={20} /></div>
+          Live Inventory Data Grid
+        </h3>
+        <button 
+          className="btn btn-outline btn-sm" 
+          onClick={() => exportToCSV(data.products, 'abkharido_inventory.csv')}
+          style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          Export CSV
+        </button>
+      </div>
       
       <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
         <div style={{ flex: 1, position: 'relative' }}>

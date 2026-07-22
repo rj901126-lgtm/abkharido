@@ -123,6 +123,34 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [sellerSearchQuery, setSellerSearchQuery] = useState('');
   const [inventorySearchQuery, setInventorySearchQuery] = useState('');
 
+  // Command Center Search
+  const [globalSearchQuery, setGlobalSearchQuery] = useState('');
+  const [globalSearchResults, setGlobalSearchResults] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (globalSearchQuery.length < 2) {
+      setGlobalSearchResults(null);
+      return;
+    }
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const token = sessionStorage.getItem('abkharido_admin_token') || '';
+        const res = await fetch(`/api/admin/search?q=${globalSearchQuery}`, {
+          headers: { 'x-admin-token': token }
+        });
+        if (res.ok) setGlobalSearchResults(await res.json());
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [globalSearchQuery]);
+
   const [editMode, setEditMode] = useState(false);
 
   const handleEditProduct = (prod) => {
@@ -1071,7 +1099,69 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               {isMobileMenuOpen ? <X size={24} /> : <div style={{display:'flex', flexDirection:'column', gap:'4px'}}><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div></div>}
             </button>
             <span>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Control</span>
+            <span>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Control</span>
           </div>
+
+          <div style={{ flex: 1, maxWidth: '500px', margin: '0 20px', position: 'relative' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px' }} />
+              <input 
+                type="text" 
+                placeholder="Ctrl+K to Search Orders, Users, Products..." 
+                value={globalSearchQuery}
+                onChange={(e) => setGlobalSearchQuery(e.target.value)}
+                style={{ width: '100%', padding: '10px 12px 10px 36px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', background: '#f8fafc' }}
+              />
+              {isSearching && <div style={{ position: 'absolute', right: '12px', fontSize: '11px', color: '#64748b' }}>Searching...</div>}
+            </div>
+
+            {/* Smart Search Results Dropdown */}
+            {globalSearchResults && (
+              <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#fff', borderRadius: '12px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', border: '1px solid #e2e8f0', zIndex: 100, maxHeight: '400px', overflowY: 'auto' }}>
+                
+                {globalSearchResults.orders?.length > 0 && (
+                  <div style={{ padding: '8px 12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Orders</div>
+                    {globalSearchResults.orders.map(o => (
+                      <div key={o._id} onClick={() => { setActiveTab('orders'); setGlobalSearchResults(null); setGlobalSearchQuery(''); }} style={{ padding: '8px', borderRadius: '6px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <div style={{ fontSize: '13px', fontWeight: '500', color: '#0f172a' }}>#{o._id.substring(o._id.length - 6)}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>{o.user?.name}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {globalSearchResults.products?.length > 0 && (
+                  <div style={{ padding: '8px 12px', borderTop: globalSearchResults.orders?.length ? '1px solid #f1f5f9' : 'none' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Products</div>
+                    {globalSearchResults.products.map(p => (
+                      <div key={p._id} onClick={() => { setActiveTab('inventory'); setGlobalSearchResults(null); setGlobalSearchQuery(''); }} style={{ padding: '8px', borderRadius: '6px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <div style={{ fontSize: '13px', fontWeight: '500', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '250px' }}>{p.name}</div>
+                        <div style={{ fontSize: '11px', color: '#64748b', background: '#f8fafc', padding: '2px 6px', borderRadius: '4px' }}>{p.sku || 'No SKU'}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {globalSearchResults.users?.length > 0 && (
+                  <div style={{ padding: '8px 12px', borderTop: (globalSearchResults.orders?.length || globalSearchResults.products?.length) ? '1px solid #f1f5f9' : 'none' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Users</div>
+                    {globalSearchResults.users.map(u => (
+                      <div key={u._id} onClick={() => { setActiveTab('users'); setGlobalSearchResults(null); setGlobalSearchQuery(''); }} style={{ padding: '8px', borderRadius: '6px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <div style={{ fontSize: '13px', fontWeight: '500', color: '#0f172a' }}>{u.fullName || u.username}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>{u.email}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {(!globalSearchResults.orders?.length && !globalSearchResults.products?.length && !globalSearchResults.users?.length) && (
+                  <div style={{ padding: '20px', textAlign: 'center', fontSize: '13px', color: '#64748b' }}>No results found for "{globalSearchQuery}"</div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="admin-topbar-actions">
             <button className="btn btn-outline btn-sm" onClick={() => onNavigate('home')} style={{ fontSize: '12px' }}>
               <ArrowLeft size={14} /> Exit Admin

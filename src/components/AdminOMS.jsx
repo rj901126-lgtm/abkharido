@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, CheckSquare, Settings, Truck, Printer, Search, XCircle } from 'lucide-react';
+import { FileText, Truck, Printer, Search, CheckSquare, Eye, X, Settings, XCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import WorldClassInvoice from './WorldClassInvoice';
+import { exportToCSV } from '../utils/csvExport';
 
 const AdminOMS = () => {
   const [orders, setOrders] = useState([]);
@@ -233,6 +234,14 @@ const AdminOMS = () => {
             onClick={handleBulkExport}
           >
             <Printer size={14} /> Export Labels
+          </button>
+          
+          <button 
+            className="btn btn-outline btn-sm" 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', borderColor: '#10b981', color: '#10b981' }}
+            onClick={() => exportToCSV(orders, 'abkharido_orders.csv')}
+          >
+            <FileText size={14} /> Export CSV
           </button>
         </div>
       </div>
