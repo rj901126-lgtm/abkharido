@@ -137,6 +137,50 @@ export const verifyOtp = async (req, res, next) => {
   }
 };
 
+// @desc    Verify Firebase Token (Mocked for now without Service Account)
+// @route   POST /api/auth/verify-firebase
+// @access  Public
+export const verifyFirebase = async (req, res, next) => {
+  try {
+    const { phone, isSignup, fullName, email } = req.body;
+    
+    if (!phone) {
+      res.status(400);
+      throw new Error('Phone number is required from Firebase payload');
+    }
+
+    let user = await User.findOne({ phone });
+    
+    if (!user) {
+      if (!isSignup) {
+        // If not signup, maybe they just haven't set up a profile, let's auto-create
+      }
+      const username = phone.replace('+', '') + Math.floor(Math.random() * 1000);
+      user = await User.create({ 
+        username, 
+        phone, 
+        email: email || undefined, 
+        fullName: fullName || 'New User',
+        password: 'FirebaseVerifiedUser123!' 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        token: generateToken(user._id),
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Check User
 // @route   POST /api/auth/check-user
 // @access  Public
