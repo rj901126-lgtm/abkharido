@@ -68,22 +68,27 @@ const AdminCRM = () => {
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
       
       {/* Abandoned Cart CRM */}
-      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ padding: '8px', background: '#fee2e2', borderRadius: '8px', color: '#ef4444' }}><ShoppingCart size={20} /></div>
-            Abandoned Cart Recovery
-          </h3>
-          <span style={{ fontSize: '13px', background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '6px 12px', borderRadius: '20px', fontWeight: '700', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.05)' }}>
-            Lost Revenue: ₹{abandonedCarts.reduce((acc, curr) => acc + curr.cartValue, 0).toLocaleString()}
-          </span>
+      {/* Abandoned Cart CRM */}
+      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: 0, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', color: 'white' }}>
+          <div>
+            <h3 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '22px', fontWeight: '800' }}>
+              <ShoppingCart size={24} color="#818cf8" />
+              Cart Recovery CRM
+            </h3>
+            <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>
+              Recover lost revenue from abandoned checkouts.
+            </p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '12px', textTransform: 'uppercase', color: '#818cf8', fontWeight: '700', letterSpacing: '1px' }}>Recoverable Revenue</div>
+            <div style={{ fontSize: '24px', fontWeight: '800', color: '#34d399' }}>
+              ₹{abandonedCarts.reduce((acc, curr) => acc + curr.cartValue, 0).toLocaleString()}
+            </div>
+          </div>
         </div>
-        
-        <p style={{ fontSize: '14px', color: '#64748b', marginTop: '-10px', lineHeight: '1.5' }}>
-          Users who added items to their cart but did not complete the checkout process. Send them a reminder to recover revenue!
-        </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '24px' }}>
           {abandonedCarts.map(cart => (
             <div key={cart._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', border: '1px solid #e2e8f0', borderRadius: '12px', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', transition: 'all 0.2s' }} onMouseEnter={e => {e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 4px 12px rgba(0,0,0,0.05)'}} onMouseLeave={e => {e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.02)'}}>
               <div>
@@ -106,13 +111,20 @@ const AdminCRM = () => {
       </div>
 
       {/* Global Settings Manager */}
-      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Settings size={20} /></div>
-          Global Website Settings
-        </h3>
+      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: 0, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', color: 'white' }}>
+          <div>
+            <h3 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '22px', fontWeight: '800' }}>
+              <Settings size={24} color="#818cf8" />
+              Global Configuration
+            </h3>
+            <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>
+              Storefront theming and core platform variables.
+            </p>
+          </div>
+        </div>
         
-        <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px' }}>
           
           <div>
             <label className="admin-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#1e293b' }}>

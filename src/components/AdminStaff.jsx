@@ -87,16 +87,25 @@ const AdminStaff = () => {
   };
 
   return (
-    <div className="admin-grid" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Glassmorphic Header Area */}
+      <div className="admin-panel-card" style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', color: 'white', borderRadius: '24px' }}>
         <div>
-          <h2 style={{ margin: '0 0 8px', fontSize: '24px', color: '#0f172a' }}>Team & Access Management</h2>
-          <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>Create sub-admins and assign specific roles (RBAC) to secure your enterprise data.</p>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', fontFamily: 'Outfit, sans-serif', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Shield size={28} color="#818cf8" /> Enterprise Access Control (IAM)
+          </h2>
+          <p style={{ margin: 0, color: '#94a3b8', fontSize: '15px' }}>
+            Securely manage internal roles, permissions, and staff accounts globally.
+          </p>
         </div>
-        <button onClick={() => setIsAdding(!isAdding)} className="btn btn-primary" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <button 
+          onClick={() => setIsAdding(!isAdding)} 
+          className="btn btn-primary" 
+          style={{ padding: '14px 28px', fontSize: '16px', borderRadius: '100px', background: isAdding ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)', boxShadow: isAdding ? 'none' : '0 10px 25px rgba(79, 70, 229, 0.3)', border: isAdding ? '1px solid rgba(255,255,255,0.2)' : 'none', color: 'white', display: 'flex', gap: '8px', alignItems: 'center' }}
+        >
           {isAdding ? <XCircle size={18} /> : <UserPlus size={18} />}
-          {isAdding ? 'Cancel' : 'Add New Staff'}
+          {isAdding ? 'Cancel Registration' : 'Register New Staff'}
         </button>
       </div>
 
@@ -149,15 +158,18 @@ const AdminStaff = () => {
         </div>
       )}
 
-      <div className="admin-panel-card" style={{ padding: '24px' }}>
-        <h3 className="admin-form-title" style={{ margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <User size={20} color="#475569" /> Active Enterprise Staff
-        </h3>
+      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0', overflow: 'hidden' }}>
+        <div style={{ padding: '24px', borderBottom: '1px solid var(--admin-border)', background: '#f8fafc' }}>
+          <h3 className="admin-form-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '12px', color: '#4f46e5' }}><User size={20} /></div>
+            Global Staff Directory
+          </h3>
+        </div>
         
         {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading staff members...</div>
+          <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>Loading active personnel...</div>
         ) : (
-          <div className="admin-table-wrapper">
+          <div className="admin-table-wrapper" style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
             <table className="admin-table">
               <thead>
                 <tr>
@@ -171,25 +183,25 @@ const AdminStaff = () => {
               <tbody>
                 {staff.map(member => (
                   <tr key={member._id}>
-                    <td>
-                      <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{member.fullName || 'N/A'}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{member.email}</div>
+                    <td style={{ paddingLeft: '24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155', fontWeight: 'bold', fontSize: '16px', border: '1px solid #cbd5e1' }}>
+                          {(member.fullName || member.username).charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '14px' }}>{member.fullName || 'N/A'}</div>
+                          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{member.email}</div>
+                        </div>
+                      </div>
                     </td>
-                    <td style={{ color: '#475569', fontWeight: '500' }}>@{member.username}</td>
+                    <td style={{ color: '#475569', fontWeight: '600', fontSize: '13px' }}>@{member.username}</td>
                     <td>
-                      <span style={{ 
-                        padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase',
-                        background: member.role === 'super_admin' ? '#fce7f3' : member.role === 'admin' ? '#e0e7ff' : '#f1f5f9',
-                        color: member.role === 'super_admin' ? '#be185d' : member.role === 'admin' ? '#4338ca' : '#475569'
-                      }}>
+                      <span className={`status-badge ${member.role === 'super_admin' ? 'danger' : member.role === 'admin' ? 'info' : 'warning'}`} style={{ padding: '6px 12px', fontSize: '12px', textTransform: 'uppercase' }}>
                         {member.role.replace('_', ' ')}
                       </span>
                     </td>
                     <td>
-                      <span style={{ 
-                        display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 'bold',
-                        color: member.status === 'Active' ? '#10b981' : '#ef4444'
-                      }}>
+                      <span className={`status-badge ${member.status === 'Active' ? 'success' : 'danger'}`} style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                         {member.status === 'Active' ? <CheckCircle size={14} /> : <XCircle size={14} />}
                         {member.status}
                       </span>
@@ -199,18 +211,18 @@ const AdminStaff = () => {
                         {member.status === 'Active' ? (
                           <button 
                             className="btn btn-outline" 
-                            style={{ padding: '4px 8px', fontSize: '11px', color: '#ef4444', borderColor: '#fca5a5' }}
+                            style={{ padding: '8px 12px', fontSize: '12px', borderRadius: '8px', color: '#ef4444', borderColor: 'transparent', background: '#fee2e2' }}
                             onClick={() => handleUpdateStatus(member._id, 'Suspended')}
                           >
-                            Suspend Access
+                            Suspend
                           </button>
                         ) : (
                           <button 
                             className="btn btn-outline" 
-                            style={{ padding: '4px 8px', fontSize: '11px', color: '#10b981', borderColor: '#6ee7b7' }}
+                            style={{ padding: '8px 12px', fontSize: '12px', borderRadius: '8px', color: '#10b981', borderColor: 'transparent', background: '#d1fae5' }}
                             onClick={() => handleUpdateStatus(member._id, 'Active')}
                           >
-                            Restore Access
+                            Restore
                           </button>
                         )}
                       </div>
@@ -219,7 +231,7 @@ const AdminStaff = () => {
                 ))}
                 {staff.length === 0 && (
                   <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>No staff members found.</td>
+                    <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '15px' }}>No internal personnel records found.</td>
                   </tr>
                 )}
               </tbody>

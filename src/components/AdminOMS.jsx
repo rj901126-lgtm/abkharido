@@ -203,112 +203,121 @@ const AdminOMS = () => {
   }
 
   return (
-    <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 className="admin-form-title"><FileText size={18} color="var(--primary-color)" /> Enterprise Order Management (OMS)</h3>
-        
-        {/* Bulk Action Bar */}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f5f5f5', padding: '8px 16px', borderRadius: '8px' }}>
-          <CheckSquare size={16} color="#555" />
-          <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{selectedOrders.length} Selected</span>
-          <select 
-            className="admin-input" 
-            style={{ width: '150px', height: '32px', marginLeft: '10px' }}
-            value={bulkStatus}
-            onChange={(e) => setBulkStatus(e.target.value)}
-          >
-            <option value="">Update Status...</option>
-            <option value="Processing">Processing</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-          <button className="btn btn-primary btn-sm" onClick={handleBulkUpdate}>Apply</button>
-          
-          <div style={{ width: '1px', height: '24px', background: '#ccc', margin: '0 8px' }}></div>
-          
+      {/* Glassmorphic Header Area */}
+      <div className="admin-panel-card" style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', color: 'white', borderRadius: '24px' }}>
+        <div>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', fontFamily: 'Outfit, sans-serif', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <FileText size={28} color="#818cf8" /> Enterprise Order Management
+          </h2>
+          <p style={{ margin: 0, color: '#94a3b8', fontSize: '15px' }}>
+            Manage, process, and track your global fulfillment operations seamlessly.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '12px' }}>
           <button 
-            className="btn btn-outline btn-sm" 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', borderColor: '#4f46e5', color: '#4f46e5' }}
+            className="btn" 
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}
             onClick={handleBulkExport}
           >
-            <Printer size={14} /> Export Labels
+            <Printer size={16} /> Print {selectedOrders.length > 0 ? selectedOrders.length : ''} Labels
           </button>
           
           <button 
-            className="btn btn-outline btn-sm" 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', borderColor: '#10b981', color: '#10b981' }}
+            className="btn btn-primary" 
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', border: 'none', boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)' }}
             onClick={() => exportToCSV(orders, 'abkharido_orders.csv')}
           >
-            <FileText size={14} /> Export CSV
+            <FileText size={16} /> Export CSV
           </button>
         </div>
       </div>
 
-      <div className="admin-table-wrapper">
+      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '0', overflow: 'hidden' }}>
+        
+        {/* Bulk Action Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid var(--admin-border)', background: '#f8fafc' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#e2e8f0', padding: '6px 12px', borderRadius: '100px' }}>
+              <CheckSquare size={16} color="#475569" />
+              <span style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>{selectedOrders.length} Selected</span>
+            </div>
+            
+            <select 
+              className="admin-input" 
+              style={{ width: '180px', height: '36px', borderRadius: '100px', fontSize: '13px', fontWeight: '600', paddingLeft: '16px' }}
+              value={bulkStatus}
+              onChange={(e) => setBulkStatus(e.target.value)}
+            >
+              <option value="">Set Status to...</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <button className="btn btn-primary btn-sm" style={{ borderRadius: '100px' }} onClick={handleBulkUpdate}>Apply Update</button>
+          </div>
+        </div>
+
+      <div className="admin-table-wrapper" style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
         <table className="admin-table">
           <thead>
             <tr>
-              <th style={{ width: '40px' }}>
+              <th style={{ width: '40px', paddingLeft: '24px' }}>
                 <input 
                   type="checkbox" 
                   checked={selectedOrders.length === orders.length && orders.length > 0}
                   onChange={handleSelectAll}
+                  style={{ width: '16px', height: '16px', accentColor: '#6366f1', cursor: 'pointer' }}
                 />
               </th>
               <th>Order ID</th>
-              <th>Customer</th>
+              <th>Customer details</th>
               <th>Total Value</th>
-              <th>Status</th>
-              <th>Payment</th>
+              <th>Order Status</th>
+              <th>Payment Info</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {orders.map(order => (
               <tr key={order.id || order._id} style={{ backgroundColor: selectedOrders.includes(order.id || order._id) ? '#f0f8ff' : 'transparent' }}>
-                <td>
+                <td style={{ paddingLeft: '24px' }}>
                   <input 
                     type="checkbox" 
                     checked={selectedOrders.includes(order.id || order._id)}
                     onChange={() => handleSelectOne(order.id || order._id)}
+                    style={{ width: '16px', height: '16px', accentColor: '#6366f1', cursor: 'pointer' }}
                   />
                 </td>
-                <td style={{ fontWeight: '600', fontSize: '13px' }}>{order.id || order._id}</td>
+                <td style={{ fontWeight: '700', fontSize: '13px', color: '#4f46e5' }}>#{String(order.id || order._id).slice(-8).toUpperCase()}</td>
                 <td>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span>{order.customerUsername || order.user?.email || 'N/A'}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{ fontWeight: '600' }}>{order.customerUsername || order.user?.email || 'N/A'}</span>
                     {order.user && (
-                      <span style={{ fontSize: '10px', fontWeight: 'bold', color: order.user.isEmailVerified ? '#2e7d32' : '#d32f2f' }}>
-                        {order.user.isEmailVerified ? '✓ Email Verified' : '✗ Unverified Email'}
+                      <span className={`status-badge ${order.user.isEmailVerified ? 'success' : 'danger'}`} style={{ alignSelf: 'flex-start', fontSize: '10px', padding: '2px 6px' }}>
+                        {order.user.isEmailVerified ? '✓ Verified' : '✗ Unverified'}
                       </span>
                     )}
                   </div>
                 </td>
-                <td style={{ fontWeight: 'bold' }}>₹{(order.finalAmount || order.totalPrice || 0).toLocaleString()}</td>
+                <td style={{ fontWeight: '800', color: '#0f172a' }}>₹{(order.finalAmount || order.totalPrice || 0).toLocaleString('en-IN')}</td>
                 <td>
-                  <span style={{ 
-                    padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold',
-                    backgroundColor: order.status === 'Delivered' ? '#e8f5e9' : order.status === 'Shipped' ? '#e3f2fd' : '#fff3e0',
-                    color: order.status === 'Delivered' ? '#2e7d32' : order.status === 'Shipped' ? '#1565c0' : '#e65100'
-                  }}>
+                  <span className={`status-badge ${order.status === 'Delivered' ? 'success' : order.status === 'Shipped' ? 'info' : order.status === 'Cancelled' ? 'danger' : 'warning'}`}>
                     {order.status || 'Processing'}
                   </span>
                 </td>
                 <td>
-                  {order.paymentMethod === 'Cash on Delivery' ? 
-                    <span style={{ color: '#e65100', fontWeight: 'bold' }}>COD/Unpaid</span> :
-                   order.paymentStatus === 'SUCCESS' || order.isPaid ? 
-                    <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>Paid Online</span> : 
-                    <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>{order.paymentMethod || 'Unpaid'}</span>
-                  }
+                  <span className={`status-badge ${order.paymentMethod === 'Cash on Delivery' ? 'warning' : (order.paymentStatus === 'SUCCESS' || order.isPaid) ? 'success' : 'danger'}`}>
+                    {order.paymentMethod === 'Cash on Delivery' ? 'COD (Unpaid)' : (order.paymentStatus === 'SUCCESS' || order.isPaid) ? 'Paid Online' : (order.paymentMethod || 'Unpaid')}
+                  </span>
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
                       className="btn btn-outline" 
-                      style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px' }}
+                      style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#6366f1', borderColor: 'transparent', background: '#e0e7ff' }}
                       title="Generate Shiprocket AWB"
                       onClick={() => generateAWB(order.id || order._id)}
                     >
@@ -316,21 +325,21 @@ const AdminOMS = () => {
                     </button>
                     <button 
                       className="btn btn-outline" 
-                      style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px', color: '#2874f0', borderColor: '#2874f0', opacity: downloadingOrderId === (order.id || order._id) ? 0.6 : 1 }}
+                      style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#0ea5e9', borderColor: 'transparent', background: '#e0f2fe', opacity: downloadingOrderId === (order.id || order._id) ? 0.6 : 1 }}
                       title="Download Premium Invoice"
                       onClick={() => handleDownloadPremiumInvoice(order)}
                       disabled={downloadingOrderId === (order.id || order._id)}
                     >
-                      <Printer size={14} /> {downloadingOrderId === (order.id || order._id) ? 'Generating...' : 'Invoice'}
+                      <Printer size={14} /> {downloadingOrderId === (order.id || order._id) ? 'PDF...' : 'Invoice'}
                     </button>
                     <button 
                       className="btn btn-outline" 
-                      style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px', color: '#10b981', borderColor: '#10b981', opacity: emailingOrderId === (order.id || order._id) || !order.user?.isEmailVerified ? 0.6 : 1 }}
+                      style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#10b981', borderColor: 'transparent', background: '#d1fae5', opacity: emailingOrderId === (order.id || order._id) || !order.user?.isEmailVerified ? 0.6 : 1 }}
                       title="Email Invoice to Customer"
                       onClick={() => handleSendInvoiceEmail(order)}
                       disabled={emailingOrderId === (order.id || order._id) || !order.user?.isEmailVerified}
                     >
-                      <FileText size={14} /> {emailingOrderId === (order.id || order._id) ? 'Sending...' : 'Email'}
+                      <FileText size={14} /> {emailingOrderId === (order.id || order._id) ? 'Wait...' : 'Email'}
                     </button>
                     {/* Hidden Premium Invoice Renderer */}
                     <div style={{ display: 'none' }}>
@@ -339,7 +348,7 @@ const AdminOMS = () => {
                     {order.status !== 'CANCELLED' && order.status !== 'Delivered' && (
                       <button 
                         className="btn btn-outline" 
-                        style={{ padding: '6px', display: 'flex', gap: '4px', alignItems: 'center', fontSize: '11px', color: '#d32f2f', borderColor: '#d32f2f' }}
+                        style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#ef4444', borderColor: 'transparent', background: '#fee2e2' }}
                         title="Cancel Order"
                         onClick={() => handleCancelOrder(order.id || order._id)}
                       >
@@ -352,13 +361,13 @@ const AdminOMS = () => {
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>No orders found.</td>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '15px' }}>No enterprise orders found.</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-
+      </div>
     </div>
   );
 };

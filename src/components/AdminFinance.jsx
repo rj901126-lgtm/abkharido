@@ -104,25 +104,25 @@ const AdminFinance = () => {
       </div>
 
       {/* ── Vendor Balances Grid ── */}
-      <div className="admin-panel-card" style={{ padding: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 className="admin-form-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ padding: '8px', background: '#f1f5f9', borderRadius: '8px', color: '#475569' }}><ArrowDownRight size={20} /></div>
-            Pending Vendor Settlements
+      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', borderBottom: '1px solid var(--admin-border)', background: '#f8fafc' }}>
+          <h3 className="admin-form-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px' }}>
+            <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '12px', color: '#4f46e5' }}><ArrowDownRight size={20} /></div>
+            Global Vendor Settlements
           </h3>
           <button 
-            className="btn btn-outline btn-sm" 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', borderColor: '#10b981', color: '#10b981' }}
+            className="btn btn-primary" 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', border: 'none', boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)' }}
             onClick={() => exportToCSV(vendors, 'abkharido_vendor_payouts.csv')}
           >
-            Export CSV
+            Export Ledger CSV
           </button>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>Loading vendor balances...</div>
+          <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>Loading vendor ledger...</div>
         ) : (
-          <div className="admin-table-wrapper">
+          <div className="admin-table-wrapper" style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
             <table className="admin-table">
               <thead>
                 <tr>
@@ -136,26 +136,26 @@ const AdminFinance = () => {
               <tbody>
                 {vendors.length === 0 ? (
                   <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>No approved vendors found.</td>
+                    <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '15px' }}>No active vendor ledgers found.</td>
                   </tr>
                 ) : (
                   vendors.map(v => (
                     <tr key={v._id}>
-                      <td>
-                        <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{v.name}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>{v.email}</div>
+                      <td style={{ paddingLeft: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', fontWeight: 'bold', fontSize: '16px', border: '1px solid #e2e8f0' }}>
+                            {v.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '14px' }}>{v.name}</div>
+                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{v.email}</div>
+                          </div>
+                        </div>
                       </td>
-                      <td style={{ fontWeight: '600', color: '#334155' }}>₹{v.totalEarned.toLocaleString('en-IN')}</td>
-                      <td style={{ color: '#10b981', fontWeight: '500' }}>₹{v.totalSettled.toLocaleString('en-IN')}</td>
+                      <td style={{ fontWeight: '800', color: '#334155' }}>₹{v.totalEarned.toLocaleString('en-IN')}</td>
+                      <td style={{ color: '#10b981', fontWeight: '800' }}>₹{v.totalSettled.toLocaleString('en-IN')}</td>
                       <td>
-                        <span style={{ 
-                          padding: '4px 10px', 
-                          borderRadius: '20px', 
-                          fontSize: '13px', 
-                          fontWeight: 'bold',
-                          background: v.pendingBalance > 0 ? '#fee2e2' : '#f1f5f9',
-                          color: v.pendingBalance > 0 ? '#ef4444' : '#64748b'
-                        }}>
+                        <span className={`status-badge ${v.pendingBalance > 0 ? 'danger' : 'success'}`} style={{ padding: '6px 12px', fontSize: '13px' }}>
                           ₹{v.pendingBalance.toLocaleString('en-IN')}
                         </span>
                       </td>
@@ -164,9 +164,9 @@ const AdminFinance = () => {
                           className="btn btn-sm btn-primary"
                           disabled={v.pendingBalance <= 0}
                           onClick={() => handleSettle(v)}
-                          style={{ opacity: v.pendingBalance <= 0 ? 0.5 : 1, fontSize: '12px', height: '32px' }}
+                          style={{ opacity: v.pendingBalance <= 0 ? 0.5 : 1, fontSize: '13px', height: '36px', borderRadius: '8px', background: v.pendingBalance > 0 ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : '#e2e8f0', color: v.pendingBalance > 0 ? 'white' : '#94a3b8', border: 'none', boxShadow: v.pendingBalance > 0 ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none' }}
                         >
-                          {v.pendingBalance > 0 ? 'Settle Balance' : 'Settled'}
+                          {v.pendingBalance > 0 ? 'Settle Balance' : 'Fully Settled'}
                         </button>
                       </td>
                     </tr>

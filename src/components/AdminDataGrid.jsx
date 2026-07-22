@@ -93,22 +93,30 @@ const AdminDataGrid = ({ onEditProduct }) => {
   };
 
   return (
-    <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0, borderBottom: 'none', paddingBottom: 0 }}>
-          <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Package size={20} /></div>
-          Live Inventory Data Grid
-        </h3>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      
+      {/* Glassmorphic Header Area */}
+      <div className="admin-panel-card" style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', color: 'white', borderRadius: '24px' }}>
+        <div>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', fontFamily: 'Outfit, sans-serif', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Package size={28} color="#818cf8" /> Live Inventory Engine
+          </h2>
+          <p style={{ margin: 0, color: '#94a3b8', fontSize: '15px' }}>
+            Global PIM (Product Information Management) and real-time stock levels.
+          </p>
+        </div>
         <button 
-          className="btn btn-outline btn-sm" 
+          className="btn btn-primary" 
           onClick={() => exportToCSV(data.products, 'abkharido_inventory.csv')}
-          style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+          style={{ padding: '14px 28px', fontSize: '16px', borderRadius: '100px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)', border: 'none', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          Export CSV
+          <Package size={18} /> Export Inventory CSV
         </button>
       </div>
       
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+      <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0', overflow: 'hidden' }}>
+        <div style={{ padding: '24px', borderBottom: '1px solid var(--admin-border)', background: '#f8fafc' }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '16px' }}>
         <div style={{ flex: 1, position: 'relative' }}>
           <Search size={16} color="var(--text-secondary)" style={{ position: 'absolute', left: '10px', top: '10px' }} />
           <input 
@@ -133,12 +141,13 @@ const AdminDataGrid = ({ onEditProduct }) => {
           <option value="home">Home</option>
           <option value="appliances">Appliances</option>
         </select>
-        <button type="submit" className="btn btn-primary" style={{ padding: '0 16px', height: '36px' }}>
-          Search
-        </button>
-      </form>
+            <button type="submit" className="btn btn-primary" style={{ padding: '0 24px', borderRadius: '100px', height: '48px', fontSize: '15px' }}>
+              Search Database
+            </button>
+          </form>
+        </div>
 
-      <div className="admin-table-wrapper" style={{ minHeight: '400px' }}>
+      <div className="admin-table-wrapper" style={{ border: 'none', boxShadow: 'none', borderRadius: 0, minHeight: '400px' }}>
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', flexDirection: 'column', gap: '16px' }}>
             <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
@@ -247,7 +256,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
 
       {/* Pagination Controls */}
       {data.totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', background: '#f8fafc', borderTop: '1px solid var(--admin-border)' }}>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             Showing {data.products.length} of {data.total} products
           </div>
@@ -274,6 +283,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
