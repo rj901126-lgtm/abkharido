@@ -215,6 +215,10 @@
 }
 
 /* Sticky Action Buttons for Mobile */
+.action-buttons-container {
+  display: block; /* visible by default on desktop */
+}
+
 .action-buttons-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -228,14 +232,14 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     padding: 12px 16px;
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.10);
     z-index: 1000;
-    border-top: 1px solid rgba(0,0,0,0.05);
+    border-top: 1px solid rgba(0,0,0,0.06);
   }
   .action-buttons-row {
     margin: 0;
@@ -244,7 +248,7 @@
     gap: 12px;
   }
   .details-info-column {
-    padding: 20px 16px 100px 16px !important; /* padding bottom for sticky bar */
+    padding: 20px 16px 120px 16px !important; /* padding bottom for sticky bar */
   }
 }
 
