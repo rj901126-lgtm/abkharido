@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle } from 'lucide-react';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { auth as firebaseAuth } from '../firebase';
 
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
@@ -16,6 +18,7 @@ const Login = ({ onNavigate }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [otpCopied, setOtpCopied] = useState(false);
+  const [firebaseConfirmation, setFirebaseConfirmation] = useState(null); // Firebase SMS result
 
   useEffect(() => {
     if (currentUser) onNavigate('home');
@@ -59,6 +62,8 @@ const Login = ({ onNavigate }) => {
     if (e) e.preventDefault();
     if (!validatePhone()) return;
     setIsSending(true);
+    setFirebaseConfirmation(null);
+    setGeneratedOtp('');
     try {
       const checkRes = await fetch('/api/auth/check-user', {
         method: 'POST',
@@ -86,8 +91,30 @@ const Login = ({ onNavigate }) => {
         }
         if (!validateSignupDetails()) { setIsSending(false); return; }
       }
-      // Use backend OTP directly (Firebase bypass)
-      await triggerMockOtpFlow();
+
+      // ── Try Firebase Phone Auth first (real SMS) ──
+      try {
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
+            size: 'invisible', // invisible so no UI interruption
+            callback: () => {}
+          });
+        }
+        const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
+        setFirebaseConfirmation(result);
+        setShowOtpScreen(true);
+        setTimer(60);
+        showToast('✅ OTP sent to your mobile via SMS!', 'success');
+      } catch (fbErr) {
+        // Clear broken reCAPTCHA
+        if (window.recaptchaVerifier) {
+          try { window.recaptchaVerifier.clear(); } catch (_) {}
+          window.recaptchaVerifier = null;
+        }
+        console.warn('Firebase SMS failed, using backend OTP:', fbErr.code);
+        // ── Auto-fallback to backend OTP ──
+        await triggerBackendOtp();
+      }
     } catch (err) {
       showToast('Connection error. Please try again.', 'error');
     } finally {
@@ -95,7 +122,7 @@ const Login = ({ onNavigate }) => {
     }
   };
 
-  const triggerMockOtpFlow = async () => {
+  const triggerBackendOtp = async () => {
     const res = await fetch('/api/auth/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -106,10 +133,9 @@ const Login = ({ onNavigate }) => {
       setGeneratedOtp(data.otp);
       setShowOtpScreen(true);
       setTimer(60);
-      // Auto-fill OTP boxes for easy login
       const digits = data.otp.split('');
       setOtpCode(digits);
-      showToast('OTP generated! Check the box below.', 'success');
+      showToast('OTP generated! Check the OTP card below.', 'info');
     } else {
       showToast(data.error || 'Failed to send OTP.', 'error');
     }
@@ -124,14 +150,17 @@ const Login = ({ onNavigate }) => {
     }
     setIsVerifying(true);
     try {
-      if (true) { // Backend OTP path
+      // ── Path 1: Firebase SMS OTP (real SMS was sent) ──
+      if (firebaseConfirmation) {
         try {
-          const res = await fetch('/api/auth/verify-otp', {
+          const result = await firebaseConfirmation.confirm(enteredOtp);
+          const firebaseIdToken = await result.user.getIdToken();
+          const res = await fetch('/api/auth/verify-firebase', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              recipient: phone,
-              otp: enteredOtp,
+              idToken: firebaseIdToken,
+              phone,
               isSignup: authMode === 'signup',
               fullName: authMode === 'signup' ? fullName.trim() : undefined,
               email: authMode === 'signup' ? email.trim() : undefined
@@ -139,14 +168,35 @@ const Login = ({ onNavigate }) => {
           });
           const data = await res.json();
           if (res.ok) {
-            showToast(authMode === 'signup' ? 'Account created successfully! 🎉' : 'Welcome back! 👋', 'success');
+            showToast(authMode === 'signup' ? 'Account created! 🎉' : 'Welcome back! 👋', 'success');
             localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
             window.location.reload();
           } else {
-            showToast(data.error || 'Incorrect OTP. Please try again.', 'error');
+            showToast(data.error || 'Authentication failed.', 'error');
           }
-        } catch (err) {
-          showToast('Verification failed. Try again.', 'error');
+        } catch (fbErr) {
+          showToast('Invalid OTP. Please check and try again.', 'error');
+        }
+      } else {
+        // ── Path 2: Backend OTP (fallback) ──
+        const res = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipient: phone,
+            otp: enteredOtp,
+            isSignup: authMode === 'signup',
+            fullName: authMode === 'signup' ? fullName.trim() : undefined,
+            email: authMode === 'signup' ? email.trim() : undefined
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(authMode === 'signup' ? 'Account created! 🎉' : 'Welcome back! 👋', 'success');
+          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
+          window.location.reload();
+        } else {
+          showToast(data.error || 'Incorrect OTP. Please try again.', 'error');
         }
       }
     } catch (err) {
