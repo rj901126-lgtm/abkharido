@@ -11,7 +11,10 @@ const orderItemSchema = new mongoose.Schema({
   image: { type: String, required: true },
   price: { type: Number, required: true },
   color: { type: String },
-  variant: { type: String }
+  variant: { type: String },
+  vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  vendorAmount: { type: Number, default: 0 },
+  platformFee: { type: Number, default: 0 }
 }, { _id: false });
 
 const orderSchema = new mongoose.Schema({
@@ -39,6 +42,7 @@ const orderSchema = new mongoose.Schema({
   taxPrice: { type: Number, required: true, default: 0.0 },
   shippingPrice: { type: Number, required: true, default: 0.0 },
   totalPrice: { type: Number, required: true, default: 0.0 },
+  totalPlatformFee: { type: Number, default: 0.0 },
   
   isPaid: { type: Boolean, required: true, default: false },
   paidAt: { type: Date },

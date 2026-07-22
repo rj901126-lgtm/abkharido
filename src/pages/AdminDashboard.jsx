@@ -17,7 +17,8 @@ import {
   ShieldAlert,
   Store,
   TrendingUp,
-  LayoutTemplate
+  LayoutTemplate,
+  Banknote
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';
@@ -27,6 +28,7 @@ import AdminCoupons from '../components/AdminCoupons';
 import AdminOMS from '../components/AdminOMS';
 import AdminCRM from '../components/AdminCRM';
 import AdminAuditLogs from '../components/AdminAuditLogs';
+import AdminFinance from '../components/AdminFinance';
 
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
@@ -96,7 +98,7 @@ const uploadToCloudinary = async (file) => {
 
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, editProduct, removeProduct, showToast } = useApp();
-  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); // 'analytics' | 'inventory' | 'orders' | 'users' | 'promotions' | 'cms' | 'crm' | 'coupons'
+  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); // 'analytics' | 'inventory' | 'orders' | 'users' | 'promotions' | 'cms' | 'crm' | 'coupons' | 'finance'
   
   useEffect(() => {
     sessionStorage.setItem('adminActiveTab', activeTab);
@@ -1005,6 +1007,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           >
             <ShieldAlert size={18} /> Audit Logs
           </div>
+          <div 
+            className={`admin-nav-item ${activeTab === 'finance' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('finance'); setMobileMenuOpen(false); }}
+            style={{ marginTop: 'auto' }}
+          >
+            <Banknote size={18} /> Finance & Payouts
+          </div>
         </nav>
       </aside>
 
@@ -1026,6 +1035,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         </header>
 
         <div className="admin-content-inner">
+
+        {/* CONDITIONAL RENDER: FINANCE TAB */}
+        {activeTab === 'finance' && <AdminFinance />}
 
       {/* CONDITIONAL RENDER: ANALYTICS TAB */}
       {activeTab === 'analytics' && (

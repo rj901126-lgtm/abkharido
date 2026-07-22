@@ -1,4 +1,5 @@
 import Order from '../models/Order.js';
+import Product from '../models/Product.js';
 import User from '../models/User.js';
 import { sendInvoiceEmail } from '../utils/emailService.js';
 import { addOrderToQueue } from '../utils/queue.js';
@@ -22,8 +23,30 @@ export const addOrderItems = async (req, res, next) => {
       res.status(400);
       throw new Error('No order items');
     } else {
+      let totalPlatformFee = 0;
+      
+      // Calculate Enterprise Finance splits
+      const enrichedOrderItems = await Promise.all(orderItems.map(async (item) => {
+        const product = await Product.findById(item.product);
+        if (product && product.vendorId) {
+          const itemTotal = item.price * item.qty;
+          const platformCut = itemTotal * 0.10; // 10% Enterprise Platform Fee
+          const vendorCut = itemTotal - platformCut;
+          
+          totalPlatformFee += platformCut;
+          
+          return {
+            ...item,
+            vendorId: product.vendorId,
+            vendorAmount: vendorCut,
+            platformFee: platformCut
+          };
+        }
+        return item;
+      }));
+
       const order = new Order({
-        orderItems,
+        orderItems: enrichedOrderItems,
         user: req.user._id,
         shippingAddress,
         paymentMethod,
@@ -31,6 +54,7 @@ export const addOrderItems = async (req, res, next) => {
         taxPrice,
         shippingPrice,
         totalPrice,
+        totalPlatformFee
       });
 
       const createdOrder = await order.save();
