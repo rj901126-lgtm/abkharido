@@ -108,7 +108,8 @@ const Login = ({ onNavigate }) => {
           setTimer(60);
           showToast('Verification code sent!', 'success');
         } catch (fbErr) {
-          console.warn('Firebase verification failed, trying mock fallback:', fbErr.message);
+          console.warn('Firebase verification failed:', fbErr.message);
+          showToast(`Firebase Error: ${fbErr.message}`, 'error');
           setUseFirebase(false);
           await triggerMockOtpFlow();
         }
@@ -133,7 +134,7 @@ const Login = ({ onNavigate }) => {
       setGeneratedOtp(data.otp);
       setShowOtpScreen(true);
       setTimer(60);
-      showToast('OTP sent successfully!', 'success');
+      showToast(`Mock OTP: ${data.otp}`, 'success');
     } else {
       showToast(data.error || 'Failed to send OTP.', 'error');
     }
