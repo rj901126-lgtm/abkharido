@@ -123,6 +123,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [adminSellers, setAdminSellers] = useState([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [sellerSearchQuery, setSellerSearchQuery] = useState('');
+  const [userInnerTab, setUserInnerTab] = useState('customers');
   const [inventorySearchQuery, setInventorySearchQuery] = useState('');
 
   // Command Center Search
@@ -1210,7 +1211,25 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       {/* CONDITIONAL RENDER: REFERRAL & USERS TAB */}
       {activeTab === 'users' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Inner Tab Switcher */}
+          <div style={{ display: 'flex', gap: '12px', padding: '4px', background: '#f1f5f9', borderRadius: '12px', width: 'fit-content' }}>
+            <button 
+              onClick={() => setUserInnerTab('customers')}
+              style={{ padding: '10px 20px', background: userInnerTab === 'customers' ? '#fff' : 'transparent', color: userInnerTab === 'customers' ? '#0f172a' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', boxShadow: userInnerTab === 'customers' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}
+            >
+              <Users size={16} /> Customers
+            </button>
+            <button 
+              onClick={() => setUserInnerTab('merchants')}
+              style={{ padding: '10px 20px', background: userInnerTab === 'merchants' ? '#fff' : 'transparent', color: userInnerTab === 'merchants' ? '#0f172a' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', boxShadow: userInnerTab === 'merchants' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}
+            >
+              <Store size={16} /> Merchants
+            </button>
+          </div>
+
           {/* Regular Users / Customer Accounts */}
+          {userInnerTab === 'customers' && (
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
               <h3 className="admin-form-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1386,8 +1405,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               </table>
             </div>
           </div>
+          )}
 
           {/* Decoupled Merchant Accounts Section */}
+          {userInnerTab === 'merchants' && (
           <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <h3 className="admin-form-title" style={{ margin: 0 }}><Store size={18} color="var(--primary-color)" /> Marketplace Merchant Shops (Decoupled Registry)</h3>
@@ -1463,6 +1484,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               </table>
             </div>
           </div>
+          )}
         </div>
       )}
 
