@@ -24,10 +24,18 @@ export const updateUserProfile = async (req, res, next) => {
   try {
     const user = await User.findOne({ username: req.params.username });
     if (user) {
-      user.fullName = req.body.fullName || user.fullName;
-      user.email = req.body.email || user.email;
-      user.phone = req.body.phone || user.phone;
-      user.address = req.body.address || user.address;
+      // Handle both firstName+lastName and combined fullName
+      if (req.body.firstName && req.body.lastName) {
+        user.firstName = req.body.firstName;
+        user.lastName = req.body.lastName;
+        user.fullName = `${req.body.firstName} ${req.body.lastName}`;
+      } else if (req.body.fullName) {
+        user.fullName = req.body.fullName;
+      }
+      if (req.body.email) user.email = req.body.email;
+      if (req.body.phone) user.phone = req.body.phone;
+      if (req.body.address) user.address = req.body.address;
+      if (req.body.pincode) user.pincode = req.body.pincode;
       
       const updatedUser = await user.save();
       res.json(updatedUser);

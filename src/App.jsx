@@ -535,7 +535,7 @@ const AppContent = () => {
       )}
 
       {/* Onboarding Overlay Modal for incomplete names/addresses */}
-      {currentUser && (!currentUser.firstName || !currentUser.lastName || !currentUser.address) && (
+      {currentUser && (!currentUser.firstName && !currentUser.fullName || !currentUser.address) && (
         <OnboardingModal />
       )}
 

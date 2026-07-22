@@ -302,13 +302,19 @@ export const AppProvider = ({ children }) => {
   const updateUserProfile = async (details) => {
     if (!currentUser) return false;
     try {
+      const token = currentUser.token;
       const res = await fetch(`/api/users/${currentUser.username}/update`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(details)
       });
       if (res.ok) {
         const updatedUser = await res.json();
+        // Preserve the JWT token since profile update endpoint doesn't return it
+        updatedUser.token = token;
         setCurrentUser(updatedUser);
         localStorage.setItem('abkharido_user_session', JSON.stringify(updatedUser));
         return true;
