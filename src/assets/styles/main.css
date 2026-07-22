@@ -887,7 +887,15 @@ img {
 .lp-wrapper {
   display: flex;
   min-height: 100vh;
-  background: #f0f4ff;
+  background: linear-gradient(-45deg, #3b82f6, #8b5cf6, #4f46e5, #1e3a8a);
+  background-size: 400% 400%;
+  animation: meshGradient 15s ease infinite;
+}
+
+@keyframes meshGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* ── Left Image Panel (Desktop Only) ── */
@@ -906,12 +914,11 @@ img {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.85) 0%, rgba(30, 27, 75, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.7) 0%, rgba(30, 27, 75, 0.9) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 1;
 }
-
-
-
 .lp-left-content {
   position: relative;
   z-index: 2;
@@ -982,7 +989,7 @@ img {
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  background: #f0f4ff;
+  background: transparent;
 }
 
 /* Mobile-only top header — hidden on desktop */
@@ -994,10 +1001,13 @@ img {
 .lp-form-card {
   width: 100%;
   max-width: 440px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 24px;
   padding: 48px 40px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
 .lp-back-btn {
@@ -1006,32 +1016,39 @@ img {
   gap: 6px;
   background: none;
   border: none;
-  color: #2874f0;
-  font-size: 13px;
-  font-weight: 600;
+  color: #4f46e5;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
   padding: 0;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.lp-back-btn:hover {
+  color: #312e81;
+  transform: translateX(-4px);
 }
 
 .lp-form-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin: 0 0 6px 0;
+  font-size: 26px;
+  font-weight: 900;
+  color: #1e1b4b;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
 }
 
 .lp-form-sub {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: #4b5563;
+  margin: 0 0 32px 0;
   line-height: 1.5;
 }
 
 .lp-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 /* Input Group */
@@ -1039,11 +1056,11 @@ img {
   position: relative;
   display: flex;
   align-items: center;
-  background: #ffffff;
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
@@ -1133,27 +1150,35 @@ img {
   gap: 8px;
   width: 100%;
   height: 54px;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  background-size: 200% auto;
   color: #ffffff;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4), inset 0 -2px 4px rgba(0,0,0,0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .lp-submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.4);
+  transform: translateY(-3px);
+  background-position: right center;
+  box-shadow: 0 15px 35px rgba(99, 102, 241, 0.5), inset 0 -2px 4px rgba(0,0,0,0.1);
+}
+
+.lp-submit-btn:active {
+  transform: scale(0.96);
 }
 
 .lp-submit-btn:disabled {
-  background: #d1d5db;
+  background: #e5e7eb;
   box-shadow: none;
+  color: #9ca3af;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* Switch row */
@@ -1162,47 +1187,54 @@ img {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 20px;
-  font-size: 13px;
+  margin-top: 24px;
+  font-size: 14px;
   color: #6b7280;
 }
 
 .lp-switch-btn {
   background: none;
   border: none;
-  color: #2874f0;
-  font-weight: 700;
-  font-size: 13px;
+  color: #4f46e5;
+  font-weight: 800;
+  font-size: 14px;
   cursor: pointer;
   padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.lp-switch-btn:hover {
+  color: #312e81;
 }
 
 /* OTP Boxes */
 .lp-otp-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  justify-content: space-between;
 }
 
 .lp-otp-box {
   flex: 1;
-  height: 50px;
-  max-width: 50px;
-  font-size: 20px;
-  font-weight: 700;
+  height: 54px;
+  max-width: 54px;
+  font-size: 24px;
+  font-weight: 800;
   text-align: center;
-  border: 1.5px solid #e2e8f8;
-  border-radius: 10px;
-  background: #f8faff;
-  color: #1a1a2e;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #1e1b4b;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .lp-otp-box:focus {
-  border-color: #2874f0;
-  box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.12);
+  border-color: #6366f1;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0,0,0,0.05);
+  transform: translateY(-2px);
 }
 
 /* Resend / edit row */
@@ -1253,14 +1285,14 @@ img {
   /* Escape main-content margin — cover the FULL viewport */
   .lp-wrapper {
     position: fixed;
-    inset: 0;               /* top:0, right:0, bottom:0, left:0 */
+    inset: 0;
     z-index: 10;
     flex-direction: column;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
+    /* Removed the static background override so the animated mesh gradient is visible */
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;       /* no scroll at all */
+    overflow: hidden;
   }
 
   /* Hide desktop left panel */
@@ -1283,49 +1315,52 @@ img {
   .lp-form-card {
     width: 100%;
     max-width: 360px;
-    border-radius: 16px;
-    padding: 24px 18px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    padding: 32px 24px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     min-height: unset;
     height: auto;
   }
 
-  .lp-form-title  { font-size: 19px; }
-  .lp-form-sub    { font-size: 12px; margin-bottom: 14px; }
-  .lp-form        { gap: 11px; }
-  .lp-policy      { font-size: 11px; }
+  .lp-form-title  { font-size: 22px; }
+  .lp-form-sub    { font-size: 13px; margin-bottom: 24px; }
+  .lp-form        { gap: 16px; }
+  .lp-policy      { font-size: 11px; margin-top: 12px; }
 
-  .lp-input-group { border-radius: 8px; }
+  .lp-input-group { border-radius: 12px; }
 
   .lp-input {
-    height: 42px;
-    font-size: 14px;
+    height: 48px;
+    font-size: 15px;
   }
 
   .lp-input-prefix {
-    height: 42px;
-    font-size: 13px;
+    height: 48px;
+    font-size: 14px;
   }
 
   .lp-submit-btn {
-    height: 44px;
-    font-size: 13px;
-    margin-top: 2px;
+    height: 50px;
+    font-size: 15px;
+    margin-top: 4px;
   }
 
-  .lp-switch-row  { margin-top: 12px; font-size: 12px; }
-  .lp-switch-btn  { font-size: 12px; }
+  .lp-switch-row  { margin-top: 16px; font-size: 13px; }
+  .lp-switch-btn  { font-size: 13px; }
 
   .lp-otp-box {
-    max-width: 42px;
-    height: 44px;
-    font-size: 17px;
-    border-radius: 8px;
+    max-width: 46px;
+    height: 48px;
+    font-size: 20px;
+    border-radius: 10px;
   }
 
-  .lp-otp-row     { gap: 8px; }
-  .lp-resend-row  { font-size: 12px; }
-  .lp-back-btn    { font-size: 12px; margin-bottom: 14px; }
+  .lp-otp-row     { gap: 10px; }
+  .lp-resend-row  { font-size: 12px; margin-top: 6px; }
+  .lp-back-btn    { font-size: 13px; margin-bottom: 20px; }
 }
 
 
