@@ -18,7 +18,6 @@ import BottomNavigation from './components/BottomNavigation';
 import InfoPage from './pages/InfoPage';
 import SellerDashboard from './pages/SellerDashboard';
 import CategoriesPage from './pages/CategoriesPage';
-import LivePurchasePopup from './components/LivePurchasePopup';
 import CartDrawer from './components/CartDrawer';
 
 const OnboardingModal = () => {
@@ -540,9 +539,6 @@ const AppContent = () => {
       )}
 
       {/* Sales Boost: Global Gamification Popup */}
-
-      {/* Sales Boost: Social Proof Live Purchases */}
-      <LivePurchasePopup />
 
       {/* Global Slide-Out Cart Drawer */}
       <CartDrawer 
