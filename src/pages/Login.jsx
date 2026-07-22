@@ -7,10 +7,7 @@ import { auth as firebaseAuth } from '../firebase';
 const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
   
-  const [authMode, setAuthMode] = useState('login'); 
   const [phone, setPhone] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
   const [showOtpScreen, setShowOtpScreen] = useState(false);
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [generatedOtp, setGeneratedOtp] = useState('');
@@ -43,20 +40,7 @@ const Login = ({ onNavigate }) => {
     return true;
   };
 
-  const validateSignupDetails = () => {
-    if (!fullName.trim()) {
-      showToast('Please enter your full name.', 'error');
-      return false;
-    }
-    if (email.trim()) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showToast('Please enter a valid email address.', 'error');
-        return false;
-      }
-    }
-    return true;
-  };
+
 
   const handleRequestOtp = async (e) => {
     if (e) e.preventDefault();
@@ -65,32 +49,8 @@ const Login = ({ onNavigate }) => {
     setFirebaseConfirmation(null);
     setGeneratedOtp('');
     try {
-      const checkRes = await fetch('/api/auth/check-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipient: phone })
-      });
-      if (!checkRes.ok) {
-        showToast('Failed to connect. Please try again.', 'error');
-        setIsSending(false);
-        return;
-      }
-      const checkData = await checkRes.json();
-      const userExists = checkData.exists;
-      if (authMode === 'login') {
-        if (!userExists) {
-          showToast("Account not found. Please create an account.", 'error');
-          setIsSending(false);
-          return;
-        }
-      } else {
-        if (userExists) {
-          showToast("Mobile already registered. Please log in.", 'error');
-          setIsSending(false);
-          return;
-        }
-        if (!validateSignupDetails()) { setIsSending(false); return; }
-      }
+      // We skip check-user because backend automatically creates an account 
+      // if the phone number doesn't exist upon OTP verification. Seamless login/signup!
 
       // ── Try Firebase Phone Auth first (real SMS) ──
       try {
@@ -143,7 +103,7 @@ const Login = ({ onNavigate }) => {
     const res = await fetch('/api/auth/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipient: phone, isSignup: authMode === 'signup' })
+      body: JSON.stringify({ recipient: phone })
     });
     const data = await res.json();
     if (res.ok) {
@@ -177,15 +137,12 @@ const Login = ({ onNavigate }) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               idToken: firebaseIdToken,
-              phone,
-              isSignup: authMode === 'signup',
-              fullName: authMode === 'signup' ? fullName.trim() : undefined,
-              email: authMode === 'signup' ? email.trim() : undefined
+              phone
             })
           });
           const data = await res.json();
           if (res.ok) {
-            showToast(authMode === 'signup' ? 'Account created! 🎉' : 'Welcome back! 👋', 'success');
+            showToast('Welcome back! 👋', 'success');
             localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
             window.location.reload();
           } else {
@@ -201,15 +158,12 @@ const Login = ({ onNavigate }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             recipient: phone,
-            otp: enteredOtp,
-            isSignup: authMode === 'signup',
-            fullName: authMode === 'signup' ? fullName.trim() : undefined,
-            email: authMode === 'signup' ? email.trim() : undefined
+            otp: enteredOtp
           })
         });
         const data = await res.json();
         if (res.ok) {
-          showToast(authMode === 'signup' ? 'Account created! 🎉' : 'Welcome back! 👋', 'success');
+          showToast('Welcome back! 👋', 'success');
           localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
           window.location.reload();
         } else {
@@ -262,13 +216,7 @@ const Login = ({ onNavigate }) => {
     setGeneratedOtp('');
   };
 
-  const toggleAuthMode = () => {
-    setAuthMode(authMode === 'login' ? 'signup' : 'login');
-    setPhone('');
-    setFullName('');
-    setEmail('');
-    setShowOtpScreen(false);
-  };
+
 
   return (
     <div className="lp-wrapper animate-fade-in" style={{ alignItems: 'stretch', flexWrap: 'nowrap' }}>
@@ -300,9 +248,7 @@ const Login = ({ onNavigate }) => {
           <p className="lp-left-sub">
             {showOtpScreen
               ? `OTP sent to +91 ${phone}`
-              : authMode === 'login'
-              ? 'Get access to your Orders, Wishlist & Recommendations'
-              : 'Sign up with your mobile number to get started'}
+              : 'Get access to your Orders, Wishlist & Recommendations'}
           </p>
           <div className="lp-illustration">
             <svg viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -407,12 +353,10 @@ const Login = ({ onNavigate }) => {
           ) : (
             <>
               <h2 className="lp-form-title">
-                {authMode === 'login' ? 'Login' : 'Create Account'}
+                Login or Signup
               </h2>
               <p className="lp-form-sub">
-                {authMode === 'login'
-                  ? 'Enter your mobile number to continue'
-                  : 'Fill in the details to get started'}
+                Enter your mobile number to continue
               </p>
 
               <form onSubmit={handleRequestOtp} className="lp-form">
@@ -431,62 +375,15 @@ const Login = ({ onNavigate }) => {
                   <Phone size={16} className="lp-input-icon-right" />
                 </div>
 
-                {/* Signup Extra Fields */}
-                {authMode === 'signup' && (
-                  <div className="lp-signup-fields">
-                    <div className="lp-input-group">
-                      <User size={16} className="lp-input-icon-left" />
-                      <input
-                        type="text"
-                        placeholder="Full Name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="lp-input lp-input-padded"
-                        required
-                      />
-                    </div>
-                    <div className="lp-input-group">
-                      <Mail size={16} className="lp-input-icon-left" />
-                      <input
-                        type="email"
-                        placeholder="Email (Optional)"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="lp-input lp-input-padded"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <p className="lp-policy">
-                  By continuing, you agree to AbKharido's{' '}
-                  <span className="lp-policy-link">Terms of Use</span> and{' '}
-                  <span className="lp-policy-link">Privacy Policy</span>.
-                </p>
-
                 <button type="submit" className="lp-submit-btn" disabled={isSending}>
-                  {isSending
-                    ? 'Sending OTP...'
-                    : authMode === 'login'
-                    ? 'REQUEST OTP'
-                    : 'CONTINUE'}
+                  {isSending ? 'Sending OTP...' : 'CONTINUE'}
                   {!isSending && <ChevronRight size={18} />}
                 </button>
               </form>
 
-              <div className="lp-switch-row">
-                {authMode === 'login' ? (
-                  <>
-                    <span>New to AbKharido?</span>
-                    <button onClick={toggleAuthMode} className="lp-switch-btn">Create an account</button>
-                  </>
-                ) : (
-                  <>
-                    <span>Already have an account?</span>
-                    <button onClick={toggleAuthMode} className="lp-switch-btn">Log in</button>
-                  </>
-                )}
-              </div>
+              <p className="lp-terms">
+                By continuing, you agree to our <a>Terms of Use</a> and <a>Privacy Policy</a>.
+              </p>
             </>
           )}
         </div>
