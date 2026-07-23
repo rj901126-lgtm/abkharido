@@ -602,8 +602,7 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        setCurrentUser(data.user);
-        localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
+        fetchUser(currentUser.username);
         clearCart();
         setActiveReferral(null);
         fetchOrders(currentUser.email);
