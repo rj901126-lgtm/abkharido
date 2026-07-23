@@ -391,7 +391,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   };
 
   return (
-    <div className="container animate-fade-in-only" style={{ padding: 0, paddingTop: '0', paddingBottom: '80px' }}>
+    <div className="container animate-fade-in-only" style={{ padding: 0, paddingTop: '64px', paddingBottom: '80px' }}>
 
 
 

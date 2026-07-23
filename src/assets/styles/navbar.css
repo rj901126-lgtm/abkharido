@@ -498,9 +498,9 @@
 
 .product-page-navbar .search-form {
   display: flex !important;
-  flex: 1 1 0% !important;
-  min-width: 0 !important;
+  flex: 1 1 auto !important;
   width: 100% !important;
+  min-width: 100px !important;
   margin: 0 !important;
 }
 
@@ -546,8 +546,11 @@
 }
 
 @media (max-width: 768px) {
-  .product-page-navbar .nav-item:not(.cart-item) {
+  .product-page-navbar .nav-item {
     display: none !important; /* Hide user profile icon to save space like Flipkart */
+  }
+  .product-page-navbar .cart-item {
+    display: flex !important; /* Force cart to show */
   }
 }
 
