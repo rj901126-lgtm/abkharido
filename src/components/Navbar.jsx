@@ -245,7 +245,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             {/* Cart */}
             <a 
               href="#cart" 
-              className="nav-item" 
+              className="nav-item cart-item" 
               onClick={(e) => { 
                 e.preventDefault(); 
                 if (onCartClick) {
