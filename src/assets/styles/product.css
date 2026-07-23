@@ -516,6 +516,7 @@
     display: none !important;
   }
   body.product-details-active .main-content {
+    margin-top: 56px !important;
     padding-bottom: 0 !important;
   }
 }
