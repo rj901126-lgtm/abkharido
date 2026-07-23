@@ -27,6 +27,7 @@ import financeRoutes from './routes/financeRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import staffRoutes from './routes/staffRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -85,6 +86,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/sellers', sellerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);

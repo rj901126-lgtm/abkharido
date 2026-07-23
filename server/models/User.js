@@ -36,7 +36,22 @@ const userSchema = new mongoose.Schema({
     upiId: String,
     bankAccount: String,
     ifsc: String
-  }
+  },
+  
+  // Cross-device synced cart
+  cart: [{
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      default: 1,
+      min: 1
+    }
+  }]
 }, {
   timestamps: true
 });

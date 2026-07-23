@@ -67,7 +67,71 @@ export const AppProvider = ({ children }) => {
   // --- Sync Temporary Cart details ---
   useEffect(() => {
     localStorage.setItem('abkharido_cart', JSON.stringify(cart));
-  }, [cart]);
+    
+    // Background sync to database if logged in
+    if (currentUser?.token) {
+      const syncTimeout = setTimeout(() => {
+        fetch('/api/cart/sync', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentUser.token}`
+          },
+          body: JSON.stringify({ cart })
+        }).catch(err => console.error('Cart background sync failed', err));
+      }, 1000);
+      return () => clearTimeout(syncTimeout);
+    }
+  }, [cart, currentUser]);
+
+  // --- Initial Cross-Device Cart Merge ---
+  useEffect(() => {
+    const initBackendCart = async () => {
+      if (currentUser?.token) {
+        try {
+          const res = await fetch('/api/cart', {
+            headers: { 'Authorization': `Bearer ${currentUser.token}` }
+          });
+          if (res.ok) {
+            const backendCart = await res.json();
+            const localCart = JSON.parse(localStorage.getItem('abkharido_cart')) || [];
+            
+            if (backendCart.length > 0 || localCart.length > 0) {
+              const mergedMap = new Map();
+              
+              // Load backend cart first
+              backendCart.forEach(item => {
+                if (item.product && item.product.id) {
+                  mergedMap.set(item.product.id, item);
+                }
+              });
+              
+              // Load local cart (overwrites qty if local has more)
+              localCart.forEach(item => {
+                if (item.product && item.product.id) {
+                  const existing = mergedMap.get(item.product.id);
+                  if (existing) {
+                    mergedMap.set(item.product.id, { ...existing, quantity: Math.max(existing.quantity, item.quantity) });
+                  } else {
+                    mergedMap.set(item.product.id, item);
+                  }
+                }
+              });
+              
+              const finalCart = Array.from(mergedMap.values());
+              setCart(finalCart); // This will trigger the background sync useEffect automatically
+            }
+          }
+        } catch (err) {
+          console.error('Failed to sync backend cart:', err);
+        }
+      }
+    };
+    
+    // Only run this ONCE when user session initializes
+    initBackendCart();
+    // eslint-disable-next-line
+  }, [currentUser?.token]);
 
   useEffect(() => {
     if (activeReferral) {
