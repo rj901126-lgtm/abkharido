@@ -184,7 +184,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
           {/* Dynamic Category Header */}
           <div className="dynamic-category-header">
             <h2 className="dynamic-category-title">
-              Explore {CATEGORIES.find(c => c.id === selectedCatId)?.name || 'All'}
+              {CATEGORIES.find(c => c.id === selectedCatId)?.name || 'All'}
             </h2>
           </div>
 
@@ -196,18 +196,17 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             return <CatBannerCarousel slides={slides} onClick={handleViewAllClick} maxHeight="110px" />;
           })()}
 
-          {/* Section 1: Popular Store Circles */}
+          {/* Section 1: Popular Store Cards */}
           <div className="panel-section">
-            <h3 className="panel-section-title">Popular Store</h3>
+            <h3 className="panel-section-title">Popular Stores</h3>
             <div className="popular-stores-row">
               {activeStores.map((store, idx) => (
                 <div key={idx} className="popular-store-item" onClick={() => handleStoreClick(store)}>
-                  <div className="popular-store-circle" style={{ backgroundImage: `url(${store.img})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.9)', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', padding: '4px', color: 'var(--primary-color)' }}>
-                        {store.badge}
-                      </span>
-                    </div>
+                  <div
+                    className="popular-store-circle"
+                    style={{ backgroundImage: `url(${store.img})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                  >
+                    <div className="store-badge-pill">{store.badge}</div>
                   </div>
                   <span className="popular-store-label">{store.name}</span>
                 </div>
@@ -215,16 +214,17 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             </div>
           </div>
 
-          {/* Section 2: Products Grid / Launches */}
+          {/* Section 2: Products Grid */}
           <div className="panel-section">
             <h3 className="panel-section-title">New & Upcoming Launches</h3>
             <div className="category-products-grid">
-              {categoryProducts.map(prod => {
+              {categoryProducts.map((prod, i) => {
                 if (!prod) return null;
                 return (
-                  <div 
-                    key={prod.id} 
-                    className="category-grid-item"
+                  <div
+                    key={prod.id}
+                    className="category-grid-item animate-fade-in"
+                    style={{ animationDelay: `${i * 0.06}s` }}
                     onClick={() => onNavigateProduct(prod.id)}
                   >
                     <div className="category-item-image-wrapper">
@@ -234,14 +234,17 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                       <span className="category-item-name">{prod.name}</span>
                       <span className="category-item-price">₹{(prod.price || 0).toLocaleString('en-IN')}</span>
                     </div>
-                    <button className="category-item-add-btn" onClick={(e) => { e.stopPropagation(); onNavigateProduct(prod.id); }}>
-                      <Plus size={18} />
+                    <button
+                      className="category-item-add-btn"
+                      onClick={(e) => { e.stopPropagation(); onNavigateProduct(prod.id); }}
+                    >
+                      <Plus size={16} />
                     </button>
                   </div>
                 );
               })}
 
-              {/* View All Circle Button at the end */}
+              {/* View All */}
               <div className="view-all-circle-btn" onClick={handleViewAllClick}>
                 <div className="view-all-arrow-icon">
                   <ArrowRight size={18} />
