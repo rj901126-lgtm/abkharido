@@ -6,7 +6,7 @@ import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Orders = ({ onNavigate }) => {
   const { orders, currentUser, fetchOrders, cancelOrder, addToCart } = useApp();
-  const [activeTrackingId, setActiveTrackingId] = useState(null);
+  const [activeTrackingId, setActiveTrackingId] = useState(null); const [orderToCancel, setOrderToCancel] = useState(null);
 
   React.useEffect(() => {
     if (currentUser) {
@@ -428,20 +428,16 @@ const Orders = ({ onNavigate }) => {
                   </button>
                 )}
 
-                {/* Cancel Button */}
-                {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'CANCELLED' && (
-                  <button
-                    className="btn btn-outline"
-                    style={{ borderColor: 'var(--error)', color: 'var(--error)' }}
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to cancel this order?')) {
-                        cancelOrder(order._id);
-                      }
-                    }}
-                  >
-                    Cancel Order
-                  </button>
-                )}
+                  {/* Cancel Button */}
+                  {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'CANCELLED' && order.status !== 'Cancelled' && (
+                    <button
+                      className="btn btn-outline"
+                      style={{ borderColor: '#ef4444', color: '#ef4444' }}
+                      onClick={() => setOrderToCancel(order._id)}
+                    >
+                      Cancel Order
+                    </button>
+                  )}
                 
                 <button
                   className="btn btn-primary"
@@ -476,6 +472,38 @@ const Orders = ({ onNavigate }) => {
           </div>
         ))}
       </div>
+      {/* Custom Enterprise Cancel Order Modal */}
+      {orderToCancel && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setOrderToCancel(null)}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', animation: 'slideUp 0.3s ease-out' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+              <div style={{ width: '56px', height: '56px', backgroundColor: '#fee2e2', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ShieldCheck size={28} color="#ef4444" />
+              </div>
+            </div>
+            <h3 style={{ fontSize: '20px', fontWeight: '800', textAlign: 'center', color: '#1e293b', marginBottom: '8px' }}>Cancel Order?</h3>
+            <p style={{ fontSize: '14px', color: '#64748b', textAlign: 'center', marginBottom: '24px', lineHeight: '1.5' }}>
+              Are you sure you want to cancel this order? If you have already paid, your refund will be initiated immediately.
+            </p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn btn-outline" style={{ flex: 1, padding: '12px', fontWeight: '600' }} onClick={() => setOrderToCancel(null)}>
+                No, Keep it
+              </button>
+              <button 
+                className="btn btn-primary" 
+                style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', borderColor: '#ef4444', fontWeight: '600' }} 
+                onClick={() => {
+                  cancelOrder(orderToCancel);
+                  setOrderToCancel(null);
+                }}
+              >
+                Yes, Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

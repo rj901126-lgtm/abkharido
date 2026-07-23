@@ -297,3 +297,29 @@ export const cancelOrder = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    User Cancel their own order
+// @route   POST /api/orders/:id/user-cancel
+// @access  Private
+export const userCancelOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+    if (order.user.toString() !== req.user._id.toString()) {
+      res.status(403);
+      throw new Error('Not authorized to cancel this order');
+    }
+    if (order.status === 'In Transit' || order.status === 'Delivered') {
+      res.status(400);
+      throw new Error('Cannot cancel an order that is already shipped');
+    }
+    order.status = 'Cancelled';
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};

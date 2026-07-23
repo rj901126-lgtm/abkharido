@@ -233,7 +233,7 @@ export const AppProvider = ({ children }) => {
   const cancelOrder = async (orderId) => {
     try {
       const token = currentUser?.token;
-      const res = await fetch(`/api/orders/${orderId}/cancel`, { 
+      const res = await fetch(`/api/orders/${orderId}/user-cancel`, { 
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
