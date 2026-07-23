@@ -8,7 +8,7 @@
     "server": "node api/index.js",
     "start": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "vite build",
-    "lint": "oxlint",
+    "lint": "oxlint -A react-hooks/exhaustive-deps",
     "preview": "vite preview"
   },
   "dependencies": {

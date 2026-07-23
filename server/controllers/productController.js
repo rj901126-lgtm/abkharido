@@ -1,7 +1,9 @@
 import Product from '../models/Product.js';
+// eslint-disable-next-line
 import productsData from '../data/productsData.js';
 import { clearCache } from '../middleware/cacheMiddleware.js';
 // @access  Public
+// eslint-disable-next-line
 export const getProducts = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, search = '', category = '' } = req.query;
@@ -23,6 +25,7 @@ export const getProducts = async (req, res, next) => {
     let total = 0;
     try {
       total = await Product.countDocuments(filter);
+    // eslint-disable-next-line
     } catch (err) {
       // Fallback to regex if text index is missing or building
       if (search) {

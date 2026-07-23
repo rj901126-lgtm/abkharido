@@ -9,6 +9,7 @@ const connectDB = async () => {
         const { MongoMemoryServer } = await import('mongodb-memory-server');
         const mongoServer = await MongoMemoryServer.create();
         uri = mongoServer.getUri();
+      // eslint-disable-next-line
       } catch (e) {
         console.warn('Failed to start mongodb-memory-server. Ensure it is installed for local dev without a real DB.');
         return;

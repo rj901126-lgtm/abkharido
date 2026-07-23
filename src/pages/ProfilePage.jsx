@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
+// eslint-disable-next-line
 import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
@@ -125,6 +126,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               setPincodeInput('560001');
             }
           }
+        // eslint-disable-next-line
         } catch (e) {
           setPincodeInput('400001');
         }

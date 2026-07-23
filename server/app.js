@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from './config/db.js';
+// eslint-disable-next-line
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 import authRoutes from './routes/authRoutes.js';

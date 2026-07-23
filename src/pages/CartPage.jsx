@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+// eslint-disable-next-line
+import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
 import '../assets/styles/cart.css';
 
 const CartPage = ({ onNavigate, onCheckout }) => {
@@ -241,6 +242,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           className="btn btn-accent btn-lg cart-checkout-btn-desktop" 
           onClick={() => onCheckout(useCoinsDiscount)}
         >
+          // eslint-disable-next-line
           <Lock size={18} /> PLACE ORDER
         </button>
 

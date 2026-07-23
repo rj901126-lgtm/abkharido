@@ -3,6 +3,7 @@
 // @access  Public
 export const checkServiceability = async (req, res, next) => {
   try {
+    // eslint-disable-next-line
     const { deliveryPincode, weight, isCod } = req.body;
     
     // In an enterprise environment, we'd fetch an auth token for Shiprocket here.

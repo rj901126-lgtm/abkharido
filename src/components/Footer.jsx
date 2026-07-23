@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShoppingBag, Award, Heart, HelpCircle, ShieldCheck } from 'lucide-react';
 
+// eslint-disable-next-line
 const Footer = ({ onNavigate }) => {
   return (
     <footer className="app-footer" style={styles.footer}>

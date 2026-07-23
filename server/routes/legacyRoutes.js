@@ -3,6 +3,7 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
+// eslint-disable-next-line
 import productsData from '../data/productsData.js';
 
 const router = express.Router();

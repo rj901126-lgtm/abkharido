@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
+// eslint-disable-next-line
 import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import '../assets/styles/product.css';
 

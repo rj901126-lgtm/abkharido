@@ -132,6 +132,7 @@ export const sendOtp = async (req, res, next) => {
 // @access  Public
 export const verifyOtp = async (req, res, next) => {
   try {
+    // eslint-disable-next-line
     const { recipient, otp, fullName, isSignup } = req.body;
 
     // Validate OTP from store

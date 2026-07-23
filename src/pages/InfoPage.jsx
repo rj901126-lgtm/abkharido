@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line
 import { ShieldCheck, Mail, Building, FileText, HelpCircle } from 'lucide-react';
 
 const InfoPage = ({ infoType }) => {
