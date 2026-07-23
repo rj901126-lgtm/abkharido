@@ -37,9 +37,9 @@ export const addOrderItems = async (req, res, next) => {
     // Map frontend cart array to backend orderItems schema
     const orderItems = validCart.map(item => ({
       product: typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product,
-      name: item.product.name || 'Unknown Product',
-      image: item.product.image || (item.product.images && item.product.images[0]) || '',
-      price: item.product.price || 0,
+      name: (item.product && item.product.name) ? item.product.name : 'Unknown Product',
+      image: (item.product && item.product.image) ? item.product.image : ((item.product && item.product.images && item.product.images.length > 0) ? item.product.images[0] : 'https://via.placeholder.com/150'),
+      price: (item.product && item.product.price) ? item.product.price : 0,
       qty: item.quantity || 1
     }));
 
