@@ -188,6 +188,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setInfluencerCommissionRate(prod.influencerCommissionRate ? (prod.influencerCommissionRate * 100).toString() : '5');
     setUserCommissionRate(prod.userCommissionRate ? (prod.userCommissionRate * 100).toString() : '2');
     setInStock(prod.inStock !== false);
+    setStock(prod.stock?.toString() || '0');
     setSpecs(prod.specs?.length ? prod.specs : [{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
     setMedia(prod.images || [prod.image].filter(Boolean));
     
@@ -683,6 +684,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [description, setDescription] = useState('');
   const [inStock, setInStock] = useState(true);
+  const [stock, setStock] = useState('100');
   const [badge, setBadge] = useState('none');
   
   // Enterprise PIM State
@@ -937,6 +939,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       influencerCommissionRate: Number(infCommission),
       userCommissionRate: Number(userCommission),
       inStock,
+      stock: Number(stock),
       badge,
       colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined,
       // PIM Fields
@@ -1789,6 +1792,17 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                   placeholder="Original Price" 
                   value={originalPrice}
                   onChange={(e) => setOriginalPrice(e.target.value)}
+                  className="form-input-field"
+                  required
+                />
+              </div>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label className="form-label-txt">Quantity (Stock)*</label>
+                <input 
+                  type="number" 
+                  placeholder="Stock" 
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
                   className="form-input-field"
                   required
                 />
