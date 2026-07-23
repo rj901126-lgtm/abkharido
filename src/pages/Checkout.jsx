@@ -644,7 +644,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <div style={{ marginBottom: '8px' }}><strong>Address:</strong> {createdOrder.shippingAddress.streetAddress}, {createdOrder.shippingAddress.locality}, {createdOrder.shippingAddress.city} - {createdOrder.shippingAddress.pincode}</div>
             <div style={{ marginBottom: '4px', color: '#059669', fontWeight: '500' }}><strong>Estimated Arrival:</strong> Next-day shipping</div>
             <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #eee' }}><strong>Payment Mode:</strong> {createdOrder.paymentMethod}</div>
-            <div style={{ fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', fontSize: '16px' }}>Paid Amount: ₹{createdOrder.finalAmount.toLocaleString('en-IN')}</div>
+            <div style={{ fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', fontSize: '16px' }}>Paid Amount: ₹{(createdOrder.totalPrice || 0).toLocaleString('en-IN')}</div>
           </div>
 
           {/* Post Purchase Referral Boost */}
