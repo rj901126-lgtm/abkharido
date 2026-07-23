@@ -186,7 +186,12 @@ router.post('/shipping/serviceability', (req, res) => {
   res.json({ success: true, status: 'Deliverable', estimatedDays: 3 });
 });
 router.post('/admin/verify', (req, res) => {
-  res.json({ success: true, token: 'abkharido_master_admin_2024' });
+  const { password } = req.body;
+  if (password === '2026' || password === 'admin') {
+    res.json({ success: true, token: 'abkharido_master_admin_2024' });
+  } else {
+    res.status(401).json({ error: 'Invalid PIN' });
+  }
 });
 router.post('/payment/session', (req, res) => {
   res.json({ success: true, sessionId: 'mock_session_id', id: 'mock_session_id' });
