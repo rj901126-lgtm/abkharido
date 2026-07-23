@@ -508,10 +508,7 @@
     box-shadow: 0 1px 8px rgba(0,0,0,0.06) !important;
     border-bottom: 1px solid rgba(0,0,0,0.05) !important;
   }
-  /* On product page hide the search bar and category text, show only logo + cart */
-  body.product-details-active .search-form {
-    display: none !important;
-  }
+  /* (Search bar hide rule removed to allow search on product page) */
   body.product-details-active .navbar-left .logo-sub {
     display: none !important;
   }
@@ -519,7 +516,6 @@
     display: none !important;
   }
   body.product-details-active .main-content {
-    margin-top: 0 !important;
     padding-bottom: 0 !important;
   }
 }
