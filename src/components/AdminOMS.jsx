@@ -305,7 +305,10 @@ const AdminOMS = () => {
                 <td style={{ fontWeight: '700', fontSize: '13px', color: '#4f46e5' }}>#{String(order.id || order._id).slice(-8).toUpperCase()}</td>
                 <td>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <span style={{ fontWeight: '600' }}>{order.customerUsername || order.user?.email || 'N/A'}</span>
+                    <span style={{ fontWeight: '600' }}>{order.user?.fullName || order.user?.username || order.shippingAddress?.fullName || 'N/A'}</span>
+                    {order.shippingAddress?.phone && (
+                      <span style={{ fontSize: '11px', color: '#64748b' }}>+91 {order.shippingAddress.phone}</span>
+                    )}
                     {order.user && (
                       <span className={`status-badge ${order.user.isEmailVerified ? 'success' : 'danger'}`} style={{ alignSelf: 'flex-start', fontSize: '10px', padding: '2px 6px' }}>
                         {order.user.isEmailVerified ? '✓ Verified' : '✗ Unverified'}
