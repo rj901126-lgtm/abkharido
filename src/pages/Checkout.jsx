@@ -15,8 +15,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     pincode: currentUser ? (currentUser.pincode || '') : '',
     locality: '',
     streetAddress: currentUser ? (currentUser.address || '') : '',
-    city: '',
-    state: ''
+    city: currentUser ? (currentUser.city || '') : '',
+    state: currentUser ? (currentUser.state || '') : ''
   });
 
   const [shippingServiceability, setShippingServiceability] = useState(null);
@@ -43,7 +43,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         name: currentUser.fullName || prev.name,
         phone: currentUser.phone || currentUser.username || prev.phone,
         pincode: currentUser.pincode || prev.pincode,
-        streetAddress: currentUser.address || prev.streetAddress
+        streetAddress: currentUser.address || prev.streetAddress,
+        city: currentUser.city || prev.city,
+        state: currentUser.state || prev.state
       }));
     }
   }, [currentUser]);

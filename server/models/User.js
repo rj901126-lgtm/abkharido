@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema({
   sellerStatus: { type: String, enum: ['None', 'Pending', 'Approved', 'Rejected'], default: 'None' },
   avatar: { type: String, default: 'https://i.pravatar.cc/150' },
   address: { type: String },
+  city: { type: String },
+  pincode: { type: String },
+  state: { type: String },
   
   // Influencer / Seller fields
   isInfluencer: { type: Boolean, default: false },

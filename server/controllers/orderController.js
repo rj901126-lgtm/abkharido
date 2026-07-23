@@ -1,4 +1,4 @@
-﻿import Order from '../models/Order.js';
+import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import { sendInvoiceEmail } from '../utils/emailService.js';
@@ -109,14 +109,15 @@ export const addOrderItems = async (req, res, next) => {
       const user = await User.findById(req.user._id);
       if (user) {
         let profileUpdated = false;
-        if (!user.fullName && mappedShippingAddress.fullName) {
+        if (mappedShippingAddress.fullName && user.fullName !== mappedShippingAddress.fullName) {
           user.fullName = mappedShippingAddress.fullName;
           profileUpdated = true;
         }
-        if (!user.address && mappedShippingAddress.address) {
+        if (mappedShippingAddress.address) {
           user.address = mappedShippingAddress.address;
           user.city = mappedShippingAddress.city;
           user.pincode = mappedShippingAddress.postalCode;
+          user.state = mappedShippingAddress.state || '';
           profileUpdated = true;
         }
         if (profileUpdated) {
