@@ -30,11 +30,11 @@ export const generatePaymentSession = async (req, res, next) => {
         'x-api-version': '2023-08-01'
       },
       body: JSON.stringify({
-        order_amount: amount,
+        order_amount: Math.max(1, amount || 1),
         order_currency: 'INR',
         order_id: orderId,
         customer_details: {
-          customer_id: customerId || `guest_${Date.now()}`,
+          customer_id: (customerId && customerId.replace(/[^a-zA-Z0-9_-]/g, '')) || `guest_${Date.now()}`,
           customer_phone: (customerPhone && customerPhone.length >= 10) ? customerPhone : '9999999999',
           customer_email: customerEmail || 'customer@example.com'
         },
