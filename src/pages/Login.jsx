@@ -132,12 +132,9 @@ const Login = ({ onNavigate }) => {
     });
     const data = await res.json();
     if (res.ok) {
-      setGeneratedOtp(data.otp);
       setShowOtpScreen(true);
       setTimer(60);
-      const digits = data.otp.split('');
-      setOtpCode(digits);
-      showToast('OTP generated! Check the OTP card below.', 'info');
+      showToast('OTP sent to your number successfully.', 'info');
     } else {
       showToast(data.error || 'Failed to send OTP.', 'error');
     }

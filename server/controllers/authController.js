@@ -119,9 +119,8 @@ export const sendOtp = async (req, res, next) => {
     
     console.log(`[OTP] Generated OTP ${generatedOtp} for ${recipient}`);
     
-    // Return OTP in response so frontend can show it to user
-    // In production with SMS gateway, remove 'otp' from response
-    res.json({ success: true, otp: generatedOtp });
+    // In production with SMS gateway, do not send the OTP in response
+    res.json({ success: true, message: 'OTP sent to mobile successfully' });
   } catch (error) {
     next(error);
   }
