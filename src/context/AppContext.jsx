@@ -154,7 +154,7 @@ export const AppProvider = ({ children }) => {
       const emailVal = emailOrUsername || (user ? user.email : '');
       const token = user?.token;
       
-      const res = await fetch(`/api/orders?username=${username}&email=${emailVal || ''}`, {
+      const res = await fetch(`/api/orders/myorders?username=${username}&email=${emailVal || ''}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
@@ -522,7 +522,10 @@ export const AppProvider = ({ children }) => {
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(currentUser?.token ? { 'Authorization': `Bearer ${currentUser.token}` } : {})
+        },
         body: JSON.stringify({
           cart,
           username: currentUser.username,
