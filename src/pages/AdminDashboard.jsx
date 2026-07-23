@@ -1075,28 +1075,32 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         </div>
         
         <nav className="admin-sidebar-nav">
-          <div 
+          {/* Group: Overview */}
+          <div className="admin-nav-group-label">Overview</div>
+          <div
             className={`admin-nav-item ${activeTab === 'analytics' ? 'active' : ''}`}
             onClick={() => { setActiveTab('analytics'); setMobileMenuOpen(false); }}
           >
             <TrendingUp size={18} /> Dashboard
           </div>
-          
+
           {canManageCatalog && (
             <>
-              <div 
+              {/* Group: Store */}
+              <div className="admin-nav-group-label">Store</div>
+              <div
                 className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('inventory'); setMobileMenuOpen(false); }}
               >
                 <Package size={18} /> Inventory
               </div>
-              <div 
+              <div
                 className={`admin-nav-item ${activeTab === 'cms' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('cms'); setMobileMenuOpen(false); }}
               >
-                <LayoutTemplate size={18} /> CMS & Layout
+                <LayoutTemplate size={18} /> CMS &amp; Layout
               </div>
-              <div 
+              <div
                 className={`admin-nav-item ${activeTab === 'promotions' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('promotions'); setMobileMenuOpen(false); }}
               >
@@ -1106,23 +1110,27 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           )}
 
           {(canManageCatalog || canManageSupport) && (
-            <div 
-              className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('orders'); setMobileMenuOpen(false); }}
-            >
-              <FileText size={18} /> Orders
-            </div>
+            <>
+              {/* Group: Operations */}
+              <div className="admin-nav-group-label">Operations</div>
+              <div
+                className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('orders'); setMobileMenuOpen(false); }}
+              >
+                <FileText size={18} /> Orders
+              </div>
+            </>
           )}
 
           {canManageSupport && (
             <>
-              <div 
+              <div
                 className={`admin-nav-item ${activeTab === 'helpdesk' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('helpdesk'); setMobileMenuOpen(false); }}
               >
                 <HeadphonesIcon size={18} /> Helpdesk
               </div>
-              <div 
+              <div
                 className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
               >
@@ -1133,41 +1141,41 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
           {isSuperAdmin && (
             <>
-              <div 
+              {/* Group: Advanced */}
+              <div className="admin-nav-group-label">Advanced</div>
+              <div
                 className={`admin-nav-item ${activeTab === 'coupons' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('coupons'); setMobileMenuOpen(false); }}
               >
                 <Tag size={18} /> Marketing
               </div>
-              <div 
+              <div
                 className={`admin-nav-item ${activeTab === 'crm' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('crm'); setMobileMenuOpen(false); }}
               >
                 <Settings size={18} /> CRM Settings
               </div>
-              <div 
+              <div
                 className={`admin-nav-item ${activeTab === 'audit' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('audit'); setMobileMenuOpen(false); }}
               >
                 <ShieldAlert size={18} /> Audit Logs
               </div>
-              <div 
+              <div
                 className={`admin-nav-item ${activeTab === 'staff' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('staff'); setMobileMenuOpen(false); }}
-                style={{ marginTop: 'auto', color: '#6366f1' }}
               >
-                <User size={18} /> Team & Staff
+                <User size={18} /> Team &amp; Staff
               </div>
             </>
           )}
 
           {canManageFinance && (
-            <div 
+            <div
               className={`admin-nav-item ${activeTab === 'finance' ? 'active' : ''}`}
               onClick={() => { setActiveTab('finance'); setMobileMenuOpen(false); }}
-              style={{ marginTop: isSuperAdmin ? '0' : 'auto' }}
             >
-              <Banknote size={18} /> Finance & Payouts
+              <Banknote size={18} /> Finance &amp; Payouts
             </div>
           )}
         </nav>
@@ -1179,23 +1187,26 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         <header className="admin-topbar">
           <div className="admin-topbar-title">
             <button className="admin-mobile-menu-btn" onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X size={24} /> : <div style={{display:'flex', flexDirection:'column', gap:'4px'}}><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div></div>}
+              {isMobileMenuOpen ? <X size={24} /> : <div style={{display:'flex', flexDirection:'column', gap:'4px'}}><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'14px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div></div>}
             </button>
-            <span>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Control</span>
-            <span>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Control</span>
+            <span style={{ background: 'linear-gradient(135deg, #0f172a 0%, #4f46e5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Control
+            </span>
           </div>
 
           <div style={{ flex: 1, maxWidth: '500px', margin: '0 20px', position: 'relative' }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px' }} />
-              <input 
-                type="text" 
-                placeholder="Ctrl+K to Search Orders, Users, Products..." 
+              <Search size={15} color="#94a3b8" style={{ position: 'absolute', left: '14px', zIndex: 1 }} />
+              <input
+                type="text"
+                placeholder="Search orders, users, products..."
                 value={globalSearchQuery}
                 onChange={(e) => setGlobalSearchQuery(e.target.value)}
-                style={{ width: '100%', padding: '10px 12px 10px 36px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', background: '#f8fafc' }}
+                style={{ width: '100%', padding: '11px 14px 11px 40px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '13px', outline: 'none', background: '#f8fafc', transition: 'all 0.2s ease', fontFamily: 'Inter, sans-serif' }}
+                onFocus={e => { e.target.style.borderColor = '#818cf8'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)'; e.target.style.background = '#fff'; }}
+                onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; e.target.style.background = '#f8fafc'; }}
               />
-              {isSearching && <div style={{ position: 'absolute', right: '12px', fontSize: '11px', color: '#64748b' }}>Searching...</div>}
+              {isSearching && <div style={{ position: 'absolute', right: '12px', fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Searching...</div>}
             </div>
 
             {/* Smart Search Results Dropdown */}
