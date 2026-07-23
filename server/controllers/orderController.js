@@ -22,7 +22,13 @@ export const addOrderItems = async (req, res, next) => {
       throw new Error('No valid order items found');
     }
 
-    const validCart = cart.filter(item => item && item.product);
+    const validCart = cart.filter(item => {
+      if (!item || !item.product) return false;
+      const productId = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
+      // Validate ObjectId length
+      return productId && productId.toString().length === 24;
+    });
+
     if (validCart.length === 0) {
       res.status(400);
       throw new Error('No valid order items found after filtering');

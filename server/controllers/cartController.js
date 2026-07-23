@@ -42,16 +42,19 @@ export const syncCart = async (req, res, next) => {
     }
 
     // Convert frontend cart format to backend schema
-    const formattedCart = cart
-      .filter(item => item && item.product) // Prevent 500 crashes from invalid localStorage data
-      .map(item => {
-        // Handle both cases: product is an object vs product is just an ID
+    const formattedCart = [];
+    for (const item of cart) {
+      if (item && item.product) {
         const productId = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
-        return {
-          product: productId,
-          quantity: item.quantity || 1
-        };
-      });
+        // Validate ObjectId to prevent Mongoose CastError which causes 500s
+        if (productId && productId.toString().length === 24) {
+          formattedCart.push({
+            product: productId,
+            quantity: item.quantity || 1
+          });
+        }
+      }
+    }
 
     const user = await User.findById(req.user._id);
     if (!user) {
