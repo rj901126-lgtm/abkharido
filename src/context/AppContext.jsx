@@ -8,6 +8,7 @@ export const useApp = () => useContext(AppContext);
 export const AppProvider = ({ children }) => {
   // --- Persistent & API States ---
   const [products, setProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -123,6 +124,8 @@ export const AppProvider = ({ children }) => {
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('Failed to load products:', err);
+    } finally {
+      setIsLoadingProducts(false);
     }
   };
 
@@ -601,6 +604,7 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         products,
+        isLoadingProducts,
         currentUser,
         cart,
         orders,
