@@ -12,6 +12,24 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     return () => { isMountedRef.current = false; };
   }, []);
   
+  // Helper for Avatar Initials
+  const getInitials = (f, l, u) => {
+    if (f && l) return (f[0] + l[0]).toUpperCase();
+    if (f) return f.substring(0, 2).toUpperCase();
+    if (u) return u.substring(0, 2).toUpperCase();
+    return 'U';
+  };
+
+  // State hooks
+  const [firstName, setFirstName] = useState(currentUser?.firstName || '');
+  const [lastName, setLastName] = useState(currentUser?.lastName || '');
+  const [emailInput, setEmailInput] = useState(currentUser?.email || '');
+  const [pincodeInput, setPincodeInput] = useState(currentUser?.pincode || '');
+  const [addressInput, setAddressInput] = useState(currentUser?.address || '');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
   if (!currentUser) {
     return (
       <div className="container animate-fade-in" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -26,24 +44,6 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       </div>
     );
   }
-
-  // Helper for Avatar Initials
-  const getInitials = (f, l, u) => {
-    if (f && l) return (f[0] + l[0]).toUpperCase();
-    if (f) return f.substring(0, 2).toUpperCase();
-    if (u) return u.substring(0, 2).toUpperCase();
-    return 'U';
-  };
-
-  // State hooks
-  const [firstName, setFirstName] = useState(currentUser.firstName || '');
-  const [lastName, setLastName] = useState(currentUser.lastName || '');
-  const [emailInput, setEmailInput] = useState(currentUser.email || '');
-  const [pincodeInput, setPincodeInput] = useState(currentUser.pincode || '');
-  const [addressInput, setAddressInput] = useState(currentUser.address || '');
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   const wishlistProducts = products ? products.filter(p => wishlist?.includes(p.id)) : [];
 

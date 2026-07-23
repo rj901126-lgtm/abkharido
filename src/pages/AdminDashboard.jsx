@@ -21,7 +21,8 @@ import {
   Banknote,
   HeadphonesIcon,
   User,
-  Search
+  Search,
+  MinusCircle
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';

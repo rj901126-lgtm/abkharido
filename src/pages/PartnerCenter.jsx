@@ -21,15 +21,6 @@ import '../assets/styles/partner.css';
 const PartnerCenter = () => {
   const { currentUser, partnerStats, registerAsInfluencer, requestPayout, showToast, products } = useApp();
 
-  if (!currentUser) {
-    return (
-      <div className="container animate-fade-in" style={{ padding: '80px 20px', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Partner Access Restricted</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Please log in to open the Partner dashboard center.</p>
-      </div>
-    );
-  }
-
   const [activeTab, setActiveTab] = useState('overview'); // overview, generator, history, payouts
 
   // Copy states
@@ -45,11 +36,20 @@ const PartnerCenter = () => {
   const [upiId, setUpiId] = useState('');
 
   // Link Generator States
-  const [selectedProdId, setSelectedProdId] = useState(products.length > 0 ? products[0].id : '');
+  const [selectedProdId, setSelectedProdId] = useState(products && products.length > 0 ? products[0].id : '');
 
   // Withdrawal States
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawMethod, setWithdrawMethod] = useState('upi');
+
+  if (!currentUser) {
+    return (
+      <div className="container animate-fade-in" style={{ padding: '80px 20px', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Partner Access Restricted</h2>
+        <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Please log in to open the Partner dashboard center.</p>
+      </div>
+    );
+  }
 
   const handleCopyText = (text, key) => {
     navigator.clipboard.writeText(text).then(() => {
