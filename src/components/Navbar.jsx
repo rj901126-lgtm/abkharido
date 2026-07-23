@@ -20,7 +20,8 @@ import {
   // eslint-disable-next-line
   Settings,
   Heart,
-  Store
+  Store,
+  ArrowLeft
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
@@ -63,19 +64,25 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header className="navbar-header" style={style}>
-        <div className="navbar-container">
+      <header className={`navbar-header ${activePage && activePage.startsWith('product') ? 'product-page-header' : ''}`} style={style}>
+        <div className={`navbar-container ${activePage && activePage.startsWith('product') ? 'product-page-navbar' : ''}`}>
           
           <div className="navbar-left">
-            {/* Logo */}
-            <a href="#" className="logo-container" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
-              <span className="logo-text">
-                AbKharido<span className="logo-plus">.com</span>
-              </span>
-              <span className="logo-sub">
-                Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
-              </span>
-            </a>
+            {activePage && activePage.startsWith('product') ? (
+              <button className="btn-icon" onClick={(e) => { e.preventDefault(); onNavigate('home'); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ArrowLeft size={24} color="#212121" />
+              </button>
+            ) : (
+              /* Logo */
+              <a href="#" className="logo-container" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
+                <span className="logo-text">
+                  AbKharido<span className="logo-plus">.com</span>
+                </span>
+                <span className="logo-sub">
+                  Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
+                </span>
+              </a>
+            )}
           </div>
 
           {/* Search form */}

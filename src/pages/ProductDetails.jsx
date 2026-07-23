@@ -17,8 +17,7 @@ import {
   ChevronLeft,
   // eslint-disable-next-line
   ChevronRight,
-  Heart,
-  ArrowLeft
+  Heart
 } from 'lucide-react';
 import '../assets/styles/product.css';
 
@@ -394,48 +393,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   return (
     <div className="container animate-fade-in-only" style={{ padding: 0, paddingBottom: '80px' }}>
 
-      {/* Mobile Sticky Header (AbKharido App Style) */}
-      <div className="mobile-product-details-header" style={{
-        display: 'none',
-        position: 'sticky',
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: '#ffffff',
-        height: '52px',
-        alignItems: 'center',
-        padding: '0 16px',
-        gap: '16px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-        zIndex: 100
-      }}>
-        <button onClick={() => onNavigate('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
-          <ArrowLeft size={22} color="#212121" />
-        </button>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <input 
-            type="text" 
-            placeholder="Search for products"
-            onClick={handleSearchClick}
-            readOnly
-            style={{
-              width: '100%',
-              height: '36px',
-              border: '1px solid #c5c5c5',
-              borderRadius: '4px',
-              paddingLeft: '32px',
-              fontSize: '14px',
-              outline: 'none',
-              backgroundColor: '#f0f2f5',
-              boxSizing: 'border-box'
-            }}
-          />
-          <span style={{ position: 'absolute', left: '10px', top: '9px', fontSize: '13px', color: '#878787' }}>🔍</span>
-        </div>
-        <button onClick={() => onNavigate('cart')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <ShoppingCart size={22} color="#212121" />
-        </button>
-      </div>
+
 
       <div className="details-page-grid">
         {/* Left Column: Image and Purchase Actions */}
@@ -463,28 +421,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
 
 
-            {/* Floating Back Arrow Button (Desktop Only overlay, hidden in mobile header) */}
-            <div className="desktop-back-arrow" style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 5 }}>
-              <button 
-                onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}
-                className="btn-icon"
-                style={{ 
-                  border: '1px solid #eaeaea', 
-                  borderRadius: '50%', 
-                  backgroundColor: 'white', 
-                  width: '48px', 
-                  height: '48px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)', 
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease'
-                }}
-              >
-                <ArrowLeft size={24} color="#212121" />
-              </button>
-            </div>
+
 
             {/* Wishlist Heart & Share Panel (Top-Right) */}
             <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '12px' }}>
