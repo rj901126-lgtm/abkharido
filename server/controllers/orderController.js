@@ -17,10 +17,15 @@ export const addOrderItems = async (req, res, next) => {
       cfOrderId
     } = req.body;
 
-    const validCart = cart.filter(item => item && item.product);
-    if (!validCart || validCart.length === 0) {
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
       res.status(400);
       throw new Error('No valid order items found');
+    }
+
+    const validCart = cart.filter(item => item && item.product);
+    if (validCart.length === 0) {
+      res.status(400);
+      throw new Error('No valid order items found after filtering');
     }
 
     // Map frontend cart array to backend orderItems schema

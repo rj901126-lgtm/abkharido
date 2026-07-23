@@ -54,6 +54,11 @@ export const syncCart = async (req, res, next) => {
       });
 
     const user = await User.findById(req.user._id);
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+    
     user.cart = formattedCart;
     await user.save();
 
