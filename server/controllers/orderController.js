@@ -17,17 +17,18 @@ export const addOrderItems = async (req, res, next) => {
       cfOrderId
     } = req.body;
 
-    if (!cart || cart.length === 0) {
+    const validCart = cart.filter(item => item && item.product);
+    if (!validCart || validCart.length === 0) {
       res.status(400);
-      throw new Error('No order items');
+      throw new Error('No valid order items found');
     }
 
     // Map frontend cart array to backend orderItems schema
-    const orderItems = cart.map(item => ({
-      product: item.product.id || item.product._id,
-      name: item.product.name,
-      image: item.product.image || (item.product.images && item.product.images[0]),
-      price: item.product.price,
+    const orderItems = validCart.map(item => ({
+      product: typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product,
+      name: item.product.name || 'Unknown Product',
+      image: item.product.image || (item.product.images && item.product.images[0]) || '',
+      price: item.product.price || 0,
       qty: item.quantity || 1
     }));
 
@@ -39,8 +40,9 @@ export const addOrderItems = async (req, res, next) => {
     
     if (useCoinsDiscount) {
        totalPrice = Math.max(0, totalPrice - 50); 
-    } else {
-      let totalPlatformFee = 0;
+    }
+    
+    let totalPlatformFee = 0;
       
       // Calculate Enterprise Finance splits
       const enrichedOrderItems = await Promise.all(orderItems.map(async (item) => {
@@ -87,7 +89,6 @@ export const addOrderItems = async (req, res, next) => {
       await addOrderToQueue(createdOrder._id);
 
       res.status(201).json(createdOrder);
-    }
   } catch (error) {
     next(error);
   }
