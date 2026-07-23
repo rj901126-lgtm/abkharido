@@ -34,8 +34,8 @@ export const generatePaymentSession = async (req, res, next) => {
         order_currency: 'INR',
         order_id: orderId,
         customer_details: {
-          customer_id: customerId,
-          customer_phone: customerPhone,
+          customer_id: customerId || `guest_${Date.now()}`,
+          customer_phone: (customerPhone && customerPhone.length >= 10) ? customerPhone : '9999999999',
           customer_email: customerEmail || 'customer@example.com'
         },
         order_meta: {
