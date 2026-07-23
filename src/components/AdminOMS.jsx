@@ -131,7 +131,14 @@ const AdminOMS = () => {
     if (!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) return;
     
     try {
-      const res = await fetch(`/api/orders/${orderId}/cancel`, { method: 'POST' });
+      const token = sessionStorage.getItem('abkharido_admin_token');
+      const res = await fetch(`/api/orders/${orderId}/cancel`, { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'x-admin-token': token } : {})
+        }
+      });
       if (res.ok) {
         showToast(`Order ${orderId} cancelled successfully`, 'success');
         fetchOrders();
