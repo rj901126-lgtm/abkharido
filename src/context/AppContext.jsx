@@ -607,7 +607,7 @@ export const AppProvider = ({ children }) => {
         setActiveReferral(null);
         fetchOrders(currentUser.email);
         fetchStats();
-        return data.order;
+        return data;
       } else {
         showToast('Checkout transaction failed on server.', 'error');
       }
