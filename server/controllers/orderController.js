@@ -75,10 +75,19 @@ export const addOrderItems = async (req, res, next) => {
         return item;
       }));
 
+      // Map frontend shipping address to backend schema requirements
+      const mappedShippingAddress = {
+        fullName: shippingAddress.fullName || shippingAddress.name || 'Customer',
+        address: shippingAddress.address || shippingAddress.streetAddress || 'Not Provided',
+        city: shippingAddress.city || 'Not Provided',
+        postalCode: shippingAddress.postalCode || shippingAddress.pincode || '000000',
+        country: shippingAddress.country || 'India'
+      };
+
       const order = new Order({
         orderItems: enrichedOrderItems,
         user: req.user._id,
-        shippingAddress,
+        shippingAddress: mappedShippingAddress,
         paymentMethod,
         itemsPrice,
         taxPrice,
