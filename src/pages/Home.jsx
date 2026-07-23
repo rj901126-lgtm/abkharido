@@ -216,10 +216,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
               <section key={comp.id} className="deals-container">
                 <div className="deals-header">
                   <div className="deals-title-area">
-                    <span className="deals-title">{comp.title || 'Deals of the Day'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', borderRadius: '10px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(239,68,68,0.35)' }}>
+                        <Timer size={18} color="white" />
+                      </div>
+                      <span className="deals-title">{comp.title || 'Deals of the Day'}</span>
+                    </div>
                     <div className="deals-timer">
-                      <Timer size={18} color="#d32f2f" />
-                      <span>Ends In: </span>
+                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>Ends In:</span>
                       <span className="timer-box">{timerString}</span>
                     </div>
                   </div>
@@ -238,11 +242,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
 
           if (comp.type === 'category_row') {
             const catProducts = products.filter(p => p.category === comp.data).slice(0, 5);
-            
+            const catEmojis = { electronics: '⚡', fashion: '👗', sports: '🏃', home: '🏠', beauty: '✨', toys: '🎮' };
+            const emoji = catEmojis[comp.data] || '🛍️';
             return (
               <section key={comp.id} className="deals-container">
                 <div className="deals-header">
-                  <span className="deals-title">{comp.title || 'Category'}</span>
+                  <div className="deals-title-area">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', borderRadius: '10px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
+                        {emoji}
+                      </div>
+                      <span className="deals-title">{comp.title || 'Category'}</span>
+                    </div>
+                  </div>
                   <button className="btn-glass-light" onClick={() => onSelectCategory(comp.data)}>
                     Explore <ArrowRight size={14} />
                   </button>
