@@ -424,7 +424,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
 
             {/* Wishlist Heart & Share Panel (Top-Right) */}
-            <div style={{ position: 'absolute', top: '32px', right: '20px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ position: 'absolute', top: '32px', right: '16px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
                 style={{ border: '1px solid #e2e8f0', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.98)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(4px)' }}
