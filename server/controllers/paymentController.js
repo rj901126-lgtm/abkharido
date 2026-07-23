@@ -39,7 +39,7 @@ export const generatePaymentSession = async (req, res, next) => {
           customer_email: customerEmail || 'customer@example.com'
         },
         order_meta: {
-          return_url: `${req.headers.origin}/checkout?order_id={order_id}`
+          return_url: `${req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : 'https://abkharido.vercel.app')}/checkout?order_id={order_id}`
         }
       })
     });
