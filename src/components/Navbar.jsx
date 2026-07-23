@@ -75,7 +75,9 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             ) : (
               /* Logo */
               <a href="#" className="logo-container" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
-                <img src="/logo.jpg" alt="AbKharido Logo" className="brand-logo" />
+                <span className="logo-text">
+                  AbKharido<span className="logo-plus">.com</span>
+                </span>
                 <span className="logo-sub">
                   Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
                 </span>
