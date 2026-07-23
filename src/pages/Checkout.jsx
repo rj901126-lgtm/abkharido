@@ -103,7 +103,16 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         });
         if (res.ok) {
           const data = await res.json();
-          setShippingServiceability(data);
+          if (data.status === 1 || data.serviceable) {
+            const courier = data.data?.available_courier_companies?.[0];
+            setShippingServiceability({
+              serviceable: true,
+              courier: courier?.courier_name || 'Premium Courier',
+              estimatedDays: courier?.estimated_delivery_days || '3-5'
+            });
+          } else {
+            setShippingServiceability({ serviceable: false, error: 'Pincode unserviceable' });
+          }
         } else {
           setShippingServiceability({ serviceable: false, error: 'Could not fetch serviceability' });
         }
