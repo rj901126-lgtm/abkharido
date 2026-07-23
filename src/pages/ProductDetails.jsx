@@ -391,7 +391,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   };
 
   return (
-    <div className="container animate-fade-in-only" style={{ padding: 0, paddingBottom: '80px' }}>
+    <div className="container animate-fade-in-only" style={{ padding: 0, paddingTop: '16px', paddingBottom: '80px' }}>
 
 
 
@@ -640,14 +640,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               </div>
             </div>
           )}
-          {/* Pricing Details */}
-          <div className="price-box-details" style={{ backgroundColor: 'transparent', border: 'none', padding: 0, marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
-            <div className="details-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <span className="details-price" style={{ fontSize: '32px', fontWeight: '800', color: '#0f172a', letterSpacing: '-1px' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
-              <span className="details-original" style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
-              <span className="details-discount" style={{ fontSize: '14px', fontWeight: '800', color: '#10b981', background: '#ecfdf5', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
-            </div>
-          </div>
+
 
           {/* Trust Badges */}
           <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
