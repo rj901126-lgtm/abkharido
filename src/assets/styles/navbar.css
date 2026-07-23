@@ -527,7 +527,12 @@
 }
 
 @media (max-width: 768px) {
-  .product-page-navbar .dropdown {
+  .product-page-navbar .nav-item {
     display: none !important; /* Hide user profile icon to save space like Flipkart */
   }
+}
+
+.product-page-header {
+  background: white !important;
+  z-index: 1000 !important;
 }
