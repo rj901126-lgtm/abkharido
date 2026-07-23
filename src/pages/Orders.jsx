@@ -71,13 +71,13 @@ const Orders = ({ onNavigate }) => {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {orders.map(order => (
-          <div key={order.id} className="order-card">
+          <div key={order._id} className="order-card">
             
             {/* Order Card Header */}
             <div className="order-card-header">
               <div className="order-meta-item">
                 <span className="order-meta-label">ORDER PLACED</span>
-                <div className="order-meta-value"><Calendar size={14} /> {order.date}</div>
+                <div className="order-meta-value"><Calendar size={14} /> {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">TOTAL AMOUNT</span>
@@ -85,11 +85,11 @@ const Orders = ({ onNavigate }) => {
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">SHIP TO</span>
-                <div className="order-meta-value" title={order.shippingAddress.streetAddress}>{order.shippingAddress.name}</div>
+                <div className="order-meta-value" title={(order.shippingAddress?.streetAddress || order.shippingAddress?.address || '')}>{(order.shippingAddress?.name || order.shippingAddress?.fullName || 'Customer')}</div>
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">ORDER #</span>
-                <div className="order-meta-value"><code>{order.id}</code></div>
+                <div className="order-meta-value"><code>{order._id}</code></div>
               </div>
             </div>
 
@@ -193,7 +193,7 @@ const Orders = ({ onNavigate }) => {
             })()}
 
             {/* Expanded Shipment Tracking Panel */}
-            {activeTrackingId === order.id && order.status !== 'CANCELLED' && (() => {
+            {activeTrackingId === order._id && order.status !== 'CANCELLED' && (() => {
               const status = order.status;
               const p0 = { x: 50, y: 80 };
               const p1 = { x: 150, y: 20 };
@@ -223,7 +223,7 @@ const Orders = ({ onNavigate }) => {
               const strokeOffset = 420 * (1 - t);
               
               // Date calculations
-              const orderDate = order.date;
+              const orderDate = order.createdAt;
               const getFormattedDate = (days) => {
                 try {
                   const date = new Date(orderDate);
@@ -247,10 +247,10 @@ const Orders = ({ onNavigate }) => {
                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                       <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>TRACKING AWB</span>
                       <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                        {order.trackingNumber || `12${order.id.replace(/\D/g, '') || '9873210423'}`}
+                        {order.trackingNumber || `12${order._id.replace(/\D/g, '') || '9873210423'}`}
                       </div>
                       <a 
-                        href={`https://shiprocket.co/tracking/${order.trackingNumber || ('12' + (order.id.replace(/\D/g, '') || '9873210423'))}`}
+                        href={`https://shiprocket.co/tracking/${order.trackingNumber || ('12' + (order._id.replace(/\D/g, '') || '9873210423'))}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         style={{ fontSize: '11px', color: 'var(--success)', fontWeight: 'bold', textDecoration: 'underline', marginTop: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
@@ -296,7 +296,7 @@ const Orders = ({ onNavigate }) => {
                         <circle r="8" fill={status === 'Delivered' ? 'var(--success)' : '#cbd5e1'} />
                         {status === 'Delivered' && <circle r="12" fill="var(--success)" fillOpacity="0.2" />}
                         <text y="24" textAnchor="middle" style={{ fontSize: '9px', fontWeight: 'bold', fill: '#666' }}>
-                          {order.shippingAddress.city ? `${order.shippingAddress.city} (${order.shippingAddress.pincode})` : 'Destination'}
+                          {(order.shippingAddress?.city || '') ? `${(order.shippingAddress?.city || '')} (${(order.shippingAddress?.pincode || order.shippingAddress?.postalCode || '')})` : 'Destination'}
                         </text>
                       </g>
                       
@@ -321,7 +321,7 @@ const Orders = ({ onNavigate }) => {
                         <div className="tracking-checkpoint-item completed">
                           <div className="tracking-checkpoint-node"></div>
                           <div className="tracking-checkpoint-title">Delivered Successfully</div>
-                          <div className="tracking-checkpoint-desc">Package delivered directly to {order.shippingAddress.name} at destination location.</div>
+                          <div className="tracking-checkpoint-desc">Package delivered directly to {(order.shippingAddress?.name || order.shippingAddress?.fullName || 'Customer')} at destination location.</div>
                           <div className="tracking-checkpoint-date">{getFormattedDate(2)}</div>
                         </div>
                       )}
@@ -331,7 +331,7 @@ const Orders = ({ onNavigate }) => {
                         <div className={`tracking-checkpoint-item ${status === 'In Transit' ? 'active' : 'completed'}`}>
                           <div className="tracking-checkpoint-node"></div>
                           <div className="tracking-checkpoint-title">Out for Delivery</div>
-                          <div className="tracking-checkpoint-desc">Package is with local courier delivery partner near {order.shippingAddress.city || 'your city'}.</div>
+                          <div className="tracking-checkpoint-desc">Package is with local courier delivery partner near {(order.shippingAddress?.city || '') || 'your city'}.</div>
                           <div className="tracking-checkpoint-date">{getFormattedDate(1)}</div>
                         </div>
                       )}
@@ -372,26 +372,25 @@ const Orders = ({ onNavigate }) => {
 
             {/* Order Items */}
             <div className="order-item-list">
-              {order.items.map(item => { 
-                const prod = item.product; 
+              {(order.orderItems || []).map((item, index) => { 
                 return (
-                <div key={prod.id} className="order-item-row">
+                <div key={item.product || index} className="order-item-row">
                   <div className="order-item-image">
-                    <img src={prod.image} alt={prod.name} />
+                    <img src={item.image} alt={item.name} />
                   </div>
                   <div className="order-item-info">
-                    <h4 className="order-item-title">{prod.name}</h4>
+                    <h4 className="order-item-title">{item.name}</h4>
                     <div className="order-item-meta">
-                      Qty: {item.quantity} {item.selectedColor ? `| ${item.selectedColor}` : ''} {item.selectedVariant ? `| ${item.selectedVariant}` : ''}
+                      Qty: {item.qty || item.quantity} {item.selectedColor ? `| ${item.selectedColor}` : ''} {item.selectedVariant ? `| ${item.selectedVariant}` : ''}
                     </div>
                     <div className="order-item-price">
-                      ₹{(prod.price || 0).toLocaleString('en-IN')}
+                      ₹{(item.price || 0).toLocaleString('en-IN')}
                     </div>
                   </div>
                   <button 
                     className="btn btn-outline btn-sm" 
                     onClick={() => {
-                      const productToAdd = { ...prod, selectedColor: item.selectedColor, selectedVariant: item.selectedVariant };
+                      const productToAdd = { id: item.product, name: item.name, price: item.price, image: item.image, selectedColor: item.selectedColor, selectedVariant: item.selectedVariant };
                       addToCart(productToAdd, 1);
                       onNavigate('cart');
                     }}
@@ -419,13 +418,13 @@ const Orders = ({ onNavigate }) => {
                     style={{
                       borderColor: 'var(--primary-color)',
                       color: 'var(--primary-color)',
-                      backgroundColor: activeTrackingId === order.id ? '#f0f4ff' : 'transparent'
+                      backgroundColor: activeTrackingId === order._id ? '#f0f4ff' : 'transparent'
                     }}
-                    onClick={() => setActiveTrackingId(activeTrackingId === order.id ? null : order.id)}
+                    onClick={() => setActiveTrackingId(activeTrackingId === order._id ? null : order._id)}
                   >
                     <Truck size={14} />
-                    <span>{activeTrackingId === order.id ? 'Hide Tracking' : 'Track Shipment'}</span>
-                    {activeTrackingId === order.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    <span>{activeTrackingId === order._id ? 'Hide Tracking' : 'Track Shipment'}</span>
+                    {activeTrackingId === order._id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   </button>
                 )}
 
@@ -436,7 +435,7 @@ const Orders = ({ onNavigate }) => {
                     style={{ borderColor: 'var(--error)', color: 'var(--error)' }}
                     onClick={() => {
                       if (window.confirm('Are you sure you want to cancel this order?')) {
-                        cancelOrder(order.id);
+                        cancelOrder(order._id);
                       }
                     }}
                   >
@@ -446,16 +445,16 @@ const Orders = ({ onNavigate }) => {
                 
                 <button
                   className="btn btn-primary"
-                  onClick={() => handleDownloadInvoice(order.id)}
-                  disabled={downloadingOrderId === order.id}
+                  onClick={() => handleDownloadInvoice(order._id)}
+                  disabled={downloadingOrderId === order._id}
                 >
                   <Download size={14} />
-                  {downloadingOrderId === order.id ? 'Generating...' : 'Invoice'}
+                  {downloadingOrderId === order._id ? 'Generating...' : 'Invoice'}
                 </button>
               </div>
 
               {/* Hidden Premium Invoice Renderer */}
-              <WorldClassInvoice ref={el => invoiceRefs.current[order.id] = el} order={order} />
+              <WorldClassInvoice ref={el => invoiceRefs.current[order._id] = el} order={order} />
 
               {/* Referral attribution display */}
               {order.referralApplied ? (
