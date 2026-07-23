@@ -105,11 +105,28 @@ export const addOrderItems = async (req, res, next) => {
 
       const createdOrder = await order.save();
       
-      // Fetch user to check email verification
+      // Fetch user to check email verification and auto-save profile details
       const user = await User.findById(req.user._id);
-      if (user && user.isEmailVerified && user.email) {
-        // Send email asynchronously without blocking the response
-        sendInvoiceEmail(createdOrder, user).catch(err => console.error("Failed to send invoice:", err));
+      if (user) {
+        let profileUpdated = false;
+        if (!user.fullName && mappedShippingAddress.fullName) {
+          user.fullName = mappedShippingAddress.fullName;
+          profileUpdated = true;
+        }
+        if (!user.address && mappedShippingAddress.address) {
+          user.address = mappedShippingAddress.address;
+          user.city = mappedShippingAddress.city;
+          user.pincode = mappedShippingAddress.postalCode;
+          profileUpdated = true;
+        }
+        if (profileUpdated) {
+          await user.save();
+        }
+
+        if (user.isEmailVerified && user.email) {
+          // Send email asynchronously without blocking the response
+          sendInvoiceEmail(createdOrder, user).catch(err => console.error("Failed to send invoice:", err));
+        }
       }
 
       // Add to enterprise background queue (Phase 2)

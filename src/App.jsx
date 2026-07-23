@@ -537,10 +537,8 @@ const AppContent = () => {
         />
       )}
 
-      {/* Onboarding Overlay Modal for incomplete names/addresses */}
-      {currentUser && (!currentUser.firstName && !currentUser.fullName || !currentUser.address) && (
-        <OnboardingModal />
-      )}
+      {/* Onboarding Overlay Modal REMOVED for seamless enterprise UX */}
+      {/* Users will just provide address during checkout if missing */}
 
       {/* Sales Boost: Global Gamification Popup */}
 
