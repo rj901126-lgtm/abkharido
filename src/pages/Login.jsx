@@ -252,10 +252,8 @@ const Login = ({ onNavigate }) => {
       {/* ── Desktop: Left Blue Panel ── */}
       <div className="lp-left">
         <div className="lp-left-content">
-          <div className="lp-logo-row">
-            <span className="lp-brand-text">
-              AbKharido<span className="lp-brand-dot">.com</span>
-            </span>
+          <div className="lp-logo-row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/logo.jpg" alt="AbKharido Logo" className="brand-logo" style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
             <span className="lp-brand-sub">Direct Buy &amp; Earn</span>
           </div>
           <h1 className="lp-left-title">
