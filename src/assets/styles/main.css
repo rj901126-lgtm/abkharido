@@ -1468,13 +1468,15 @@ input:focus, textarea:focus, select:focus {
   .lp-switch-btn  { font-size: 13px; }
 
   .lp-otp-box {
-    max-width: 46px;
+    width: 100%;
+    max-width: 40px;
     height: 48px;
-    font-size: 20px;
-    border-radius: 10px;
+    font-size: 18px;
+    border-radius: 8px;
+    min-width: 0;
   }
 
-  .lp-otp-row     { gap: 10px; }
+  .lp-otp-row     { gap: 6px; }
   .lp-resend-row  { font-size: 12px; margin-top: 6px; }
   .lp-back-btn    { font-size: 13px; margin-bottom: 20px; }
 }
