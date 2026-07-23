@@ -1,5 +1,6 @@
 // eslint-disable-next-line
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useApp } from '../context/AppContext';
 import { 
   Star, 
@@ -330,6 +331,16 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   };
 
   return (
+    <>
+      <Helmet>
+        <title>{product.seo?.metaTitle || `${product.name} | AbKharido`}</title>
+        <meta name="description" content={product.seo?.metaDescription || product.description?.substring(0, 160)} />
+        <meta property="og:title" content={product.seo?.metaTitle || product.name} />
+        <meta property="og:description" content={product.seo?.metaDescription || product.description?.substring(0, 160)} />
+        <meta property="og:image" content={product.image} />
+        <meta property="og:type" content="product" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
     <div className="container animate-fade-in-only" style={{ padding: 0, paddingTop: '0', paddingBottom: '80px' }}>
 
 
@@ -1108,6 +1119,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       {/* ===== END FIXED BOTTOM BAR ===== */}
 
     </div>
+    </>
   );
 };
 

@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
 import Toast from './components/Toast';
 
-// Pages
-import Home from './pages/Home';
-import ProductCatalog from './pages/ProductCatalog';
-import ProductDetails from './pages/ProductDetails';
-import CartPage from './pages/CartPage';
-import Checkout from './pages/Checkout';
-import PartnerCenter from './pages/PartnerCenter';
-import Orders from './pages/Orders';
-import AdminDashboard from './pages/AdminDashboard';
-import Login from './pages/Login';
-import ProfilePage from './pages/ProfilePage';
+// Pages (Lazy Loaded for Code Splitting)
+const Home = React.lazy(() => import('./pages/Home'));
+const ProductCatalog = React.lazy(() => import('./pages/ProductCatalog'));
+const ProductDetails = React.lazy(() => import('./pages/ProductDetails'));
+const CartPage = React.lazy(() => import('./pages/CartPage'));
+const Checkout = React.lazy(() => import('./pages/Checkout'));
+const PartnerCenter = React.lazy(() => import('./pages/PartnerCenter'));
+const Orders = React.lazy(() => import('./pages/Orders'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const Login = React.lazy(() => import('./pages/Login'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const InfoPage = React.lazy(() => import('./pages/InfoPage'));
+const SellerDashboard = React.lazy(() => import('./pages/SellerDashboard'));
+const CategoriesPage = React.lazy(() => import('./pages/CategoriesPage'));
 import BottomNavigation from './components/BottomNavigation';
-import InfoPage from './pages/InfoPage';
-import SellerDashboard from './pages/SellerDashboard';
-import CategoriesPage from './pages/CategoriesPage';
 import CartDrawer from './components/CartDrawer';
 
 const OnboardingModal = () => {
@@ -516,12 +516,13 @@ const AppContent = () => {
         />
       )}
 
-      {/* Main Content Area */}
       <main 
         className={`main-content ${activePage === 'categories' ? 'no-padding-bottom' : ''}`}
         style={{ marginTop: isAdminPage ? (showAnnouncement ? '30px' : '0') : (showAnnouncement ? '86px' : '56px') }}
       >
-        {renderPage()}
+        <Suspense fallback={<div style={{ padding: '100px 20px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading...</div>}>
+          {renderPage()}
+        </Suspense>
       </main>
 
       {/* Mobile Sticky Bottom Tab Bar */}

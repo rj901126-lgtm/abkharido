@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from './config/db.js';
+import logger from './config/logger.js';
 // eslint-disable-next-line
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
@@ -38,7 +39,7 @@ app.use(async (req, res, next) => {
     try {
       await connectDB();
     } catch (err) {
-      console.error('DB Connection Failed', err);
+      logger.error(`DB Connection Failed: ${err.message}`, { stack: err.stack });
     }
   } else if (mongoose.connection.readyState === 2) {
     // If it's currently connecting, wait for it
@@ -64,9 +65,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Logging
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
 // Rate Limiting (Basic protection)
 const apiLimiter = rateLimit({
@@ -74,11 +73,26 @@ const apiLimiter = rateLimit({
   max: 1000, // Limit each IP to 1000 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
   store: redisClient ? new RedisStore({
     sendCommand: (...args) => redisClient.call(...args),
   }) : undefined, // Fallback to memory if Redis is down
 });
+
+// Strict Rate Limiting for Auth
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // Limit each IP to 30 auth requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts, please try again later.' },
+  store: redisClient ? new RedisStore({
+    sendCommand: (...args) => redisClient.call(...args),
+  }) : undefined,
+});
+
 app.use('/api', apiLimiter);
+app.use('/api/auth', authLimiter);
 
 // --- NEW MVC ROUTES ---
 app.use('/api/auth', authRoutes);

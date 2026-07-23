@@ -1,3 +1,5 @@
+import logger from '../config/logger.js';
+
 export const notFound = (req, res, next) => {
   const error = new Error(`Not Found - ${req.originalUrl}`);
   res.status(404);
@@ -15,8 +17,14 @@ export const errorHandler = (err, req, res, next) => {
     statusCode = 404;
   }
 
+  // Log error using winston
+  logger.error(`${statusCode} - ${message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  if (statusCode === 500) {
+    logger.error(err.stack);
+  }
+
   res.status(statusCode).json({
     error: message,
-    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack,
+    stack: process.env.NODE_ENV === 'production' ? '🛡️' : err.stack,
   });
 };

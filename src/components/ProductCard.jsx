@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Star, Award, ShoppingCart } from 'lucide-react';
+import LazyImage from './LazyImage';
 
 const ProductCard = ({ product, onNavigateProduct }) => {
   const { addToCart, currentUser } = useApp();
@@ -39,7 +40,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           </div>
         ) : null}
         
-        <img src={product.image} alt={product.name} style={styles.image} loading="lazy" />
+        <LazyImage src={product.image} alt={product.name} style={styles.image} />
       </div>
 
       {/* Info Content */}
