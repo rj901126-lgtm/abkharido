@@ -754,7 +754,7 @@ const SellerDashboard = ({ onNavigate }) => {
     );
   }
 
-  const totalSalesVolume = sellerOrders.reduce((sum, o) => sum + o.finalAmount, 0);
+  const totalSalesVolume = sellerOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
   return (
     <div className="container admin-container animate-fade-in">

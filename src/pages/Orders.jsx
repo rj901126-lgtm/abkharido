@@ -81,7 +81,7 @@ const Orders = ({ onNavigate }) => {
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">TOTAL AMOUNT</span>
-                <div className="order-meta-value">₹{order.finalAmount.toLocaleString('en-IN')}</div>
+                <div className="order-meta-value">₹{(order.totalPrice || 0).toLocaleString('en-IN')}</div>
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">SHIP TO</span>

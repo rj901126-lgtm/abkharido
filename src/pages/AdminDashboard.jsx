@@ -1396,7 +1396,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       );
                       
                       const salesCount = referredOrdersList.length;
-                      const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + o.finalAmount, 0);
+                      const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
                       return (
                         <tr key={u.username} style={{ transition: 'background-color 0.2s', borderBottom: '1px solid #f1f5f9' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
@@ -2855,7 +2855,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                             <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>{order.items.length} item(s)</div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#16a34a' }}>₹{order.finalAmount.toFixed(2)}</div>
+                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#16a34a' }}>₹{(order.totalPrice || 0).toFixed(2)}</div>
                             <span style={{ display: 'inline-block', marginTop: '6px', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: order.status === 'Delivered' ? '#dcfce7' : order.status === 'Cancelled' ? '#fee2e2' : '#e0e7ff', color: order.status === 'Delivered' ? '#16a34a' : order.status === 'Cancelled' ? '#ef4444' : '#4f46e5' }}>
                               {order.status}
                             </span>
