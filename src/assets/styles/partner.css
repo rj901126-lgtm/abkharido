@@ -16,28 +16,30 @@
 
 .stat-card {
   background-color: #ffffff;
-  border: 1px solid rgba(0,0,0,0.03);
+  border: 1px solid #f1f5f9;
   border-radius: 20px;
   padding: 24px;
   display: flex;
   align-items: center;
   gap: 20px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
 }
 
 .stat-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(79,70,229,0.12);
+  box-shadow: 0 16px 36px rgba(79,70,229,0.1);
+  border-color: rgba(79,70,229,0.08);
 }
 
 .stat-icon-frame {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .stat-data {
@@ -46,44 +48,59 @@
 }
 
 .stat-val {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
   line-height: 1.2;
+  letter-spacing: -0.5px;
 }
 
 .stat-lbl {
   font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 500;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
-/* Dashboard Tabs Navigation */
+/* Dashboard Tabs Navigation — pill style */
 .dashboard-tabs-bar {
   display: flex;
-  background-color: white;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  padding: 0 8px;
+  background: #f1f5f9;
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dashboard-tabs-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .dashboard-tab-btn {
-  padding: 14px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 3px solid transparent;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
 }
 
 .dashboard-tab-btn:hover {
-  color: var(--primary-color);
+  color: #4f46e5;
+  background: rgba(79,70,229,0.06);
 }
 
 .dashboard-tab-btn.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
+  background: white;
+  color: #4f46e5;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  font-weight: 800;
 }
 
 /* Layout for tab panels */

@@ -105,15 +105,16 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 const styles = {
   card: {
     backgroundColor: 'white',
-    borderRadius: '16px',
-    border: '1px solid #e2e8f0',
+    borderRadius: '20px',
+    border: '1px solid #f1f5f9',
     overflow: 'hidden',
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     height: '100%',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
   },
   imageWrapper: {
     width: '100%',
@@ -129,7 +130,7 @@ const styles = {
     maxHeight: '100%',
     maxWidth: '100%',
     objectFit: 'contain',
-    transition: 'transform 0.3s ease',
+    transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
   },
   info: {
     padding: '12px',
@@ -165,9 +166,10 @@ const styles = {
     marginTop: '2px',
   },
   price: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#212121',
+    fontSize: '17px',
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: '-0.3px',
   },
   originalPrice: {
     fontSize: '12px',
@@ -196,11 +198,11 @@ const styles = {
     lineHeight: '1.2',
   },
   addBtn: {
-    backgroundColor: 'var(--primary-color)',
+    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
     border: 'none',
     color: 'white',
-    borderRadius: '8px',
-    padding: '8px 12px',
+    borderRadius: '10px',
+    padding: '10px 12px',
     fontSize: '13px',
     fontWeight: '700',
     display: 'flex',
@@ -209,6 +211,7 @@ const styles = {
     gap: '6px',
     marginTop: '10px',
     transition: 'all 0.2s ease',
+    boxShadow: '0 4px 12px rgba(79,70,229,0.25)',
   },
 };
 

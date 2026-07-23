@@ -339,19 +339,28 @@
   color: #94a3b8;
 }
 
+/* Flash Sale Timer — urgent pulsing red */
 .timer-box {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  font-weight: 800;
-  padding: 6px 12px;
+  font-weight: 900;
+  padding: 6px 14px;
   border-radius: 8px;
-  letter-spacing: 1.5px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  letter-spacing: 2px;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(239,68,68,0.35);
+  animation: timerPulse 2s ease-in-out infinite;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes timerPulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
+  50% { box-shadow: 0 4px 20px rgba(239,68,68,0.6); }
 }
 
 .deals-container .product-card {
   box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05);
-  background: white; /* Make sure the card itself is white */
+  background: white;
 }
 
 @media (max-width: 600px) {

@@ -5,13 +5,15 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
-  background-color: #ffffff;
+  height: 68px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1px solid rgba(226, 232, 240, 0.6);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.04);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.06);
   z-index: 2000;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -28,9 +30,9 @@
   font-weight: 600;
   flex: 1;
   height: 100%;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
@@ -38,35 +40,53 @@
   outline: none;
 }
 
-/* The icon wrapper to hold the pill highlight */
+/* Icon pill highlight */
 .nav-icon-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 32px;
-  border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 52px;
+  height: 34px;
+  border-radius: 17px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bottom-nav-item:active .nav-icon-wrapper {
-  transform: scale(0.9);
+  transform: scale(0.88);
 }
 
+/* Active state — glowing indigo pill */
 .bottom-nav-item.active {
   color: #4f46e5;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .bottom-nav-item.active .nav-icon-wrapper {
-  background-color: #eef2ff;
-  color: #4f46e5;
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
 }
 
 .bottom-nav-item.active .lucide {
   stroke-width: 2.5px;
-  filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.2));
+  filter: drop-shadow(0 2px 6px rgba(79, 70, 229, 0.35));
+}
+
+/* Active dot indicator */
+.bottom-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  width: 4px;
+  height: 4px;
+  background: #4f46e5;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(79,70,229,0.5);
+}
+
+/* Hover on desktop */
+.bottom-nav-item:hover .nav-icon-wrapper {
+  background: #f8fafc;
 }
 
 /* Hide bottom nav on desktop screens */
@@ -75,4 +95,3 @@
     display: none !important;
   }
 }
-

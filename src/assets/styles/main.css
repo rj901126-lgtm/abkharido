@@ -54,20 +54,20 @@ img {
   display: block;
 }
 
-/* Scrollbar Styling */
+/* Scrollbar Styling — brand indigo */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: var(--radius-full);
+  background: #c7d2fe;
+  border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #818cf8;
 }
 
 /* Page Layout Container */
@@ -156,12 +156,15 @@ img {
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
+  box-shadow: 0 4px 14px rgba(79,70,229,0.25);
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-dark);
+  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+  box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+  transform: translateY(-1px);
 }
 
 .btn-accent {
@@ -235,12 +238,13 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background-color: var(--success);
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
   color: white;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 3px 8px;
+  border-radius: 6px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(22,163,74,0.25);
 }
 
 /* Animations */
@@ -682,17 +686,17 @@ img {
 
 /* Premium Product Card Hover Effects */
 .product-card {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease !important;
 }
 
 .product-card:hover {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
-  border-color: #cbd5e1 !important;
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 32px rgba(79, 70, 229, 0.1) !important;
+  border-color: rgba(79,70,229,0.15) !important;
 }
 
 .product-card:hover .product-card-image-wrapper img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .product-add-to-cart-btn {
@@ -700,10 +704,10 @@ img {
 }
 
 .product-add-to-cart-btn:hover {
-  background-color: var(--primary-dark) !important;
+  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%) !important;
   color: white !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 18px rgba(79,70,229,0.35) !important;
 }
 
 .otp-input-field:focus {
