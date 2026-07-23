@@ -498,20 +498,22 @@
 
 .product-page-navbar .search-form {
   display: flex !important;
-  flex: 1 1 auto !important;
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
   width: 100% !important;
-  min-width: 100px !important;
   margin: 0 !important;
 }
 
 .product-page-navbar .search-input-wrapper {
-  width: 100% !important;
+  flex: 1 1 100% !important;
+  min-width: 0 !important;
   display: flex !important;
   background-color: #f1f5f9 !important;
 }
 
 .product-page-navbar .search-input {
   width: 100% !important;
+  min-width: 0 !important;
   display: block !important;
   border-radius: 24px !important;
   background-color: transparent !important;
