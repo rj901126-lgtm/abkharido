@@ -275,9 +275,10 @@
 /* Mobile Sticky Checkout Bar (100-Crore Enterprise Match) */
 .mobile-cart-sticky-bar {
   position: fixed;
-  bottom: 0 !important;
+  bottom: 68px !important; /* Pushed up above the bottom navigation bar */
   left: 0 !important;
   right: 0 !important;
+  z-index: 1999;
   height: calc(80px + env(safe-area-inset-bottom));
   padding: 16px 20px calc(16px + env(safe-area-inset-bottom)) 20px;
   background-color: rgba(255, 255, 255, 0.85);
