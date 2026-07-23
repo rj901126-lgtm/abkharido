@@ -10,18 +10,35 @@ import { addOrderToQueue } from '../utils/queue.js';
 export const addOrderItems = async (req, res, next) => {
   try {
     const {
-      orderItems,
+      cart,
       shippingAddress,
       paymentMethod,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
+      useCoinsDiscount,
+      cfOrderId
     } = req.body;
 
-    if (orderItems && orderItems.length === 0) {
+    if (!cart || cart.length === 0) {
       res.status(400);
       throw new Error('No order items');
+    }
+
+    // Map frontend cart array to backend orderItems schema
+    const orderItems = cart.map(item => ({
+      product: item.product.id || item.product._id,
+      name: item.product.name,
+      image: item.product.image || (item.product.images && item.product.images[0]),
+      price: item.product.price,
+      qty: item.quantity || 1
+    }));
+
+    // Calculate Prices dynamically
+    const itemsPrice = orderItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+    const shippingPrice = itemsPrice > 500 ? 0 : 50; 
+    const taxPrice = Number((0.18 * itemsPrice).toFixed(2));
+    let totalPrice = itemsPrice + shippingPrice + taxPrice;
+    
+    if (useCoinsDiscount) {
+       totalPrice = Math.max(0, totalPrice - 50); 
     } else {
       let totalPlatformFee = 0;
       
