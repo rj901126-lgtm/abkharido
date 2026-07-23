@@ -238,12 +238,7 @@ export const AppProvider = ({ children }) => {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
-        const data = await res.json();
-        if (data.user) {
-          data.user.token = token;
-          setCurrentUser(data.user);
-          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-        }
+        // Successfully cancelled
         if (currentUser) {
           fetchOrders(currentUser.email);
         }
