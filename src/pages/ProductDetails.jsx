@@ -491,7 +491,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
                 className="btn-icon"
-                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'transform 0.2s ease' }}
+                style={{ border: '1px solid #c2c9d6', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.95)', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.15)', cursor: 'pointer', transition: 'transform 0.2s ease', backdropFilter: 'blur(4px)' }}
               >
                 {wishlist && wishlist.includes(product.id) ? (
                   <Heart size={24} fill="#d32f2f" color="#d32f2f" />
@@ -502,7 +502,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               <button 
                 onClick={(e) => { e.stopPropagation(); handleShareWhatsApp(); }}
                 className="btn-icon"
-                style={{ border: '1px solid #eaeaea', borderRadius: '50%', backgroundColor: 'white', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'transform 0.2s ease' }}
+                style={{ border: '1px solid #c2c9d6', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.95)', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.15)', cursor: 'pointer', transition: 'transform 0.2s ease', backdropFilter: 'blur(4px)' }}
               >
                 <Share2 size={24} color="#777" />
               </button>
