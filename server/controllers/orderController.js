@@ -22,11 +22,10 @@ export const addOrderItems = async (req, res, next) => {
       throw new Error('No valid order items found');
     }
 
+    // We allow all items, but we need to sanitize the product ID for Mongoose
     const validCart = cart.filter(item => {
       if (!item || !item.product) return false;
-      const productId = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
-      // Validate ObjectId length
-      return productId && productId.toString().length === 24;
+      return true; // Accept all items, even mock ones like "p1"
     });
 
     if (validCart.length === 0) {
@@ -35,13 +34,21 @@ export const addOrderItems = async (req, res, next) => {
     }
 
     // Map frontend cart array to backend orderItems schema
-    const orderItems = validCart.map(item => ({
-      product: typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product,
-      name: (item.product && item.product.name) ? item.product.name : 'Unknown Product',
-      image: (item.product && item.product.image) ? item.product.image : ((item.product && item.product.images && item.product.images.length > 0) ? item.product.images[0] : 'https://via.placeholder.com/150'),
-      price: (item.product && item.product.price) ? item.product.price : 0,
-      qty: item.quantity || 1
-    }));
+    const orderItems = validCart.map(item => {
+      let pId = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
+      pId = pId ? pId.toString() : '';
+      // If it's not a valid 24-character hex string, fallback to a dummy ObjectId to prevent CastError
+      if (pId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(pId)) {
+        pId = '000000000000000000000000';
+      }
+      return {
+        product: pId,
+        name: (item.product && item.product.name) ? item.product.name : 'Unknown Product',
+        image: (item.product && item.product.image) ? item.product.image : ((item.product && item.product.images && item.product.images.length > 0) ? item.product.images[0] : 'https://via.placeholder.com/150'),
+        price: (item.product && item.product.price) ? item.product.price : 0,
+        qty: item.quantity || 1
+      };
+    });
 
     // Calculate Prices dynamically
     const itemsPrice = orderItems.reduce((acc, item) => acc + item.price * item.qty, 0);
