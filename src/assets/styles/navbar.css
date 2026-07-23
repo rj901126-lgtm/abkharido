@@ -482,10 +482,12 @@
 .product-page-navbar {
   display: flex !important;
   flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: space-between !important;
   gap: 12px !important;
-  width: 100% !important;
+  width: 100vw !important;
+  box-sizing: border-box !important;
 }
 
 .product-page-navbar .navbar-left {
@@ -496,7 +498,8 @@
 
 .product-page-navbar .search-form {
   display: flex !important;
-  flex: 1 1 auto !important;
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
   width: 100% !important;
   margin: 0 !important;
 }
@@ -538,6 +541,8 @@
   background: transparent !important;
   padding: 0 !important;
   box-shadow: none !important;
+  right: auto !important;
+  top: auto !important;
 }
 
 @media (max-width: 768px) {
