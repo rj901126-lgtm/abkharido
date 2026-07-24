@@ -1,11 +1,10 @@
 import express from 'express';
-import { getUserByUsername, updateUserProfile, registerCreator, getUsers, suspendUser, addWalletBalance, updateSellerStatus } from '../controllers/userController.js';
+import { getUserByUsername, updateUserProfile, getUsers, suspendUser, addWalletBalance, updateSellerStatus } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { logAdminAction } from '../middleware/auditMiddleware.js';
 
 const router = express.Router();
 
-router.post('/register-creator', registerCreator);
 router.get('/', protect, admin, getUsers);
 router.get('/:username', getUserByUsername);
 router.post('/:username/update', protect, updateUserProfile);
