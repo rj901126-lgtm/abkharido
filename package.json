@@ -8,7 +8,7 @@
     "server": "node server/app.js",
     "start": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "next build",
-    "lint": "next lint"
+    "lint": "oxlint"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
