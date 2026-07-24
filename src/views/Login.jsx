@@ -125,7 +125,7 @@ const Login = ({ onNavigate }) => {
   };
 
   const triggerBackendOtp = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/send-otp', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ recipient: phone })
@@ -154,7 +154,7 @@ const Login = ({ onNavigate }) => {
         try {
           const result = await firebaseConfirmation.confirm(enteredOtp);
           const firebaseIdToken = await result.user.getIdToken();
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/verify-firebase', {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/verify-firebase`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -176,7 +176,7 @@ const Login = ({ onNavigate }) => {
         }
       } else {
         // ── Path 2: Backend OTP (fallback) ──
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/verify-otp', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/verify-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

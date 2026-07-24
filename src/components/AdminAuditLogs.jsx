@@ -12,7 +12,7 @@ const AdminAuditLogs = () => {
   const fetchLogs = async () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/audit-logs', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/audit-logs`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {

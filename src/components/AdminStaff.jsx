@@ -21,7 +21,7 @@ const AdminStaff = () => {
     setLoading(true);
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff', { headers: { 'x-admin-token': token } });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, { headers: { 'x-admin-token': token } });
       if (res.ok) {
         setStaff(await res.json());
       }
@@ -46,7 +46,7 @@ const AdminStaff = () => {
     e.preventDefault();
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify(formData)

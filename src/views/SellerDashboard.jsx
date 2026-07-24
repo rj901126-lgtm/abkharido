@@ -199,7 +199,7 @@ const SellerDashboard = ({ onNavigate }) => {
         return;
       }
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/login', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -224,7 +224,7 @@ const SellerDashboard = ({ onNavigate }) => {
         return;
       }
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/signup', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -365,7 +365,7 @@ const SellerDashboard = ({ onNavigate }) => {
     };
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -426,7 +426,7 @@ const SellerDashboard = ({ onNavigate }) => {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payouts', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payouts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

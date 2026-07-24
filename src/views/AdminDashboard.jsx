@@ -372,7 +372,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     
     try {
       const payload = { dealsTimer: timerIso, budgetThreshold: Number(promoBudgetThreshold), announcement: { show: announcementShow, text: announcementText, link: announcementLink }, banners, categoryBanners, dealOfTheDayProducts };
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/promotions', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/promotions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify(payload)
@@ -438,7 +438,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setVerifying(true);
     setLoginError('');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/verify', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: adminPin })
@@ -469,7 +469,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders?email=admin', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders?email=admin`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -514,7 +514,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/sellers', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/sellers`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -530,7 +530,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {

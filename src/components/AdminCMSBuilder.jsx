@@ -12,7 +12,7 @@ const AdminCMSBuilder = () => {
 
   const fetchLayout = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`);
       if (res.ok) {
         const data = await res.json();
         setLayout(data);
@@ -27,7 +27,7 @@ const AdminCMSBuilder = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page', {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ components: layout.components })

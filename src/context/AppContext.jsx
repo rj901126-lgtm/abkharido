@@ -92,7 +92,7 @@ export const AppProvider = ({ children }) => {
     const initBackendCart = async () => {
       if (currentUser?.token) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cart', {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cart`, {
             headers: { 'Authorization': `Bearer ${currentUser.token}` }
           });
           if (res.ok) {
@@ -170,7 +170,7 @@ export const AppProvider = ({ children }) => {
   // --- API Fetches ---
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?limit=100');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?limit=100`);
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || data);
@@ -312,7 +312,7 @@ export const AppProvider = ({ children }) => {
   // --- Helper: Increment Referrer Clicks via API ---
   const incrementReferrerClicks = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stats/click', { method: 'POST' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stats/click`, { method: 'POST' });
       if (res.ok) {
         fetchStats();
       }
@@ -414,7 +414,7 @@ export const AppProvider = ({ children }) => {
   const addProduct = async (newProduct) => {
     const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -495,7 +495,7 @@ export const AppProvider = ({ children }) => {
       return false;
     }
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/register-seller', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/register-seller`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -532,7 +532,7 @@ export const AppProvider = ({ children }) => {
       return false;
     }
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payouts', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payouts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -567,7 +567,7 @@ export const AppProvider = ({ children }) => {
       return null;
     }
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -606,7 +606,7 @@ export const AppProvider = ({ children }) => {
   const verifyPayment = async (orderId) => {
     try {
       const token = currentUser?.token;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/verify', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/verify`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -632,7 +632,7 @@ export const AppProvider = ({ children }) => {
 
   const resetDatabase = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/reset', { method: 'POST' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/reset`, { method: 'POST' });
       if (res.ok) {
         showToast('Database files reset successfully.', 'info');
         fetchProducts();

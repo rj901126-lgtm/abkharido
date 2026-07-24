@@ -212,7 +212,7 @@ const AppContent = () => {
 
   const fetchPromotions = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/promotions');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/promotions`);
       if (res.ok) {
         const data = await res.json();
         setPromotions(data);

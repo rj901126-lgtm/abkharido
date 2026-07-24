@@ -98,7 +98,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     const checkShipping = async () => {
       setIsCheckingShipping(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/shipping/serviceability', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/shipping/serviceability`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deliveryPincode: pinStr })
@@ -142,7 +142,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     if (!couponCode) return;
     setApplyingCoupon(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/coupons/validate', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/coupons/validate`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -216,7 +216,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     // Cashfree PG integration
     try {
       showToast('Initializing Cashfree gateway...', 'info');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/session', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/session`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

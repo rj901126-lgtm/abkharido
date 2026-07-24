@@ -23,7 +23,7 @@ const AdminOMS = () => {
   const fetchOrders = async () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders?username=admin', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders?username=admin`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -122,7 +122,7 @@ const AdminOMS = () => {
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/bulk-export', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/bulk-export`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
