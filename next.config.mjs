@@ -1,13 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  output: 'standalone',
-  // We rewrite API calls to the express backend
+  reactStrictMode: false, // Disabled to prevent double-invocation causing hydration mismatches
+  // NOTE: output: 'standalone' removed — only needed for Docker/self-hosted, NOT Vercel
   async rewrites() {
+    const backendUrl = process.env.BACKEND_API_URL;
+    // Only proxy to backend if BACKEND_API_URL env variable is configured
+    if (backendUrl) {
+      return [
+        {
+          source: '/api/:path*',
+          destination: `${backendUrl}/api/:path*`,
+        },
+      ];
+    }
+    return [];
+  },
+  async redirects() {
     return [
+      // Redirect legacy /home route to root
       {
-        source: '/api/:path*',
-        destination: `${process.env.BACKEND_API_URL || 'http://localhost:5000'}/api/:path*`, // Proxy to Backend on AWS
+        source: '/home',
+        destination: '/',
+        permanent: true,
       },
     ];
   },

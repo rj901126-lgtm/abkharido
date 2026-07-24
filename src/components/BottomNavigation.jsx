@@ -10,7 +10,7 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
     <div className="bottom-nav">
       <button 
         className={`bottom-nav-item ${activePage === 'home' ? 'active' : ''}`}
-        onClick={() => onNavigate('home')}
+        onClick={() => onNavigate('')}
       >
         <div className="nav-icon-wrapper">
           <Home size={22} />
