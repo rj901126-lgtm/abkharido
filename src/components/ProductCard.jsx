@@ -138,8 +138,8 @@ const styles = {
     borderBottom: '1px solid #f1f5f9',
   },
   image: {
-    maxHeight: '100%',
-    maxWidth: '100%',
+    width: '100%',
+    height: '100%',
     objectFit: 'contain',
     transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
   },
