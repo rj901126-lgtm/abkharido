@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false, // Disabled to prevent double-invocation causing hydration mismatches
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
+    ],
+  },
   // NOTE: output: 'standalone' removed — only needed for Docker/self-hosted, NOT Vercel
   async rewrites() {
     const backendUrl = process.env.BACKEND_API_URL;
