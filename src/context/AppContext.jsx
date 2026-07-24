@@ -286,10 +286,15 @@ export const AppProvider = ({ children }) => {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stats');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stats`);
       if (res.ok) {
         const data = await res.json();
-        setPartnerStats(data);
+        setPartnerStats({
+          clicks: data.clicks || 0,
+          conversions: data.conversions || 0,
+          history: data.history || [],
+          payouts: data.payouts || []
+        });
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to sync stats:', err);
