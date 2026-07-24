@@ -1,8 +1,12 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
+import Coupon from '../models/Coupon.js';
 import { sendInvoiceEmail } from '../utils/emailService.js';
 import { addOrderToQueue } from '../utils/queue.js';
+import logger from '../config/logger.js';
+import { generateShipmentAWB } from '../services/shiprocketService.js';
+import { processCashfreeRefund } from './paymentController.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -14,7 +18,8 @@ export const addOrderItems = async (req, res, next) => {
       shippingAddress,
       paymentMethod,
       useCoinsDiscount,
-      cfOrderId
+      cfOrderId,
+      couponCode
     } = req.body;
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -56,16 +61,77 @@ export const addOrderItems = async (req, res, next) => {
     const taxPrice = Number((0.18 * itemsPrice).toFixed(2));
     let totalPrice = itemsPrice + shippingPrice + taxPrice;
     
+    let coinsUsedAmount = 0;
     if (useCoinsDiscount) {
-       totalPrice = Math.max(0, totalPrice - 50); 
+       coinsUsedAmount = 50;
+       totalPrice = Math.max(0, totalPrice - coinsUsedAmount); 
+    }
+
+    // Secure Coupon Application
+    let appliedCouponRecord = null;
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
+      if (!coupon) {
+        res.status(404);
+        throw new Error('Invalid or inactive coupon code');
+      }
+      if (coupon.usedBy && coupon.usedBy.includes(req.user._id)) {
+        res.status(400);
+        throw new Error('You have already used this coupon');
+      }
+      if (new Date() > new Date(coupon.expiryDate)) {
+        res.status(400);
+        throw new Error('This coupon has expired');
+      }
+      if (coupon.usedCount >= coupon.usageLimit) {
+        res.status(400);
+        throw new Error('This coupon usage limit has been reached');
+      }
+      if (itemsPrice < coupon.minCartValue) {
+        res.status(400);
+        throw new Error(`Minimum cart value of ₹${coupon.minCartValue} required for this coupon`);
+      }
+
+      let discountAmount = 0;
+      if (coupon.discountType === 'FLAT') {
+        discountAmount = coupon.discountValue;
+      } else if (coupon.discountType === 'PERCENTAGE') {
+        discountAmount = (itemsPrice * coupon.discountValue) / 100;
+        if (coupon.maxDiscount > 0 && discountAmount > coupon.maxDiscount) {
+          discountAmount = coupon.maxDiscount;
+        }
+      }
+      
+      totalPrice = Math.max(0, totalPrice - discountAmount);
+      appliedCouponRecord = coupon;
     }
     
     let totalPlatformFee = 0;
       
-      // Calculate Enterprise Finance splits
+      // Calculate Enterprise Finance splits & Deduct Stock
       const enrichedOrderItems = await Promise.all(orderItems.map(async (item) => {
         const product = await Product.findById(item.product);
-        if (product && product.vendorId) {
+        
+        if (!product) {
+          res.status(404);
+          throw new Error(`Product not found for item: ${item.name}`);
+        }
+        
+        // Stock Verification
+        if (product.stock < item.qty) {
+          res.status(400);
+          throw new Error(`Item out of stock: ${product.name}. Available: ${product.stock}, Requested: ${item.qty}`);
+        }
+        
+        // Deduct Stock
+        product.stock -= item.qty;
+        if (product.stock <= 0) {
+          product.inStock = false;
+        }
+        product.soldCount = (product.soldCount || 0) + item.qty;
+        await product.save();
+
+        if (product.vendorId) {
           const itemTotal = item.price * item.qty;
           const platformCut = itemTotal * 0.10; // 10% Enterprise Platform Fee
           const vendorCut = itemTotal - platformCut;
@@ -100,10 +166,42 @@ export const addOrderItems = async (req, res, next) => {
         taxPrice,
         shippingPrice,
         totalPrice,
-        totalPlatformFee
+        totalPlatformFee,
+        appliedCoupon: appliedCouponRecord ? appliedCouponRecord.code : undefined,
+        coinsUsed: coinsUsedAmount,
+        cfOrderId
       });
 
+      // Handle Referral Rewards
+      if (req.body.activeReferral && req.body.activeReferral.referrerId) {
+        const referrerUser = await User.findOne({ username: req.body.activeReferral.referrerId });
+        if (referrerUser && referrerUser._id.toString() !== req.user._id.toString()) {
+          // Calculate reward: aggregate userCommissionRate of each product (fallback to 2%)
+          let rewardCoins = 0;
+          for (let item of enrichedOrderItems) {
+            const prodData = await Product.findById(item.product);
+            const rate = prodData?.userCommissionRate || 0.02;
+            rewardCoins += Math.round(item.price * item.qty * rate);
+          }
+          
+          if (rewardCoins > 0) {
+            order.referralApplied = {
+              referrerId: referrerUser.username,
+              rewardAmount: rewardCoins,
+              isCredited: false
+            };
+          }
+        }
+      }
+
       const createdOrder = await order.save();
+      
+      // Track coupon usage
+      if (appliedCouponRecord) {
+        appliedCouponRecord.usedBy.push(req.user._id);
+        appliedCouponRecord.usedCount += 1;
+        await appliedCouponRecord.save();
+      }
       
       // Fetch user to check email verification and auto-save profile details
       const user = await User.findById(req.user._id);
@@ -170,8 +268,64 @@ export const getOrderById = async (req, res, next) => {
 // @access  Private
 export const getMyOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({ user: req.user._id });
-    res.json(orders);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    const { search, status, time } = req.query;
+    let query = { user: req.user._id };
+
+    // Status Filter
+    if (status && status !== 'all') {
+      if (status === 'processing') query.status = { $in: ['Processing', 'Shipped', 'In Transit'] };
+      else if (status === 'delivered') query.status = 'Delivered';
+      else if (status === 'cancelled') query.status = 'Cancelled';
+      else if (status === 'returned') query.returnStatus = { $in: ['Requested', 'Approved', 'Refunded', 'Rejected'] };
+    }
+
+    // Time Filter
+    if (time && time !== 'all') {
+      const now = new Date();
+      if (time === '30days') {
+        query.createdAt = { $gte: new Date(now.setDate(now.getDate() - 30)) };
+      } else if (time === '6months') {
+        query.createdAt = { $gte: new Date(now.setMonth(now.getMonth() - 6)) };
+      } else if (time === '2024') {
+        query.createdAt = { $gte: new Date('2024-01-01'), $lte: new Date('2024-12-31') };
+      } else if (time === '2023') {
+        query.createdAt = { $gte: new Date('2023-01-01'), $lte: new Date('2023-12-31') };
+      }
+    }
+
+    // Search Filter (by Order ID, CF Order ID, or Product Name)
+    if (search && search.trim() !== '') {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      const orConditions = [{ 'orderItems.name': searchRegex }];
+      
+      // If valid MongoDB ObjectId
+      if (/^[0-9a-fA-F]{24}$/.test(search.trim())) {
+        orConditions.push({ _id: search.trim() });
+      } else {
+        // Fallback for Cashfree or Custom IDs
+        orConditions.push({ cfOrderId: searchRegex });
+      }
+      
+      query.$or = orConditions;
+    }
+
+    const orders = await Order.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Order.countDocuments(query);
+
+    res.json({
+      orders,
+      page,
+      pages: Math.ceil(total / limit),
+      total
+    });
   } catch (error) {
     next(error);
   }
@@ -273,6 +427,22 @@ export const updateOrderStatus = async (req, res, next) => {
     }
     
     order.status = req.body.status;
+
+    if (order.status === 'Delivered') {
+      order.deliveredAt = Date.now();
+      order.isDelivered = true;
+    }
+
+    // Secure Referral System: Credit coins ONLY when order is successfully delivered
+    if (order.status === 'Delivered' && order.referralApplied && order.referralApplied.referrerId && !order.referralApplied.isCredited) {
+      const referrerUser = await User.findOne({ username: order.referralApplied.referrerId });
+      if (referrerUser) {
+        referrerUser.walletCoins = (referrerUser.walletCoins || 0) + order.referralApplied.rewardAmount;
+        await referrerUser.save();
+        order.referralApplied.isCredited = true;
+      }
+    }
+
     await order.save();
     res.json(order);
   } catch (error) {
@@ -291,7 +461,59 @@ export const cancelOrder = async (req, res, next) => {
       throw new Error('Order not found');
     }
     
+    if (order.status === 'Cancelled') {
+      res.status(400);
+      throw new Error('Order is already cancelled');
+    }
+
     order.status = 'Cancelled';
+    
+    // 1. Restore Stock
+    for (const item of order.orderItems) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        product.stock += item.qty;
+        product.inStock = product.stock > 0;
+        product.soldCount = Math.max(0, (product.soldCount || 0) - item.qty);
+        await product.save();
+      }
+    }
+
+    // 2. Restore Coupon
+    if (order.appliedCoupon) {
+      const coupon = await Coupon.findOne({ code: order.appliedCoupon });
+      if (coupon) {
+        coupon.usedBy = coupon.usedBy.filter(userId => userId.toString() !== order.user.toString());
+        coupon.usedCount = Math.max(0, coupon.usedCount - 1);
+        await coupon.save();
+      }
+    }
+
+    // 3. Refund Coins and Cash
+    const user = await User.findById(order.user);
+    if (user) {
+      if (order.coinsUsed && order.coinsUsed > 0) {
+        user.walletCoins = (user.walletCoins || 0) + order.coinsUsed;
+      }
+      
+      // If paid via gateway, attempt bank refund
+      if (order.isPaid) {
+        const amountPaid = order.totalPrice;
+        let bankRefundSuccess = false;
+        
+        if (order.cfOrderId) {
+          bankRefundSuccess = await processCashfreeRefund(order.cfOrderId, amountPaid);
+        }
+        
+        if (!bankRefundSuccess) {
+          // Fallback to store credit if bank refund fails or missing cfOrderId
+          user.walletCash = (user.walletCash || 0) + amountPaid;
+        }
+      }
+      
+      await user.save();
+    }
+
     await order.save();
     res.json(order);
   } catch (error) {
@@ -313,13 +535,147 @@ export const userCancelOrder = async (req, res, next) => {
       res.status(403);
       throw new Error('Not authorized to cancel this order');
     }
-    if (order.status === 'In Transit' || order.status === 'Delivered') {
+    if (order.status === 'In Transit' || order.status === 'Delivered' || order.status === 'Shipped') {
       res.status(400);
       throw new Error('Cannot cancel an order that is already shipped');
     }
+    if (order.status === 'Cancelled') {
+      res.status(400);
+      throw new Error('Order is already cancelled');
+    }
+    
     order.status = 'Cancelled';
+    
+    // 1. Restore Stock
+    for (const item of order.orderItems) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        product.stock += item.qty;
+        product.inStock = product.stock > 0;
+        product.soldCount = Math.max(0, (product.soldCount || 0) - item.qty);
+        await product.save();
+      }
+    }
+
+    // 2. Restore Coupon
+    if (order.appliedCoupon) {
+      const coupon = await Coupon.findOne({ code: order.appliedCoupon });
+      if (coupon) {
+        coupon.usedBy = coupon.usedBy.filter(userId => userId.toString() !== order.user.toString());
+        coupon.usedCount = Math.max(0, coupon.usedCount - 1);
+        await coupon.save();
+      }
+    }
+
+    // 3. Refund Coins and Cash
+    const user = await User.findById(order.user);
+    if (user) {
+      if (order.coinsUsed && order.coinsUsed > 0) {
+        user.walletCoins = (user.walletCoins || 0) + order.coinsUsed;
+      }
+      
+      // If paid via gateway, attempt bank refund
+      if (order.isPaid) {
+        const amountPaid = order.totalPrice;
+        let bankRefundSuccess = false;
+        
+        if (order.cfOrderId) {
+          bankRefundSuccess = await processCashfreeRefund(order.cfOrderId, amountPaid);
+        }
+        
+        if (!bankRefundSuccess) {
+          // Fallback to store credit if bank refund fails or missing cfOrderId
+          user.walletCash = (user.walletCash || 0) + amountPaid;
+        }
+      }
+      
+      await user.save();
+    }
+
     await order.save();
     res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Process a Return/RMA request
+// @route   POST /api/orders/:id/return
+// @access  Private
+export const processReturnRequest = async (req, res, next) => {
+  try {
+    const { reason } = req.body;
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized');
+    }
+
+    if (order.status !== 'Delivered') {
+      res.status(400);
+      throw new Error('Returns are only available for delivered orders');
+    }
+
+    order.returnStatus = 'Requested';
+    order.returnReason = reason || 'No reason provided';
+    
+    await order.save();
+    res.json({ message: 'Return request submitted successfully', returnStatus: order.returnStatus });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Ship order (Admin only)
+// @route   POST /api/orders/:id/ship
+// @access  Private/Admin
+export const shipOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('user', 'name email');
+
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+
+    if (order.status === 'Shipped' || order.status === 'Delivered') {
+      res.status(400);
+      throw new Error('Order is already shipped or delivered');
+    }
+
+    if (order.status === 'Cancelled') {
+      res.status(400);
+      throw new Error('Cannot ship a cancelled order');
+    }
+
+    // Call Shiprocket Service
+    const shipmentResult = await generateShipmentAWB(order);
+    
+    if (shipmentResult.success) {
+      order.status = 'Shipped';
+      order.awbNumber = shipmentResult.awb_code;
+      order.courierPartner = shipmentResult.courier_name;
+      // You can add a tracking url based on courier
+      order.trackingUrl = `https://track.shiprocket.com/${shipmentResult.awb_code}`;
+      
+      await order.save();
+      
+      res.json({
+        message: 'Order shipped successfully',
+        awb: order.awbNumber,
+        courier: order.courierPartner,
+        trackingUrl: order.trackingUrl
+      });
+    } else {
+      res.status(500);
+      throw new Error('Failed to generate AWB with shipping provider');
+    }
   } catch (error) {
     next(error);
   }

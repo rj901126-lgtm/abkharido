@@ -63,6 +63,7 @@ export const syncCart = async (req, res, next) => {
     }
     
     user.cart = formattedCart;
+    user.cartUpdatedAt = new Date();
     await user.save();
 
     res.json({ success: true });

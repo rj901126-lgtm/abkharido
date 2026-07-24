@@ -6,6 +6,9 @@ if (process.env.REDIS_URI) {
   redisClient = new Redis(process.env.REDIS_URI, {
     maxRetriesPerRequest: 3,
     showFriendlyErrorStack: process.env.NODE_ENV === 'development',
+    enableOfflineQueue: false, // Prevent hanging if Redis is down
+    commandTimeout: 2000,      // Fail fast after 2 seconds
+    connectTimeout: 5000,
     retryStrategy(times) {
       const delay = Math.min(times * 50, 2000);
       return delay;

@@ -1,5 +1,4 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
-import html2pdf from 'html2pdf.js';
 
 const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
   useImperativeHandle(ref, () => ({
@@ -20,6 +19,7 @@ const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
       // Ensure the element is temporarily visible for rendering
       element.style.display = 'block';
       try {
+        const html2pdf = (await import('html2pdf.js')).default;
         await html2pdf().from(element).set(opt).save();
       } finally {
         element.style.display = 'none'; // hide it back
@@ -38,8 +38,8 @@ const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
 
   
   const formatDate = (dateStr) => {
-    if (!dateStr) return new Date().toLocaleDateString('en-IN');
-    return new Date(dateStr).toLocaleDateString('en-IN', {
+    if (!dateStr) return new Date().toLocaleString('en-IN');
+    return new Date(dateStr).toLocaleString('en-IN', {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute:'2-digit'
     });

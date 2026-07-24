@@ -30,10 +30,8 @@ const userSchema = new mongoose.Schema({
   pincode: { type: String },
   state: { type: String },
   
-  // Influencer / Seller fields
-  isInfluencer: { type: Boolean, default: false },
+  // Seller fields
   shopName: { type: String },
-  walletCash: { type: Number, default: 0 },
   walletCoins: { type: Number, default: 100 },
   payoutDetails: {
     upiId: String,
@@ -54,7 +52,8 @@ const userSchema = new mongoose.Schema({
       default: 1,
       min: 1
     }
-  }]
+  }],
+  cartUpdatedAt: { type: Date }
 }, {
   timestamps: true
 });

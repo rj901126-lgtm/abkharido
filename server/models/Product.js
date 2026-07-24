@@ -41,12 +41,14 @@ const productSchema = new mongoose.Schema({
   sku: { type: String, sparse: true },
   hsnCode: { type: String },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  // eslint-disable-next-line
-  seo: {
-    metaTitle: { type: String },
-    metaDescription: { type: String }
-  },
   
+  // Flash Sale Engine
+  flashSale: {
+    isActive: { type: Boolean, default: false },
+    price: { type: Number },
+    endTime: { type: Date }
+  },
+
   // Imagery
   image: { type: String, required: true },
   images: [{ type: String }],
@@ -63,7 +65,6 @@ const productSchema = new mongoose.Schema({
   },
   
   // Affiliation / Creator Economy
-  influencerCommissionRate: { type: Number, default: 0.05 },
   userCommissionRate: { type: Number, default: 0.02 },
   sellerId: { type: String, ref: 'User' },
   

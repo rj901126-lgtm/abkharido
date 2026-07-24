@@ -3,6 +3,8 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
+import Settlement from '../models/Settlement.js';
+import PayoutAuditLog from '../models/PayoutAuditLog.js';
 // eslint-disable-next-line
 import productsData from '../data/productsData.js';
 
@@ -32,8 +34,66 @@ router.post('/stats/click', (req, res) => {
   res.json({ success: true });
 });
 
-router.post('/payouts', protect, (req, res) => {
-  res.json({ success: true, message: 'Payout requested successfully' });
+router.post('/payouts', protect, async (req, res) => {
+  try {
+    const user = req.user; // populated by protect middleware
+    
+    // Calculate 8-Day Locked Coins
+    const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
+    const lockedOrders = await Order.find({
+      'referralApplied.referrerId': user.username,
+      'referralApplied.isCredited': true,
+      deliveredAt: { $gte: eightDaysAgo }
+    });
+    
+    const lockedCoins = lockedOrders.reduce((sum, o) => sum + (o.referralApplied?.rewardAmount || 0), 0);
+    const withdrawableCoins = Math.max(0, (user.walletCoins || 0) - lockedCoins);
+
+    const requestedAmount = req.body.amount || withdrawableCoins;
+    
+    if (requestedAmount < 1000) {
+      return res.status(400).json({ error: 'Minimum withdrawal amount is 1000 coins. You can still use your coins for purchases!' });
+    }
+    
+    if (requestedAmount > withdrawableCoins) {
+      return res.status(400).json({ error: 'Insufficient withdrawable coins' });
+    }
+    
+    // Create a strict Audit Trail
+    const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+    // Create a Pending Settlement Record
+    const settlement = new Settlement({
+      vendorId: user._id,
+      amount: requestedAmount,
+      status: 'Pending',
+      notes: 'User requested withdrawal to Bank Account'
+    });
+    const createdSettlement = await settlement.save();
+
+    // Create Immutable Payout Audit Log
+    const auditLog = new PayoutAuditLog({
+      action: 'REQUESTED',
+      userId: user._id,
+      amount: requestedAmount,
+      settlementId: createdSettlement._id,
+      performedBy: user._id,
+      ipAddress,
+      details: {
+        message: 'User initiated withdrawal'
+      }
+    });
+    await auditLog.save();
+
+    // Deduct coins
+    user.walletCoins = user.walletCoins - requestedAmount; 
+    await user.save();
+    
+    res.json({ success: true, message: `Payout of ₹${requestedAmount} requested successfully. It is now pending admin approval.` });
+  } catch (err) {
+    console.error('Payout Request Error:', err);
+    res.status(500).json({ error: 'Failed to process payout request' });
+  }
 });
 
 router.post('/reset', protect, admin, (req, res) => {
@@ -196,8 +256,27 @@ router.post('/admin/verify', (req, res) => {
 router.post('/payment/session', (req, res) => {
   res.json({ success: true, sessionId: 'mock_session_id', id: 'mock_session_id' });
 });
-router.post('/payment/verify', (req, res) => {
-  res.json({ success: true, message: 'Payment verified' });
+router.post('/payment/verify', protect, async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const order = await Order.findById(orderId);
+    if (order) {
+      // Securely update order as Paid
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      order.paymentResult = { id: 'verified', status: 'SUCCESS', update_time: new Date().toISOString(), email_address: req.user.email };
+      // Move status forward if it's pending
+      if (order.status === 'Pending') {
+        order.status = 'Processing';
+      }
+      await order.save();
+      res.json({ success: true, message: 'Payment verified and order updated' });
+    } else {
+      res.status(404).json({ error: 'Order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Payment verification failed' });
+  }
 });
 
 export default router;

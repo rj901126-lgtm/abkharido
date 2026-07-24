@@ -60,6 +60,11 @@ export const validateCoupon = async (req, res, next) => {
       throw new Error('Invalid or inactive coupon code');
     }
 
+    if (coupon.usedBy && coupon.usedBy.includes(req.user._id)) {
+      res.status(400);
+      throw new Error('You have already used this coupon');
+    }
+
     if (new Date() > new Date(coupon.expiryDate)) {
       res.status(400);
       throw new Error('This coupon has expired');

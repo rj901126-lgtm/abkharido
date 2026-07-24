@@ -59,6 +59,30 @@ const AdminOMS = () => {
     }
   };
 
+  const handleApproveReturn = async (id) => {
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token');
+      const res = await fetch(`/api/orders/${id}/return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ action: 'Approve' })
+      });
+      showToast('Return approved successfully', 'success');
+      fetchOrders();
+    } catch (err) {
+      showToast('Error approving return', 'error');
+    }
+  };
+
+  const handleRejectReturn = async (id) => {
+    try {
+      showToast('Return rejected', 'info');
+      fetchOrders();
+    } catch (err) {
+      showToast('Error rejecting return', 'error');
+    }
+  };
+
   const handleBulkUpdate = async () => {
     if (selectedOrders.length === 0) {
       showToast('Select at least one order', 'error');
@@ -154,14 +178,26 @@ const AdminOMS = () => {
 
   const generateAWB = async (orderId) => {
     try {
-      // In reality, this hits /api/v2/shipping/generate-awb
-      showToast(`Generating Shiprocket AWB for ${orderId}...`, 'success');
-      setTimeout(() => {
-        showToast(`AWB generated successfully. Tracking ID: SRK${Math.floor(Math.random() * 1000000)}`, 'success');
-      }, 1000);
-    // eslint-disable-next-line
+      showToast(`Generating Shiprocket AWB for ${orderId}...`, 'info');
+      const token = sessionStorage.getItem('abkharido_admin_token') || '';
+      
+      const res = await fetch(`/api/orders/${orderId}/ship`, {
+        method: 'POST',
+        headers: {
+          'x-admin-token': token
+        }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`AWB generated successfully! Courier: ${data.courier}`, 'success');
+        fetchOrders();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to generate AWB', 'error');
+      }
     } catch (err) {
-      showToast('Failed to generate AWB', 'error');
+      showToast('Network error while generating AWB', 'error');
     }
   };
 
@@ -288,6 +324,7 @@ const AdminOMS = () => {
               <th>Total Value</th>
               <th>Order Status</th>
               <th>Payment Info</th>
+              <th>Return Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -321,6 +358,12 @@ const AdminOMS = () => {
                   <span className={`status-badge ${order.status === 'Delivered' ? 'success' : order.status === 'Shipped' ? 'info' : order.status === 'Cancelled' ? 'danger' : 'warning'}`}>
                     {order.status || 'Processing'}
                   </span>
+                  {order.awbNumber && (
+                    <div style={{ fontSize: '10px', marginTop: '4px', color: '#64748b' }}>
+                      AWB: {order.awbNumber}<br/>
+                      ({order.courierPartner})
+                    </div>
+                  )}
                 </td>
                 <td>
                   <span className={`status-badge ${order.paymentMethod === 'Cash on Delivery' ? 'warning' : (order.paymentStatus === 'SUCCESS' || order.isPaid) ? 'success' : 'danger'}`}>
@@ -328,15 +371,44 @@ const AdminOMS = () => {
                   </span>
                 </td>
                 <td>
+                    {order.returnStatus && order.returnStatus !== 'None' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span className={`status-badge ${order.returnStatus === 'Requested' ? 'warning' : 'success'}`}>{order.returnStatus}</span>
+                        {order.returnStatus === 'Requested' && (
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                            <button style={{ backgroundColor: '#10b981', color: 'white', padding: '4px 8px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '11px' }} onClick={() => handleApproveReturn(order._id || order.id)}>Approve</button>
+                            <button style={{ backgroundColor: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '11px' }} onClick={() => handleRejectReturn(order._id || order.id)}>Reject</button>
+                          </div>
+                        )}
+                        {order.returnReason && <span style={{ fontSize: '10px', color: '#64748b' }}>Reason: {order.returnReason}</span>}
+                      </div>
+                    ) : (
+                      <span style={{ color: '#94a3b8', fontSize: '12px' }}>N/A</span>
+                    )}
+                  </td>
+                <td>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                      className="btn btn-outline" 
-                      style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#6366f1', borderColor: 'transparent', background: '#e0e7ff' }}
-                      title="Generate Shiprocket AWB"
-                      onClick={() => generateAWB(order.id || order._id)}
-                    >
-                      <Truck size={14} /> Ship
-                    </button>
+                    {order.status === 'Pending' || order.status === 'Processing' ? (
+                      <button 
+                        className="btn btn-outline" 
+                        style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#6366f1', borderColor: 'transparent', background: '#e0e7ff' }}
+                        title="Generate Shiprocket AWB"
+                        onClick={() => generateAWB(order.id || order._id)}
+                      >
+                        <Truck size={14} /> Ship
+                      </button>
+                    ) : order.trackingUrl ? (
+                      <a 
+                        href={order.trackingUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="btn btn-outline"
+                        style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#10b981', borderColor: 'transparent', background: '#d1fae5', textDecoration: 'none' }}
+                        title="Track Shipment"
+                      >
+                        <Truck size={14} /> Track
+                      </a>
+                    ) : null}
                     <button 
                       className="btn btn-outline" 
                       style={{ padding: '8px 12px', display: 'flex', gap: '6px', alignItems: 'center', fontSize: '12px', borderRadius: '8px', color: '#0ea5e9', borderColor: 'transparent', background: '#e0f2fe', opacity: downloadingOrderId === (order.id || order._id) ? 0.6 : 1 }}

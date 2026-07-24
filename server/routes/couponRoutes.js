@@ -8,7 +8,7 @@ router.route('/')
   .get(protect, admin, getCoupons)
   .post(protect, admin, createCoupon);
 
-router.post('/validate', validateCoupon);
+router.post('/validate', protect, validateCoupon);
 
 router.delete('/:id', protect, admin, deleteCoupon);
 

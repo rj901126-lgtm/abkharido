@@ -8,7 +8,9 @@ import {
   exportOrdersBulk,
   updateOrderStatus,
   cancelOrder,
-  userCancelOrder
+  userCancelOrder,
+  processReturnRequest,
+  shipOrder
 } from '../controllers/orderController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { logAdminAction } from '../middleware/auditMiddleware.js';
@@ -28,7 +30,9 @@ router.route('/:id').get(protect, getOrderById);
 router.route('/:id/email-invoice').post(protect, admin, logAdminAction('SEND_INVOICE', 'Order'), sendOrderInvoiceEmail);
 
 router.route('/:id/status').post(protect, admin, logAdminAction('UPDATE_ORDER_STATUS', 'Order'), updateOrderStatus);
+router.route('/:id/ship').post(protect, admin, logAdminAction('SHIP_ORDER', 'Order'), shipOrder);
 router.route('/:id/user-cancel').post(protect, userCancelOrder);
 router.route('/:id/cancel').post(protect, admin, logAdminAction('CANCEL_ORDER', 'Order'), cancelOrder);
+router.route('/:id/return').post(protect, processReturnRequest);
 
 export default router;

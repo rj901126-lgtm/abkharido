@@ -1,35 +1,46 @@
 import redisClient from '../config/redis.js';
 
+// In-memory cache fallback for ultra-fast local development without Redis
+const memoryCache = new Map();
+
 /**
  * Cache middleware for Express routes.
  * @param {number} duration - Time in seconds to cache the response
  */
 export const cache = (duration = 300) => {
   return async (req, res, next) => {
-    // If Redis is not configured or request is not GET, skip caching
-    if (!redisClient || req.method !== 'GET') {
+    if (req.method !== 'GET') {
       return next();
     }
 
     const key = `cache:${req.originalUrl || req.url}`;
 
     try {
-      const cachedResponse = await redisClient.get(key);
-
-      if (cachedResponse) {
-        console.log(`[Cache Hit] ${key}`);
-        return res.json(JSON.parse(cachedResponse));
+      let cachedResponse = null;
+      if (redisClient) {
+        cachedResponse = await redisClient.get(key);
+      } else {
+        const memData = memoryCache.get(key);
+        if (memData && memData.expires > Date.now()) {
+          cachedResponse = memData.data;
+        } else if (memData) {
+          memoryCache.delete(key);
+        }
       }
 
-      console.log(`[Cache Miss] ${key}`);
+      if (cachedResponse) {
+        return res.json(JSON.parse(cachedResponse));
+      }
       
-      // Override res.json to intercept the response before sending it
       const originalJson = res.json;
       res.json = function (body) {
-        // Only cache successful responses
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          redisClient.setex(key, duration, JSON.stringify(body))
-            .catch(err => console.error('Redis Cache Error:', err));
+          if (redisClient) {
+            redisClient.setex(key, duration, JSON.stringify(body))
+              .catch(err => console.error('Redis Cache Error:', err));
+          } else {
+            memoryCache.set(key, { data: JSON.stringify(body), expires: Date.now() + duration * 1000 });
+          }
         }
         originalJson.call(this, body);
       };
@@ -37,7 +48,7 @@ export const cache = (duration = 300) => {
       next();
     } catch (err) {
       console.error('Cache Middleware Error:', err);
-      next(); // Fail silently and proceed to database if Redis fails
+      next();
     }
   };
 };
@@ -47,13 +58,20 @@ export const cache = (duration = 300) => {
  * @param {string} pattern - Redis key pattern to clear (e.g., 'cache:/api/products*')
  */
 export const clearCache = async (pattern) => {
-  if (!redisClient) return;
-  
   try {
-    const keys = await redisClient.keys(pattern);
-    if (keys.length > 0) {
-      await redisClient.del(keys);
-      console.log(`[Cache Cleared] ${keys.length} keys matching ${pattern}`);
+    if (redisClient) {
+      const keys = await redisClient.keys(pattern);
+      if (keys.length > 0) {
+        await redisClient.del(keys);
+      }
+    } else {
+      // Very basic pattern matching for in-memory clear
+      const regex = new RegExp('^' + pattern.replace('*', '.*') + '$');
+      for (const key of memoryCache.keys()) {
+        if (regex.test(key)) {
+          memoryCache.delete(key);
+        }
+      }
     }
   } catch (err) {
     console.error('Clear Cache Error:', err);

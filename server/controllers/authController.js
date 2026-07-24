@@ -89,9 +89,8 @@ export const getUserProfile = async (req, res, next) => {
         username: user.username,
         email: user.email,
         role: user.role,
-        walletCash: user.walletCash,
+        avatar: user.avatar,
         walletCoins: user.walletCoins,
-        isInfluencer: user.isInfluencer,
         shopName: user.shopName
       });
     } else {
@@ -175,8 +174,8 @@ export const verifyOtp = async (req, res, next) => {
         phone: user.phone,
         fullName: user.fullName,
         role: user.role,
-        walletCash: user.walletCash || 0,
         walletCoins: user.walletCoins || 0,
+        shopName: user.shopName,
         token: generateToken(user._id),
       }
     });

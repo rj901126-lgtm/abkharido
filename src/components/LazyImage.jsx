@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 /**
  * LazyImage Component
  * 
- * Automatically lazy loads images using the native `loading="lazy"` attribute.
- * Also automatically applies Cloudinary performance optimizations (q_auto, f_auto) 
- * if the image is hosted on Cloudinary, drastically reducing bandwidth and improving Core Web Vitals.
+ * Replaces legacy <img> with Next.js <Image> component.
+ * Uses layout="fill" to automatically adapt to the parent container's size,
+ * preventing Cumulative Layout Shift and auto-generating WebP formats.
  */
 const LazyImage = ({ src, alt, className, style, onClick, ...props }) => {
   const [imgSrc, setImgSrc] = useState('');
@@ -25,16 +26,28 @@ const LazyImage = ({ src, alt, className, style, onClick, ...props }) => {
     setImgSrc(optimizedSrc);
   }, [src]);
 
+  // If there's no src yet, return a placeholder block
+  if (!imgSrc && !src) return <div style={{ ...style, backgroundColor: '#f1f5f9' }} className={className} />;
+
   return (
-    <img 
-      src={imgSrc || src} 
-      alt={alt || 'Product Image'} 
-      loading="lazy"
-      className={className}
-      style={{ ...style, opacity: imgSrc ? 1 : 0.5, transition: 'opacity 0.3s' }}
+    <div 
+      className={className} 
+      style={{ 
+        position: 'relative', 
+        overflow: 'hidden', 
+        ...style 
+      }} 
       onClick={onClick}
-      {...props}
-    />
+    >
+      <Image 
+        src={imgSrc || src} 
+        alt={alt || 'Product Image'} 
+        fill
+        style={{ objectFit: style?.objectFit || 'cover' }}
+        unoptimized={true} // True to prevent Next.js from throwing errors for unconfigured external domains
+        {...props}
+      />
+    </div>
   );
 };
 

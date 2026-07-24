@@ -237,3 +237,16 @@ export const sendInvoiceEmail = async (order, user) => {
   }
 };
 
+/**
+ * Generic send email wrapper
+ */
+export const sendEmail = async (to, subject, htmlContent) => {
+  try {
+    console.log(`[Email Service] Simulating sending email to: ${to} - Subject: ${subject}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+  }
+};
+

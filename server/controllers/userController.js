@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Order from '../models/Order.js';
 
 // @desc    Get user profile by username
 // @route   GET /api/users/:username
@@ -7,7 +8,18 @@ export const getUserByUsername = async (req, res, next) => {
   try {
     const user = await User.findOne({ username: req.params.username });
     if (user) {
-      res.json(user);
+      // Calculate 8-Day Locked Coins
+      const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
+      const lockedOrders = await Order.find({
+        'referralApplied.referrerId': user.username,
+        'referralApplied.isCredited': true,
+        deliveredAt: { $gte: eightDaysAgo }
+      });
+      
+      const lockedCoins = lockedOrders.reduce((sum, o) => sum + (o.referralApplied?.rewardAmount || 0), 0);
+      const withdrawableCoins = Math.max(0, (user.walletCoins || 0) - lockedCoins);
+
+      res.json({ ...user.toObject(), withdrawableCoins, lockedCoins });
     } else {
       res.status(404);
       throw new Error('User not found');
@@ -43,33 +55,6 @@ export const updateUserProfile = async (req, res, next) => {
       res.status(404);
       throw new Error('User not found');
     }
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Register a creator
-// @route   POST /api/users/register-creator
-// @access  Public
-export const registerCreator = async (req, res, next) => {
-  try {
-    const { username, fullName, email, phone, shopName, password } = req.body;
-    const userExists = await User.findOne({ $or: [{ username }, { email }] });
-    if (userExists) {
-      res.status(400);
-      throw new Error('Creator already exists');
-    }
-    const user = await User.create({
-      username,
-      fullName,
-      email,
-      phone,
-      shopName,
-      password,
-      role: 'user',
-      isInfluencer: true
-    });
-    res.status(201).json({ success: true, message: 'Creator registered successfully', user });
   } catch (error) {
     next(error);
   }
@@ -116,7 +101,7 @@ export const addWalletBalance = async (req, res, next) => {
       res.status(404);
       throw new Error('User not found');
     }
-    user.walletCash = (user.walletCash || 0) + Number(amount);
+    user.walletCoins = (user.walletCoins || 0) + Number(amount);
     await user.save();
     res.json(user);
   } catch (error) {

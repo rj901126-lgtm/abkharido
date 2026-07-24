@@ -184,3 +184,34 @@ export const updateProductStock = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Get product recommendations (AI/Frequently Bought Together logic)
+// @route   GET /api/products/:id/recommendations
+// @access  Public
+export const getProductRecommendations = async (req, res, next) => {
+  try {
+    const product = await Product.findOne({ id: req.params.id });
+    if (!product) {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+
+    // Find products in the same category, excluding the current product
+    let recommendations = await Product.find({
+      category: product.category,
+      _id: { $ne: product._id }
+    }).limit(4);
+
+    // If not enough products in the same category, fetch random ones
+    if (recommendations.length < 4) {
+      const extraProducts = await Product.find({
+        _id: { $ne: product._id, $nin: recommendations.map(r => r._id) }
+      }).limit(4 - recommendations.length);
+      recommendations = [...recommendations, ...extraProducts];
+    }
+
+    res.json(recommendations);
+  } catch (error) {
+    next(error);
+  }
+};

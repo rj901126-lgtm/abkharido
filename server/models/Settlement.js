@@ -11,21 +11,19 @@ const settlementSchema = new mongoose.Schema({
     required: true
   },
   transactionId: {
-    type: String, // e.g. UTR number from bank
-    required: true
+    type: String // e.g. UTR number from bank. Optional until Paid
   },
   status: {
     type: String,
     enum: ['Pending', 'Processing', 'Paid', 'Failed'],
-    default: 'Paid'
+    default: 'Pending'
   },
   notes: {
     type: String
   },
   settledBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Admin who marked this as settled
-    required: true
+    ref: 'User' // Admin who marked this as settled
   }
 }, {
   timestamps: true

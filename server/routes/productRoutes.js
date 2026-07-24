@@ -5,7 +5,8 @@ import {
   createProduct, 
   updateProduct, 
   deleteProduct,
-  updateProductStock
+  updateProductStock,
+  getProductRecommendations
 } from '../controllers/productController.js';
 import { protect, seller, admin } from '../middleware/authMiddleware.js';
 import { cache } from '../middleware/cacheMiddleware.js';
@@ -27,5 +28,8 @@ router.route('/:id')
 
 router.route('/:id/stock')
   .post(protect, seller, logAdminAction('QUICK_UPDATE_STOCK', 'Product'), updateProductStock);
+
+router.route('/:id/recommendations')
+  .get(cache(300), getProductRecommendations);
 
 export default router;

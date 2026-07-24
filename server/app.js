@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import logger from './config/logger.js';
+import { initCronJobs } from './utils/cronJobs.js';
 // eslint-disable-next-line
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
@@ -59,6 +60,9 @@ app.use(async (req, res, next) => {
 app.set('trust proxy', 1);
 
 // Security Middleware
+// Initialize background automated jobs (e.g. Abandoned Carts)
+initCronJobs();
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));

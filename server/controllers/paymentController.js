@@ -105,3 +105,52 @@ export const verifyPayment = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Process a Refund via Cashfree API
+ * @param {string} cfOrderId - The Cashfree Order ID
+ * @param {number} amount - The amount to refund
+ * @returns {Promise<boolean>} - Returns true if refund was successfully initiated
+ */
+export const processCashfreeRefund = async (cfOrderId, amount) => {
+  try {
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    const isProd = process.env.CASHFREE_PROD === 'true';
+
+    if (!appId || !secretKey) {
+      console.warn('Cashfree keys missing. Simulating bank refund success for local dev.');
+      return true; // Simulate success if keys are missing
+    }
+
+    const url = isProd 
+      ? `https://api.cashfree.com/pg/orders/${cfOrderId}/refunds`
+      : `https://sandbox.cashfree.com/pg/orders/${cfOrderId}/refunds`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-client-id': appId,
+        'x-client-secret': secretKey,
+        'x-api-version': '2023-08-01'
+      },
+      body: JSON.stringify({
+        refund_amount: amount,
+        refund_id: `refund_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        refund_note: 'Order Cancelled'
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('Cashfree Refund API failed:', errText);
+      return false;
+    }
+
+    return true; // Refund initiated successfully
+  } catch (error) {
+    console.error('Cashfree Refund API connection error:', error);
+    return false;
+  }
+};

@@ -44,13 +44,36 @@ const orderSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true, default: 0.0 },
   totalPlatformFee: { type: Number, default: 0.0 },
   
+  // Discount Engine Tracking
+  appliedCoupon: { type: String },
+  coinsUsed: { type: Number, default: 0 },
+  
   isPaid: { type: Boolean, required: true, default: false },
   paidAt: { type: Date },
   
   isDelivered: { type: Boolean, required: true, default: false },
   deliveredAt: { type: Date },
   
-  status: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], default: 'Pending' }
+  status: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], default: 'Pending' },
+
+  // Returns / RMA Engine
+  returnStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Rejected', 'Refunded'], default: 'None' },
+  returnReason: { type: String },
+
+  // Shipping & Logistics
+  awbNumber: { type: String },
+  trackingUrl: { type: String },
+  courierPartner: { type: String },
+  
+  // Payment Gateway Tracking
+  cfOrderId: { type: String },
+
+  // Referral Rewards
+  referralApplied: {
+    referrerId: { type: String }, // username of the referrer
+    rewardAmount: { type: Number }, // Coins rewarded to referrer
+    isCredited: { type: Boolean, default: false }
+  }
 }, {
   timestamps: true
 });

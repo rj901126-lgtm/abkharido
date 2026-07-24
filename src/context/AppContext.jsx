@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
@@ -25,6 +27,7 @@ export const AppProvider = ({ children }) => {
   });
 
   const [orders, setOrders] = useState([]);
+  const [hasMoreOrders, setHasMoreOrders] = useState(false);
   
   const [partnerStats, setPartnerStats] = useState({
     clicks: 0,
@@ -145,7 +148,6 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const refUser = params.get('ref');
-    const affInfluencer = params.get('aff');
     const productIdParam = params.get('prod');
 
     if (refUser) {
@@ -162,19 +164,6 @@ export const AppProvider = ({ children }) => {
         });
         showToast(`Referral active: Shopping via link shared by ${refUser}!`, 'info');
       }
-    } else if (affInfluencer) {
-      if (currentUser && currentUser.isInfluencer && currentUser.influencerId === affInfluencer) {
-        showToast('Self-affiliate links do not earn commission.', 'warning');
-      } else {
-        incrementReferrerClicks();
-        setActiveReferral({
-          type: 'aff',
-          referrerId: affInfluencer,
-          productId: productIdParam || null,
-          timestamp: Date.now()
-        });
-        showToast(`Affiliate link active: Support creator ${affInfluencer}!`, 'info');
-      }
     }
   }, []); // Only parse URL params once on mount, not on every user change
 
@@ -187,7 +176,7 @@ export const AppProvider = ({ children }) => {
         setProducts(data.products || data);
       }
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Failed to load products:', err);
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to load products:', err);
     } finally {
       setIsLoadingProducts(false);
     }
@@ -207,26 +196,48 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('abkharido_user_session', JSON.stringify(data));
       }
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Failed to sync user profile:', err);
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to sync user profile:', err);
     }
   };
 
-  const fetchOrders = async (emailOrUsername) => {
+  const fetchOrders = async (emailOrUsername, page = 1, search = '', status = 'all', time = 'all') => {
     try {
       const user = currentUser;
       const username = user ? user.username : '';
       const emailVal = emailOrUsername || (user ? user.email : '');
       const token = user?.token;
       
-      const res = await fetch(`/api/orders/myorders?username=${username}&email=${emailVal || ''}`, {
+      const queryParams = new URLSearchParams({
+        username,
+        email: emailVal || '',
+        page,
+        limit: 5,
+        search,
+        status,
+        time
+      });
+      
+      const res = await fetch(`/api/orders/myorders?${queryParams.toString()}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
         const data = await res.json();
-        setOrders(data);
+        const fetchedOrders = data.orders ? data.orders : data;
+        
+        if (page === 1) {
+          setOrders(fetchedOrders);
+        } else {
+          setOrders(prev => [...prev, ...fetchedOrders]);
+        }
+        
+        if (data.page && data.pages) {
+          setHasMoreOrders(data.page < data.pages);
+        } else {
+          setHasMoreOrders(false);
+        }
       }
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Failed to sync orders:', err);
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to sync orders:', err);
     }
   };
 
@@ -250,7 +261,7 @@ export const AppProvider = ({ children }) => {
         return false;
       }
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Failed to cancel order:', err);
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to cancel order:', err);
       showToast('Connection error. Please try again.', 'error');
       return false;
     }
@@ -281,7 +292,7 @@ export const AppProvider = ({ children }) => {
         setPartnerStats(data);
       }
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Failed to sync stats:', err);
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to sync stats:', err);
     }
   };
 
@@ -471,35 +482,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // --- Creator & Wallet API Actions ---
-  const registerAsInfluencer = async (influencerId, payoutDetails) => {
-    if (!currentUser) {
-      showToast('Please log in to register as a creator.', 'error');
-      return;
-    }
-    try {
-      const res = await fetch('/api/users/register-creator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: currentUser.username,
-          influencerId,
-          payoutDetails
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCurrentUser(data);
-        localStorage.setItem('abkharido_user_session', JSON.stringify(data));
-        showToast('Congratulations! You are now an approved AbKharido Creator.', 'success');
-      } else {
-        showToast('Failed to save creator data.', 'error');
-      }
-    // eslint-disable-next-line
-    } catch (err) {
-      showToast('Backend server connection failure.', 'error');
-    }
-  };
+  // --- Wallet API Actions ---
 
   const registerAsSeller = async (shopName, sellerAddress, payoutDetails) => {
     if (!currentUser) {
@@ -569,7 +552,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // --- Place Order & Attributions API Checkout ---
-  const placeOrder = async (shippingAddress, paymentMethod, useCoinsDiscount = false, cfOrderId = null) => {
+  const placeOrder = async (shippingAddress, paymentMethod, useCoinsDiscount = false, cfOrderId = null, couponCode = null) => {
     if (!currentUser) {
       showToast('Please log in to place an order.', 'error');
       return null;
@@ -592,7 +575,8 @@ export const AppProvider = ({ children }) => {
           paymentMethod,
           useCoinsDiscount,
           activeReferral,
-          cfOrderId
+          cfOrderId,
+          couponCode
         })
       });
       if (res.ok) {
@@ -669,6 +653,7 @@ export const AppProvider = ({ children }) => {
         currentUser,
         cart,
         orders,
+        hasMoreOrders,
         partnerStats,
         activeReferral,
         toast,
@@ -679,7 +664,6 @@ export const AppProvider = ({ children }) => {
         clearCart,
         logout,
         updateUserProfile,
-        registerAsInfluencer,
         requestPayout,
         placeOrder,
         fetchOrders,

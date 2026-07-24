@@ -2,14 +2,17 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Star, Award, ShoppingCart } from 'lucide-react';
 import LazyImage from './LazyImage';
+import CountdownTimer from './CountdownTimer';
 
 const ProductCard = ({ product, onNavigateProduct }) => {
   const { addToCart, currentUser } = useApp();
 
   if (!product) return null;
 
-  const price = product.price || 0;
-  const originalPrice = product.originalPrice || price;
+  // Flash Sale Engine Check
+  const isFlashSale = product.flashSale?.isActive && new Date(product.flashSale.endTime) > new Date();
+  const price = isFlashSale ? product.flashSale.price : (product.price || 0);
+  const originalPrice = product.originalPrice || (isFlashSale ? product.price : price);
   const discountPercent = originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   // Dynamic earnings display
@@ -77,10 +80,17 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
         {/* Pricing */}
         <div className="product-card-price-row" style={styles.priceRow}>
-          <span style={styles.price}>₹{(product.price || 0).toLocaleString('en-IN')}</span>
-          <span style={styles.originalPrice}>₹{(product.originalPrice || 0).toLocaleString('en-IN')}</span>
+          <span style={styles.price}>₹{(price).toLocaleString('en-IN')}</span>
+          <span style={styles.originalPrice}>₹{(originalPrice).toLocaleString('en-IN')}</span>
           <span style={styles.discount}>{discountPercent}% off</span>
         </div>
+
+        {/* Flash Sale Urgency Timer */}
+        {isFlashSale && (
+          <div style={{ marginTop: '4px', marginBottom: '8px' }}>
+            <CountdownTimer endTime={product.flashSale.endTime} compact={true} />
+          </div>
+        )}
 
         {/* Dynamic Affiliate / Referral Earning Banner */}
         <div className="product-card-reward-banner" style={styles.rewardBanner}>
