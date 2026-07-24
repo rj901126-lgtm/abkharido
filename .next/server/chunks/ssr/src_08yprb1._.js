@@ -1,0 +1,3 @@
+module.exports=[5746,(a,b,c)=>{let d=Error("Could not parse module '[project]/src/views/Orders.jsx'\n\nExpected '</', got '{'");throw d.code="MODULE_UNPARSABLE",d},34430,a=>{"use strict";var b=a.i(87924);a.i(72131);var c=a.i(50944),d=a.i(5746);a.s(["default",0,function(){let a=(0,c.useRouter)();return(0,b.jsx)(d.default,{onNavigateProduct:b=>a.push("/product/"+b)})}])}];
+
+//# sourceMappingURL=src_08yprb1._.js.map

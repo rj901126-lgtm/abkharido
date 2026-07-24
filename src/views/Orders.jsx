@@ -186,6 +186,7 @@ const Orders = ({ onNavigate }) => {
           )}
         </div>
       ) : (
+      <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {orders.map(order => (
           <div key={order._id} className="order-card">
@@ -616,7 +617,7 @@ const Orders = ({ onNavigate }) => {
           </button>
         </div>
       )}
-      </div>
+      </>
       )}
       
       {/* Custom Enterprise Cancel Order Modal */}
