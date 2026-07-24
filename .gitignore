@@ -25,3 +25,7 @@ dist-ssr
 .env
 api/data/
 
+# Next.js build output - NEVER commit these
+.next
+.vercel
+
