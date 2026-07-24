@@ -619,6 +619,7 @@ const Orders = ({ onNavigate }) => {
       )}
       </>
       )}
+      </div>
       
       {/* Custom Enterprise Cancel Order Modal */}
       {orderToCancel && (
