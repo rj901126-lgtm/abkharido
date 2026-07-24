@@ -23,7 +23,7 @@ const CustomerTickets = () => {
       const token = sessionStorage.getItem('abkharido_token');
       if (!token) return;
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/my-tickets', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/my-tickets`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -46,7 +46,7 @@ const CustomerTickets = () => {
 
     try {
       const token = sessionStorage.getItem('abkharido_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

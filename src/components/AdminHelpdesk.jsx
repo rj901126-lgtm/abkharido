@@ -16,7 +16,7 @@ const AdminHelpdesk = () => {
     setLoading(true);
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets', { headers: { 'x-admin-token': token } });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets`, { headers: { 'x-admin-token': token } });
       if (res.ok) {
         const data = await res.json();
         setTickets(data);

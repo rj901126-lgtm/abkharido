@@ -74,7 +74,7 @@ export const AppProvider = ({ children }) => {
     // Background sync to database if logged in
     if (currentUser?.token) {
       const syncTimeout = setTimeout(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cart/sync', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cart/sync`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
