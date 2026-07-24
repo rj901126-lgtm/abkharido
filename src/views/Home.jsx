@@ -7,7 +7,6 @@ import '../assets/styles/home.css';
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) => {
   const { products } = useApp();
   const [activeSlide, setActiveSlide] = useState(0);
-  const [timerString, setTimerString] = useState('00:00:00');
   
   // CMS State
   const [layoutComponents, setLayoutComponents] = useState([]);
@@ -60,35 +59,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
     touchEndX.current = 0;
   };
 
-  // Deals of the day countdown timer
-  useEffect(() => {
-    const targetDate = promotions && promotions.dealsTimer 
+  const targetDate = React.useMemo(() => {
+    return promotions && promotions.dealsTimer 
       ? new Date(promotions.dealsTimer)
       : (() => {
           const tomorrow = new Date();
           tomorrow.setHours(24, 0, 0, 0);
           return tomorrow;
         })();
-
-    const updateTimer = () => {
-      const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
-      
-      if (diff <= 0) {
-        setTimerString('00:00:00');
-        return;
-      }
-
-      const hrs = Math.floor(diff / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setTimerString(`${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`);
-    };
-
-    const timerInt = setInterval(updateTimer, 1000);
-    updateTimer();
-    return () => clearInterval(timerInt);
   }, [promotions]);
 
   // Fetch CMS Layout
@@ -224,7 +202,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
                     </div>
                     <div className="deals-timer">
                       <span style={{ color: '#94a3b8', fontSize: '13px' }}>Ends In:</span>
-                      <span className="timer-box">{timerString}</span>
+                      <DealsCountdown targetDate={targetDate} />
                     </div>
                   </div>
                   <button className="btn-glass-light" onClick={() => onSelectCategory('all')}>
@@ -308,6 +286,29 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
 
     </div>
   );
+};
+
+const DealsCountdown = ({ targetDate }) => {
+  const [timerString, setTimerString] = useState('00:00:00');
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = targetDate.getTime() - now.getTime();
+      if (diff <= 0) {
+        setTimerString('00:00:00');
+        return;
+      }
+      const hrs = Math.floor(diff / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimerString(`${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`);
+    };
+    const timerInt = setInterval(updateTimer, 1000);
+    updateTimer();
+    return () => clearInterval(timerInt);
+  }, [targetDate]);
+
+  return <span className="timer-box">{timerString}</span>;
 };
 
 export default Home;
