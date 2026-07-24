@@ -32,7 +32,7 @@ const AdminAnalytics = () => {
   const fetchAnalytics = async () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch('/api/admin/analytics', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/analytics', {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -42,7 +42,7 @@ const AdminAnalytics = () => {
         setSalesData(data.salesData.reverse());
       }
       
-      const predRes = await fetch('/api/admin/analytics/inventory-predict', {
+      const predRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/analytics/inventory-predict', {
         headers: { 'x-admin-token': token }
       });
       if (predRes.ok) {

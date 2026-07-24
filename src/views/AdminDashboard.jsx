@@ -158,7 +158,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       setIsSearching(true);
       try {
         const token = sessionStorage.getItem('abkharido_admin_token') || '';
-        const res = await fetch(`/api/admin/search?q=${globalSearchQuery}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/search?q=${globalSearchQuery}`, {
           headers: { 'x-admin-token': token }
         });
         if (res.ok) setGlobalSearchResults(await res.json());
@@ -372,7 +372,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     
     try {
       const payload = { dealsTimer: timerIso, budgetThreshold: Number(promoBudgetThreshold), announcement: { show: announcementShow, text: announcementText, link: announcementLink }, banners, categoryBanners, dealOfTheDayProducts };
-      const res = await fetch('/api/promotions', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/promotions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify(payload)
@@ -438,7 +438,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setVerifying(true);
     setLoginError('');
     try {
-      const res = await fetch('/api/admin/verify', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: adminPin })
@@ -469,7 +469,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
     try {
-      const res = await fetch('/api/orders?email=admin', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders?email=admin', {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -491,7 +491,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const handleUpdateStatus = async (orderId, newStatus) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
-      const res = await fetch(`/api/orders/${orderId}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/status`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -514,7 +514,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
     try {
-      const res = await fetch('/api/sellers', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/sellers', {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -530,7 +530,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
     try {
-      const res = await fetch('/api/users', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users', {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -556,7 +556,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const targetState = !userObj.isEmailVerified;
     
     try {
-      const res = await fetch(`/api/users/${userObj.username}/update`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${userObj.username}/update`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -588,7 +588,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const influencerId = targetState ? `INF-${suffix}` : '';
 
     try {
-      const res = await fetch(`/api/users/${userObj.username}/update`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${userObj.username}/update`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -617,7 +617,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     if (!window.confirm(`Are you sure you want to ${newStatus === 'Suspended' ? 'suspend' : 'activate'} ${userObj.username}?`)) return;
 
     try {
-      const res = await fetch(`/api/users/${userObj._id}/suspend`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${userObj._id}/suspend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({ status: newStatus })
@@ -639,7 +639,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
-      const res = await fetch(`/api/users/${userObj._id}/wallet`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${userObj._id}/wallet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({ amount: Number(amount) })
@@ -659,7 +659,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     const newStatus = sellerObj.sellerStatus === 'Approved' ? 'Rejected' : 'Approved';
 
     try {
-      const res = await fetch(`/api/users/${sellerObj._id}/seller-status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${sellerObj._id}/seller-status`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -985,7 +985,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     if (!activeWalletModal || !walletAmount || Number(walletAmount) <= 0) return;
     
     try {
-      const res = await fetch(`/api/users/${activeWalletModal._id || activeWalletModal.id}/wallet`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${activeWalletModal._id || activeWalletModal.id}/wallet`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

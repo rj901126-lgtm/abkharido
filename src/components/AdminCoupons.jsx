@@ -25,7 +25,7 @@ const AdminCoupons = () => {
       const token = sessionStorage.getItem('abkharido_admin_token');
       // For this step in transition, we simulate since auth is midway
       // We will mock the fetch if it fails 401
-      const res = await fetch('/api/coupons', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/coupons', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -51,7 +51,7 @@ const AdminCoupons = () => {
     e.preventDefault();
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch('/api/coupons', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/coupons', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ const AdminCoupons = () => {
     if (!window.confirm('Are you sure you want to delete this coupon?')) return;
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      await fetch(`/api/v2/coupons/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v2/coupons/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

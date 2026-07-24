@@ -55,7 +55,7 @@ const Orders = ({ onNavigate }) => {
     if (!orderToCancel) return;
     const token = localStorage.getItem('abkharido_token');
     try {
-      const res = await fetch(`/api/orders/${orderToCancel}/user-cancel`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderToCancel}/user-cancel`, {
         method: 'POST',
         headers: { 'x-auth-token': token }
       });
@@ -76,7 +76,7 @@ const Orders = ({ onNavigate }) => {
     if (!orderToReturn) return;
     const token = localStorage.getItem('abkharido_token');
     try {
-      const res = await fetch(`/api/orders/${orderToReturn}/return`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderToReturn}/return`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

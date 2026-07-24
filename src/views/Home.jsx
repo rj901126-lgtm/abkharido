@@ -95,7 +95,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) =
   useEffect(() => {
     const fetchLayout = async () => {
       try {
-        const res = await fetch('/api/cms/layout/home_page');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page');
         if (res.ok) {
           const data = await res.json();
           // Sort components by order

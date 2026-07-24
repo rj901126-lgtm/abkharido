@@ -20,7 +20,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
         search: searchQuery,
         category: catQuery
       });
-      const res = await fetch(`/api/products?${queryParams.toString()}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?${queryParams.toString()}`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -51,7 +51,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
     if (!window.confirm(`Are you sure you want to delete product ${id}?`)) return;
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`/api/products/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${id}`, {
         method: 'DELETE',
         headers: { 'x-admin-token': token }
       });
@@ -78,7 +78,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`/api/products/${productObj.id}/stock`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${productObj.id}/stock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({ stock: newStock })

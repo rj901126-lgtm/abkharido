@@ -74,7 +74,7 @@ export const AppProvider = ({ children }) => {
     // Background sync to database if logged in
     if (currentUser?.token) {
       const syncTimeout = setTimeout(() => {
-        fetch('/api/cart/sync', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cart/sync', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ export const AppProvider = ({ children }) => {
     const initBackendCart = async () => {
       if (currentUser?.token) {
         try {
-          const res = await fetch('/api/cart', {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cart', {
             headers: { 'Authorization': `Bearer ${currentUser.token}` }
           });
           if (res.ok) {
@@ -170,7 +170,7 @@ export const AppProvider = ({ children }) => {
   // --- API Fetches ---
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/products?limit=100');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?limit=100');
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || data);
@@ -185,7 +185,7 @@ export const AppProvider = ({ children }) => {
   const fetchUser = async (username) => {
     try {
       const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session'))?.token;
-      const res = await fetch(`/api/users/${username}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${username}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
@@ -217,7 +217,7 @@ export const AppProvider = ({ children }) => {
         time
       });
       
-      const res = await fetch(`/api/orders/myorders?${queryParams.toString()}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/myorders?${queryParams.toString()}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
@@ -244,7 +244,7 @@ export const AppProvider = ({ children }) => {
   const cancelOrder = async (orderId) => {
     try {
       const token = currentUser?.token;
-      const res = await fetch(`/api/orders/${orderId}/user-cancel`, { 
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/user-cancel`, { 
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
@@ -286,7 +286,7 @@ export const AppProvider = ({ children }) => {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/stats');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stats');
       if (res.ok) {
         const data = await res.json();
         setPartnerStats(data);
@@ -307,7 +307,7 @@ export const AppProvider = ({ children }) => {
   // --- Helper: Increment Referrer Clicks via API ---
   const incrementReferrerClicks = async () => {
     try {
-      const res = await fetch('/api/stats/click', { method: 'POST' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stats/click', { method: 'POST' });
       if (res.ok) {
         fetchStats();
       }
@@ -379,7 +379,7 @@ export const AppProvider = ({ children }) => {
     if (!currentUser) return false;
     try {
       const token = currentUser.token;
-      const res = await fetch(`/api/users/${currentUser.username}/update`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${currentUser.username}/update`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -409,7 +409,7 @@ export const AppProvider = ({ children }) => {
   const addProduct = async (newProduct) => {
     const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
-      const res = await fetch('/api/products', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -434,7 +434,7 @@ export const AppProvider = ({ children }) => {
   const editProduct = async (productId, updates) => {
     const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
-      const res = await fetch(`/api/products/${productId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${productId}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -462,7 +462,7 @@ export const AppProvider = ({ children }) => {
   const removeProduct = async (productId) => {
     const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
-      const res = await fetch(`/api/products/${productId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'x-admin-token': adminToken
@@ -490,7 +490,7 @@ export const AppProvider = ({ children }) => {
       return false;
     }
     try {
-      const res = await fetch('/api/users/register-seller', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/register-seller', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -527,7 +527,7 @@ export const AppProvider = ({ children }) => {
       return false;
     }
     try {
-      const res = await fetch('/api/payouts', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payouts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -562,7 +562,7 @@ export const AppProvider = ({ children }) => {
       return null;
     }
     try {
-      const res = await fetch('/api/orders', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -601,7 +601,7 @@ export const AppProvider = ({ children }) => {
   const verifyPayment = async (orderId) => {
     try {
       const token = currentUser?.token;
-      const res = await fetch('/api/payment/verify', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/verify', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -627,7 +627,7 @@ export const AppProvider = ({ children }) => {
 
   const resetDatabase = async () => {
     try {
-      const res = await fetch('/api/reset', { method: 'POST' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/reset', { method: 'POST' });
       if (res.ok) {
         showToast('Database files reset successfully.', 'info');
         fetchProducts();

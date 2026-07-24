@@ -227,7 +227,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       setActiveImageIndex(0);
 
       // Fetch AI Recommendations
-      fetch(`/api/products/${product.id}/recommendations`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${product.id}/recommendations`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) setRecommendations(data);

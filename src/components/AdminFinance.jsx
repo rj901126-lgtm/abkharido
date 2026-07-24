@@ -15,8 +15,8 @@ const AdminFinance = () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
       
-      const statsRes = await fetch('/api/finance/stats', { headers: { 'x-admin-token': token } });
-      const vendorsRes = await fetch('/api/finance/vendors-balance', { headers: { 'x-admin-token': token } });
+      const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/finance/stats', { headers: { 'x-admin-token': token } });
+      const vendorsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/finance/vendors-balance', { headers: { 'x-admin-token': token } });
       
       if (statsRes.ok) {
         setStats(await statsRes.json());
@@ -48,7 +48,7 @@ const AdminFinance = () => {
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch('/api/finance/settle', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/finance/settle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({

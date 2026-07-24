@@ -23,7 +23,7 @@ const AdminOMS = () => {
   const fetchOrders = async () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch('/api/orders?username=admin', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders?username=admin', {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -62,7 +62,7 @@ const AdminOMS = () => {
   const handleApproveReturn = async (id) => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch(`/api/orders/${id}/return`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${id}/return`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({ action: 'Approve' })
@@ -96,7 +96,7 @@ const AdminOMS = () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
       await Promise.all(selectedOrders.map(async (orderId) => {
-        await fetch(`/api/orders/${orderId}/status`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/status`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ const AdminOMS = () => {
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch('/api/orders/bulk-export', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/bulk-export', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ const AdminOMS = () => {
     
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch(`/api/orders/${orderId}/cancel`, { 
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/cancel`, { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ const AdminOMS = () => {
       showToast(`Generating Shiprocket AWB for ${orderId}...`, 'info');
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
       
-      const res = await fetch(`/api/orders/${orderId}/ship`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/ship`, {
         method: 'POST',
         headers: {
           'x-admin-token': token
@@ -221,7 +221,7 @@ const AdminOMS = () => {
     showToast(`Sending invoice email for ${orderId}...`, 'info');
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
-      const res = await fetch(`/api/orders/${orderId}/email-invoice`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/email-invoice`, {
         method: 'POST',
         headers: { 'x-admin-token': token }
       });

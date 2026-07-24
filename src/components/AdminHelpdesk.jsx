@@ -16,7 +16,7 @@ const AdminHelpdesk = () => {
     setLoading(true);
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch('/api/tickets', { headers: { 'x-admin-token': token } });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets', { headers: { 'x-admin-token': token } });
       if (res.ok) {
         const data = await res.json();
         setTickets(data);
@@ -43,7 +43,7 @@ const AdminHelpdesk = () => {
   const handleSelectTicket = async (id) => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`/api/tickets/${id}`, { headers: { 'x-admin-token': token } });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/${id}`, { headers: { 'x-admin-token': token } });
       if (res.ok) {
         setActiveTicket(await res.json());
       }
@@ -59,7 +59,7 @@ const AdminHelpdesk = () => {
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`/api/tickets/${activeTicket._id}/reply`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/${activeTicket._id}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({ content: replyContent })
@@ -82,7 +82,7 @@ const AdminHelpdesk = () => {
     if (!activeTicket) return;
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`/api/tickets/${activeTicket._id}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/${activeTicket._id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({ status })

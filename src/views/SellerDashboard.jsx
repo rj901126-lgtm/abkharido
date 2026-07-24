@@ -95,14 +95,14 @@ const SellerDashboard = ({ onNavigate }) => {
     setLoading(true);
     try {
       // Fetch seller's products
-      const prodRes = await fetch(`/api/seller/products?sellerId=${currentSeller.email}`);
+      const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/products?sellerId=${currentSeller.email}`);
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         setSellerProducts(prodData);
       }
       
       // Fetch seller's orders
-      const orderRes = await fetch(`/api/seller/orders?sellerId=${currentSeller.email}`);
+      const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/orders?sellerId=${currentSeller.email}`);
       if (orderRes.ok) {
         const orderData = await orderRes.json();
         setSellerOrders(orderData);
@@ -123,7 +123,7 @@ const SellerDashboard = ({ onNavigate }) => {
   const fetchUpdatedSellerProfile = async () => {
     if (!currentSeller) return;
     try {
-      const res = await fetch(`/api/sellers`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/sellers`);
       if (res.ok) {
         const sellersList = await res.json();
         const updated = Array.isArray(sellersList) ? sellersList.find(s => s.email === currentSeller.email) : null;
@@ -199,7 +199,7 @@ const SellerDashboard = ({ onNavigate }) => {
         return;
       }
       try {
-        const res = await fetch('/api/seller/login', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -224,7 +224,7 @@ const SellerDashboard = ({ onNavigate }) => {
         return;
       }
       try {
-        const res = await fetch('/api/seller/signup', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -365,7 +365,7 @@ const SellerDashboard = ({ onNavigate }) => {
     };
 
     try {
-      const res = await fetch('/api/products', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -396,7 +396,7 @@ const SellerDashboard = ({ onNavigate }) => {
 
   const handleRemoveProduct = async (prodId) => {
     try {
-      const res = await fetch(`/api/products/${prodId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${prodId}`, {
         method: 'DELETE',
         headers: { 'x-seller-id': currentSeller.email }
       });
@@ -426,7 +426,7 @@ const SellerDashboard = ({ onNavigate }) => {
     }
 
     try {
-      const res = await fetch('/api/payouts', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payouts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
