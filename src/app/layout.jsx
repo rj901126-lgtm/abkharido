@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppProvider } from '../context/AppContext';
 import ClientLayout from '../components/ClientLayout'; // We will create this for client-side layout features
+import Script from 'next/script';
 
 import '../index.css';
 import '../App.css';
@@ -18,9 +19,9 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#4f46e5" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo.jpg" />
-        <script src="https://sdk.cashfree.com/js/v3/cashfree.js" async></script>
       </head>
       <body>
+        <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
         <AppProvider>
           <ClientLayout>{children}</ClientLayout>
         </AppProvider>
