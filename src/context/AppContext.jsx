@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { PRODUCTS as MOCK_PRODUCTS } from '../db/mockData.js';
 
 const AppContext = createContext();
 
@@ -9,9 +8,9 @@ const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
-  // Pre-load with mock data so products show instantly (API data will override)
-  const [products, setProducts] = useState(MOCK_PRODUCTS);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  // Start with empty array, fetch from enterprise backend API
+  const [products, setProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   
   const [currentUser, setCurrentUser] = useState(() => {
     try {

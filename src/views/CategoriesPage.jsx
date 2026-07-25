@@ -1,7 +1,7 @@
 import LazyImage from '../components/LazyImage';
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { CATEGORIES } from '../db/mockData';
+import { CATEGORIES } from '../utils/constants';
 import { 
   // eslint-disable-next-line
   Search, 
