@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { createPortal } from 'react-dom';
 
 const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
-  const { cart, updateCartQty, removeFromCart } = useApp();
+  const { cart, updateCartQty, removeFromCart, currentUser, showToast } = useApp();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -20,6 +20,16 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
     }
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
+
+  const handleCheckoutClick = () => {
+    onClose();
+    if (!currentUser) {
+      showToast('Please login to proceed to checkout', 'info');
+      onNavigate('login?redirect=/checkout');
+    } else {
+      onNavigate('checkout');
+    }
+  };
 
   if (!mounted) return null;
 
@@ -77,6 +87,15 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
         {cartCount > 0 && (
           <div style={{ padding: '16px 20px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: itemsPrice >= 500 ? '#10b981' : '#475569' }}>
+              <span>{itemsPrice >= 500 ? 'You have free shipping!' : `Add ₹${(500 - itemsPrice).toLocaleString('en-IN')} more for free shipping`}</span>
+              {itemsPrice >= 500 && <span style={{ fontWeight: '800' }}>UNLOCKED</span>}
+            </div>
+            <div style={{ width: '100%', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#10b981', transition: 'width 0.3s ease' }} />
+            </div>
+          </div>
+        )}
+
         {/* Cart Items List */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f8fafc' }}>
           {cart.length === 0 ? (
