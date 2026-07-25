@@ -10,17 +10,14 @@ const nextConfig = {
   },
   // NOTE: output: 'standalone' removed — only needed for Docker/self-hosted, NOT Vercel
   async rewrites() {
-    const backendUrl = process.env.BACKEND_API_URL;
-    // Only proxy to backend if BACKEND_API_URL env variable is configured
-    if (backendUrl) {
-      return [
-        {
-          source: '/api/:path*',
-          destination: `${backendUrl}/api/:path*`,
-        },
-      ];
-    }
-    return [];
+    const backendUrl = process.env.BACKEND_API_URL || 'http://16.16.195.180:5000';
+    // Always proxy to backend
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl.replace(/\/$/, '')}/api/:path*`, // prevent double slashes
+      },
+    ];
   },
   async redirects() {
     return [
