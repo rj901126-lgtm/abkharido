@@ -348,7 +348,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         <div className="image-showcase-column">
           <div 
             className="main-image-frame" 
-            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab', display: 'block' }}
+            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab' }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -361,7 +361,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                     {isVideo ? (
                       <video src={imgUrl} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     ) : (
-                      <LazyImage src={imgUrl} alt={`${product.name} View ${index}`} style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain' }} />
+                      <LazyImage src={imgUrl} alt={`${product.name} View ${index}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     )}
                   </div>
                 );
