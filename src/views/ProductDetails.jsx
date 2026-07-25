@@ -353,7 +353,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             onTouchEnd={handleTouchEnd}
           >
             {/* Sliding Track */}
-            <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(-${activeImageIndex * 100}%)`, transition: 'transform 0.3s ease-out' }}>
+            <div className="main-image-slider-track" style={{ transform: `translateX(-${activeImageIndex * 100}%)` }}>
               {imagesList.map((imgUrl, index) => {
                 const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
                 return (
@@ -361,7 +361,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                     {isVideo ? (
                       <video src={imgUrl} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     ) : (
-                      <LazyImage src={imgUrl} alt={`${product.name} View ${index}`} />
+                      <LazyImage src={imgUrl} alt={`${product.name} View ${index}`} style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain' }} />
                     )}
                   </div>
                 );

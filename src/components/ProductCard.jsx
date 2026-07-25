@@ -43,7 +43,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           </div>
         ) : null}
         
-        <LazyImage src={product.image} alt={product.name} style={styles.image} />
+        <LazyImage src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
 
       {/* Info Content */}
@@ -130,12 +130,15 @@ const styles = {
   imageWrapper: {
     width: '100%',
     height: '210px',
-    padding: '24px',
+    padding: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f8fafc',
     borderBottom: '1px solid #f1f5f9',
+    position: 'relative',
+    overflow: 'hidden',
+    boxSizing: 'border-box',
   },
   image: {
     width: '100%',
