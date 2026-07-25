@@ -118,15 +118,23 @@ export const addOrderItems = async (req, res, next) => {
         }
         
         // Stock Verification
-        if (product.stock < item.qty) {
+        // If stock tracking is configured (stock > 0), verify availability
+        // If stock === 0 but inStock === true, admin hasn't set stock — allow order
+        if (product.stock > 0 && product.stock < item.qty) {
           res.status(400);
           throw new Error(`Item out of stock: ${product.name}. Available: ${product.stock}, Requested: ${item.qty}`);
         }
+        if (!product.inStock) {
+          res.status(400);
+          throw new Error(`Item is currently out of stock: ${product.name}`);
+        }
         
-        // Deduct Stock
-        product.stock -= item.qty;
-        if (product.stock <= 0) {
-          product.inStock = false;
+        // Deduct Stock only if stock tracking is configured
+        if (product.stock > 0) {
+          product.stock -= item.qty;
+          if (product.stock <= 0) {
+            product.inStock = false;
+          }
         }
         product.soldCount = (product.soldCount || 0) + item.qty;
         await product.save();
