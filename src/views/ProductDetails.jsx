@@ -40,10 +40,12 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   React.useEffect(() => {
     document.body.classList.add('product-details-active');
+    // Scroll to top instantly whenever a product page opens
+    window.scrollTo(0, 0);
     return () => {
       document.body.classList.remove('product-details-active');
     };
-  }, []);
+  }, [productId]);
 
   // --- Dynamic Customer Reviews hooks ---
   const [reviewsList, setReviewsList] = useState(() => {
@@ -373,13 +375,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                   }}
                 >
                   {isVideo ? (
-                    <video src={imgUrl} autoPlay loop muted playsInline style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    <video src={imgUrl} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   ) : (
                     <img
                       src={imgUrl}
                       alt={`${product.name} View ${index}`}
                       loading="lazy"
-                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
                     />
                   )}
                 </div>
