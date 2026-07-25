@@ -21,14 +21,11 @@ html {
 body {
   font-family: var(--font-primary);
   background-color: var(--bg-page);
-  overflow-y: scroll; /* Fix scrollbar layout shift */
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  overflow-y: scroll !important;
-  scrollbar-gutter: stable;
 }
 
 a {
