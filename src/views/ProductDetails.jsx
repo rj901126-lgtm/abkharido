@@ -238,25 +238,33 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     }
   }, [productId, product]);
 
+  const scrollRef = React.useRef(null);
+  const handleScroll = (e) => {
+    const scrollLeft = e.target.scrollLeft;
+    const width = e.target.offsetWidth;
+    const newIndex = Math.round(scrollLeft / width);
+    if (newIndex !== activeImageIndex) {
+      setActiveImageIndex(newIndex);
+    }
+  };
+
+  const scrollToSlide = (index) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        left: index * scrollRef.current.offsetWidth,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const handlePrev = () => {
-    setActiveImageIndex(prev => (prev > 0 ? prev - 1 : imagesList.length - 1));
+    const nextIndex = activeImageIndex > 0 ? activeImageIndex - 1 : imagesList.length - 1;
+    scrollToSlide(nextIndex);
   };
   
   const handleNext = () => {
-    setActiveImageIndex(prev => (prev < imagesList.length - 1 ? prev + 1 : 0));
-  };
-
-  const touchStartX = React.useRef(0);
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const handleTouchEnd = (e) => {
-    const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (diff > 50) {
-      handleNext();
-    } else if (diff < -50) {
-      handlePrev();
-    }
+    const nextIndex = activeImageIndex < imagesList.length - 1 ? activeImageIndex + 1 : 0;
+    scrollToSlide(nextIndex);
   };
 
   if (!product) {
@@ -348,51 +356,61 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       <div className="details-page-grid">
         {/* Left Column: Image and Purchase Actions */}
         <div className="image-showcase-column">
-          <div 
-            className="main-image-frame" 
-            style={{ position: 'relative', overflow: 'hidden', cursor: 'grab' }}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-          >
-            {/* Image Slides — Absolute positioned for reliability */}
-            {imagesList.map((imgUrl, index) => {
-              const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
-              return (
-                <div
-                  key={index}
-                  style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '16px',
-                    boxSizing: 'border-box',
-                    opacity: activeImageIndex === index ? 1 : 0,
-                    transition: 'opacity 0.3s ease',
-                    pointerEvents: activeImageIndex === index ? 'auto' : 'none',
-                    backgroundColor: '#f8fafc',
-                  }}
-                >
-                  {isVideo ? (
-                    <video src={imgUrl} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  ) : (
-                    <img
-                      src={imgUrl}
-                      alt={`${product.name} View ${index}`}
-                      loading="lazy"
-                      style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
-                    />
-                  )}
-                </div>
-              );
-            })}
-
-
-
+          <div style={{ position: 'relative', width: '100%' }}>
+            <div 
+              className="main-image-frame" 
+              ref={scrollRef}
+              onScroll={handleScroll}
+              style={{ 
+                display: 'flex', 
+                overflowX: 'auto', 
+                overflowY: 'hidden',
+                scrollSnapType: 'x mandatory',
+                scrollBehavior: 'smooth',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none', // Firefox
+                msOverflowStyle: 'none' // IE
+              }}
+            >
+              {/* Hide scrollbar for Chrome/Safari */}
+              <style>{`.main-image-frame::-webkit-scrollbar { display: none; }`}</style>
+              
+              {/* Image Slides */}
+              {imagesList.map((imgUrl, index) => {
+                const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      flex: '0 0 100%',
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      scrollSnapAlign: 'start',
+                      boxSizing: 'border-box',
+                      padding: '16px',
+                      backgroundColor: '#f8fafc',
+                    }}
+                  >
+                    {isVideo ? (
+                      <video src={imgUrl} autoPlay loop muted playsInline style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <img
+                        src={imgUrl}
+                        alt={`${product.name} View ${index + 1}`}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
             {/* Wishlist Heart & Share Panel (Top-Right) */}
-            <div style={{ position: 'absolute', top: '32px', right: '16px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
                 style={{ border: '1px solid #e2e8f0', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.98)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(4px)' }}
