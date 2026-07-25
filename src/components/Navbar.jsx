@@ -68,12 +68,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
         <div className={`navbar-container ${activePage && activePage.startsWith('product') ? 'product-page-navbar' : ''}`}>
           
           <div className="navbar-left">
-            {activePage && activePage.startsWith('product') ? (
-              <button className="btn-icon" onClick={(e) => { e.preventDefault(); onNavigate('home'); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ArrowLeft size={24} color="#212121" />
-              </button>
-            ) : (
-              /* Logo */
+              {/* Logo */}
               <a href="#" className="logo-container" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
                 <span className="logo-text">
                   AbKharido<span className="logo-plus">.com</span>
@@ -82,7 +77,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
                 </span>
               </a>
-            )}
           </div>
 
           {/* Search form */}

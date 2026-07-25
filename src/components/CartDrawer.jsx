@@ -77,53 +77,51 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
         {cartCount > 0 && (
           <div style={{ padding: '16px 20px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: itemsPrice >= 500 ? '#10b981' : '#475569' }}>
-              <span>{itemsPrice >= 500 ? '🎉 You unlocked FREE Shipping!' : `Add ₹${(500 - itemsPrice).toLocaleString('en-IN')} more for FREE Shipping!`}</span>
-            </div>
-            <div style={{ width: '100%', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: itemsPrice >= 500 ? '#10b981' : 'var(--primary-color)', transition: 'width 0.4s ease' }} />
-            </div>
-          </div>
-        )}
-
         {/* Cart Items List */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f8fafc' }}>
           {cart.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8' }}>
-              <ShoppingBag size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-              <p style={{ fontSize: '16px', fontWeight: '600' }}>Your cart is empty.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748b' }}>
+              <ShoppingBag size={64} opacity={0.2} style={{ marginBottom: '16px' }} />
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>Your cart is empty</h3>
+              <p style={{ fontSize: '14px', textAlign: 'center', maxWidth: '250px' }}>Looks like you haven't added anything to your cart yet.</p>
               <button 
                 onClick={() => { onClose(); onNavigate('catalog'); }}
-                className="btn btn-primary" 
-                style={{ marginTop: '20px' }}
+                className="btn btn-primary"
+                style={{ marginTop: '24px', padding: '12px 24px' }}
               >
                 Start Shopping
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {cart.map((item) => (
-                <div key={item.product.id} style={{ display: 'flex', gap: '16px' }}>
-                  <div style={{ width: '80px', height: '80px', backgroundColor: '#f8fafc', borderRadius: '8px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #f1f5f9' }}>
-                    <img src={item.product.image} alt={item.product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                  </div>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
-                        {item.product.name}
-                      </div>
-                      <div style={{ fontSize: '14px', fontWeight: '800', color: 'var(--primary-color)', marginTop: '4px' }}>
-                        ₹{(item.product.price || 0).toLocaleString('en-IN')}
-                      </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {cart.map((item, index) => (
+                <div key={`${item.product.id}-${index}`} style={{ display: 'flex', gap: '16px', backgroundColor: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', border: '1px solid #f1f5f9' }}>
+                  <img 
+                    src={item.product.images[0]} 
+                    alt={item.product.name}
+                    style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px', backgroundColor: '#f8fafc' }}
+                  />
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', marginBottom: '4px', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {item.product.name}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '6px', overflow: 'hidden' }}>
-                        <button onClick={() => updateCartQty(item.product.id, item.quantity - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
-                        <span style={{ padding: '0 12px', fontSize: '13px', fontWeight: '600' }}>{item.quantity}</span>
-                        <button onClick={() => updateCartQty(item.product.id, item.quantity + 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
+                    
+                    {item.selectedVariant && (
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Variant: {item.selectedVariant}</div>
+                    )}
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>₹{(item.price || 0).toLocaleString('en-IN')}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                          <button onClick={() => updateCartQty(item.product.id, item.quantity - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
+                          <span style={{ padding: '0 12px', fontSize: '13px', fontWeight: '600' }}>{item.quantity}</span>
+                          <button onClick={() => updateCartQty(item.product.id, item.quantity + 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
+                        </div>
+                        <button onClick={() => removeFromCart(item.product.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                      <button onClick={() => removeFromCart(item.product.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
-                        <Trash2 size={16} />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -140,7 +138,7 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
               <span>₹{itemsPrice.toLocaleString('en-IN')}</span>
             </div>
             <button 
-              onClick={() => { onClose(); onNavigate('checkout'); }}
+              onClick={handleCheckoutClick}
               className="btn btn-accent" 
               style={{ width: '100%', height: '48px', fontSize: '16px', fontWeight: '800', display: 'flex', justifyContent: 'center', gap: '8px' }}
             >

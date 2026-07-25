@@ -390,18 +390,19 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                       justifyContent: 'center',
                       scrollSnapAlign: 'start',
                       boxSizing: 'border-box',
-                      padding: '16px',
                       backgroundColor: '#f8fafc',
+                      position: 'relative',
+                      overflow: 'hidden'
                     }}
                   >
                     {isVideo ? (
-                      <video src={imgUrl} autoPlay loop muted playsInline style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                      <video src={imgUrl} autoPlay loop muted playsInline style={{ position: 'absolute', top: '16px', bottom: '16px', left: '16px', right: '16px', width: 'calc(100% - 32px)', height: 'calc(100% - 32px)', objectFit: 'contain' }} />
                     ) : (
                       <img
                         src={imgUrl}
                         alt={`${product.name} View ${index + 1}`}
                         loading={index === 0 ? "eager" : "lazy"}
-                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                        style={{ position: 'absolute', top: '16px', bottom: '16px', left: '16px', right: '16px', width: 'calc(100% - 32px)', height: 'calc(100% - 32px)', objectFit: 'contain', display: 'block' }}
                       />
                     )}
                   </div>

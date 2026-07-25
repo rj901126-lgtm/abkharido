@@ -223,15 +223,25 @@
     z-index: 1500;
     border-top: 1px solid rgba(0, 0, 0, 0.06);
     margin-top: 0;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px;
   }
   .action-buttons-row {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
+    gap: 8px !important;
     margin: 0 !important;
+    flex: 1; /* Takes remaining space */
   }
   .mobile-price-preview {
-    display: flex;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center;
+    margin-bottom: 0 !important; /* Remove bottom margin to align perfectly */
+    min-width: fit-content;
   }
   .details-info-column {
     padding: 16px 16px 140px 16px !important;
