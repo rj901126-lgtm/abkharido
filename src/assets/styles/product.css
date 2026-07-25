@@ -182,8 +182,9 @@
     border-radius: 0;
     border: none;
     border-bottom: 1px solid rgba(0,0,0,0.04);
-    height: 85vw;
-    max-height: 420px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    max-height: 450px;
     background-color: #f8fafc;
   }
 }
@@ -445,8 +446,9 @@
     gap: 0 !important;
   }
   .main-image-frame {
-    height: 85vw !important;
-    max-height: 420px !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    max-height: 450px !important;
     width: 100% !important;
     border: none !important;
     border-radius: 0 !important;
