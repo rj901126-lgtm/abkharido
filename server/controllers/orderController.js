@@ -39,18 +39,22 @@ export const addOrderItems = async (req, res, next) => {
     }
 
     // Map frontend cart array to backend orderItems schema
+    // Store both MongoDB _id (if valid) and custom string id for lookup
     const orderItems = validCart.map(item => {
-      let pId = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
-      pId = pId ? pId.toString() : '';
-      // If it's not a valid 24-character hex string, fallback to a dummy ObjectId to prevent CastError
-      if (pId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(pId)) {
-        pId = '000000000000000000000000';
-      }
+      const productObj = typeof item.product === 'object' ? item.product : {};
+      // MongoDB ObjectId is in _id, custom slug id is in id field
+      let mongoId = (productObj._id || '').toString();
+      let customId = (productObj.id || '').toString();
+      // Use mongoId if valid ObjectId, else use customId for lookup later
+      let pId = (mongoId.length === 24 && /^[0-9a-fA-F]{24}$/.test(mongoId))
+        ? mongoId
+        : (customId.length === 24 && /^[0-9a-fA-F]{24}$/.test(customId) ? customId : 'custom');
       return {
         product: pId,
-        name: (item.product && item.product.name) ? item.product.name : 'Unknown Product',
-        image: (item.product && item.product.image) ? item.product.image : ((item.product && item.product.images && item.product.images.length > 0) ? item.product.images[0] : 'https://via.placeholder.com/150'),
-        price: (item.product && item.product.price) ? item.product.price : 0,
+        customId: customId, // keep slug for fallback lookup
+        name: productObj.name || 'Unknown Product',
+        image: productObj.image || (productObj.images && productObj.images[0]) || 'https://via.placeholder.com/150',
+        price: productObj.price || 0,
         qty: item.quantity || 1
       };
     });
@@ -110,10 +114,17 @@ export const addOrderItems = async (req, res, next) => {
       
       // Calculate Enterprise Finance splits & Deduct Stock
       const enrichedOrderItems = await Promise.all(orderItems.map(async (item) => {
-        const product = await Product.findById(item.product).catch(() => null);
+        // Try by MongoDB _id first, then fallback to custom slug id field
+        let product = null;
+        if (item.product !== 'custom' && /^[0-9a-fA-F]{24}$/.test(item.product)) {
+          product = await Product.findById(item.product).catch(() => null);
+        }
+        if (!product && item.customId) {
+          product = await Product.findOne({ id: item.customId }).catch(() => null);
+        }
         
         if (!product) {
-          // Mock / unknown product — skip stock deduction, treat as plain item
+          // Truly unknown / mock product — skip stock deduction, treat as plain item
           return item;
         }
         
