@@ -593,7 +593,10 @@ export const AppProvider = ({ children }) => {
         fetchStats();
         return data;
       } else {
-        showToast('Checkout transaction failed on server.', 'error');
+        const errData = await res.json().catch(() => ({}));
+        const errMsg = errData.message || errData.error || `Server error (${res.status})`;
+        console.error('Order API error:', res.status, errData);
+        showToast(`Order failed: ${errMsg}`, 'error');
       }
     // eslint-disable-next-line
     } catch (err) {
