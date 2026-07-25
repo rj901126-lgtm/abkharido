@@ -120,5 +120,12 @@ app.use('/api/admin/search', searchRoutes);
 app.use('/api', legacyRoutes);
 
 // Mount Enterprise Error Handlers
+app.use(notFound);
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 export default app;
