@@ -352,21 +352,39 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Sliding Track */}
-            <div className="main-image-slider-track" style={{ transform: `translateX(-${activeImageIndex * 100}%)` }}>
-              {imagesList.map((imgUrl, index) => {
-                const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
-                return (
-                  <div key={index} className="main-image-slide">
-                    {isVideo ? (
-                      <video src={imgUrl} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    ) : (
-                      <LazyImage src={imgUrl} alt={`${product.name} View ${index}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {/* Image Slides — Absolute positioned for reliability */}
+            {imagesList.map((imgUrl, index) => {
+              const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
+              return (
+                <div
+                  key={index}
+                  style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '16px',
+                    boxSizing: 'border-box',
+                    opacity: activeImageIndex === index ? 1 : 0,
+                    transition: 'opacity 0.3s ease',
+                    pointerEvents: activeImageIndex === index ? 'auto' : 'none',
+                    backgroundColor: '#f8fafc',
+                  }}
+                >
+                  {isVideo ? (
+                    <video src={imgUrl} autoPlay loop muted playsInline style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                  ) : (
+                    <img
+                      src={imgUrl}
+                      alt={`${product.name} View ${index}`}
+                      loading="lazy"
+                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                    />
+                  )}
+                </div>
+              );
+            })}
 
 
 
