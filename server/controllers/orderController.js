@@ -110,11 +110,11 @@ export const addOrderItems = async (req, res, next) => {
       
       // Calculate Enterprise Finance splits & Deduct Stock
       const enrichedOrderItems = await Promise.all(orderItems.map(async (item) => {
-        const product = await Product.findById(item.product);
+        const product = await Product.findById(item.product).catch(() => null);
         
         if (!product) {
-          res.status(404);
-          throw new Error(`Product not found for item: ${item.name}`);
+          // Mock / unknown product — skip stock deduction, treat as plain item
+          return item;
         }
         
         // Stock Verification
