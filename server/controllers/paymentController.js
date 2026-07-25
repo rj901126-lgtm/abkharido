@@ -1,5 +1,8 @@
+import mongoose from 'mongoose';
+import Order from '../models/Order.js';
+import User from '../models/User.js';
+
 // @desc    Generate Cashfree Payment Session
-// @route   POST /api/payment/session
 // @access  Private
 export const generatePaymentSession = async (req, res, next) => {
   try {
@@ -95,9 +98,29 @@ export const verifyPayment = async (req, res, next) => {
       orderStatus = data.order_status;
     }
 
-    if (orderStatus === 'PAID') {
-      res.json({ success: true, status: orderStatus });
-    } else {
+      if (orderStatus === 'PAID') {
+        const query = { cfOrderId: orderId };
+        if (mongoose.Types.ObjectId.isValid(orderId)) {
+          query.$or = [{ _id: orderId }, { cfOrderId: orderId }];
+        }
+
+        const order = await Order.findOne(query);
+        if (order) {
+          order.isPaid = true;
+          order.paidAt = new Date();
+          order.status = 'Processing';
+          await order.save();
+
+          const user = await User.findById(order.user);
+          if (user) {
+            const cashback = Math.floor(order.totalPrice * 0.05);
+            user.coins = (user.coins || 0) + cashback;
+            await user.save();
+          }
+        }
+
+        res.json({ success: true, status: orderStatus });
+      } else {
       res.status(400);
       throw new Error(`Payment verification failed: ${orderStatus}`);
     }
