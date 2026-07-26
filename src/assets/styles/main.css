@@ -14,8 +14,7 @@
 }
 
 html {
-  overflow-y: scroll !important;
-  scrollbar-gutter: stable;
+  /* Removed scrollbar-gutter: stable as it causes layout shift issues on some Windows browsers with 100% width fixed headers */
 }
 
 body {

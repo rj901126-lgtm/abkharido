@@ -49,6 +49,9 @@ const productSchema = new mongoose.Schema({
     endTime: { type: Date }
   },
 
+  // Services
+  hasProCare: { type: Boolean, default: false },
+
   // Imagery
   image: { type: String, required: true },
   images: [{ type: String }],

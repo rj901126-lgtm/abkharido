@@ -196,6 +196,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setFlashSalePrice(prod.flashSale?.price?.toString() || '');
     setFlashSaleEndTime(prod.flashSale?.endTime ? new Date(prod.flashSale.endTime).toISOString().slice(0, 16) : '');
 
+    setHasProCare(prod.hasProCare || false);
+
     // Set PIM Fields
     setMetaTitle(prod.seo?.metaTitle || '');
     setMetaDescription(prod.seo?.metaDescription || '');
@@ -253,6 +255,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setMedia([]);
     setDescription('');
     setBadge('none');
+    setHasProCare(false);
     setSpecs([{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
     setColorModels([]);
     
@@ -700,6 +703,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [flashSalePrice, setFlashSalePrice] = useState('');
   const [flashSaleEndTime, setFlashSaleEndTime] = useState('');
 
+  // Services
+  const [hasProCare, setHasProCare] = useState(false);
+
   // Enterprise PIM State
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
@@ -947,6 +953,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       inStock,
       stock: Number(stock),
       badge,
+      hasProCare,
       colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined,
       flashSale: {
         isActive: flashSaleActive,
@@ -1925,7 +1932,22 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               />
             </div>
 
+            {/* Pro Care Toggle */}
+            <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="checkbox"
+                id="hasProCare"
+                checked={hasProCare}
+                onChange={(e) => setHasProCare(e.target.checked)}
+                style={{ width: '16px', height: '16px', accentColor: '#16a34a' }}
+              />
+              <label htmlFor="hasProCare" className="form-label-txt" style={{ marginBottom: 0, cursor: 'pointer' }}>
+                Enable Premium Care Plan (1-Year Extended Warranty + Accidental Damage)
+              </label>
+            </div>
+
             </div> {/* End Product Details Card */}
+
 
             {/* Colors & Custom Variations Section (Proper Column/Card) */}
             <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -2808,7 +2830,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         
         {/* Wallet Manager Modal */}
         {activeWalletModal && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
             <div className="admin-panel-card animate-fade-in" style={{ width: '400px', background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
               
               <div style={{ background: 'linear-gradient(to right, #4f46e5, #3730a3)', padding: '20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2873,7 +2895,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
         {/* View Order History Modal */}
         {activeOrderHistoryModal && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
             <div className="admin-panel-card animate-fade-in" style={{ width: '800px', maxWidth: '90vw', maxHeight: '80vh', background: '#fff', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
               
               <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
@@ -2932,7 +2954,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
         {/* View Merchant Catalog Modal */}
         {activeCatalogModal && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
             <div className="admin-panel-card animate-fade-in" style={{ width: '800px', maxWidth: '90vw', maxHeight: '80vh', background: '#fff', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
               
               <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>

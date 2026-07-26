@@ -19,7 +19,13 @@ export default function ClientLayout({ children }) {
   const isAdminPage = pathname?.startsWith('/admin');
   
   const handleNavigate = (path) => {
-    router.push(path);
+    if (path === 'home' || path === '') {
+      router.push('/');
+    } else if (!path.startsWith('/')) {
+      router.push('/' + path);
+    } else {
+      router.push(path);
+    }
   };
   
   const handleNavigateProduct = (id) => {

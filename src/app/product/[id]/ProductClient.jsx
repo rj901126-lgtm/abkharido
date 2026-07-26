@@ -11,7 +11,11 @@ export default function ProductClient({ id }) {
   return (
     <ProductDetails 
       productId={id} 
-      onNavigate={(p) => router.push('/' + p)} 
+      onNavigate={(p) => {
+        if (p === 'home' || p === '') router.push('/');
+        else if (p.startsWith('/')) router.push(p);
+        else router.push('/' + p);
+      }} 
       promotions={promotions} 
       onBuyNow={() => router.push('/cart')} 
     />

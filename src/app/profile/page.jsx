@@ -5,5 +5,5 @@ import ProfilePage from '../../views/ProfilePage';
 
 export default function Page() {
   const router = useRouter();
-  return <ProfilePage onNavigate={(p) => router.push('/' + p)} />;
+  return <ProfilePage onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} />;
 }

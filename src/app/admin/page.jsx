@@ -10,5 +10,5 @@ const AdminDashboard = dynamic(() => import('../../views/AdminDashboard'), { ssr
 export default function Page() {
   const router = useRouter();
   const { promotions } = useApp();
-  return <AdminDashboard onNavigate={(p) => router.push('/' + p)} promotions={promotions} onUpdatePromotions={() => window.location.reload()} />;
+  return <AdminDashboard onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} promotions={promotions} onUpdatePromotions={() => window.location.reload()} />;
 }

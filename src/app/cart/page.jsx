@@ -18,5 +18,5 @@ export default function Page() {
     }
   };
 
-  return <CartPage onNavigate={(p) => router.push('/' + p)} onCheckout={handleCheckout} />;
+  return <CartPage onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} onCheckout={handleCheckout} />;
 }

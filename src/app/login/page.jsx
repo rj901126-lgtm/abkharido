@@ -5,5 +5,5 @@ import Login from '../../views/Login';
 
 export default function LoginPage() {
   const router = useRouter();
-  return <Login onNavigate={(p) => router.push('/' + p)} />;
+  return <Login onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} />;
 }

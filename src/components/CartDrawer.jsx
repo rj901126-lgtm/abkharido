@@ -130,7 +130,7 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
                     )}
                     
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
-                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>₹{(item.price || 0).toLocaleString('en-IN')}</div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>₹{((item.product?.price) || 0).toLocaleString('en-IN')}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
                           <button onClick={() => updateCartQty(item.product.id, item.quantity - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>

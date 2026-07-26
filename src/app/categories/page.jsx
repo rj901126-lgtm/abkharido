@@ -7,5 +7,5 @@ import { useApp } from '../../context/AppContext';
 export default function Page() {
   const router = useRouter();
   const { promotions } = useApp();
-  return <CategoriesPage onNavigate={(p) => router.push('/' + p)} onSelectCategory={(cat) => router.push('/catalog?category=' + cat)} onNavigateProduct={(id) => router.push('/product/' + id)} promotions={promotions} onSearch={(query) => router.push('/catalog?search=' + encodeURIComponent(query))} />;
+  return <CategoriesPage onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} onSelectCategory={(cat) => router.push('/catalog?category=' + cat)} onNavigateProduct={(id) => router.push('/product/' + id)} promotions={promotions} onSearch={(query) => router.push('/catalog?search=' + encodeURIComponent(query))} />;
 }
