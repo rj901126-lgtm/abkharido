@@ -19,7 +19,7 @@ export default function ClientLayout({ children }) {
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   
   const showAnnouncement = promotions && promotions.announcement && promotions.announcement.show;
-  const isAdminPage = pathname?.startsWith('/admin');
+  const isPortalPage = pathname?.startsWith('/admin') || pathname?.startsWith('/seller');
   
   const handleNavigate = (path) => {
     if (path === 'home' || path === '') {
@@ -97,7 +97,7 @@ export default function ClientLayout({ children }) {
       )}
 
       {/* Navbar Header */}
-      {!isAdminPage && (
+      {!isPortalPage && (
         <Navbar 
           activePage={pathname?.replace('/', '') || 'home'} 
           onNavigate={handleNavigate} 
@@ -112,7 +112,7 @@ export default function ClientLayout({ children }) {
 
       <main 
         className={`main-content`}
-        style={{ marginTop: isAdminPage ? (showAnnouncement ? '30px' : '0') : (showAnnouncement ? '86px' : '56px') }}
+        style={{ marginTop: isPortalPage ? (showAnnouncement ? '30px' : '0') : (showAnnouncement ? '86px' : '56px') }}
       >
         {children}
       </main>
