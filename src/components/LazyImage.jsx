@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 /**
  * LazyImage Component — Ultra-Simple Production Version
  *
- * Uses a native <img> tag with a skeleton placeholder that fades to the real image.
- * No IntersectionObserver complexity — the browser handles lazy loading natively
- * via loading="lazy". This is the most reliable approach for all layout contexts.
+ * Uses Next.js native <Image> component for automatic WebP optimization,
+ * layout shifting prevention, and efficient CDN delivery at scale.
  */
 const LazyImage = ({ src, alt, className, style, onClick, ...props }) => {
-  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
   if (!src || error) {
@@ -29,28 +28,23 @@ const LazyImage = ({ src, alt, className, style, onClick, ...props }) => {
     );
   }
 
-  // Apply Cloudinary optimizations if applicable
-  let optimizedSrc = src;
-  if (optimizedSrc.includes('res.cloudinary.com') && !optimizedSrc.includes('q_auto')) {
-    const parts = optimizedSrc.split('/upload/');
-    if (parts.length === 2) {
-      optimizedSrc = `${parts[0]}/upload/f_auto,q_auto,w_800/${parts[1]}`;
-    }
-  }
-
+  // Remove manual Cloudinary optimizations as next/image handles resizing automatically
+  const isExternal = src.startsWith('http');
+  
   return (
-    <img
-      src={optimizedSrc}
+    <Image
+      src={src}
       alt={alt || 'Product Image'}
       className={className}
       onClick={onClick}
-      loading="lazy"
-      onLoad={() => setLoaded(true)}
+      fill={isExternal ? true : undefined}
+      width={!isExternal ? 800 : undefined}
+      height={!isExternal ? 800 : undefined}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       onError={() => setError(true)}
       style={{
+        objectFit: style?.objectFit || 'contain',
         ...style,
-        opacity: loaded ? 1 : 0,
-        transition: 'opacity 0.25s ease',
       }}
       {...props}
     />
