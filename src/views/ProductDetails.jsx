@@ -515,6 +515,70 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               })}
             </div>
           )}
+
+          {/* Action Buttons Container */}
+          <div className="action-buttons-container" style={{ marginTop: '24px' }}>
+            {/* Price Preview (Mobile) */}
+            <div className="mobile-price-preview" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '8px' }}>
+              <span style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
+              <span style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
+            </div>
+            
+            <div className="action-buttons-row">
+                <button
+                  onClick={() => {
+                    const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                    addToCart(customProduct);
+                  }}
+                  style={{
+                    flex: 1,
+                    height: '48px',
+                    border: '2px solid #4f46e5',
+                    borderRadius: '10px',
+                    background: '#ffffff',
+                    color: '#4f46e5',
+                    fontWeight: '700',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <ShoppingCart size={17} /> Add to Cart
+                </button>
+                <button
+                  onClick={() => {
+                    const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                    addToCart(customProduct, 1);
+                    onBuyNow(customProduct);
+                  }}
+                  style={{
+                    flex: 1,
+                    height: '48px',
+                    border: 'none',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                    color: '#ffffff',
+                    fontWeight: '800',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    fontFamily: 'inherit',
+                    boxShadow: '0 4px 14px rgba(79,70,229,0.35)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Zap size={17} fill="white" /> Buy Now
+                </button>
+              </div>
+            </div>
         </div>
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
@@ -1048,69 +1112,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           </div>
 
-          {/* Action Buttons Container */}
-          <div className="action-buttons-container" style={{ marginTop: '24px' }}>
-            {/* Price Preview (Mobile) */}
-            <div className="mobile-price-preview" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '8px' }}>
-              <span style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
-              <span style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
-            </div>
-            
-            <div className="action-buttons-row">
-                <button
-                  onClick={() => {
-                    const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                    addToCart(customProduct);
-                  }}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    border: '2px solid #4f46e5',
-                    borderRadius: '10px',
-                    background: '#ffffff',
-                    color: '#4f46e5',
-                    fontWeight: '700',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <ShoppingCart size={17} /> Add to Cart
-                </button>
-                <button
-                  onClick={() => {
-                    const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                    addToCart(customProduct, 1);
-                    onBuyNow(customProduct);
-                  }}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    border: 'none',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                    color: '#ffffff',
-                    fontWeight: '800',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    fontFamily: 'inherit',
-                    boxShadow: '0 4px 14px rgba(79,70,229,0.35)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <Zap size={17} fill="white" /> Buy Now
-                </button>
-              </div>
-            </div>
+
           </div>
 
         </div>
