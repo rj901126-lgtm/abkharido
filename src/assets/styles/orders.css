@@ -277,17 +277,20 @@
 /* Mobile Overrides (100-Crore Enterprise Touch standards) */
 @media (max-width: 768px) {
   .orders-container {
-    padding: 16px 12px;
+    padding: 12px 10px;
   }
   
   .order-card {
     padding: 16px;
-    border-radius: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
   }
 
   .order-card-header {
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
   }
   
   .order-meta-item {
@@ -295,37 +298,66 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #f8fafc;
-    padding-bottom: 8px;
+    border-bottom: 1px dashed #f1f5f9;
+    padding-bottom: 6px;
   }
   
-  .timeline-node {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
+  .order-meta-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  .timeline-container {
+    display: none; /* Hide visual timeline on mobile to save vertical space */
   }
 
-  .timeline-label {
-    font-size: 10px;
+  .order-status-banner {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+
+  .order-status-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
   }
 
   .order-delivery-eta {
     display: none; /* Hide on mobile to save space */
   }
 
+  .order-item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+  }
+
+  .order-item-title {
+    font-size: 13px;
+  }
+
+  .order-item-list {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+  }
+
   .order-footer-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
   
   .order-footer-actions > div {
     display: flex;
     flex-direction: column;
     width: 100%;
+    gap: 8px;
   }
 
   .order-footer-actions .btn {
     width: 100%;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
 }
+
