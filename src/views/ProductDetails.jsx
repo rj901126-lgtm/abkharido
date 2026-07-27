@@ -166,7 +166,33 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   // Find product in list
   // Find product in list
-  const product = products.find(p => p.id === productId);
+  const productFromContext = products.find(p => p.id === productId);
+
+  // Fallback to individual fetch if not in the first 100 products loaded by AppContext
+  const [fetchedProduct, setFetchedProduct] = useState(null);
+  const [isFetchingLocal, setIsFetchingLocal] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+
+  React.useEffect(() => {
+    if (!productFromContext && !isLoadingProducts && !fetchedProduct && !isFetchingLocal && !fetchError) {
+      setIsFetchingLocal(true);
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${productId}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Not found');
+          return res.json();
+        })
+        .then(data => {
+          if (data) setFetchedProduct(data);
+          setIsFetchingLocal(false);
+        })
+        .catch(() => {
+          setFetchError(true);
+          setIsFetchingLocal(false);
+        });
+    }
+  }, [productFromContext, isLoadingProducts, productId, fetchedProduct, isFetchingLocal, fetchError]);
+
+  const product = productFromContext || fetchedProduct;
 
   const getProductColorModels = (prod) => {
     if (!prod) return [];
@@ -268,7 +294,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   };
 
   if (!product) {
-    if (isLoadingProducts) {
+    if (isLoadingProducts || isFetchingLocal) {
       return (
         <div className="container" style={{ textAlign: 'center', padding: '120px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div className="loading-spinner" style={{ 
