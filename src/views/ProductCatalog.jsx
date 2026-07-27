@@ -236,7 +236,10 @@ const CatBannerCarousel = ({ slides }) => {
 };
 
 const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct, promotions }) => {
-  const { products } = useApp();
+  const { products: contextProducts } = useApp();
+  const [serverProducts, setServerProducts] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+
   // Filter States
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(150000);
@@ -250,25 +253,52 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     window.scrollTo(0, 0);
   }, [currentCategory]);
 
-  // Synchronize category or resets
+  // Enterprise Scale: Fetch from Backend Search API instead of client-side filtering
   useEffect(() => {
-    // When category changes, we can reset some filters if needed
-  }, [currentCategory]);
+    const fetchSearchResults = async () => {
+      // If there's no search query and category is all, fallback to context products for immediate load
+      if ((!searchQuery || searchQuery.trim() === '') && currentCategory === 'all') {
+        setServerProducts(null);
+        return;
+      }
 
-  // Apply filters and sorting
+      setIsSearching(true);
+      try {
+        const queryParams = new URLSearchParams({
+          limit: 100,
+        });
+        
+        if (searchQuery) queryParams.append('search', searchQuery.trim());
+        if (currentCategory && currentCategory !== 'all') queryParams.append('category', currentCategory);
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?${queryParams.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setServerProducts(data.products || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch search results from engine', err);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    // Debounce search requests
+    const timeoutId = setTimeout(() => {
+      fetchSearchResults();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, currentCategory]);
+
+  // Apply secondary filters (Price, Rating, Sort)
   const getFilteredProducts = () => {
-    let filtered = [...products];
+    // Base products: either from Search Engine or Context Cache
+    let filtered = serverProducts !== null ? [...serverProducts] : [...contextProducts];
 
-    // 1. Category Filter
-    if (currentCategory !== 'all') {
-      filtered = filtered.filter(p => p.category === currentCategory);
-    }
-
-    // 2. Search Query Filter
+    // Client-side smart query overrides for promo tags
     if (searchQuery && searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase().trim();
-      
-      // Smart search for Popular Store badges
       if (query.includes('min') && query.includes('off')) {
         const match = query.match(/(\d+)%/);
         const targetDiscount = match ? parseInt(match[1]) : 0;
@@ -277,7 +307,6 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           return discount >= targetDiscount;
         });
       } else if (query.includes('flat') || query.includes('under') || query.includes('onwards')) {
-        // Price-based queries
         const match = query.match(/₹([\d,]+)/);
         const val = match ? parseInt(match[1].replace(/,/g, '')) : 0;
         if (query.includes('under') && val > 0) {
@@ -287,16 +316,6 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
         } else if (query.includes('flat')) {
           filtered = filtered.filter(p => p.originalPrice > p.price);
         }
-      } else if (query === 'sale live' || query === 'hot' || query === 'new in' || query === 'just in') {
-        filtered = filtered.filter(p => p.originalPrice > p.price); // Just show discounted items
-      } else {
-        // Standard text search
-        filtered = filtered.filter(p => {
-          const name = p.name ? p.name.toLowerCase() : '';
-          const description = p.description ? p.description.toLowerCase() : '';
-          const category = p.category ? p.category.toLowerCase() : '';
-          return name.includes(query) || description.includes(query) || category.includes(query);
-        });
       }
     }
 
