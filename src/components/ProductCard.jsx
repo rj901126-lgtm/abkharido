@@ -229,4 +229,4 @@ const styles = {
   },
 };
 
-export default ProductCard;
+export default React.memo(ProductCard);

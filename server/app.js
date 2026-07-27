@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 import redisClient from './config/redis.js';
@@ -63,10 +66,16 @@ app.set('trust proxy', 1);
 // Initialize background automated jobs (e.g. Abandoned Carts)
 initCronJobs();
 
+// Security & Compression Middleware
 app.use(helmet());
 app.use(cors());
+app.use(compression()); // Compress all API responses to drastically reduce size
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Data Sanitization against NoSQL query injection & XSS
+app.use(mongoSanitize());
+app.use(xss());
 
 // Logging
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
