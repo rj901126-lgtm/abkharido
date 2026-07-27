@@ -637,6 +637,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                     key={i}
                     onClick={() => setSelectedColor(c)}
                     style={{
+                      position: 'relative',
                       border: activeColor && activeColor.name === c.name ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
                       borderRadius: '4px',
                       padding: '2px',
