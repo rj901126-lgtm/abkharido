@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { AppProvider } from '../context/AppContext';
 import ClientLayout from '../components/ClientLayout'; // We will create this for client-side layout features
 import Script from 'next/script';
@@ -23,7 +23,9 @@ export default function RootLayout({ children }) {
       <body>
         <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
         <AppProvider>
-          <ClientLayout>{children}</ClientLayout>
+          <Suspense fallback={null}>
+            <ClientLayout>{children}</ClientLayout>
+          </Suspense>
         </AppProvider>
       </body>
     </html>

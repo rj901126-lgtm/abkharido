@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../utils/constants';
 import { 
@@ -26,6 +27,8 @@ import {
 import '../assets/styles/navbar.css';
 
 const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, onCartClick, style }) => {
+  const searchParams = useSearchParams();
+  const activeCat = searchParams ? (searchParams.get('category') || currentCategory || 'all') : (currentCategory || 'all');
   // eslint-disable-next-line
   const { currentUser, cart, logout, resetDatabase, products } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -267,7 +270,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             {CATEGORIES.map(cat => (
               <div
                 key={cat.id}
-                className={`cat-item ${currentCategory === cat.id ? 'active' : ''}`}
+                className={`cat-item ${activeCat === cat.id ? 'active' : ''}`}
                 onClick={() => handleCategoryClick(cat.id)}
               >
                 <span>{cat.name}</span>

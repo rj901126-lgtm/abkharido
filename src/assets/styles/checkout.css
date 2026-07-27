@@ -148,24 +148,80 @@ textarea.checkout-input {
   font-size: 15px;
   border-radius: 14px !important;
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-  box-shadow: 0 6px 20px rgba(79,70,229,0.3);
-  letter-spacing: 0.3px;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4) !important;
 }
 
-.checkout-btn:hover {
-  box-shadow: 0 10px 28px rgba(79,70,229,0.4);
-  transform: translateY(-1px);
+.checkout-btn.btn-outline {
+  background: transparent !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #64748b !important;
+  box-shadow: none !important;
 }
 
-.checkout-btn:active {
-  transform: scale(0.97);
+.checkout-btn.btn-outline:hover {
+  border-color: #94a3b8 !important;
+  color: #475569 !important;
+}
+
+.checkout-btn:disabled {
+  background: #cbd5e1 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: not-allowed;
+}
+
+.checkout-btn:active:not(:disabled) {
+  transform: scale(0.96) !important;
+}
+
+/* Accordion Collapsed Step */
+.collapsed-step {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background-color: #f8fafc;
+}
+
+.collapsed-step:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.collapsed-step-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #475569;
+  font-size: 14px;
+}
+
+.collapsed-step-content {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+  text-align: right;
 }
 
 /* Mobile Overrides */
 @media (max-width: 768px) {
   .checkout-tracker-container {
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
   }
   
   .checkout-step-text {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Navbar from './Navbar';
 import BottomNavigation from './BottomNavigation';
 import CartDrawer from './CartDrawer';
@@ -11,7 +11,10 @@ import { useApp } from '../context/AppContext';
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast, promotions, verifyPayment, showToast } = useApp();
+  
+  const categoryParam = searchParams.get('category') || 'all';
   
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   
@@ -100,7 +103,7 @@ export default function ClientLayout({ children }) {
           onNavigate={handleNavigate} 
           onNavigateProduct={handleNavigateProduct}
           onSearch={handleSearch}
-          currentCategory="all"
+          currentCategory={categoryParam}
           onSelectCategory={handleSelectCategory}
           onCartClick={() => setIsCartDrawerOpen(true)}
           style={{ top: showAnnouncement ? '30px' : '0' }}

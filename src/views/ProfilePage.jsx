@@ -30,6 +30,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
 
   if (!currentUser) {
     return (
@@ -170,8 +171,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             <span>My Orders</span>
           </div>
           <div className="quick-action-card" onClick={() => {
-            const el = document.getElementById('wishlist-section');
-            if(el) el.scrollIntoView({ behavior: 'smooth' });
+            setActiveTab('wishlist');
           }}>
             <Heart size={24} color="#ec4899" /> 
             <span>Wishlist</span>
@@ -186,8 +186,33 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
           </div>
         </div>
 
+        {/* Profile Tabs */}
+        <div className="profile-tabs-container" style={{ display: 'flex', gap: '12px', overflowX: 'auto', margin: '24px 0', paddingBottom: '8px', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <button 
+            className={`profile-tab-btn ${activeTab === 'overview' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('overview')}
+            style={{ padding: '8px 20px', borderRadius: '50px', border: 'none', background: activeTab === 'overview' ? '#4f46e5' : '#f1f5f9', color: activeTab === 'overview' ? 'white' : '#64748b', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+          >
+            Overview
+          </button>
+          <button 
+            className={`profile-tab-btn ${activeTab === 'wishlist' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('wishlist')}
+            style={{ padding: '8px 20px', borderRadius: '50px', border: 'none', background: activeTab === 'wishlist' ? '#4f46e5' : '#f1f5f9', color: activeTab === 'wishlist' ? 'white' : '#64748b', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+          >
+            Wishlist ({wishlistProducts.length})
+          </button>
+          <button 
+            className={`profile-tab-btn ${activeTab === 'support' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('support')}
+            style={{ padding: '8px 20px', borderRadius: '50px', border: 'none', background: activeTab === 'support' ? '#4f46e5' : '#f1f5f9', color: activeTab === 'support' ? 'white' : '#64748b', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+          >
+            Support Tickets
+          </button>
+        </div>
+
         {/* 3. Settings Form (Hidden by default) */}
-        {isEditing && (
+        {activeTab === 'overview' && isEditing && (
         <form onSubmit={handleUpdateProfile} className="profile-form-card animate-fade-in" style={{ marginTop: '24px' }}>
           <div className="profile-form-header">
             <h3 className="profile-form-title">Account Settings</h3>
@@ -339,6 +364,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
         )}
 
         {/* 4. Menu List */}
+        {activeTab === 'overview' && (
         <div className="profile-menu-list">
           <div className="profile-menu-item" onClick={() => setIsEditing(!isEditing)}>
             <div className="menu-item-left">
@@ -361,14 +387,18 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             </div>
           </div>
         </div>
+        )}
 
         {/* Helpdesk / Customer Tickets Section */}
-        <div style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', marginBottom: '24px' }}>
-          <CustomerTickets />
-        </div>
+        {activeTab === 'support' && (
+          <div className="animate-fade-in" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', marginBottom: '24px' }}>
+            <CustomerTickets />
+          </div>
+        )}
 
         {/* Wishlist Section */}
-        <div id="wishlist-section" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+        {activeTab === 'wishlist' && (
+        <div id="wishlist-section" className="animate-fade-in" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Heart size={20} fill="#ef4444" color="#ef4444" />
             <span>My Wishlist ({wishlistProducts.length})</span>
@@ -436,6 +466,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             </div>
           )}
         </div>
+        )}
 
       </div>
 

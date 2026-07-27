@@ -379,7 +379,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       )}
 
       {/* STEP 1: Address Details */}
-      {step === 1 && (
+      {step === 1 ? (
         <div className="card checkout-card">
           <h2 className="checkout-step-header"><MapPin size={20} /> Shipping Address Details</h2>
           <form onSubmit={handleAddressSubmit} className="checkout-form">
@@ -491,10 +491,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             </button>
           </form>
         </div>
-      )}
+      ) : step > 1 ? (
+        <div className="collapsed-step animate-fade-in" onClick={() => setStep(1)}>
+          <div className="collapsed-step-title">
+            <CheckCircle2 size={18} color="#10b981" /> Delivery Address
+          </div>
+          <div className="collapsed-step-content">
+            {address.name}, {address.pincode}
+          </div>
+        </div>
+      ) : null}
 
       {/* STEP 2: Order Summary */}
-      {step === 2 && (
+      {step === 2 ? (
         <div className="card checkout-card">
           <h2 className="checkout-step-header"><ShoppingBag size={20} /> Review Order Items</h2>
           
@@ -582,7 +591,16 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <button className="btn btn-accent checkout-btn" style={{ flex: 2 }} onClick={() => setStep(3)}>PROCEED TO PAYMENT</button>
           </div>
         </div>
-      )}
+      ) : step > 2 ? (
+        <div className="collapsed-step animate-fade-in" onClick={() => setStep(2)}>
+          <div className="collapsed-step-title">
+            <CheckCircle2 size={18} color="#10b981" /> Order Summary
+          </div>
+          <div className="collapsed-step-content">
+            {cart.length} Items | Total: ₹{finalAmount.toLocaleString('en-IN')}
+          </div>
+        </div>
+      ) : null}
 
       {/* STEP 3: Payment Options */}
       {step === 3 && (
