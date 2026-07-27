@@ -177,11 +177,18 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
       {/* DYNAMIC CMS SECTIONS */}
       {loadingLayout ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '20px' }}>
-          <div style={{ width: '48px', height: '48px', border: '5px solid #f3f4f6', borderTop: '5px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-          <div style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', letterSpacing: '0.5px' }}>Loading AbKharido Storefront...</div>
-          <p style={{ color: '#64748b', fontSize: '14px', marginTop: '-10px' }}>Fetching the best deals for you</p>
+        <div className="skeleton-container" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          {/* Title Skeleton */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="skeleton-pulse" style={{ width: '200px', height: '30px', borderRadius: '8px' }}></div>
+            <div className="skeleton-pulse" style={{ width: '80px', height: '30px', borderRadius: '20px' }}></div>
+          </div>
+          {/* Product Cards Skeleton */}
+          <div style={{ display: 'flex', gap: '16px', overflow: 'hidden' }}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="skeleton-pulse" style={{ width: '220px', height: '340px', borderRadius: '16px', flexShrink: 0 }}></div>
+            ))}
+          </div>
         </div>
       ) : (
         layoutComponents.map((comp) => {
