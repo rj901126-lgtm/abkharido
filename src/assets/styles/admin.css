@@ -504,3 +504,40 @@
     padding: 0 20px;
   }
 }
+/* Addictive UI Polish (Phase 10) */
+
+/* Haptic Sidebar Items */
+.admin-sidebar-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.admin-sidebar-item:active {
+  transform: scale(0.95);
+}
+
+/* Stat Card Hover Lifts */
+.admin-stat-card {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.admin-stat-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+  z-index: 10;
+}
+
+/* Live Pulsing Dot for Command Center Feel */
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981; /* Emerald Green */
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: livePulse 2s infinite;
+  margin-right: 8px;
+}
+
+@keyframes livePulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}

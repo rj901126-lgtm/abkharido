@@ -90,27 +90,31 @@ const AdminAnalytics = () => {
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         
-        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+        <div className="admin-panel-card admin-stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
           <div style={{ padding: '14px', background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', borderRadius: '12px', color: '#0284c7', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.15)' }}>
             <DollarSign size={26} strokeWidth={2.5} />
           </div>
           <div>
-            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Revenue</p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <span className="live-pulse-dot"></span> Live Revenue
+            </p>
             <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>₹{(kpis.totalRevenue).toLocaleString()}</h3>
           </div>
         </div>
 
-        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+        <div className="admin-panel-card admin-stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
           <div style={{ padding: '14px', background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', borderRadius: '12px', color: '#16a34a', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.15)' }}>
             <ShoppingCart size={26} strokeWidth={2.5} />
           </div>
           <div>
-            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <span className="live-pulse-dot" style={{ backgroundColor: '#f59e0b', boxShadow: '0 0 0 0 rgba(245, 158, 11, 0.7)' }}></span> Live Orders
+            </p>
             <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>{kpis.totalOrders}</h3>
           </div>
         </div>
 
-        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+        <div className="admin-panel-card admin-stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
           <div style={{ padding: '14px', background: 'linear-gradient(135deg, #fef08a 0%, #fde047 100%)', borderRadius: '12px', color: '#ca8a04', boxShadow: '0 4px 12px rgba(202, 138, 4, 0.15)' }}>
             <Users size={26} strokeWidth={2.5} />
           </div>
@@ -120,7 +124,7 @@ const AdminAnalytics = () => {
           </div>
         </div>
 
-        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+        <div className="admin-panel-card admin-stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
           <div style={{ padding: '14px', background: 'linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%)', borderRadius: '12px', color: '#9333ea', boxShadow: '0 4px 12px rgba(147, 51, 234, 0.15)' }}>
             <Package size={26} strokeWidth={2.5} />
           </div>
@@ -130,7 +134,7 @@ const AdminAnalytics = () => {
           </div>
         </div>
 
-        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+        <div className="admin-panel-card admin-stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
           <div style={{ padding: '14px', background: 'linear-gradient(135deg, #fdf2f8 0%, #fbcfe8 100%)', borderRadius: '12px', color: '#db2777', boxShadow: '0 4px 12px rgba(219, 39, 119, 0.15)' }}>
             <DollarSign size={26} strokeWidth={2.5} />
           </div>
@@ -140,7 +144,7 @@ const AdminAnalytics = () => {
           </div>
         </div>
 
-        <div className="admin-panel-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+        <div className="admin-panel-card admin-stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
           <div style={{ padding: '14px', background: 'linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%)', borderRadius: '12px', color: '#65a30d', boxShadow: '0 4px 12px rgba(101, 163, 13, 0.15)' }}>
             <Users size={26} strokeWidth={2.5} />
           </div>
