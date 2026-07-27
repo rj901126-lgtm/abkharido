@@ -1597,78 +1597,7 @@ button:active .lucide, a:active .lucide, .interactive-icon:active .lucide {
 }
 
 @keyframes skeleton-loading {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
-}
-
-  /* Hide desktop left panel */
-  .lp-left {
-    display: none;
-  }
-
-  /* Right panel: center content */
-  .lp-right {
-    width: 100%;
-    padding: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    box-sizing: border-box;
-  }
-
-  /* White form card — compact, no scroll, centered */
-  .lp-form-card {
-    width: 100%;
-    max-width: 360px;
-    border-radius: 20px;
-    padding: 32px 24px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    min-height: unset;
-    height: auto;
-  }
-
-  .lp-form-title  { font-size: 22px; }
-  .lp-form-sub    { font-size: 13px; margin-bottom: 24px; }
-  .lp-form        { gap: 16px; }
-  .lp-policy      { font-size: 11px; margin-top: 12px; }
-
-  .lp-input-group { border-radius: 12px; }
-
-  .lp-input {
-    height: 48px;
-    font-size: 15px;
-  }
-
-  .lp-input-prefix {
-    height: 48px;
-    font-size: 14px;
-  }
-
-  .lp-submit-btn {
-    height: 50px;
-    font-size: 15px;
-    margin-top: 4px;
-  }
-
-  .lp-switch-row  { margin-top: 16px; font-size: 13px; }
-  .lp-switch-btn  { font-size: 13px; }
-
-  .lp-otp-box {
-    width: 100%;
-    max-width: 40px;
-    height: 48px;
-    font-size: 18px;
-    border-radius: 8px;
-    min-width: 0;
-  }
-
-  .lp-otp-row     { gap: 6px; }
-  .lp-resend-row  { font-size: 12px; margin-top: 6px; }
-  .lp-back-btn    { font-size: 13px; margin-bottom: 20px; }
+  0% { background-position: 100% ck-btn    { font-size: 13px; margin-bottom: 20px; }
 }
 
 
