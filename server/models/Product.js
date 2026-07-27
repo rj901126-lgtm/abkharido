@@ -96,5 +96,10 @@ productSchema.index({
   name: 'AdvancedProductSearchIndex'
 });
 
+// Phase 6: Additional Database Optimization
+productSchema.index({ vendorId: 1, createdAt: -1 }); // Fast lookup for seller dashboards
+productSchema.index({ sellerId: 1, createdAt: -1 });
+productSchema.index({ category: 1, price: 1 }); // Fast lookup for category browsing with price filters
+
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 export default Product;

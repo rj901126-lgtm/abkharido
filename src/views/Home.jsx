@@ -4,8 +4,9 @@ import ProductCard from '../components/ProductCard';
 import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award } from 'lucide-react';
 import '../assets/styles/home.css';
 
-const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions }) => {
-  const { products } = useApp();
+const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
+  const { products: contextProducts } = useApp();
+  const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
   
   // CMS State

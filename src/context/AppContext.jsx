@@ -166,6 +166,11 @@ export const AppProvider = ({ children }) => {
 
   // --- API Fetches ---
   const fetchProducts = async () => {
+    // If SSR has already hydrated products, skip the client-side initial fetch
+    if (products.length > 0) {
+      setIsLoadingProducts(false);
+      return;
+    }
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?limit=100`);
       if (res.ok) {

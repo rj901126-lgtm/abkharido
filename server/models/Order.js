@@ -78,5 +78,12 @@ const orderSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Order = mongoose.model('Order', orderSchema);
+// Phase 6: Database Optimization
+// Add explicit indexes for frequent queries to avoid full collection scans
+orderSchema.index({ user: 1, createdAt: -1 }); // Fast lookup for user's order history
+orderSchema.index({ 'orderItems.vendorId': 1, createdAt: -1 }); // Fast lookup for seller dashboards
+orderSchema.index({ status: 1, createdAt: -1 }); // Fast lookup for admin filtering
+orderSchema.index({ createdAt: -1 }); // Fast lookup for admin sorting by date
+
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 export default Order;
