@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 // eslint-disable-next-line
 import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle } from 'lucide-react';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { signIn } from 'next-auth/react';
 import { auth as firebaseAuth } from '../firebase';
 
 const Login = ({ onNavigate }) => {
@@ -149,49 +150,40 @@ const Login = ({ onNavigate }) => {
     }
     setIsVerifying(true);
     try {
+      // NextAuth Integration
+      let result;
       // ── Path 1: Firebase SMS OTP (real SMS was sent) ──
       if (firebaseConfirmation) {
         try {
-          const result = await firebaseConfirmation.confirm(enteredOtp);
-          const firebaseIdToken = await result.user.getIdToken();
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/verify-firebase`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              idToken: firebaseIdToken,
-              phone
-            })
+          const confirmationResult = await firebaseConfirmation.confirm(enteredOtp);
+          const firebaseIdToken = await confirmationResult.user.getIdToken();
+          
+          result = await signIn('credentials', {
+             redirect: false,
+             phone,
+             firebaseIdToken
           });
-          const data = await res.json();
-          if (res.ok) {
-            showToast('Welcome back! 👋', 'success');
-            localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-            window.location.reload();
-          } else {
-            showToast(data.error || 'Authentication failed.', 'error');
-          }
         // eslint-disable-next-line
         } catch (fbErr) {
           showToast('Invalid OTP. Please check and try again.', 'error');
+          setIsVerifying(false);
+          return;
         }
       } else {
         // ── Path 2: Backend OTP (fallback) ──
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/verify-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            recipient: phone,
-            otp: enteredOtp
-          })
+        result = await signIn('credentials', {
+           redirect: false,
+           phone,
+           otp: enteredOtp
         });
-        const data = await res.json();
-        if (res.ok) {
-          showToast('Welcome back! 👋', 'success');
-          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
-          window.location.reload();
-        } else {
-          showToast(data.error || 'Incorrect OTP. Please try again.', 'error');
-        }
+      }
+
+      if (result && !result.error) {
+        showToast('Welcome back! 👋', 'success');
+        // NextAuth will handle the session cookie
+        window.location.reload();
+      } else {
+        showToast(result?.error || 'Authentication failed. Incorrect OTP.', 'error');
       }
     // eslint-disable-next-line
     } catch (err) {

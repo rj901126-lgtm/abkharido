@@ -7,6 +7,7 @@ import { addOrderToQueue } from '../utils/queue.js';
 import logger from '../config/logger.js';
 import { generateShipmentAWB } from '../services/shiprocketService.js';
 import { processCashfreeRefund } from './paymentController.js';
+import redisClient from '../config/redis.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -130,7 +131,6 @@ export const addOrderItems = async (req, res, next) => {
         
         // Stock Verification
         // If stock tracking is configured (stock > 0), verify availability
-        // If stock === 0 but inStock === true, admin hasn't set stock — allow order
         if (product.stock > 0 && product.stock < item.qty) {
           res.status(400);
           throw new Error(`Item out of stock: ${product.name}. Available: ${product.stock}, Requested: ${item.qty}`);
@@ -139,16 +139,47 @@ export const addOrderItems = async (req, res, next) => {
           res.status(400);
           throw new Error(`Item is currently out of stock: ${product.name}`);
         }
+
+        let lockKey = null;
+        let lockAcquired = false;
         
-        // Deduct Stock only if stock tracking is configured
-        if (product.stock > 0) {
-          product.stock -= item.qty;
-          if (product.stock <= 0) {
-            product.inStock = false;
+        // Distributed Lock (Phase 5 - Concurrency)
+        if (redisClient && product.stock > 0) {
+           lockKey = `lock:product:${product._id}`;
+           const lock = await redisClient.set(lockKey, 'locked', 'NX', 'PX', 5000); // 5 seconds lock
+           if (!lock) {
+              res.status(429);
+              throw new Error(`High traffic for ${product.name}. Item is currently being purchased by someone else. Please try again in a few seconds.`);
+           }
+           lockAcquired = true;
+        }
+        
+        try {
+          // Re-fetch product inside the lock to ensure we have the absolute latest stock from DB
+          // if we are under heavy concurrency
+          if (lockAcquired) {
+             const latestProduct = await Product.findById(product._id);
+             if (latestProduct.stock < item.qty) {
+                res.status(400);
+                throw new Error(`Item out of stock: ${product.name}.`);
+             }
+             product.stock = latestProduct.stock; // Sync
+          }
+
+          // Deduct Stock only if stock tracking is configured
+          if (product.stock > 0) {
+            product.stock -= item.qty;
+            if (product.stock <= 0) {
+              product.inStock = false;
+            }
+          }
+          product.soldCount = (product.soldCount || 0) + item.qty;
+          await product.save();
+        } finally {
+          if (lockAcquired && lockKey) {
+             await redisClient.del(lockKey);
           }
         }
-        product.soldCount = (product.soldCount || 0) + item.qty;
-        await product.save();
 
         if (product.vendorId) {
           const itemTotal = item.price * item.qty;

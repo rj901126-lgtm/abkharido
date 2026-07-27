@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { AppProvider } from '../context/AppContext';
 import ClientLayout from '../components/ClientLayout'; // We will create this for client-side layout features
+import NextAuthProvider from '../components/NextAuthProvider';
 import Script from 'next/script';
 
 import '../index.css';
@@ -22,11 +23,13 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
-        <AppProvider>
+        <NextAuthProvider>
+          <AppProvider>
           <Suspense fallback={null}>
             <ClientLayout>{children}</ClientLayout>
           </Suspense>
-        </AppProvider>
+          </AppProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

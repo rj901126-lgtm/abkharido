@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 const AppContext = createContext();
 
@@ -12,12 +13,8 @@ export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('abkharido_user_session');
-      return saved ? JSON.parse(saved) : null;
-    } catch { return null; }
-  });
+  const { data: session, status } = useSession();
+  const currentUser = session ? { ...session.user, token: session.accessToken } : null;
 
   const [cart, setCart] = useState(() => {
     try {
@@ -189,11 +186,9 @@ export const AppProvider = ({ children }) => {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
-        const data = await res.json();
-        // Preserve the token in the session since the profile endpoint might not return it
-        data.token = token;
-        setCurrentUser(data);
-        localStorage.setItem('abkharido_user_session', JSON.stringify(data));
+        // With NextAuth, the session is the source of truth.
+        // We just fetch it to ensure the backend is alive/synced, 
+        // but state is managed by useSession.
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to sync user profile:', err);
@@ -372,10 +367,10 @@ export const AppProvider = ({ children }) => {
   };
 
   // --- Logout Action ---
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem('abkharido_user_session');
-    setCurrentUser(null);
     setOrders([]);
+    await signOut({ redirect: false });
     showToast('Logged out successfully.', 'info');
   };
 
@@ -393,11 +388,7 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(details)
       });
       if (res.ok) {
-        const updatedUser = await res.json();
-        // Preserve the JWT token since profile update endpoint doesn't return it
-        updatedUser.token = token;
-        setCurrentUser(updatedUser);
-        localStorage.setItem('abkharido_user_session', JSON.stringify(updatedUser));
+        showToast('Profile updated. Please log in again to see changes.', 'success');
         return true;
       } else {
         const err = await res.json();
