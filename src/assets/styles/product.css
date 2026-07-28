@@ -478,7 +478,7 @@
     border-radius: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
-    background-color: #f8fafc !important;
+    background-color: #ffffff !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
     position: relative !important;
@@ -678,7 +678,7 @@
   justify-content: center;
   scroll-snap-align: start;
   box-sizing: border-box;
-  background-color: #f8fafc;
+  background-color: #ffffff;
   position: relative;
   overflow: hidden;
 }
