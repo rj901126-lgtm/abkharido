@@ -1211,7 +1211,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             ADD
           </button>
           <button 
-            onClick={handleBuyNow}
+            onClick={() => {
+              const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+              addToCart(customProduct, 1);
+              onBuyNow(customProduct);
+            }}
             style={{ padding: '10px 16px', background: 'linear-gradient(90deg, #f59e0b, #ea580c)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px' }}
           >
             BUY NOW
