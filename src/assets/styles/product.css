@@ -146,6 +146,8 @@
     border: none;
     box-shadow: none;
     border-radius: 0;
+    max-width: 100%;
+    overflow: hidden;
   }
 }
 
@@ -219,24 +221,13 @@
 
 @media (max-width: 768px) {
   .action-buttons-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.97);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    padding: 10px 16px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
-    z-index: 1500;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    margin-top: 0;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-between !important;
     gap: 12px;
+    margin-top: 16px;
+    padding: 0;
   }
   .action-buttons-row {
     display: grid !important;
