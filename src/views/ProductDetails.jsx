@@ -40,12 +40,25 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   React.useEffect(() => {
     document.body.classList.add('product-details-active');
-    // Scroll to top instantly whenever a product page opens
     window.scrollTo(0, 0);
+
+    const handleGlobalScroll = () => {
+      // Show sticky CTA if scrolled past the main purchase buttons (approx 600px on mobile)
+      if (window.scrollY > 600) {
+        setShowStickyCTA(true);
+      } else {
+        setShowStickyCTA(false);
+      }
+    };
+    window.addEventListener('scroll', handleGlobalScroll);
+
     return () => {
       document.body.classList.remove('product-details-active');
+      window.removeEventListener('scroll', handleGlobalScroll);
     };
   }, [productId]);
+
+  const [showStickyCTA, setShowStickyCTA] = useState(false);
 
   // --- Dynamic Customer Reviews hooks ---
   const [reviewsList, setReviewsList] = useState(() => {
@@ -405,30 +418,15 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               {imagesList.map((imgUrl, index) => {
                 const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
                 return (
-                  <div
-                    key={index}
-                    style={{
-                      flex: '0 0 100%',
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      scrollSnapAlign: 'start',
-                      boxSizing: 'border-box',
-                      backgroundColor: '#f8fafc',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
+                  <div key={index} className="slider-item">
                     {isVideo ? (
-                      <video src={imgUrl} autoPlay loop muted playsInline style={{ position: 'absolute', top: '16px', bottom: '16px', left: '16px', right: '16px', width: 'calc(100% - 32px)', height: 'calc(100% - 32px)', objectFit: 'contain' }} />
+                      <video className="slider-media" src={imgUrl} autoPlay loop muted playsInline />
                     ) : (
                       <img
+                        className="slider-media"
                         src={imgUrl}
                         alt={`${product.name} View ${index + 1}`}
                         loading={index === 0 ? "eager" : "lazy"}
-                        style={{ position: 'absolute', top: '16px', bottom: '16px', left: '16px', right: '16px', width: 'calc(100% - 32px)', height: 'calc(100% - 32px)', objectFit: 'contain', display: 'block' }}
                       />
                     )}
                   </div>
@@ -1120,8 +1118,99 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
           </div>
 
+          {/* Frequently Bought Together (Recommendation Engine) */}
+          <div style={{ marginTop: '32px', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <Sparkles size={20} color="#eab308" /> Frequently Bought Together
+            </h3>
+            
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+              {/* Main Product */}
+              <div style={{ flex: '1 1 auto', minWidth: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <img src={product.image} alt={product.name} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', background: 'white', padding: '4px', border: '1px solid #e2e8f0' }} />
+                <span style={{ fontSize: '12px', fontWeight: '600', textAlign: 'center' }}>This Item</span>
+                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹{product.price?.toLocaleString()}</span>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '24px', fontWeight: 'bold' }}>+</div>
+              
+              {/* Recommended Product (Mock Data) */}
+              <div style={{ flex: '1 1 auto', minWidth: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <img src="https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?q=80&w=200&auto=format&fit=crop" alt="Earphones" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', background: 'white', padding: '4px', border: '1px solid #e2e8f0' }} />
+                <span style={{ fontSize: '12px', fontWeight: '600', textAlign: 'center' }}>Pro Earbuds</span>
+                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹999</span>
+              </div>
+
+              <div style={{ width: '100%', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}>Total bundle price:</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>₹{((product.price || 0) + 999).toLocaleString()}</div>
+                </div>
+                <button 
+                  onClick={() => {
+                    addToCart(product, 1);
+                    showToast('Bundle added to cart!', 'success');
+                  }}
+                  style={{ background: '#0f172a', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  Add Both to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
+      </div>
+
+      {/* Sticky Mobile Add to Cart Bottom Bar */}
+      <div 
+        className={`sticky-bottom-bar ${showStickyCTA ? 'visible' : ''}`}
+        style={{
+          position: 'fixed',
+          bottom: 0, left: 0, right: 0,
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderTop: '1px solid #e2e8f0',
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '0 -4px 12px rgba(0,0,0,0.05)',
+          zIndex: 1000,
+          transform: showStickyCTA ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        <img src={product.image} alt="Thumb" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div style={{ fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
+          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>₹{product.price?.toLocaleString()}</div>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={() => {
+              if (selectedVariant && selectedVariant.stock === 0) {
+                showToast('This variant is out of stock', 'error');
+                return;
+              }
+              if (product.inStock === false) {
+                showToast('This product is out of stock', 'error');
+                return;
+              }
+              addToCart(product, 1, selectedVariant, selectedColorModel);
+            }}
+            style={{ padding: '10px 12px', background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px' }}
+          >
+            ADD
+          </button>
+          <button 
+            onClick={handleBuyNow}
+            style={{ padding: '10px 16px', background: 'linear-gradient(90deg, #f59e0b, #ea580c)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px' }}
+          >
+            BUY NOW
+          </button>
+        </div>
       </div>
 
     </>

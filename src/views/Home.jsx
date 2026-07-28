@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
-import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award } from 'lucide-react';
+import SpinWheelModal from '../components/SpinWheelModal';
+import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award, Gift } from 'lucide-react';
 import '../assets/styles/home.css';
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
-  const { products: contextProducts } = useApp();
+  const { products: contextProducts, showToast } = useApp();
   const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isSpinModalOpen, setIsSpinModalOpen] = useState(false);
   
   // CMS State
   const [layoutComponents, setLayoutComponents] = useState([]);
@@ -291,6 +293,46 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </button>
         </div>
       </section>
+
+      {/* Floating Gamification Button */}
+      <button 
+        onClick={() => setIsSpinModalOpen(true)}
+        style={{
+          position: 'fixed',
+          bottom: '80px', // above bottom nav
+          right: '20px',
+          background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50%',
+          width: '56px',
+          height: '56px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)',
+          cursor: 'pointer',
+          zIndex: 100,
+          animation: 'bounce 2s infinite'
+        }}
+      >
+        <Gift size={28} />
+      </button>
+
+      {/* Spin Wheel Modal */}
+      <SpinWheelModal 
+        isOpen={isSpinModalOpen} 
+        onClose={() => setIsSpinModalOpen(false)} 
+        onWin={(prize) => {
+          setIsSpinModalOpen(false);
+          if (prize.value !== 0) {
+            showToast(`Congratulations! You won ${prize.label}!`, 'success');
+            // In a real app, this would call an API to add coins to the user's wallet
+          } else {
+            showToast('Better luck next time!', 'info');
+          }
+        }} 
+      />
 
     </div>
   );

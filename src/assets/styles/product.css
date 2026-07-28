@@ -458,6 +458,11 @@
 }
 
 @media (max-width: 768px) {
+  body.product-details-active .container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+  }
   .image-showcase-column {
     position: static;
     width: 100% !important;
@@ -465,17 +470,17 @@
     gap: 0 !important;
   }
   .main-image-frame {
-    aspect-ratio: 1 / 1 !important;
+    aspect-ratio: 1 / 1.1 !important;
     height: auto !important;
-    max-height: 450px !important;
+    max-height: 500px !important;
     width: 100% !important;
     border: none !important;
     border-radius: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
-    margin: 0 !important;
     background-color: #f8fafc !important;
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     position: relative !important;
   }
   .share-link-generator {
@@ -490,7 +495,9 @@
     margin: 0 !important;
     gap: 0 !important;
   }
-  /* details-info-column padding handled by .action-buttons-container rule above */
+  .details-info-column, .product-info-column {
+    padding: 16px !important;
+  }
   .product-title-text {
     font-size: 16px !important;
     line-height: 1.4 !important;
@@ -660,6 +667,44 @@
   width: 1px;
   height: 24px;
   background-color: #eaeaea;
+}
+
+.slider-item {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  box-sizing: border-box;
+  background-color: #f8fafc;
+  position: relative;
+  overflow: hidden;
+}
+
+.slider-media {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* DO NOT USE COVER for e-commerce product images */
+  display: block;
+}
+
+@media (min-width: 769px) {
+  .slider-media {
+    top: 16px;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    width: calc(100% - 32px);
+    height: calc(100% - 32px);
+    object-fit: contain;
+  }
 }
 
 /* Modals & Backdrops */

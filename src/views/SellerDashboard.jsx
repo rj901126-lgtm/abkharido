@@ -42,7 +42,7 @@ const SellerDashboard = ({ onNavigate }) => {
     } catch { return null; }
   });
 
-  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders' | 'payouts'
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'inventory' | 'orders' | 'payouts'
   const [sellerOrders, setSellerOrders] = useState([]);
   const [sellerProducts, setSellerProducts] = useState([]);
   // eslint-disable-next-line
@@ -820,6 +820,13 @@ const SellerDashboard = ({ onNavigate }) => {
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid #eaeaea', paddingBottom: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <button 
+          onClick={() => setActiveTab('analytics')}
+          className={`btn ${activeTab === 'analytics' ? 'btn-primary' : 'btn-outline'}`}
+          style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
+        >
+          <TrendingUp size={16} /> Analytics Dashboard
+        </button>
+        <button 
           onClick={() => setActiveTab('inventory')}
           className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-outline'}`}
           style={{ height: '36px', padding: '0 16px', fontSize: '13px', display: 'flex', gap: '6px', alignItems: 'center' }}
@@ -841,6 +848,61 @@ const SellerDashboard = ({ onNavigate }) => {
           <CreditCard size={16} /> Ledger & Cashouts
         </button>
       </div>
+
+      {/* CONDITIONAL RENDER: ANALYTICS TAB */}
+      {activeTab === 'analytics' && (
+        <div className="admin-grid" style={{ gap: '20px' }}>
+          <div className="admin-panel-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <h3 className="admin-form-title"><TrendingUp size={18} color="var(--primary-color)" /> Sales & Revenue (Last 30 Days)</h3>
+            
+            <div style={{ display: 'flex', height: '200px', alignItems: 'flex-end', gap: '12px', paddingBottom: '12px', borderBottom: '1px solid #eaeaea', position: 'relative' }}>
+              {/* Mock Bar Chart */}
+              {[40, 70, 30, 80, 50, 100, 60].map((val, idx) => (
+                <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '100%', maxWidth: '40px', height: `${val}%`, backgroundColor: val > 70 ? 'var(--success)' : 'var(--primary-light)', borderRadius: '4px 4px 0 0', position: 'relative', transition: 'height 0.5s ease-in-out' }}>
+                    <div style={{ position: 'absolute', top: '-25px', left: '50%', transform: 'translateX(-50%)', fontSize: '11px', fontWeight: 'bold', color: '#555' }}>
+                      ₹{val * 10}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Day {idx + 1}</div>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Total Revenue</div>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--text-primary)' }}>₹{totalSalesVolume.toLocaleString('en-IN')}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Conversion Rate</div>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--success)' }}>3.4% <span style={{ fontSize: '14px' }}>↑</span></div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="admin-panel-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h3 className="admin-form-title"><Package size={18} color="var(--primary-color)" /> Top Selling Products</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {sellerProducts.slice(0, 3).map((p, idx) => (
+                <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', border: '1px solid #eaeaea', borderRadius: '8px', background: '#fafafa' }}>
+                  <img src={p.image} alt={p.name} style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '6px' }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{p.name.substring(0, 30)}...</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{10 + (idx * 5)} Units Sold</div>
+                  </div>
+                  <div style={{ fontWeight: 'bold', color: 'var(--success)', fontSize: '14px' }}>
+                    ₹{(p.price * (10 + (idx * 5))).toLocaleString('en-IN')}
+                  </div>
+                </div>
+              ))}
+              {sellerProducts.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>No products available for analytics.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CONDITIONAL RENDER: INVENTORY TAB */}
       {activeTab === 'inventory' && (
@@ -872,10 +934,17 @@ const SellerDashboard = ({ onNavigate }) => {
                           <div style={{ fontWeight: 'bold' }}>{p.name.substring(0, 32)}...</div>
                           <div style={{ fontSize: '11px', color: '#777' }}>ID: <code>{p.id}</code></div>
                         </td>
-                        <td style={{ textTransform: 'capitalize' }}>{p.category}</td>
+                        <td style={{ textTransform: 'capitalize' }}>
+                          {p.category}
+                          {/* Low Stock Alert Mock (assuming stock < 10) */}
+                          <div style={{ marginTop: '8px' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 'bold', background: '#ffebee', color: '#c62828', padding: '2px 6px', borderRadius: '4px' }}>LOW STOCK (3 left)</span>
+                          </div>
+                        </td>
                         <td>
                           <div style={{ fontWeight: 'bold' }}>₹{p.price.toLocaleString('en-IN')}</div>
                           <div style={{ fontSize: '11px', textDecoration: 'line-through', color: '#999' }}>₹{p.originalPrice.toLocaleString('en-IN')}</div>
+                          <button style={{ marginTop: '4px', fontSize: '10px', background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer' }}>Quick Edit</button>
                         </td>
                         <td>
                           <button className="admin-action-btn-danger" onClick={() => handleRemoveProduct(p.id)}>

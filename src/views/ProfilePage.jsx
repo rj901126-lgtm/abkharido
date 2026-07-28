@@ -305,45 +305,66 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
           {/* Address Settings Section */}
           <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px' }}>
-            <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', margin: '0 0 16px 0' }}>Delivery Address</h4>
-            
-            <div style={{ marginBottom: '20px' }}>
-              <label className="profile-input-label">PINCODE *</label>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <input 
-                  type="text" 
-                  maxLength="6"
-                  value={pincodeInput} 
-                  onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
-                  placeholder="e.g. 400001"
-                  disabled={!isEditing}
-                  className="profile-input"
-                  style={{ flex: '1 1 120px', letterSpacing: '2px' }}
-                  required
-                />
-                <button 
-                  type="button" 
-                  onClick={handleGeolocate}
-                  disabled={!isEditing}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: !isEditing ? '#f1f5f9' : '#eff6ff', color: !isEditing ? '#94a3b8' : '#3b82f6', border: !isEditing ? '1px solid #e2e8f0' : '1px solid #bfdbfe', padding: '0 20px', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: !isEditing ? 'not-allowed' : 'pointer', transition: 'all 0.2s', minHeight: '52px', flex: '1 1 150px' }}
-                >
-                  <MapPin size={18} /> Detect Location
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', margin: '0' }}>Address Book</h4>
+              {isEditing && (
+                <button type="button" onClick={() => showToast('Multiple addresses coming soon in v2.0!', 'info')} style={{ background: '#e0e7ff', color: '#4f46e5', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  + Add New Address
                 </button>
+              )}
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              {/* Default Address Card */}
+              <div style={{ border: '2px solid #4f46e5', borderRadius: '12px', padding: '16px', position: 'relative', background: '#f8fafc' }}>
+                <span style={{ position: 'absolute', top: '-10px', right: '16px', background: '#4f46e5', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }}>DEFAULT</span>
+                <div style={{ fontWeight: '700', fontSize: '14px', marginBottom: '4px', color: '#1e293b' }}>{firstName || 'User'} {lastName}</div>
+                <div style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.5', marginBottom: '8px' }}>
+                  {addressInput || 'No address provided'}<br/>
+                  {pincodeInput ? `Pincode: ${pincodeInput}` : ''}
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="profile-input-label">STREET ADDRESS (MUST BE FILLED) *</label>
-              <textarea 
-                value={addressInput} 
-                onChange={(e) => setAddressInput(e.target.value)} 
-                placeholder="House No, Building Name, Street Area, City & State"
-                disabled={!isEditing}
-                className="profile-input"
-                style={{ height: '100px', padding: '16px', resize: 'vertical', lineHeight: '1.5' }}
-                required
-              />
-            </div>
+            {isEditing && (
+              <div className="animate-fade-in" style={{ background: '#fff', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <h5 style={{ fontSize: '14px', margin: '0 0 12px 0', color: '#334155' }}>Edit Default Address</h5>
+                <div style={{ marginBottom: '16px' }}>
+                  <label className="profile-input-label">PINCODE *</label>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <input 
+                      type="text" 
+                      maxLength="6"
+                      value={pincodeInput} 
+                      onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
+                      placeholder="e.g. 400001"
+                      className="profile-input"
+                      style={{ flex: '1 1 120px', letterSpacing: '2px' }}
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      onClick={handleGeolocate}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '0 20px', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minHeight: '52px', flex: '1 1 150px' }}
+                    >
+                      <MapPin size={18} /> Detect Location
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="profile-input-label">STREET ADDRESS *</label>
+                  <textarea 
+                    value={addressInput} 
+                    onChange={(e) => setAddressInput(e.target.value)} 
+                    placeholder="House No, Building Name, Street Area, City & State"
+                    className="profile-input"
+                    style={{ height: '80px', padding: '12px', resize: 'vertical', lineHeight: '1.5' }}
+                    required
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <button 

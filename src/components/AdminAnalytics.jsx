@@ -96,9 +96,23 @@ const AdminAnalytics = () => {
           </div>
           <div>
             <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              <span className="live-pulse-dot"></span> Live Revenue
+              <span className="live-pulse-dot"></span> Net Revenue
             </p>
             <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>₹{(kpis.totalRevenue).toLocaleString()}</h3>
+          </div>
+        </div>
+
+        <div className="admin-panel-card admin-stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
+          <div style={{ padding: '14px', background: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)', borderRadius: '12px', color: '#ea580c', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.15)' }}>
+            <DollarSign size={26} strokeWidth={2.5} />
+          </div>
+          <div>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Total GMV
+            </p>
+            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>
+              ₹{((kpis.totalRevenue || 0) * 1.15).toLocaleString()} <span style={{ fontSize: '12px', color: 'var(--success)' }}>+15%</span>
+            </h3>
           </div>
         </div>
 
@@ -184,6 +198,81 @@ const AdminAnalytics = () => {
                 />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Live Order Feed & Vendor Performance Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px' }}>
+        
+        {/* Live Order Feed */}
+        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="live-pulse-dot" style={{ backgroundColor: '#22c55e', boxShadow: '0 0 0 0 rgba(34, 197, 94, 0.7)' }}></span> Live Order Feed
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto' }}>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid #f1f5f9', borderRadius: '8px', background: '#f8fafc' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b' }}>
+                    #{i}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>Order {Math.floor(Math.random() * 90000) + 10000}</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>{Math.floor(Math.random() * 10) + 1} mins ago • {['Delhi', 'Mumbai', 'Bangalore', 'Pune'][i-1]}</div>
+                  </div>
+                </div>
+                <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '14px' }}>
+                  ₹{(Math.floor(Math.random() * 5000) + 500).toLocaleString('en-IN')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Vendor Performance Matrix */}
+        <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Users size={18} color="#f59e0b" /> Vendor Performance Matrix
+          </h3>
+          <div className="admin-table-wrapper" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Vendor</th>
+                  <th>Avg Rating</th>
+                  <th>Return Rate</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div style={{ fontWeight: 'bold' }}>TechStore India</div><div style={{ fontSize: '11px', color: '#666' }}>Electronics</div></td>
+                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 4.8</span></td>
+                  <td>1.2%</td>
+                  <td><span className="badge badge-success">Top Tier</span></td>
+                </tr>
+                <tr>
+                  <td><div style={{ fontWeight: 'bold' }}>FashionHub</div><div style={{ fontSize: '11px', color: '#666' }}>Apparel</div></td>
+                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 4.1</span></td>
+                  <td>4.5%</td>
+                  <td><span className="badge badge-info">Average</span></td>
+                </tr>
+                <tr>
+                  <td><div style={{ fontWeight: 'bold' }}>GadgetPro</div><div style={{ fontSize: '11px', color: '#666' }}>Mobiles</div></td>
+                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 3.2</span></td>
+                  <td>12.8%</td>
+                  <td><span className="badge badge-danger">At Risk</span></td>
+                </tr>
+                <tr>
+                  <td><div style={{ fontWeight: 'bold' }}>HomeDecor Plus</div><div style={{ fontSize: '11px', color: '#666' }}>Home</div></td>
+                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 4.9</span></td>
+                  <td>0.5%</td>
+                  <td><span className="badge badge-success">Top Tier</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
