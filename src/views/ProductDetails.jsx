@@ -530,13 +530,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                     muted
                   />
                 ) : (
-                  <div key={index} style={{ ...baseStyle, position: 'relative', padding: 0, overflow: 'hidden' }} onClick={() => setActiveImageIndex(index)}>
-                    <LazyImage
-                      src={imgUrl}
-                      alt={`Preview ${index}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
-                  </div>
+                  <img
+                    key={index}
+                    src={imgUrl}
+                    alt={`Preview ${index}`}
+                    onClick={() => setActiveImageIndex(index)}
+                    style={{ ...baseStyle, objectFit: 'contain' }}
+                  />
                 );
               })}
             </div>
@@ -911,13 +911,12 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                   {rev.photos && rev.photos.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
                       {rev.photos.map((photo, pIdx) => (
-                        <div key={pIdx} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #e0e0e0' }}>
-                          <LazyImage 
-                            src={photo} 
-                            alt="Review attachment" 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                          />
-                        </div>
+                        <img 
+                          key={pIdx} 
+                          src={photo} 
+                          alt="Review attachment" 
+                          style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e0e0e0' }} 
+                        />
                       ))}
                     </div>
                   )}
