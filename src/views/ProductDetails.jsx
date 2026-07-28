@@ -1169,58 +1169,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
       </div>
 
-      {/* Sticky Mobile Add to Cart Bottom Bar */}
-      <div 
-        className={`sticky-bottom-bar ${showStickyCTA ? 'visible' : ''}`}
-        style={{
-          position: 'fixed',
-          bottom: 0, left: 0, right: 0,
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          borderTop: '1px solid #e2e8f0',
-          padding: '12px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          boxShadow: '0 -4px 12px rgba(0,0,0,0.05)',
-          zIndex: 1000,
-          transform: showStickyCTA ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
-      >
-        <img src={product.image} alt="Thumb" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <div style={{ fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>₹{product.price?.toLocaleString()}</div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button 
-            onClick={() => {
-              if (selectedVariant && selectedVariant.stock === 0) {
-                showToast('This variant is out of stock', 'error');
-                return;
-              }
-              if (product.inStock === false) {
-                showToast('This product is out of stock', 'error');
-                return;
-              }
-              addToCart(product, 1, selectedVariant, selectedColorModel);
-            }}
-            style={{ padding: '10px 12px', background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px' }}
-          >
-            ADD
-          </button>
-          <button 
-            onClick={() => {
-              const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-              addToCart(customProduct, 1);
-              onBuyNow(customProduct);
-            }}
-            style={{ padding: '10px 16px', background: 'linear-gradient(90deg, #f59e0b, #ea580c)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px' }}
-          >
-            BUY NOW
-          </button>
-        </div>
       </div>
 
     </>
