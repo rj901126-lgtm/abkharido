@@ -34,6 +34,12 @@ export const getUserByUsername = async (req, res, next) => {
 // @access  Private
 export const updateUserProfile = async (req, res, next) => {
   try {
+    // Check authorization: User can only update their own profile unless they are a super_admin
+    if (req.user.username !== req.params.username && req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized to update this profile');
+    }
+
     const user = await User.findOne({ username: req.params.username });
     if (user) {
       // Handle both firstName+lastName and combined fullName

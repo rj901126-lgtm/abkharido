@@ -24,12 +24,7 @@ export const protect = async (req, res, next) => {
       res.status(401).json({ error: 'Not authorized, token failed' });
     }
   } else {
-    // Fallback for legacy admin token during migration
-    const adminToken = req.headers['x-admin-token'];
-    if (adminToken === 'abkharido_master_admin_2024') {
-      req.user = { role: 'super_admin', _id: 'master_admin_legacy' };
-      return next();
-    }
+    // Removed legacy admin token fallback for security reasons
 
     res.status(401).json({ error: 'Not authorized, no token' });
   }

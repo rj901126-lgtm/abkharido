@@ -39,26 +39,39 @@ export const addOrderItems = async (req, res, next) => {
       throw new Error('No valid order items found after filtering');
     }
 
-    // Map frontend cart array to backend orderItems schema
-    // Store both MongoDB _id (if valid) and custom string id for lookup
-    const orderItems = validCart.map(item => {
+    // Map frontend cart array to backend orderItems schema and SECURELY fetch prices
+    const orderItems = await Promise.all(validCart.map(async (item) => {
       const productObj = typeof item.product === 'object' ? item.product : {};
-      // MongoDB ObjectId is in _id, custom slug id is in id field
+      
       let mongoId = (productObj._id || '').toString();
       let customId = (productObj.id || '').toString();
-      // Use mongoId if valid ObjectId, else use customId for lookup later
+      
       let pId = (mongoId.length === 24 && /^[0-9a-fA-F]{24}$/.test(mongoId))
         ? mongoId
         : (customId.length === 24 && /^[0-9a-fA-F]{24}$/.test(customId) ? customId : 'custom');
+
+      // Securely fetch the actual price from the database
+      let query = pId !== 'custom' ? { _id: pId } : { id: customId };
+      const dbProduct = await Product.findOne(query);
+
+      if (!dbProduct) {
+        throw new Error(`Product not found: ${productObj.name || customId}`);
+      }
+
+      // Check for active flash sale
+      const actualPrice = (dbProduct.flashSale && dbProduct.flashSale.isActive && dbProduct.flashSale.price > 0)
+        ? dbProduct.flashSale.price
+        : dbProduct.price;
+
       return {
         product: pId,
-        customId: customId, // keep slug for fallback lookup
-        name: productObj.name || 'Unknown Product',
-        image: productObj.image || (productObj.images && productObj.images[0]) || 'https://via.placeholder.com/150',
-        price: productObj.price || 0,
+        customId: customId,
+        name: dbProduct.name,
+        image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || 'https://via.placeholder.com/150',
+        price: actualPrice,
         qty: item.quantity || 1
       };
-    });
+    }));
 
     // Calculate Prices dynamically
     const itemsPrice = orderItems.reduce((acc, item) => acc + item.price * item.qty, 0);
