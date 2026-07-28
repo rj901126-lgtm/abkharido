@@ -440,46 +440,24 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
-                style={{ border: '1px solid #e2e8f0', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.98)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(4px)' }}
+                style={{ border: '1px solid rgba(255,255,255,0.4)', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.7)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
               >
                 {wishlist && wishlist.includes(product.id) ? (
                   <Heart size={20} fill="#ef4444" color="#ef4444" />
                 ) : (
-                  <Heart size={20} color="#64748b" />
+                  <Heart size={20} color="#475569" />
                 )}
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleShareWhatsApp(); }}
                 className="btn-icon"
-                style={{ border: '1px solid #e2e8f0', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.98)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(4px)' }}
+                style={{ border: '1px solid rgba(255,255,255,0.4)', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.7)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
               >
-                <Share2 size={20} color="#64748b" />
+                <Share2 size={20} color="#475569" />
               </button>
             </div>
 
-            {/* Rating & Reviews Pill Badge (Bottom-Left) */}
-            <div style={{ 
-              position: 'absolute', 
-              bottom: '12px', 
-              left: '12px', 
-              zIndex: 5, 
-              backgroundColor: '#ffffff', 
-              color: '#212121', 
-              padding: '4px 10px', 
-              borderRadius: '20px', 
-              fontSize: '11px', 
-              fontWeight: '700', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '4px',
-              border: '1px solid #eaeaea',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <span>{product.rating}</span> 
-              <Star size={11} fill="#388e3c" stroke="#388e3c" style={{ display: 'inline' }} /> 
-              <span style={{ color: '#ccc', margin: '0 2px' }}>|</span> 
-              <span style={{ color: '#878787' }}>{product.reviewsCount > 999 ? `${(product.reviewsCount/1000).toFixed(1)}K` : product.reviewsCount}+</span>
-            </div>
+            {/* Removed redundant rating pill */}
           </div>
 
           {/* Centered Indicator Dots below image slider */}
@@ -608,15 +586,15 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         </div>
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
-        <div className="details-info-column">
-          <div>
-            <h1 className="product-title-text" style={{ fontSize: '20px', fontWeight: 'normal', color: '#212121' }}>{product.name}</h1>
+        <div className="details-info-column" style={{ padding: '0 4px' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <h1 className="product-title-text" style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', lineHeight: '1.3', letterSpacing: '-0.3px', margin: 0 }}>{product.name}</h1>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#212121' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
-            <span style={{ fontSize: '16px', color: '#878787', textDecoration: 'line-through' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
-            <span style={{ fontSize: '16px', color: '#388e3c', fontWeight: '600' }}>{currentDisplayDiscount}% off</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+            <span style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+            <span style={{ fontSize: '13px', color: '#166534', fontWeight: '700', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
           </div>
 
           {isFlashSale && (
@@ -625,11 +603,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           )}
 
-          <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-            <span className="rating-tag" style={{ fontSize: '12px', padding: '2px 6px', borderRadius: '3px' }}>
-              {product.rating} <Star size={10} fill="white" />
+          <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px' }}>
+            <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white' }}>
+              {product.rating} <Star size={12} fill="white" />
             </span>
-            <span style={{ color: '#878787', fontSize: '13px', fontWeight: '600' }}>{(product.reviewsCount || 0).toLocaleString()} Ratings & Reviews</span>
+            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>{(product.reviewsCount || 0).toLocaleString()} Ratings & Reviews</span>
             
             {/* Proprietary A-Assured Badge Graphic */}
             <div style={{ 
