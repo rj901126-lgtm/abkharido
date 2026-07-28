@@ -176,6 +176,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
   const handleEditProduct = (prod) => {
     setEditMode(true);
+    setActiveTab('add_product');
     setId(prod.id);
     setName(prod.name);
     setCategory(prod.category || 'electronics');
@@ -1130,6 +1131,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 <Package size={18} /> Inventory
               </div>
               <div
+                className={`admin-nav-item ${activeTab === 'add_product' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('add_product'); setEditMode(false); resetForm(); setMobileMenuOpen(false); }}
+              >
+                <PlusCircle size={18} /> Add Product
+              </div>
+              <div
                 className={`admin-nav-item ${activeTab === 'cms' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('cms'); setMobileMenuOpen(false); }}
               >
@@ -1672,15 +1679,14 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
       {/* CONDITIONAL RENDER: INVENTORY TAB */}
       {activeTab === 'inventory' && (
-        <div className="admin-grid">
-        
-        {/* LEFT COLUMN: PRODUCTS AUDIT LIST */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '100%' }}>
           <AdminDataGrid onEditProduct={handleEditProduct} />
         </div>
+      )}
 
-        {/* RIGHT COLUMN: ADD NEW PRODUCT FORM */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* CONDITIONAL RENDER: ADD PRODUCT TAB */}
+      {activeTab === 'add_product' && (
+        <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
@@ -2130,8 +2136,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </div>
           </form>
         </div>
-
-      </div>
       )}
 
       {/* CONDITIONAL RENDER: PROMOTIONS & OFFERS TAB */}
