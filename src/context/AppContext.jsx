@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
   // Start with empty array, fetch from enterprise backend API
   const [products, setProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [promotions, setPromotions] = useState(null);
   
   const { data: session, status } = useSession();
   const currentUser = session ? { ...session.user, token: session.accessToken } : null;
@@ -653,7 +654,9 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         products,
+        setProducts,
         isLoadingProducts,
+        promotions,
         currentUser,
         cart,
         orders,
