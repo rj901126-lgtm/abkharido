@@ -18,7 +18,13 @@ import {
   // eslint-disable-next-line
   ChevronLeft,
   ChevronRight,
-  Heart
+  Heart,
+  Store,
+  Sparkles,
+  TrendingUp,
+  Tag,
+  Truck,
+  Plus
 } from 'lucide-react';
 import '../assets/styles/product.css';
 import CountdownTimer from '../components/CountdownTimer';
