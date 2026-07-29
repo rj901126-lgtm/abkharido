@@ -185,13 +185,31 @@
     border-bottom: 1px solid rgba(0,0,0,0.04);
     aspect-ratio: 1 / 1;
     height: auto;
-    max-height: 60vh; /* Ensure image doesn't take up entire screen height */
+    max-height: 60vh;
     background-color: #f8fafc;
     margin-bottom: 24px;
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    position: relative;
-    left: 0;
+    /* Container padding is 24px here */
+    width: calc(100% + 48px);
+    margin-left: -24px;
+    margin-right: -24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-image-frame {
+    /* Container padding is 16px here */
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-image-frame {
+    /* Container padding is 12px here */
+    width: calc(100% + 24px);
+    margin-left: -12px;
+    margin-right: -12px;
   }
 }
 
