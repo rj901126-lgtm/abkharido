@@ -586,6 +586,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               </div>
             </div>
         </div>
+        </div>
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
         <div className="details-info-column" style={{ padding: '0 4px' }}>
@@ -1173,7 +1174,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
         </div>
 
-      </div>
     </>
   );
 };
