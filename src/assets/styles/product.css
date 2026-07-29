@@ -146,8 +146,6 @@
     border: none;
     box-shadow: none;
     border-radius: 0;
-    max-width: 100%;
-    overflow: hidden;
   }
 }
 
@@ -187,12 +185,13 @@
     border-bottom: 1px solid rgba(0,0,0,0.04);
     aspect-ratio: 1 / 1;
     height: auto;
-    max-height: 500px;
+    max-height: 60vh; /* Ensure image doesn't take up entire screen height */
     background-color: #f8fafc;
     margin-bottom: 24px;
-    width: calc(100% + 32px);
-    margin-left: -16px;
-    margin-right: -16px;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    position: relative;
+    left: 0;
   }
 }
 
@@ -260,7 +259,7 @@
     min-width: fit-content;
   }
   .details-info-column {
-    padding: 16px 16px 140px 16px !important;
+    padding: 0 0 140px 0 !important;
   }
 }
 
