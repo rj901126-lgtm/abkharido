@@ -394,9 +394,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         <meta property="og:type" content="product" />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
-    <div className="container animate-fade-in-only" style={{ paddingTop: '0', paddingBottom: '80px' }}>
-
-
+    <div className="container product-page-container animate-fade-in-only" style={{ paddingTop: '0', paddingBottom: '80px' }}>
 
       <div className="details-page-grid">
         {/* Left Column: Image and Purchase Actions */}
