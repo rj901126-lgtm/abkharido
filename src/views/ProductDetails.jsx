@@ -1176,9 +1176,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         </div>
 
       </div>
-
-      </div>
-
     </>
   );
 };
