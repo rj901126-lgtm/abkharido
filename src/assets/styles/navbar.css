@@ -333,14 +333,36 @@
 }
 
 @media (max-width: 768px) {
+  .navbar-header {
+    height: calc(64px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
   .navbar-container {
     gap: 12px;
+    padding: 0 12px;
   }
   .navbar-right {
-    gap: 12px;
+    gap: 16px;
   }
   .nav-text {
-    display: none; /* Hide label text, show only icons on mobile */
+    display: none;
+  }
+  .logo-text {
+    font-size: 18px;
+  }
+  .search-input-wrapper {
+    border-radius: 99px;
+    background-color: #f1f5f9;
+  }
+  .search-input {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .search-button {
+    padding: 0 12px;
   }
   .cat-container {
     display: flex !important;

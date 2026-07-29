@@ -633,77 +633,85 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           </div>
 
-          {/* Color Variation Selection (AbKharido style) */}
+          {/* Color Variation Selection (Enterprise style) */}
           {colorModels.length > 0 && (
-            <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
-              <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
-                Selected Color: <span style={{ color: '#212121', fontWeight: 'bold' }}>{activeColor ? activeColor.name : ''}</span>
+            <div style={{ marginTop: '24px' }}>
+              <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500', marginBottom: '12px' }}>
+                Color: <span style={{ color: '#0f172a', fontWeight: '700' }}>{activeColor ? activeColor.name : ''}</span>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                {colorModels.map((c, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedColor(c)}
-                    style={{
-                      position: 'relative',
-                      border: activeColor && activeColor.name === c.name ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
-                      borderRadius: '4px',
-                      padding: '2px',
-                      backgroundColor: 'white',
-                      cursor: 'pointer',
-                      width: '60px',
-                      height: '60px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxSizing: 'border-box',
-                      boxShadow: activeColor && activeColor.name === c.name ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
-                      transition: 'all 0.1s'
-                    }}
-                  >
-                    <LazyImage src={c.primaryImage} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  </button>
-                ))}
+              <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
+                <style>{`.color-scroll::-webkit-scrollbar { display: none; }`}</style>
+                <div className="color-scroll" style={{ display: 'flex', gap: '12px' }}>
+                  {colorModels.map((c, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedColor(c)}
+                      style={{
+                        position: 'relative',
+                        border: activeColor && activeColor.name === c.name ? '2px solid var(--primary-color)' : '1px solid #e2e8f0',
+                        borderRadius: '50%',
+                        padding: '2px',
+                        backgroundColor: 'white',
+                        cursor: 'pointer',
+                        width: '56px',
+                        height: '56px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        boxSizing: 'border-box',
+                        boxShadow: activeColor && activeColor.name === c.name ? '0 4px 12px rgba(79, 70, 229, 0.2)' : 'none',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: activeColor && activeColor.name === c.name ? 'scale(1.05)' : 'scale(1)'
+                      }}
+                    >
+                      <LazyImage src={c.primaryImage} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Variant Selection (AbKharido style) */}
+          {/* Variant Selection (Enterprise style) */}
           {variantsList.length > 0 && (
-            <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
-              <div style={{ fontSize: '13px', color: '#878787', fontWeight: '600', marginBottom: '8px' }}>
-                Variant: <span style={{ color: '#212121', fontWeight: 'bold' }}>{activeVariant ? activeVariant.name : ''}</span>
+            <div style={{ marginTop: '24px' }}>
+              <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500', marginBottom: '12px' }}>
+                Size/Variant: <span style={{ color: '#0f172a', fontWeight: '700' }}>{activeVariant ? activeVariant.name : ''}</span>
               </div>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {variantsList.map((v, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedVariant(v)}
                     style={{
-                      border: activeVariant && activeVariant.name === v.name ? '2px solid #212121' : '1px solid #e0e0e0',
-                      borderRadius: '6px',
-                      padding: '8px 12px',
-                      backgroundColor: 'white',
+                      border: activeVariant && activeVariant.name === v.name ? '2px solid var(--primary-color)' : '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      backgroundColor: activeVariant && activeVariant.name === v.name ? '#f5f7ff' : 'white',
                       cursor: 'pointer',
                       textAlign: 'left',
-                      minWidth: '120px',
+                      minWidth: '130px',
+                      flex: '1 1 auto',
                       boxSizing: 'border-box',
-                      boxShadow: activeVariant && activeVariant.name === v.name ? '0 1px 5px rgba(0,0,0,0.05)' : 'none',
-                      transition: 'all 0.1s',
+                      boxShadow: activeVariant && activeVariant.name === v.name ? '0 4px 12px rgba(79, 70, 229, 0.1)' : '0 2px 4px rgba(0,0,0,0.02)',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       position: 'relative'
                     }}
                   >
-                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#212121' }}>{v.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
-                       <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#388e3c' }}>↓{v.discount}%</span>
-                       <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: activeVariant && activeVariant.name === v.name ? 'var(--primary-color)' : '#0f172a' }}>{v.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                       <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>₹{(v.price || 0).toLocaleString('en-IN')}</span>
+                       {v.originalPrice > v.price && (
+                         <span style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
+                       )}
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginTop: '2px' }}>₹{(v.price || 0).toLocaleString('en-IN')}</div>
                     
                     {/* Low stock tag */}
                     {v.stock <= 5 && (
-                      <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: '#ef4444', padding: '2px 4px', borderRadius: '4px', marginTop: '6px', display: 'inline-block' }}>
-                        Hurry! Only {v.stock} left
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#dc2626', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#dc2626' }}></span>
+                        Only {v.stock} left
                       </div>
                     )}
                   </button>

@@ -182,13 +182,17 @@
 
 @media (max-width: 900px) {
   .main-image-frame {
-    border-radius: 16px;
-    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
     aspect-ratio: 1 / 1;
     height: auto;
-    max-height: 450px;
-    background-color: #ffffff;
-    margin-bottom: 16px;
+    max-height: 500px;
+    background-color: #f8fafc;
+    margin-bottom: 24px;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
   }
 }
 
