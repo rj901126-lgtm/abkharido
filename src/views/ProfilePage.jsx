@@ -49,12 +49,24 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
   const wishlistProducts = products ? products.filter(p => wishlist?.includes(p.id)) : [];
 
+  // Sync state with currentUser when not editing or when currentUser updates
+  React.useEffect(() => {
+    if (!isEditing && currentUser) {
+      setFirstName(currentUser.firstName || '');
+      setLastName(currentUser.lastName || '');
+      setEmailInput(currentUser.email || '');
+      setPincodeInput(currentUser.pincode || '');
+      setAddressInput(currentUser.address || '');
+    }
+  }, [isEditing, currentUser]);
+
   // Check if inputs differ from database values
   const hasChanges = 
     firstName !== (currentUser.firstName || '') ||
     lastName !== (currentUser.lastName || '') ||
     pincodeInput !== (currentUser.pincode || '') ||
-    addressInput !== (currentUser.address || '');
+    addressInput !== (currentUser.address || '') ||
+    emailInput !== (currentUser.email || '');
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -76,7 +88,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       pincode: pincodeInput.trim(),
-      address: addressInput.trim()
+      address: addressInput.trim(),
+      email: emailInput.trim()
     });
 
     if (success) {
