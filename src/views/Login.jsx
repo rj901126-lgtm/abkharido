@@ -377,6 +377,7 @@ const Login = ({ onNavigate }) => {
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
                     className="lp-input lp-input-phone"
                     inputMode="numeric"
+                    disabled={isSending}
                     required
                   />
                   <Phone size={16} className="lp-input-icon-right" />
