@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 // eslint-disable-next-line
-import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp, Download, Search, Filter } from 'lucide-react';
+import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp, ChevronRight, Download, Search, Filter } from 'lucide-react';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Orders = ({ onNavigate }) => {
@@ -194,38 +194,39 @@ const Orders = ({ onNavigate }) => {
           
           if (!isExpanded) {
             return (
-              <div key={order._id} className="order-card hover-lift" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setExpandedOrderId(order._id)}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-                  <div>
-                    <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>Order #{String(order._id).substring(String(order._id).length - 8).toUpperCase()}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}><Calendar size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }}/> {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+              <div key={order._id} style={{ cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', background: '#fff', border: '1px solid #f1f5f9', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', transition: 'all 0.2s' }} onClick={() => setExpandedOrderId(order._id)}>
+                {order.orderItems && order.orderItems.length > 0 ? (
+                  <div style={{ width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
+                    <img src={order.orderItems[0].image} alt={order.orderItems[0].name} style={{ maxWidth: '85%', maxHeight: '85%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary-color)' }}>₹{(order.totalPrice || 0).toLocaleString('en-IN')}</div>
-                    <span className={`badge ${order.status === 'CANCELLED' ? 'badge-error' : 'badge-info'}`} style={{ backgroundColor: order.status === 'CANCELLED' ? '#fee2e2' : '#e0e7ff', color: order.status === 'CANCELLED' ? '#ef4444' : '#4338ca', fontSize: '10px', padding: '4px 8px', marginTop: '6px', display: 'inline-block', fontWeight: 'bold', borderRadius: '4px' }}>
-                      {order.status.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-                
-                {order.orderItems && order.orderItems.length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '56px', height: '56px', backgroundColor: '#f8fafc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid #e2e8f0' }}>
-                      <img src={order.orderItems[0].image} alt={order.orderItems[0].name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.orderItems[0].name}</div>
-                      {order.orderItems.length > 1 && (
-                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: '500' }}>+ {order.orderItems.length - 1} more item(s)</div>
-                      )}
-                    </div>
-                    <div>
-                       <button className="btn btn-outline btn-sm" style={{ padding: '6px 14px', fontSize: '13px', margin: 0, borderRadius: '6px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={(e) => { e.stopPropagation(); setExpandedOrderId(order._id); }}>
-                         Details <ChevronDown size={14} />
-                       </button>
-                    </div>
+                ) : (
+                  <div style={{ width: '70px', height: '70px', borderRadius: '8px', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
+                    <ShoppingBag size={24} color="#94a3b8" />
                   </div>
                 )}
+                
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: order.status === 'CANCELLED' ? '#ef4444' : order.status === 'Delivered' ? '#059669' : '#d97706', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {order.status === 'Delivered' ? 'Delivered' : order.status}
+                    {order.status === 'Delivered' && <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'none', fontWeight: '500' }}>on {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>}
+                  </div>
+                  
+                  {order.orderItems && order.orderItems.length > 0 && (
+                    <div style={{ fontSize: '15px', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {order.orderItems[0].name}
+                    </div>
+                  )}
+                  
+                  {order.orderItems && order.orderItems.length > 1 && (
+                    <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>
+                      +{order.orderItems.length - 1} more item{order.orderItems.length - 1 > 1 ? 's' : ''}
+                    </div>
+                  )}
+                </div>
+                
+                <div style={{ paddingLeft: '4px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
+                  <ChevronRight size={24} />
+                </div>
               </div>
             );
           }
