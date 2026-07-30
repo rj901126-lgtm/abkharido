@@ -11,12 +11,9 @@ const AdminAnalytics = () => {
   const [salesData, setSalesData] = useState([]);
   const [kpis, setKpis] = useState({
     totalUsers: 0,
-    // eslint-disable-next-line
-    totalProducts: 0,
-    // eslint-disable-next-line
-    totalOrders: 0,
     totalProducts: 0,
     totalOrders: 0,
+    liveOrders: 0,
     totalRevenue: 0,
     clv: 0,
     retentionRate: 0
@@ -124,7 +121,7 @@ const AdminAnalytics = () => {
             <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               <span className="live-pulse-dot" style={{ backgroundColor: '#f59e0b', boxShadow: '0 0 0 0 rgba(245, 158, 11, 0.7)' }}></span> Live Orders
             </p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>{kpis.totalOrders}</h3>
+            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '800' }}>{kpis.liveOrders !== undefined ? kpis.liveOrders : kpis.totalOrders}</h3>
           </div>
         </div>
 

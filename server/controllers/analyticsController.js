@@ -51,6 +51,7 @@ export const getKPIs = async (req, res, next) => {
     const totalUsers = await User.countDocuments({});
     const totalProducts = await Product.countDocuments({});
     const totalOrders = await Order.countDocuments({});
+    const liveOrders = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled'] } });
     
     const revenueResult = await Order.aggregate([
       { $match: { isPaid: true } },
@@ -79,6 +80,7 @@ export const getKPIs = async (req, res, next) => {
       totalUsers,
       totalProducts,
       totalOrders,
+      liveOrders,
       totalRevenue,
       clv: parseFloat(clv),
       retentionRate: parseFloat(retentionRate)
