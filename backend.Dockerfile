@@ -7,7 +7,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV MONGOMS_DISABLE_POSTINSTALL=1
 ENV NODE_OPTIONS="--max_old_space_size=1024"
-RUN npm install --omit=dev --no-audit --no-fund
+RUN npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
 
 COPY . .
 
