@@ -123,37 +123,35 @@ const Orders = ({ onNavigate }) => {
       </h1>
 
       {/* Search and Filters Bar */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', alignItems: 'center', backgroundColor: '#fff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ flex: '1 1 250px', position: 'relative' }}>
-          <Search size={18} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+      <div className="orders-filter-bar">
+        <div className="search-wrapper">
+          <Search size={18} color="#94a3b8" />
           <input 
             type="text" 
             placeholder="Search all orders, products, or IDs" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: '100%', padding: '10px 10px 10px 38px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
           />
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#f8fafc', padding: '2px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-            <Filter size={16} color="#64748b" style={{ marginLeft: '8px' }} />
+        <div className="filter-dropdowns">
+          <div className="filter-dropdown">
+            <Filter size={14} color="#64748b" style={{ marginLeft: '10px' }} />
             <select 
               value={statusFilter} 
               onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', outline: 'none', fontSize: '13px', color: '#334155', cursor: 'pointer', fontWeight: '500' }}
             >
               <option value="all">All Status</option>
-              <option value="processing">Not Yet Shipped</option>
+              <option value="processing">Not Shipped</option>
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
               <option value="returned">Returned</option>
             </select>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', padding: '2px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+          <div className="filter-dropdown">
             <select 
               value={timeFilter} 
               onChange={(e) => setTimeFilter(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', outline: 'none', fontSize: '13px', color: '#334155', cursor: 'pointer', fontWeight: '500' }}
+              style={{ paddingLeft: '12px' }}
             >
               <option value="all">All Time</option>
               <option value="30days">Last 30 days</option>
