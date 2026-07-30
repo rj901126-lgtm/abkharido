@@ -74,13 +74,16 @@ export const AppProvider = ({ children }) => {
   // --- Fetch Data on Mount ---
   useEffect(() => {
     fetchProducts();
-    if (currentUser) {
-      fetchUser(currentUser.username);
-      // eslint-disable-next-line
-      fetchOrders(currentUser.email);
-    }
     fetchStats();
   }, []);
+
+  // --- Fetch User Data when Session Loads ---
+  useEffect(() => {
+    if (session?.user?.name) {
+      fetchUser(session.user.name);
+      fetchOrders(session.user.email);
+    }
+  }, [session?.user?.name, session?.user?.email]);
 
   // --- Sync Temporary Cart details ---
   useEffect(() => {

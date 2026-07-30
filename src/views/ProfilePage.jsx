@@ -58,15 +58,71 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
   if (!currentUser) {
     return (
-      <div className="container animate-fade-in" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '80px', height: '80px', backgroundColor: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
-          <User size={40} color="#94a3b8" />
+      <div className="container animate-fade-in" style={{ padding: '20px', minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+        <div style={{ background: 'white', padding: '40px 32px', borderRadius: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.08)', border: '1px solid #f1f5f9', maxWidth: '420px', width: '100%', position: 'relative', overflow: 'hidden' }}>
+          
+          {/* Decorative glowing blobs */}
+          <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(79,70,229,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
+          <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
+          
+          <div style={{ position: 'relative', width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 10px 25px -5px rgba(79,70,229,0.2)' }}>
+            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'linear-gradient(135deg, #4f46e5, #9333ea)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <User size={34} color="white" strokeWidth={2.5} />
+            </div>
+            <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', background: '#fff', padding: '4px', borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+              <div style={{ background: '#10b981', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ShieldAlert size={12} color="white" />
+              </div>
+            </div>
+          </div>
+          
+          <h2 style={{ fontWeight: '900', fontSize: '26px', color: '#0f172a', marginBottom: '12px', letterSpacing: '-0.5px', position: 'relative', zIndex: 1 }}>
+            Unlock Your Profile
+          </h2>
+          
+          <p style={{ color: '#64748b', fontSize: '15px', lineHeight: '1.6', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
+            Sign in to access your dashboard, track orders, and redeem <span style={{ fontWeight: '700', color: '#f59e0b' }}>AB Coins</span>.
+          </p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f8fafc', padding: '12px 16px', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+              <ShoppingBag size={18} color="#4f46e5" />
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#334155' }}>Track All Your Orders</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fef3c7', padding: '12px 16px', borderRadius: '16px', border: '1px solid #fde68a' }}>
+              <Coins size={18} color="#d97706" />
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#92400e' }}>Earn 5% Cashback in AB Coins</span>
+            </div>
+          </div>
+          
+          <button 
+            className="btn btn-primary" 
+            style={{ 
+              width: '100%',
+              padding: '16px 32px', 
+              fontSize: '16px', 
+              fontWeight: '700',
+              borderRadius: '16px', 
+              background: 'linear-gradient(135deg, #4f46e5, #6366f1)',
+              boxShadow: '0 10px 25px -5px rgba(79, 70, 229, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              position: 'relative', 
+              zIndex: 1
+            }} 
+            onClick={() => onNavigate('login')}
+          >
+            Sign In to Continue <ArrowRight size={18} />
+          </button>
+          
+          <p style={{ marginTop: '20px', fontSize: '13px', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
+            New to AbKharido? <span onClick={() => onNavigate('login')} style={{ color: '#4f46e5', fontWeight: '700', cursor: 'pointer' }}>Create an Account</span>
+          </p>
         </div>
-        <h2 style={{ fontWeight: '800', fontSize: '28px', color: '#1e293b', marginBottom: '12px' }}>Please Log In</h2>
-        <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', marginBottom: '32px' }}>Access your personalized profile, order history, and exclusive AbKharido rewards by logging in to your account.</p>
-        <button className="btn btn-primary" style={{ padding: '14px 32px', fontSize: '16px', borderRadius: '12px', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.2)' }} onClick={() => onNavigate('login')}>
-          Sign In / Register
-        </button>
       </div>
     );
   }

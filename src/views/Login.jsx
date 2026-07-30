@@ -10,6 +10,13 @@ const Login = ({ onNavigate }) => {
   const { currentUser, showToast } = useApp();
   
   const [phone, setPhone] = useState('');
+  
+  useEffect(() => {
+    const savedPhone = localStorage.getItem('abkharido_login_phone');
+    if (savedPhone) {
+      setPhone(savedPhone);
+    }
+  }, []);
   const [showOtpScreen, setShowOtpScreen] = useState(false);
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [generatedOtp, setGeneratedOtp] = useState('');
@@ -55,6 +62,23 @@ const Login = ({ onNavigate }) => {
       if (ac) ac.abort();
     };
   }, [showOtpScreen, timer]);
+
+  // Session recovery logic: mobile browsers often reload when returning from background
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const wasOnOtp = sessionStorage.getItem('abkharido_was_on_otp');
+      if (wasOnOtp === 'true') {
+        showToast('Browser session refreshed. Please request OTP again.', 'info');
+        sessionStorage.removeItem('abkharido_was_on_otp');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('abkharido_was_on_otp', showOtpScreen ? 'true' : 'false');
+    }
+  }, [showOtpScreen]);
 
   const validatePhone = () => {
     const phoneRegex = /^[6-9]\d{9}$/;
@@ -374,7 +398,11 @@ const Login = ({ onNavigate }) => {
                     type="tel"
                     placeholder="Mobile Number"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').substring(0, 10);
+                      setPhone(val);
+                      localStorage.setItem('abkharido_login_phone', val);
+                    }}
                     className="lp-input lp-input-phone"
                     inputMode="numeric"
                     disabled={isSending}
