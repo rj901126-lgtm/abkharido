@@ -15,7 +15,8 @@ export const AppProvider = ({ children }) => {
   const [promotions, setPromotions] = useState(null);
   
   const { data: session, status } = useSession();
-  const currentUser = session ? { ...session.user, token: session.accessToken } : null;
+  const [dbUser, setDbUser] = useState(null);
+  const currentUser = session ? { ...session.user, token: session.accessToken, ...(dbUser || {}) } : null;
 
   const [cart, setCart] = useState(() => {
     try {
@@ -192,9 +193,8 @@ export const AppProvider = ({ children }) => {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
-        // With NextAuth, the session is the source of truth.
-        // We just fetch it to ensure the backend is alive/synced, 
-        // but state is managed by useSession.
+        const userData = await res.json();
+        setDbUser(userData);
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to sync user profile:', err);
@@ -394,7 +394,8 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(details)
       });
       if (res.ok) {
-        showToast('Profile updated. Please log in again to see changes.', 'success');
+        fetchUser(currentUser.username);
+        showToast('Profile updated successfully!', 'success');
         return true;
       } else {
         const err = await res.json();
@@ -508,7 +509,7 @@ export const AppProvider = ({ children }) => {
         return false;
       }
       const data = await res.json();
-      setCurrentUser(data);
+      setDbUser(data);
       localStorage.setItem('abkharido_user_session', JSON.stringify(data));
       showToast('Shop registered! Awaiting admin approval.', 'success');
       return true;
@@ -540,7 +541,7 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        setCurrentUser(data.user);
+        setDbUser(data.user);
         localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
         fetchStats();
         showToast(`Payout request of ₹${amount} submitted successfully!`, 'success');
@@ -617,7 +618,7 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
-          setCurrentUser(data.user);
+          setDbUser(data.user);
           localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
           fetchOrders(currentUser.email);
           fetchStats();
