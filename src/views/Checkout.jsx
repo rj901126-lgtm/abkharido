@@ -5,8 +5,13 @@ import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
-  const { cart, currentUser, placeOrder, showToast, verifyPayment, updateUserProfile } = useApp();
+  const { cart, currentUser, placeOrder, showToast, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards } = useApp();
   const [step, setStep] = useState(1); // 1: Address, 2: Summary, 3: Payment, 4: Success
+  const [selectedSavedCard, setSelectedSavedCard] = useState(null);
+
+  useEffect(() => {
+    fetchUserSavedCards();
+  }, []);
 
   // Form states
   const [address, setAddress] = useState({
@@ -635,6 +640,54 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           <form onSubmit={handlePaymentSubmit}>
             <div className="checkout-form">
               
+              {/* Saved Cards Section */}
+              {savedCards && savedCards.length > 0 && (
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', marginLeft: '4px' }}>Saved Cards</div>
+                  {savedCards.map(card => (
+                    <div 
+                      key={card.instrument_id}
+                      className={`checkout-payment-option ${paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'active' : ''}`}
+                      onClick={() => {
+                        setPaymentMethod('Online Payment');
+                        setSelectedSavedCard(card.instrument_id);
+                      }}
+                      style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '12px' }}
+                    >
+                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid', borderColor: paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--primary-color)' : '#cbd5e1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        {paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary-color)' }} />}
+                      </div>
+                      <CreditCard size={20} color={paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--primary-color)' : '#64748b'} />
+                      <div>
+                        <div style={{ fontWeight: '600', color: paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--primary-color)' : '#334155', textTransform: 'capitalize' }}>
+                          {card.card_bank_name ? `${card.card_bank_name} ` : ''}{card.card_network} •••• {card.last4}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#64748b' }}>Saved securely via Cashfree Token Vault</div>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', marginLeft: '4px', marginTop: '16px' }}>Other Methods</div>
+                </div>
+              )}
+
+              {/* Standard Online Payment */}
+              <div 
+                className={`checkout-payment-option ${paymentMethod === 'Online Payment' && !selectedSavedCard ? 'active' : ''}`}
+                onClick={() => {
+                  setPaymentMethod('Online Payment');
+                  setSelectedSavedCard(null);
+                }}
+                style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '12px' }}
+              >
+                <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid', borderColor: paymentMethod === 'Online Payment' && !selectedSavedCard ? 'var(--primary-color)' : '#cbd5e1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  {paymentMethod === 'Online Payment' && !selectedSavedCard && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary-color)' }} />}
+                </div>
+                <div>
+                  <div style={{ fontWeight: '600', color: paymentMethod === 'Online Payment' && !selectedSavedCard ? 'var(--primary-color)' : '#334155' }}>Online Payment (UPI, Cards, Netbanking)</div>
+                  <div style={{ fontSize: '13px', color: '#64748b' }}>Pay via Cashfree secure gateway.</div>
+                </div>
+              </div>
+
               {/* COD */}
               <label className={`checkout-payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
                 <input 
@@ -642,7 +695,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   name="payment" 
                   value="cod" 
                   checked={paymentMethod === 'cod'}
-                  onChange={() => setPaymentMethod('cod')}
+                  onChange={() => { setPaymentMethod('cod'); setSelectedSavedCard(null); }}
                   style={{ width: '18px', height: '18px', marginTop: '2px' }}
                 />
                 <div style={{ flex: 1 }}>

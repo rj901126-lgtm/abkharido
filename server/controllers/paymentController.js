@@ -177,3 +177,79 @@ export const processCashfreeRefund = async (cfOrderId, amount) => {
     return false;
   }
 };
+
+
+// @desc    Fetch Saved Cards (Token Vault) from Cashfree
+// @route   GET /api/payment/saved-cards
+// @access  Private
+export const fetchSavedCards = async (req, res, next) => {
+  try {
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    const isProd = process.env.CASHFREE_PROD === "true";
+
+    if (!appId || !secretKey) {
+      // Return simulated saved cards for local development without keys
+      return res.json([
+        {
+          instrument_id: "simulated_inst_1",
+          card_network: "visa",
+          card_type: "credit_card",
+          last4: "4242",
+          card_bank_name: "HDFC Bank"
+        },
+        {
+          instrument_id: "simulated_inst_2",
+          card_network: "mastercard",
+          card_type: "debit_card",
+          last4: "8888",
+          card_bank_name: "SBI"
+        }
+      ]);
+    }
+
+    const customerId = (req.user.username && req.user.username.replace(/[^a-zA-Z0-9_-]/g, "")) || `guest_${Date.now()}`;
+    const url = isProd 
+      ? `https://api.cashfree.com/pg/customers/${customerId}/instruments`
+      : `https://sandbox.cashfree.com/pg/customers/${customerId}/instruments`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "x-client-id": appId,
+        "x-client-secret": secretKey,
+        "x-api-version": "2023-08-01"
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Customer not found means no saved cards yet
+        return res.json([]);
+      }
+      const errText = await response.text();
+      console.error("Cashfree Instruments API failed:", errText);
+      return res.json([]); // Return empty array on error so UI doesnt break
+    }
+
+    const data = await response.json();
+    
+    // Cashfree returns an array of instruments
+    if (data && Array.isArray(data)) {
+      const cards = data.map(inst => ({
+        instrument_id: inst.instrument_id,
+        card_network: inst.instrument_display?.card_network || "unknown",
+        card_type: inst.instrument_display?.card_type || "card",
+        last4: inst.instrument_display?.card_number?.slice(-4) || "****",
+        card_bank_name: inst.instrument_display?.card_bank_name || ""
+      }));
+      return res.json(cards);
+    }
+    
+    res.json([]);
+  } catch (error) {
+    console.error("Cashfree Fetch Cards error:", error);
+    res.json([]); // Fail silently for UX
+  }
+};
+

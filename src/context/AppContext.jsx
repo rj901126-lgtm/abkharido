@@ -56,6 +56,8 @@ export const AppProvider = ({ children }) => {
     } catch { return []; }
   });
 
+  const [savedCards, setSavedCards] = useState([]);
+
   // --- Secure Storage Helper (Prevent DOS via QuotaExceededError) ---
   const safeSetItem = (key, value) => {
     try {
@@ -217,6 +219,22 @@ export const AppProvider = ({ children }) => {
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to sync user profile:', err);
+    }
+  };
+
+  const fetchUserSavedCards = async () => {
+    const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session'))?.token;
+    if (!token) return;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/saved-cards`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedCards(data);
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to fetch saved cards:', err);
     }
   };
 
@@ -718,7 +736,9 @@ export const AppProvider = ({ children }) => {
         cancelOrder,
         wishlist,
         toggleWishlist,
-        registerAsSeller
+        registerAsSeller,
+        savedCards,
+        fetchUserSavedCards
       }}
     >
       {children}
