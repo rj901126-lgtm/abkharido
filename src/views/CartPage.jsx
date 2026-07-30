@@ -196,20 +196,43 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         </div>
 
         {currentUser && userCoins > 0 && (
-          <div className="coins-redeem-banner">
-            <div className="cart-coins-details">
-              <Coins size={24} color="#f59e0b" />
-              <div className="cart-coins-text-group">
-                <div className="cart-coins-title">Redeem Coins</div>
-                <div className="cart-coins-subtitle">Apply max {maxCoinsToRedeem} coins (Save ₹{maxCoinsToRedeem})</div>
+          <div style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1px solid #fde68a', borderRadius: '16px', padding: '16px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: 'white', padding: '10px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(245, 158, 11, 0.3)' }}>
+                <Coins size={24} />
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '800', color: '#b45309', marginBottom: '2px' }}>AB Coin Wallet</div>
+                <div style={{ fontSize: '13px', color: '#d97706', fontWeight: '500' }}>Save ₹{maxCoinsToRedeem.toLocaleString('en-IN')} instantly</div>
               </div>
             </div>
-            <input 
-              type="checkbox" 
-              checked={useCoinsDiscount}
-              onChange={() => setUseCoinsDiscount(!useCoinsDiscount)}
-              className="coins-checkbox" 
-            />
+            
+            {/* Custom Premium Toggle Switch */}
+            <div 
+              onClick={() => setUseCoinsDiscount(!useCoinsDiscount)}
+              style={{
+                width: '50px',
+                height: '28px',
+                borderRadius: '50px',
+                background: useCoinsDiscount ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : '#e2e8f0',
+                position: 'relative',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: useCoinsDiscount ? 'inset 0 2px 4px rgba(0,0,0,0.1)' : 'none'
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '2px',
+                left: useCoinsDiscount ? '24px' : '2px',
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: 'white',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+              }} />
+            </div>
           </div>
         )}
 
@@ -228,8 +251,8 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
           {coinsDiscount > 0 && (
             <div className="price-row-item">
-              <span>Coins Redeemed</span>
-              <span className="cart-coins-value">- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#b45309', fontWeight: '600' }}><Coins size={14} /> AB Coins</span>
+              <span style={{ color: '#b45309', fontWeight: '700' }}>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
             </div>
           )}
 

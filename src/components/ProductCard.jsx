@@ -93,16 +93,21 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         )}
 
         {/* Dynamic Affiliate / Referral Earning Banner */}
-        <div className="product-card-reward-banner" style={styles.rewardBanner}>
-          <Award size={14} color="var(--primary-color)" style={{ flexShrink: 0 }} />
-          <div style={styles.rewardText}>
-            {currentUser && currentUser.isInfluencer ? (
+        {currentUser && currentUser.isInfluencer ? (
+          <div className="product-card-reward-banner" style={styles.rewardBanner}>
+            <Award size={14} color="var(--primary-color)" style={{ flexShrink: 0 }} />
+            <div style={styles.rewardText}>
               <span>Earn <strong style={{ color: 'var(--success)' }}>₹{influencerEarningsCash}</strong> cash</span>
-            ) : (
-              <span>Earn <strong style={{ color: '#e68f00' }}>{userEarningsCoins}</strong> Coins</span>
-            )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{ marginTop: '12px', background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '8px', width: 'fit-content', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.15)' }}>
+            <span style={{ fontSize: '14px' }}>✨</span>
+            <span style={{ fontSize: '12px', color: '#b45309', fontWeight: '700', letterSpacing: '0.2px' }}>
+              Earn <span style={{ fontSize: '14px', fontWeight: '900', background: 'linear-gradient(to right, #ea580c, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{userEarningsCoins}</span> AB Coins
+            </span>
+          </div>
+        )}
 
         {/* Quick Add To Cart */}
         <button className="product-add-to-cart-btn" style={styles.addBtn} onClick={handleAddToCart}>

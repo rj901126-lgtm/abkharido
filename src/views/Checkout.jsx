@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag, Download } from 'lucide-react';
+import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag, Download, Coins } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
@@ -596,9 +596,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               <span>₹{itemsPrice.toLocaleString('en-IN')}</span>
             </div>
             {useCoinsDiscount && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: '#e68f00' }}>
-                <span>Redeemed Coins Discount:</span>
-                <span>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: '#b45309', fontWeight: '600' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Coins size={14} /> AB Coins Redeemed:</span>
+                <span style={{ fontWeight: '700' }}>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
               </div>
             )}
             {appliedCoupon && (
