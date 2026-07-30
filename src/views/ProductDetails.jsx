@@ -591,13 +591,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         {/* Right Column: Details, Specifications and Affiliate Link */}
         <div className="details-info-column" style={{ padding: '0 4px' }}>
           <div style={{ marginBottom: '12px' }}>
-            <h1 className="product-title-text" style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', lineHeight: '1.3', letterSpacing: '-0.3px', margin: 0 }}>{product.name}</h1>
+            <h1 className="product-title-text desktop-premium-title" style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', lineHeight: '1.3', letterSpacing: '-0.3px', margin: 0 }}>{product.name}</h1>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
-            <span style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
-            <span style={{ fontSize: '13px', color: '#166534', fontWeight: '700', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
+          <div className="desktop-premium-price-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
+            <span className="desktop-premium-price" style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+            <span className="desktop-premium-original" style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+            <span className="desktop-premium-discount" style={{ fontSize: '13px', color: '#166534', fontWeight: '700', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
           </div>
 
           {isFlashSale && (
@@ -644,6 +644,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                   {colorModels.map((c, i) => (
                     <button
                       key={i}
+                      className="desktop-premium-color-btn"
                       onClick={() => setSelectedColor(c)}
                       style={{
                         position: 'relative',
@@ -682,6 +683,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 {variantsList.map((v, i) => (
                   <button
                     key={i}
+                    className="desktop-premium-variant-btn"
                     onClick={() => setSelectedVariant(v)}
                     style={{
                       border: activeVariant && activeVariant.name === v.name ? '2px solid var(--primary-color)' : '1px solid #e2e8f0',
@@ -721,14 +723,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
 
           {/* Trust Badges */}
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <div className="desktop-premium-trust-container" style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
+            <div className="desktop-premium-trust-badge" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
               <ShieldCheck size={16} color="#4f46e5" /> 100% Original
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div className="desktop-premium-trust-badge" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
               <Zap size={16} color="#eab308" /> Fast Delivery
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div className="desktop-premium-trust-badge" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
               <Check size={16} color="#10b981" /> Easy Returns
             </div>
           </div>

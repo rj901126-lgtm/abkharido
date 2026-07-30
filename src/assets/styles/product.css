@@ -969,3 +969,161 @@
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   PREMIUM DESKTOP UPGRADE - ONLY AFFECTS SCREENS WIDER THAN 1024px
+   ========================================================================== */
+@media (min-width: 1024px) {
+  /* Main Container & Grid */
+  .product-page-container {
+    padding-top: 40px !important;
+    background: #fcfcfd;
+  }
+
+  .details-page-grid {
+    grid-template-columns: 550px 1fr !important;
+    gap: 80px !important;
+    padding: 60px !important;
+    background: #ffffff !important;
+    border-radius: 32px !important;
+    box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+    max-width: 1300px !important;
+  }
+
+  /* Image Showcase */
+  .main-image-frame {
+    height: 650px !important;
+    border-radius: 24px !important;
+    background: #f8fafc !important;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03) !important;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  .main-image-frame:hover {
+    transform: scale(1.01) !important;
+  }
+
+  .desktop-thumbnails-container img, .desktop-thumbnails-container video {
+    width: 72px !important;
+    height: 72px !important;
+    border-radius: 12px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-width: 2px !important;
+  }
+  
+  .desktop-thumbnails-container img:hover, .desktop-thumbnails-container video:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08) !important;
+  }
+
+  /* Typography */
+  .desktop-premium-title {
+    font-size: 40px !important;
+    font-weight: 800 !important;
+    letter-spacing: -1.5px !important;
+    line-height: 1.15 !important;
+    color: #0f172a !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Price Display */
+  .desktop-premium-price-row {
+    margin-top: 16px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .desktop-premium-price {
+    font-size: 44px !important;
+    font-weight: 900 !important;
+    color: #4f46e5 !important;
+    letter-spacing: -1px !important;
+  }
+
+  .desktop-premium-original {
+    font-size: 20px !important;
+    color: #94a3b8 !important;
+  }
+
+  .desktop-premium-discount {
+    font-size: 16px !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    font-weight: 800 !important;
+  }
+
+  /* Action Buttons */
+  .action-buttons-row {
+    gap: 20px !important;
+    margin-top: 30px !important;
+  }
+
+  .action-buttons-row button {
+    height: 64px !important;
+    font-size: 18px !important;
+    border-radius: 16px !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  .action-buttons-row button:first-child {
+    border-width: 2px !important;
+  }
+
+  .action-buttons-row button:last-child {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4) !important;
+  }
+
+  .action-buttons-row button:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.3), 0 8px 10px -6px rgba(79, 70, 229, 0.1) !important;
+  }
+
+  /* Color/Variant Selectors */
+  .desktop-premium-color-btn {
+    width: 72px !important;
+    height: 72px !important;
+    border-radius: 50% !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  .desktop-premium-color-btn:hover {
+    transform: scale(1.15) translateY(-2px) !important;
+    box-shadow: 0 12px 20px rgba(0,0,0,0.1) !important;
+  }
+
+  .desktop-premium-variant-btn {
+    font-size: 16px !important;
+    padding: 16px 20px !important;
+  }
+  
+  .desktop-premium-variant-btn:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
+  }
+
+  /* Trust Badges */
+  .desktop-premium-trust-container {
+    margin-top: 32px !important;
+    gap: 16px !important;
+  }
+  
+  .desktop-premium-trust-badge {
+    font-size: 14px !important;
+    padding: 10px 16px !important;
+    border-radius: 12px !important;
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .desktop-premium-trust-badge:hover {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    transform: translateY(-2px) !important;
+  }
+}
