@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
-  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist } = useApp();
+  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading } = useApp();
   const isMountedRef = useRef(true);
   React.useEffect(() => {
     isMountedRef.current = true;
@@ -22,8 +22,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   };
 
   // State hooks
-  const [firstName, setFirstName] = useState(currentUser?.firstName || '');
-  const [lastName, setLastName] = useState(currentUser?.lastName || '');
+  const initialFirstName = currentUser?.firstName || (currentUser?.fullName ? currentUser.fullName.split(' ')[0] : '');
+  const initialLastName = currentUser?.lastName || (currentUser?.fullName ? currentUser.fullName.split(' ').slice(1).join(' ') : '');
+  
+  const [firstName, setFirstName] = useState(initialFirstName);
+  const [lastName, setLastName] = useState(initialLastName);
   const [emailInput, setEmailInput] = useState(currentUser?.email || '');
   const [pincodeInput, setPincodeInput] = useState(currentUser?.pincode || '');
   const [addressInput, setAddressInput] = useState(currentUser?.address || '');
@@ -35,13 +38,23 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   // Sync state with currentUser when not editing or when currentUser updates
   React.useEffect(() => {
     if (!isEditing && currentUser) {
-      setFirstName(currentUser.firstName || '');
-      setLastName(currentUser.lastName || '');
+      setFirstName(currentUser.firstName || (currentUser.fullName ? currentUser.fullName.split(' ')[0] : ''));
+      setLastName(currentUser.lastName || (currentUser.fullName ? currentUser.fullName.split(' ').slice(1).join(' ') : ''));
       setEmailInput(currentUser.email || '');
       setPincodeInput(currentUser.pincode || '');
       setAddressInput(currentUser.address || '');
     }
   }, [isEditing, currentUser]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="container animate-fade-in" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '24px' }}></div>
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        <h2 style={{ fontWeight: '700', fontSize: '20px', color: '#64748b' }}>Loading Profile...</h2>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return (
@@ -62,8 +75,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
   // Check if inputs differ from database values
   const hasChanges = 
-    firstName !== (currentUser.firstName || '') ||
-    lastName !== (currentUser.lastName || '') ||
+    firstName !== initialFirstName ||
+    lastName !== initialLastName ||
     pincodeInput !== (currentUser.pincode || '') ||
     addressInput !== (currentUser.address || '') ||
     emailInput !== (currentUser.email || '');

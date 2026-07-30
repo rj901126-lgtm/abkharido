@@ -738,7 +738,8 @@ export const AppProvider = ({ children }) => {
         toggleWishlist,
         registerAsSeller,
         savedCards,
-        fetchUserSavedCards
+        fetchUserSavedCards,
+        isAuthLoading: status === 'loading'
       }}
     >
       {children}
