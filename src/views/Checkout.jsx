@@ -5,7 +5,7 @@ import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
-  const { cart, currentUser, placeOrder, showToast, verifyPayment } = useApp();
+  const { cart, currentUser, placeOrder, showToast, verifyPayment, updateUserProfile } = useApp();
   const [step, setStep] = useState(1); // 1: Address, 2: Summary, 3: Payment, 4: Success
 
   // Form states
@@ -207,6 +207,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         setCreatedOrder(orderDetails);
         setStep(4);
         triggerConfetti();
+        
+        // Auto-save address to profile
+        if (updateUserProfile) {
+          updateUserProfile({
+            fullName: address.name,
+            phone: address.phone,
+            pincode: address.pincode,
+            address: address.streetAddress,
+            city: address.city,
+            state: address.state
+          });
+        }
+
         // Auto-generate invoice after a short delay so DOM is ready
         setTimeout(() => triggerInvoiceDownload(), 500);
       }
@@ -268,6 +281,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           });
           setStep(4);
           triggerConfetti();
+          
+          // Auto-save address to profile
+          if (updateUserProfile) {
+            updateUserProfile({
+              fullName: address.name,
+              phone: address.phone,
+              pincode: address.pincode,
+              address: address.streetAddress,
+              city: address.city,
+              state: address.state
+            });
+          }
+
           setTimeout(() => triggerInvoiceDownload(), 500);
         } else {
           showToast('Simulated payment verification failed.', 'error');
@@ -356,7 +382,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   }
 
   return (
-    <div className="container animate-fade-in" style={{ padding: '24px 0 100px 0', maxWidth: '800px' }}>
+    <div className="container animate-fade-in desktop-premium-checkout" style={{ padding: '24px 0 100px 0', maxWidth: '800px' }}>
       
       {/* Wizard Step Progress Tracker */}
       {step < 4 && (

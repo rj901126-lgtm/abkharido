@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 // eslint-disable-next-line
-import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
+import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck, Lock, Heart } from 'lucide-react';
 import '../assets/styles/cart.css';
 
 const CartPage = ({ onNavigate, onCheckout }) => {
-  const { cart, updateCartQty, removeFromCart, activeReferral, currentUser } = useApp();
+  const { cart, updateCartQty, removeFromCart, activeReferral, currentUser, wishlist, toggleWishlist, showToast } = useApp();
   const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
+
+  const handleMoveToWishlist = (productId) => {
+    if (!currentUser) {
+      showToast('Please log in to save items to your wishlist.', 'warning');
+      return;
+    }
+    if (!wishlist.includes(productId)) {
+      toggleWishlist(productId);
+    } else {
+      showToast('Item saved for later!', 'info');
+    }
+    removeFromCart(productId);
+  };
 
   if (cart.length === 0) {
     return (
@@ -60,7 +73,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
   };
 
   return (
-    <div className="container cart-layout-grid animate-fade-in">
+    <div className="container cart-layout-grid animate-fade-in desktop-premium-cart">
       
       {/* Left side: Cart Items list */}
       <div className="cart-items-section">
@@ -148,12 +161,21 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                     </button>
                   </div>
 
-                  <button 
-                    className="item-action-btn"
-                    onClick={() => removeFromCart(item.product.id)}
-                  >
-                    <Trash2 size={16} /> Remove
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      className="item-action-btn item-wishlist-btn"
+                      onClick={() => handleMoveToWishlist(item.product.id)}
+                      title="Save for Later"
+                    >
+                      <Heart size={16} /> Save
+                    </button>
+                    <button 
+                      className="item-action-btn"
+                      onClick={() => removeFromCart(item.product.id)}
+                    >
+                      <Trash2 size={16} /> Remove
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
