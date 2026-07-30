@@ -16,7 +16,12 @@ export const AppProvider = ({ children }) => {
   
   const { data: session, status } = useSession();
   const [dbUser, setDbUser] = useState(null);
-  const currentUser = session ? { ...session.user, token: session.accessToken, ...(dbUser || {}) } : null;
+  const currentUser = session ? { 
+    ...session.user, 
+    token: session.accessToken, 
+    username: session.user.name, 
+    ...(dbUser || {}) 
+  } : null;
 
   const [cart, setCart] = useState(() => {
     try {
@@ -151,7 +156,7 @@ export const AppProvider = ({ children }) => {
 
     if (refUser) {
       // eslint-disable-next-line
-      if (currentUser && refUser === currentUser.username) {
+      if (currentUser && refUser === (currentUser.username || currentUser.name)) {
         showToast('Self-referral links do not earn rewards.', 'warning');
       } else {
         incrementReferrerClicks();
@@ -204,7 +209,7 @@ export const AppProvider = ({ children }) => {
   const fetchOrders = async (emailOrUsername, page = 1, search = '', status = 'all', time = 'all') => {
     try {
       const user = currentUser;
-      const username = user ? user.username : '';
+      const username = user ? (user.username || user.name) : '';
       const emailVal = emailOrUsername || (user ? user.email : '');
       const token = user?.token;
       
@@ -385,7 +390,8 @@ export const AppProvider = ({ children }) => {
     if (!currentUser) return false;
     try {
       const token = currentUser.token;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${currentUser.username}/update`, {
+      const targetUsername = currentUser.username || currentUser.name;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${targetUsername}/update`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -394,7 +400,7 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(details)
       });
       if (res.ok) {
-        fetchUser(currentUser.username);
+        fetchUser(targetUsername);
         showToast('Profile updated successfully!', 'success');
         return true;
       } else {
@@ -497,7 +503,7 @@ export const AppProvider = ({ children }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: currentUser.username,
+          username: currentUser.username || currentUser.name,
           shopName,
           sellerAddress,
           payoutDetails
@@ -534,7 +540,7 @@ export const AppProvider = ({ children }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: currentUser.username,
+          username: currentUser.username || currentUser.name,
           amount,
           method
         })
@@ -544,6 +550,12 @@ export const AppProvider = ({ children }) => {
         setDbUser(data.user);
         localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
         fetchStats();
+        
+        const targetUsername = currentUser.username || currentUser.name;
+        if (targetUsername) {
+          fetchUser(targetUsername);
+        }
+        
         showToast(`Payout request of ₹${amount} submitted successfully!`, 'success');
         return true;
       }
@@ -573,7 +585,7 @@ export const AppProvider = ({ children }) => {
         },
         body: JSON.stringify({
           cart,
-          username: currentUser.username,
+          username: currentUser.username || currentUser.name,
           shippingAddress,
           paymentMethod,
           useCoinsDiscount,
@@ -584,7 +596,7 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        fetchUser(currentUser.username);
+        fetchUser(currentUser.username || currentUser.name);
         clearCart();
         setActiveReferral(null);
         fetchOrders(currentUser.email);
@@ -622,6 +634,12 @@ export const AppProvider = ({ children }) => {
           localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
           fetchOrders(currentUser.email);
           fetchStats();
+          
+          const targetUsername = currentUser.username || currentUser.name;
+          if (targetUsername) {
+            fetchUser(targetUsername);
+          }
+          
           return true;
         }
       }
@@ -638,7 +656,10 @@ export const AppProvider = ({ children }) => {
         showToast('Database files reset successfully.', 'info');
         fetchProducts();
         if (currentUser) {
-          fetchUser(currentUser.username);
+          const targetUsername = currentUser.username || currentUser.name;
+          if (targetUsername) {
+            fetchUser(targetUsername);
+          }
           fetchOrders(currentUser.email);
         }
         fetchStats();
