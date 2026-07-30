@@ -4,7 +4,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-RUN npm ci
+ENV MONGOMS_DISABLE_POSTINSTALL=1
+RUN npm install --no-audit --no-fund
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder

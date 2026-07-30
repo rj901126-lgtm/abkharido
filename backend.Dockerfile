@@ -8,7 +8,8 @@ RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json ./
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-RUN npm ci --omit=dev
+ENV MONGOMS_DISABLE_POSTINSTALL=1
+RUN npm install --omit=dev --no-audit --no-fund
 
 COPY . .
 

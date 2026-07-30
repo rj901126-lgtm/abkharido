@@ -23,7 +23,12 @@ fi
 echo "Building and starting Docker containers in detached mode..."
 # Using docker compose plugin syntax (docker compose) rather than docker-compose (old)
 sudo docker compose down
-sudo docker compose up -d --build
+echo "Building backend..."
+sudo docker compose build backend
+echo "Building frontend..."
+sudo docker compose build frontend
+echo "Starting services..."
+sudo docker compose up -d
 
 echo "Deployment Successful!"
 echo "Your application should now be running on port 80 (HTTP)."
