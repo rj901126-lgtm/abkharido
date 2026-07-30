@@ -301,8 +301,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
       </section>
 
-      </section>
-
     </div>
   );
 };
