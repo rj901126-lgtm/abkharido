@@ -11,6 +11,7 @@ const Orders = ({ onNavigate }) => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
   
   const [activeTrackingId, setActiveTrackingId] = useState(null); 
   const [orderToCancel, setOrderToCancel] = useState(null);
@@ -188,9 +189,57 @@ const Orders = ({ onNavigate }) => {
       ) : (
       <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {orders.map(order => (
-          <div key={order._id} className="order-card">
+        {orders.map(order => {
+          const isExpanded = expandedOrderId === order._id;
+          
+          if (!isExpanded) {
+            return (
+              <div key={order._id} className="order-card hover-lift" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setExpandedOrderId(order._id)}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>Order #{String(order._id).substring(String(order._id).length - 8).toUpperCase()}</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}><Calendar size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }}/> {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary-color)' }}>₹{(order.totalPrice || 0).toLocaleString('en-IN')}</div>
+                    <span className={`badge ${order.status === 'CANCELLED' ? 'badge-error' : 'badge-info'}`} style={{ backgroundColor: order.status === 'CANCELLED' ? '#fee2e2' : '#e0e7ff', color: order.status === 'CANCELLED' ? '#ef4444' : '#4338ca', fontSize: '10px', padding: '4px 8px', marginTop: '6px', display: 'inline-block', fontWeight: 'bold', borderRadius: '4px' }}>
+                      {order.status.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+                
+                {order.orderItems && order.orderItems.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ width: '56px', height: '56px', backgroundColor: '#f8fafc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid #e2e8f0' }}>
+                      <img src={order.orderItems[0].image} alt={order.orderItems[0].name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.orderItems[0].name}</div>
+                      {order.orderItems.length > 1 && (
+                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: '500' }}>+ {order.orderItems.length - 1} more item(s)</div>
+                      )}
+                    </div>
+                    <div>
+                       <button className="btn btn-outline btn-sm" style={{ padding: '6px 14px', fontSize: '13px', margin: 0, borderRadius: '6px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={(e) => { e.stopPropagation(); setExpandedOrderId(order._id); }}>
+                         Details <ChevronDown size={14} />
+                       </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          return (
+          <div key={order._id} className="order-card" style={{ border: '2px solid var(--primary-color)' }}>
             
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
+               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={20} color="var(--primary-color)" /> Order Details</h3>
+               <button className="btn btn-outline btn-sm" onClick={() => setExpandedOrderId(null)} style={{ margin: 0, padding: '6px 12px', borderRadius: '6px', fontSize: '13px', backgroundColor: '#f1f5f9', border: 'none', color: '#475569', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                 Collapse <ChevronUp size={16} />
+               </button>
+            </div>
+
             {/* Order Card Header */}
             <div className="order-card-header">
               <div className="order-meta-item">
@@ -601,9 +650,8 @@ const Orders = ({ onNavigate }) => {
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Direct Purchase (No referral)</span>
               )}
             </div>
-
           </div>
-        ))}
+        )})}
       </div>
       
       {hasMoreOrders && (
