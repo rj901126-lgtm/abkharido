@@ -32,6 +32,17 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
 
+  // Sync state with currentUser when not editing or when currentUser updates
+  React.useEffect(() => {
+    if (!isEditing && currentUser) {
+      setFirstName(currentUser.firstName || '');
+      setLastName(currentUser.lastName || '');
+      setEmailInput(currentUser.email || '');
+      setPincodeInput(currentUser.pincode || '');
+      setAddressInput(currentUser.address || '');
+    }
+  }, [isEditing, currentUser]);
+
   if (!currentUser) {
     return (
       <div className="container animate-fade-in" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -48,17 +59,6 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   }
 
   const wishlistProducts = products ? products.filter(p => wishlist?.includes(p.id)) : [];
-
-  // Sync state with currentUser when not editing or when currentUser updates
-  React.useEffect(() => {
-    if (!isEditing && currentUser) {
-      setFirstName(currentUser.firstName || '');
-      setLastName(currentUser.lastName || '');
-      setEmailInput(currentUser.email || '');
-      setPincodeInput(currentUser.pincode || '');
-      setAddressInput(currentUser.address || '');
-    }
-  }, [isEditing, currentUser]);
 
   // Check if inputs differ from database values
   const hasChanges = 
