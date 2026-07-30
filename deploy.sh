@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Enterprise AWS EC2 Deployment Script
 
 echo "Starting AbKharido AWS Deployment..."

@@ -1,10 +1,12 @@
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 WORKDIR /app
+RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json ./
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV MONGOMS_DISABLE_POSTINSTALL=1
+ENV NODE_OPTIONS="--max_old_space_size=512"
 RUN npm install --no-audit --no-fund
 
 # Stage 2: Builder
