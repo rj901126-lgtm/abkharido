@@ -399,10 +399,39 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       <div className="details-page-grid">
         {/* Left Column: Image and Purchase Actions */}
         <div className="image-showcase-column">
-          <div style={{ position: 'relative', width: '100%' }}>
-            <div 
-              className="main-image-frame" 
-              ref={scrollRef}
+          <div className="flipkart-gallery-layout">
+            
+            {/* Vertical Thumbnails (Desktop) */}
+            {imagesList.length > 1 && (
+              <div className="vertical-thumbnails-column">
+                {imagesList.map((imgUrl, index) => {
+                  const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
+                  return isVideo ? (
+                    <video
+                      key={index}
+                      src={imgUrl}
+                      onClick={() => setActiveImageIndex(index)}
+                      className={`vertical-thumb-item ${activeImageIndex === index ? 'active' : ''}`}
+                      muted
+                    />
+                  ) : (
+                    <img
+                      key={index}
+                      src={imgUrl}
+                      alt={`Thumbnail ${index}`}
+                      onClick={() => setActiveImageIndex(index)}
+                      className={`vertical-thumb-item ${activeImageIndex === index ? 'active' : ''}`}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Main Image View */}
+            <div style={{ position: 'relative', width: '100%', flex: 1 }}>
+              <div 
+                className="main-image-frame" 
+                ref={scrollRef}
               onScroll={handleScroll}
               style={{ 
                 display: 'flex', 
@@ -462,10 +491,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             {/* Removed redundant rating pill */}
           </div>
 
-          {/* Centered Indicator Dots below image slider */}
-          {imagesList.length > 1 && (
-            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', margin: '12px 0 8px 0' }}>
-              {imagesList.map((_, index) => (
+            {/* Centered Indicator Dots below image slider (Mobile Only mostly now) */}
+            <div className="mobile-only-spacer" style={{ display: 'flex', gap: '6px', justifyContent: 'center', margin: '12px 0 8px 0' }}>
+              {imagesList.length > 1 && imagesList.map((_, index) => (
                 <button
                   key={index}
                   onClick={(e) => { e.stopPropagation(); setActiveImageIndex(index); }}
@@ -482,48 +510,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 />
               ))}
             </div>
-          )}
 
-          {/* Multiple preview thumbnails (desktop layout style thumbnails below) */}
-          {imagesList.length > 1 && (
-            <div className="desktop-thumbnails-container" style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '4px 0 12px 0', flexWrap: 'wrap' }}>
-              {imagesList.map((imgUrl, index) => {
-                const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
-                const baseStyle = {
-                  width: '52px',
-                  height: '52px',
-                  objectFit: 'contain',
-                  border: activeImageIndex === index ? '2px solid var(--primary-color)' : '1px solid #e0e0e0',
-                  borderRadius: '4px',
-                  padding: '2px',
-                  cursor: 'pointer',
-                  backgroundColor: 'white',
-                  transition: 'all 0.1s'
-                };
-                
-                return isVideo ? (
-                  <video
-                    key={index}
-                    src={imgUrl}
-                    onClick={() => setActiveImageIndex(index)}
-                    style={{ ...baseStyle, objectFit: 'cover' }}
-                    muted
-                  />
-                ) : (
-                  <img
-                    key={index}
-                    src={imgUrl}
-                    alt={`Preview ${index}`}
-                    onClick={() => setActiveImageIndex(index)}
-                    style={{ ...baseStyle, objectFit: 'contain' }}
-                  />
-                );
-              })}
-            </div>
-          )}
+          </div> {/* End flipkart-gallery-layout */}
 
           {/* Action Buttons Container */}
-          <div className="action-buttons-container" style={{ marginTop: '24px' }}>
+          <div className="action-buttons-container">
             {/* Price Preview (Mobile) */}
             <div className="mobile-price-preview" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '8px' }}>
               <span style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
@@ -532,56 +523,23 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             
             <div className="action-buttons-row">
                 <button
+                  className="details-action-btn flipkart-btn-cart"
                   onClick={() => {
                     const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                     addToCart(customProduct);
                   }}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    border: '2px solid #4f46e5',
-                    borderRadius: '10px',
-                    background: '#ffffff',
-                    color: '#4f46e5',
-                    fontWeight: '700',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s ease'
-                  }}
                 >
-                  <ShoppingCart size={17} /> Add to Cart
+                  <ShoppingCart size={18} fill="white" /> ADD TO CART
                 </button>
                 <button
+                  className="details-action-btn flipkart-btn-buy"
                   onClick={() => {
                     const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                     addToCart(customProduct, 1);
                     onBuyNow(customProduct);
                   }}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    border: 'none',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                    color: '#ffffff',
-                    fontWeight: '800',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    fontFamily: 'inherit',
-                    boxShadow: '0 4px 14px rgba(79,70,229,0.35)',
-                    transition: 'all 0.2s ease'
-                  }}
                 >
-                  <Zap size={17} fill="white" /> Buy Now
+                  <Zap size={18} fill="white" /> BUY NOW
                 </button>
               </div>
             </div>
@@ -590,14 +548,24 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
         <div className="details-info-column" style={{ padding: '0 4px' }}>
-          <div style={{ marginBottom: '12px' }}>
-            <h1 className="product-title-text" style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', lineHeight: '1.3', letterSpacing: '-0.3px', margin: 0 }}>{product.name}</h1>
+          
+          {/* Breadcrumbs */}
+          <div style={{ fontSize: '12px', color: '#878787', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ cursor: 'pointer' }} onClick={() => onNavigate('home')}>Home</span>
+            <ChevronRight size={12} />
+            <span style={{ cursor: 'pointer' }} onClick={() => onNavigate('home')}>Products</span>
+            <ChevronRight size={12} />
+            <span style={{ color: '#212121' }}>{product.name.substring(0, 30)}...</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
-            <span style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
-            <span style={{ fontSize: '13px', color: '#166534', fontWeight: '700', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
+          <div style={{ marginBottom: '8px' }}>
+            <h1 className="product-title-text" style={{ fontSize: '18px', fontWeight: '400', color: '#212121', lineHeight: '1.4', margin: 0 }}>{product.name}</h1>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '28px', fontWeight: '500', color: '#212121' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+            <span style={{ fontSize: '16px', color: '#878787', textDecoration: 'line-through' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+            <span style={{ fontSize: '16px', color: '#388e3c', fontWeight: '500' }}>{currentDisplayDiscount}% off</span>
           </div>
 
           {isFlashSale && (
@@ -606,29 +574,23 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           )}
 
-          <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px' }}>
-            <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white' }}>
-              {product.rating} <Star size={12} fill="white" />
+          <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+            <span className="rating-tag" style={{ fontSize: '12px', padding: '2px 6px 2px 6px', borderRadius: '3px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '2px', backgroundColor: '#388e3c', color: 'white' }}>
+              {product.rating} <Star size={10} fill="white" />
             </span>
-            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>{(product.reviewsCount || 0).toLocaleString()} Ratings & Reviews</span>
+            <span style={{ color: '#878787', fontSize: '14px', fontWeight: '500' }}>{(product.reviewsCount || 0).toLocaleString()} Ratings & Reviews</span>
             
-            {/* Proprietary A-Assured Badge Graphic */}
+            {/* Flipkart Assured style badge */}
             <div style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
               marginLeft: '8px', 
-              height: '20px', 
-              background: 'linear-gradient(135deg, #1e3a8a 0%, #2874f0 100%)', 
-              color: 'white', 
-              borderRadius: '2px', 
-              padding: '0 6px', 
-              fontSize: '9px', 
-              fontWeight: '900', 
-              fontStyle: 'italic', 
-              letterSpacing: '0.2px',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+              height: '18px', 
+              background: 'url("https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png")',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              width: '77px'
             }}>
-              A-Assured <span style={{ color: '#ffe500', marginLeft: '3px' }}>★</span>
             </div>
           </div>
 
@@ -733,24 +695,25 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           </div>
 
-          {/* AbKharido-Style Available Offers */}
-          <div style={{ paddingTop: '4px' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#212121', marginBottom: '10px' }}>Available Offers</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
-                <span><strong>Partner Link Reward:</strong> Earn up to <strong style={{ color: '#e68f00' }}>{userCoins} Coins</strong> back on referral orders. <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}>T&C</span></span>
+          {/* Available Offers */}
+          <div style={{ paddingTop: '16px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '500', color: '#212121', marginBottom: '12px' }}>Available offers</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '14px', color: '#212121' }}>
+                <Tag size={16} color="#16a34a" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <span><strong>Special Price:</strong> Get extra 10% off (price inclusive of cashback/coupon) <span style={{ color: '#2874f0', fontWeight: '500', cursor: 'pointer' }}>T&C</span></span>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '14px', color: '#212121' }}>
+                <Tag size={16} color="#16a34a" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <span><strong>Bank Offer:</strong> 5% Cashback on Flipkart Axis Bank Card <span style={{ color: '#2874f0', fontWeight: '500', cursor: 'pointer' }}>T&C</span></span>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
-                <span><strong>SBI Card Discount:</strong> 5% Instant Cash Back on SBI Bank Credit Cards. <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}>T&C</span></span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '14px', color: '#212121' }}>
+                <Tag size={16} color="#16a34a" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <span><strong>Partner Offer:</strong> Sign up for Flipkart Pay Later and get Flipkart Gift Card worth up to ₹500* <span style={{ color: '#2874f0', fontWeight: '500', cursor: 'pointer' }}>Know More</span></span>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
-                <span><strong>Express Shipping:</strong> Shop for more than ₹500 and get free express home shipping.</span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '14px', color: '#212121' }}>
+                <Tag size={16} color="#16a34a" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <span><strong>Referral Reward:</strong> Earn up to <strong style={{ color: '#388e3c' }}>{userCoins} Coins</strong> back on referral orders. <span style={{ color: '#2874f0', fontWeight: '500', cursor: 'pointer' }}>T&C</span></span>
               </div>
             </div>
           </div>
