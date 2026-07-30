@@ -236,7 +236,7 @@ export const addOrderItems = async (req, res, next) => {
       });
 
       // Handle Referral Rewards
-      if (req.body.activeReferral && req.body.activeReferral.referrerId) {
+      if (req.body.activeReferral && req.body.activeReferral.referrerId && typeof req.body.activeReferral.referrerId === 'string') {
         const referrerUser = await User.findOne({ username: req.body.activeReferral.referrerId });
         if (referrerUser && referrerUser._id.toString() !== req.user._id.toString()) {
           // Calculate reward: aggregate userCommissionRate of each product (fallback to 2%)

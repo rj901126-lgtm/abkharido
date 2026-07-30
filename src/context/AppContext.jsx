@@ -56,8 +56,17 @@ export const AppProvider = ({ children }) => {
     } catch { return []; }
   });
 
+  // --- Secure Storage Helper (Prevent DOS via QuotaExceededError) ---
+  const safeSetItem = (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn(`Storage error: Could not save ${key}.`);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem('abkharido_wishlist', JSON.stringify(wishlist));
+    safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
   // --- Fetch Data on Mount ---
@@ -73,7 +82,7 @@ export const AppProvider = ({ children }) => {
 
   // --- Sync Temporary Cart details ---
   useEffect(() => {
-    localStorage.setItem('abkharido_cart', JSON.stringify(cart));
+    safeSetItem('abkharido_cart', JSON.stringify(cart));
     
     // Background sync to database if logged in
     if (currentUser?.token) {
@@ -142,7 +151,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (activeReferral) {
-      localStorage.setItem('abkharido_active_referral', JSON.stringify(activeReferral));
+      safeSetItem('abkharido_active_referral', JSON.stringify(activeReferral));
     } else {
       localStorage.removeItem('abkharido_active_referral');
     }
@@ -151,8 +160,13 @@ export const AppProvider = ({ children }) => {
   // --- URL Referral Tracking ---
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const refUser = params.get('ref');
+    let refUser = params.get('ref');
     const productIdParam = params.get('prod');
+
+    // Security Fix: Prevent DOS attacks via massive link-sharing payloads
+    if (refUser && refUser.length > 50) {
+      refUser = null;
+    }
 
     if (refUser) {
       // eslint-disable-next-line
@@ -516,7 +530,7 @@ export const AppProvider = ({ children }) => {
       }
       const data = await res.json();
       setDbUser(data);
-      localStorage.setItem('abkharido_user_session', JSON.stringify(data));
+      safeSetItem('abkharido_user_session', JSON.stringify(data));
       showToast('Shop registered! Awaiting admin approval.', 'success');
       return true;
     // eslint-disable-next-line
@@ -548,7 +562,7 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setDbUser(data.user);
-        localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
+        safeSetItem('abkharido_user_session', JSON.stringify(data.user));
         fetchStats();
         
         const targetUsername = currentUser.username || currentUser.name;
@@ -631,7 +645,7 @@ export const AppProvider = ({ children }) => {
         const data = await res.json();
         if (data.success) {
           setDbUser(data.user);
-          localStorage.setItem('abkharido_user_session', JSON.stringify(data.user));
+          safeSetItem('abkharido_user_session', JSON.stringify(data.user));
           fetchOrders(currentUser.email);
           fetchStats();
           
