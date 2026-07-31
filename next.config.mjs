@@ -8,7 +8,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
     ],
   },
-  // NOTE: output: 'standalone' removed — only needed for Docker/self-hosted, NOT Vercel
+  // Enable standalone output for AWS Docker, but disable it if running on Vercel
+  output: process.env.VERCEL ? undefined : 'standalone',
   async rewrites() {
     const backendUrl = process.env.BACKEND_API_URL || 'http://16.16.195.180:5000';
     return {
