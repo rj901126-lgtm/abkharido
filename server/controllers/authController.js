@@ -1,9 +1,7 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
-// In-memory OTP store (recipient -> { otp, expiry })
-// For production, replace with Redis
-const otpStore = new Map();
+import Otp from '../models/Otp.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev', {
@@ -110,11 +108,8 @@ export const sendOtp = async (req, res, next) => {
     const { recipient } = req.body;
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Store OTP with 5 minute expiry
-    otpStore.set(recipient, {
-      otp: generatedOtp,
-      expiry: Date.now() + 5 * 60 * 1000
-    });
+    // Store OTP in database (will be hashed automatically by pre-save hook and auto-deleted after 5 mins)
+    await Otp.create({ phone: recipient, otp: generatedOtp });
     
     console.log(`[OTP] Generated OTP ${generatedOtp} for ${recipient}`);
     
@@ -133,19 +128,22 @@ export const verifyOtp = async (req, res, next) => {
     // eslint-disable-next-line
     const { recipient, otp, fullName, isSignup } = req.body;
 
-    // Validate OTP from store
-    const stored = otpStore.get(recipient);
-    if (!stored) {
+    // Validate OTP from database
+    const storedOtpDoc = await Otp.findOne({ phone: recipient }).sort({ createdAt: -1 }); // Get latest OTP
+    
+    if (!storedOtpDoc) {
       return res.status(400).json({ error: 'OTP expired or not found. Please request a new OTP.' });
     }
-    if (Date.now() > stored.expiry) {
-      otpStore.delete(recipient);
-      return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
-    }
-    if (stored.otp !== otp) {
+    
+    const isMatch = await storedOtpDoc.matchOtp(otp);
+    if (!isMatch) {
       return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
     }
-    // OTP is valid — create or find user
+    
+    // OTP is valid — delete it to prevent reuse
+    await Otp.deleteMany({ phone: recipient });
+    
+    // create or find user
     let user = await User.findOne({ $or: [{ email: recipient }, { phone: recipient }] });
     if (!user) {
       const baseUsername = recipient.includes('@') 

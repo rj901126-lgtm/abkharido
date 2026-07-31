@@ -85,5 +85,15 @@ orderSchema.index({ 'orderItems.vendorId': 1, createdAt: -1 }); // Fast lookup f
 orderSchema.index({ status: 1, createdAt: -1 }); // Fast lookup for admin filtering
 orderSchema.index({ createdAt: -1 }); // Fast lookup for admin sorting by date
 
+// Add Field-Level Encryption Plugin to protect Customer PII
+import mongooseFieldEncryption from 'mongoose-field-encryption';
+orderSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
+  fields: ['shippingAddress', 'paymentResult'],
+  secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
+  saltGenerator: function (secret) {
+    return "1234567890123456"; // 16 byte static salt for deterministic encryption if needed
+  },
+});
+
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 export default Order;
