@@ -46,7 +46,9 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     }
   }, [isEditing, currentUser]);
 
-  if (isAuthLoading) {
+  const isProfileSyncing = currentUser && !currentUser._id;
+
+  if (isAuthLoading || isProfileSyncing) {
     return (
       <div className="container animate-fade-in" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '24px' }}></div>
