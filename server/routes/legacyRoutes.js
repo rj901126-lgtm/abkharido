@@ -209,6 +209,7 @@ router.get('/admin/analytics', protect, admin, async (req, res) => {
     const totalUsers = await User.countDocuments();
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
+    const liveOrders = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled'] } });
     
     // Calculate total revenue
     const revenueAgg = await Order.aggregate([
@@ -232,6 +233,7 @@ router.get('/admin/analytics', protect, admin, async (req, res) => {
         totalUsers,
         totalProducts,
         totalOrders,
+        liveOrders,
         totalRevenue
       },
       salesData
