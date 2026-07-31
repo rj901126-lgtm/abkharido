@@ -241,6 +241,25 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const removeSavedCard = async (instrumentId) => {
+    const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session'))?.token;
+    if (!token) return false;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/saved-cards/${instrumentId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setSavedCards(prev => prev.filter(c => c.instrument_id !== instrumentId));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to remove saved card:', err);
+      return false;
+    }
+  };
+
   const fetchOrders = async (emailOrUsername, page = 1, search = '', status = 'all', time = 'all') => {
     try {
       const user = currentUser;
@@ -742,6 +761,7 @@ export const AppProvider = ({ children }) => {
         registerAsSeller,
         savedCards,
         fetchUserSavedCards,
+        removeSavedCard,
         isAuthLoading: status === 'loading'
       }}
     >

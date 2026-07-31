@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag, Download, Coins } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
+import ScratchCard from '../components/ScratchCard';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const { cart, currentUser, placeOrder, showToast, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards } = useApp();
@@ -767,7 +768,16 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             </button>
           </div>
 
-          <div className="checkout-btn-group" style={{ width: '100%', maxWidth: '550px', marginTop: '16px' }}>
+          {/* Post Purchase Gamification / Scratch Card */}
+          <div style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)', border: '1px solid #e2e8f0', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '550px', textAlign: 'center', marginTop: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+            <h4 style={{ fontWeight: '800', color: '#0f172a', fontSize: '18px', marginBottom: '8px' }}>🎉 A Gift For Your Next Order!</h4>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
+              Scratch the card below to reveal an exclusive discount coupon.
+            </p>
+            <ScratchCard rewardCode="SURPRISE100" />
+          </div>
+
+          <div className="checkout-btn-group" style={{ width: '100%', maxWidth: '550px', marginTop: '24px' }}>
             <button className="btn btn-primary checkout-btn" style={{ width: '100%', marginBottom: '12px' }} onClick={() => onNavigate('home')}>
               Continue Shopping
             </button>

@@ -253,3 +253,45 @@ export const fetchSavedCards = async (req, res, next) => {
   }
 };
 
+// @desc    Delete Cashfree Saved Card (Instrument)
+// @route   DELETE /api/payment/saved-cards/:instrumentId
+// @access  Private
+export const deleteSavedCard = async (req, res, next) => {
+  try {
+    const { instrumentId } = req.params;
+    
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    const isProd = process.env.CASHFREE_PROD === 'true';
+
+    if (!appId || !secretKey) {
+      return res.json({ success: true, message: 'Simulated card deletion successful' });
+    }
+
+    const customerId = (req.user.username && req.user.username.replace(/[^a-zA-Z0-9_-]/g, "")) || `guest_${Date.now()}`;
+    const url = isProd 
+      ? `https://api.cashfree.com/pg/customers/${customerId}/instruments/${instrumentId}`
+      : `https://sandbox.cashfree.com/pg/customers/${customerId}/instruments/${instrumentId}`;
+
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "x-client-id": appId,
+        "x-client-secret": secretKey,
+        "x-api-version": "2023-08-01"
+      }
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Cashfree Delete Card error:", errText);
+      res.status(response.status);
+      throw new Error('Failed to delete saved card from payment gateway');
+    }
+
+    res.json({ success: true, message: 'Card deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -1,15 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 // eslint-disable-next-line
-import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight, CreditCard, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
-  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading } = useApp();
+  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard } = useApp();
   const isMountedRef = useRef(true);
   React.useEffect(() => {
     isMountedRef.current = true;
+    fetchUserSavedCards();
     return () => { isMountedRef.current = false; };
   }, []);
   
@@ -294,6 +295,13 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             Wishlist ({wishlistProducts.length})
           </button>
           <button 
+            className={`profile-tab-btn ${activeTab === 'savedcards' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('savedcards')}
+            style={{ padding: '8px 20px', borderRadius: '50px', border: 'none', background: activeTab === 'savedcards' ? '#4f46e5' : '#f1f5f9', color: activeTab === 'savedcards' ? 'white' : '#64748b', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <CreditCard size={16} /> Saved Cards
+          </button>
+          <button 
             className={`profile-tab-btn ${activeTab === 'support' ? 'active' : ''}`} 
             onClick={() => setActiveTab('support')}
             style={{ padding: '8px 20px', borderRadius: '50px', border: 'none', background: activeTab === 'support' ? '#4f46e5' : '#f1f5f9', color: activeTab === 'support' ? 'white' : '#64748b', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
@@ -569,6 +577,60 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
         {activeTab === 'support' && (
           <div className="animate-fade-in" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', marginBottom: '24px' }}>
             <CustomerTickets />
+          </div>
+        )}
+
+        {/* Saved Cards / Payment Security Section */}
+        {activeTab === 'savedcards' && (
+          <div className="animate-fade-in" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <ShieldCheck size={20} color="#10b981" />
+                  <span>Payment Security</span>
+                </h3>
+                <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>Manage your securely vaulted cards via Cashfree tokenization network.</p>
+              </div>
+            </div>
+
+            {savedCards && savedCards.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+                {savedCards.map(card => (
+                  <div key={card.instrument_id} style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '16px', padding: '24px', color: 'white', position: 'relative', overflow: 'hidden', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)' }}>
+                    <div style={{ position: 'absolute', top: -20, right: -20, width: '100px', height: '100px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', position: 'relative', zIndex: 2 }}>
+                      <div style={{ fontWeight: '600', fontSize: '16px', letterSpacing: '1px', textTransform: 'uppercase' }}>{card.card_network}</div>
+                      <CreditCard size={24} color="#94a3b8" />
+                    </div>
+                    <div style={{ fontSize: '20px', letterSpacing: '3px', fontFamily: 'monospace', marginBottom: '8px', position: 'relative', zIndex: 2 }}>
+                      •••• •••• •••• {card.last4}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', position: 'relative', zIndex: 2 }}>
+                      <div style={{ fontSize: '12px', color: '#cbd5e1', textTransform: 'uppercase' }}>{card.card_bank_name || 'Bank Card'}</div>
+                      <button 
+                        onClick={async () => {
+                          const conf = window.confirm("Are you sure you want to remove this card?");
+                          if (conf) {
+                            const success = await removeSavedCard(card.instrument_id);
+                            if (success) showToast('Card removed successfully.', 'success');
+                            else showToast('Failed to remove card.', 'error');
+                          }
+                        }}
+                        style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px 0', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
+                <CreditCard size={48} color="#94a3b8" style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+                <h4 style={{ margin: '0 0 8px', color: '#334155', fontSize: '16px' }}>No Saved Cards Found</h4>
+                <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Your saved cards will securely appear here after your next checkout via Cashfree.</p>
+              </div>
+            )}
           </div>
         )}
 
