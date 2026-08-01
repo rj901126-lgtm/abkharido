@@ -204,6 +204,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setMetaDescription(prod.seo?.metaDescription || '');
     setHsnCode(prod.hsnCode || '');
     setVendorId(prod.vendorId || '');
+    setLowStockThreshold(prod.lowStockThreshold?.toString() || '5');
+    setVolumeDiscounts(prod.volumeDiscounts || [
+      { minQty: '2', discountPct: '10', title: 'Buy 2 Get 10% Extra Savings' },
+      { minQty: '3', discountPct: '15', title: 'Buy 3+ Get 15% VIP Bulk Discount' }
+    ]);
+    setCrossSellIds(prod.crossSellIds || []);
+    setSearchTags((prod.searchTags || []).join(', '));
     
     let initialColorModels = prod.colorModels;
     if (!initialColorModels || initialColorModels.length === 0) {
@@ -263,6 +270,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setFlashSaleActive(false);
     setFlashSalePrice('');
     setFlashSaleEndTime('');
+    setLowStockThreshold('5');
+    setVolumeDiscounts([
+      { minQty: '2', discountPct: '10', title: 'Buy 2 Get 10% Extra Savings' },
+      { minQty: '3', discountPct: '15', title: 'Buy 3+ Get 15% VIP Bulk Discount' }
+    ]);
+    setCrossSellIds([]);
+    setSearchTags('');
   };
 
   // Promotions Management States
@@ -713,6 +727,34 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [hsnCode, setHsnCode] = useState('');
   const [vendorId, setVendorId] = useState('');
 
+  // 5x Revenue & Safeguard Engine States
+  const [lowStockThreshold, setLowStockThreshold] = useState('5');
+  const [volumeDiscounts, setVolumeDiscounts] = useState([
+    { minQty: '2', discountPct: '10', title: 'Buy 2 Get 10% Extra Savings' },
+    { minQty: '3', discountPct: '15', title: 'Buy 3+ Get 15% VIP Bulk Discount' }
+  ]);
+  const [crossSellIds, setCrossSellIds] = useState([]);
+  const [searchTags, setSearchTags] = useState('');
+
+  const handleAddVolumeDiscount = () => {
+    setVolumeDiscounts([...volumeDiscounts, { minQty: '', discountPct: '', title: '' }]);
+  };
+  const handleRemoveVolumeDiscount = (idx) => {
+    setVolumeDiscounts(volumeDiscounts.filter((_, i) => i !== idx));
+  };
+  const handleVolumeDiscountChange = (idx, field, val) => {
+    const copy = [...volumeDiscounts];
+    copy[idx] = { ...copy[idx], [field]: val };
+    setVolumeDiscounts(copy);
+  };
+  const toggleCrossSellId = (pid) => {
+    if (crossSellIds.includes(pid)) {
+      setCrossSellIds(crossSellIds.filter(id => id !== pid));
+    } else {
+      setCrossSellIds([...crossSellIds, pid]);
+    }
+  };
+
   // Dynamic spec list key-value rows
   const [specs, setSpecs] = useState([
     { key: 'Brand', value: '' },
@@ -1001,6 +1043,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       // PIM Fields
       hsnCode: hsnCode.trim(),
       vendorId: vendorId.trim() || undefined,
+      lowStockThreshold: Number(lowStockThreshold || 5),
+      volumeDiscounts: volumeDiscounts.filter(vd => vd.minQty && vd.discountPct),
+      crossSellIds,
+      searchTags: searchTags ? searchTags.split(',').map(t => t.trim()).filter(Boolean) : [],
       seo: {
         metaTitle: metaTitle.trim(),
         metaDescription: metaDescription.trim()
@@ -1801,6 +1847,55 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                   <option value="home">Home & Living Essentials</option>
                   <option value="appliances">Large Home Appliances</option>
                 </select>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      let smartDesc = '';
+                      if (category === 'mobiles') {
+                        smartDesc = `• 120Hz Ultra-Fluid OLED Display for blazing fast navigation and pro-level gaming\n• Flagship Grade Camera System with advanced low-light photography & 4K 60fps cinematic filming\n• All-Day 5000mAh Endurance Battery with intelligent ai power conservation\n• Aerospace-Grade Seamless Metallic Construction built for ultimate drop protection`;
+                        setSpecs([
+                          { key: 'Brand & Series', value: 'Apple / Samsung Flagship' },
+                          { key: 'Display Technology', value: '6.7-inch Super AMOLED 120Hz Pro Display with HDR10+' },
+                          { key: 'Processor & RAM', value: 'Next-Gen Flagship Chipset with Virtual RAM Expansion' },
+                          { key: 'Pro Camera System', value: '50MP OIS Ultra Triple Camera + 32MP Selfies' },
+                          { key: 'Battery & Fast Charging', value: '5000 mAh High-Density Battery + 65W Super Fast Charger included' },
+                          { key: 'Official Warranty', value: '1 Year Brand Comprehensive Authorised Service Network Warranty' }
+                        ]);
+                      } else if (category === 'electronics') {
+                        smartDesc = `• Studio-Grade Precision Acoustic Drivers delivering deep bass and immersive 3D surround sound\n• Active Noise Cancellation (ANC) up to 45dB to neutralize surrounding city noise instantly\n• Ergonomic Featherlight Fit engineered for zero fatigue during all-day wear\n• Quick Charge Support: 10 mins charging provides up to 5 hours of non-stop entertainment`;
+                        setSpecs([
+                          { key: 'Brand', value: 'Pro Series Audio / Tech' },
+                          { key: 'Model Identifier', value: '2026 Pro Wireless Edition' },
+                          { key: 'Connectivity', value: 'Bluetooth 5.3 / Ultra-Low Latency Wi-Fi 6E' },
+                          { key: 'Power / Battery', value: 'Up to 36 Hours Extended Backup' },
+                          { key: 'Brand Warranty', value: '1 Year Official Comprehensive Replacement / Service Warranty' }
+                        ]);
+                      } else if (category === 'fashion') {
+                        smartDesc = `• Luxuriously Soft Breathable Fabric designed for extreme comfort in all seasonal climates\n• Precision Laser-Trimmed Stitching for flawless structure and durability across regular washing\n• Fade-Resistant Eco-Friendly Reactive Dyes that retain vibrant sheen after 50+ wash cycles`;
+                        setSpecs([
+                          { key: 'Fabric Material', value: '100% Ultra-Fine Combed Egyptian Cotton' },
+                          { key: 'Fit Type', value: 'Tailored Slim Fit / Athletic Cut' },
+                          { key: 'Wash Care Instructions', value: 'Machine Wash Cold / Gentle Cycle' },
+                          { key: 'Country of Origin', value: 'Proudly Crafted in India' }
+                        ]);
+                      } else {
+                        smartDesc = `• Built with unmatched durability and craftsmanship to elevate daily lifestyle routines\n• Engineered with modern ergonomic design technology for effortless performance\n• Rigorously quality-tested to guarantee zero failure under heavy daily usage`;
+                        setSpecs([
+                          { key: 'Material & Build', value: 'Premium Heritage Quality' },
+                          { key: 'Dimensions & Weight', value: 'Standard Ergonomic Form Factor' },
+                          { key: 'Package Contents', value: '1 Unit Genuine Sealed Box + Warranty Guide' },
+                          { key: 'Customer Assistance', value: '24/7 Dedicated Concierge Support via WhatsApp' }
+                        ]);
+                      }
+                      setDescription(smartDesc);
+                      showToast(`🤖 AI Smart-Template generated Specs & Bullet Highlights for "${category.toUpperCase()}"!`, 'success');
+                    }}
+                    style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)', color: 'white', padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 3px 10px rgba(79, 70, 229, 0.25)', transition: 'all 0.2s' }}
+                  >
+                    <span>🤖 Auto-Fill AI Smart Specs & High-Converting Description</span>
+                  </button>
+                </div>
               </div>
 
               {/* Psychological Trigger Badges */}
@@ -1893,6 +1988,21 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                     />
                   </div>
                 </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%', borderTop: '1px dashed #cbd5e1', paddingTop: '14px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <span>🏷️ Hidden Search Engine Keywords & Misspelling Tags (Comma separated)</span>
+                    <span style={{ fontSize: '11px', background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: '100px' }}>Zero Search Abandonment Engine</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. #gaming, #fast-charging, #diwali-gift, #trending, smartwoch, iphne" 
+                    value={searchTags}
+                    onChange={(e) => setSearchTags(e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', boxSizing: 'border-box' }}
+                  />
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>Improves customer search results even if they type wrong spelling or look for broad usage terms!</span>
+                </div>
               </div>
 
               {/* Pricing & Stock Grid */}
@@ -1940,6 +2050,22 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       required
                     />
                   </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '700', color: '#d97706' }}>🚨 Low Stock Warning Threshold*</label>
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '15px' }}>⚠️</span>
+                    <input 
+                      type="number" 
+                      placeholder="5" 
+                      value={lowStockThreshold}
+                      onChange={(e) => setLowStockThreshold(e.target.value)}
+                      style={{ width: '100%', padding: '12px 16px 12px 38px', borderRadius: '10px', border: '2px solid #fde68a', background: '#fffbeb', fontSize: '15px', color: '#b45309', fontWeight: '800', boxSizing: 'border-box' }}
+                      required
+                    />
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '700' }}>⚡ Triggers FOMO urgency banner & automated admin alerts</span>
                 </div>
               </div>
 
@@ -2112,6 +2238,134 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               </label>
 
             </div> {/* End Main Product Details Card */}
+
+            {/* Card 2A: Volume Discount Rules (Buy More, Save More Engine) */}
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '28px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>🛍️ Volume Discount Rules (Buy More, Save More Engine)</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '100px', background: '#dcfce7', color: '#15803d', border: '1px solid #86efac' }}>40% AOV Multiplier</span>
+                  </h3>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Incentivizes larger basket orders by displaying tier discounts on product details page</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddVolumeDiscount}
+                  style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #86efac', padding: '8px 16px', borderRadius: '100px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(22, 163, 74, 0.15)' }}
+                >
+                  <PlusCircle size={15} /> <span>Add Tier Discount Rule</span>
+                </button>
+              </div>
+
+              {volumeDiscounts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1', color: '#64748b', fontSize: '13px', fontWeight: '500' }}>
+                  ℹ️ No volume discount tiers added. Click button above to add rules like "Buy 2 Get 10% OFF".
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {volumeDiscounts.map((vd, idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '14px', alignItems: 'center', background: '#f8fafc', padding: '12px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1', minWidth: '120px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px' }}>Min Quantity*</label>
+                        <input 
+                          type="number" 
+                          placeholder="e.g. 2" 
+                          value={vd.minQty}
+                          onChange={(e) => handleVolumeDiscountChange(idx, 'minQty', e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#ffffff', fontWeight: '700', color: '#0f172a', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div style={{ flex: '1', minWidth: '140px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: '700', color: '#16a34a', display: 'block', marginBottom: '4px' }}>Extra Discount (% or ₹)*</label>
+                        <input 
+                          type="number" 
+                          placeholder="e.g. 10 (%)" 
+                          value={vd.discountPct}
+                          onChange={(e) => handleVolumeDiscountChange(idx, 'discountPct', e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #86efac', fontSize: '13px', background: '#f0fdf4', color: '#15803d', fontWeight: '800', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div style={{ flex: '2', minWidth: '220px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px' }}>Storefront Promotional Tag Label*</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. Buy 2 Get 10% Extra Savings!" 
+                          value={vd.title}
+                          onChange={(e) => handleVolumeDiscountChange(idx, 'title', e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#ffffff', fontWeight: '600', color: '#334155', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveVolumeDiscount(idx)}
+                        style={{ alignSelf: 'flex-end', height: '38px', padding: '0 14px', borderRadius: '8px', background: '#fee2e2', border: '1px solid #fecaca', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+                        title="Delete Tier"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Card 2B: Frequently Bought Together & Cross-Sell Combos */}
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '28px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>🔗 Frequently Bought Together & Cross-Sell Combos</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '100px', background: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' }}>Amazon 35% Revenue Secret</span>
+                  </h3>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Select matching products from your catalog to offer automatic 1-click combo purchases</div>
+                </div>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: '#4f46e5', background: '#eef2ff', padding: '6px 14px', borderRadius: '100px' }}>
+                  {crossSellIds.length} Products Linked
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px', maxHeight: '280px', overflowY: 'auto', padding: '4px' }}>
+                {products.filter(p => p.id !== id).map(prod => {
+                  const isSelected = crossSellIds.includes(prod.id);
+                  return (
+                    <div 
+                      key={prod.id} 
+                      onClick={() => toggleCrossSellId(prod.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '10px 12px',
+                        borderRadius: '12px',
+                        border: isSelected ? '2px solid #4f46e5' : '1px solid #e2e8f0',
+                        backgroundColor: isSelected ? '#eef2ff' : '#ffffff',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                        boxShadow: isSelected ? '0 4px 12px rgba(79, 70, 229, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
+                      }}
+                    >
+                      <input 
+                        type="checkbox" 
+                        checked={isSelected} 
+                        onChange={() => {}} 
+                        style={{ width: '18px', height: '18px', accentColor: '#4f46e5', cursor: 'pointer' }}
+                      />
+                      <img src={prod.image || prod.images?.[0] || 'https://via.placeholder.com/40'} alt="" style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} />
+                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ fontSize: '13px', fontWeight: '700', color: isSelected ? '#4338ca' : '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prod.name}</div>
+                        <div style={{ fontSize: '12px', fontWeight: '800', color: '#16a34a' }}>₹{Number(prod.price).toLocaleString('en-IN')}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+                {products.filter(p => p.id !== id).length === 0 && (
+                  <div style={{ color: '#64748b', fontSize: '13px', fontStyle: 'italic', gridColumn: '1 / -1', padding: '16px 0', textAlign: 'center' }}>
+                    No other products available in store to link yet. Add more products first!
+                  </div>
+                )}
+              </div>
+            </div>
 
 
             {/* Card 2: Colors & Custom Variations Section */}
