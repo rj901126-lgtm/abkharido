@@ -89,7 +89,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '24px' }}>🎁</span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', letterSpacing: '-0.2px' }}>
-                {itemsPrice >= 2999 ? "🎉 All 3 VIP Tiers & Free Mystery Gift Bag Unlocked!" : itemsPrice >= 1499 ? "⚡ Tier 2 Unlocked! Add ₹" + (2999 - itemsPrice) + " more for a Free Mystery Designer Gift!" : itemsPrice >= 500 ? "🚀 Free Metro Shipping Unlocked! Add ₹" + (1499 - itemsPrice) + " more for +100 Bonus Coins!" : "✨ Add ₹" + (500 - itemsPrice) + " more to unlock FREE 10-Min Metro Shipping!"}
+                {itemsPrice >= 2999 ? "🎉 All 3 VIP Tiers & Free Mystery Gift Bag Unlocked!" : itemsPrice >= 1499 ? "⚡ Tier 2 Unlocked! Add ₹" + (2999 - itemsPrice) + " more for a Free Mystery Designer Gift!" : itemsPrice >= 500 ? "🚀 Free Priority Shipping Unlocked! Add ₹" + (1499 - itemsPrice) + " more for +100 Bonus Coins!" : "✨ Add ₹" + (500 - itemsPrice) + " more to unlock FREE Priority Express Shipping!"}
               </span>
             </div>
             <span style={{ background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(10px)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '800', color: '#fde047', border: '1px solid rgba(255, 255, 255, 0.25)' }}>

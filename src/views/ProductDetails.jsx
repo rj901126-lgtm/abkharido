@@ -178,11 +178,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     const isMetro = metroPrefixes.some(prefix => pincode.startsWith(prefix));
 
     if (isMetro) {
-      showToast('🎉 Eligible for 10-Minute Rapid VIP Delivery!', 'success');
-      setDeliveryEstimate('⚡ ELIGIBLE FOR 10-MIN RAPID METRO DELIVERY | Free VIP Shipping Unlocked!');
+      showToast('🎉 Eligible for Priority Express Delivery!', 'success');
+      setDeliveryEstimate('⚡ ELIGIBLE FOR PRIORITY EXPRESS DELIVERY | Free VIP Shipping Unlocked!');
     } else {
-      showToast('🚀 Priority Express Air-Shipping Available!', 'success');
-      setDeliveryEstimate('🚀 Express Air Dispatch: Delivery in 24-48 Hours | 100% Cashfree Protected Escrow');
+      showToast('🚀 Fast Dispatch & Doorstep Delivery Available!', 'success');
+      setDeliveryEstimate('🚀 Fast Dispatch: Delivery in 2-4 Days | 100% Cashfree Protected Escrow');
     }
   };
 
@@ -731,10 +731,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               <ShieldCheck size={16} color="#059669" /> 100% Genuine VIP Stock
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#0284c7', background: '#f0f9ff', padding: '8px 14px', borderRadius: '12px', border: '1px solid #bae6fd' }}>
-              <Zap size={16} color="#0284c7" /> 10-Min Metro Express
+              <Zap size={16} color="#0284c7" /> Priority Express Shipping
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#7c3aed', background: '#f5f3ff', padding: '8px 14px', borderRadius: '12px', border: '1px solid #ddd6fe' }}>
-              <Check size={16} color="#7c3aed" /> Easy 10-Day Exchange
+              <Check size={16} color="#7c3aed" /> Easy 7-Day Exchange
             </div>
           </div>
 
@@ -785,7 +785,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 </button>
               </div>
             </div>
-            <div style={{ fontSize: '13px', fontWeight: '800', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px', color: deliveryEstimate.includes('10-MIN') ? '#059669' : deliveryEstimate.includes('Invalid') ? '#e11d48' : '#1e3a8a' }}>
+            <div style={{ fontSize: '13px', fontWeight: '800', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px', color: deliveryEstimate.includes('ELIGIBLE') ? '#059669' : deliveryEstimate.includes('Invalid') ? '#e11d48' : '#1e3a8a' }}>
               {deliveryEstimate || "✨ Enter your postal code to see real-time dispatch countdowns."}
             </div>
           </div>
@@ -878,7 +878,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                   <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>Sold by: {product.sellerName || 'Marketplace Seller'} (✓ Verified Merchant)</div>
                   <div style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
                     This item is listed and fulfilled directly by {product.sellerName || 'Marketplace Seller'} under the AbKharido Trust Guarantee. 
-                    10-day replacement policy, secure transit packing, and unified support.
+                    7-day replacement policy, secure transit packing, and unified support.
                   </div>
                 </>
               ) : (

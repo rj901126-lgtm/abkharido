@@ -100,9 +100,9 @@ const InfoPage = ({ infoType }) => {
               We want you to be fully satisfied with every purchase. AbKharido offers a user-friendly cancellation 
               and returns policy.
             </p>
-            <h3 style={styles.subtitle}>10-Day Replacement Guarantee</h3>
+            <h3 style={styles.subtitle}>7-Day Replacement Guarantee</h3>
             <p style={styles.paragraph}>
-              All direct stock electronics, mobiles, and fashion items are covered by a <strong>10-Day Replacement 
+              All direct stock electronics, mobiles, and fashion items are covered by a <strong>7-Day Replacement 
               Guarantee</strong>. If your item arrives damaged, defective, or different from described, you can request 
               a replacement from your Orders panel.
             </p>

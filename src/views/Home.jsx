@@ -114,7 +114,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Sparkles size={16} style={{ color: '#d97706' }} /> INDIA'S VIP SHOPPING VAULTS
           </span>
-          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '700' }}>⚡ Free 10-Min Metro Delivery</span>
+          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '700' }}>⚡ Free Priority Express Delivery</span>
         </div>
         
         <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
@@ -233,9 +233,9 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', margin: '12px 0 24px 0' }}>
         {[
-          { icon: <Zap size={26} color="#0284c7" />, title: "10-Minute Rapid Metro", sub: "Ai-routed express dispatch", bg: "#f0f9ff", border: "#bae6fd" },
+          { icon: <Zap size={26} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "#f0f9ff", border: "#bae6fd" },
           { icon: <ShieldCheck size={26} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade protection", bg: "#ecfdf5", border: "#a7f3d0" },
-          { icon: <Truck size={26} color="#7c3aed" />, title: "Instant 10-Day Return", sub: "Hassle-free replacement", bg: "#f5f3ff", border: "#ddd6fe" },
+          { icon: <Truck size={26} color="#7c3aed" />, title: "Easy 7-Day Return", sub: "7 days replacement policy", bg: "#f5f3ff", border: "#ddd6fe" },
           { icon: <Award size={26} color="#d97706" />, title: "Platinum Club Rebates", sub: "Earn up to 12% in coins", bg: "#fffbeb", border: "#fde68a" },
         ].map((item, idx) => (
           <div key={idx} style={{

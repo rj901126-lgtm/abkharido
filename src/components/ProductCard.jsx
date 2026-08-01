@@ -117,7 +117,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           gap: '4px',
           letterSpacing: '0.2px'
         }}>
-          <Zap size={10} fill="#38bdf8" /> 10-MIN RAPID DELIVERY
+          <Zap size={10} fill="#38bdf8" /> EXPRESS PRIORITY SHIPPING
         </div>
       </div>
 
@@ -160,7 +160,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         ) : (discountPercent >= 15 || product.rating >= 4.5) ? (
           <div style={{ marginTop: '6px', marginBottom: '6px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '800', color: '#e11d48', marginBottom: '3px' }}>
-              <span>🔥 Selling Fast in Metro City</span>
+              <span>🔥 Selling Fast in Your Area</span>
               <span style={{ color: '#090d16' }}>Only 3 units left!</span>
             </div>
             <div style={{ height: '5px', width: '100%', backgroundColor: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
