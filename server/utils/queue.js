@@ -1,12 +1,17 @@
 import { Queue, Worker } from 'bullmq';
+import Redis from 'ioredis';
 import redisClient from '../config/redis.js';
 import Order from '../models/Order.js';
 
 let orderQueue = null;
 
-if (redisClient) {
+if (process.env.REDIS_URI && redisClient) {
+  // BullMQ requires independent connections with maxRetriesPerRequest set to null
+  const queueConnection = new Redis(process.env.REDIS_URI, { maxRetriesPerRequest: null });
+  const workerConnection = new Redis(process.env.REDIS_URI, { maxRetriesPerRequest: null });
+
   // Initialize Queue
-  orderQueue = new Queue('order-processing', { connection: redisClient });
+  orderQueue = new Queue('order-processing', { connection: queueConnection });
 
   // Initialize Worker for Background Processing
   const orderWorker = new Worker('order-processing', async job => {
@@ -21,7 +26,7 @@ if (redisClient) {
     });
     
     console.log('[Background Job] Order processed successfully:', job.data.orderId);
-  }, { connection: redisClient });
+  }, { connection: workerConnection });
 
   orderWorker.on('completed', job => {
     console.log('[BullMQ] Job completed!', job.id);
