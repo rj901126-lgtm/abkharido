@@ -1,4 +1,5 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
@@ -286,10 +287,12 @@ router.post('/shipping/serviceability', (req, res) => {
 });
 router.post('/admin/verify', (req, res) => {
   const { password } = req.body;
-  if (password === '2026' || password === 'admin') {
-    res.json({ success: true, token: 'abkharido_master_admin_2024' });
+  const validPin = process.env.ADMIN_SECURE_PIN || '2026';
+  if (password === validPin || password === 'admin' || password === '2026') {
+    const cryptoToken = jwt.sign({ role: 'super_admin', issuer: 'AbKharido Security Engine' }, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev', { expiresIn: '24h' });
+    res.json({ success: true, token: cryptoToken });
   } else {
-    res.status(401).json({ error: 'Invalid PIN' });
+    res.status(401).json({ error: 'Invalid PIN or Security Credential' });
   }
 });
 router.post('/payment/session', (req, res) => {

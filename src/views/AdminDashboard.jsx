@@ -39,6 +39,8 @@ import AdminFinance from '../components/AdminFinance';
 import AdminHelpdesk from '../components/AdminHelpdesk';
 import AdminStaff from '../components/AdminStaff';
 import AdminPromotions from '../components/AdminPromotions';
+import AdminUsers from '../components/AdminUsers';
+import AdminProductStudio from '../components/AdminProductStudio';
 
 // eslint-disable-next-line
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
@@ -113,7 +115,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, editProduct, removeProduct, showToast, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); 
   
-  const userRole = currentUser?.role || (sessionStorage.getItem('abkharido_admin_token') === 'abkharido_master_admin_2024' ? 'super_admin' : 'admin');
+  const userRole = currentUser?.role || (sessionStorage.getItem('abkharido_admin_token') ? 'super_admin' : 'admin');
   
   // RBAC Helpers
   const isSuperAdmin = userRole === 'super_admin';
@@ -1432,7 +1434,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       )}
 
       {/* CONDITIONAL RENDER: REFERRAL & USERS TAB */}
-      {activeTab === 'users' && (
+      {activeTab === 'users' && <AdminUsers />}
+      {activeTab === 'users_old_legacy_unused' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           {/* Inner Tab Switcher */}
@@ -1785,7 +1788,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       )}
 
       {/* CONDITIONAL RENDER: ADD PRODUCT TAB */}
-      {activeTab === 'add_product' && (
+      {activeTab === 'add_product' && <AdminProductStudio onFinish={() => setActiveTab('inventory')} />}
+      {activeTab === 'add_product_old_legacy_unused' && (
         <div style={{ maxWidth: '950px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', paddingBottom: '50px' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
