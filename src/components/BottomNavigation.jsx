@@ -1,19 +1,20 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Home, LayoutGrid, Award, History, User } from 'lucide-react';
+import { Home, LayoutGrid, ShoppingBag, Heart, User } from 'lucide-react';
 import '../assets/styles/bottomnav.css';
 
 const BottomNavigation = ({ activePage, onNavigate }) => {
-  const { currentUser } = useApp();
+  const { currentUser, cart, wishlist } = useApp();
+  const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="bottom-nav">
+    <div className="bottom-nav-island">
       <button 
         className={`bottom-nav-item ${activePage === 'home' ? 'active' : ''}`}
         onClick={() => onNavigate('home')}
       >
         <div className="nav-icon-wrapper">
-          <Home size={22} />
+          <Home size={20} />
         </div>
         <span>Home</span>
       </button>
@@ -23,9 +24,23 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         onClick={() => onNavigate('categories')}
       >
         <div className="nav-icon-wrapper">
-          <LayoutGrid size={22} />
+          <LayoutGrid size={20} />
         </div>
-        <span>Categories</span>
+        <span>VIP Vault</span>
+      </button>
+
+      {/* Floating Center Buy Action / Cart */}
+      <button 
+        className={`bottom-nav-item cart-center-btn ${activePage === 'cart' ? 'active' : ''}`}
+        onClick={() => onNavigate('cart')}
+      >
+        <div className="nav-icon-wrapper center-cart-icon">
+          <ShoppingBag size={22} color="white" />
+          {totalCartItems > 0 && (
+            <span className="floating-cart-badge">{totalCartItems}</span>
+          )}
+        </div>
+        <span style={{ fontWeight: '900', color: '#f59e0b' }}>Cart</span>
       </button>
 
       <button 
@@ -33,29 +48,20 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         onClick={() => onNavigate('orders')}
       >
         <div className="nav-icon-wrapper">
-          <History size={22} />
+          <Heart size={20} />
+          {wishlist && wishlist.length > 0 && (
+            <span className="floating-wishlist-dot"></span>
+          )}
         </div>
         <span>Orders</span>
       </button>
-
-      {currentUser && currentUser.isInfluencer && (
-        <button 
-          className={`bottom-nav-item ${activePage === 'partner' ? 'active' : ''}`}
-          onClick={() => onNavigate('partner')}
-        >
-          <div className="nav-icon-wrapper">
-            <Award size={22} />
-          </div>
-          <span>Creator</span>
-        </button>
-      )}
 
       <button 
         className={`bottom-nav-item ${activePage === 'login' || activePage === 'profile' ? 'active' : ''}`}
         onClick={() => onNavigate(currentUser ? 'profile' : 'login')}
       >
         <div className="nav-icon-wrapper">
-          <User size={22} />
+          <User size={20} />
         </div>
         <span>{currentUser ? 'Profile' : 'Login'}</span>
       </button>

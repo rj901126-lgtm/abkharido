@@ -169,17 +169,20 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   const handlePincodeCheck = () => {
     const pinRegex = /^[1-9][0-9]{5}$/;
     if (!pinRegex.test(pincode)) {
-      showToast('Please enter a valid 6-digit Indian PIN code.', 'error');
-      setDeliveryEstimate('Invalid PIN code. Please recheck.');
+      showToast('Please enter a valid 6-digit Indian postal PIN code.', 'error');
+      setDeliveryEstimate('❌ Invalid PIN code format. Please input a 6-digit number.');
       return;
     }
 
-    if (pincode.startsWith('560')) {
-      showToast('Express delivery available at Bengaluru hub!', 'success');
-      setDeliveryEstimate('Delivery by Tomorrow, Monday | Free Express Shipping');
+    const metroPrefixes = ['110', '400', '560', '700', '600', '500', '380', '411'];
+    const isMetro = metroPrefixes.some(prefix => pincode.startsWith(prefix));
+
+    if (isMetro) {
+      showToast('🎉 Eligible for 10-Minute Rapid VIP Delivery!', 'success');
+      setDeliveryEstimate('⚡ ELIGIBLE FOR 10-MIN RAPID METRO DELIVERY | Free VIP Shipping Unlocked!');
     } else {
-      showToast('Standard shipping available at your location!', 'success');
-      setDeliveryEstimate('Delivery in 3-5 days | Free Standard Shipping');
+      showToast('🚀 Priority Express Air-Shipping Available!', 'success');
+      setDeliveryEstimate('🚀 Express Air Dispatch: Delivery in 24-48 Hours | 100% Cashfree Protected Escrow');
     }
   };
 
@@ -722,80 +725,149 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
           )}
 
 
-          {/* Trust Badges */}
-          <div className="desktop-premium-trust-container" style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
-            <div className="desktop-premium-trust-badge" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <ShieldCheck size={16} color="#4f46e5" /> 100% Original
+          {/* Trust Badges & VIP Assurance Citadel */}
+          <div className="desktop-premium-trust-container" style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#059669', background: '#ecfdf5', padding: '8px 14px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
+              <ShieldCheck size={16} color="#059669" /> 100% Genuine VIP Stock
             </div>
-            <div className="desktop-premium-trust-badge" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <Zap size={16} color="#eab308" /> Fast Delivery
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#0284c7', background: '#f0f9ff', padding: '8px 14px', borderRadius: '12px', border: '1px solid #bae6fd' }}>
+              <Zap size={16} color="#0284c7" /> 10-Min Metro Express
             </div>
-            <div className="desktop-premium-trust-badge" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <Check size={16} color="#10b981" /> Easy Returns
-            </div>
-          </div>
-
-          {/* AbKharido-Style Available Offers */}
-          <div style={{ paddingTop: '4px' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#212121', marginBottom: '10px' }}>Available Offers</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
-                <span><strong>Partner Link Reward:</strong> Earn up to <strong style={{ color: '#e68f00' }}>{userCoins} Coins</strong> back on referral orders. <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}>T&C</span></span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
-                <span><strong>SBI Card Discount:</strong> 5% Instant Cash Back on SBI Bank Credit Cards. <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', cursor: 'pointer' }}>T&C</span></span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '13px', color: '#212121' }}>
-                <span style={{ color: '#388e3c', fontSize: '14px', lineHeight: '1.2' }}>🏷️</span>
-                <span><strong>Express Shipping:</strong> Shop for more than ₹500 and get free express home shipping.</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#7c3aed', background: '#f5f3ff', padding: '8px 14px', borderRadius: '12px', border: '1px solid #ddd6fe' }}>
+              <Check size={16} color="#7c3aed" /> Easy 10-Day Exchange
             </div>
           </div>
 
-          {/* AI Recommendations Carousel */}
-          {recommendations.length > 0 && (
-            <div style={{ marginTop: '24px' }}>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', marginBottom: '16px' }}>Customers Also Bought</h4>
-              <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '16px', msOverflowStyle: 'none', scrollbarWidth: 'none' }} className="hide-scrollbar">
-                {recommendations.map(rec => (
-                  <div key={rec.id} style={{ minWidth: '160px', width: '160px' }}>
-                    <ProductCard product={rec} onNavigateProduct={onNavigate} />
-                  </div>
-                ))}
+          {/* AbKharido Platinum Member Offers */}
+          <div style={{ marginTop: '24px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '18px', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
+            <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#090d16', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>💥</span> Available Platinum Bank & VIP Offers
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
+                <span style={{ color: '#d97706', fontSize: '16px' }}>👑</span>
+                <span><strong>VIP Partner Link Reward:</strong> Earn up to <strong style={{ color: '#d97706', fontWeight: '900' }}>{userCoins} Spendable Coins</strong> back on referral orders. <span style={{ color: '#4338ca', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }}>View Benefits</span></span>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
+                <span style={{ color: '#059669', fontSize: '16px' }}>⚡</span>
+                <span><strong>Instant UPI & Bank Discount:</strong> Get ₹5,000 Instant Cashback via ICICI / HDFC / SBI Bank Cards or direct UPI QR verification. <span style={{ color: '#4338ca', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }}>Apply Code</span></span>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
+                <span style={{ color: '#3b82f6', fontSize: '16px' }}>🚀</span>
+                <span><strong>Free VIP Air-Dispatch:</strong> Order immediately to unlock complimentary carbon-neutral express shipping across India.</span>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Delivery Pincode Checker */}
-          <div style={{ borderTop: '1px solid #f0f0f0', borderBottom: '1px solid #f0f0f0', padding: '16px 0', margin: '8px 0', display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '13px', color: '#878787', fontWeight: 'bold', width: '80px' }}>Delivery</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '200px' }}>
-              <div style={{ display: 'flex', border: '1px solid #dcdcdc', borderRadius: '4px', overflow: 'hidden', maxWidth: '280px', height: '36px', backgroundColor: 'white' }}>
+          {/* Interactive Live PIN-Code Validator */}
+          <div style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', border: '1px solid #bfdbfe', borderRadius: '20px', padding: '20px', margin: '24px 0', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.05)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <span style={{ fontSize: '18px' }}>📍</span>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '800', color: '#1e3a8a' }}>Check India VIP Express Delivery Speed & Availability</span>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flex: '1', border: '2px solid #3b82f6', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'white', minWidth: '220px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 <input 
                   type="text" 
-                  placeholder="Enter Delivery Pincode" 
+                  placeholder="Enter 6-digit Indian PIN code (e.g. 110001)" 
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value.replace(/\D/g, ''))}
                   maxLength="6"
-                  style={{ border: 'none', padding: '0 12px', fontSize: '13px', outline: 'none', width: '100%' }}
+                  style={{ border: 'none', padding: '12px 16px', fontSize: '14px', fontWeight: '700', outline: 'none', width: '100%', fontFamily: "'Outfit', sans-serif" }}
                 />
                 <button 
                   onClick={handlePincodeCheck}
-                  style={{ background: 'none', border: 'none', color: 'var(--primary-color)', padding: '0 16px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', borderLeft: '1px solid #e0e0e0' }}
+                  style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', padding: '0 24px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", transition: 'opacity 0.2s ease' }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
-                  Check
+                  Verify Speed
                 </button>
               </div>
-              <span style={{ fontSize: '12px', color: '#212121', fontWeight: '600', marginTop: '4px' }}>
-                {deliveryEstimate}
-              </span>
+            </div>
+            <div style={{ fontSize: '13px', fontWeight: '800', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px', color: deliveryEstimate.includes('10-MIN') ? '#059669' : deliveryEstimate.includes('Invalid') ? '#e11d48' : '#1e3a8a' }}>
+              {deliveryEstimate || "✨ Enter your postal code to see real-time dispatch countdowns."}
             </div>
           </div>
+
+          {/* VIP Frequently Bought Together Combo Bundle */}
+          {recommendations && recommendations.length >= 1 && (
+            <div style={{ marginTop: '28px', background: 'linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)', border: '2px solid #fde68a', borderRadius: '24px', padding: '24px', boxShadow: '0 10px 30px rgba(245, 158, 11, 0.08)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '22px' }}>👑</span>
+                  <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '900', color: '#92400e', margin: 0, letterSpacing: '-0.3px' }}>
+                    Frequently Bought Together VIP Combo
+                  </h4>
+                </div>
+                <span style={{ background: '#e11d48', color: 'white', fontSize: '11px', fontWeight: '900', padding: '4px 10px', borderRadius: '10px' }}>
+                  🔥 EXTRA COMBO DISCOUNT
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                {/* Item 1: This Product */}
+                <div style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <LazyImage src={product.image} alt={product.name} style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 6px auto' }} />
+                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#090d16', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '900', color: '#059669' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</div>
+                </div>
+
+                <div style={{ fontSize: '24px', fontWeight: '900', color: '#d97706' }}>+</div>
+
+                {/* Item 2: Recommended Product */}
+                <div 
+                  onClick={() => onNavigate(recommendations[0].id)}
+                  style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer' }}
+                >
+                  <LazyImage src={recommendations[0].image} alt={recommendations[0].name} style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 6px auto' }} />
+                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#090d16', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{recommendations[0].name}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '900', color: '#059669' }}>₹{(recommendations[0].price || 0).toLocaleString('en-IN')}</div>
+                </div>
+
+                <div style={{ fontSize: '24px', fontWeight: '900', color: '#d97706' }}>=</div>
+
+                {/* Combined Calculation */}
+                <div style={{ flex: 1, minWidth: '180px' }}>
+                  <div style={{ fontSize: '12px', color: '#92400e', fontWeight: '700' }}>Combined VIP Bundle Price:</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '2px' }}>
+                    <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16' }}>
+                      ₹{((currentDisplayPrice || 0) + (recommendations[0].price || 0) - Math.min(500, Math.round((currentDisplayPrice || 0)*0.05))).toLocaleString('en-IN')}
+                    </span>
+                    <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px', fontWeight: '600' }}>
+                      ₹{((currentDisplayPrice || 0) + (recommendations[0].price || 0)).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      addToCart({ ...product, price: currentDisplayPrice }, 1);
+                      addToCart(recommendations[0], 1);
+                      showToast('🎉 VIP Combo Bundle added to your shopping bag!', 'success');
+                    }}
+                    style={{
+                      marginTop: '10px',
+                      width: '100%',
+                      background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '12px',
+                      borderRadius: '14px',
+                      fontFamily: "'Outfit', sans-serif",
+                      fontWeight: '800',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(217, 119, 6, 0.4)',
+                      transition: 'transform 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    ⚡ Add Both to Cart & Save Extra
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* AbKharido Direct/Seller Guarantee */}
           <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fafafa', border: '1px solid #e0e0e0', padding: '12px 16px', borderRadius: '4px' }}>

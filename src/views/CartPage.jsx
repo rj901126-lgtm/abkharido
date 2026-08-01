@@ -77,30 +77,50 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       
       {/* Left side: Cart Items list */}
       <div className="cart-items-section">
-        <div className="cart-card-header cart-card-header-flex">
-          <span>My Cart ({cart.reduce((acc, item) => acc + item.quantity, 0)} Items)</span>
+        <div className="cart-card-header cart-card-header-flex" style={{ borderBottom: 'none', paddingBottom: '0' }}>
+          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16' }}>
+            🛍️ My VIP Shopping Bag ({cart.reduce((acc, item) => acc + item.quantity, 0)} Items)
+          </span>
         </div>
 
-        {/* Sales Boost: Free Shipping Progress */}
-        <div className="cart-promo-banner">
-          {itemsPrice >= 500 ? (
-            <div className="cart-promo-success">
-              <span className="cart-promo-icon">🎉</span>
-              You have unlocked FREE Express Shipping!
+        {/* 3-Tier VIP Reward Progress Meter */}
+        <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', borderRadius: '24px', padding: '24px', color: 'white', margin: '16px 0 24px 0', boxShadow: '0 10px 30px rgba(30, 27, 75, 0.25)', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '24px' }}>🎁</span>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', letterSpacing: '-0.2px' }}>
+                {itemsPrice >= 2999 ? "🎉 All 3 VIP Tiers & Free Mystery Gift Bag Unlocked!" : itemsPrice >= 1499 ? "⚡ Tier 2 Unlocked! Add ₹" + (2999 - itemsPrice) + " more for a Free Mystery Designer Gift!" : itemsPrice >= 500 ? "🚀 Free Metro Shipping Unlocked! Add ₹" + (1499 - itemsPrice) + " more for +100 Bonus Coins!" : "✨ Add ₹" + (500 - itemsPrice) + " more to unlock FREE 10-Min Metro Shipping!"}
+              </span>
             </div>
-          ) : (
-            <>
-              <div className="cart-promo-text">
-                <span>Add <span className="cart-promo-highlight">₹{500 - itemsPrice}</span> more to get FREE Shipping!</span>
-              </div>
-              <div className="cart-progress-bar-bg">
-                <div 
-                  className="cart-progress-bar-fill" 
-                  style={{ width: `${Math.min((itemsPrice / 500) * 100, 100)}%` }} 
-                />
-              </div>
-            </>
-          )}
+            <span style={{ background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(10px)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '800', color: '#fde047', border: '1px solid rgba(255, 255, 255, 0.25)' }}>
+              💎 VIP CLUB STATUS
+            </span>
+          </div>
+
+          <div style={{ height: '12px', width: '100%', background: 'rgba(255, 255, 255, 0.15)', borderRadius: '10px', overflow: 'hidden', position: 'relative', margin: '16px 0' }}>
+            <div 
+              style={{ 
+                height: '100%', 
+                width: `${Math.min((itemsPrice / 2999) * 100, 100)}%`, 
+                background: 'linear-gradient(90deg, #38bdf8 0%, #a855f7 50%, #f59e0b 100%)', 
+                borderRadius: '10px',
+                transition: 'width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                boxShadow: '0 0 12px rgba(245, 158, 11, 0.8)'
+              }} 
+            />
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800' }}>
+            <span style={{ color: itemsPrice >= 500 ? '#4ade80' : '#cbd5e1', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {itemsPrice >= 500 ? '✅' : '🔒'} ₹500 (Free Shipping)
+            </span>
+            <span style={{ color: itemsPrice >= 1499 ? '#4ade80' : '#cbd5e1', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {itemsPrice >= 1499 ? '✅' : '🔒'} ₹1,499 (+100 Coins)
+            </span>
+            <span style={{ color: itemsPrice >= 2999 ? '#4ade80' : '#cbd5e1', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {itemsPrice >= 2999 ? '✅' : '🔒'} ₹2,999 (Mystery Gift)
+            </span>
+          </div>
         </div>
 
         {/* Active Referral Confirmation Banner */}
