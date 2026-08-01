@@ -1414,6 +1414,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 </thead>
                 <tbody>
                   {adminUsers
+                    .filter(u => u.role !== 'admin' && u.role !== 'super_admin' && u.username !== 'admin')
                     .filter(u => 
                       u.username.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
                       (u.fullName && u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()))
@@ -1423,9 +1424,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       const influencerId = u.isInfluencer ? u.influencerId : null;
                       
                       const referredOrdersList = adminOrders.filter(o => 
-                        o.referralApplied && 
-                        (o.referralApplied.referrerId === userCode || 
-                         o.referralApplied.referrerId === influencerId)
+                        o.referralApplied && o.referralApplied.referrerId &&
+                        ((userCode && o.referralApplied.referrerId === userCode) || 
+                         (influencerId && o.referralApplied.referrerId === influencerId))
                       );
                       
                       const salesCount = referredOrdersList.length;

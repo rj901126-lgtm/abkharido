@@ -146,14 +146,16 @@ export const verifyOtp = async (req, res, next) => {
     // create or find user
     let user = await User.findOne({ $or: [{ email: recipient }, { phone: recipient }] });
     if (!user) {
-      const baseUsername = recipient.includes('@') 
-        ? recipient.split('@')[0] 
-        : recipient;
-      const username = baseUsername + Math.floor(Math.random() * 1000);
+      const isEmail = recipient.includes('@');
+      let username = isEmail ? recipient.split('@')[0] : recipient.replace(/\D/g, '');
+      const existing = await User.findOne({ username });
+      if (existing && isEmail) {
+        username = username + Math.floor(Math.random() * 1000);
+      }
       user = await User.create({ 
         username, 
-        email: recipient.includes('@') ? recipient : (fullName ? undefined : undefined),
-        phone: !recipient.includes('@') ? recipient : undefined, 
+        email: isEmail ? recipient : (fullName ? undefined : undefined),
+        phone: !isEmail ? recipient : undefined, 
         fullName: fullName || 'AbKharido User',
         password: 'abkharido_otp_user_' + Date.now()
       });
@@ -200,7 +202,7 @@ export const verifyFirebase = async (req, res, next) => {
       if (!isSignup) {
         // If not signup, maybe they just haven't set up a profile, let's auto-create
       }
-      const username = phone.replace('+', '') + Math.floor(Math.random() * 1000);
+      const username = phone.replace('+', '').trim();
       user = await User.create({ 
         username, 
         phone, 
