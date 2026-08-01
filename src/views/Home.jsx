@@ -3,46 +3,56 @@ import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import FlashDealBanner from '../components/FlashDealBanner';
 import LiveSocialProof from '../components/LiveSocialProof';
-import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award, Zap, ShieldCheck, Truck } from 'lucide-react';
 import '../assets/styles/home.css';
 
+const vipCategories = [
+  { id: 'all', label: 'All VIP Deals', icon: '💎', gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)', badge: 'HOT' },
+  { id: 'mobiles', label: 'AI Smartphones & 5G', icon: '⚡', gradient: 'linear-gradient(135deg, #0284c7, #0369a1)', badge: 'NEW' },
+  { id: 'electronics', label: 'Audiophile & Tech', icon: '🎧', gradient: 'linear-gradient(135deg, #7c3aed, #4f46e5)', badge: '-40%' },
+  { id: 'fashion', label: 'Luxe Couture & Wear', icon: '👗', gradient: 'linear-gradient(135deg, #e11d48, #9f1239)', badge: 'TRENDING' },
+  { id: 'home', label: 'Smart Home & AI', icon: '🏠', gradient: 'linear-gradient(135deg, #059669, #047857)', badge: 'TOP' },
+  { id: 'beauty', label: 'Diamond Beauty & Spa', icon: '✨', gradient: 'linear-gradient(135deg, #d97706, #b45309)', badge: 'VIP' },
+  { id: 'sports', label: 'Pro Fitness & Gear', icon: '🏃', gradient: 'linear-gradient(135deg, #090d16, #334155)', badge: 'FAST' },
+];
+
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
-  const { products: contextProducts, showToast } = useApp();
+  const { products: contextProducts } = useApp();
   const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
+  const [selectedCatPill, setSelectedCatPill] = useState('all');
   
-  // CMS State
   const [layoutComponents, setLayoutComponents] = useState([]);
   const [loadingLayout, setLoadingLayout] = useState(true);
 
-  // Dynamic Carousel slides with real-time admin sync & removal support
   const slides = (promotions && Array.isArray(promotions.banners))
     ? promotions.banners
     : [
         {
-          title: 'Premium Sound. Zero Distractions.',
-          desc: 'Experience our best noise-cancelling headphones yet. Up to 40 hours of battery life and studio-quality sound.',
-          bg: 'url(https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1200&auto=format&fit=crop) center/cover no-repeat',
-          tag: 'AUDIO WEEK DEAL',
+          title: 'Titanium AI Sound. Studio Perfected.',
+          desc: 'Experience our flagship spatial noise-cancelling headphones. Up to 60 hours of hyper-battery and quantum acoustics.',
+          bg: 'url(https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
+          tag: '🇮🇳 AUDIO CHAMPION DEAL',
           cat: 'electronics'
         },
         {
-          title: 'The New Standard in Fashion',
-          desc: 'Elevate your wardrobe with our latest direct-from-manufacturer collection. Uncompromising quality at unbeatable prices.',
-          bg: 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop) center/cover no-repeat',
-          tag: 'SUMMER COLLECTION',
+          title: 'The Platinum Standard in Indian Couture',
+          desc: 'Elevate your aesthetic with our direct-from-designer runway collection. Uncompromising titanium luxury at revolutionary member prices.',
+          bg: 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
+          tag: '✨ VIP SUMMER COLLECTION',
           cat: 'fashion'
         }
       ];
 
-  const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % slides.length);
-  const handlePrevSlide = () => setActiveSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % (slides.length || 1));
+  const handlePrevSlide = () => setActiveSlide((prev) => (prev - 1 + slides.length) % (slides.length || 1));
 
   useEffect(() => {
-    const slideTimer = setInterval(() => {
-      setActiveSlide(prev => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(slideTimer);
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(interval);
   }, [slides.length]);
 
   const touchStartX = useRef(0);
@@ -51,28 +61,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   const handleTouchStart = (e) => { touchStartX.current = e.targetTouches[0].clientX; };
   const handleTouchMove = (e) => { touchEndX.current = e.targetTouches[0].clientX; };
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const diff = touchStartX.current - touchEndX.current;
-    if (diff > 50) {
-      handleNextSlide();
-    } else if (diff < -50) {
-      handlePrevSlide();
-    }
-    touchStartX.current = 0;
-    touchEndX.current = 0;
+    if (touchStartX.current - touchEndX.current > 50) handleNextSlide();
+    if (touchStartX.current - touchEndX.current < -50) handlePrevSlide();
   };
 
-  const targetDate = React.useMemo(() => {
-    return promotions && promotions.dealsTimer 
-      ? new Date(promotions.dealsTimer)
-      : (() => {
-          const tomorrow = new Date();
-          tomorrow.setHours(24, 0, 0, 0);
-          return tomorrow;
-        })();
-  }, [promotions]);
+  const targetDate = useRef(new Date(Date.now() + 14 * 3600 * 1000 + 42 * 60 * 1000)).current;
 
-  // Fetch & Synchronize CMS Layout in real-time
   useEffect(() => {
     const fetchLayout = async () => {
       try {
@@ -105,16 +99,66 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     };
   }, []);
 
+  const handleCategoryClick = (catId) => {
+    setSelectedCatPill(catId);
+    onSelectCategory(catId);
+  };
+
   return (
-    <div className="home-container animate-fade-in" style={{ paddingBottom: '80px', position: 'relative' }}>
-      
-      {/* 1. Urgency / FOMO Driver */}
+    <div className="home-page-layout-container" style={{ paddingBottom: '80px' }}>
       <FlashDealBanner />
-      
-      {/* 2. Trust Builder / Social Proof */}
       <LiveSocialProof />
 
-      {/* Hero Carousel - Automatically hides if Admin deletes all slides */}
+      <section style={{ margin: '8px 0 12px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Sparkles size={16} style={{ color: '#d97706' }} /> INDIA'S VIP SHOPPING VAULTS
+          </span>
+          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '700' }}>⚡ Free 10-Min Metro Delivery</span>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
+          {vipCategories.map((cat) => {
+            const isSelected = selectedCatPill === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                style={{
+                  flexShrink: 0,
+                  background: isSelected ? cat.gradient : '#ffffff',
+                  color: isSelected ? '#ffffff' : '#090d16',
+                  border: isSelected ? 'none' : '1px solid #e2e8f0',
+                  borderRadius: '20px',
+                  padding: '12px 20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: isSelected ? '0 10px 25px -5px rgba(67, 56, 202, 0.45)' : '0 2px 8px rgba(9, 13, 22, 0.04)',
+                  transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
+                }}
+              >
+                <span style={{ fontSize: '20px' }}>{cat.icon}</span>
+                <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: '800', fontSize: '14px', letterSpacing: '-0.2px' }}>{cat.label}</span>
+                <span style={{
+                  background: isSelected ? 'rgba(255, 255, 255, 0.2)' : '#f1f5f9',
+                  color: isSelected ? '#ffffff' : '#e11d48',
+                  fontSize: '10px',
+                  fontWeight: '900',
+                  padding: '2px 8px',
+                  borderRadius: '10px',
+                  letterSpacing: '0.3px'
+                }}>
+                  {cat.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
       {slides.length > 0 && (
         <section 
           className="hero-carousel"
@@ -124,10 +168,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         >
           {slides.map((slide, idx) => {
             const slideBg = slide.imageUrl ? `url(${slide.imageUrl}) center/cover no-repeat` : (slide.bg || slide.bgGradient || 'var(--primary-color)');
-            const slideTag = slide.badge || slide.tag || '';
-            const slideTitle = slide.title || 'Grand Megastore Offer';
-            const slideDesc = slide.subTitle || slide.desc || '';
-            const slideCat = slide.link ? slide.link.split('/').pop().replace('category=', '').replace('?','') : (slide.cat || 'mobiles');
+            const slideTag = slide.badge || slide.tag || '🇮🇳 PROUDLY INDIA #1 MEGASTORE';
+            const slideTitle = slide.title || 'Grand Store Exclusive';
+            const slideDesc = slide.subTitle || slide.desc || 'Experience hyper-luxury delivery, verified bank cash protection, and instant creator commission incentives.';
+            const slideCat = slide.link ? slide.link.split('/').pop().replace('category=', '').replace('?','') : (slide.cat || 'all');
 
             return (
               <div 
@@ -137,117 +181,95 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
               >
                 <div className="carousel-slide-overlay"></div>
                 
-                <div className="slide-content-box">
-                  {slideTag && <span className="slide-tag"><Sparkles size={14} /> {slideTag}</span>}
-                  <h1 className="slide-title">{slideTitle}</h1>
-                  <p className="slide-desc">{slideDesc}</p>
-                  <button 
-                    className="btn animate-fade-in" 
-                    style={{ 
-                      background: 'linear-gradient(90deg, var(--primary-color) 0%, #6366f1 100%)',
-                      color: 'white',
-                      borderRadius: '30px', 
-                      padding: '14px 32px', 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      gap: '10px', 
-                      border: 'none', 
-                      fontWeight: '800', 
-                      fontSize: '15px',
-                      boxShadow: '0 10px 20px -5px rgba(79, 70, 229, 0.4)',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 25px -5px rgba(79, 70, 229, 0.5)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(79, 70, 229, 0.4)'; }}
-                    onClick={() => onSelectCategory(slideCat)}
-                  >
-                    Explore Now <ArrowRight size={18} />
-                  </button>
+                <div className="slide-content-box" style={{ maxWidth: '620px' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(12px)', padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.3)', marginBottom: '16px' }}>
+                    <Sparkles size={14} style={{ color: '#fde047' }} />
+                    <span style={{ fontSize: '12px', fontWeight: '900', letterSpacing: '0.5px', color: '#ffffff', textTransform: 'uppercase' }}>{slideTag}</span>
+                  </div>
+                  
+                  <h1 className="slide-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '42px', fontWeight: '900', lineHeight: '1.1', marginBottom: '16px', letterSpacing: '-1px' }}>
+                    {slideTitle}
+                  </h1>
+                  <p className="slide-desc" style={{ fontSize: '16px', color: '#e2e8f0', lineHeight: '1.6', marginBottom: '28px', fontWeight: '500' }}>
+                    {slideDesc}
+                  </p>
+                  
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                    <button 
+                      className="btn animate-fade-in" 
+                      style={{ 
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%)',
+                        color: 'white',
+                        borderRadius: '30px', 
+                        padding: '16px 36px', 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '10px', 
+                        border: '1px solid rgba(255, 255, 255, 0.3)', 
+                        fontFamily: "'Outfit', sans-serif",
+                        fontWeight: '800', 
+                        fontSize: '16px',
+                        boxShadow: '0 14px 32px -5px rgba(99, 102, 241, 0.6)',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => onSelectCategory(slideCat)}
+                    >
+                      ⚡ Grab Deal Now <ArrowRight size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
           })}
 
           <button className="carousel-nav-btn carousel-nav-left" onClick={handlePrevSlide}>
-            <ChevronLeft size={24} />
+            <ChevronLeft size={26} />
           </button>
           <button className="carousel-nav-btn carousel-nav-right" onClick={handleNextSlide}>
-            <ChevronRight size={24} />
+            <ChevronRight size={26} />
           </button>
-
-          <div className="carousel-indicators">
-            {slides.map((_, idx) => (
-              <div
-                key={idx}
-                className={`carousel-indicator-dot ${idx === activeSlide ? 'active' : ''}`}
-                onClick={() => setActiveSlide(idx)}
-              />
-            ))}
-          </div>
         </section>
       )}
 
-
-      {/* Premium Trust Strip */}
-      <div className="trust-strip">
-        <div className="trust-item">
-          <Award size={20} />
-          <span className="trust-text">100% Genuine<br/>Products</span>
-        </div>
-        <div className="trust-item">
-          <Sparkles size={20} />
-          <span className="trust-text">Free Express<br/>Delivery</span>
-        </div>
-        <div className="trust-item">
-          <Timer size={20} />
-          <span className="trust-text">Easy 10-Day<br/>Returns</span>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', margin: '12px 0 24px 0' }}>
+        {[
+          { icon: <Zap size={26} color="#0284c7" />, title: "10-Minute Rapid Metro", sub: "Ai-routed express dispatch", bg: "#f0f9ff", border: "#bae6fd" },
+          { icon: <ShieldCheck size={26} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade protection", bg: "#ecfdf5", border: "#a7f3d0" },
+          { icon: <Truck size={26} color="#7c3aed" />, title: "Instant 10-Day Return", sub: "Hassle-free replacement", bg: "#f5f3ff", border: "#ddd6fe" },
+          { icon: <Award size={26} color="#d97706" />, title: "Platinum Club Rebates", sub: "Earn up to 12% in coins", bg: "#fffbeb", border: "#fde68a" },
+        ].map((item, idx) => (
+          <div key={idx} style={{
+            background: item.bg, border: `1px solid ${item.border}`, borderRadius: '20px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px'
+          }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '16px', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {item.icon}
+            </div>
+            <div>
+              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '800', color: '#090d16', margin: '0 0 4px 0' }}>{item.title}</h4>
+              <p style={{ fontSize: '12px', color: '#475569', margin: 0, fontWeight: '600' }}>{item.sub}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* DYNAMIC CMS SECTIONS */}
       {loadingLayout ? (
-        <div className="skeleton-container" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
-          {/* Title Skeleton */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="skeleton-pulse" style={{ width: '200px', height: '30px', borderRadius: '8px' }}></div>
-            <div className="skeleton-pulse" style={{ width: '80px', height: '30px', borderRadius: '20px' }}></div>
-          </div>
-          {/* Product Cards Skeleton */}
-          <div style={{ display: 'flex', gap: '16px', overflow: 'hidden' }}>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="skeleton-pulse" style={{ width: '220px', height: '340px', borderRadius: '16px', flexShrink: 0 }}></div>
-            ))}
-          </div>
+        <div className="skeleton-container" style={{ padding: '20px' }}>
+          <div className="skeleton-pulse" style={{ width: '220px', height: '36px', borderRadius: '10px' }}></div>
         </div>
       ) : (
         layoutComponents.map((comp) => {
           if (comp.type === 'deals_row') {
             const dealsProducts = products
               .filter(p => promotions && promotions.dealsProducts ? promotions.dealsProducts.includes(p.id) : p.originalPrice > p.price)
-              .sort((a,b) => ((b.originalPrice - b.price)/b.originalPrice) - ((a.originalPrice - a.price)/a.originalPrice))
-              .slice(0, 5);
+              .slice(0, 6);
             
             return (
-              <section key={comp.id} className="deals-container">
-                <div className="deals-header">
-                  <div className="deals-title-area">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', borderRadius: '10px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(239,68,68,0.35)' }}>
-                        <Timer size={18} color="white" />
-                      </div>
-                      <span className="deals-title">{comp.title || 'Deals of the Day'}</span>
-                    </div>
-                    <div className="deals-timer">
-                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>Ends In:</span>
-                      <DealsCountdown targetDate={targetDate} />
-                    </div>
-                  </div>
-                  <button className="btn-glass-light" onClick={() => onSelectCategory('all')}>
-                    View All <ArrowRight size={14} />
-                  </button>
+              <section key={comp.id} style={{ backgroundColor: '#ffffff', borderRadius: '32px', padding: '28px', border: '1px solid #e2e8f0', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <span style={{ fontSize: '26px', fontWeight: '900', letterSpacing: '-0.5px' }}>{comp.title || '⚡ VIP Lightning Doorbusters'}</span>
+                  <DealsCountdown targetDate={targetDate} />
                 </div>
-                <div className="home-carousel-row">
+                <div className="home-carousel-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
                   {dealsProducts.map(product => (
                     <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
                   ))}
@@ -255,73 +277,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
               </section>
             );
           }
-
-          if (comp.type === 'category_row') {
-            const catProducts = products.filter(p => p.category === comp.data).slice(0, 5);
-            const catEmojis = { electronics: '⚡', fashion: '👗', sports: '🏃', home: '🏠', beauty: '✨', toys: '🎮' };
-            const emoji = catEmojis[comp.data] || '🛍️';
-            return (
-              <section key={comp.id} className="deals-container">
-                <div className="deals-header">
-                  <div className="deals-title-area">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', borderRadius: '10px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
-                        {emoji}
-                      </div>
-                      <span className="deals-title">{comp.title || 'Category'}</span>
-                    </div>
-                  </div>
-                  <button className="btn-glass-light" onClick={() => onSelectCategory(comp.data)}>
-                    Explore <ArrowRight size={14} />
-                  </button>
-                </div>
-                <div className="home-carousel-row">
-                  {catProducts.map(product => (
-                    <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
-                  ))}
-                </div>
-              </section>
-            );
-          }
-
-          if (comp.type === 'banner') {
-            return (
-              <section key={comp.id} style={{ margin: '20px', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ background: '#2874f0', color: 'white', padding: '30px', textAlign: 'center' }}>
-                  <h2>{comp.title || 'Special Promotion'}</h2>
-                  <p>{comp.data || 'Check out our latest offers!'}</p>
-                </div>
-              </section>
-            );
-          }
-
           return null;
         })
       )}
 
-      {/* Affiliate Promo Banner */}
-      {/* Affiliate Promo Banner */}
-      <section style={{ padding: '0 20px', marginBottom: '40px' }}>
-        <div className="premium-affiliate-banner" onClick={() => onNavigate('info')}>
-          {/* Decorative background elements */}
-          <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
-          <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '100px', height: '100px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
-          
-          <div className="premium-affiliate-content" style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px', backdropFilter: 'blur(10px)', flexShrink: 0 }}>
-              <Award size={20} color="#fff" strokeWidth={2} />
-            </div>
-            <div className="premium-affiliate-text" style={{ textAlign: 'left' }}>
-              <h3 style={{ margin: '0 0 2px 0', fontSize: '16px', fontWeight: '800', letterSpacing: '0.5px' }}>Start Earning With Us</h3>
-              <p style={{ margin: 0, fontSize: '12px', color: '#e0e7ff', lineHeight: '1.3' }}>Join Creator Program & Earn 7% cash.</p>
-            </div>
-          </div>
-          <button className="btn-glass-light banner-action-btn" style={{ padding: '8px 16px', fontSize: '13px', whiteSpace: 'nowrap' }}>
-            Learn More <ArrowRight size={14} />
-          </button>
+      <section style={{ margin: '24px 0 48px 0' }}>
+        <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #312e81 100%)', borderRadius: '32px', padding: '44px', color: '#fff' }}>
+          <h3 style={{ fontSize: '28px', fontWeight: '900', marginBottom: '10px' }}>Monetize Your Influence</h3>
+          <p style={{ color: '#cbd5e1', marginBottom: '20px' }}>Join our Creator Economy & earn 8% commissions.</p>
+          <button style={{ background: '#fff', color: '#000', padding: '12px 24px', borderRadius: '30px', fontWeight: '900', cursor: 'pointer' }} onClick={() => onNavigate('info')}>Apply Now</button>
         </div>
       </section>
-
     </div>
   );
 };
@@ -332,21 +298,18 @@ const DealsCountdown = ({ targetDate }) => {
     const updateTimer = () => {
       const now = new Date();
       const diff = targetDate.getTime() - now.getTime();
-      if (diff <= 0) {
-        setTimerString('00:00:00');
-        return;
-      }
+      if (diff <= 0) { setTimerString('00:00:00'); return; }
       const hrs = Math.floor(diff / (1000 * 60 * 60));
       const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const secs = Math.floor((diff % (1000 * 60)) / 1000);
-      setTimerString(`${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`);
+      setTimerString(`${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
     };
-    const timerInt = setInterval(updateTimer, 1000);
     updateTimer();
-    return () => clearInterval(timerInt);
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
   }, [targetDate]);
 
-  return <span className="timer-box">{timerString}</span>;
+  return <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: '900', fontSize: '15px' }}>{timerString}</span>;
 };
 
-export default Home;
+export default React.memo(Home);

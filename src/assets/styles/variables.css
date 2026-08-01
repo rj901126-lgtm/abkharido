@@ -1,50 +1,56 @@
-/* CSS Brand Tokens for AbKharido.com - Premium Modern E-Commerce Palette */
+/* CSS Brand Tokens for AbKharido.com - India's #1 Ultra-Premium E-Commerce Palette */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Brand Colors - Premium Indigo Theme */
-  --primary-color: #4f46e5;       /* Vibrant Indigo */
-  --primary-light: #eef2ff;       /* Very soft indigo background wrapper */
-  --primary-dark: #3730a3;        /* Deep indigo hover */
-  
-  --secondary-color: #10b981;     /* Emerald Green (for offers/ratings) */
-  --accent-color: #0f172a;        /* Midnight Slate (Add to Cart / Bold actions) */
-  --accent-light: #334155;        /* Slate Gray */
+  /* Brand Colors - Ultra Luxury Indigo & Titanium Theme */
+  --primary-color: #4338ca;       /* Royal Indigo 700 */
+  --primary-light: #e0e7ff;       /* Soft Electric Indigo Wrapper */
+  --primary-dark: #2e1065;        /* Deep Midnight Obsidian */
+  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #4338ca 100%);
+  --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  --neon-fire: linear-gradient(90deg, #ff0055 0%, #ff5500 100%);
+
+  --secondary-color: #059669;     /* Deep Emerald Green (for offers/ratings) */
+  --accent-color: #090d16;        /* Titanium Black (Add to Cart / Bold actions) */
+  --accent-light: #1e293b;        /* Slate Slate 800 */
   
   /* Status Colors */
-  --success: #10b981;             /* Emerald Green */
-  --error: #ef4444;               /* Rose Red */
-  --warning: #f59e0b;             /* Amber Warning */
-  --info: #0ea5e9;                /* Sky Blue */
+  --success: #059669;             /* Emerald Green */
+  --error: #e11d48;               /* Crimson Rose */
+  --warning: #d97706;             /* Amber VIP Gold */
+  --info: #0284c7;                /* Diamond Sky Blue */
 
   /* Neutral Colors - Slate Design System */
-  --text-primary: #0f172a;        /* Slate 900 for premium typography */
-  --text-secondary: #64748b;      /* Slate 500 for secondary copy */
-  --bg-page: #f8fafc;             /* Very light crisp Slate 50 */
+  --text-primary: #090d16;        /* Slate 950 for hyper contrast */
+  --text-secondary: #475569;      /* Slate 600 for secondary copy */
+  --bg-page: #f8fafc;             /* Ultra crisp diamond white/slate 50 */
   --bg-card: #ffffff;             /* Pure white containers */
   --border-light: #e2e8f0;        /* Muted Slate 200 grid lines */
-  --border-focus: #818cf8;        /* Soft Indigo focus indicators */
+  --border-focus: #6366f1;        /* Soft Indigo focus indicators */
 
   /* Typography */
-  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-logo: 'Outfit', sans-serif;
+  --font-primary: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-logo: 'Outfit', -apple-system, sans-serif;
 
-  /* Elevation/Shadows - Smooth Ambient Shadows */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.08);
-  --shadow-hover: 0 15px 30px rgba(15, 23, 42, 0.12);
+  /* Elevation/Shadows - Ultra Ambient Luxury Glows */
+  --shadow-sm: 0 2px 4px rgba(9, 13, 22, 0.04);
+  --shadow-md: 0 8px 20px rgba(9, 13, 22, 0.06);
+  --shadow-lg: 0 16px 36px rgba(9, 13, 22, 0.09);
+  --shadow-hover: 0 22px 48px rgba(67, 56, 202, 0.16);
+  --shadow-glow: 0 8px 25px -4px rgba(79, 70, 229, 0.45);
 
   /* Layout / Borders */
-  --radius-sm: 6px;               /* Modernized soft rounded corners */
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 8px;               /* Ultra soft rounded geometry */
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
   --radius-full: 9999px;
   
   /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
-  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Width boundaries */
-  --max-width-content: 1240px;
+  --max-width-content: 1320px;
 }
