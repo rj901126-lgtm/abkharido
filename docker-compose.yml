@@ -1,6 +1,7 @@
 services:
   nginx:
     image: nginx:alpine
+    restart: unless-stopped
     ports:
       - "80:80"
     volumes:
@@ -12,6 +13,7 @@ services:
       - abkharido-net
 
   frontend:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: frontend.Dockerfile
@@ -26,6 +28,7 @@ services:
       - abkharido-net
 
   backend:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: backend.Dockerfile
@@ -47,6 +50,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
     # Removed ports binding for security (only accessible inside abkharido-net)
     volumes:
       - redis_data:/data
@@ -55,6 +59,7 @@ services:
 
   mongodb:
     image: mongo:7
+    restart: unless-stopped
     # Removed ports binding for security (only accessible inside abkharido-net)
     volumes:
       - mongo_data:/data/db
