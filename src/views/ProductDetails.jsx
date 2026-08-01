@@ -932,15 +932,18 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
 
           {/* 📦 TITANIUM SPECIFICATION SHIELD & WHAT'S IN THE BOX */}
-          <div style={{ marginTop: '28px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
-            <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)', padding: '18px 24px', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <details className="pdp-vip-accordion" style={{ marginTop: '28px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
+            <summary style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)', padding: '18px 24px', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', listStyle: 'none', cursor: 'pointer' }}>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <ShieldCheck size={20} color="#fde047" /> Technical Specifications & Box Assurance
               </span>
-              <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: '12px', fontWeight: '700' }}>Verified Original Stock</span>
-            </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: '12px', fontWeight: '700' }}>Verified Original Stock</span>
+                <span className="vip-accordion-icon" style={{ fontSize: '20px', fontWeight: 'bold', color: '#fde047' }}>+</span>
+              </div>
+            </summary>
 
-            <div style={{ padding: '24px' }}>
+            <div style={{ padding: '24px', borderTop: '1px solid #e2e8f0' }}>
               <div style={{ marginBottom: '20px' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#090d16', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Product Overview</h4>
                 <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.7', margin: 0, fontWeight: '500' }}>
@@ -977,7 +980,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 </tbody>
               </table>
             </div>
-          </div>
+          </details>
 
           {/* Ratings & Reviews section */}
           <details className="pdp-accordion" id="reviews-section">

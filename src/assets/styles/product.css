@@ -1121,3 +1121,28 @@
     transform: translateY(-2px) !important;
   }
 }
+
+/* VIP Enterprise Accordion & Interactive Polish */
+.pdp-vip-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.pdp-vip-accordion .vip-accordion-icon {
+  transition: transform 0.25s ease;
+}
+
+.pdp-vip-accordion[open] .vip-accordion-icon {
+  transform: rotate(45deg);
+  color: #ef4444 !important;
+}
+
+/* Smooth Thumbnail Hover Polish */
+.desktop-thumbnails-container img, .desktop-thumbnails-container video {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.desktop-thumbnails-container img:hover, .desktop-thumbnails-container video:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.2);
+  z-index: 2;
+}

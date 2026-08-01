@@ -55,7 +55,7 @@ const LivePurchasePopup = () => {
     <div 
       style={{
         position: 'fixed',
-        bottom: '86px', // Hover just above mobile nav
+        bottom: '24px',
         left: '20px',
         backgroundColor: 'rgba(255, 255, 255, 0.96)',
         backdropFilter: 'blur(12px)',
