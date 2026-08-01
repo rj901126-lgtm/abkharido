@@ -34,16 +34,17 @@ const LivePurchasePopup = () => {
       }, 4000);
     };
 
-    // Show first popup after 10 seconds
+    // Show first popup after 4 seconds for instant social trust
     const initialTimer = setTimeout(() => {
       showRandomPurchase();
       
-      // Then show every 20-30 seconds
-      setInterval(() => {
+      // Then show every 12 to 18 seconds
+      const interval = setInterval(() => {
         showRandomPurchase();
-      }, Math.random() * 10000 + 20000);
-      
-    }, 10000);
+      }, Math.random() * 6000 + 12000);
+
+      return () => clearInterval(interval);
+    }, 4000);
 
     return () => clearTimeout(initialTimer);
   }, [products]);
@@ -54,36 +55,38 @@ const LivePurchasePopup = () => {
     <div 
       style={{
         position: 'fixed',
-        bottom: '80px', // Above mobile nav
+        bottom: '86px', // Hover just above mobile nav
         left: '20px',
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '12px',
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        backdropFilter: 'blur(12px)',
+        borderRadius: '16px',
+        padding: '14px',
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05)',
-        border: '1px solid #f1f5f9',
-        transform: visible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)',
+        gap: '14px',
+        boxShadow: '0 12px 30px rgba(9, 13, 22, 0.12), 0 0 0 1px rgba(16, 185, 129, 0.25)',
+        border: '1px solid #d1fae5',
+        transform: visible ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.9)',
         opacity: visible ? 1 : 0,
-        transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
         pointerEvents: 'none',
         zIndex: 9998,
-        maxWidth: '320px'
+        maxWidth: '340px',
+        fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif"
       }}
     >
-      <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+      <div style={{ width: '52px', height: '52px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid #e2e8f0', backgroundColor: '#ffffff', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img src={popupData.product.image} alt={popupData.product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-        <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span>{popupData.name} from {popupData.city}</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span>🔥 <strong style={{ color: '#090d16' }}>{popupData.name}</strong> in <strong style={{ color: '#090d16' }}>{popupData.city}</strong></span>
         </div>
-        <div style={{ fontSize: '12px', fontWeight: '700', color: '#0f172a', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           Purchased {popupData.product.name}
         </div>
-        <div style={{ fontSize: '10px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', marginTop: '2px' }}>
-          <CheckCircle2 size={10} /> Verified • {popupData.timeAgo} min ago
+        <div style={{ fontSize: '11px', color: '#059669', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '800' }}>
+          <CheckCircle2 size={12} color="#059669" fill="#d1fae5" /> Verified Order • {popupData.timeAgo}m ago
         </div>
       </div>
     </div>

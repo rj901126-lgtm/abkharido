@@ -281,11 +281,105 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         })
       )}
 
-      <section style={{ margin: '24px 0 48px 0' }}>
-        <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #312e81 100%)', borderRadius: '32px', padding: '44px', color: '#fff' }}>
-          <h3 style={{ fontSize: '28px', fontWeight: '900', marginBottom: '10px' }}>Monetize Your Influence</h3>
-          <p style={{ color: '#cbd5e1', marginBottom: '20px' }}>Join our Creator Economy & earn 8% commissions.</p>
-          <button style={{ background: '#fff', color: '#000', padding: '12px 24px', borderRadius: '30px', fontWeight: '900', cursor: 'pointer' }} onClick={() => onNavigate('info')}>Apply Now</button>
+      {/* 🏛️ OFFICIAL BRAND PAVILIONS & AUTHORISED BOUTIQUES */}
+      <section style={{ marginTop: '28px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(9, 13, 22, 0.03)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <span>🏛️</span> Official Authorised Brand Pavilions
+            </h3>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b', fontWeight: '600' }}>Direct inventory shipped directly from licensed national brand distributors</p>
+          </div>
+          <span style={{ fontSize: '12px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '6px 14px', borderRadius: '20px', border: '1px solid #a7f3d0' }}>
+            ✓ 100% Genuine Brand Warranty
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px' }}>
+          {[
+            { name: "APPLE", desc: "Flagship Mac & iPhone", icon: "🍎", bg: "linear-gradient(135deg, #1e293b, #0f172a)", tag: "DIRECT PARTNER" },
+            { name: "SAMSUNG", desc: "Galaxy AI & Ultra 5G", icon: "✨", bg: "linear-gradient(135deg, #1d4ed8, #1e40af)", tag: "FLUSH STOCK" },
+            { name: "SONY AUDIO", desc: "Noise Cancel & Studio", icon: "🎧", bg: "linear-gradient(135deg, #4338ca, #3730a3)", tag: "AUDIOPHILE" },
+            { name: "NIKE SPORT", desc: "VaporFly & Air Max", icon: "⚡", bg: "linear-gradient(135deg, #b91c1c, #991b1b)", tag: "AUTHORIZED" },
+            { name: "BOSE LUXE", desc: "Acoustic QuietComfort", icon: "🎼", bg: "linear-gradient(135deg, #047857, #065f46)", tag: "PREMIUM" },
+            { name: "ROLEX / TAG", desc: "Titanium Swiss Couture", icon: "⌚", bg: "linear-gradient(135deg, #b45309, #92400e)", tag: "HERITAGE" }
+          ].map((brand, bIdx) => (
+            <div 
+              key={bIdx}
+              onClick={() => onNavigate('catalog')}
+              style={{
+                background: brand.bg,
+                borderRadius: '24px',
+                padding: '22px 18px',
+                color: 'white',
+                cursor: 'pointer',
+                transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), boxShadow 0.25s',
+                position: 'relative',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                minHeight: '140px',
+                boxShadow: '0 10px 20px rgba(9, 13, 22, 0.1)'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 16px 32px rgba(9, 13, 22, 0.2)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px rgba(9, 13, 22, 0.1)'; }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '28px' }}>{brand.icon}</span>
+                <span style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.5px', background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '8px' }}>
+                  {brand.tag}
+                </span>
+              </div>
+              <div>
+                <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '17px', fontWeight: '900', margin: '12px 0 2px 0', letterSpacing: '0.5px' }}>{brand.name}</h4>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', margin: 0, fontWeight: '500' }}>{brand.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 🔥 TRENDING IN INDIAN METROS - HIGH INTENT DISCOVERY */}
+      <section style={{ marginTop: '28px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(9, 13, 22, 0.03)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <span>🔥</span> Trending High-Velocity Picks by Indian Metro Cities
+            </h3>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b', fontWeight: '600' }}>Real-time demand analytics across Mumbai, Delhi NCR, Bengaluru & Hyderabad</p>
+          </div>
+          <span style={{ fontSize: '13px', color: '#4338ca', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => onNavigate('catalog')}>
+            Explore All 5,000+ Verified Stock Products →
+          </span>
+        </div>
+        <div className="home-carousel-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
+          {products.slice(0, 4).map((product, pIdx) => (
+            <div key={`metro-${product.id || pIdx}`} style={{ position: 'relative' }}>
+              <ProductCard product={product} onNavigateProduct={onNavigateProduct} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ margin: '28px 0 16px 0' }}>
+        <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #312e81 100%)', borderRadius: '32px', padding: '44px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 40px rgba(9, 13, 22, 0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+            <div>
+              <span style={{ background: '#fde047', color: '#090d16', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '900', display: 'inline-block', marginBottom: '12px' }}>
+                👑 INFLUENCER & CREATOR HUB
+              </span>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '32px', fontWeight: '900', marginBottom: '10px', letterSpacing: '-0.5px' }}>Monetize Your Digital Influence</h3>
+              <p style={{ color: '#cbd5e1', marginBottom: '0', fontSize: '15px', maxWidth: '560px', lineHeight: '1.6', fontWeight: '500' }}>Join India's most disruptive Creator Economy. Generate personalized shopping affiliate links, share across WhatsApp/Instagram & earn automated weekly bank payouts up to 12%.</p>
+            </div>
+            <button 
+              style={{ background: 'linear-gradient(135deg, #fde047, #f59e0b)', color: '#090d16', padding: '16px 36px', borderRadius: '30px', fontWeight: '900', fontSize: '16px', cursor: 'pointer', border: 'none', boxShadow: '0 10px 25px rgba(245, 158, 11, 0.35)', transition: 'transform 0.2s', flexShrink: 0 }} 
+              onClick={() => onNavigate && onNavigate('partner')}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
+            >
+              Launch Creator Console →
+            </button>
+          </div>
         </div>
       </section>
     </div>

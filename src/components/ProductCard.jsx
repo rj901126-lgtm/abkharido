@@ -178,10 +178,10 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             </div>
           </div>
         ) : (
-          <div style={{ marginTop: 'auto', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', border: '1px solid #fde68a', borderRadius: '10px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px', width: '100%', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.12)' }}>
+          <div style={{ marginTop: 'auto', background: 'linear-gradient(135deg, #fffdf5 0%, #fef3c7 100%)', border: '1px solid #fde68a', borderRadius: '10px', padding: '5px 10px', display: 'flex', alignItems: 'center', gap: '5px', width: '100%', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.08)' }}>
             <span style={{ fontSize: '13px' }}>🪙</span>
-            <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '800', letterSpacing: '0.2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Earn <span style={{ fontSize: '13px', fontWeight: '900', color: '#d97706' }}>+{userEarningsCoins}</span> VIP Cashback Coins
+            <span style={{ fontSize: '11px', color: '#92400e', fontWeight: '800', letterSpacing: '0.2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Earn <span style={{ fontSize: '12px', fontWeight: '900', color: '#d97706' }}>+{userEarningsCoins}</span> Reward Coins
             </span>
           </div>
         )}
@@ -222,8 +222,8 @@ const styles = {
   },
   imageWrapper: {
     width: '100%',
-    height: '230px',
-    padding: '16px',
+    height: '200px',
+    padding: '14px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

@@ -6,6 +6,8 @@ import Navbar from './Navbar';
 import BottomNavigation from './BottomNavigation';
 import CartDrawer from './CartDrawer';
 import Toast from './Toast';
+import Footer from './Footer';
+import LivePurchasePopup from './LivePurchasePopup';
 import { useApp } from '../context/AppContext';
 import { MessageCircle, Wrench, ShieldAlert, Mail, Phone, Lock, Clock, Sparkles } from 'lucide-react';
 
@@ -226,6 +228,12 @@ export default function ClientLayout({ children }) {
       >
         {children}
       </main>
+
+      {/* VIP Corporate E-Commerce Footer */}
+      {!isPortalPage && <Footer onNavigate={handleNavigate} />}
+
+      {/* Real-Time Live Social Proof Buyer Toast */}
+      {!isPortalPage && <LivePurchasePopup />}
 
       {/* Floating WhatsApp Live Customer Support Widget */}
       {!isPortalPage && globalConfig.enableWhatsAppFloat && (
