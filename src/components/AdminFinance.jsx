@@ -356,7 +356,7 @@ const AdminFinance = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontWeight: '800', fontSize: '13px' }}>Require Dual-Admin OTP for Payouts (> ₹50,000)</div>
+                <div style={{ fontWeight: '800', fontSize: '13px' }}>Require Dual-Admin OTP for Payouts (Above ₹50,000)</div>
                 <div style={{ fontSize: '11px', color: '#cbd5e1' }}>Prevents single-admin errors on high value bank transfers.</div>
               </div>
               <input type="checkbox" checked={safeguards.requireDualOtp} onChange={() => handleToggleSafeguard('requireDualOtp')} style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#34d399' }} />
