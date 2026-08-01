@@ -397,7 +397,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         <meta property="og:type" content="product" />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
-    <div className="container product-page-container animate-fade-in-only" style={{ paddingTop: '0', paddingBottom: '80px' }}>
+    <div className="container product-page-container animate-fade-in-only" style={{ paddingTop: '0', paddingBottom: '130px' }}>
 
       <div className="details-page-grid">
         {/* Left Column: Image and Purchase Actions */}
@@ -1267,6 +1267,111 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
           </div>
 
+        </div>
+
+        {/* 🚀 GLOBAL FIXED VIP ENTERPRISE PURCHASE RIBBON (STICKY BUY BAR FOR INSTANT 1-CLICK BUY) */}
+        <div className="vip-fixed-bottom-purchase-bar" style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: 'rgba(255, 255, 255, 0.97)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderTop: '2px solid #e2e8f0',
+          boxShadow: '0 -10px 40px rgba(9, 13, 22, 0.14)',
+          zIndex: 1400,
+          padding: '12px 32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '20px',
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+          {/* Left Side: Product Micro-Preview */}
+          <div className="vip-fixed-bar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0, flex: '1 1 auto' }}>
+            <img 
+              src={product.image || (product.images && product.images[0]) || ''} 
+              alt={product.name} 
+              style={{ width: '52px', height: '52px', objectFit: 'contain', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '2px', flexShrink: 0 }}
+            />
+            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+              <div style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>
+                {product.name}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '2px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '20px', fontWeight: '900', color: '#059669', fontFamily: "'Outfit', sans-serif" }}>
+                  ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}
+                </span>
+                <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#047857', padding: '2px 8px', borderRadius: '6px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
+                  ✓ Express Dispatch Ready
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side: Instant Action Purchase Buttons (Fixed & Easily Accessible on ALL Devices) */}
+          <div className="vip-fixed-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
+            <button
+              onClick={() => {
+                const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                addToCart(customProduct);
+              }}
+              style={{
+                height: '50px',
+                padding: '0 26px',
+                border: '2px solid #4f46e5',
+                borderRadius: '16px',
+                background: '#ffffff',
+                color: '#4f46e5',
+                fontWeight: '900',
+                fontSize: '16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontFamily: "'Outfit', sans-serif",
+                transition: 'all 0.2s',
+                boxShadow: '0 2px 8px rgba(79, 70, 229, 0.1)',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f3ff'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'none'; }}
+            >
+              <ShoppingCart size={20} /> <span className="buy-bar-btn-text">Add to Cart</span>
+            </button>
+            <button
+              onClick={() => {
+                const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                addToCart(customProduct, 1);
+                onBuyNow(customProduct);
+              }}
+              style={{
+                height: '50px',
+                padding: '0 32px',
+                border: 'none',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                color: '#ffffff',
+                fontWeight: '900',
+                fontSize: '16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontFamily: "'Outfit', sans-serif",
+                boxShadow: '0 8px 25px rgba(79, 70, 229, 0.4)',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 30px rgba(79, 70, 229, 0.55)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(79, 70, 229, 0.4)'; }}
+            >
+              <Zap size={20} fill="white" /> <span>Buy Now</span>
+            </button>
+          </div>
         </div>
 
     </>

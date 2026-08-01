@@ -221,45 +221,66 @@
 }
 
 @media (max-width: 768px) {
+  /* Keep inline Action Hub inside card flow on mobile since we have the permanent VIP Fixed Purchase Ribbon at screen bottom */
   .action-buttons-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.97);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    padding: 10px 16px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
-    z-index: 1500;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    margin-top: 0;
-    margin-bottom: 0;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 12px;
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    background: #ffffff !important;
+    padding: 16px !important;
+    box-shadow: 0 10px 24px rgba(9, 13, 22, 0.05) !important;
+    z-index: 10 !important;
+    border-radius: 20px !important;
+    margin-top: 16px !important;
+    margin-bottom: 24px !important;
+    display: block !important;
   }
   .action-buttons-row {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
     margin: 0 !important;
-    flex: 1; /* Takes remaining space */
+    flex: none !important;
   }
   .mobile-price-preview {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center;
-    margin-bottom: 0 !important; /* Remove bottom margin to align perfectly */
-    min-width: fit-content;
+    margin-bottom: 8px !important;
   }
   .details-info-column {
     padding: 16px 16px 140px 16px !important;
   }
+
+  /* VIP Enterprise Fixed Bottom Purchase Ribbon on Mobile */
+  .vip-fixed-bottom-purchase-bar {
+    padding: 10px 16px !important;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+    gap: 8px !important;
+    z-index: 2500 !important;
+  }
+  .vip-fixed-bar-left {
+    display: none !important; /* Hide preview on mobile to give 100% width to instant action buttons */
+  }
+  .vip-fixed-bar-right {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .vip-fixed-bar-right button {
+    width: 100% !important;
+    padding: 0 10px !important;
+    height: 46px !important;
+    font-size: 14px !important;
+    border-radius: 12px !important;
+  }
+  .buy-bar-btn-text {
+    display: inline !important;
+  }
 }
+
 
 .details-action-btn {
   display: flex !important;
