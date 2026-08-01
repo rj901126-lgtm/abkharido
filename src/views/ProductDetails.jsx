@@ -528,6 +528,79 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
           <div style={{ padding: '12px 16px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #e2e8f0', textAlign: 'center', fontSize: '12px', color: '#64748b', fontWeight: '700', marginTop: '4px' }}>
             ✨ Tip: Touch or click thumbnails to inspect real studio angles & packaging
           </div>
+
+          {/* 🔥 1-CLICK VIP ENTERPRISE ACTION HUB IN LEFT COLUMN (FLIPKART/APPLE STUDIO STYLE) */}
+          <div className="action-buttons-container" style={{ marginTop: '16px', background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '24px', padding: '20px', boxShadow: '0 12px 32px rgba(9, 13, 22, 0.06)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+              <div>
+                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Total Payable Amount:</span>
+                <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '13px', color: '#059669', fontWeight: '700' }}>(Taxes Included)</span></div>
+              </div>
+              <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
+                ✓ Express Dispatch Ready
+              </span>
+            </div>
+            
+            <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                  addToCart(customProduct);
+                }}
+                style={{
+                  flex: '1 1 180px',
+                  height: '52px',
+                  border: '2px solid #4f46e5',
+                  borderRadius: '16px',
+                  background: '#ffffff',
+                  color: '#4f46e5',
+                  fontWeight: '900',
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontFamily: "'Outfit', sans-serif",
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.1)'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f3ff'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'none'; }}
+              >
+                <ShoppingCart size={20} /> Add to Cart
+              </button>
+              <button
+                onClick={() => {
+                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                  addToCart(customProduct, 1);
+                  onBuyNow(customProduct);
+                }}
+                style={{
+                  flex: '1 1 180px',
+                  height: '52px',
+                  border: 'none',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                  color: '#ffffff',
+                  fontWeight: '900',
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontFamily: "'Outfit', sans-serif",
+                  boxShadow: '0 10px 25px rgba(79, 70, 229, 0.4)',
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 32px rgba(79, 70, 229, 0.55)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(79, 70, 229, 0.4)'; }}
+              >
+                <Zap size={20} fill="white" /> Buy Now
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
@@ -750,79 +823,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
             <div style={{ fontSize: '13px', fontWeight: '800', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px', color: deliveryEstimate.includes('ELIGIBLE') ? '#059669' : deliveryEstimate.includes('Invalid') ? '#e11d48' : '#1e3a8a' }}>
               {deliveryEstimate || "✨ Enter your postal code to see real-time dispatch countdowns."}
-            </div>
-          </div>
-
-          {/* 🔥 1-CLICK VIP ENTERPRISE ACTION HUB */}
-          <div className="action-buttons-container" style={{ marginTop: '28px', background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '24px', padding: '24px', boxShadow: '0 12px 32px rgba(9, 13, 22, 0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '14px' }}>
-              <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Total Payable Amount:</span>
-                <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '13px', color: '#059669', fontWeight: '700' }}>(Taxes Included)</span></div>
-              </div>
-              <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
-                ✓ Ready for immediate express dispatch
-              </span>
-            </div>
-            
-            <div className="action-buttons-row" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => {
-                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                  addToCart(customProduct);
-                }}
-                style={{
-                  flex: '1 1 200px',
-                  height: '54px',
-                  border: '2px solid #4f46e5',
-                  borderRadius: '16px',
-                  background: '#ffffff',
-                  color: '#4f46e5',
-                  fontWeight: '900',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.1)'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f3ff'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'none'; }}
-              >
-                <ShoppingCart size={20} /> Add to Cart
-              </button>
-              <button
-                onClick={() => {
-                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                  addToCart(customProduct, 1);
-                  onBuyNow(customProduct);
-                }}
-                style={{
-                  flex: '1 1 200px',
-                  height: '54px',
-                  border: 'none',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
-                  color: '#ffffff',
-                  fontWeight: '900',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  boxShadow: '0 10px 25px rgba(79, 70, 229, 0.4)',
-                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 32px rgba(79, 70, 229, 0.55)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(79, 70, 229, 0.4)'; }}
-              >
-                <Zap size={20} fill="white" /> Buy Now
-              </button>
             </div>
           </div>
 
