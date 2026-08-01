@@ -199,18 +199,12 @@
   }
 }
 
-/* Action Buttons — Desktop: inline in right column. Mobile: sticky bottom bar */
+/* Action Buttons — Desktop: inline in right column. Mobile: fixed bottom bar */
 .action-buttons-container {
   display: block;
   margin-top: 24px;
-  position: sticky;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 16px 0;
-  z-index: 100;
-  margin-bottom: -40px; /* offset padding if any */
+  position: relative;
+  z-index: 10;
 }
 
 .action-buttons-row {

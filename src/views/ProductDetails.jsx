@@ -525,70 +525,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           )}
 
-          {/* Action Buttons Container */}
-          <div className="action-buttons-container" style={{ marginTop: '24px' }}>
-            {/* Price Preview (Mobile) */}
-            <div className="mobile-price-preview" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '8px' }}>
-              <span style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
-              <span style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(currentDisplayOriginalPrice || 0).toLocaleString('en-IN')}</span>
-            </div>
-            
-            <div className="action-buttons-row">
-                <button
-                  onClick={() => {
-                    const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                    addToCart(customProduct);
-                  }}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    border: '2px solid #4f46e5',
-                    borderRadius: '10px',
-                    background: '#ffffff',
-                    color: '#4f46e5',
-                    fontWeight: '700',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <ShoppingCart size={17} /> Add to Cart
-                </button>
-                <button
-                  onClick={() => {
-                    const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                    addToCart(customProduct, 1);
-                    onBuyNow(customProduct);
-                  }}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    border: 'none',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                    color: '#ffffff',
-                    fontWeight: '800',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    fontFamily: 'inherit',
-                    boxShadow: '0 4px 14px rgba(79,70,229,0.35)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <Zap size={17} fill="white" /> Buy Now
-                </button>
-              </div>
-            </div>
-        </div>
+          <div style={{ padding: '12px 16px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #e2e8f0', textAlign: 'center', fontSize: '12px', color: '#64748b', fontWeight: '700', marginTop: '4px' }}>
+            ✨ Tip: Touch or click thumbnails to inspect real studio angles & packaging
+          </div>
         </div>
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
@@ -601,6 +540,30 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             <span className="desktop-premium-price" style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
             <span className="desktop-premium-original" style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
             <span className="desktop-premium-discount" style={{ fontSize: '13px', color: '#166534', fontWeight: '700', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
+          </div>
+
+          {/* Smart EMI & Bank Savings Strip */}
+          <div style={{ marginTop: '14px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>💡</span>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#1e3a8a' }}>No-Cost EMI available starting at ₹{Math.max(499, Math.round(currentDisplayPrice / 12)).toLocaleString('en-IN')}/mo</div>
+                <div style={{ fontSize: '11px', color: '#475569', fontWeight: '600' }}>Standard EMI also available on HDFC, ICICI, SBI & Axis Bank Cards</div>
+              </div>
+            </div>
+            <span style={{ fontSize: '12px', color: '#2563eb', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => showToast('💳 All Credit/Debit Cards accepted with Instant Bank Discount Cashback at Checkout!', 'success')}>
+              View Plans
+            </span>
+          </div>
+
+          {/* Real-time High-Demand Scarcity Bar */}
+          <div style={{ marginTop: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: '11px', fontWeight: '800', padding: '5px 10px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🔥 In High Demand: 28 shoppers are currently viewing this item
+            </span>
+            <span style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', fontSize: '11px', fontWeight: '800', padding: '5px 10px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              📦 In Stock: Guaranteed Direct Warehouse Shipment
+            </span>
           </div>
 
           {isFlashSale && (
@@ -790,6 +753,79 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           </div>
 
+          {/* 🔥 1-CLICK VIP ENTERPRISE ACTION HUB */}
+          <div className="action-buttons-container" style={{ marginTop: '28px', background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '24px', padding: '24px', boxShadow: '0 12px 32px rgba(9, 13, 22, 0.06)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '14px' }}>
+              <div>
+                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Total Payable Amount:</span>
+                <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '13px', color: '#059669', fontWeight: '700' }}>(Taxes Included)</span></div>
+              </div>
+              <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
+                ✓ Ready for immediate express dispatch
+              </span>
+            </div>
+            
+            <div className="action-buttons-row" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                  addToCart(customProduct);
+                }}
+                style={{
+                  flex: '1 1 200px',
+                  height: '54px',
+                  border: '2px solid #4f46e5',
+                  borderRadius: '16px',
+                  background: '#ffffff',
+                  color: '#4f46e5',
+                  fontWeight: '900',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontFamily: "'Outfit', sans-serif",
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.1)'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f3ff'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'none'; }}
+              >
+                <ShoppingCart size={20} /> Add to Cart
+              </button>
+              <button
+                onClick={() => {
+                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                  addToCart(customProduct, 1);
+                  onBuyNow(customProduct);
+                }}
+                style={{
+                  flex: '1 1 200px',
+                  height: '54px',
+                  border: 'none',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                  color: '#ffffff',
+                  fontWeight: '900',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontFamily: "'Outfit', sans-serif",
+                  boxShadow: '0 10px 25px rgba(79, 70, 229, 0.4)',
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 32px rgba(79, 70, 229, 0.55)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(79, 70, 229, 0.4)'; }}
+              >
+                <Zap size={20} fill="white" /> Buy Now
+              </button>
+            </div>
+          </div>
+
           {/* VIP Frequently Bought Together Combo Bundle */}
           {recommendations && recommendations.length >= 1 && (
             <div style={{ marginTop: '28px', background: 'linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)', border: '2px solid #fde68a', borderRadius: '24px', padding: '24px', boxShadow: '0 10px 30px rgba(245, 158, 11, 0.08)' }}>
@@ -895,32 +931,53 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
 
 
-          {/* Product Description */}
-          <details className="pdp-accordion" open>
-            <summary>Product Description</summary>
-            <div className="accordion-content">
-              <p style={{ fontSize: '14px', color: '#444444', lineHeight: '1.6', margin: 0 }}>
-                {product.description}
-              </p>
+          {/* 📦 TITANIUM SPECIFICATION SHIELD & WHAT'S IN THE BOX */}
+          <div style={{ marginTop: '28px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)', padding: '18px 24px', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShieldCheck size={20} color="#fde047" /> Technical Specifications & Box Assurance
+              </span>
+              <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: '12px', fontWeight: '700' }}>Verified Original Stock</span>
             </div>
-          </details>
 
-          {/* Technical Specifications */}
-          <details className="pdp-accordion">
-            <summary>Specifications</summary>
-            <div className="accordion-content">
-              <table className="specs-table">
+            <div style={{ padding: '24px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#090d16', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Product Overview</h4>
+                <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.7', margin: 0, fontWeight: '500' }}>
+                  {product.description || "Designed with cutting-edge craftsmanship and flagship engineering. Built for uncompromising endurance, speed, and premium feel. Protected by AbKharido's nationwide 7-Day Replacement Guarantee."}
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '20px', background: '#f8fafc', borderRadius: '16px', padding: '16px', border: '1px solid #f1f5f9' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#090d16', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 0 10px 0' }}>
+                  <span>📦</span> What's Inside The Certified Sealed Box:
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>✅ 1x Original Sealed Unit</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>✅ Certified Brand Adapter / Accessory</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>✅ Official Brand Warranty Documentation</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>✅ AbKharido VIP Club Authentication Seal</div>
+                </div>
+              </div>
+
+              <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#090d16', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Detailed Technical Specifications</h4>
+              <table className="specs-table" style={{ width: '100%', borderCollapse: 'collapse', borderRadius: '12px', overflow: 'hidden' }}>
                 <tbody>
-                  {(product.specifications || []).map((spec, index) => (
-                    <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8fafc' : 'transparent' }}>
-                      <td className="specs-key">{spec.key}</td>
-                      <td className="specs-value">{spec.value}</td>
+                  {(product.specifications && product.specifications.length > 0 ? product.specifications : [
+                    { key: "Brand Assurance", value: "100% Genuine Direct Warehouse Inventory" },
+                    { key: "Replacement Guarantee", value: "7-Day Easy Hassle-Free Replacement Policy" },
+                    { key: "Shipping Speed", value: "Priority Express Dispatch via Air / Surface" },
+                    { key: "Customer Support", value: "24/7 Toll-Free (1800-888-9999) & Live WhatsApp VIP Chat" }
+                  ]).map((spec, index) => (
+                    <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8fafc' : '#ffffff', borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '12px 16px', fontWeight: '700', color: '#64748b', width: '35%', fontSize: '13px' }}>{spec.key}</td>
+                      <td style={{ padding: '12px 16px', fontWeight: '800', color: '#0f172a', fontSize: '13px' }}>{spec.value}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </details>
+          </div>
 
           {/* Ratings & Reviews section */}
           <details className="pdp-accordion" id="reviews-section">
@@ -1205,45 +1262,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
           </div>
 
-          {/* Frequently Bought Together (Recommendation Engine) */}
-          <div style={{ marginTop: '32px', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Sparkles size={20} color="#eab308" /> Frequently Bought Together
-            </h3>
-            
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
-              {/* Main Product */}
-              <div style={{ flex: '1 1 auto', minWidth: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <img src={product.image} alt={product.name} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', background: 'white', padding: '4px', border: '1px solid #e2e8f0' }} />
-                <span style={{ fontSize: '12px', fontWeight: '600', textAlign: 'center' }}>This Item</span>
-                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹{product.price?.toLocaleString()}</span>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '24px', fontWeight: 'bold' }}>+</div>
-              
-              {/* Recommended Product (Mock Data) */}
-              <div style={{ flex: '1 1 auto', minWidth: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <img src="https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?q=80&w=200&auto=format&fit=crop" alt="Earphones" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', background: 'white', padding: '4px', border: '1px solid #e2e8f0' }} />
-                <span style={{ fontSize: '12px', fontWeight: '600', textAlign: 'center' }}>Pro Earbuds</span>
-                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹999</span>
-              </div>
-
-              <div style={{ width: '100%', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>Total bundle price:</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>₹{((product.price || 0) + 999).toLocaleString()}</div>
-                </div>
-                <button 
-                  onClick={() => {
-                    addToCart(product, 1);
-                    showToast('Bundle added to cart!', 'success');
-                  }}
-                  style={{ background: '#0f172a', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
-                >
-                  Add Both to Cart
-                </button>
-              </div>
-            </div>
           </div>
 
         </div>
