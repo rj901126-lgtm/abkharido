@@ -1435,18 +1435,18 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
             </div>
 
             <div className="admin-table-wrapper">
-              <table className="admin-table">
+              <table className="admin-table" style={{ minWidth: '1150px' }}>
                 <thead>
                   <tr>
-                    <th>Customer ID / Phone</th>
-                    <th>Full Name</th>
-                    <th>Email Address</th>
-                    <th>Verification Settings</th>
-                    <th>Role & VIP Tier</th>
-                    <th>Referral Tag (Viral Growth)</th>
-                    <th>Wallet Balances</th>
-                    <th>Referred Performance</th>
-                    <th>Action controls</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Customer ID / Phone</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Full Name</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Email Address</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Verification</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Role & VIP Tier</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Referral Tag</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Wallet Balances</th>
+                    <th style={{ whiteSpace: 'nowrap' }}>Referred Sales</th>
+                    <th style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>Action Controls</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1492,51 +1492,50 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
                       return (
                         <tr key={u.username} style={{ transition: 'background-color 0.2s', borderBottom: '1px solid #f1f5f9' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                          <td style={{ padding: '16px 12px' }}>
+                          <td style={{ padding: '16px 14px', whiteSpace: 'nowrap' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '14px' }}>
+                              <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '15px', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
                                 {isNumeric ? `📱 +91 ${cleanPhone}` : rawUsername}
                               </span>
-                              <span style={{ fontSize: '11px', background: '#e0e7ff', color: '#4338ca', fontWeight: '700', padding: '2px 8px', borderRadius: '100px', border: '1px solid #c7d2fe' }}>
+                              <span style={{ fontSize: '11px', background: '#e0e7ff', color: '#4338ca', fontWeight: '800', padding: '3px 8px', borderRadius: '100px', border: '1px solid #c7d2fe', whiteSpace: 'nowrap' }}>
                                 {custTag}
                               </span>
                             </div>
-                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span>{u.createdAt ? `Joined: ${new Date(u.createdAt).toLocaleDateString('en-IN')}` : 'Verified Platform Account'}</span>
-                              {isNumeric && rawUsername.length > 10 && <span title="Legacy DB Suffix Protected" style={{ color: '#94a3b8', fontSize: '10px' }}>(Ref: {rawUsername})</span>}
+                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px', fontWeight: '600' }}>
+                              {u.createdAt ? `📅 Joined ${new Date(u.createdAt).toLocaleDateString('en-IN')}` : 'Verified Platform Account'}
                             </div>
                           </td>
-                          <td style={{ color: '#334155', fontWeight: '600' }}>{u.fullName || 'Guest User'}</td>
-                          <td style={{ color: '#475569', fontSize: '13px' }}>{u.email || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Not provided</span>}</td>
-                          <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '12px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: u.isEmailVerified ? '#dcfce7' : '#fee2e2', color: u.isEmailVerified ? '#16a34a' : '#ef4444' }}>
+                          <td style={{ color: '#1e293b', fontWeight: '700', fontSize: '14px', whiteSpace: 'nowrap' }}>{u.fullName || 'Guest User'}</td>
+                          <td style={{ color: '#475569', fontSize: '13px', whiteSpace: 'nowrap' }}>{u.email || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Not provided</span>}</td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px', background: u.isEmailVerified ? '#dcfce7' : '#fee2e2', color: u.isEmailVerified ? '#16a34a' : '#ef4444', border: `1px solid ${u.isEmailVerified ? '#86efac' : '#fecaca'}`, whiteSpace: 'nowrap' }}>
                                 {u.isEmailVerified ? 'Verified ✓' : 'Pending ✕'}
                               </span>
                               <button 
                                 onClick={() => handleToggleEmailVerify(u)} 
-                                style={{ background: 'none', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px 6px', fontSize: '11px', cursor: 'pointer', color: '#475569', fontWeight: '600' }}
-                                title="Toggle Email Verification"
+                                style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', cursor: 'pointer', color: '#475569', fontWeight: '700', transition: 'all 0.2s' }}
+                                title="Toggle Email Verification Status"
                               >
                                 Toggle
                               </button>
                             </div>
                           </td>
-                          <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-                              <span style={{ fontSize: '12px', fontWeight: '800', padding: '5px 12px', borderRadius: '100px', backgroundColor: vipTier.bg, color: vipTier.color, border: `1px solid ${vipTier.border}`, display: 'inline-block' }}>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
+                              <span style={{ fontSize: '12px', fontWeight: '800', padding: '5px 12px', borderRadius: '100px', backgroundColor: vipTier.bg, color: vipTier.color, border: `1px solid ${vipTier.border}`, display: 'inline-block', whiteSpace: 'nowrap', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
                                 {vipTier.label}
                               </span>
-                              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', marginLeft: '4px' }}>
-                                🛍️ {ordersCount} Order(s) | ₹{totalSpend.toLocaleString('en-IN')}
+                              <span style={{ fontSize: '12px', color: '#475569', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                🛍️ {ordersCount} Order(s) <span style={{ color: '#cbd5e1' }}>•</span> <strong style={{ color: '#0f172a' }}>₹{totalSpend.toLocaleString('en-IN')}</strong>
                               </span>
                             </div>
                           </td>
-                          <td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
                             <div style={{ fontSize: '13px' }}>
                               {userCode ? (
                                 <div style={{ background: '#f0fdf4', border: '1px solid #86efac', padding: '6px 10px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ fontWeight: '800', color: '#15803d', fontFamily: 'monospace', fontSize: '13px' }}>{userCode}</span>
+                                  <span style={{ fontWeight: '800', color: '#15803d', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>{userCode}</span>
                                   <button onClick={() => { navigator.clipboard?.writeText(userCode); showToast(`Copied ${userCode} to clipboard!`, 'success'); }} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#15803d', fontSize: '14px', padding: 0 }} title="Copy Referral Code">📋</button>
                                 </div>
                               ) : (
@@ -1549,22 +1548,22 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                                       setUsers([...adminUsers]);
                                     }
                                   }}
-                                  style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', color: '#b45309', border: '1px solid #fbbf24', padding: '6px 12px', borderRadius: '100px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)' }}
+                                  style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', color: '#b45309', border: '1px solid #fbbf24', padding: '7px 14px', borderRadius: '100px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)' }}
                                 >
                                   <span>⚡ Generate VIP Tag</span>
                                 </button>
                               )}
                             </div>
                           </td>
-                          <td>
-                            <div style={{ fontSize: '13px', lineHeight: '1.6', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            <div style={{ fontSize: '13px', lineHeight: '1.6', background: '#f8fafc', padding: '8px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
                               <div style={{ color: '#ca8a04', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>🪙 {u.walletCoins || 0} Coins</div>
-                              <div style={{ color: '#16a34a', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginTop: '2px' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
+                              <div style={{ color: '#16a34a', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginTop: '3px' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
                             </div>
                           </td>
-                          <td>
-                            <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
-                              <div style={{ fontWeight: '700', color: salesCount > 0 ? '#16a34a' : '#64748b', fontSize: '13px' }}>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            <div style={{ fontSize: '13px', lineHeight: '1.6', whiteSpace: 'nowrap' }}>
+                              <div style={{ fontWeight: '800', color: salesCount > 0 ? '#16a34a' : '#64748b', fontSize: '13px' }}>
                                 📈 {salesCount} referred sales
                               </div>
                               {salesCount > 0 && (
@@ -1574,40 +1573,42 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                               )}
                             </div>
                           </td>
-                          <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '140px' }}>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '155px', margin: '0 auto' }}>
                               <button
                                 onClick={() => {
                                   const text = `Hi ${u.fullName || 'Valued Customer'}! ✨ We missed you at AbKharido! Here is an exclusive gift: Get special instant discounts on our luxury electronics & gadgets today. ORDER NOW & Claim your reward!`;
                                   window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
                                   showToast(`Opening WhatsApp offer chat for +91 ${cleanPhone}...`, 'success');
                                 }}
-                                style={{ fontSize: '11px', padding: '7px 10px', borderRadius: '8px', fontWeight: '800', background: '#22c55e', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.3)' }}
+                                style={{ width: '100%', fontSize: '12px', padding: '8px 10px', borderRadius: '8px', fontWeight: '800', background: '#22c55e', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
                               >
                                 <span>💬 WhatsApp Offer</span>
                               </button>
 
-                              <button
-                                style={{ fontSize: '11px', padding: '6px 10px', borderRadius: '8px', fontWeight: '700', background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                                onClick={() => handleOpenWalletModal(u)}
-                              >
-                                <span>💳 Manage Wallet</span>
-                              </button>
-
-                              <div style={{ display: 'flex', gap: '4px' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', width: '100%' }}>
                                 <button
-                                  style={{ flex: 1, fontSize: '11px', padding: '6px 6px', borderRadius: '8px', fontWeight: '800', background: '#e0e7ff', color: '#4338ca', border: 'none', cursor: 'pointer' }}
+                                  style={{ fontSize: '11px', padding: '7px 4px', borderRadius: '8px', fontWeight: '800', background: '#e0e7ff', color: '#4338ca', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                                   onClick={() => setActiveOrderHistoryModal(u)}
+                                  title="View Customer 360° Profile & Order Records"
                                 >
-                                  👁️ 360° Profile
+                                  <span>👁️ 360°</span>
                                 </button>
                                 <button
-                                  style={{ fontSize: '11px', padding: '6px 8px', borderRadius: '8px', fontWeight: '700', background: u.status === 'Suspended' ? '#f0fdf4' : '#fff1f2', borderColor: u.status === 'Suspended' ? '#bbf7d0' : '#fecaca', color: u.status === 'Suspended' ? '#16a34a' : '#e11d48', border: '1px solid', cursor: 'pointer' }}
-                                  onClick={() => handleSuspendUser(u)}
+                                  style={{ fontSize: '11px', padding: '7px 4px', borderRadius: '8px', fontWeight: '800', background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                                  onClick={() => handleOpenWalletModal(u)}
+                                  title="Manage Coins & Cash Balance"
                                 >
-                                  {u.status === 'Suspended' ? 'Unblock' : 'Block'}
+                                  <span>💳 Wallet</span>
                                 </button>
                               </div>
+
+                              <button
+                                style={{ width: '100%', fontSize: '11px', padding: '6px 10px', borderRadius: '8px', fontWeight: '700', background: u.status === 'Suspended' ? '#f0fdf4' : '#f8fafc', borderColor: u.status === 'Suspended' ? '#86efac' : '#cbd5e1', color: u.status === 'Suspended' ? '#16a34a' : '#64748b', border: '1px solid', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+                                onClick={() => handleSuspendUser(u)}
+                              >
+                                {u.status === 'Suspended' ? '🔓 Unblock Account' : '🚫 Restrict Access'}
+                              </button>
                             </div>
                           </td>
                         </tr>
