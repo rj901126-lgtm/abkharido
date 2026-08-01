@@ -38,6 +38,7 @@ import AdminAuditLogs from '../components/AdminAuditLogs';
 import AdminFinance from '../components/AdminFinance';
 import AdminHelpdesk from '../components/AdminHelpdesk';
 import AdminStaff from '../components/AdminStaff';
+import AdminPromotions from '../components/AdminPromotions';
 
 // eslint-disable-next-line
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
@@ -2584,7 +2585,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       )}
 
       {/* CONDITIONAL RENDER: PROMOTIONS & OFFERS TAB */}
-      {activeTab === 'promotions' && (
+      {activeTab === 'promotions' && <AdminPromotions />}
+      {activeTab === 'promotions_old_legacy_unused' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Card 1: Announcement Bar */}
