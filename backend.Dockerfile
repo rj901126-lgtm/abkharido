@@ -2,14 +2,15 @@ FROM node:20-slim
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY --chown=node:node package.json package-lock.json ./
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV MONGOMS_DISABLE_POSTINSTALL=1
 ENV NODE_OPTIONS="--max_old_space_size=1024"
 RUN npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
 
-COPY . .
+COPY --chown=node:node . .
+RUN mkdir -p logs && chown -R node:node /app
 
 # Ensure we run as non-root for security
 USER node
