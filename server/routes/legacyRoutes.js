@@ -206,14 +206,17 @@ router.get('/seller/orders', (req, res) => {
 
 router.get('/admin/analytics', protect, admin, async (req, res) => {
   try {
+    const nonLiveStatuses = ['Delivered', 'Cancelled', 'cancelled', 'CANCELLED', 'delivered', 'DELIVERED', 'Returned', 'returned', 'RETURNED', 'Refunded', 'refunded', 'REFUNDED', 'Failed', 'failed', 'FAILED', 'Rejected', 'rejected', 'REJECTED'];
+    const nonRevenueStatuses = ['Cancelled', 'cancelled', 'CANCELLED', 'Returned', 'returned', 'RETURNED', 'Refunded', 'refunded', 'REFUNDED', 'Failed', 'failed', 'FAILED', 'Rejected', 'rejected', 'REJECTED'];
+
     const totalUsers = await User.countDocuments();
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
-    const liveOrders = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled', 'cancelled', 'delivered', 'Returned', 'returned', 'Refunded', 'refunded', 'Failed', 'failed', 'Rejected', 'rejected'] } });
+    const liveOrders = await Order.countDocuments({ status: { $nin: nonLiveStatuses } });
     
     // Calculate total revenue from non-cancelled orders
     const revenueAgg = await Order.aggregate([
-      { $match: { status: { $nin: ['Cancelled', 'cancelled', 'Returned', 'returned', 'Refunded', 'refunded'] } } },
+      { $match: { status: { $nin: nonRevenueStatuses } } },
       { $group: { _id: null, total: { $sum: '$totalPrice' } } }
     ]);
     const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
@@ -224,7 +227,7 @@ router.get('/admin/analytics', protect, admin, async (req, res) => {
     sevenDaysAgo.setHours(0, 0, 0, 0);
     
     const rawSales = await Order.aggregate([
-      { $match: { createdAt: { $gte: sevenDaysAgo }, status: { $nin: ['Cancelled', 'cancelled', 'Returned', 'returned'] } } },
+      { $match: { createdAt: { $gte: sevenDaysAgo }, status: { $nin: nonRevenueStatuses } } },
       { $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
           revenue: { $sum: "$totalPrice" },
@@ -247,7 +250,7 @@ router.get('/admin/analytics', protect, admin, async (req, res) => {
     }
 
     // Real Live Order Feed
-    const liveOrderFeed = await Order.find({ status: { $nin: ['Delivered', 'Cancelled', 'cancelled', 'delivered', 'Returned', 'returned', 'Refunded', 'refunded'] } })
+    const liveOrderFeed = await Order.find({ status: { $nin: nonLiveStatuses } })
       .sort({ createdAt: -1 })
       .limit(6)
       .select('_id totalPrice createdAt status shippingAddress')
