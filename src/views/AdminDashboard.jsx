@@ -1738,502 +1738,589 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
       {/* CONDITIONAL RENDER: ADD PRODUCT TAB */}
       {activeTab === 'add_product' && (
-        <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
+        <div style={{ maxWidth: '950px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', paddingBottom: '50px' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <h3 className="admin-form-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
-                <div style={{ padding: '8px', background: '#dcfce7', borderRadius: '8px', color: '#16a34a' }}><PlusCircle size={20} /></div>
-                {editMode ? 'Edit Product Details' : 'Add New Product'}
-              </h3>
-
             
-            <div className="form-group">
-              <label className="form-label-txt">Product Display Name* (Start typing to auto-fill ID)</label>
-              <input 
-                type="text" 
-                placeholder="e.g. Apple iPhone 16 Pro (Titanium, 128 GB)" 
-                value={name}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setName(val);
-                  if (!editMode && (!id || id === name.toLowerCase().trim().replace(/[\s\W]+/g, '-'))) {
-                    setId(val.toLowerCase().trim().replace(/[\s\W]+/g, '-'));
-                  }
-                }}
-                className="form-input-field"
-                style={{ fontWeight: '600', fontSize: '15px', padding: '10px 14px' }}
-                required
-              />
-            </div>
+            {/* Card 1: Main Product Identity & Categorization */}
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '28px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
+                  <div style={{ padding: '10px', background: '#e0e7ff', borderRadius: '12px', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PlusCircle size={22} /></div>
+                  <span>{editMode ? 'Edit Enterprise Product Asset' : 'Create New Product Asset'}</span>
+                </h3>
+                <span style={{ fontSize: '12px', fontWeight: '700', padding: '5px 12px', borderRadius: '100px', background: '#f8fafc', border: '1px solid #cbd5e1', color: '#475569' }}>
+                  Enterprise PIM Hub 2.0
+                </span>
+              </div>
 
-            <div className="form-group">
-              <label className="form-label-txt">Product ID (Unique URL Slug - lowercase, no spaces)*</label>
-              <input 
-                type="text" 
-                placeholder="e.g. apple-iphone-16-pro" 
-                value={id}
-                onChange={(e) => setId(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))}
-                className="form-input-field"
-                style={{ fontFamily: 'monospace', backgroundColor: '#f8fafc' }}
-                required
-              />
-              {!editMode && <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: '600', marginTop: '6px', display: 'inline-block' }}>⚡ Auto-generated SEO-friendly product slug from Display Name (customizable)</span>}
-            </div>
-
-            <div className="form-group">
-              <label className="form-label-txt">Category* (Auto-loads Smart Specifications below)</label>
-              <select 
-                value={category}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="form-input-field"
-                style={{ fontWeight: '600' }}
-              >
-                <option value="electronics">Electronics (Gadgets & Accessories)</option>
-                <option value="mobiles">Mobiles & Smartphones</option>
-                <option value="fashion">Fashion & Clothing</option>
-                <option value="home">Home & Living Essentials</option>
-                <option value="appliances">Large Home Appliances</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label-txt">Product Sales Badge & Psychological Trigger*</label>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '6px' }}>
-                {[
-                  { id: 'none', label: 'Standard (No Badge)', color: '#64748b', bg: '#f1f5f9' },
-                  { id: 'bestseller', label: '🔥 BEST SELLER', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
-                  { id: 'trending', label: '📈 TRENDING NOW', color: '#4f46e5', bg: '#e0e7ff', border: '#c7d2fe' },
-                  { id: 'new', label: '✨ NEW ARRIVAL', color: '#059669', bg: '#d1fae5', border: '#a7f3d0' },
-                  { id: 'deal', label: '💎 DEAL OF THE WEEK', color: '#d97706', bg: '#fef3c7', border: '#fde68a' },
-                  { id: 'premium', label: '👑 PREMIUM CHOICE', color: '#7c3aed', bg: '#ede9fe', border: '#ddd6fe' }
-                ].map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => setBadge(item.id)}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: '100px',
-                      fontSize: '12px',
-                      fontWeight: '700',
-                      border: '2px solid',
-                      borderColor: badge === item.id ? item.color : (item.border || '#e2e8f0'),
-                      backgroundColor: badge === item.id ? item.color : item.bg,
-                      color: badge === item.id ? '#ffffff' : item.color,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      boxShadow: badge === item.id ? '0 4px 10px rgba(0,0,0,0.15)' : 'none'
+              {/* Display Name & URL Slug in Responsive Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>Product Display Name* (Auto-generates URL Slug)</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Apple iPhone 16 Pro (Titanium, 128 GB)" 
+                    value={name}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setName(val);
+                      if (!editMode && (!id || id === name.toLowerCase().trim().replace(/[\s\W]+/g, '-'))) {
+                        setId(val.toLowerCase().trim().replace(/[\s\W]+/g, '-'));
+                      }
                     }}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px' }}>
-              <h4 style={{ margin: 0, fontSize: '14px', color: '#334155', fontWeight: '800' }}>Enterprise PIM (Compliance & SEO Integration)</h4>
-              
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <div className="form-group" style={{ flex: '1 1 250px' }}>
-                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>SEO Meta Title</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Buy Apple iPhone 16 Pro Online in India" 
-                    value={metaTitle}
-                    onChange={(e) => setMetaTitle(e.target.value)}
-                    className="form-input-field"
-                    style={{ background: '#fff' }}
+                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '14px', color: '#0f172a', fontWeight: '600', boxSizing: 'border-box' }}
+                    required
                   />
                 </div>
-                <div className="form-group" style={{ flex: '1 1 250px' }}>
-                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>SEO Meta Description</label>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>Unique URL Slug / Product ID*</label>
                   <input 
                     type="text" 
-                    placeholder="Brief description for search engines..." 
-                    value={metaDescription}
-                    onChange={(e) => setMetaDescription(e.target.value)}
-                    className="form-input-field"
-                    style={{ background: '#fff' }}
+                    placeholder="e.g. apple-iphone-16-pro" 
+                    value={id}
+                    onChange={(e) => setId(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))}
+                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f1f5f9', fontSize: '14px', color: '#334155', fontFamily: 'monospace', fontWeight: '600', boxSizing: 'border-box' }}
+                    required
                   />
+                  {!editMode && <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '600' }}>⚡ SEO-Optimized Link Structure</span>}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <div className="form-group" style={{ flex: '1 1 250px' }}>
-                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>HSN Code (GST Billing)</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 85171219" 
-                    value={hsnCode}
-                    onChange={(e) => setHsnCode(e.target.value)}
-                    className="form-input-field"
-                    style={{ background: '#fff' }}
-                  />
-                </div>
-                <div className="form-group" style={{ flex: '1 1 250px' }}>
-                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>Linked Vendor ID (Optional)</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 64b8f... (Seller's Object ID)" 
-                    value={vendorId}
-                    onChange={(e) => setVendorId(e.target.value)}
-                    className="form-input-field"
-                    style={{ background: '#fff' }}
-                  />
-                </div>
+              {/* Category Dropdown */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>Product Category* (Auto-loads Smart Specifications)</label>
+                <select 
+                  value={category}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '14px', color: '#0f172a', fontWeight: '600', boxSizing: 'border-box', cursor: 'pointer' }}
+                >
+                  <option value="electronics">Electronics (Gadgets & Accessories)</option>
+                  <option value="mobiles">Mobiles & Smartphones</option>
+                  <option value="fashion">Fashion & Clothing</option>
+                  <option value="home">Home & Living Essentials</option>
+                  <option value="appliances">Large Home Appliances</option>
+                </select>
               </div>
-            </div>
 
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <div className="form-group" style={{ flex: '1 1 150px' }}>
-                <label className="form-label-txt" style={{ fontWeight: '700', color: '#15803d' }}>Selling Price (₹)*</label>
-                <input 
-                  type="number" 
-                  placeholder="Selling Price" 
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="form-input-field"
-                  style={{ fontWeight: '800', fontSize: '16px', color: '#15803d', border: '2px solid #86efac', backgroundColor: '#f0fdf4' }}
-                  required
-                />
+              {/* Psychological Trigger Badges */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+                <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>Sales Badge & Conversion Trigger*</label>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {[
+                    { id: 'none', label: 'Standard (No Badge)', color: '#64748b', bg: '#f1f5f9' },
+                    { id: 'bestseller', label: '🔥 BEST SELLER', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+                    { id: 'trending', label: '📈 TRENDING NOW', color: '#4f46e5', bg: '#e0e7ff', border: '#c7d2fe' },
+                    { id: 'new', label: '✨ NEW ARRIVAL', color: '#059669', bg: '#d1fae5', border: '#a7f3d0' },
+                    { id: 'deal', label: '💎 DEAL OF THE WEEK', color: '#d97706', bg: '#fef3c7', border: '#fde68a' },
+                    { id: 'premium', label: '👑 PREMIUM CHOICE', color: '#7c3aed', bg: '#ede9fe', border: '#ddd6fe' }
+                  ].map((item) => (
+                    <button
+                      type="button"
+                      key={item.id}
+                      onClick={() => setBadge(item.id)}
+                      style={{
+                        padding: '9px 18px',
+                        borderRadius: '100px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        border: '2px solid',
+                        borderColor: badge === item.id ? item.color : (item.border || '#cbd5e1'),
+                        backgroundColor: badge === item.id ? item.color : item.bg,
+                        color: badge === item.id ? '#ffffff' : item.color,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        boxShadow: badge === item.id ? '0 4px 12px rgba(0,0,0,0.15)' : 'none'
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="form-group" style={{ flex: '1 1 150px' }}>
-                <label className="form-label-txt">Original MRP (₹)*</label>
-                <input 
-                  type="number" 
-                  placeholder="Original Price" 
-                  value={originalPrice}
-                  onChange={(e) => setOriginalPrice(e.target.value)}
-                  className="form-input-field"
-                  style={{ fontWeight: '600', textDecoration: 'line-through', color: '#64748b' }}
-                  required
-                />
-              </div>
-              <div className="form-group" style={{ flex: '1 1 150px' }}>
-                <label className="form-label-txt">Quantity in Stock*</label>
-                <input 
-                  type="number" 
-                  placeholder="Stock" 
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                  className="form-input-field"
-                  style={{ fontWeight: '700' }}
-                  required
-                />
-              </div>
-            </div>
 
-            {Number(price) > 0 && Number(originalPrice) > Number(price) && (
-              <div style={{ padding: '14px 18px', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '-8px', flexWrap: 'wrap', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '24px' }}>🔥</span>
-                  <div>
-                    <div style={{ fontWeight: '800', color: '#15803d', fontSize: '15px' }}>
-                      Customer Saving: ₹{(Number(originalPrice) - Number(price)).toLocaleString('en-IN')} ({Math.round(((Number(originalPrice) - Number(price)) / Number(originalPrice)) * 100)}% OFF)
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#166534', fontWeight: '500', marginTop: '2px' }}>This discount percentage badge will be featured prominently on product cards to supercharge conversions!</div>
+              {/* Enterprise PIM (Compliance & SEO Integration) Card */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '22px', background: 'linear-gradient(145deg, #f8fafc, #f1f5f9)', border: '1px solid #cbd5e1', borderRadius: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>🛡️ Enterprise PIM (Compliance, GST & SEO Integration)</span>
+                  </h4>
+                  <span style={{ fontSize: '11px', color: '#1e40af', fontWeight: '700', background: '#dbeafe', padding: '3px 10px', borderRadius: '100px' }}>Automated Schema Sync</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>SEO Meta Title (Google Indexing)</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Buy Apple iPhone 16 Pro Online in India at Best Price" 
+                      value={metaTitle}
+                      onChange={(e) => setMetaTitle(e.target.value)}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>SEO Meta Description (Snippet Text)</label>
+                    <input 
+                      type="text" 
+                      placeholder="High converting search engine summary text..." 
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', boxSizing: 'border-box' }}
+                    />
                   </div>
                 </div>
-                <span style={{ padding: '6px 14px', background: '#16a34a', color: 'white', fontWeight: '800', borderRadius: '100px', fontSize: '12px', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)' }}>High Conversion Deal ✨</span>
-              </div>
-            )}
-            
-            {/* Flash Sale Engine Config */}
-            <div style={{ backgroundColor: '#fff5f5', padding: '16px', borderRadius: '8px', border: '1px solid #fecaca' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: flashSaleActive ? '16px' : '0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '18px' }}>⚡</span>
-                  <label style={{ fontSize: '14px', fontWeight: 'bold', color: '#b91c1c', margin: 0 }}>Enable Deal of the Day (Flash Sale)</label>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>HSN Code (GST Tax Compliance)</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 85171219 (Mandatory for invoice generation)" 
+                      value={hsnCode}
+                      onChange={(e) => setHsnCode(e.target.value)}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>Linked Vendor ID (Marketplace Seller)</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 64b8f... (Leave empty if Direct Warehouse)" 
+                      value={vendorId}
+                      onChange={(e) => setVendorId(e.target.value)}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', boxSizing: 'border-box' }}
+                    />
+                  </div>
                 </div>
-                <input 
-                  type="checkbox" 
-                  checked={flashSaleActive}
-                  onChange={(e) => setFlashSaleActive(e.target.checked)}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                />
               </div>
-              
-              {flashSaleActive && (
-                <div style={{ display: 'flex', gap: '16px' }}>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label-txt" style={{ color: '#b91c1c' }}>Flash Sale Price (₹)*</label>
+
+              {/* Pricing & Stock Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '800', color: '#16a34a' }}>Selling Price (₹)*</label>
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontWeight: '800', color: '#16a34a', fontSize: '16px' }}>₹</span>
                     <input 
                       type="number" 
-                      placeholder="Special Deal Price" 
-                      value={flashSalePrice}
-                      onChange={(e) => setFlashSalePrice(e.target.value)}
-                      className="form-input-field"
-                      required={flashSaleActive}
-                    />
-                  </div>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label-txt" style={{ color: '#b91c1c' }}>End Time*</label>
-                    <input 
-                      type="datetime-local" 
-                      value={flashSaleEndTime}
-                      onChange={(e) => setFlashSaleEndTime(e.target.value)}
-                      className="form-input-field"
-                      required={flashSaleActive}
+                      placeholder="0.00" 
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      style={{ width: '100%', padding: '12px 16px 12px 32px', borderRadius: '10px', border: '2px solid #86efac', background: '#f0fdf4', fontSize: '16px', color: '#15803d', fontWeight: '800', boxSizing: 'border-box' }}
+                      required
                     />
                   </div>
                 </div>
-              )}
-            </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '700', color: '#64748b' }}>Original MRP (₹)*</label>
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontWeight: '700', color: '#64748b', fontSize: '15px' }}>₹</span>
+                    <input 
+                      type="number" 
+                      placeholder="0.00" 
+                      value={originalPrice}
+                      onChange={(e) => setOriginalPrice(e.target.value)}
+                      style={{ width: '100%', padding: '12px 16px 12px 32px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '15px', color: '#64748b', fontWeight: '700', textDecoration: 'line-through', boxSizing: 'border-box' }}
+                      required
+                    />
+                  </div>
+                </div>
 
-            <div className="form-group-flex">
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Referral Coins Rate (User Reward) (Multiplier)</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>Quantity in Stock*</label>
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '15px' }}>📦</span>
+                    <input 
+                      type="number" 
+                      placeholder="100" 
+                      value={stock}
+                      onChange={(e) => setStock(e.target.value)}
+                      style={{ width: '100%', padding: '12px 16px 12px 38px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '15px', color: '#0f172a', fontWeight: '800', boxSizing: 'border-box' }}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {Number(price) > 0 && Number(originalPrice) > Number(price) && (
+                <div style={{ padding: '16px 20px', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <span style={{ fontSize: '26px' }}>🔥</span>
+                    <div>
+                      <div style={{ fontWeight: '800', color: '#15803d', fontSize: '16px' }}>
+                        Customer Saving: ₹{(Number(originalPrice) - Number(price)).toLocaleString('en-IN')} ({Math.round(((Number(originalPrice) - Number(price)) / Number(originalPrice)) * 100)}% OFF)
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#166534', fontWeight: '600', marginTop: '2px' }}>This high-impact savings badge will be displayed on all storefront cards!</div>
+                    </div>
+                  </div>
+                  <span style={{ padding: '6px 14px', background: '#16a34a', color: 'white', fontWeight: '800', borderRadius: '100px', fontSize: '12px', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)' }}>Conversion Boost Active ✨</span>
+                </div>
+              )}
+
+              {/* Flash Sale Engine Config */}
+              <div style={{ backgroundColor: '#fff5f5', padding: '20px', borderRadius: '14px', border: '1px solid #fecaca', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '20px' }}>⚡</span>
+                    <div>
+                      <label style={{ fontSize: '15px', fontWeight: '800', color: '#b91c1c', margin: 0, display: 'block' }}>Enable Deal of the Day (Flash Sale Engine)</label>
+                      <span style={{ fontSize: '12px', color: '#991b1b', fontWeight: '500' }}>Creates urgency countdown timer on product details page</span>
+                    </div>
+                  </div>
+                  <input 
+                    type="checkbox" 
+                    checked={flashSaleActive}
+                    onChange={(e) => setFlashSaleActive(e.target.checked)}
+                    style={{ width: '22px', height: '22px', accentColor: '#dc2626', cursor: 'pointer' }}
+                  />
+                </div>
+                
+                {flashSaleActive && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', borderTop: '1px dashed #fca5a5', paddingTop: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                      <label style={{ fontSize: '12px', fontWeight: '700', color: '#991b1b' }}>Flash Sale Deal Price (₹)*</label>
+                      <input 
+                        type="number" 
+                        placeholder="Special Flash Deal Price" 
+                        value={flashSalePrice}
+                        onChange={(e) => setFlashSalePrice(e.target.value)}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '2px solid #f87171', background: '#ffffff', color: '#b91c1c', fontWeight: '800', fontSize: '14px', boxSizing: 'border-box' }}
+                        required={flashSaleActive}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                      <label style={{ fontSize: '12px', fontWeight: '700', color: '#991b1b' }}>Offer End Time (Countdown Deadline)*</label>
+                      <input 
+                        type="datetime-local" 
+                        value={flashSaleEndTime}
+                        onChange={(e) => setFlashSaleEndTime(e.target.value)}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #f87171', background: '#ffffff', color: '#991b1b', fontWeight: '700', fontSize: '14px', boxSizing: 'border-box' }}
+                        required={flashSaleActive}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Referral Coins Rate */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🪙 Referral Coins Reward Rate (User Affiliate Multiplier)*</span>
+                  <span style={{ fontSize: '11px', fontWeight: '600', color: '#d97706', background: '#fef3c7', padding: '2px 8px', borderRadius: '100px' }}>Viral Loop Engine</span>
+                </label>
                 <input 
                   type="number" 
                   step="0.001"
-                  placeholder="e.g. 0.03" 
+                  placeholder="e.g. 0.012 (1.2% equivalent rewards)" 
                   value={userCommission}
                   onChange={(e) => setUserCommission(e.target.value)}
-                  className="form-input-field"
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '14px', color: '#0f172a', fontWeight: '700', boxSizing: 'border-box' }}
                   required
                 />
               </div>
-            </div>
 
-            <div className="form-group">
-              <label className="form-label-txt">Product Media (Up to 10 photos/videos)*</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input 
-                  type="file" 
-                  multiple
-                  accept="image/*,video/mp4,video/webm"
-                  onChange={handleProductImageUpload}
-                  className="form-input-field"
-                  style={{ flex: 1, padding: '6px' }}
-                  required={media.length === 0}
-                  disabled={isUploadingImage || media.length >= 10}
-                />
-                {isUploadingImage && <span style={{ fontSize: '12px', color: 'var(--primary-color)' }}>Uploading...</span>}
+              {/* Interactive Dropzone for Media */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+                <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>Product Gallery Media (Up to 10 photos/videos)*</label>
+                <label 
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    padding: '36px 20px',
+                    background: '#f8fafc',
+                    border: '2px dashed #818cf8',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'center',
+                    boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.02)'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#eef2ff'; e.currentTarget.style.borderColor = '#4f46e5'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.borderColor = '#818cf8'; }}
+                >
+                  <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4338ca', fontSize: '26px' }}>📸</div>
+                  <div>
+                    <div style={{ color: '#4338ca', fontWeight: '800', fontSize: '16px' }}>Click to Browse or Upload Gallery Assets</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Supports high-resolution JPG, PNG, WEBP, MP4 & WEBM (Max 10 files)</div>
+                  </div>
+                  <span style={{ padding: '8px 18px', background: '#4f46e5', color: '#ffffff', borderRadius: '100px', fontSize: '12px', fontWeight: '700', marginTop: '4px', boxShadow: '0 4px 10px rgba(79, 70, 229, 0.3)' }}>
+                    Select Gallery Files
+                  </span>
+                  <input 
+                    type="file" 
+                    multiple
+                    accept="image/*,video/mp4,video/webm"
+                    onChange={handleProductImageUpload}
+                    style={{ display: 'none' }}
+                    required={media.length === 0}
+                    disabled={isUploadingImage || media.length >= 10}
+                  />
+                </label>
+                {isUploadingImage && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', background: '#e0e7ff', borderRadius: '10px', color: '#4338ca', fontWeight: '700', fontSize: '13px' }}>
+                    <span>🔄 Uploading media directly to optimized storage... Please hold!</span>
+                  </div>
+                )}
+                {media.length > 0 && (
+                  <div style={{ marginTop: '8px', display: 'flex', gap: '12px', flexWrap: 'wrap', background: '#ffffff', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+                    {media.map((src, idx) => (
+                      <div key={idx} style={{ position: 'relative', width: '92px', height: '92px', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', border: '2px solid #fff' }}>
+                        {src.startsWith('data:video/') ? (
+                          <video src={src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
+                        ) : (
+                          <img src={src} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        )}
+                        <button type="button" onClick={() => handleRemoveMedia(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: '#ef4444', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold', boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }} title="Remove image">×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              {media.length > 0 && (
-                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {media.map((src, idx) => (
-                    <div key={idx} style={{ position: 'relative', width: '80px', height: '80px' }}>
-                      {src.startsWith('data:video/') ? (
-                        <video src={src} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} muted />
-                      ) : (
-                        <img src={src} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
-                      )}
-                      <button type="button" onClick={() => handleRemoveMedia(idx)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--error)', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>×</button>
-                    </div>
-                  ))}
+
+              {/* Description & High Converting Highlights */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>Product Description & High-Converting Highlights*</label>
+                  <span style={{ fontSize: '11px', color: '#d97706', background: '#fef3c7', padding: '3px 10px', borderRadius: '100px', fontWeight: '700' }}>💡 Tip: Use bullet points for 2x customer engagement</span>
                 </div>
-              )}
-            </div>
-
-            <div className="form-group" style={{ width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label className="form-label-txt" style={{ margin: 0 }}>Product Description & High-Converting Highlights*</label>
-                <span style={{ fontSize: '11px', color: '#64748b', background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px' }}>💡 Tip: Use bullet points for higher customer engagement</span>
+                <textarea 
+                  placeholder={`• Key Highlight 1: e.g. 120Hz Super AMOLED Display\n• Key Highlight 2: e.g. 5000mAh Battery with 65W Super Charge\n• Why Buy: Premium titanium body designed for extreme durability and style...`}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  style={{ width: '100%', minHeight: '150px', padding: '16px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '14px', lineHeight: '1.6', fontFamily: 'inherit', resize: 'vertical', background: '#ffffff', color: '#0f172a', boxSizing: 'border-box', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)' }}
+                  required
+                />
               </div>
-              <textarea 
-                placeholder={`• Key Highlight 1: e.g. 120Hz Super AMOLED Display\n• Key Highlight 2: e.g. 5000mAh Battery with 65W Super Charge\n• Why Buy: Premium titanium body designed for extreme durability and style...`}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="form-input-field"
-                style={{ width: '100%', minHeight: '130px', padding: '14px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '14px', lineHeight: '1.6', fontFamily: 'inherit', resize: 'vertical', background: 'white' }}
-                required
-              />
-            </div>
 
-            {/* Pro Care Toggle */}
-            <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="checkbox"
-                id="hasProCare"
-                checked={hasProCare}
-                onChange={(e) => setHasProCare(e.target.checked)}
-                style={{ width: '16px', height: '16px', accentColor: '#16a34a' }}
-              />
-              <label htmlFor="hasProCare" className="form-label-txt" style={{ marginBottom: 0, cursor: 'pointer' }}>
-                Enable Premium Care Plan (1-Year Extended Warranty + Accidental Damage)
+              {/* Premium Care Plan Toggle */}
+              <label htmlFor="hasProCare" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  id="hasProCare"
+                  checked={hasProCare}
+                  onChange={(e) => setHasProCare(e.target.checked)}
+                  style={{ width: '20px', height: '20px', accentColor: '#16a34a', cursor: 'pointer' }}
+                />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a' }}>Enable Premium Care Plan (+ Accidental Protection Upsell)</div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}>Offers 1-Year Extended Warranty and damage cover during checkout</div>
+                </div>
               </label>
-            </div>
 
-            </div> {/* End Product Details Card */}
+            </div> {/* End Main Product Details Card */}
 
 
-            {/* Colors & Custom Variations Section (Proper Column/Card) */}
-            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h3 className="admin-form-title" style={{ margin: 0 }}>Colors & Custom Variations</h3>
+            {/* Card 2: Colors & Custom Variations Section */}
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '28px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#0f172a' }}>Colors & Custom Variations</h3>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Configure multi-color SKU items, storage capacities, sizes & dynamic pricing</div>
+                </div>
                 <button
                   type="button"
                   onClick={handleAddColorModel}
-                  className="btn btn-outline btn-sm"
-                  style={{ fontSize: '11px', padding: '4px 8px', height: '28px', display: 'flex', gap: '4px', alignItems: 'center' }}
+                  style={{ background: '#e0e7ff', color: '#4338ca', border: 'none', padding: '8px 16px', borderRadius: '100px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(67, 56, 202, 0.15)' }}
                 >
-                  <PlusCircle size={12} /> Add Color Model
+                  <PlusCircle size={15} /> <span>Add Color / Variation Model</span>
                 </button>
               </div>
               
               {colorModels.length === 0 ? (
-                <div style={{ fontSize: '12px', color: '#777', fontStyle: 'italic', padding: '8px 0' }}>
-                  No custom models added. Default variations will be generated.
+                <div style={{ textAlign: 'center', padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1', color: '#64748b', fontSize: '13px', fontWeight: '500' }}>
+                  ℹ️ No custom variation models added. Default single-SKU product rules will be generated.
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {colorModels.map((cm, colorIdx) => (
-                    <div key={colorIdx} style={{ border: '1px dashed #ccc', padding: '12px', borderRadius: '4px', backgroundColor: '#fafafa', position: 'relative' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveColorModel(colorIdx)}
-                        style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: '#c62828', cursor: 'pointer' }}
-                        title="Remove Color Model"
-                      >
-                        <X size={16} />
-                      </button>
+                    <div key={colorIdx} style={{ border: '1px solid #cbd5e1', padding: '20px', borderRadius: '14px', backgroundColor: '#fafbfc', position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '12px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: '800', color: '#4338ca', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>🎨 Color Model #{colorIdx + 1}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveColorModel(colorIdx)}
+                          style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca', padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          title="Remove Color Model"
+                        >
+                          <X size={15} /> <span>Remove</span>
+                        </button>
+                      </div>
                       
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '8px' }}>Color Model #{colorIdx + 1}</div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Color Name* (e.g. Coral Pink)</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                          <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155' }}>Color Name* (e.g. Titanium Black)</label>
                           <input
                             type="text"
-                            placeholder="Color name"
+                            placeholder="e.g. Coral Pink, Deep Blue"
                             value={cm.name}
                             onChange={(e) => handleColorModelChange(colorIdx, 'name', e.target.value)}
-                            style={{ width: '100%', height: '32px', padding: '0 8px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                            style={{ width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', background: '#ffffff', boxSizing: 'border-box' }}
                             required
                           />
                         </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Variant Primary Image*</label>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+                          <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155' }}>Variant Primary Thumbnail*</label>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <input
                               type="file"
                               accept="image/*"
                               onChange={(e) => handleColorModelImageUpload(e, colorIdx)}
-                              style={{ flex: 1, padding: '4px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', backgroundColor: 'white' }}
+                              style={{ flex: 1, padding: '6px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', backgroundColor: '#ffffff' }}
                               required={!cm.primaryImage}
                             />
                             {cm.primaryImage && (
-                              <img src={cm.primaryImage} alt="Variant" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc' }} />
+                              <img src={cm.primaryImage} alt="Variant" style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }} />
                             )}
                           </div>
                         </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#555', marginBottom: '4px' }}>Extra Images URLs (comma-separated)</label>
-                          <input
-                            type="text"
-                            placeholder="https://image2, https://image3"
-                            value={cm.imagesInput}
-                            onChange={(e) => handleColorModelChange(colorIdx, 'imagesInput', e.target.value)}
-                            style={{ width: '100%', height: '32px', padding: '0 8px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
-                          />
+                      </div>
+
+                      {/* Sub-variants (Storage/Sizes) */}
+                      <div style={{ background: '#ffffff', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>📏 Sizes / Storage Variants & Pricing</span>
+                          <button
+                            type="button"
+                            onClick={() => handleAddVariant(colorIdx)}
+                            style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #86efac', padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <PlusCircle size={13} /> <span>Add Size/Option</span>
+                          </button>
                         </div>
 
-                        {/* Variants List Inside Color */}
-                        <div style={{ marginTop: '8px', borderTop: '1px solid #e5e5e5', paddingTop: '10px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#444' }}>Variants (e.g. Size/Storage)</span>
-                            <button
-                              type="button"
-                              onClick={() => handleAddVariant(colorIdx)}
-                              style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}
-                            >
-                              <PlusCircle size={10} /> Add Variant
-                            </button>
-                          </div>
-                          
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {cm.variants.map((v, variantIdx) => (
-                              <div key={variantIdx} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {cm.variants.map((v, variantIdx) => (
+                            <div key={variantIdx} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', background: '#f8fafc', padding: '10px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                              <div style={{ flex: '2', minWidth: '130px' }}>
                                 <input
                                   type="text"
-                                  placeholder="Name (e.g. 128 GB)"
+                                  placeholder="Option (e.g. 128GB / XL)"
                                   value={v.name}
                                   onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'name', e.target.value)}
-                                  style={{ flex: 2, height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px', background: '#ffffff', fontWeight: '600', boxSizing: 'border-box' }}
                                   required
                                 />
+                              </div>
+                              <div style={{ flex: '1', minWidth: '100px' }}>
                                 <input
                                   type="number"
-                                  placeholder="Price"
+                                  placeholder="Sell Price (₹)"
                                   value={v.price}
                                   onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'price', e.target.value)}
-                                  style={{ flex: 1, minWidth: '60px', height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #86efac', borderRadius: '8px', fontSize: '12px', background: '#f0fdf4', color: '#16a34a', fontWeight: '700', boxSizing: 'border-box' }}
                                   required
                                 />
+                              </div>
+                              <div style={{ flex: '1', minWidth: '100px' }}>
                                 <input
                                   type="number"
-                                  placeholder="Org Price"
+                                  placeholder="Org MRP (₹)"
                                   value={v.originalPrice}
                                   onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'originalPrice', e.target.value)}
-                                  style={{ flex: 1, minWidth: '60px', height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px', background: '#ffffff', boxSizing: 'border-box', textDecoration: 'line-through' }}
                                 />
+                              </div>
+                              <div style={{ flex: '1', minWidth: '80px' }}>
                                 <input
                                   type="number"
-                                  placeholder="Stock"
+                                  placeholder="Stock Qty"
                                   value={v.stock}
                                   onChange={(e) => handleVariantChange(colorIdx, variantIdx, 'stock', e.target.value)}
-                                  style={{ width: '50px', height: '30px', padding: '0 6px', border: '1px solid #dcdcdc', borderRadius: '4px', fontSize: '12px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px', background: '#ffffff', boxSizing: 'border-box', fontWeight: '700' }}
                                 />
-                                {cm.variants.length > 1 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveVariant(colorIdx, variantIdx)}
-                                    style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', padding: '2px' }}
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
-                                )}
                               </div>
-                            ))}
-                  </div>
+                              {cm.variants.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveVariant(colorIdx, variantIdx)}
+                                  style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626', cursor: 'pointer', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                  title="Delete variant option"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              )}
+                            </div>
+                          ))}
                         </div>
-
                       </div>
+
                     </div>
                   ))}
                 </div>
               )}
             </div> {/* End Colors Card */}
 
-            {/* Specifications editor list (Proper Column/Card) */}
-            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <h3 className="admin-form-title" style={{ margin: 0 }}>Technical Specifications</h3>
-              <div className="form-group" style={{ marginTop: '10px' }}>
+
+            {/* Card 3: Technical Specifications Editor */}
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '28px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#0f172a' }}>Technical Specifications</h3>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Detailed hardware specs, dimensions, warranty & features table</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddSpecRow}
+                  style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #86efac', padding: '8px 16px', borderRadius: '100px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(22, 163, 74, 0.15)' }}
+                >
+                  <PlusCircle size={15} /> <span>Add Specification Row</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {specs.map((spec, idx) => (
-                  <div key={idx} className="spec-builder-row">
-                    <input 
-                      type="text" 
-                      placeholder="Key (e.g. Brand)" 
-                      value={spec.key}
-                      onChange={(e) => handleSpecChange(idx, 'key', e.target.value)}
-                      className="spec-builder-input"
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Value (e.g. Apple)" 
-                      value={spec.value}
-                      onChange={(e) => handleSpecChange(idx, 'value', e.target.value)}
-                      className="spec-builder-input"
-                    />
-                    <span className="spec-remove-btn" onClick={() => handleRemoveSpecRow(idx)}>
-                      <X size={16} />
-                    </span>
+                  <div key={idx} style={{ display: 'flex', gap: '14px', alignItems: 'center', background: '#f8fafc', padding: '10px 14px', borderRadius: '12px', border: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Key (e.g. Brand, Material, Battery)" 
+                        value={spec.key}
+                        onChange={(e) => handleSpecChange(idx, 'key', e.target.value)}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#ffffff', fontWeight: '700', color: '#334155', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div style={{ flex: '2', minWidth: '250px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Value (e.g. Apple, 100% Titanium, 5000mAh Fast Charge)" 
+                        value={spec.value}
+                        onChange={(e) => handleSpecChange(idx, 'value', e.target.value)}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#ffffff', color: '#0f172a', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => handleRemoveSpecRow(idx)}
+                      style={{ padding: '10px 12px', borderRadius: '8px', background: '#fee2e2', border: '1px solid #fecaca', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+                      title="Remove Row"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 ))}
-                <span className="spec-add-btn" onClick={handleAddSpecRow}>
-                  <PlusCircle size={14} /> Add Row
-                </span>
               </div>
             </div> {/* End Specs Card */}
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-              <button type="submit" className="btn btn-accent" style={{ flex: 1, padding: '12px', fontSize: '14px' }}>
-                {editMode ? 'UPDATE PRODUCT IN STORE' : 'ADD PRODUCT TO STORE'}
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '16px', marginTop: '10px', flexWrap: 'wrap' }}>
+              <button 
+                type="submit" 
+                style={{ flex: 1, minWidth: '240px', padding: '16px', borderRadius: '14px', background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', color: '#ffffff', border: 'none', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 6px 20px rgba(22, 163, 74, 0.35)', transition: 'all 0.2s', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                <span>🚀 {editMode ? 'UPDATE PRODUCT & SYNC STOREFRONT' : 'ADD PRODUCT TO LIVE STORE'}</span>
               </button>
               {editMode && (
-                <button type="button" onClick={resetForm} className="btn btn-outline" style={{ padding: '12px', fontSize: '14px' }}>
+                <button 
+                  type="button" 
+                  onClick={resetForm} 
+                  style={{ padding: '16px 24px', borderRadius: '14px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}
+                >
                   CANCEL EDIT
                 </button>
               )}
