@@ -164,6 +164,16 @@ const AdminPromotions = () => {
     }
   };
 
+  const syncToStorefront = (newBanners) => {
+    try {
+      localStorage.setItem('abkharido_banners', JSON.stringify(newBanners));
+      const existingPromo = JSON.parse(localStorage.getItem('abkharido_promotions_v2') || '{}');
+      existingPromo.heroBanners = newBanners;
+      localStorage.setItem('abkharido_promotions_v2', JSON.stringify(existingPromo));
+      window.dispatchEvent(new Event('abkharido_promotions_updated'));
+    } catch (e) {}
+  };
+
   const addHeroSlide = () => {
     const newSlide = {
       id: `HERO-${Date.now().toString().slice(-4)}`,
@@ -174,21 +184,25 @@ const AdminPromotions = () => {
       link: '/catalog',
       bgGradient: 'linear-gradient(135deg, #1f2937, #111827)'
     };
-    setHeroBanners([...heroBanners, newSlide]);
-    showToastMsg('➕ New Hero Banner Slide appended to Carousel canvas!', 'success');
+    const updated = [...heroBanners, newSlide];
+    setHeroBanners(updated);
+    syncToStorefront(updated);
+    showToastMsg('➕ New Hero Banner added & broadcasted to Live Storefront!', 'success');
   };
 
   const updateHeroSlide = (idx, field, val) => {
     const copy = [...heroBanners];
     copy[idx][field] = val;
     setHeroBanners(copy);
+    syncToStorefront(copy);
   };
 
   const removeHeroSlide = (idx) => {
     const copy = [...heroBanners];
     copy.splice(idx, 1);
     setHeroBanners(copy);
-    showToastMsg('🗑️ Hero Banner slide removed from carousel.', 'success');
+    syncToStorefront(copy);
+    showToastMsg('🗑️ Banner instantly removed & un-published from live website!', 'success');
   };
 
   const toggleProductSelect = (id) => {
@@ -456,10 +470,10 @@ const AdminPromotions = () => {
                 <button 
                   type="button"
                   onClick={() => removeHeroSlide(idx)}
-                  style={{ color: '#e11d48', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '50%', width: '36px', height: '36px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.15s' }}
-                  title="Remove Slide from Homepage"
+                  style={{ color: '#ffffff', background: '#dc2626', border: '1px solid #b91c1c', borderRadius: '12px', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '800', fontSize: '13px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.25)', transition: 'all 0.15s' }}
+                  title="Remove Slide & Unpublish from Homepage"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={16} /> <span>Remove from Website</span>
                 </button>
               </div>
             </div>

@@ -12,7 +12,38 @@ export const AppProvider = ({ children }) => {
   // Start with empty array, fetch from enterprise backend API
   const [products, setProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-  const [promotions, setPromotions] = useState(null);
+  const loadPromotionsFromStorage = () => {
+    try {
+      const saved = localStorage.getItem('abkharido_promotions_v2');
+      const savedBanners = localStorage.getItem('abkharido_banners');
+      let parsedPromo = saved ? JSON.parse(saved) : {};
+      if (savedBanners) {
+        try { parsedPromo.banners = JSON.parse(savedBanners); } catch(e){}
+      } else if (parsedPromo.heroBanners && Array.isArray(parsedPromo.heroBanners)) {
+        parsedPromo.banners = parsedPromo.heroBanners;
+      }
+      return Object.keys(parsedPromo).length > 0 ? parsedPromo : null;
+    } catch { return null; }
+  };
+
+  const [promotions, setPromotions] = useState(() => {
+    if (typeof window !== 'undefined') return loadPromotionsFromStorage();
+    return null;
+  });
+
+  useEffect(() => {
+    const handlePromoSync = () => {
+      const fresh = loadPromotionsFromStorage();
+      if (fresh) setPromotions(fresh);
+    };
+    handlePromoSync();
+    window.addEventListener('abkharido_promotions_updated', handlePromoSync);
+    window.addEventListener('storage', handlePromoSync);
+    return () => {
+      window.removeEventListener('abkharido_promotions_updated', handlePromoSync);
+      window.removeEventListener('storage', handlePromoSync);
+    };
+  }, []);
   
   const { data: session, status } = useSession();
   const [dbUser, setDbUser] = useState(null);

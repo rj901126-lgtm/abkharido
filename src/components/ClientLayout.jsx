@@ -99,7 +99,9 @@ export default function ClientLayout({ children }) {
     }
   }, [verifyPayment, showToast, router]);
 
-  const showAnnouncement = !isPortalPage && Boolean(globalConfig.announcementBar && globalConfig.announcementBar.trim() !== '');
+  const promoAnnouncement = promotions?.announcement;
+  const activeAnnouncementText = promoAnnouncement?.text !== undefined ? promoAnnouncement.text : globalConfig.announcementBar;
+  const showAnnouncement = !isPortalPage && (promoAnnouncement?.show !== undefined ? (promoAnnouncement.show && Boolean(activeAnnouncementText?.trim())) : Boolean(globalConfig.announcementBar?.trim()));
 
   // 1. SYSTEM MAINTENANCE & SECURITY LOCK SCREEN ENFORCEMENT
   // If Maintenance Mode is active in Admin settings and user is NOT on Admin/Login portal, lock down storefront!
@@ -195,7 +197,12 @@ export default function ClientLayout({ children }) {
           }}
         >
           <Sparkles size={14} style={{ color: '#fde047', flexShrink: 0 }} />
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{globalConfig.announcementBar}</span>
+          <span 
+            style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: promoAnnouncement?.link ? 'pointer' : 'default' }} 
+            onClick={() => promoAnnouncement?.link && router.push(promoAnnouncement.link)}
+          >
+            {activeAnnouncementText}
+          </span>
         </div>
       )}
 

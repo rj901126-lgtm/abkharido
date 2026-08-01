@@ -15,8 +15,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   const [layoutComponents, setLayoutComponents] = useState([]);
   const [loadingLayout, setLoadingLayout] = useState(true);
 
-  // Dynamic Carousel slides with fallback
-  const slides = promotions && Array.isArray(promotions.banners) && promotions.banners.length > 0
+  // Dynamic Carousel slides with real-time admin sync & removal support
+  const slides = (promotions && Array.isArray(promotions.banners))
     ? promotions.banners
     : [
         {
@@ -72,14 +72,21 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         })();
   }, [promotions]);
 
-  // Fetch CMS Layout
+  // Fetch & Synchronize CMS Layout in real-time
   useEffect(() => {
     const fetchLayout = async () => {
       try {
+        const savedCms = localStorage.getItem('abkharido_cms_storefront_v2');
+        if (savedCms) {
+          const parsed = JSON.parse(savedCms);
+          const sorted = (parsed.components || parsed || []).sort((a, b) => (a.order || 0) - (b.order || 0));
+          setLayoutComponents(Array.isArray(sorted) ? sorted : []);
+          setLoadingLayout(false);
+          return;
+        }
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`);
         if (res.ok) {
           const data = await res.json();
-          // Sort components by order
           const sorted = (data.components || []).sort((a, b) => (a.order || 0) - (b.order || 0));
           setLayoutComponents(sorted);
         }
@@ -90,6 +97,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       }
     };
     fetchLayout();
+    window.addEventListener('abkharido_promotions_updated', fetchLayout);
+    window.addEventListener('storage', fetchLayout);
+    return () => {
+      window.removeEventListener('abkharido_promotions_updated', fetchLayout);
+      window.removeEventListener('storage', fetchLayout);
+    };
   }, []);
 
   return (
@@ -101,72 +114,80 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       {/* 2. Trust Builder / Social Proof */}
       <LiveSocialProof />
 
-      {/* Hero Carousel */}
-      <section 
-        className="hero-carousel"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {slides.map((slide, idx) => (
-          <div 
-            key={idx} 
-            className={`carousel-slide ${idx === activeSlide ? 'active' : ''}`}
-            style={{ background: slide.bg }}
-          >
-            {/* Dark overlay for text readability if needed, though glass box helps */}
-            <div className="carousel-slide-overlay"></div>
-            
-            <div className="slide-content-box">
-              {slide.tag && <span className="slide-tag"><Sparkles size={14} /> {slide.tag}</span>}
-              <h1 className="slide-title">{slide.title}</h1>
-              <p className="slide-desc">{slide.desc}</p>
-              {slide.cat && (
-                <button 
-                  className="btn animate-fade-in" 
-                  style={{ 
-                    background: 'linear-gradient(90deg, var(--primary-color) 0%, #6366f1 100%)',
-                    color: 'white',
-                    borderRadius: '30px', 
-                    padding: '14px 32px', 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: '10px', 
-                    border: 'none', 
-                    fontWeight: '800', 
-                    fontSize: '15px',
-                    boxShadow: '0 10px 20px -5px rgba(79, 70, 229, 0.4)',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 25px -5px rgba(79, 70, 229, 0.5)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(79, 70, 229, 0.4)'; }}
-                  onClick={() => onSelectCategory(slide.cat)}
-                >
-                  Explore Now <ArrowRight size={18} />
-                </button>
-              )}
-            </div>
+      {/* Hero Carousel - Automatically hides if Admin deletes all slides */}
+      {slides.length > 0 && (
+        <section 
+          className="hero-carousel"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {slides.map((slide, idx) => {
+            const slideBg = slide.imageUrl ? `url(${slide.imageUrl}) center/cover no-repeat` : (slide.bg || slide.bgGradient || 'var(--primary-color)');
+            const slideTag = slide.badge || slide.tag || '';
+            const slideTitle = slide.title || 'Grand Megastore Offer';
+            const slideDesc = slide.subTitle || slide.desc || '';
+            const slideCat = slide.link ? slide.link.split('/').pop().replace('category=', '').replace('?','') : (slide.cat || 'mobiles');
+
+            return (
+              <div 
+                key={slide.id || idx} 
+                className={`carousel-slide ${idx === activeSlide ? 'active' : ''}`}
+                style={{ background: slideBg }}
+              >
+                <div className="carousel-slide-overlay"></div>
+                
+                <div className="slide-content-box">
+                  {slideTag && <span className="slide-tag"><Sparkles size={14} /> {slideTag}</span>}
+                  <h1 className="slide-title">{slideTitle}</h1>
+                  <p className="slide-desc">{slideDesc}</p>
+                  <button 
+                    className="btn animate-fade-in" 
+                    style={{ 
+                      background: 'linear-gradient(90deg, var(--primary-color) 0%, #6366f1 100%)',
+                      color: 'white',
+                      borderRadius: '30px', 
+                      padding: '14px 32px', 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '10px', 
+                      border: 'none', 
+                      fontWeight: '800', 
+                      fontSize: '15px',
+                      boxShadow: '0 10px 20px -5px rgba(79, 70, 229, 0.4)',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 25px -5px rgba(79, 70, 229, 0.5)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(79, 70, 229, 0.4)'; }}
+                    onClick={() => onSelectCategory(slideCat)}
+                  >
+                    Explore Now <ArrowRight size={18} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          <button className="carousel-nav-btn carousel-nav-left" onClick={handlePrevSlide}>
+            <ChevronLeft size={24} />
+          </button>
+          <button className="carousel-nav-btn carousel-nav-right" onClick={handleNextSlide}>
+            <ChevronRight size={24} />
+          </button>
+
+          <div className="carousel-indicators">
+            {slides.map((_, idx) => (
+              <div
+                key={idx}
+                className={`carousel-indicator-dot ${idx === activeSlide ? 'active' : ''}`}
+                onClick={() => setActiveSlide(idx)}
+              />
+            ))}
           </div>
-        ))}
+        </section>
+      )}
 
-        <button className="carousel-nav-btn carousel-nav-left" onClick={handlePrevSlide}>
-          <ChevronLeft size={24} />
-        </button>
-        <button className="carousel-nav-btn carousel-nav-right" onClick={handleNextSlide}>
-          <ChevronRight size={24} />
-        </button>
-
-        <div className="carousel-indicators">
-          {slides.map((_, idx) => (
-            <div
-              key={idx}
-              className={`carousel-indicator-dot ${idx === activeSlide ? 'active' : ''}`}
-              onClick={() => setActiveSlide(idx)}
-            />
-          ))}
-        </div>
-      </section>
 
       {/* Premium Trust Strip */}
       <div className="trust-strip">
