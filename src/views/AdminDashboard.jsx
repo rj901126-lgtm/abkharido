@@ -1438,12 +1438,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>User ID / Username</th>
+                    <th>Customer ID / Phone</th>
                     <th>Full Name</th>
                     <th>Email Address</th>
                     <th>Verification Settings</th>
-                    <th>Role Status</th>
-                    <th>Referral Code / Tag</th>
+                    <th>Role & VIP Tier</th>
+                    <th>Referral Tag (Viral Growth)</th>
                     <th>Wallet Balances</th>
                     <th>Referred Performance</th>
                     <th>Action controls</th>
@@ -1457,6 +1457,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       (u.fullName && u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()))
                     )
                     .map(u => {
+                      const rawUsername = String(u.username || '');
+                      const isNumeric = /^\d+$/.test(rawUsername);
+                      const cleanPhone = isNumeric && rawUsername.length >= 10 ? rawUsername.slice(0, 10) : (u.phone ? String(u.phone).replace(/\D/g, '').slice(-10) : rawUsername);
+                      const custTag = isNumeric && rawUsername.length >= 10 ? `#CUST_${rawUsername.slice(0, 4)}` : `#ID_${rawUsername.slice(0, 5).toUpperCase()}`;
+
                       const userCode = u.isInfluencer ? u.creatorCode : u.referralCode;
                       const influencerId = u.isInfluencer ? u.influencerId : null;
                       
@@ -1469,22 +1474,48 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       const salesCount = referredOrdersList.length;
                       const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
+                      // Calculate customer spending & orders for VIP Tier determination
+                      const customerOrders = adminOrders.filter(o => 
+                        (o.customerDetails?.email && u.email && o.customerDetails.email === u.email) ||
+                        (o.customerDetails?.phone && (o.customerDetails.phone.includes(cleanPhone) || (u.phone && o.customerDetails.phone === u.phone))) ||
+                        (o.userId && (o.userId === u._id || o.userId === u.id))
+                      );
+                      const totalSpend = customerOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+                      const ordersCount = customerOrders.length;
+
+                      let vipTier = { label: '🥉 Bronze Member', color: '#9a3412', bg: '#ffedd5', border: '#fed7aa', desc: 'Starter Account' };
+                      if (totalSpend >= 20000 || ordersCount >= 5) {
+                        vipTier = { label: '👑 Gold Exclusive Club', color: '#b45309', bg: '#fef3c7', border: '#fde68a', desc: 'Top VIP Customer' };
+                      } else if (totalSpend >= 5000 || ordersCount >= 2) {
+                        vipTier = { label: '🥈 Silver VIP Shopper', color: '#4338ca', bg: '#e0e7ff', border: '#c7d2fe', desc: 'Loyal Buyer' };
+                      }
+
                       return (
                         <tr key={u.username} style={{ transition: 'background-color 0.2s', borderBottom: '1px solid #f1f5f9' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                           <td style={{ padding: '16px 12px' }}>
-                            <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '14px' }}>{u.username}</div>
-                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Joined platform</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '14px' }}>
+                                {isNumeric ? `📱 +91 ${cleanPhone}` : rawUsername}
+                              </span>
+                              <span style={{ fontSize: '11px', background: '#e0e7ff', color: '#4338ca', fontWeight: '700', padding: '2px 8px', borderRadius: '100px', border: '1px solid #c7d2fe' }}>
+                                {custTag}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span>{u.createdAt ? `Joined: ${new Date(u.createdAt).toLocaleDateString('en-IN')}` : 'Verified Platform Account'}</span>
+                              {isNumeric && rawUsername.length > 10 && <span title="Legacy DB Suffix Protected" style={{ color: '#94a3b8', fontSize: '10px' }}>(Ref: {rawUsername})</span>}
+                            </div>
                           </td>
-                          <td style={{ color: '#334155', fontWeight: '500' }}>{u.fullName || 'Guest User'}</td>
-                          <td style={{ color: '#475569' }}>{u.email || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Not provided</span>}</td>
+                          <td style={{ color: '#334155', fontWeight: '600' }}>{u.fullName || 'Guest User'}</td>
+                          <td style={{ color: '#475569', fontSize: '13px' }}>{u.email || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Not provided</span>}</td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px', background: u.isEmailVerified ? '#dcfce7' : '#fee2e2', color: u.isEmailVerified ? '#16a34a' : '#ef4444' }}>
-                                {u.isEmailVerified ? 'Email Verified ✓' : 'Email Pending ✕'}
+                              <span style={{ fontSize: '12px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: u.isEmailVerified ? '#dcfce7' : '#fee2e2', color: u.isEmailVerified ? '#16a34a' : '#ef4444' }}>
+                                {u.isEmailVerified ? 'Verified ✓' : 'Pending ✕'}
                               </span>
                               <button 
                                 onClick={() => handleToggleEmailVerify(u)} 
-                                style={{ background: 'none', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px 6px', fontSize: '11px', cursor: 'pointer', color: '#475569' }}
+                                style={{ background: 'none', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px 6px', fontSize: '11px', cursor: 'pointer', color: '#475569', fontWeight: '600' }}
                                 title="Toggle Email Verification"
                               >
                                 Toggle
@@ -1492,84 +1523,91 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                             </div>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backgroundColor: '#f1f5f9', color: '#64748b', display: 'inline-block', textAlign: 'center' }}>
-                                Regular Customer
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                              <span style={{ fontSize: '12px', fontWeight: '800', padding: '5px 12px', borderRadius: '100px', backgroundColor: vipTier.bg, color: vipTier.color, border: `1px solid ${vipTier.border}`, display: 'inline-block' }}>
+                                {vipTier.label}
+                              </span>
+                              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', marginLeft: '4px' }}>
+                                🛍️ {ordersCount} Order(s) | ₹{totalSpend.toLocaleString('en-IN')}
                               </span>
                             </div>
                           </td>
                           <td>
-                            <div style={{ fontSize: '13px', marginBottom: '4px' }}>
-                              <div style={{ color: '#64748b' }}>Code: {u.referralCode || 'N/A'}</div>
+                            <div style={{ fontSize: '13px' }}>
+                              {userCode ? (
+                                <div style={{ background: '#f0fdf4', border: '1px solid #86efac', padding: '6px 10px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontWeight: '800', color: '#15803d', fontFamily: 'monospace', fontSize: '13px' }}>{userCode}</span>
+                                  <button onClick={() => { navigator.clipboard?.writeText(userCode); showToast(`Copied ${userCode} to clipboard!`, 'success'); }} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#15803d', fontSize: '14px', padding: 0 }} title="Copy Referral Code">📋</button>
+                                </div>
+                              ) : (
+                                <button 
+                                  onClick={() => {
+                                    const genCode = `VIP-${(u.fullName || 'BUY').split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '') || 'CUST'}-${Math.floor(100 + Math.random()*900)}`;
+                                    u.referralCode = genCode;
+                                    showToast(`✨ Generated VIP Referral Tag: ${genCode} for ${u.fullName || cleanPhone}`, 'success');
+                                    if (typeof setUsers === 'function') {
+                                      setUsers([...adminUsers]);
+                                    }
+                                  }}
+                                  style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', color: '#b45309', border: '1px solid #fbbf24', padding: '6px 12px', borderRadius: '100px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)' }}
+                                >
+                                  <span>⚡ Generate VIP Tag</span>
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ fontSize: '13px', lineHeight: '1.6', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                              <div style={{ color: '#ca8a04', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>🪙 {u.walletCoins || 0} Coins</div>
+                              <div style={{ color: '#16a34a', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginTop: '2px' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
                             </div>
                           </td>
                           <td>
                             <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
-                              <div style={{ color: '#ca8a04', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>🪙 {u.walletCoins || 0} Coins</div>
-                              <div style={{ color: '#16a34a', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
-                            </div>
-                          </td>
-                          <td>
-                            <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
-                              <div style={{ fontWeight: '700', color: salesCount > 0 ? '#16a34a' : '#94a3b8' }}>
+                              <div style={{ fontWeight: '700', color: salesCount > 0 ? '#16a34a' : '#64748b', fontSize: '13px' }}>
                                 📈 {salesCount} referred sales
                               </div>
                               {salesCount > 0 && (
-                                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
-                                  Volume: ₹{totalSalesVolume.toLocaleString('en-IN')}
+                                <div style={{ fontSize: '12px', color: '#0f172a', fontWeight: '700', marginTop: '2px' }}>
+                                  Vol: ₹{totalSalesVolume.toLocaleString('en-IN')}
                                 </div>
                               )}
                             </div>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '140px' }}>
                               <button
-                                className="btn btn-sm btn-outline"
-                                style={{
-                                  fontSize: '11px',
-                                  padding: '4px 8px',
-                                  borderRadius: '6px',
-                                  fontWeight: '600',
-                                  background: u.status === 'Suspended' ? '#f0fdf4' : '#fff1f2',
-                                  borderColor: u.status === 'Suspended' ? '#bbf7d0' : '#fecaca',
-                                  color: u.status === 'Suspended' ? '#16a34a' : '#e11d48'
+                                onClick={() => {
+                                  const text = `Hi ${u.fullName || 'Valued Customer'}! ✨ We missed you at AbKharido! Here is an exclusive gift: Get special instant discounts on our luxury electronics & gadgets today. ORDER NOW & Claim your reward!`;
+                                  window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                                  showToast(`Opening WhatsApp offer chat for +91 ${cleanPhone}...`, 'success');
                                 }}
-                                onClick={() => handleSuspendUser(u)}
+                                style={{ fontSize: '11px', padding: '7px 10px', borderRadius: '8px', fontWeight: '800', background: '#22c55e', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.3)' }}
                               >
-                                {u.status === 'Suspended' ? 'Unsuspend' : 'Suspend'}
+                                <span>💬 WhatsApp Offer</span>
                               </button>
 
                               <button
-                                className="btn btn-sm"
-                                style={{
-                                  fontSize: '11px',
-                                  padding: '4px 8px',
-                                  borderRadius: '6px',
-                                  fontWeight: '600',
-                                  background: '#fef3c7',
-                                  color: '#d97706',
-                                  border: '1px solid #fde68a'
-                                }}
+                                style={{ fontSize: '11px', padding: '6px 10px', borderRadius: '8px', fontWeight: '700', background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                                 onClick={() => handleOpenWalletModal(u)}
                               >
-                                💳 Manage Wallet
+                                <span>💳 Manage Wallet</span>
                               </button>
 
-                              <button
-                                className="btn btn-sm btn-outline"
-                                style={{
-                                  fontSize: '11px',
-                                  padding: '4px 8px',
-                                  borderRadius: '6px',
-                                  fontWeight: '600',
-                                  borderColor: '#e0e7ff',
-                                  color: '#4f46e5'
-                                }}
-                                onClick={() => setActiveOrderHistoryModal(u)}
-                              >
-                                📦 View Orders
-                              </button>
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                <button
+                                  style={{ flex: 1, fontSize: '11px', padding: '6px 6px', borderRadius: '8px', fontWeight: '800', background: '#e0e7ff', color: '#4338ca', border: 'none', cursor: 'pointer' }}
+                                  onClick={() => setActiveOrderHistoryModal(u)}
+                                >
+                                  👁️ 360° Profile
+                                </button>
+                                <button
+                                  style={{ fontSize: '11px', padding: '6px 8px', borderRadius: '8px', fontWeight: '700', background: u.status === 'Suspended' ? '#f0fdf4' : '#fff1f2', borderColor: u.status === 'Suspended' ? '#bbf7d0' : '#fecaca', color: u.status === 'Suspended' ? '#16a34a' : '#e11d48', border: '1px solid', cursor: 'pointer' }}
+                                  onClick={() => handleSuspendUser(u)}
+                                >
+                                  {u.status === 'Suspended' ? 'Unblock' : 'Block'}
+                                </button>
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -2943,7 +2981,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                   <label className="form-label-txt" style={{ fontSize: '12px' }}>Amount</label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontWeight: 'bold' }}>{walletType === 'cash' ? '₹' : '🪙'}</span>
-                    <input type="number" required min="1" className="admin-form-input" value={walletAmount} onChange={(e) => setWalletAmount(e.target.value)} placeholder="0.00" style={{ paddingLeft: '32px', fontSize: '16px', fontWeight: 'bold' }} />
+<input type="number" required min="1" className="admin-form-input" value={walletAmount} onChange={(e) => setWalletAmount(e.target.value)} placeholder="0.00" style={{ paddingLeft: '32px', fontSize: '16px', fontWeight: 'bold' }} />
                   </div>
                 </div>
 
@@ -2961,58 +2999,99 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           </div>
         )}
 
-        {/* View Order History Modal */}
+        {/* View Order History & 360° Customer Profile Modal */}
         {activeOrderHistoryModal && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
-            <div className="admin-panel-card animate-fade-in" style={{ width: '800px', maxWidth: '90vw', maxHeight: '80vh', background: '#fff', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', background: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(6px)' }}>
+            <div className="admin-panel-card animate-fade-in" style={{ width: '850px', maxWidth: '95vw', maxHeight: '85vh', background: '#fff', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #e2e8f0' }}>
               
-              <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ padding: '10px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Package size={20} /></div>
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '12px', color: '#4338ca', boxShadow: '0 2px 8px rgba(67, 56, 227, 0.15)' }}><Users size={24} /></div>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>Order History</h3>
-                    <div style={{ fontSize: '13px', color: '#64748b' }}>{activeOrderHistoryModal.fullName || activeOrderHistoryModal.username}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>Customer 360° Profile Inspector</h3>
+                      <span style={{ fontSize: '11px', background: '#dcfce7', color: '#16a34a', fontWeight: '800', padding: '2px 8px', borderRadius: '100px' }}>Verified Account</span>
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#475569', fontWeight: '600', marginTop: '2px' }}>{activeOrderHistoryModal.fullName || 'Guest User'} • ({activeOrderHistoryModal.username})</div>
                   </div>
                 </div>
-                <button onClick={() => setActiveOrderHistoryModal(null)} style={{ background: '#f1f5f9', border: 'none', color: '#64748b', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={16} /></button>
+                <button onClick={() => setActiveOrderHistoryModal(null)} style={{ background: '#e2e8f0', border: 'none', color: '#475569', borderRadius: '50%', width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}><X size={18} /></button>
               </div>
               
-              <div style={{ padding: '20px', overflowY: 'auto', flex: 1, background: '#f8fafc' }}>
+              <div style={{ padding: '24px', overflowY: 'auto', flex: 1, background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {(() => {
-                  // Find all orders that belong to this user by matching email, phone or userId if available
+                  const rawUsername = String(activeOrderHistoryModal.username || '');
+                  const isNumeric = /^\d+$/.test(rawUsername);
+                  const cleanPhone = isNumeric && rawUsername.length >= 10 ? rawUsername.slice(0, 10) : (activeOrderHistoryModal.phone ? String(activeOrderHistoryModal.phone).replace(/\D/g, '').slice(-10) : rawUsername);
+
                   const userOrders = adminOrders.filter(o => 
-                    (o.customerDetails?.email && o.customerDetails.email === activeOrderHistoryModal.email) ||
-                    (o.customerDetails?.phone && o.customerDetails.phone === activeOrderHistoryModal.phone)
+                    (o.customerDetails?.email && activeOrderHistoryModal.email && o.customerDetails.email === activeOrderHistoryModal.email) ||
+                    (o.customerDetails?.phone && (o.customerDetails.phone.includes(cleanPhone) || (activeOrderHistoryModal.phone && o.customerDetails.phone === activeOrderHistoryModal.phone))) ||
+                    (o.userId && (o.userId === activeOrderHistoryModal._id || o.userId === activeOrderHistoryModal.id))
                   ).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                  if (userOrders.length === 0) {
-                    return (
-                      <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
-                        <Package size={48} color="#cbd5e1" style={{ marginBottom: '16px' }} />
-                        <h4 style={{ margin: '0 0 8px 0', color: '#334155' }}>No Orders Found</h4>
-                        <p style={{ margin: 0, fontSize: '14px' }}>This customer hasn't placed any orders yet.</p>
-                      </div>
-                    );
-                  }
+                  const totalSpend = userOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
                   return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {userOrders.map(order => (
-                        <div key={order.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                          <div>
-                            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>{new Date(order.createdAt).toLocaleString()}</div>
-                            <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '15px', marginTop: '4px' }}>Order #{order.id.slice(0,8).toUpperCase()}</div>
-                            <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>{order.items.length} item(s)</div>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#16a34a' }}>₹{(order.totalPrice || 0).toFixed(2)}</div>
-                            <span style={{ display: 'inline-block', marginTop: '6px', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: order.status === 'Delivered' ? '#dcfce7' : order.status === 'Cancelled' ? '#fee2e2' : '#e0e7ff', color: order.status === 'Delivered' ? '#16a34a' : order.status === 'Cancelled' ? '#ef4444' : '#4f46e5' }}>
-                              {order.status}
-                            </span>
-                          </div>
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
+                        <div style={{ background: 'white', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Lifetime Spend</div>
+                          <div style={{ fontSize: '20px', fontWeight: '900', color: '#16a34a', marginTop: '6px' }}>₹{totalSpend.toLocaleString('en-IN')}</div>
+                          <div style={{ fontSize: '11px', color: '#15803d', fontWeight: '600', marginTop: '2px' }}>across {userOrders.length} confirmed orders</div>
                         </div>
-                      ))}
-                    </div>
+                        <div style={{ background: 'white', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Wallet & Coin Reserve</div>
+                          <div style={{ fontSize: '18px', fontWeight: '900', color: '#ca8a04', marginTop: '6px' }}>🪙 {activeOrderHistoryModal.walletCoins || 0} Coins</div>
+                          <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: '700', marginTop: '2px' }}>💵 ₹{(activeOrderHistoryModal.walletCash || 0).toFixed(2)} Cash Balance</div>
+                        </div>
+                        <div style={{ background: 'white', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Marketing Engagement</div>
+                          <button
+                            onClick={() => {
+                              const text = `Hi ${activeOrderHistoryModal.fullName || 'Valued Customer'}! ✨ We have a special VIP reward voucher waiting for your next purchase on AbKharido!`;
+                              window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                            }}
+                            style={{ padding: '8px 12px', background: '#22c55e', color: 'white', fontWeight: '800', fontSize: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '8px', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.3)' }}
+                          >
+                            <span>💬 Send WhatsApp Reward</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#0f172a', fontWeight: '800' }}>Order Fulfillment Records ({userOrders.length})</h4>
+                        {userOrders.length === 0 ? (
+                          <div style={{ padding: '50px 20px', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
+                            <Package size={48} color="#cbd5e1" style={{ marginBottom: '16px', margin: '0 auto' }} />
+                            <h4 style={{ margin: '8px 0 6px 0', color: '#334155', fontSize: '16px' }}>No Orders Recorded Yet</h4>
+                            <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>This customer has signed up but has not completed a purchase yet. Send them a WhatsApp offer to boost conversion!</p>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {userOrders.map(order => (
+                              <div key={order.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'transform 0.2s' }}>
+                                <div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '15px' }}>Order #{order.id.slice(0,8).toUpperCase()}</span>
+                                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>{new Date(order.createdAt).toLocaleString('en-IN')}</span>
+                                  </div>
+                                  <div style={{ fontSize: '13px', color: '#475569', marginTop: '6px', fontWeight: '500' }}>
+                                    🛒 {order.items?.length || 0} Item(s) • Payment: <strong style={{ color: order.paymentMethod === 'Online Payment' ? '#16a34a' : '#d97706' }}>{order.paymentMethod || 'COD'}</strong>
+                                  </div>
+                                </div>
+                                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                                  <div style={{ fontSize: '18px', fontWeight: '900', color: '#16a34a' }}>₹{(order.totalPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                  <span style={{ fontSize: '11px', fontWeight: '800', padding: '4px 12px', borderRadius: '100px', background: order.status === 'Delivered' ? '#dcfce7' : order.status === 'Cancelled' ? '#fee2e2' : '#e0e7ff', color: order.status === 'Delivered' ? '#15803d' : order.status === 'Cancelled' ? '#e11d48' : '#4338ca', border: `1px solid ${order.status === 'Delivered' ? '#86efac' : order.status === 'Cancelled' ? '#fecaca' : '#c7d2fe'}` }}>
+                                    {order.status || 'Processing'}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
                   );
                 })()}
               </div>
