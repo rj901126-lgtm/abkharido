@@ -1311,12 +1311,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       <main className="admin-main-content">
         
         <header className="admin-topbar">
-          <div className="admin-topbar-title">
-            <button className="admin-mobile-menu-btn" onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X size={24} /> : <div style={{display:'flex', flexDirection:'column', gap:'4px'}}><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div><div style={{width:'14px',height:'2px',background:'#0f172a'}}></div><div style={{width:'20px',height:'2px',background:'#0f172a'}}></div></div>}
-            </button>
-            <span style={{ background: 'linear-gradient(135deg, #0f172a 0%, #4f46e5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <div className="admin-topbar-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ width: '10px', height: '26px', background: 'linear-gradient(to bottom, #4f46e5, #ec4899)', borderRadius: '100px', display: 'inline-block' }}></span>
+            <span style={{ background: 'linear-gradient(135deg, #0f172a 0%, #4f46e5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '24px', fontWeight: '900', fontFamily: 'Outfit, sans-serif' }}>
               {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Control
+            </span>
+            <span style={{ fontSize: '11px', fontWeight: '800', background: '#ecfdf5', color: '#059669', padding: '4px 10px', borderRadius: '100px', border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', gap: '5px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              <span className="live-pulse-dot"></span> Vercel Sync 🟢
             </span>
           </div>
 
