@@ -67,16 +67,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <div className="navbar-top-announcement-bar" style={{ background: 'linear-gradient(90deg, #090d16 0%, #1e1b4b 50%, #090d16 100%)', color: '#f8fafc', padding: '6px 20px', fontSize: '11px', fontWeight: '800', display: 'flex', justifyContent: 'space-between', alignItems: 'center', letterSpacing: '0.3px', borderBottom: '1px solid rgba(255, 255, 255, 0.15)', fontFamily: "'Outfit', sans-serif", zIndex: 1200 }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <span>👑 INDIA'S #1 PREMIER MEGASTORE</span>
-          <span style={{ color: '#38bdf8' }}>⚡ Fast Priority Express Shipping</span>
-        </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <span style={{ color: '#fde047' }}>💎 Earn up to 12% Reward Coins</span>
-          <span style={{ color: '#34d399', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => onNavigate('orders')}>📦 Track Order</span>
-        </div>
-      </div>
       <header className={`navbar-header ${activePage && activePage.startsWith('product') ? 'product-page-header' : ''}`} style={style}>
         <div className={`navbar-container ${activePage && activePage.startsWith('product') ? 'product-page-navbar' : ''}`}>
           
