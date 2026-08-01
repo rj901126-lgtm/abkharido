@@ -24,6 +24,9 @@ fi
 echo "Building and starting Docker containers in detached mode..."
 # Using docker compose plugin syntax (docker compose) rather than docker-compose (old)
 sudo docker compose down
+echo "Cleaning up old Docker build cache and images (preserving database volumes)..."
+sudo docker system prune -af
+sudo docker builder prune -af
 echo "Building backend..."
 sudo docker compose build backend
 echo "Building frontend..."
