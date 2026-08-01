@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 
 const connectDB = async () => {
   try {
-    let uri = process.env.MONGODB_URI;
+    let uri = process.env.MONGODB_URI || process.env.DB_URI || process.env.MONGO_URI;
     if (!uri) {
-      console.log('MONGODB_URI not found. Starting in-memory MongoDB Server for local development...');
+      console.log('MONGODB_URI/DB_URI not found. Starting in-memory MongoDB Server for local development...');
       try {
         const { MongoMemoryServer } = await import('mongodb-memory-server');
         const mongoServer = await MongoMemoryServer.create();

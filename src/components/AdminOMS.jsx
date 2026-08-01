@@ -96,7 +96,7 @@ const AdminOMS = () => {
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
       await Promise.all(selectedOrders.map(async (orderId) => {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/status`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/status`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -104,13 +104,17 @@ const AdminOMS = () => {
           },
           body: JSON.stringify({ status: bulkStatus })
         });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Failed to update order ${orderId}`);
+        }
       }));
       showToast(`Updated ${selectedOrders.length} orders to ${bulkStatus}`, 'success');
       fetchOrders();
       setSelectedOrders([]);
     } catch (err) {
       console.error(err);
-      showToast('Failed to update order status', 'error');
+      showToast(`Failed to update order status: ${err.message || 'Server error'}`, 'error');
     }
   };
 

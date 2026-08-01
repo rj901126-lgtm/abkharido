@@ -51,7 +51,7 @@ export const getKPIs = async (req, res, next) => {
     const totalUsers = await User.countDocuments({});
     const totalProducts = await Product.countDocuments({});
     const totalOrders = await Order.countDocuments({});
-    const liveOrders = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled'] } });
+    const liveOrders = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled', 'cancelled', 'delivered', 'Returned', 'returned', 'Refunded', 'refunded', 'Failed', 'failed', 'Rejected', 'rejected'] } });
     
     const revenueResult = await Order.aggregate([
       { $match: { isPaid: true } },

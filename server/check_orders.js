@@ -14,9 +14,11 @@ const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
 async function check() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    const uri = process.env.MONGODB_URI || process.env.DB_URI || process.env.MONGO_URI || "mongodb://mongodb:27017/abkharido";
+    console.log("Connecting to:", uri);
+    await mongoose.connect(uri);
     const total = await Order.countDocuments();
-    const live = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled'] } });
+    const live = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled', 'cancelled', 'delivered', 'Returned', 'returned', 'Refunded', 'refunded'] } });
     const statuses = await Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]);
     console.log("Total Orders:", total);
     console.log("Live Orders:", live);
