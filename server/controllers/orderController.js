@@ -489,9 +489,14 @@ export const updateOrderStatus = async (req, res, next) => {
       throw new Error('Order not found');
     }
     
-    order.status = req.body.status;
+    if (req.body.status) order.status = req.body.status;
+    if (req.body.courierPartner !== undefined) order.courierPartner = req.body.courierPartner;
+    if (req.body.awbNumber !== undefined) order.awbNumber = req.body.awbNumber;
+    if (req.body.trackingUrl !== undefined) order.trackingUrl = req.body.trackingUrl;
+    if (req.body.paymentStatus !== undefined) order.paymentStatus = req.body.paymentStatus;
+    if (req.body.isPaid !== undefined) order.isPaid = req.body.isPaid;
 
-    if (order.status === 'Delivered') {
+    if (order.status === 'Delivered' && !order.isDelivered) {
       order.deliveredAt = Date.now();
       order.isDelivered = true;
     }
