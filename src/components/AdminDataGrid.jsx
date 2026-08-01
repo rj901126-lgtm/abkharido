@@ -237,15 +237,9 @@ const AdminDataGrid = ({ onEditProduct }) => {
                       )}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></span>
-                          <span style={{ color: '#047857', fontWeight: '700', fontSize: '12px' }}>Creator: {((prod.influencerCommissionRate || 0) * 100).toFixed(1)}%</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b' }}></span>
-                          <span style={{ color: '#b45309', fontWeight: '700', fontSize: '12px' }}>User: {((prod.userCommissionRate || 0) * 100).toFixed(1)}%</span>
-                        </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b' }}></span>
+                        <span style={{ color: '#b45309', fontWeight: '700', fontSize: '13px' }}>User: {((prod.userCommissionRate || 0.005) * 100).toFixed(1)}%</span>
                       </div>
                     </td>
                     <td>

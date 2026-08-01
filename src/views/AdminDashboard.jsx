@@ -1456,23 +1456,15 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           </td>
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backgroundColor: u.isInfluencer ? '#4f46e5' : '#f1f5f9', color: u.isInfluencer ? 'white' : '#64748b', display: 'inline-block', textAlign: 'center' }}>
-                                {u.isInfluencer ? 'Verified Creator' : 'Regular Customer'}
+                              <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backgroundColor: '#f1f5f9', color: '#64748b', display: 'inline-block', textAlign: 'center' }}>
+                                Regular Customer
                               </span>
                             </div>
                           </td>
                           <td>
-                            {u.isInfluencer && (
-                              <div style={{ fontSize: '13px', marginBottom: '4px' }}>
-                                <div style={{ color: '#64748b' }}>Creator ID: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#0f172a' }}>{u.influencerId || 'N/A'}</code></div>
-                                <div style={{ fontWeight: '800', color: '#4f46e5', marginTop: '4px' }}>Code: {u.creatorCode || 'N/A'}</div>
-                              </div>
-                            )}
-                            {!u.isInfluencer && (
-                              <div style={{ fontSize: '13px', marginBottom: '4px' }}>
-                                <div style={{ color: '#64748b' }}>Code: {u.referralCode || 'N/A'}</div>
-                              </div>
-                            )}
+                            <div style={{ fontSize: '13px', marginBottom: '4px' }}>
+                              <div style={{ color: '#64748b' }}>Code: {u.referralCode || 'N/A'}</div>
+                            </div>
                           </td>
                           <td>
                             <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
@@ -1494,24 +1486,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           </td>
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              <button
-                                className="btn btn-sm btn-outline"
-                                style={{
-                                  fontSize: '12px',
-                                  padding: '6px 12px',
-                                  borderRadius: '6px',
-                                  fontWeight: '600',
-                                  background: u.isInfluencer ? '#fff1f2' : '#f0fdf4',
-                                  borderColor: u.isInfluencer ? '#fecaca' : '#bbf7d0',
-                                  color: u.isInfluencer ? '#e11d48' : '#16a34a',
-                                  transition: 'all 0.2s'
-                                }}
-                                onClick={() => handleToggleUserRole(u)}
-                                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                                onMouseLeave={e => e.currentTarget.style.transform = 'none'}
-                              >
-                                {u.isInfluencer ? 'Demote Creator' : 'Verify Creator'}
-                              </button>
                               
                               <button
                                 className="btn btn-sm btn-outline"
