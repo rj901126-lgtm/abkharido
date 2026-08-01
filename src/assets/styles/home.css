@@ -62,36 +62,36 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(90deg, rgba(9, 13, 22, 0.88) 0%, rgba(9, 13, 22, 0.62) 50%, rgba(9, 13, 22, 0.15) 100%);
   z-index: 1;
 }
 
 @media (max-width: 768px) {
   .carousel-slide {
-    padding: 0 24px;
+    padding: 0 20px;
     justify-content: center;
     text-align: center;
   }
   .carousel-slide-overlay {
-    background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+    background: linear-gradient(0deg, rgba(9, 13, 22, 0.92) 0%, rgba(9, 13, 22, 0.65) 60%, rgba(9, 13, 22, 0.2) 100%);
   }
 }
 
-/* Premium Glassmorphism Content Box */
+/* Premium Obsidian Glassmorphism Content Box for Guaranteed Readability */
 .slide-content-box {
   position: relative;
   z-index: 2;
   max-width: 580px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(9, 13, 22, 0.68);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  border-left: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 56px 48px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid rgba(253, 224, 71, 0.35);
+  border-left: 1px solid rgba(253, 224, 71, 0.35);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), inset 0 0 40px rgba(255, 255, 255, 0.05);
+  padding: 40px 44px;
   border-radius: 32px;
   color: white;
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3), inset 0 0 40px rgba(255,255,255,0.05);
   transform: translateY(30px);
   opacity: 0;
   animation: slideUpFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;

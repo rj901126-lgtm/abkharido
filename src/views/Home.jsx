@@ -294,45 +294,46 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             ✓ 100% Genuine Brand Warranty
           </span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '16px' }}>
           {[
-            { name: "APPLE", desc: "Flagship Mac & iPhone", icon: "🍎", bg: "linear-gradient(135deg, #1e293b, #0f172a)", tag: "DIRECT PARTNER" },
-            { name: "SAMSUNG", desc: "Galaxy AI & Ultra 5G", icon: "✨", bg: "linear-gradient(135deg, #1d4ed8, #1e40af)", tag: "FLUSH STOCK" },
-            { name: "SONY AUDIO", desc: "Noise Cancel & Studio", icon: "🎧", bg: "linear-gradient(135deg, #4338ca, #3730a3)", tag: "AUDIOPHILE" },
-            { name: "NIKE SPORT", desc: "VaporFly & Air Max", icon: "⚡", bg: "linear-gradient(135deg, #b91c1c, #991b1b)", tag: "AUTHORIZED" },
-            { name: "BOSE LUXE", desc: "Acoustic QuietComfort", icon: "🎼", bg: "linear-gradient(135deg, #047857, #065f46)", tag: "PREMIUM" },
-            { name: "ROLEX / TAG", desc: "Titanium Swiss Couture", icon: "⌚", bg: "linear-gradient(135deg, #b45309, #92400e)", tag: "HERITAGE" }
+            { name: "APPLE", desc: "Flagship Mac & iPhone", icon: "🍏", accent: "#38bdf8", border: "rgba(56, 189, 248, 0.25)", tag: "DIRECT PARTNER" },
+            { name: "SAMSUNG", desc: "Galaxy AI & Ultra 5G", icon: "✨", accent: "#818cf8", border: "rgba(129, 140, 248, 0.25)", tag: "FLUSH STOCK" },
+            { name: "SONY AUDIO", desc: "Noise Cancel & Studio", icon: "🎧", accent: "#a78bfa", border: "rgba(167, 139, 250, 0.25)", tag: "AUDIOPHILE" },
+            { name: "NIKE SPORT", desc: "VaporFly & Air Max", icon: "⚡", accent: "#f43f5e", border: "rgba(244, 63, 94, 0.25)", tag: "AUTHORIZED" },
+            { name: "BOSE LUXE", desc: "Acoustic QuietComfort", icon: "🎼", accent: "#34d399", border: "rgba(52, 211, 153, 0.25)", tag: "PREMIUM" },
+            { name: "ROLEX / TAG", desc: "Titanium Swiss Couture", icon: "⌚", accent: "#fde047", border: "rgba(253, 224, 71, 0.25)", tag: "HERITAGE" }
           ].map((brand, bIdx) => (
             <div 
               key={bIdx}
               onClick={() => onNavigate('catalog')}
               style={{
-                background: brand.bg,
+                background: 'linear-gradient(145deg, #0f172a 0%, #090d16 100%)',
+                border: `1px solid ${brand.border}`,
                 borderRadius: '24px',
                 padding: '22px 18px',
                 color: 'white',
                 cursor: 'pointer',
-                transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), boxShadow 0.25s',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                 position: 'relative',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                minHeight: '140px',
-                boxShadow: '0 10px 20px rgba(9, 13, 22, 0.1)'
+                minHeight: '144px',
+                boxShadow: '0 10px 20px rgba(9, 13, 22, 0.15)'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 16px 32px rgba(9, 13, 22, 0.2)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px rgba(9, 13, 22, 0.1)'; }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = `0 16px 32px -8px ${brand.accent}35`; e.currentTarget.style.borderColor = brand.accent; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px rgba(9, 13, 22, 0.15)'; e.currentTarget.style.borderColor = brand.border; }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '28px' }}>{brand.icon}</span>
-                <span style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.5px', background: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '30px', filter: 'drop-shadow(0 4px 8px rgba(255,255,255,0.15))' }}>{brand.icon}</span>
+                <span style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.5px', background: 'rgba(255,255,255,0.06)', color: brand.accent, border: `1px solid ${brand.accent}50`, padding: '3px 9px', borderRadius: '12px', textTransform: 'uppercase' }}>
                   {brand.tag}
                 </span>
               </div>
-              <div>
-                <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '17px', fontWeight: '900', margin: '12px 0 2px 0', letterSpacing: '0.5px' }}>{brand.name}</h4>
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', margin: 0, fontWeight: '500' }}>{brand.desc}</p>
+              <div style={{ marginTop: '16px' }}>
+                <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', margin: '0 0 4px 0', color: '#ffffff', letterSpacing: '0.4px' }}>{brand.name}</h4>
+                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0, fontWeight: '600' }}>{brand.desc}</p>
               </div>
             </div>
           ))}

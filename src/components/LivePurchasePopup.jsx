@@ -57,36 +57,37 @@ const LivePurchasePopup = () => {
         position: 'fixed',
         bottom: '24px',
         left: '20px',
-        backgroundColor: 'rgba(255, 255, 255, 0.96)',
-        backdropFilter: 'blur(12px)',
-        borderRadius: '16px',
-        padding: '14px',
+        backgroundColor: 'rgba(9, 13, 22, 0.92)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderRadius: '30px',
+        padding: '8px 16px 8px 8px',
         display: 'flex',
         alignItems: 'center',
-        gap: '14px',
-        boxShadow: '0 12px 30px rgba(9, 13, 22, 0.12), 0 0 0 1px rgba(16, 185, 129, 0.25)',
-        border: '1px solid #d1fae5',
+        gap: '12px',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.35)',
+        border: '1px solid rgba(16, 185, 129, 0.4)',
         transform: visible ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.9)',
         opacity: visible ? 1 : 0,
-        transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         pointerEvents: 'none',
         zIndex: 9998,
-        maxWidth: '340px',
+        maxWidth: '300px',
         fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif"
       }}
     >
-      <div style={{ width: '52px', height: '52px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid #e2e8f0', backgroundColor: '#ffffff', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <img src={popupData.product.image} alt={popupData.product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #10b981', backgroundColor: '#ffffff', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src={popupData.product.image || (popupData.product.images && popupData.product.images[0]) || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span>🔥 <strong style={{ color: '#090d16' }}>{popupData.name}</strong> in <strong style={{ color: '#090d16' }}>{popupData.city}</strong></span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
+        <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span>⚡ <strong style={{ color: '#ffffff' }}>{popupData.name}</strong> in <strong style={{ color: '#ffffff' }}>{popupData.city}</strong></span>
         </div>
-        <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-          Purchased {popupData.product.name}
+        <div style={{ fontSize: '12px', fontWeight: '800', color: '#f8fafc', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          Bought {popupData.product.name}
         </div>
-        <div style={{ fontSize: '11px', color: '#059669', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '800' }}>
-          <CheckCircle2 size={12} color="#059669" fill="#d1fae5" /> Verified Order • {popupData.timeAgo}m ago
+        <div style={{ fontSize: '10px', color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '800' }}>
+          <CheckCircle2 size={10} color="#34d399" /> Verified • {popupData.timeAgo}m ago
         </div>
       </div>
     </div>

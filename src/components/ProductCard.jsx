@@ -38,28 +38,28 @@ const ProductCard = ({ product, onNavigateProduct }) => {
       className="card product-card" 
       style={{
         ...styles.card,
-        transform: isHovered ? 'translateY(-6px)' : 'translateY(0)',
-        boxShadow: isHovered ? '0 20px 45px -10px rgba(15, 23, 42, 0.15)' : '0 4px 16px rgba(15, 23, 42, 0.05)',
+        transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
+        boxShadow: isHovered ? '0 18px 40px -10px rgba(9, 13, 22, 0.16)' : '0 4px 16px rgba(9, 13, 22, 0.05)',
         borderColor: isHovered ? '#818cf8' : '#e2e8f0'
       }} 
       onClick={() => onNavigateProduct(product.id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Product Image Stage */}
+      {/* Product Image Stage (Unobstructed & Clean) */}
       <div className="product-card-image-wrapper" style={styles.imageWrapper}>
-        {/* Top Left Sales Booster Pills */}
+        {/* Top Left Discrete VIP Badge */}
         {product.badge === 'bestseller' || (!product.badge && product.rating >= 4.7) ? (
           <div style={styles.badgeFire}>
-            🔥 #1 IN INDIA
+            BESTSELLER
           </div>
         ) : product.badge === 'trending' || (!product.badge && product.rating >= 4.4) ? (
           <div style={styles.badgeTrending}>
-            ⚡ HOT DEAL
+            TRENDING
           </div>
         ) : product.badge === 'new' || discountPercent >= 30 ? (
           <div style={styles.badgeNew}>
-            👑 VIP SPECIAL
+            VIP SPECIAL
           </div>
         ) : null}
 
@@ -72,7 +72,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             width: '36px',
             height: '36px',
             borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
@@ -80,7 +80,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             border: '1px solid #e2e8f0',
             cursor: 'pointer',
             zIndex: 10,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
             transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
           }}
           onClick={handleWishlistToggle}
@@ -88,36 +88,16 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           title={isInWishlist ? "Remove from Wishlist" : "Save to Wishlist"}
         >
-          <Heart size={18} fill={isInWishlist ? '#e11d48' : 'none'} color={isInWishlist ? '#e11d48' : '#475569'} style={{ strokeWidth: 2.5 }} />
+          <Heart size={17} fill={isInWishlist ? '#e11d48' : 'none'} color={isInWishlist ? '#e11d48' : '#475569'} style={{ strokeWidth: 2.5 }} />
         </button>
         
         <div style={{ 
           width: '100%', 
           height: '100%', 
-          transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: isHovered ? 'scale(1.09)' : 'scale(1)'
+          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: isHovered ? 'scale(1.06)' : 'scale(1)'
         }}>
           <LazyImage src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-        </div>
-
-        {/* Floating Express Delivery Pill */}
-        <div style={{
-          position: 'absolute',
-          bottom: '8px',
-          left: '10px',
-          background: 'rgba(15, 23, 42, 0.88)',
-          color: '#38bdf8',
-          backdropFilter: 'blur(8px)',
-          fontSize: '10px',
-          fontWeight: '800',
-          padding: '4px 8px',
-          borderRadius: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          letterSpacing: '0.2px'
-        }}>
-          <Zap size={10} fill="#38bdf8" /> EXPRESS PRIORITY SHIPPING
         </div>
       </div>
 
@@ -132,74 +112,61 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           <span style={styles.ratingTag}>
             {product.rating} <Star size={11} fill="white" />
           </span>
-          <span style={styles.reviewsCount}>({product.reviewsCount || Math.floor(Math.random() * 400 + 50)} reviews)</span>
+          <span style={styles.reviewsCount}>({product.reviewsCount || Math.floor(Math.random() * 400 + 50)})</span>
           
-          {/* Holographic A-Assured VIP Tag */}
           <div style={styles.assuredBadge}>
-            <ShieldCheck size={11} color="#ffe500" style={{ marginRight: '2px' }} />
-            <span>A-ASSURED <strong style={{ color: '#ffe500' }}>VIP</strong></span>
+            <ShieldCheck size={12} color="#059669" style={{ marginRight: '3px' }} />
+            <span style={{ fontSize: '10px', color: '#047857', fontWeight: '800' }}>ASSURED <strong style={{ color: '#047857' }}>VIP</strong></span>
           </div>
         </div>
 
-        {/* Pricing Row with Big Outfit Font */}
+        {/* Pricing Row with Clean Wrapping */}
         <div className="product-card-price-row" style={styles.priceRow}>
           <span style={styles.price}>₹{(price).toLocaleString('en-IN')}</span>
           {discountPercent > 0 && (
-            <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
               <span style={styles.originalPrice}>₹{(originalPrice).toLocaleString('en-IN')}</span>
-              <span style={styles.discount}>🔥 {discountPercent}% OFF</span>
-            </>
+              <span style={styles.discount}>{discountPercent}% OFF</span>
+            </div>
           )}
         </div>
 
-        {/* Flash Sale or High Demand Urgency Meter */}
-        {isFlashSale ? (
-          <div style={{ marginTop: '4px', marginBottom: '8px' }}>
-            <CountdownTimer endTime={product.flashSale.endTime} compact={true} />
-          </div>
-        ) : (discountPercent >= 15 || product.rating >= 4.5) ? (
-          <div style={{ marginTop: '6px', marginBottom: '6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '800', color: '#e11d48', marginBottom: '3px' }}>
-              <span>🔥 Selling Fast in Your Area</span>
-              <span style={{ color: '#090d16' }}>Only 3 units left!</span>
-            </div>
-            <div style={{ height: '5px', width: '100%', backgroundColor: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: '82%', background: 'linear-gradient(90deg, #ff0055, #ff5500)', borderRadius: '4px', transition: 'width 1s ease' }}></div>
-            </div>
-          </div>
-        ) : null}
+        {/* Clean Availability Status instead of clunky urgency bar */}
+        <div style={{ fontSize: '11px', color: '#059669', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+          <span>⚡ Free Priority Express Dispatch</span>
+        </div>
 
         {/* Dynamic Affiliate / Referral Earning Banner */}
         {currentUser && currentUser.isInfluencer ? (
           <div className="product-card-reward-banner" style={styles.rewardBanner}>
             <Award size={14} color="#4338ca" style={{ flexShrink: 0 }} />
             <div style={styles.rewardText}>
-              <span>Partner Reward: <strong style={{ color: '#059669', fontSize: '13px' }}>₹{influencerEarningsCash} Cash</strong></span>
+              <span>Partner Reward: <strong style={{ color: '#059669', fontSize: '12px' }}>₹{influencerEarningsCash} Cash</strong></span>
             </div>
           </div>
         ) : (
-          <div style={{ marginTop: 'auto', background: 'linear-gradient(135deg, #fffdf5 0%, #fef3c7 100%)', border: '1px solid #fde68a', borderRadius: '10px', padding: '5px 10px', display: 'flex', alignItems: 'center', gap: '5px', width: '100%', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.08)' }}>
+          <div style={{ marginTop: 'auto', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '13px' }}>🪙</span>
-            <span style={{ fontSize: '11px', color: '#92400e', fontWeight: '800', letterSpacing: '0.2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Earn <span style={{ fontSize: '12px', fontWeight: '900', color: '#d97706' }}>+{userEarningsCoins}</span> Reward Coins
+            <span style={{ fontSize: '11px', color: '#334155', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Earn <strong style={{ color: '#059669', fontWeight: '900' }}>+{userEarningsCoins}</strong> Reward Coins
             </span>
           </div>
         )}
 
-        {/* 1-Click Buy Action Button */}
+        {/* Clean, Professional Action Button */}
         <button 
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? 'linear-gradient(135deg, #3730a3 0%, #1e1b4b 100%)' : 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)',
-            boxShadow: isBtnHovered ? '0 10px 25px -4px rgba(67, 56, 202, 0.55)' : '0 4px 12px rgba(67, 56, 202, 0.25)',
-            transform: isBtnHovered ? 'scale(1.02)' : 'scale(1)'
+            background: isBtnHovered ? '#312e81' : '#4338ca',
+            boxShadow: isBtnHovered ? '0 8px 20px rgba(67, 56, 202, 0.3)' : '0 2px 8px rgba(67, 56, 202, 0.15)',
+            transform: isBtnHovered ? 'translateY(-1px)' : 'none'
           }} 
           onClick={handleAddToCart}
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={16} /> ⚡ Grab Best Deal
+          <ShoppingCart size={16} /> <span>Add to Cart</span>
         </button>
       </div>
     </div>
@@ -217,17 +184,17 @@ const styles = {
     flexDirection: 'column',
     position: 'relative',
     height: '100%',
-    transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
     boxSizing: 'border-box'
   },
   imageWrapper: {
     width: '100%',
-    height: '200px',
-    padding: '14px',
+    height: '220px',
+    padding: '20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%)',
+    background: '#f8fafc',
     borderBottom: '1px solid #f1f5f9',
     position: 'relative',
     overflow: 'hidden',
@@ -237,80 +204,80 @@ const styles = {
     position: 'absolute', 
     top: '12px', 
     left: '12px', 
-    background: 'linear-gradient(135deg, #e11d48, #be123c)', 
-    color: 'white', 
+    backgroundColor: '#090d16', 
+    color: '#fde047', 
     fontSize: '10px', 
     fontWeight: '900', 
-    padding: '5px 10px', 
+    padding: '4px 10px', 
     borderRadius: '8px', 
     zIndex: 2, 
-    boxShadow: '0 4px 12px rgba(225, 29, 72, 0.4)',
-    letterSpacing: '0.3px'
+    letterSpacing: '0.5px',
+    border: '1px solid #334155'
   },
   badgeTrending: {
     position: 'absolute', 
     top: '12px', 
     left: '12px', 
-    background: 'linear-gradient(135deg, #059669, #047857)', 
+    backgroundColor: '#059669', 
     color: 'white', 
     fontSize: '10px', 
     fontWeight: '900', 
-    padding: '5px 10px', 
+    padding: '4px 10px', 
     borderRadius: '8px', 
     zIndex: 2, 
-    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)',
-    letterSpacing: '0.3px'
+    letterSpacing: '0.5px'
   },
   badgeNew: {
     position: 'absolute', 
     top: '12px', 
     left: '12px', 
-    background: 'linear-gradient(135deg, #7c3aed, #4338ca)', 
+    backgroundColor: '#4338ca', 
     color: 'white', 
     fontSize: '10px', 
     fontWeight: '900', 
-    padding: '5px 10px', 
+    padding: '4px 10px', 
     borderRadius: '8px', 
     zIndex: 2, 
-    boxShadow: '0 4px 12px rgba(124, 58, 237, 0.4)',
-    letterSpacing: '0.3px'
+    letterSpacing: '0.5px'
   },
   info: {
-    padding: '16px',
+    padding: '16px 18px 18px 18px',
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
     gap: '8px',
+    boxSizing: 'border-box'
   },
   name: {
     fontFamily: "'Outfit', sans-serif",
     fontSize: '15px',
     fontWeight: '700',
     color: '#090d16',
-    lineHeight: '1.35',
-    height: '40px',
+    lineHeight: '1.4',
+    height: '42px',
     overflow: 'hidden',
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
-    letterSpacing: '-0.2px'
+    letterSpacing: '-0.2px',
+    margin: 0
   },
   ratingRow: {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
+    flexWrap: 'wrap'
   },
   ratingTag: {
     backgroundColor: '#059669',
     color: 'white',
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: '800',
-    padding: '2px 7px',
+    padding: '2px 6px',
     borderRadius: '6px',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '3px',
-    boxShadow: '0 2px 6px rgba(5, 150, 105, 0.25)'
+    gap: '3px'
   },
   reviewsCount: {
     fontSize: '12px',
@@ -321,20 +288,15 @@ const styles = {
     marginLeft: 'auto', 
     display: 'inline-flex', 
     alignItems: 'center', 
-    height: '20px', 
-    background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)', 
-    color: 'white', 
-    borderRadius: '6px', 
-    padding: '0 7px', 
-    fontSize: '9px', 
-    fontWeight: '900', 
-    letterSpacing: '0.4px',
-    border: '1px solid #3b82f6',
-    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.25)'
+    backgroundColor: '#f0fdf4',
+    border: '1px solid #bbf7d0',
+    borderRadius: '6px',
+    padding: '2px 8px'
   },
   priceRow: {
     display: 'flex',
     alignItems: 'baseline',
+    flexWrap: 'wrap',
     gap: '8px',
     marginTop: '2px',
   },
@@ -352,10 +314,11 @@ const styles = {
     fontWeight: '600'
   },
   discount: {
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: '800',
     color: '#059669',
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#ecfdf5',
+    border: '1px solid #a7f3d0',
     padding: '2px 6px',
     borderRadius: '6px'
   },
@@ -378,7 +341,7 @@ const styles = {
   addBtn: {
     border: 'none',
     color: 'white',
-    borderRadius: '14px',
+    borderRadius: '12px',
     padding: '12px 16px',
     fontFamily: "'Outfit', sans-serif",
     fontSize: '14px',
@@ -387,9 +350,9 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
-    marginTop: '10px',
+    marginTop: '8px',
     cursor: 'pointer',
-    transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'all 0.2s',
   },
 };
 

@@ -43,47 +43,49 @@ const FlashDealBanner = () => {
   return (
     <div 
       style={{
-        background: 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)',
-        color: 'white',
-        padding: '10px 16px',
+        background: 'linear-gradient(90deg, #090d16 0%, #1e1b4b 40%, #312e81 60%, #090d16 100%)',
+        color: '#f8fafc',
+        padding: '10px 24px',
         display: 'flex',
-        flexDirection: 'column',
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px',
+        gap: '20px',
         width: '100%',
-        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+        boxShadow: '0 4px 20px rgba(9, 13, 22, 0.25)',
+        borderBottom: '1px solid rgba(253, 224, 71, 0.2)',
         position: 'relative',
         zIndex: 40,
-        overflow: 'hidden'
+        fontFamily: "'Outfit', sans-serif"
       }}
     >
-      {/* Decorative lightning bolts */}
-      <div style={{ position: 'absolute', left: '10%', opacity: 0.2, top: '-5px' }}><Zap size={40} /></div>
-      <div style={{ position: 'absolute', right: '10%', opacity: 0.2, bottom: '-5px' }}><Zap size={40} /></div>
+      {/* Decorative ambient lighting */}
+      <div style={{ position: 'absolute', left: '15%', opacity: 0.15, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}><Zap size={48} color="#fde047" /></div>
+      <div style={{ position: 'absolute', right: '15%', opacity: 0.15, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}><Zap size={48} color="#fde047" /></div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', letterSpacing: '0.5px', fontSize: '14px', textTransform: 'uppercase' }}>
-        <Timer size={18} className="animate-pulse" />
-        Flash Deal: Get 20% OFF Site-wide!
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', letterSpacing: '0.5px', fontSize: '14px', color: '#fde047', textTransform: 'uppercase' }}>
+        <Timer size={18} className="animate-pulse" color="#fde047" />
+        <span>⚡ VIP Flash Vault: <span style={{ color: '#ffffff', fontWeight: '900' }}>Flat 20% OFF Site-Wide!</span></span>
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          <div style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace', fontSize: '15px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '700', marginRight: '4px' }}>ENDS IN:</span>
+          <div style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#fde047', padding: '3px 8px', borderRadius: '6px', fontWeight: '800', fontFamily: 'monospace', fontSize: '14px' }}>
             {formatTime(timeLeft.hours)}
           </div>
-          <span style={{ fontWeight: 'bold', alignSelf: 'center' }}>:</span>
-          <div style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace', fontSize: '15px' }}>
+          <span style={{ fontWeight: 'bold', color: '#94a3b8' }}>:</span>
+          <div style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#fde047', padding: '3px 8px', borderRadius: '6px', fontWeight: '800', fontFamily: 'monospace', fontSize: '14px' }}>
             {formatTime(timeLeft.minutes)}
           </div>
-          <span style={{ fontWeight: 'bold', alignSelf: 'center' }}>:</span>
-          <div style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace', fontSize: '15px' }}>
+          <span style={{ fontWeight: 'bold', color: '#94a3b8' }}>:</span>
+          <div style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#fde047', padding: '3px 8px', borderRadius: '6px', fontWeight: '800', fontFamily: 'monospace', fontSize: '14px' }}>
             {formatTime(timeLeft.seconds)}
           </div>
         </div>
         
-        <div style={{ background: 'white', color: '#ef4444', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          CODE: HURRY20 <ArrowRight size={12} />
+        <div style={{ background: 'linear-gradient(135deg, #fde047 0%, #f59e0b 100%)', color: '#090d16', padding: '5px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)', border: '1px solid #fef08a' }}>
+          CODE: HURRY20 <ArrowRight size={13} strokeWidth={2.5} />
         </div>
       </div>
     </div>
