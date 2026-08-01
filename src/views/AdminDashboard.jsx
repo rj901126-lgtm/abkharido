@@ -812,24 +812,61 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   // Dynamic commission rates (pre-filled on category change for helper guidance)
   const [userCommission, setUserCommission] = useState('0.012'); // 1.2%
 
-  // Update commission presets automatically when changing category
+  // Update commission presets and smart spec templates automatically when changing category
   const handleCategoryChange = (cat) => {
     setCategory(cat);
     switch (cat) {
       case 'fashion':
         setUserCommission('0.03');
+        setSpecs([
+          { key: 'Fabric', value: '100% Premium Pure Cotton' },
+          { key: 'Fit Type', value: 'Regular / Tailored Fit' },
+          { key: 'Care Instructions', value: 'Machine Wash Cold / Gentle Cycle' },
+          { key: 'Country of Origin', value: 'India' },
+          { key: 'Occasion', value: 'Casual / Smart Casual' }
+        ]);
         break;
       case 'home':
         setUserCommission('0.02');
+        setSpecs([
+          { key: 'Material', value: 'Premium Grade Sustainable Wood / Metal' },
+          { key: 'Dimensions', value: 'Standard Ergonomic Size' },
+          { key: 'Weight & Durability', value: 'Heavy Duty Built' },
+          { key: 'Package Contents', value: '1 Main Unit + Accessories + User Manual' },
+          { key: 'Care & Maintenance', value: 'Easy wipe cleaning with dry/damp microfiber cloth' }
+        ]);
         break;
       case 'appliances':
         setUserCommission('0.015');
+        setSpecs([
+          { key: 'Brand & Model', value: '' },
+          { key: 'Energy Efficiency Rating', value: '5-Star Eco Inverter Technology (Power Saving)' },
+          { key: 'Operating Capacity', value: '' },
+          { key: 'Comprehensive Warranty', value: '1 Year Full Unit + 10 Years on Motor/Compressor' },
+          { key: 'Home Installation & Demo', value: 'Free Expert Home Installation & Setup' }
+        ]);
         break;
       case 'electronics':
         setUserCommission('0.012');
+        setSpecs([
+          { key: 'Brand', value: '' },
+          { key: 'Model Identifier', value: '' },
+          { key: 'Connectivity & Audio/Video', value: 'Bluetooth 5.3 / Type-C Fast Data Sync' },
+          { key: 'In The Box', value: 'Device + Fast Charger Adapter + Type-C Braided Cable + Warranty Card' },
+          { key: 'Brand Warranty', value: '1 Year Official Comprehensive Replacement / Service Warranty' }
+        ]);
         break;
       case 'mobiles':
         setUserCommission('0.005');
+        setSpecs([
+          { key: 'Brand & Series', value: '' },
+          { key: 'Display Technology', value: '6.7-inch Super AMOLED 120Hz Pro Display with HDR10+' },
+          { key: 'Processor & RAM', value: 'Next-Gen Flagship Chipset with Virtual RAM Expansion' },
+          { key: 'Pro Camera System', value: '50MP OIS Ultra Triple Camera + 32MP Selfies' },
+          { key: 'Battery & Fast Charging', value: '5000 mAh High-Density Battery + 65W Super Fast Charger included' },
+          { key: 'Operating System', value: 'Latest Android / iOS with Clean Enterprise UI' },
+          { key: 'Official Warranty', value: '1 Year Brand Comprehensive Authorised Service Network Warranty' }
+        ]);
         break;
       default:
         break;
@@ -1671,64 +1708,95 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
             
             <div className="form-group">
-              <label className="form-label-txt">Product ID (Unique - lowercase, no spaces)*</label>
-              <input 
-                type="text" 
-                placeholder="e.g. iphone-16-pro" 
-                value={id}
-                onChange={(e) => setId(e.target.value)}
-                className="form-input-field"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label-txt">Product Display Name*</label>
+              <label className="form-label-txt">Product Display Name* (Start typing to auto-fill ID)</label>
               <input 
                 type="text" 
                 placeholder="e.g. Apple iPhone 16 Pro (Titanium, 128 GB)" 
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setName(val);
+                  if (!editMode && (!id || id === name.toLowerCase().trim().replace(/[\s\W]+/g, '-'))) {
+                    setId(val.toLowerCase().trim().replace(/[\s\W]+/g, '-'));
+                  }
+                }}
                 className="form-input-field"
+                style={{ fontWeight: '600', fontSize: '15px', padding: '10px 14px' }}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label-txt">Category*</label>
+              <label className="form-label-txt">Product ID (Unique URL Slug - lowercase, no spaces)*</label>
+              <input 
+                type="text" 
+                placeholder="e.g. apple-iphone-16-pro" 
+                value={id}
+                onChange={(e) => setId(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))}
+                className="form-input-field"
+                style={{ fontFamily: 'monospace', backgroundColor: '#f8fafc' }}
+                required
+              />
+              {!editMode && <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: '600', marginTop: '6px', display: 'inline-block' }}>⚡ Auto-generated SEO-friendly product slug from Display Name (customizable)</span>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label-txt">Category* (Auto-loads Smart Specifications below)</label>
               <select 
                 value={category}
                 onChange={(e) => handleCategoryChange(e.target.value)}
                 className="form-input-field"
+                style={{ fontWeight: '600' }}
               >
-                <option value="mobiles">Mobiles</option>
-                <option value="electronics">Electronics</option>
-                <option value="fashion">Fashion</option>
-                <option value="home">Home & Living</option>
-                <option value="appliances">Appliances</option>
+                <option value="electronics">Electronics (Gadgets & Accessories)</option>
+                <option value="mobiles">Mobiles & Smartphones</option>
+                <option value="fashion">Fashion & Clothing</option>
+                <option value="home">Home & Living Essentials</option>
+                <option value="appliances">Large Home Appliances</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label-txt">Product Badge (Tag)*</label>
-              <select 
-                value={badge}
-                onChange={(e) => setBadge(e.target.value)}
-                className="form-input-field"
-              >
-                <option value="none">None (Standard)</option>
-                <option value="bestseller">🔥 BESTSELLER</option>
-                <option value="trending">📈 TRENDING</option>
-                <option value="new">✨ NEW ARRIVAL</option>
-              </select>
+              <label className="form-label-txt">Product Sales Badge & Psychological Trigger*</label>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '6px' }}>
+                {[
+                  { id: 'none', label: 'Standard (No Badge)', color: '#64748b', bg: '#f1f5f9' },
+                  { id: 'bestseller', label: '🔥 BEST SELLER', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+                  { id: 'trending', label: '📈 TRENDING NOW', color: '#4f46e5', bg: '#e0e7ff', border: '#c7d2fe' },
+                  { id: 'new', label: '✨ NEW ARRIVAL', color: '#059669', bg: '#d1fae5', border: '#a7f3d0' },
+                  { id: 'deal', label: '💎 DEAL OF THE WEEK', color: '#d97706', bg: '#fef3c7', border: '#fde68a' },
+                  { id: 'premium', label: '👑 PREMIUM CHOICE', color: '#7c3aed', bg: '#ede9fe', border: '#ddd6fe' }
+                ].map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => setBadge(item.id)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '100px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      border: '2px solid',
+                      borderColor: badge === item.id ? item.color : (item.border || '#e2e8f0'),
+                      backgroundColor: badge === item.id ? item.color : item.bg,
+                      color: badge === item.id ? '#ffffff' : item.color,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: badge === item.id ? '0 4px 10px rgba(0,0,0,0.15)' : 'none'
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
             
-            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-              <h4 style={{ margin: 0, fontSize: '14px', color: '#334155', fontWeight: 'bold' }}>Enterprise PIM (Compliance & SEO)</h4>
+            <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px' }}>
+              <h4 style={{ margin: 0, fontSize: '14px', color: '#334155', fontWeight: '800' }}>Enterprise PIM (Compliance & SEO Integration)</h4>
               
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label className="form-label-txt" style={{ color: '#475569' }}>SEO Meta Title</label>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div className="form-group" style={{ flex: '1 1 250px' }}>
+                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>SEO Meta Title</label>
                   <input 
                     type="text" 
                     placeholder="e.g. Buy Apple iPhone 16 Pro Online in India" 
@@ -1738,8 +1806,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                     style={{ background: '#fff' }}
                   />
                 </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label className="form-label-txt" style={{ color: '#475569' }}>SEO Meta Description</label>
+                <div className="form-group" style={{ flex: '1 1 250px' }}>
+                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>SEO Meta Description</label>
                   <input 
                     type="text" 
                     placeholder="Brief description for search engines..." 
@@ -1751,9 +1819,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label className="form-label-txt" style={{ color: '#475569' }}>HSN Code (GST Billing)</label>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div className="form-group" style={{ flex: '1 1 250px' }}>
+                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>HSN Code (GST Billing)</label>
                   <input 
                     type="text" 
                     placeholder="e.g. 85171219" 
@@ -1763,8 +1831,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                     style={{ background: '#fff' }}
                   />
                 </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label className="form-label-txt" style={{ color: '#475569' }}>Linked Vendor ID (Optional)</label>
+                <div className="form-group" style={{ flex: '1 1 250px' }}>
+                  <label className="form-label-txt" style={{ color: '#475569', fontSize: '12px' }}>Linked Vendor ID (Optional)</label>
                   <input 
                     type="text" 
                     placeholder="e.g. 64b8f... (Seller's Object ID)" 
@@ -1777,41 +1845,59 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label-txt">Selling Price (₹)*</label>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div className="form-group" style={{ flex: '1 1 150px' }}>
+                <label className="form-label-txt" style={{ fontWeight: '700', color: '#15803d' }}>Selling Price (₹)*</label>
                 <input 
                   type="number" 
                   placeholder="Selling Price" 
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="form-input-field"
+                  style={{ fontWeight: '800', fontSize: '16px', color: '#15803d', border: '2px solid #86efac', backgroundColor: '#f0fdf4' }}
                   required
                 />
               </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label-txt">Original Price (₹)*</label>
+              <div className="form-group" style={{ flex: '1 1 150px' }}>
+                <label className="form-label-txt">Original MRP (₹)*</label>
                 <input 
                   type="number" 
                   placeholder="Original Price" 
                   value={originalPrice}
                   onChange={(e) => setOriginalPrice(e.target.value)}
                   className="form-input-field"
+                  style={{ fontWeight: '600', textDecoration: 'line-through', color: '#64748b' }}
                   required
                 />
               </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label-txt">Quantity (Stock)*</label>
+              <div className="form-group" style={{ flex: '1 1 150px' }}>
+                <label className="form-label-txt">Quantity in Stock*</label>
                 <input 
                   type="number" 
                   placeholder="Stock" 
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
                   className="form-input-field"
+                  style={{ fontWeight: '700' }}
                   required
                 />
               </div>
             </div>
+
+            {Number(price) > 0 && Number(originalPrice) > Number(price) && (
+              <div style={{ padding: '14px 18px', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '-8px', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '24px' }}>🔥</span>
+                  <div>
+                    <div style={{ fontWeight: '800', color: '#15803d', fontSize: '15px' }}>
+                      Customer Saving: ₹{(Number(originalPrice) - Number(price)).toLocaleString('en-IN')} ({Math.round(((Number(originalPrice) - Number(price)) / Number(originalPrice)) * 100)}% OFF)
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#166534', fontWeight: '500', marginTop: '2px' }}>This discount percentage badge will be featured prominently on product cards to supercharge conversions!</div>
+                  </div>
+                </div>
+                <span style={{ padding: '6px 14px', background: '#16a34a', color: 'white', fontWeight: '800', borderRadius: '100px', fontSize: '12px', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)' }}>High Conversion Deal ✨</span>
+              </div>
+            )}
             
             {/* Flash Sale Engine Config */}
             <div style={{ backgroundColor: '#fff5f5', padding: '16px', borderRadius: '8px', border: '1px solid #fecaca' }}>
@@ -1901,14 +1987,17 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
               )}
             </div>
 
-            <div className="form-group">
-              <label className="form-label-txt">Description*</label>
+            <div className="form-group" style={{ width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label className="form-label-txt" style={{ margin: 0 }}>Product Description & High-Converting Highlights*</label>
+                <span style={{ fontSize: '11px', color: '#64748b', background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px' }}>💡 Tip: Use bullet points for higher customer engagement</span>
+              </div>
               <textarea 
-                placeholder="Product description and features..." 
+                placeholder={`• Key Highlight 1: e.g. 120Hz Super AMOLED Display\n• Key Highlight 2: e.g. 5000mAh Battery with 65W Super Charge\n• Why Buy: Premium titanium body designed for extreme durability and style...`}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="form-input-field"
-                style={{ height: '80px', resize: 'vertical' }}
+                style={{ width: '100%', minHeight: '130px', padding: '14px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '14px', lineHeight: '1.6', fontFamily: 'inherit', resize: 'vertical', background: 'white' }}
                 required
               />
             </div>
