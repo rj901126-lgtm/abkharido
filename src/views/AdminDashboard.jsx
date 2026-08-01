@@ -1460,7 +1460,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       const rawUsername = String(u.username || '');
                       const isNumeric = /^\d+$/.test(rawUsername);
                       const cleanPhone = isNumeric && rawUsername.length >= 10 ? rawUsername.slice(0, 10) : (u.phone ? String(u.phone).replace(/\D/g, '').slice(-10) : rawUsername);
-                      const custTag = isNumeric && rawUsername.length >= 10 ? `#CUST_${rawUsername.slice(0, 4)}` : `#ID_${rawUsername.slice(0, 5).toUpperCase()}`;
+                      // Derive a 100% unique customer ID tag from their immutable database primary key (_id/id) to prevent prefix collisions across crores of users
+                      const custTag = `#CUST_${String(u._id || u.id || rawUsername).slice(-6).toUpperCase()}`;
 
                       const userCode = u.isInfluencer ? u.creatorCode : u.referralCode;
                       const influencerId = u.isInfluencer ? u.influencerId : null;
