@@ -19,6 +19,8 @@ const AdminAnalytics = () => {
     retentionRate: 0
   });
   const [predictions, setPredictions] = useState([]);
+  const [liveOrderFeed, setLiveOrderFeed] = useState([]);
+  const [categoryStats, setCategoryStats] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -35,8 +37,9 @@ const AdminAnalytics = () => {
       if (res.ok) {
         const data = await res.json();
         setKpis(data.kpis);
-        // Reverse salesData so it goes from oldest to newest (left to right on the chart)
-        setSalesData(data.salesData.reverse());
+        setSalesData(data.salesData || []);
+        if (data.liveOrderFeed) setLiveOrderFeed(data.liveOrderFeed);
+        if (data.categoryStats) setCategoryStats(data.categoryStats);
       }
       
       const predRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/analytics/inventory-predict`, {
@@ -209,65 +212,74 @@ const AdminAnalytics = () => {
             <span className="live-pulse-dot" style={{ backgroundColor: '#22c55e', boxShadow: '0 0 0 0 rgba(34, 197, 94, 0.7)' }}></span> Live Order Feed
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto' }}>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid #f1f5f9', borderRadius: '8px', background: '#f8fafc' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b' }}>
-                    #{i}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>Order {Math.floor(Math.random() * 90000) + 10000}</div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>{Math.floor(Math.random() * 10) + 1} mins ago • {['Delhi', 'Mumbai', 'Bangalore', 'Pune'][i-1]}</div>
-                  </div>
-                </div>
-                <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '14px' }}>
-                  ₹{(Math.floor(Math.random() * 5000) + 500).toLocaleString('en-IN')}
-                </div>
+            {liveOrderFeed.length === 0 ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>
+                ✓ No active live orders at the moment.
               </div>
-            ))}
+            ) : (
+              liveOrderFeed.map((order, index) => (
+                <div key={order._id || index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid #f1f5f9', borderRadius: '8px', background: '#f8fafc' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b', fontSize: '12px' }}>
+                      #{index + 1}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>
+                        Order #{order._id ? order._id.toString().slice(-6).toUpperCase() : 'NEW'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'capitalize' }}>
+                        {order.status || 'Processing'} • {order.shippingAddress?.city || 'India'}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '14px' }}>
+                    ₹{(order.totalPrice || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Vendor Performance Matrix */}
+        {/* Category & Inventory Matrix */}
         <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={18} color="#f59e0b" /> Vendor Performance Matrix
+            <Users size={18} color="#f59e0b" /> Category & Inventory Performance
           </h3>
           <div className="admin-table-wrapper" style={{ maxHeight: '300px', overflowY: 'auto' }}>
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Vendor</th>
-                  <th>Avg Rating</th>
-                  <th>Return Rate</th>
+                  <th>Category</th>
+                  <th>Products</th>
+                  <th>Avg Price</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><div style={{ fontWeight: 'bold' }}>TechStore India</div><div style={{ fontSize: '11px', color: '#666' }}>Electronics</div></td>
-                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 4.8</span></td>
-                  <td>1.2%</td>
-                  <td><span className="badge badge-success">Top Tier</span></td>
-                </tr>
-                <tr>
-                  <td><div style={{ fontWeight: 'bold' }}>FashionHub</div><div style={{ fontSize: '11px', color: '#666' }}>Apparel</div></td>
-                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 4.1</span></td>
-                  <td>4.5%</td>
-                  <td><span className="badge badge-info">Average</span></td>
-                </tr>
-                <tr>
-                  <td><div style={{ fontWeight: 'bold' }}>GadgetPro</div><div style={{ fontSize: '11px', color: '#666' }}>Mobiles</div></td>
-                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 3.2</span></td>
-                  <td>12.8%</td>
-                  <td><span className="badge badge-danger">At Risk</span></td>
-                </tr>
-                <tr>
-                  <td><div style={{ fontWeight: 'bold' }}>HomeDecor Plus</div><div style={{ fontSize: '11px', color: '#666' }}>Home</div></td>
-                  <td><span style={{ color: '#eab308', fontWeight: 'bold' }}>★ 4.9</span></td>
-                  <td>0.5%</td>
-                  <td><span className="badge badge-success">Top Tier</span></td>
-                </tr>
+                {categoryStats.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: 'center', color: '#64748b', padding: '24px', fontStyle: 'italic' }}>
+                      No category data available yet.
+                    </td>
+                  </tr>
+                ) : (
+                  categoryStats.map((cat, i) => (
+                    <tr key={cat._id || i}>
+                      <td>
+                        <div style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{cat._id || 'General'}</div>
+                        <div style={{ fontSize: '11px', color: '#666' }}>Active Catalog</div>
+                      </td>
+                      <td><span style={{ color: '#0284c7', fontWeight: 'bold' }}>{cat.productCount} items</span></td>
+                      <td>₹{Math.round(cat.avgPrice || 0).toLocaleString('en-IN')}</td>
+                      <td>
+                        <span className={`badge ${cat.productCount >= 5 ? 'badge-success' : 'badge-info'}`}>
+                          {cat.productCount >= 5 ? 'Top Tier' : 'Active'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

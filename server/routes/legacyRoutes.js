@@ -211,22 +211,54 @@ router.get('/admin/analytics', protect, admin, async (req, res) => {
     const totalOrders = await Order.countDocuments();
     const liveOrders = await Order.countDocuments({ status: { $nin: ['Delivered', 'Cancelled', 'cancelled', 'delivered', 'Returned', 'returned', 'Refunded', 'refunded', 'Failed', 'failed', 'Rejected', 'rejected'] } });
     
-    // Calculate total revenue
+    // Calculate total revenue from non-cancelled orders
     const revenueAgg = await Order.aggregate([
-      { $match: { isPaid: true } },
+      { $match: { status: { $nin: ['Cancelled', 'cancelled', 'Returned', 'returned', 'Refunded', 'refunded'] } } },
       { $group: { _id: null, total: { $sum: '$totalPrice' } } }
     ]);
     const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
 
-    // Dummy sales data for graph
-    const salesData = [
-      { date: '2026-07-15', revenue: 12000, orders: 4 },
-      { date: '2026-07-16', revenue: 15000, orders: 5 },
-      { date: '2026-07-17', revenue: 9000, orders: 3 },
-      { date: '2026-07-18', revenue: 22000, orders: 8 },
-      { date: '2026-07-19', revenue: 18000, orders: 6 },
-      { date: '2026-07-20', revenue: 25000, orders: 10 }
-    ];
+    // Real 7-day Sales Data
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    
+    const rawSales = await Order.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo }, status: { $nin: ['Cancelled', 'cancelled', 'Returned', 'returned'] } } },
+      { $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          revenue: { $sum: "$totalPrice" },
+          orders: { $sum: 1 }
+        }
+      }
+    ]);
+    const salesMap = {};
+    rawSales.forEach(item => { salesMap[item._id] = item; });
+    const salesData = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      salesData.push({
+        date: dateStr,
+        revenue: salesMap[dateStr] ? salesMap[dateStr].revenue : 0,
+        orders: salesMap[dateStr] ? salesMap[dateStr].orders : 0
+      });
+    }
+
+    // Real Live Order Feed
+    const liveOrderFeed = await Order.find({ status: { $nin: ['Delivered', 'Cancelled', 'cancelled', 'delivered', 'Returned', 'returned', 'Refunded', 'refunded'] } })
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .select('_id totalPrice createdAt status shippingAddress')
+      .lean();
+
+    // Real Category Stats
+    const categoryStats = await Product.aggregate([
+      { $group: { _id: "$category", productCount: { $sum: 1 }, avgPrice: { $avg: "$price" } } },
+      { $sort: { productCount: -1 } },
+      { $limit: 4 }
+    ]);
 
     res.json({
       kpis: {
@@ -236,7 +268,9 @@ router.get('/admin/analytics', protect, admin, async (req, res) => {
         liveOrders,
         totalRevenue
       },
-      salesData
+      salesData,
+      liveOrderFeed,
+      categoryStats
     });
   } catch (error) {
     console.error("Admin Analytics Error:", error);
