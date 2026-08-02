@@ -111,8 +111,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     <div className="home-page-layout-container" style={{ paddingBottom: '80px' }}>
       <FlashDealBanner />
 
-      <section style={{ margin: '8px 0 12px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+      <section style={{ 
+        position: 'sticky', 
+        top: '64px', 
+        zIndex: 90, 
+        backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+        backdropFilter: 'blur(16px)', 
+        WebkitBackdropFilter: 'blur(16px)',
+        padding: '12px 0 8px 0', 
+        margin: '0 0 16px 0',
+        borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
+        boxShadow: '0 6px 20px -4px rgba(9, 13, 22, 0.05)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
           <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Sparkles size={16} style={{ color: '#d97706' }} /> INDIA'S VIP SHOPPING VAULTS
           </span>
