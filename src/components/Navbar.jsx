@@ -67,8 +67,8 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header className={`navbar-header ${activePage && activePage.startsWith('product') ? 'product-page-header' : ''}`} style={style}>
-        <div className={`navbar-container ${activePage && activePage.startsWith('product') ? 'product-page-navbar' : ''}`}>
+      <header className="navbar-header" style={style}>
+        <div className="navbar-container">
           
           <div className="navbar-left">
               {/* Logo */}

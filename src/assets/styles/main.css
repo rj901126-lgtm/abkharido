@@ -75,8 +75,8 @@ img {
 
 .main-content {
   flex: 1;
-  margin-top: 56px; /* Offset for sticky navbar */
-  min-height: calc(100vh - 56px - 250px); /* Height minus navbar and footer */
+  margin-top: 64px; /* Offset for sticky navbar */
+  min-height: calc(100vh - 64px - 250px); /* Height minus navbar and footer */
 }
 
 /* Core Container Utility */
