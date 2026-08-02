@@ -290,7 +290,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 href="#login" 
                 className="nav-item-btn" 
                 onClick={(e) => { e.preventDefault(); onNavigate('login'); }}
-                style={{ backgroundColor: 'white', color: 'var(--primary-color)', padding: '6px 20px', borderRadius: '2px', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}
+                style={{ padding: '6px 20px', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}
               >
                 Login
               </a>

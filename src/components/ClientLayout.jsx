@@ -157,12 +157,14 @@ export default function ClientLayout({ children }) {
             <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Lock size={13} /> AbKharido Protected Server
             </span>
-            <button
-              onClick={() => router.push('/admin')}
-              style={{ background: 'transparent', border: 'none', color: '#818cf8', fontWeight: '800', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              👑 Admin Login →
-            </button>
+            <a 
+                href="#login" 
+                className="nav-item-btn" 
+                onClick={(e) => { e.preventDefault(); handleNavigate('login'); }}
+                style={{ backgroundColor: 'var(--nav-login-bg, white)', color: 'var(--nav-login-color, var(--primary-color))', padding: '6px 20px', borderRadius: '2px', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}
+              >
+                Login
+              </a>
           </div>
         </div>
       </div>
@@ -225,6 +227,7 @@ export default function ClientLayout({ children }) {
 
       <main 
         className={`main-content`}
+        data-announcement={showAnnouncement ? 'true' : 'false'}
         style={{ marginTop: isPortalPage ? (showAnnouncement ? '32px' : '0') : (showAnnouncement ? '96px' : '64px') }}
       >
         {children}

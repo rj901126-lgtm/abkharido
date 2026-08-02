@@ -336,11 +336,11 @@
     padding-top: env(safe-area-inset-top) !important;
     align-items: flex-start !important;
     /* Dark premium glass navbar on mobile */
-    background: rgba(9, 13, 22, 0.97) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
+    background: rgba(9, 13, 22, 0.98) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5) !important;
   }
 
   .navbar-container {
@@ -372,7 +372,7 @@
     font-size: 10px !important;
   }
 
-  /* Right icons on dark background */
+  /* Right side icons on dark background */
   .navbar-right {
     position: absolute !important;
     right: 12px !important;
@@ -380,24 +380,37 @@
     gap: 6px !important;
   }
 
-  .nav-icon-btn,
-  .nav-cart-btn {
-    color: rgba(255, 255, 255, 0.85) !important;
+  /* Nav item (logged-in user, cart) — white on dark */
+  .nav-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Login button — dark transparent style */
+  .nav-item-btn {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 20px !important;
+    padding: 5px 16px !important;
+    font-size: 13px !important;
+  }
+
+  .nav-item-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* Cart badge */
+  .cart-badge {
+    background: #f59e0b !important;
+    border-color: #090d16 !important;
   }
 
   .nav-text {
     display: none;
-  }
-
-  .nav-icon-btn:hover,
-  .nav-cart-btn:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  /* Cart count badge */
-  .cart-badge {
-    background: #f59e0b !important;
-    border-color: #090d16 !important;
   }
 
   /* Pill-shaped search bar on dark background */
@@ -439,7 +452,7 @@
     stroke: rgba(255, 255, 255, 0.7) !important;
   }
 
-  /* Category bar below dark navbar — keep light */
+  /* Category bar below dark navbar */
   .cat-container {
     display: flex !important;
     flex-wrap: nowrap !important;
