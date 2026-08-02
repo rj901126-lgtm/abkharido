@@ -6,13 +6,62 @@ import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award, Zap, Shi
 import '../assets/styles/home.css';
 
 const defaultVipCategories = [
-  { id: 'all', label: 'All VIP Deals', icon: '💎', gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)', badge: 'HOT' },
-  { id: 'mobiles', label: 'AI Smartphones & 5G', icon: '⚡', gradient: 'linear-gradient(135deg, #0284c7, #0369a1)', badge: 'NEW' },
-  { id: 'electronics', label: 'Audiophile & Tech', icon: '🎧', gradient: 'linear-gradient(135deg, #7c3aed, #4f46e5)', badge: '-40%' },
-  { id: 'fashion', label: 'Luxe Couture & Wear', icon: '👗', gradient: 'linear-gradient(135deg, #e11d48, #9f1239)', badge: 'TRENDING' },
-  { id: 'home', label: 'Smart Home & AI', icon: '🏠', gradient: 'linear-gradient(135deg, #059669, #047857)', badge: 'TOP' },
-  { id: 'beauty', label: 'Diamond Beauty & Spa', icon: '✨', gradient: 'linear-gradient(135deg, #d97706, #b45309)', badge: 'VIP' },
-  { id: 'sports', label: 'Pro Fitness & Gear', icon: '🏃', gradient: 'linear-gradient(135deg, #090d16, #334155)', badge: 'FAST' },
+  { 
+    id: 'all', 
+    label: 'All Deals', 
+    icon: '🛍️', 
+    color: '#4f46e5',
+    bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
+    badge: 'HOT' 
+  },
+  { 
+    id: 'mobiles', 
+    label: 'Mobiles', 
+    icon: '📱', 
+    color: '#0284c7',
+    bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+    badge: 'NEW' 
+  },
+  { 
+    id: 'electronics', 
+    label: 'Electronics', 
+    icon: '🎧', 
+    color: '#7c3aed',
+    bg: 'linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%)',
+    badge: '-40%' 
+  },
+  { 
+    id: 'fashion', 
+    label: 'Fashion', 
+    icon: '👗', 
+    color: '#e11d48',
+    bg: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)',
+    badge: 'SALE' 
+  },
+  { 
+    id: 'home', 
+    label: 'Home', 
+    icon: '🏠', 
+    color: '#059669',
+    bg: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+    badge: 'TOP' 
+  },
+  { 
+    id: 'beauty', 
+    label: 'Beauty', 
+    icon: '💄', 
+    color: '#d97706',
+    bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+    badge: 'VIP' 
+  },
+  { 
+    id: 'sports', 
+    label: 'Sports', 
+    icon: '🏋️', 
+    color: '#0f172a',
+    bg: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+    badge: 'FIT' 
+  },
 ];
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
@@ -109,19 +158,31 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '80px' }}>
-      <section style={{ 
-        position: 'sticky', 
-        top: '64px', 
-        zIndex: 90, 
-        backgroundColor: 'rgba(255, 255, 255, 0.97)', 
-        backdropFilter: 'blur(16px)', 
-        WebkitBackdropFilter: 'blur(16px)',
-        padding: '10px 0 6px 0', 
-        margin: '0 0 0 0',
-        borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
-        boxShadow: '0 6px 20px -4px rgba(9, 13, 22, 0.05)'
-      }} className="home-category-strip">
-        <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+      {/* ── Category Strip ── Flipkart-style circular icons ── */}
+      <section
+        className="home-category-strip"
+        style={{
+          position: 'sticky',
+          top: '64px',
+          zIndex: 90,
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(226, 232, 240, 0.7)',
+          boxShadow: '0 4px 16px -4px rgba(9, 13, 22, 0.06)',
+          padding: '10px 0 8px 0',
+          margin: 0,
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          gap: '0',
+          overflowX: 'auto',
+          paddingLeft: '12px',
+          paddingRight: '12px',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}>
           {activeVipCategories.map((cat) => {
             const isSelected = selectedCatPill === cat.id;
             return (
@@ -130,33 +191,63 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 onClick={() => handleCategoryClick(cat.id)}
                 style={{
                   flexShrink: 0,
-                  background: isSelected ? cat.gradient : '#ffffff',
-                  color: isSelected ? '#ffffff' : '#090d16',
-                  border: isSelected ? 'none' : '1px solid #e2e8f0',
-                  borderRadius: '20px',
-                  padding: '12px 20px',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '10px',
+                  gap: '5px',
+                  background: 'none',
+                  border: 'none',
                   cursor: 'pointer',
-                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: isSelected ? '0 10px 25px -5px rgba(67, 56, 202, 0.45)' : '0 2px 8px rgba(9, 13, 22, 0.04)',
-                  transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
+                  padding: '4px 10px',
+                  transition: 'all 0.2s ease',
+                  minWidth: '64px',
                 }}
               >
-                <span style={{ fontSize: '20px' }}>{cat.icon}</span>
-                <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: '800', fontSize: '14px', letterSpacing: '-0.2px' }}>{cat.label}</span>
-                <span style={{
-                  background: isSelected ? 'rgba(255, 255, 255, 0.2)' : '#f1f5f9',
-                  color: isSelected ? '#ffffff' : '#e11d48',
-                  fontSize: '10px',
-                  fontWeight: '900',
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  letterSpacing: '0.3px'
+                {/* Circular icon */}
+                <div style={{
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '50%',
+                  background: isSelected ? cat.bg || 'linear-gradient(135deg, #ede9fe, #ddd6fe)' : cat.bg || '#f8fafc',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px',
+                  border: isSelected 
+                    ? `2.5px solid ${cat.color || '#4f46e5'}` 
+                    : '2px solid rgba(226, 232, 240, 0.8)',
+                  boxShadow: isSelected 
+                    ? `0 6px 18px -4px ${cat.color || '#4f46e5'}55` 
+                    : '0 2px 8px rgba(0,0,0,0.06)',
+                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                  transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}>
-                  {cat.badge}
+                  {cat.icon}
+                </div>
+
+                {/* Label */}
+                <span style={{
+                  fontSize: '10.5px',
+                  fontWeight: isSelected ? '800' : '600',
+                  color: isSelected ? (cat.color || '#4f46e5') : '#475569',
+                  fontFamily: "'Outfit', sans-serif",
+                  letterSpacing: '-0.1px',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s ease',
+                }}>
+                  {cat.label}
                 </span>
+
+                {/* Active dot indicator */}
+                {isSelected && (
+                  <div style={{
+                    width: '4px',
+                    height: '4px',
+                    borderRadius: '50%',
+                    background: cat.color || '#4f46e5',
+                    marginTop: '-2px',
+                  }} />
+                )}
               </button>
             );
           })}
