@@ -118,19 +118,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         backgroundColor: 'rgba(255, 255, 255, 0.95)', 
         backdropFilter: 'blur(16px)', 
         WebkitBackdropFilter: 'blur(16px)',
-        padding: '12px 0 8px 0', 
+        padding: '10px 0 6px 0', 
         margin: '0 0 16px 0',
         borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
         boxShadow: '0 6px 20px -4px rgba(9, 13, 22, 0.05)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Sparkles size={16} style={{ color: '#d97706' }} /> INDIA'S VIP SHOPPING VAULTS
-          </span>
-          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '700' }}>⚡ Free Priority Express Delivery</span>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
           {activeVipCategories.map((cat) => {
             const isSelected = selectedCatPill === cat.id;
             return (
