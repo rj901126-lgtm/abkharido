@@ -118,69 +118,103 @@ const Orders = ({ onNavigate }) => {
   return (
     <>
     <div className="orders-container animate-fade-in">
-      <h1 className="orders-header">
-        <History size={24} color="var(--primary-color)" /> Order History
-      </h1>
 
-      {/* Search and Filters Bar */}
-      <div className="orders-filter-bar">
-        <div className="search-wrapper">
-          <Search size={18} color="#94a3b8" />
-          <input 
-            type="text" 
-            placeholder="Search all orders, products, or IDs" 
+      {/* Premium Dark Orders Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%)',
+        borderRadius: '20px',
+        padding: '20px 20px 24px 20px',
+        marginBottom: '20px',
+        boxShadow: '0 12px 40px rgba(30, 27, 75, 0.3)',
+        border: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          <div style={{
+            width: '44px', height: '44px',
+            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+            borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 20px rgba(79,70,229,0.4)',
+          }}>
+            <History size={22} color="#ffffff" />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '22px', fontWeight: '900', color: '#ffffff', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', margin: 0 }}>My Orders</h1>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', margin: 0, marginTop: '2px' }}>Track, manage & return your purchases</p>
+          </div>
+        </div>
+
+        {/* Search inside header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          background: 'rgba(255,255,255,0.1)', borderRadius: '12px',
+          padding: '10px 14px', border: '1px solid rgba(255,255,255,0.12)',
+          marginBottom: '12px',
+        }}>
+          <Search size={16} color="rgba(255,255,255,0.5)" />
+          <input
+            type="text"
+            placeholder="Search orders, products or IDs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              flex: 1, border: 'none', background: 'transparent',
+              color: '#ffffff', fontSize: '13px', outline: 'none',
+            }}
           />
         </div>
-        <div className="filter-dropdowns">
-          <div className="filter-dropdown">
-            <Filter size={14} color="#64748b" style={{ marginLeft: '10px' }} />
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="processing">Not Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="returned">Returned</option>
-            </select>
-          </div>
-          <div className="filter-dropdown">
-            <select 
-              value={timeFilter} 
-              onChange={(e) => setTimeFilter(e.target.value)}
-              style={{ paddingLeft: '12px' }}
-            >
-              <option value="all">All Time</option>
-              <option value="30days">Last 30 days</option>
-              <option value="6months">Past 6 months</option>
-              <option value="2024">Year 2024</option>
-              <option value="2023">Year 2023</option>
-            </select>
-          </div>
+
+        {/* Filter pills */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {[{v:'all',l:'All'},{v:'processing',l:'In Progress'},{v:'delivered',l:'Delivered'},{v:'cancelled',l:'Cancelled'}].map(opt => (
+            <button key={opt.v} onClick={() => setStatusFilter(opt.v)} style={{
+              padding: '6px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
+              border: statusFilter === opt.v ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.15)',
+              background: statusFilter === opt.v ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : 'rgba(255,255,255,0.08)',
+              color: statusFilter === opt.v ? '#ffffff' : 'rgba(255,255,255,0.6)',
+              cursor: 'pointer', transition: 'all 0.2s',
+            }}>{opt.l}</button>
+          ))}
         </div>
       </div>
 
       {orders.length === 0 ? (
-        <div className="container" style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'inline-flex', padding: '16px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', marginBottom: '16px' }}>
-            <History size={48} color="var(--primary-color)" />
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          padding: '48px 24px 120px 24px', textAlign: 'center',
+        }}>
+          {/* Animated icon */}
+          <div style={{
+            width: '120px', height: '120px',
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%)',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: '24px',
+            boxShadow: '0 16px 48px rgba(79, 70, 229, 0.3)',
+            animation: 'orderFloat 3s ease-in-out infinite',
+          }}>
+            <style>{`@keyframes orderFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }`}</style>
+            <ShoppingBag size={52} color="#ffffff" strokeWidth={1.5} />
           </div>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>No Orders Found</h2>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '8px', fontSize: '14px' }}>
-            {searchQuery || statusFilter !== 'all' || timeFilter !== 'all' 
-              ? "We couldn't find any orders matching your search filters."
-              : "You haven't placed any orders yet on AbKharido.com."}
+          <h2 style={{ fontSize: '24px', fontWeight: '900', color: '#090d16', fontFamily: "'Outfit', sans-serif", marginBottom: '10px' }}>
+            {searchQuery || statusFilter !== 'all' ? 'No Orders Found' : 'No Orders Yet'}
+          </h2>
+          <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '260px', lineHeight: '1.6', marginBottom: '28px' }}>
+            {searchQuery || statusFilter !== 'all'
+              ? "Try a different search or filter to find your orders."
+              : "You haven't placed any orders yet on AbKharido.com. Start exploring VIP deals!"}
           </p>
-          {!searchQuery && statusFilter === 'all' && timeFilter === 'all' && (
-            <button 
-              className="btn btn-primary" 
-              style={{ marginTop: '20px' }} 
+          {!searchQuery && statusFilter === 'all' && (
+            <button
               onClick={() => onNavigate('catalog')}
+              style={{
+                padding: '15px 32px',
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                color: 'white', border: 'none', borderRadius: '14px',
+                fontSize: '15px', fontWeight: '800', cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(79, 70, 229, 0.4)',
+                fontFamily: "'Outfit', sans-serif",
+              }}
             >
-              Go Shopping
+              🛍️ Start Shopping
             </button>
           )}
         </div>

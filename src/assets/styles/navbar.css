@@ -332,64 +332,137 @@
 
 @media (max-width: 768px) {
   .navbar-header {
-    height: calc(64px + env(safe-area-inset-top));
-    padding-top: env(safe-area-inset-top);
-    background: #ffffff;
+    height: calc(104px + env(safe-area-inset-top)) !important;
+    padding-top: env(safe-area-inset-top) !important;
+    align-items: flex-start !important;
+    /* Dark premium glass navbar on mobile */
+    background: rgba(9, 13, 22, 0.97) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
   }
+
   .navbar-container {
-    gap: 12px;
-    padding: 0 12px;
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+    padding: 10px 12px 8px 12px !important;
   }
+
+  .navbar-left {
+    width: 100% !important;
+  }
+
+  /* White logo on dark navbar */
+  .logo-text {
+    font-size: 20px !important;
+    background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+
+  .logo-plus {
+    color: #fbbf24 !important;
+    -webkit-text-fill-color: #fbbf24 !important;
+  }
+
+  .logo-sub {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 10px !important;
+  }
+
+  /* Right icons on dark background */
   .navbar-right {
-    gap: 16px;
+    position: absolute !important;
+    right: 12px !important;
+    top: 10px !important;
+    gap: 6px !important;
   }
+
+  .nav-icon-btn,
+  .nav-cart-btn {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
   .nav-text {
     display: none;
   }
-  .logo-text {
-    font-size: 18px;
-  }
-  .search-input-wrapper {
-    border-radius: 99px;
-    background-color: #f1f5f9;
-  }
-  .search-input {
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-  .search-button {
-    padding: 0 12px;
-  }
-  .cat-container {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 16px;
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding: 0 16px;
-    scrollbar-width: none;
-  }
-  .cat-container::-webkit-scrollbar {
-    display: none;
-  }
-  .cat-item {
-    flex-shrink: 0;
+
+  .nav-icon-btn:hover,
+  .nav-cart-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
   }
 
-  /* Flipkart Circular Category overrides */
-  .cat-bar {
-    height: 80px !important;
-    padding: 8px 0 !important;
-    top: 104px !important; /* Sit below the taller 104px mobile header */
-    margin-bottom: 4px !important; /* Clean tight space separator below categories bubble bar */
+  /* Cart count badge */
+  .cart-badge {
+    background: #f59e0b !important;
+    border-color: #090d16 !important;
   }
+
+  /* Pill-shaped search bar on dark background */
+  .search-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .search-input-wrapper {
+    border-radius: 99px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: none !important;
+  }
+
+  .search-input-wrapper:focus-within {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(99, 102, 241, 0.7) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2) !important;
+  }
+
+  .search-input {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    color: #ffffff !important;
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+  }
+
+  .search-button {
+    padding: 0 14px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .search-button svg {
+    stroke: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  /* Category bar below dark navbar — keep light */
   .cat-container {
     display: flex !important;
     flex-wrap: nowrap !important;
     gap: 18px !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
     padding: 0 12px !important;
+    scrollbar-width: none !important;
   }
+
+  .cat-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cat-bar {
+    height: 80px !important;
+    padding: 8px 0 !important;
+    top: calc(104px + env(safe-area-inset-top)) !important;
+    margin-bottom: 4px !important;
+  }
+
   .cat-item {
+    flex-shrink: 0;
     flex-direction: column !important;
     align-items: center !important;
     gap: 4px !important;
@@ -401,98 +474,44 @@
     box-shadow: none !important;
     border: none !important;
   }
+
   .cat-item::before {
     content: '';
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 42px;
     height: 42px;
     border-radius: 50%;
     border: 1px solid var(--border-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 18px;
     margin-bottom: 2px;
     transition: all var(--transition-fast);
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  /* Category emojis matching each category group */
-  .cat-item:nth-child(1)::before {
-    content: '🛍️';
-    background: linear-gradient(135deg, #fff9db 0%, #ffe066 100%);
-  }
-  .cat-item:nth-child(2)::before {
-    content: '📱';
-    background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%);
-  }
-  .cat-item:nth-child(3)::before {
-    content: '💻';
-    background: linear-gradient(135deg, #e0f7fa 0%, #4dd0e1 100%);
-  }
-  .cat-item:nth-child(4)::before {
-    content: '👕';
-    background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%);
-  }
-  .cat-item:nth-child(5)::before {
-    content: '🏠';
-    background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%);
-  }
-  .cat-item:nth-child(6)::before {
-    content: '📺';
-    background: linear-gradient(135deg, #ffebee 0%, #ef9a9a 100%);
-  }
+
+  .cat-item:nth-child(1)::before { content: '🛍️'; background: linear-gradient(135deg, #fff9db 0%, #ffe066 100%); }
+  .cat-item:nth-child(2)::before { content: '📱'; background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%); }
+  .cat-item:nth-child(3)::before { content: '💻'; background: linear-gradient(135deg, #e0f7fa 0%, #4dd0e1 100%); }
+  .cat-item:nth-child(4)::before { content: '👕'; background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%); }
+  .cat-item:nth-child(5)::before { content: '🏠'; background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%); }
+  .cat-item:nth-child(6)::before { content: '📺'; background: linear-gradient(135deg, #ffebee 0%, #ef9a9a 100%); }
+
   .cat-item.active::before {
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.2);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25) !important;
   }
+
   .cat-item.active, .cat-item:hover {
     color: var(--primary-color) !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     background-color: transparent !important;
     box-shadow: none !important;
     transform: none !important;
-  }
-
-  /* Flipkart Taller Mobile Header Overrides */
-  .navbar-header {
-    height: 104px !important;
-    align-items: flex-start !important;
-    padding-top: 10px !important;
-  }
-  .navbar-container {
-    flex-direction: column !important;
-    gap: 8px !important;
-    align-items: stretch !important;
-    padding: 0 12px !important;
-  }
-  .navbar-left {
-    width: 100% !important;
-  }
-  .navbar-right {
-    position: absolute !important;
-    right: 12px !important;
-    top: 8px !important;
-    gap: 8px !important;
-  }
-  .search-form {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-  }
-  .search-input-wrapper {
-    border-radius: 4px !important;
-  }
-  .search-input {
-    padding: 6px 12px !important;
-    font-size: 13px !important;
-  }
-  .search-button {
-    padding: 0 12px !important;
   }
 }
 
 .suggestion-item:hover {
   background-color: #f8fafc;
 }
-
 
