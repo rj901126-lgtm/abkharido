@@ -45,17 +45,20 @@ const FlashDealBanner = () => {
       style={{
         background: 'linear-gradient(90deg, #090d16 0%, #1e1b4b 40%, #312e81 60%, #090d16 100%)',
         color: '#f8fafc',
-        padding: '10px 24px',
+        padding: '12px 24px',
+        margin: '8px 0 16px 0',
+        borderRadius: '20px',
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
         gap: '20px',
         width: '100%',
-        boxShadow: '0 4px 20px rgba(9, 13, 22, 0.25)',
-        borderBottom: '1px solid rgba(253, 224, 71, 0.2)',
+        boxShadow: '0 8px 24px rgba(9, 13, 22, 0.25)',
+        border: '1px solid rgba(253, 224, 71, 0.3)',
         position: 'relative',
         zIndex: 40,
+        boxSizing: 'border-box',
         fontFamily: "'Outfit', sans-serif"
       }}
     >

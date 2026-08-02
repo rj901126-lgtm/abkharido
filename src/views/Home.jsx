@@ -109,8 +109,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '80px' }}>
-      <FlashDealBanner />
-
       <section style={{ 
         position: 'sticky', 
         top: '64px', 
@@ -164,6 +162,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           })}
         </div>
       </section>
+
+      <FlashDealBanner />
 
       {slides.length > 0 && (
         <section 
