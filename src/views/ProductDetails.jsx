@@ -1,7 +1,6 @@
 import LazyImage from '../components/LazyImage';
 // eslint-disable-next-line
 import React, { useState, useEffect, useRef } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useApp } from '../context/AppContext';
 import { 
   Star, 
@@ -388,15 +387,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   return (
     <>
-      <Helmet>
-        <title>{product.seo?.metaTitle || `${product.name} | AbKharido`}</title>
-        <meta name="description" content={product.seo?.metaDescription || product.description?.substring(0, 160)} />
-        <meta property="og:title" content={product.seo?.metaTitle || product.name} />
-        <meta property="og:description" content={product.seo?.metaDescription || product.description?.substring(0, 160)} />
-        <meta property="og:image" content={product.image} />
-        <meta property="og:type" content="product" />
-        <meta name="twitter:card" content="summary_large_image" />
-      </Helmet>
     <div className="container product-page-container animate-fade-in-only" style={{ paddingTop: '0', paddingBottom: '130px' }}>
 
       <div className="details-page-grid">
@@ -843,9 +833,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '20px' }}>
                 {/* Item 1: This Product */}
-                <div style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                <div style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <LazyImage src={product.image} alt={product.name} style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 6px auto' }} />
-                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#090d16', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</div>
+                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#090d16', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{product.name}</div>
                   <div style={{ fontSize: '13px', fontWeight: '900', color: '#059669' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</div>
                 </div>
 
@@ -854,7 +844,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 {/* Item 2: Recommended Product */}
                 <div 
                   onClick={() => onNavigate(recommendations[0].id)}
-                  style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer' }}
+                  style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <LazyImage src={recommendations[0].image} alt={recommendations[0].name} style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 6px auto' }} />
                   <div style={{ fontSize: '11px', fontWeight: '700', color: '#090d16', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{recommendations[0].name}</div>
