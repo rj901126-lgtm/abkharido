@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import FlashDealBanner from '../components/FlashDealBanner';
-import LiveSocialProof from '../components/LiveSocialProof';
 import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award, Zap, ShieldCheck, Truck } from 'lucide-react';
 import '../assets/styles/home.css';
 
@@ -107,7 +106,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '80px' }}>
       <FlashDealBanner />
-      <LiveSocialProof />
 
       <section style={{ margin: '8px 0 12px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -231,22 +229,34 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </section>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', margin: '12px 0 24px 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', margin: '16px 0 28px 0' }}>
         {[
-          { icon: <Zap size={26} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "#f0f9ff", border: "#bae6fd" },
-          { icon: <ShieldCheck size={26} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade protection", bg: "#ecfdf5", border: "#a7f3d0" },
-          { icon: <Truck size={26} color="#7c3aed" />, title: "Easy 7-Day Return", sub: "7 days replacement policy", bg: "#f5f3ff", border: "#ddd6fe" },
-          { icon: <Award size={26} color="#d97706" />, title: "Platinum Club Rebates", sub: "Earn up to 12% in coins", bg: "#fffbeb", border: "#fde68a" },
+          { icon: <Zap size={24} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe", accent: "#0284c7" },
+          { icon: <ShieldCheck size={24} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade escrow security", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5", accent: "#059669" },
+          { icon: <Truck size={24} color="#7c3aed" />, title: "Easy 7-Day Return", sub: "Hassle-free replacement policy", bg: "linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%)", border: "#ede9fe", accent: "#7c3aed" },
+          { icon: <Award size={24} color="#d97706" />, title: "Platinum Club Rebates", sub: "Earn up to 12% in coins", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7", accent: "#d97706" },
         ].map((item, idx) => (
           <div key={idx} style={{
-            background: item.bg, border: `1px solid ${item.border}`, borderRadius: '20px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px'
-          }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '16px', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            background: item.bg, 
+            border: `1px solid ${item.border}`, 
+            borderRadius: '20px', 
+            padding: '18px 20px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '16px',
+            boxShadow: '0 4px 16px -2px rgba(9, 13, 22, 0.04)',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            cursor: 'default'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 24px -4px rgba(9, 13, 22, 0.08)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 16px -2px rgba(9, 13, 22, 0.04)'; }}
+          >
+            <div style={{ width: '50px', height: '50px', borderRadius: '14px', backgroundColor: 'white', border: `1px solid ${item.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
               {item.icon}
             </div>
             <div>
-              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '800', color: '#090d16', margin: '0 0 4px 0' }}>{item.title}</h4>
-              <p style={{ fontSize: '12px', color: '#475569', margin: 0, fontWeight: '600' }}>{item.sub}</p>
+              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '800', color: '#090d16', margin: '0 0 3px 0' }}>{item.title}</h4>
+              <p style={{ fontSize: '12px', color: '#64748b', margin: 0, fontWeight: '600' }}>{item.sub}</p>
             </div>
           </div>
         ))}
@@ -388,23 +398,39 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 };
 
 const DealsCountdown = ({ targetDate }) => {
-  const [timerString, setTimerString] = useState('00:00:00');
+  const [timer, setTimer] = useState({ hrs: '00', mins: '00', secs: '00' });
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
       const diff = targetDate.getTime() - now.getTime();
-      if (diff <= 0) { setTimerString('00:00:00'); return; }
-      const hrs = Math.floor(diff / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-      setTimerString(`${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+      if (diff <= 0) { setTimer({ hrs: '00', mins: '00', secs: '00' }); return; }
+      const hrs = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+      const secs = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+      setTimer({ hrs, mins, secs });
     };
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [targetDate]);
 
-  return <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: '900', fontSize: '15px' }}>{timerString}</span>;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <span style={{ fontSize: '12px', fontWeight: '900', color: '#ef4444', letterSpacing: '0.5px', textTransform: 'uppercase', marginRight: '4px' }}>Ends In</span>
+      {[
+        { val: timer.hrs, label: 'H' },
+        { val: timer.mins, label: 'M' },
+        { val: timer.secs, label: 'S' }
+      ].map((unit, uIdx) => (
+        <React.Fragment key={uIdx}>
+          <div style={{ background: '#090d16', color: '#fde047', borderRadius: '8px', padding: '4px 8px', fontSize: '13px', fontWeight: '900', fontFamily: "'Outfit', monospace", boxShadow: '0 2px 6px rgba(0,0,0,0.15)', border: '1px solid #334155' }}>
+            {unit.val}<span style={{ fontSize: '10px', color: '#94a3b8', marginLeft: '2px' }}>{unit.label}</span>
+          </div>
+          {uIdx < 2 && <span style={{ fontWeight: '900', color: '#090d16' }}>:</span>}
+        </React.Fragment>
+      ))}
+    </div>
+  );
 };
 
 export default React.memo(Home);

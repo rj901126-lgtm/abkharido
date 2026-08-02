@@ -59,28 +59,30 @@ const CatBannerCarousel = ({ slides }) => {
     >
       <style>{`
         .world-class-btn {
-          background: linear-gradient(135deg, #fef08a 0%, #f59e0b 100%);
-          color: #78350f;
-          border: none;
-          padding: 10px 24px;
-          border-radius: 30px;
-          font-size: 14px;
+          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+          color: #090d16;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          padding: 11px 26px;
+          border-radius: 14px;
+          font-size: 13px;
           font-weight: 800;
           cursor: pointer;
           width: fit-content;
-          box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-          transition: all 0.3s ease;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
         .world-class-btn:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px rgba(255, 255, 255, 0.25);
+          background: #090d16;
+          color: #ffffff;
+          border: 1px solid #38bdf8;
         }
         .animated-gradient-bg {
-          background: linear-gradient(-45deg, #4f46e5, #3b82f6, #8b5cf6, #ec4899);
-          background-size: 400% 400%;
-          animation: gradientBg 10s ease infinite;
+          background: linear-gradient(135deg, #090d16 0%, #1e1b4b 55%, #312e81 100%) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1);
         }
         @keyframes gradientBg {
           0% { background-position: 0% 50%; }
@@ -198,6 +200,13 @@ const CatBannerCarousel = ({ slides }) => {
                 {slide.desc}
               </span>
             )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '4px', fontSize: '12px', color: '#38bdf8', fontWeight: '700', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+              <span>✨ 100% Direct Inventory</span>
+              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+              <span>🛡️ Cashfree Escrow Assured</span>
+              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+              <span>⚡ Express Dispatch</span>
+            </div>
             <button 
               className="world-class-btn"
               onClick={(e) => {
@@ -205,7 +214,7 @@ const CatBannerCarousel = ({ slides }) => {
                 window.scrollBy({ top: 500, behavior: 'smooth' });
               }}
             >
-              Explore Collection
+              Explore Collection ✨
             </button>
           </div>
         )}
@@ -356,18 +365,18 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     <div className="container catalog-page-layout-container">
       
       {/* 1. DESKTOP FILTERS SIDEBAR (Visible on screens > 768px via CSS) */}
-      <aside className="filters-sidebar">
+      <aside className="filters-sidebar" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '24px', boxShadow: '0 4px 16px -2px rgba(9, 13, 22, 0.03)' }}>
         {/* Sort By section */}
         <div className="filter-section">
-          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px' }}>Sort By</h5>
+          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px', textTransform: 'uppercase', color: '#0f172a', fontWeight: '800' }}>Sort By</h5>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
-              { id: 'popularity', label: 'Popularity' },
-              { id: 'priceLow', label: 'Price: Low to High' },
-              { id: 'priceHigh', label: 'Price: High to Low' },
-              { id: 'rating', label: 'Highest Rated' }
+              { id: 'popularity', label: '🔥 Popularity' },
+              { id: 'priceLow', label: '📉 Price: Low to High' },
+              { id: 'priceHigh', label: '📈 Price: High to Low' },
+              { id: 'rating', label: '⭐ Highest Rated' }
             ].map(opt => (
-              <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', cursor: 'pointer', padding: '6px 8px', borderRadius: '6px', background: sortBy === opt.id ? 'var(--primary-light)' : 'transparent', color: sortBy === opt.id ? 'var(--primary-color)' : 'var(--text-primary)', fontWeight: sortBy === opt.id ? '600' : '500', transition: 'all 0.2s' }}>
+              <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', cursor: 'pointer', padding: '6px 8px', borderRadius: '6px', background: sortBy === opt.id ? 'var(--primary-light)' : 'transparent', color: sortBy === opt.id ? 'var(--primary-color)' : 'var(--text-primary)', fontWeight: sortBy === opt.id ? '700' : '500', transition: 'all 0.2s' }}>
                 <input 
                   type="radio" 
                   name="desktop-sort" 
@@ -383,15 +392,15 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
         {/* Category section */}
         <div className="filter-section">
-          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px' }}>Category</h5>
+          <h5 className="filter-title" style={{ fontSize: '13px', letterSpacing: '0.5px', marginBottom: '12px', textTransform: 'uppercase', color: '#0f172a', fontWeight: '800' }}>Category</h5>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {[
-              { id: 'all', label: 'All Categories' },
-              { id: 'mobiles', label: 'Mobiles' },
-              { id: 'electronics', label: 'Electronics' },
-              { id: 'fashion', label: 'Fashion' },
-              { id: 'home', label: 'Home & Living' },
-              { id: 'appliances', label: 'Appliances' }
+              { id: 'all', label: '✨ All Categories' },
+              { id: 'mobiles', label: '📱 Mobiles' },
+              { id: 'electronics', label: '🎧 Electronics' },
+              { id: 'fashion', label: '👗 Fashion' },
+              { id: 'home', label: '🏠 Home & Living' },
+              { id: 'appliances', label: '⚡ Appliances' }
             ].map(cat => (
               <button
                 key={cat.id}

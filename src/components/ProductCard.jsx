@@ -115,8 +115,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           <span style={styles.reviewsCount}>({product.reviewsCount || Math.floor(Math.random() * 400 + 50)})</span>
           
           <div style={styles.assuredBadge}>
-            <ShieldCheck size={12} color="#059669" style={{ marginRight: '3px' }} />
-            <span style={{ fontSize: '10px', color: '#047857', fontWeight: '800' }}>ASSURED <strong style={{ color: '#047857' }}>VIP</strong></span>
+            <ShieldCheck size={12} color="#047857" style={{ marginRight: '3px' }} />
+            <span style={{ fontSize: '10px', color: '#047857', fontWeight: '800', letterSpacing: '0.3px' }}>VIP ASSURED</span>
           </div>
         </div>
 
@@ -131,42 +131,35 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           )}
         </div>
 
-        {/* Clean Availability Status instead of clunky urgency bar */}
-        <div style={{ fontSize: '11px', color: '#059669', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-          <span>⚡ Free Priority Express Dispatch</span>
-        </div>
-
-        {/* Dynamic Affiliate / Referral Earning Banner */}
+        {/* Consolidated Single-Line VIP Benefit Strip */}
         {currentUser && currentUser.isInfluencer ? (
           <div className="product-card-reward-banner" style={styles.rewardBanner}>
-            <Award size={14} color="#4338ca" style={{ flexShrink: 0 }} />
+            <Award size={13} color="#4338ca" style={{ flexShrink: 0 }} />
             <div style={styles.rewardText}>
               <span>Partner Reward: <strong style={{ color: '#059669', fontSize: '12px' }}>₹{influencerEarningsCash} Cash</strong></span>
             </div>
           </div>
         ) : (
-          <div style={{ marginTop: 'auto', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '13px' }}>🪙</span>
-            <span style={{ fontSize: '11px', color: '#334155', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Earn <strong style={{ color: '#059669', fontWeight: '900' }}>+{userEarningsCoins}</strong> Reward Coins
-            </span>
+          <div style={{ marginTop: 'auto', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', padding: '5px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
+            <span style={{ fontSize: '11px', color: '#059669', fontWeight: '700' }}>⚡ Free Express</span>
+            <span style={{ fontSize: '11px', color: '#334155', fontWeight: '700' }}>🪙 <strong style={{ color: '#d97706' }}>+{userEarningsCoins}</strong> Coins</span>
           </div>
         )}
 
-        {/* Clean, Professional Action Button */}
+        {/* Clean, Executive Action Button */}
         <button 
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? '#312e81' : '#4338ca',
-            boxShadow: isBtnHovered ? '0 8px 20px rgba(67, 56, 202, 0.3)' : '0 2px 8px rgba(67, 56, 202, 0.15)',
-            transform: isBtnHovered ? 'translateY(-1px)' : 'none'
+            background: isBtnHovered ? '#4f46e5' : '#090d16',
+            boxShadow: isBtnHovered ? '0 8px 20px rgba(79, 70, 229, 0.35)' : '0 2px 8px rgba(9, 13, 22, 0.15)',
+            transform: isBtnHovered ? 'translateY(-2px)' : 'none'
           }} 
           onClick={handleAddToCart}
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={16} /> <span>Add to Cart</span>
+          <ShoppingCart size={15} style={{ color: '#10b981' }} /> <span>Add to Cart</span>
         </button>
       </div>
     </div>
@@ -176,8 +169,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 const styles = {
   card: {
     backgroundColor: 'white',
-    borderRadius: '24px',
-    border: '1px solid #e2e8f0',
+    borderRadius: '20px',
+    border: '1px solid #f1f5f9',
     overflow: 'hidden',
     cursor: 'pointer',
     display: 'flex',
@@ -185,6 +178,7 @@ const styles = {
     position: 'relative',
     height: '100%',
     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+    boxShadow: '0 4px 16px -2px rgba(9, 13, 22, 0.04)',
     boxSizing: 'border-box'
   },
   imageWrapper: {
@@ -288,10 +282,10 @@ const styles = {
     marginLeft: 'auto', 
     display: 'inline-flex', 
     alignItems: 'center', 
-    backgroundColor: '#f0fdf4',
-    border: '1px solid #bbf7d0',
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
     borderRadius: '6px',
-    padding: '2px 8px'
+    padding: '2px 6px'
   },
   priceRow: {
     display: 'flex',

@@ -40,8 +40,8 @@ const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
         style={{
           width: '100%', height: maxHeight,
           background: hasImage 
-            ? `url(${slide.image}) no-repeat center center / cover, ${slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'}` 
-            : (slide.bg || 'linear-gradient(135deg,#4f46e5,#3730a3)'),
+            ? `url(${slide.image}) no-repeat center center / cover, ${slide.bg || 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)'}` 
+            : (slide.bg || 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)'),
           position: 'relative', display: 'flex', alignItems: 'center',
           padding: hasImage && isImageOnly ? '0' : '12px 16px'
         }}
