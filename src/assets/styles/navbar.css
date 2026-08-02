@@ -1,9 +1,7 @@
 /* Navbar and Header Styling for AbKharido.com */
 
 .navbar-header {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #ffffff;
   color: var(--text-primary);
   position: fixed;
   top: 0;
@@ -13,8 +11,8 @@
   display: flex;
   align-items: center;
   z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
 }
 
@@ -336,9 +334,7 @@
   .navbar-header {
     height: calc(64px + env(safe-area-inset-top));
     padding-top: env(safe-area-inset-top);
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: #ffffff;
   }
   .navbar-container {
     gap: 12px;
@@ -546,19 +542,7 @@
   border-radius: 24px !important;
   background-color: transparent !important;
   border: 1px solid transparent !important;
-  padding-left: 36px !important;
-}
-
-.product-page-navbar .search-input-wrapper::before {
-  content: '🔍';
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  filter: grayscale(1) opacity(0.5);
-  pointer-events: none;
-  z-index: 1;
+  padding-left: 16px !important;
 }
 
 .product-page-navbar .navbar-right {

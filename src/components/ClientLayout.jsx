@@ -224,7 +224,7 @@ export default function ClientLayout({ children }) {
 
       <main 
         className={`main-content`}
-        style={{ marginTop: isPortalPage ? (showAnnouncement ? '32px' : '0') : (showAnnouncement ? '88px' : '56px') }}
+        style={{ marginTop: isPortalPage ? (showAnnouncement ? '32px' : '0') : (showAnnouncement ? '96px' : '64px') }}
       >
         {children}
       </main>
