@@ -95,7 +95,18 @@ img {
     padding-right: 16px;
   }
   .main-content {
-    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+    margin-top: calc(104px + env(safe-area-inset-top)) !important; /* Mobile navbar is 104px tall */
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    min-height: calc(100vh - 104px - env(safe-area-inset-top));
+  }
+  /* Category pill strip must sit below the taller 104px mobile navbar */
+  .home-category-strip {
+    top: calc(104px + env(safe-area-inset-top)) !important;
+    margin-bottom: 0 !important;
+  }
+  /* Remove gap below category strip on mobile */
+  .home-page-layout-container > section:first-child {
+    margin-bottom: 0 !important;
   }
 }
 

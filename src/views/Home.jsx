@@ -113,14 +113,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         position: 'sticky', 
         top: '64px', 
         zIndex: 90, 
-        backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+        backgroundColor: 'rgba(255, 255, 255, 0.97)', 
         backdropFilter: 'blur(16px)', 
         WebkitBackdropFilter: 'blur(16px)',
         padding: '10px 0 6px 0', 
-        margin: '0 0 16px 0',
+        margin: '0 0 0 0',
         borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
         boxShadow: '0 6px 20px -4px rgba(9, 13, 22, 0.05)'
-      }}>
+      }} className="home-category-strip">
         <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
           {activeVipCategories.map((cat) => {
             const isSelected = selectedCatPill === cat.id;
