@@ -77,18 +77,24 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
   // eslint-disable-next-line
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Map icon name string to Lucide component with premium sizing
-  const renderCatIcon = (iconName) => {
-    const iconProps = { size: 22, strokeWidth: 1.75 };
-    switch (iconName) {
-      case 'LayoutGrid': return <LayoutGrid {...iconProps} />;
-      case 'Smartphone': return <Smartphone {...iconProps} />;
-      case 'Laptop': return <Laptop {...iconProps} />;
-      case 'Shirt': return <Shirt {...iconProps} />;
-      case 'Home': return <HomeIcon {...iconProps} />;
-      case 'Tv': return <Tv {...iconProps} />;
-      default: return <LayoutGrid {...iconProps} />;
-    }
+  // Map category id to emoji for rich visual icons on mobile
+  const CAT_EMOJIS = {
+    all: '🛍️',
+    electronics: '📱',
+    fashion: '👗',
+    home: '🏠',
+    beauty: '✨',
+    sports: '⚡',
+    mobiles: '📱',
+    appliances: '📺',
+    laptop: '💻',
+  };
+
+  const renderCatIcon = (cat) => {
+    const emoji = CAT_EMOJIS[cat.id] || '🛒';
+    return (
+      <span style={{ fontSize: '24px', lineHeight: 1, display: 'block' }}>{emoji}</span>
+    );
   };
 
   // Get active category's products (with safe list check)
@@ -177,9 +183,11 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
               onClick={() => handleCategorySidebarClick(cat.id)}
             >
               <div className="sidebar-category-icon-wrapper">
-                {renderCatIcon(cat.icon)}
+                {renderCatIcon(cat)}
               </div>
-              <span className="sidebar-category-label">{cat.name}</span>
+              <span className="sidebar-category-label">
+                {cat.name.split(' ')[0]}
+              </span>
             </button>
           ))}
         </div>
