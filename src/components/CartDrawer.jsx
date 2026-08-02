@@ -116,9 +116,9 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
               {cart.map((item, index) => (
                 <div key={`${item.product.id}-${index}`} style={{ display: 'flex', gap: '16px', backgroundColor: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', border: '1px solid #f1f5f9' }}>
                   <img 
-                    src={item.product.images[0]} 
+                    src={item.product.image || (item.product.images && item.product.images[0]) || ''} 
                     alt={item.product.name}
-                    style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px', backgroundColor: '#f8fafc' }}
+                    style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '12px', backgroundColor: '#f8fafc', padding: '4px' }}
                   />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', marginBottom: '4px', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -151,21 +151,39 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
 
         {/* Footer / Summary */}
         {cart.length > 0 && (
-          <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '16px', fontWeight: '800', color: '#0f172a' }}>
+          <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '16px', fontWeight: '900', color: '#090d16' }}>
               <span>Subtotal:</span>
               <span>₹{itemsPrice.toLocaleString('en-IN')}</span>
             </div>
             <button 
               onClick={handleCheckoutClick}
-              className="btn btn-accent" 
-              style={{ width: '100%', height: '48px', fontSize: '16px', fontWeight: '800', display: 'flex', justifyContent: 'center', gap: '8px' }}
+              style={{
+                width: '100%',
+                padding: '14px 20px',
+                fontSize: '15px',
+                fontWeight: '900',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)',
+                color: '#ffffff',
+                border: '1px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 8px 24px rgba(9, 13, 22, 0.25)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.2s'
+              }}
             >
-              PROCEED TO CHECKOUT <ArrowRight size={18} />
+              PROCEED TO CHECKOUT <ArrowRight size={18} color="#34d399" />
             </button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '11px', color: '#059669', fontWeight: '800', marginTop: '10px' }}>
+              <span>🔒 100% Cashfree Escrow Protected</span>
+            </div>
             <button 
               onClick={() => { onClose(); onNavigate('cart'); }}
-              style={{ width: '100%', marginTop: '12px', background: 'none', border: 'none', color: '#64748b', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}
+              style={{ width: '100%', marginTop: '10px', background: 'none', border: 'none', color: '#64748b', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}
             >
               View Full Cart Page
             </button>
