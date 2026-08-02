@@ -58,6 +58,17 @@ const AdminPromotions = () => {
     kitchen: { show: true, slides: [{ id: 'CAT-KIT-1', title: 'Chef-Grade Cookware & Automatic Kitchen Hubs', imageUrl: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=1000', badge: 'UP TO 55% OFF ON BUNDLES' }] }
   });
 
+  const defaultVipCategories = [
+    { id: 'all', label: 'All VIP Deals', icon: '💎', gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)', badge: 'HOT' },
+    { id: 'mobiles', label: 'AI Smartphones & 5G', icon: '⚡', gradient: 'linear-gradient(135deg, #0284c7, #0369a1)', badge: 'NEW' },
+    { id: 'electronics', label: 'Audiophile & Tech', icon: '🎧', gradient: 'linear-gradient(135deg, #7c3aed, #4f46e5)', badge: '-40%' },
+    { id: 'fashion', label: 'Luxe Couture & Wear', icon: '👗', gradient: 'linear-gradient(135deg, #e11d48, #9f1239)', badge: 'TRENDING' },
+    { id: 'home', label: 'Smart Home & AI', icon: '🏠', gradient: 'linear-gradient(135deg, #059669, #047857)', badge: 'TOP' },
+    { id: 'beauty', label: 'Diamond Beauty & Spa', icon: '✨', gradient: 'linear-gradient(135deg, #d97706, #b45309)', badge: 'VIP' }
+  ];
+
+  const [vipCategories, setVipCategories] = useState(defaultVipCategories);
+
   const showToastMsg = (text, type = 'success') => {
     setNotification({ show: true, text, type });
     if (showToast) showToast(text, type);
@@ -74,6 +85,7 @@ const AdminPromotions = () => {
         if (parsed.flashDeals) setFlashDeals(parsed.flashDeals);
         if (parsed.heroBanners && Array.isArray(parsed.heroBanners)) setHeroBanners(parsed.heroBanners);
         if (parsed.categoryBanners) setCategoryBanners(parsed.categoryBanners);
+        if (parsed.vipCategories && Array.isArray(parsed.vipCategories)) setVipCategories(parsed.vipCategories);
       }
     } catch (err) {
       console.log('Using robust enterprise default promotions');
@@ -82,8 +94,10 @@ const AdminPromotions = () => {
 
   const handleSaveAll = async () => {
     setIsSaving(true);
-    const fullPayload = { announcement, flashDeals, heroBanners, categoryBanners };
+    const fullPayload = { announcement, flashDeals, heroBanners, categoryBanners, vipCategories };
     localStorage.setItem('abkharido_promotions_v2', JSON.stringify(fullPayload));
+    localStorage.setItem('abkharido_vip_categories', JSON.stringify(vipCategories));
+    window.dispatchEvent(new Event('abkharido_promotions_updated'));
     
     // Legacy sync
     try {
@@ -314,7 +328,8 @@ const AdminPromotions = () => {
           { id: 'homepage_hero', label: '🎨 Homepage Hero Banners', icon: <ImageIcon size={18} /> },
           { id: 'flash_deals', label: '⚡ Flash Deals Engine', icon: <Zap size={18} /> },
           { id: 'announcement', label: '📢 Overhead Announcement Ticker', icon: <Megaphone size={18} /> },
-          { id: 'category_banners', label: '📂 Category-Wise Banners', icon: <Layers size={18} /> }
+          { id: 'category_banners', label: '📂 Category-Wise Banners', icon: <Layers size={18} /> },
+          { id: 'vip_categories', label: '💎 VIP Category Pills', icon: <Tag size={18} /> }
         ].map(tab => (
           <button
             key={tab.id}
@@ -751,6 +766,154 @@ const AdminPromotions = () => {
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {/* ── TAB 5: VIP CATEGORY PILLS MANAGER ── */}
+      {activeSubTab === 'vip_categories' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', animation: 'fadeIn 0.25s' }}>
+          <div style={{ background: '#ffffff', border: '2px solid #6366f1', borderRadius: '24px', padding: '30px', boxShadow: '0 10px 35px rgba(99, 102, 241, 0.08)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '18px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '22px', fontWeight: '900', color: '#1e1b4b' }}>
+                  💎 Homepage VIP Category Pills Manager (Live Interactive)
+                </h3>
+                <span style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>
+                  Add, edit, reorder or change badges on the top category vault capsules displayed on the Homepage.
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newPill = {
+                      id: `cat_${Date.now().toString().slice(-4)}`,
+                      label: 'New VIP Category',
+                      icon: '⚡',
+                      gradient: 'linear-gradient(135deg, #059669, #047857)',
+                      badge: 'NEW'
+                    };
+                    const updated = [...vipCategories, newPill];
+                    setVipCategories(updated);
+                    localStorage.setItem('abkharido_vip_categories', JSON.stringify(updated));
+                    window.dispatchEvent(new Event('abkharido_promotions_updated'));
+                    showToastMsg('➕ New Category Pill added to Homepage Vaults!', 'success');
+                  }}
+                  style={{ padding: '10px 18px', borderRadius: '12px', background: '#4f46e5', color: '#ffffff', border: 'none', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={16} /> <span>Add Category Pill</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVipCategories(defaultVipCategories);
+                    localStorage.setItem('abkharido_vip_categories', JSON.stringify(defaultVipCategories));
+                    window.dispatchEvent(new Event('abkharido_promotions_updated'));
+                    showToastMsg('🔄 Reset to default VIP Categories!', 'info');
+                  }}
+                  style={{ padding: '10px 18px', borderRadius: '12px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  Reset Defaults
+                </button>
+              </div>
+            </div>
+
+            {/* Category Pills List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {vipCategories.map((cat, cIdx) => (
+                <div key={cat.id || cIdx} style={{ background: '#f8fafc', padding: '18px', borderRadius: '18px', border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 220px 40px', gap: '16px', alignItems: 'center' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr 100px', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '10px', fontWeight: '800', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>Icon Emoji</label>
+                      <input 
+                        type="text" 
+                        value={cat.icon} 
+                        onChange={e => {
+                          const copy = [...vipCategories];
+                          copy[cIdx].icon = e.target.value;
+                          setVipCategories(copy);
+                        }}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center', fontSize: '16px', boxSizing: 'border-box' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '10px', fontWeight: '800', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>Category Label</label>
+                      <input 
+                        type="text" 
+                        value={cat.label} 
+                        onChange={e => {
+                          const copy = [...vipCategories];
+                          copy[cIdx].label = e.target.value;
+                          setVipCategories(copy);
+                        }}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontWeight: '800', fontSize: '13px', boxSizing: 'border-box' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '10px', fontWeight: '800', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>Target Category ID</label>
+                      <input 
+                        type="text" 
+                        value={cat.id} 
+                        onChange={e => {
+                          const copy = [...vipCategories];
+                          copy[cIdx].id = e.target.value;
+                          setVipCategories(copy);
+                        }}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '12px', fontFamily: 'monospace', boxSizing: 'border-box' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '10px', fontWeight: '800', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>Offer Badge</label>
+                      <input 
+                        type="text" 
+                        value={cat.badge} 
+                        onChange={e => {
+                          const copy = [...vipCategories];
+                          copy[cIdx].badge = e.target.value;
+                          setVipCategories(copy);
+                        }}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontWeight: '800', color: '#e11d48', fontSize: '11px', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Live Preview Pill Button */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>Live Preview</span>
+                    <div style={{
+                      background: cat.gradient || 'linear-gradient(135deg, #1e1b4b, #4338ca)',
+                      color: '#ffffff', borderRadius: '20px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: '800', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                    }}>
+                      <span>{cat.icon}</span>
+                      <span>{cat.label}</span>
+                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '8px', fontSize: '9px' }}>{cat.badge}</span>
+                    </div>
+                  </div>
+
+                  {/* Delete Action */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = vipCategories.filter((_, i) => i !== cIdx);
+                      setVipCategories(updated);
+                      localStorage.setItem('abkharido_vip_categories', JSON.stringify(updated));
+                      window.dispatchEvent(new Event('abkharido_promotions_updated'));
+                      showToastMsg('🗑️ Category Pill removed!', 'info');
+                    }}
+                    style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#dc2626', width: '36px', height: '36px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    title="Delete Category Pill"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

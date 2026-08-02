@@ -5,7 +5,7 @@ import FlashDealBanner from '../components/FlashDealBanner';
 import { ChevronLeft, ChevronRight, Timer, ArrowRight, Sparkles, Award, Zap, ShieldCheck, Truck } from 'lucide-react';
 import '../assets/styles/home.css';
 
-const vipCategories = [
+const defaultVipCategories = [
   { id: 'all', label: 'All VIP Deals', icon: '💎', gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)', badge: 'HOT' },
   { id: 'mobiles', label: 'AI Smartphones & 5G', icon: '⚡', gradient: 'linear-gradient(135deg, #0284c7, #0369a1)', badge: 'NEW' },
   { id: 'electronics', label: 'Audiophile & Tech', icon: '🎧', gradient: 'linear-gradient(135deg, #7c3aed, #4f46e5)', badge: '-40%' },
@@ -20,6 +20,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
   const [selectedCatPill, setSelectedCatPill] = useState('all');
+
+  const activeVipCategories = (promotions && promotions.vipCategories && Array.isArray(promotions.vipCategories) && promotions.vipCategories.length > 0)
+    ? promotions.vipCategories
+    : defaultVipCategories;
   
   const [layoutComponents, setLayoutComponents] = useState([]);
   const [loadingLayout, setLoadingLayout] = useState(true);
@@ -116,7 +120,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
         
         <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
-          {vipCategories.map((cat) => {
+          {activeVipCategories.map((cat) => {
             const isSelected = selectedCatPill === cat.id;
             return (
               <button
