@@ -260,10 +260,15 @@ const Login = ({ onNavigate }) => {
 
   return (
     <div className="lp-wrapper animate-fade-in" style={{ alignItems: 'stretch', flexWrap: 'nowrap' }}>
+      <style>{`
+        @media (max-width: 991px) {
+          .lp-left-desktop-only { display: none !important; width: 0 !important; height: 0 !important; opacity: 0 !important; visibility: hidden !important; }
+        }
+      `}</style>
       <div id="recaptcha-container"></div>
 
       {/* ── Desktop: Left Blue Panel ── */}
-      <div className="lp-left">
+      <div className="lp-left lp-left-desktop-only">
         <div className="lp-left-content">
           <div className="lp-logo-row">
             <span className="lp-brand-text">
@@ -301,7 +306,6 @@ const Login = ({ onNavigate }) => {
 
       {/* ── Right / Mobile: Form Panel ── */}
       <div className="lp-right">
-
 
         <div className="lp-form-card">
 
@@ -399,7 +403,11 @@ const Login = ({ onNavigate }) => {
                     placeholder="Mobile Number"
                     value={phone}
                     onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '').substring(0, 10);
+                      let val = e.target.value.replace(/\D/g, '');
+                      if (val.startsWith('91') && val.length > 10) {
+                        val = val.substring(2);
+                      }
+                      val = val.substring(0, 10);
                       setPhone(val);
                       localStorage.setItem('abkharido_login_phone', val);
                     }}

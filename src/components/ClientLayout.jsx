@@ -244,8 +244,8 @@ export default function ClientLayout({ children }) {
           rel="noopener noreferrer"
           style={{
             position: 'fixed',
-            bottom: isProductPage ? '92px' : '82px',
-            right: '20px',
+            bottom: '96px',
+            right: '18px',
             zIndex: 1050,
             background: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
             color: '#ffffff',
