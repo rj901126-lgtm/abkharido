@@ -375,12 +375,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
               .slice(0, 6);
             
             return (
-              <section key={comp.id} style={{ backgroundColor: '#ffffff', borderRadius: '32px', padding: '28px', border: '1px solid #e2e8f0', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <span style={{ fontSize: '26px', fontWeight: '900', letterSpacing: '-0.5px' }}>{comp.title || '⚡ VIP Lightning Doorbusters'}</span>
+              <section key={comp.id} className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '20px 16px', border: '1px solid #e2e8f0', marginBottom: '12px', margin: '0 12px 0 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                  <span className="home-section-heading" style={{ fontSize: '18px', fontWeight: '900', letterSpacing: '-0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>⚡ {comp.title || 'VIP Lightning Deals'}</span>
                   <DealsCountdown targetDate={targetDate} />
                 </div>
-                <div className="home-carousel-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                   {dealsProducts.map(product => (
                     <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
                   ))}
@@ -452,19 +452,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </section>
 
       {/* 🔥 TRENDING IN INDIAN METROS - HIGH INTENT DISCOVERY */}
-      <section style={{ marginTop: '28px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(9, 13, 22, 0.03)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '20px 16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.04)', margin: '0 12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-              <span>🔥</span> Trending High-Velocity Picks by Indian Metro Cities
+            <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <span>🔥</span> Trending Picks
             </h3>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b', fontWeight: '600' }}>Real-time demand analytics across Mumbai, Delhi NCR, Bengaluru & Hyderabad</p>
+            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Top selling across Indian metros right now</p>
           </div>
-          <span style={{ fontSize: '13px', color: '#4338ca', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => onNavigate('catalog')}>
-            Explore All 5,000+ Verified Stock Products →
+          <span style={{ fontSize: '12px', color: '#4338ca', fontWeight: '800', cursor: 'pointer', whiteSpace: 'nowrap' }} onClick={() => onNavigate('catalog')}>
+            View All →
           </span>
         </div>
-        <div className="home-carousel-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
           {products.slice(0, 4).map((product, pIdx) => (
             <div key={`metro-${product.id || pIdx}`} style={{ position: 'relative' }}>
               <ProductCard product={product} onNavigateProduct={onNavigateProduct} />
