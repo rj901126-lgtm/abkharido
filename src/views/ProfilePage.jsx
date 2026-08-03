@@ -300,13 +300,13 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             </div>
           </div>
 
-          <div className="quick-action-card" onClick={() => { setActiveTab('overview'); setIsEditing(!isEditing); }} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0 }}>
+          <div className="quick-action-card" onClick={() => setActiveTab('support')} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0 }}>
             <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Edit2 size={24} color="#16a34a" />
+              <ShieldCheck size={24} color="#16a34a" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>{isEditing ? 'Close Edit' : 'Edit Profile'}</span>
-              <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Addresses &amp; Security</small>
+              <span style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>Help Center</span>
+              <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Support Tickets</small>
             </div>
           </div>
         </div>
@@ -350,11 +350,15 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
           </button>
         </div>
 
-        {/* 3. Settings Form (Hidden by default) */}
-        {activeTab === 'overview' && isEditing && (
-        <form onSubmit={handleUpdateProfile} className="profile-form-card animate-fade-in" style={{ marginTop: '24px' }}>
-          <div className="profile-form-header">
-            <h3 className="profile-form-title">Account Settings</h3>
+        {/* 3. Always Visible Settings Form */}
+        {activeTab === 'overview' && (
+        <>
+        <form onSubmit={handleUpdateProfile} className="profile-form-card animate-fade-in" style={{ marginTop: '24px', background: '#ffffff', padding: '32px', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', marginBottom: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', margin: 0 }}>Profile &amp; Personal Details</h3>
+            <span style={{ background: '#ecfdf5', color: '#059669', fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <ShieldCheck size={14} /> 256-bit Encrypted
+            </span>
           </div>
 
           <div className="profile-input-grid">
@@ -365,37 +369,40 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 value={firstName} 
                 onChange={(e) => setFirstName(e.target.value)} 
                 placeholder="Enter first name"
-                disabled={!isEditing}
                 className="profile-input"
+                style={{ fontSize: '15px', fontWeight: '600' }}
                 required
               />
             </div>
             <div>
-              <label className="profile-input-label">SURNAME *</label>
+              <label className="profile-input-label">LAST NAME *</label>
               <input 
                 type="text" 
                 value={lastName} 
                 onChange={(e) => setLastName(e.target.value)} 
-                placeholder="Enter surname"
-                disabled={!isEditing}
+                placeholder="Enter last name"
                 className="profile-input"
+                style={{ fontSize: '15px', fontWeight: '600' }}
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="profile-input-label">MOBILE NUMBER (VERIFIED)</label>
+            <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span>MOBILE NUMBER</span>
+              <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>✔ VERIFIED BY OTP</span>
+            </label>
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', left: '16px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
-                <span style={{ fontSize: '15px', fontWeight: '700', color: '#94a3b8' }}>+91</span>
+                <span style={{ fontSize: '15px', fontWeight: '700', color: '#64748b' }}>+91</span>
               </div>
               <input 
                 type="text" 
                 value={currentUser.phone || currentUser.username} 
                 readOnly
                 className="profile-input"
-                style={{ paddingLeft: '54px' }}
+                style={{ paddingLeft: '54px', backgroundColor: '#f8fafc', fontWeight: '700', color: '#0f172a', border: '1px solid #cbd5e1' }}
                 disabled
               />
               <div style={{ position: 'absolute', right: '16px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
@@ -405,12 +412,12 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
           </div>
 
           {/* Email Settings Section */}
-          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px' }}>
+          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px', marginTop: '8px' }}>
             <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              EMAIL ID 
+              <span>EMAIL ADDRESS</span>
               {currentUser.emailVerified ? 
-                <span style={{ color: '#10b981', background: '#d1fae5', padding: '2px 8px', borderRadius: '10px', fontSize: '10px' }}>VERIFIED ✓</span> : 
-                <span style={{ color: '#ea580c', background: '#ffedd5', padding: '2px 8px', borderRadius: '10px', fontSize: '10px' }}>PENDING</span>
+                <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>✔ VERIFIED</span> : 
+                <span style={{ color: '#ea580c', background: '#ffedd5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>⚠️ PENDING</span>
               }
             </label>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -421,132 +428,174 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 placeholder="Enter your email address"
                 disabled={currentUser.emailVerified}
                 className="profile-input"
-                style={{ flex: '1 1 200px' }}
+                style={{ flex: '1 1 200px', fontSize: '15px', fontWeight: '600' }}
               />
               {!currentUser.emailVerified && (
                 <button 
                   type="button" 
                   onClick={handleVerifyEmail}
                   disabled={isVerifyingEmail || !emailInput}
-                  className="profile-submit-btn"
-                  style={{ opacity: (isVerifyingEmail || !emailInput) ? 0.7 : 1, padding: '0 24px', flex: '0 1 auto' }}
+                  style={{ opacity: (isVerifyingEmail || !emailInput) ? 0.7 : 1, padding: '0 24px', flex: '0 1 auto', background: 'linear-gradient(135deg, #f97316, #ea580c)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(234,88,12,0.2)' }}
                 >
-                  {isVerifyingEmail ? 'Verifying...' : 'Verify Now'}
+                  {isVerifyingEmail ? 'Sending...' : 'Verify Now ✨'}
                 </button>
               )}
             </div>
             {!currentUser.emailVerified && (
-              <span style={{ fontSize: '13px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontWeight: '500' }}>
-                <ShieldAlert size={16} /> Verify your email for important security alerts and order updates.
+              <span style={{ fontSize: '13px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontWeight: '600' }}>
+                <ShieldAlert size={16} /> Verify email to receive invoice PDFs, shipping updates, and reward badges.
               </span>
             )}
           </div>
 
           {/* Address Settings Section */}
-          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', margin: '0' }}>Address Book</h4>
-              {isEditing && (
-                <button type="button" onClick={() => showToast('Multiple addresses coming soon in v2.0!', 'info')} style={{ background: '#e0e7ff', color: '#4f46e5', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
-                  + Add New Address
-                </button>
-              )}
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-              {/* Default Address Card */}
-              <div style={{ border: '2px solid #4f46e5', borderRadius: '12px', padding: '16px', position: 'relative', background: '#f8fafc' }}>
-                <span style={{ position: 'absolute', top: '-10px', right: '16px', background: '#4f46e5', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }}>DEFAULT</span>
-                <div style={{ fontWeight: '700', fontSize: '14px', marginBottom: '4px', color: '#1e293b' }}>{firstName || 'User'} {lastName}</div>
-                <div style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.5', marginBottom: '8px' }}>
-                  {addressInput || 'No address provided'}<br/>
-                  {pincodeInput ? `Pincode: ${pincodeInput}` : ''}
-                </div>
-              </div>
+          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <h4 style={{ fontSize: '17px', fontWeight: '900', color: '#0f172a', margin: '0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>🏠 Address Book</span>
+                <span style={{ background: '#e0e7ff', color: '#4f46e5', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800' }}>DEFAULT DELIVERY</span>
+              </h4>
+              <button type="button" onClick={() => showToast('Multiple delivery addresses coming soon in v2.0!', 'info')} style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '6px 14px', borderRadius: '8px', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}>
+                + Add New Address
+              </button>
             </div>
 
-            {isEditing && (
-              <div className="animate-fade-in" style={{ background: '#fff', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                <h5 style={{ fontSize: '14px', margin: '0 0 12px 0', color: '#334155' }}>Edit Default Address</h5>
-                <div style={{ marginBottom: '16px' }}>
-                  <label className="profile-input-label">PINCODE *</label>
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    <input 
-                      type="text" 
-                      maxLength="6"
-                      value={pincodeInput} 
-                      onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
-                      placeholder="e.g. 400001"
-                      className="profile-input"
-                      style={{ flex: '1 1 120px', letterSpacing: '2px' }}
-                      required
-                    />
-                    <button 
-                      type="button" 
-                      onClick={handleGeolocate}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '0 20px', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', minHeight: '52px', flex: '1 1 150px' }}
-                    >
-                      <MapPin size={18} /> Detect Location
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="profile-input-label">STREET ADDRESS *</label>
-                  <textarea 
-                    value={addressInput} 
-                    onChange={(e) => setAddressInput(e.target.value)} 
-                    placeholder="House No, Building Name, Street Area, City & State"
+            <div className="animate-fade-in" style={{ background: '#f8fafc', padding: '20px', borderRadius: '16px', border: '1.5px solid #cbd5e1' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <label className="profile-input-label">DELIVERY PINCODE *</label>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  <input 
+                    type="text" 
+                    maxLength="6"
+                    value={pincodeInput} 
+                    onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
+                    placeholder="e.g. 401404"
                     className="profile-input"
-                    style={{ height: '80px', padding: '12px', resize: 'vertical', lineHeight: '1.5' }}
+                    style={{ flex: '1 1 120px', letterSpacing: '2px', fontWeight: '700', fontSize: '16px', background: 'white' }}
                     required
                   />
+                  <button 
+                    type="button" 
+                    onClick={handleGeolocate}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#eff6ff', color: '#2563eb', border: '1.5px solid #bfdbfe', padding: '0 20px', borderRadius: '12px', fontSize: '13.5px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', minHeight: '52px', flex: '1 1 160px', boxShadow: '0 2px 6px rgba(37,99,235,0.08)' }}
+                  >
+                    <MapPin size={18} /> 📍 Auto-Detect Live Pincode
+                  </button>
                 </div>
+              </div>
+
+              <div>
+                <label className="profile-input-label">COMPLETE HOUSE / STREET ADDRESS *</label>
+                <textarea 
+                  value={addressInput} 
+                  onChange={(e) => setAddressInput(e.target.value)} 
+                  placeholder="House / Flat No, Building Name, Street Area, Landmark, City & State"
+                  className="profile-input"
+                  style={{ height: '84px', padding: '14px', resize: 'vertical', lineHeight: '1.5', background: 'white', fontSize: '14.5px', fontWeight: '500' }}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '28px' }}>
+            {hasChanges ? (
+              <button 
+                type="submit" 
+                className="profile-submit-btn"
+                style={{ 
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%)',
+                  color: 'white',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  border: 'none',
+                  boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s'
+                }}
+                disabled={isUpdating}
+              >
+                {isUpdating ? '💾 Saving Your Changes...' : '💾 Save All Changes Now'}
+              </button>
+            ) : (
+              <div style={{ 
+                width: '100%',
+                background: '#f0fdf4',
+                border: '1.5px solid #bbf7d0',
+                color: '#16a34a',
+                padding: '16px',
+                borderRadius: '16px',
+                fontSize: '15px',
+                fontWeight: '800',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                boxShadow: '0 2px 8px rgba(22, 163, 74, 0.05)'
+              }}>
+                ✔ All Profile Details &amp; Addresses Saved
               </div>
             )}
           </div>
-
-          <button 
-            type="submit" 
-            className="profile-submit-btn"
-            style={{ 
-              marginTop: '8px',
-              backgroundColor: (!isEditing || !hasChanges) ? '#e2e8f0' : '#4f46e5',
-              color: (!isEditing || !hasChanges) ? '#94a3b8' : 'white',
-              boxShadow: (!isEditing || !hasChanges) ? 'none' : '0 8px 16px rgba(79, 70, 229, 0.2)',
-              pointerEvents: (!isEditing || !hasChanges) ? 'none' : 'auto'
-            }}
-            disabled={!isEditing || !hasChanges || isUpdating}
-          >
-            {isUpdating ? 'Saving Changes...' : (isEditing && hasChanges) ? 'Save Changes' : 'Update Details to Save'}
-          </button>
         </form>
-        )}
 
-        {/* 4. Menu List */}
-        {activeTab === 'overview' && (
-        <div className="profile-menu-list">
-          <div className="profile-menu-item" onClick={() => setIsEditing(!isEditing)}>
-            <div className="menu-item-left">
-              <MapPin size={20} color="#64748b" />
-              <span>Saved Addresses</span>
+        {/* 4. Upgraded Account Quick Nav Links */}
+        <div className="profile-menu-list" style={{ marginTop: '24px', background: 'white', borderRadius: '24px', border: '1px solid #f1f5f9', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+          <div className="profile-menu-item" onClick={() => onNavigate('orders')} style={{ padding: '18px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+                <ShoppingBag size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>My Order History</div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>Track shipments, request returns, and invoice downloads</div>
+              </div>
             </div>
-            <ArrowRight size={16} color="#cbd5e1" />
+            <ArrowRight size={18} color="#94a3b8" />
           </div>
-          <div className="profile-menu-item" onClick={() => setIsEditing(!isEditing)}>
-            <div className="menu-item-left">
-              <ShieldAlert size={20} color="#64748b" />
-              <span>Security & Passwords</span>
+
+          <div className="profile-menu-item" onClick={() => setActiveTab('savedcards')} style={{ padding: '18px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
+                <CreditCard size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>Saved Wallets &amp; Cards</div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>Manage faster payment checkout methods</div>
+              </div>
             </div>
-            <ArrowRight size={16} color="#cbd5e1" />
+            <ArrowRight size={18} color="#94a3b8" />
           </div>
-          <div className="profile-menu-item logout-item" onClick={logout}>
-            <div className="menu-item-left">
-              <LogOut size={20} color="#ef4444" />
-              <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Log Out</span>
+
+          <div className="profile-menu-item" onClick={() => onNavigate('partner')} style={{ padding: '18px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706' }}>
+                <Award size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>Creator &amp; Partner Program</div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>Earn commission by recommending products</div>
+              </div>
+            </div>
+            <ArrowRight size={18} color="#94a3b8" />
+          </div>
+
+          <div className="profile-menu-item logout-item" onClick={logout} style={{ padding: '18px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff1f2', transition: 'all 0.2s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fecdd3', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#e11d48' }}>
+                <LogOut size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '800', color: '#e11d48' }}>Log Out from all devices</div>
+                <div style={{ fontSize: '12px', color: '#f43f5e' }}>Securely conclude your active session</div>
+              </div>
             </div>
           </div>
         </div>
+        </>
         )}
 
         {/* AB Rewards Hub Section */}
