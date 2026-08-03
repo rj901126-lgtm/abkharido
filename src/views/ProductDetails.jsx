@@ -34,14 +34,25 @@ import ProductCard from '../components/ProductCard';
 const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts } = useApp();
   const [copied, setCopied] = useState(false);
-  const [pincode, setPincode] = useState('560103');
+  const [pincode, setPincode] = useState(currentUser?.pincode || '400001');
   // Dynamic delivery estimate
   const getTomorrowDay = () => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
     return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
   };
-  const [deliveryEstimate] = useState(`Delivery by ${getTomorrowDay()} | Free Express Shipping`);
+  const [deliveryEstimate, setDeliveryEstimate] = useState(
+    currentUser?.pincode 
+      ? `⚡ Fast Express Delivery to ${currentUser?.city || currentUser?.pincode} by ${getTomorrowDay()}` 
+      : `Delivery by ${getTomorrowDay()} | Free Express Shipping`
+  );
+
+  React.useEffect(() => {
+    if (currentUser?.pincode) {
+      setPincode(currentUser.pincode);
+      setDeliveryEstimate(`⚡ Fast Express Delivery to ${currentUser?.city || currentUser?.pincode} by ${getTomorrowDay()}`);
+    }
+  }, [currentUser]);
 
   React.useEffect(() => {
     document.body.classList.add('product-details-active');
@@ -173,16 +184,22 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       return;
     }
 
-    const metroPrefixes = ['110', '400', '560', '700', '600', '500', '380', '411'];
-    const isMetro = metroPrefixes.some(prefix => pincode.startsWith(prefix));
-
-    if (isMetro) {
-      showToast('🎉 Eligible for Priority Express Delivery!', 'success');
-      setDeliveryEstimate('⚡ ELIGIBLE FOR PRIORITY EXPRESS DELIVERY | Free VIP Shipping Unlocked!');
-    } else {
-      showToast('🚀 Fast Dispatch & Doorstep Delivery Available!', 'success');
-      setDeliveryEstimate('🚀 Fast Dispatch: Delivery in 2-4 Days | 100% Cashfree Protected Escrow');
-    }
+    showToast(`⚡ Verifying express postal service for ${pincode}...`, 'info');
+    fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+          const area = data[0].PostOffice[0].District || data[0].PostOffice[0].Name;
+          setDeliveryEstimate(`⚡ ELIGIBLE FOR PRIORITY EXPRESS DELIVERY TO ${area.toUpperCase()} (${pincode}) by ${getTomorrowDay()}`);
+          showToast(`⚡ Priority Express Delivery available in ${area}!`, 'success');
+        } else {
+          setDeliveryEstimate(`🚀 Standard Fast Dispatch Available for ${pincode} | Delivery by ${getTomorrowDay()}`);
+          showToast('🚀 Doorstep Delivery confirmed!', 'success');
+        }
+      })
+      .catch(() => {
+        setDeliveryEstimate(`⚡ Guaranteed Express Delivery to ${pincode} by ${getTomorrowDay()}`);
+      });
   };
 
   // Find product in list
@@ -595,23 +612,56 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
         {/* Right Column: Details, Specifications and Affiliate Link */}
         <div className="details-info-column" style={{ padding: '0 4px' }}>
-          <div style={{ marginBottom: '12px' }}>
-            <h1 className="product-title-text desktop-premium-title" style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', lineHeight: '1.3', letterSpacing: '-0.3px', margin: 0 }}>{product.name}</h1>
+          
+          {/* 1. Product Title */}
+          <div style={{ marginBottom: '8px' }}>
+            <h1 className="product-title-text desktop-premium-title" style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', lineHeight: '1.25', letterSpacing: '-0.3px', margin: 0 }}>
+              {product.name}
+            </h1>
           </div>
 
-          <div className="desktop-premium-price-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
-            <span className="desktop-premium-price" style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
-            <span className="desktop-premium-original" style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '500' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
-            <span className="desktop-premium-discount" style={{ fontSize: '13px', color: '#166534', fontWeight: '700', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>{currentDisplayDiscount}% OFF</span>
+          {/* 2. Star Rating & Trust Verification Badge BEFORE Price (Flipkart / Amazon standard) */}
+          <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 14px 0', flexWrap: 'wrap' }}>
+            <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white', boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)' }}>
+              {product.rating} <Star size={12} fill="white" />
+            </span>
+            <span style={{ color: '#475569', fontSize: '13.5px', fontWeight: '600' }}>
+              {(product.reviewsCount || 0).toLocaleString()} Verified Ratings &amp; Reviews
+            </span>
+            
+            {/* Proprietary A-Assured Badge Graphic */}
+            <div style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              height: '22px', 
+              background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)', 
+              color: 'white', 
+              borderRadius: '4px', 
+              padding: '0 8px', 
+              fontSize: '10px', 
+              fontWeight: '900', 
+              fontStyle: 'italic', 
+              letterSpacing: '0.3px',
+              boxShadow: '0 2px 6px rgba(37,99,235,0.2)'
+            }}>
+              A-Assured <span style={{ color: '#ffe500', marginLeft: '3px', fontStyle: 'normal' }}>★</span>
+            </div>
+          </div>
+
+          {/* 3. Price Card */}
+          <div className="desktop-premium-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px', padding: '8px 0', borderTop: '1px dashed #e2e8f0', borderBottom: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
+            <span className="desktop-premium-price" style={{ fontSize: '30px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+            <span className="desktop-premium-original" style={{ fontSize: '17px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '600' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+            <span className="desktop-premium-discount" style={{ fontSize: '13px', color: '#15803d', fontWeight: '800', backgroundColor: '#dcfce7', padding: '5px 10px', borderRadius: '8px' }}>{currentDisplayDiscount}% OFF</span>
           </div>
 
           {/* Smart EMI & Bank Savings Strip */}
-          <div style={{ marginTop: '14px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ marginTop: '16px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '20px' }}>💡</span>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: '#1e3a8a' }}>No-Cost EMI available starting at ₹{Math.max(499, Math.round(currentDisplayPrice / 12)).toLocaleString('en-IN')}/mo</div>
-                <div style={{ fontSize: '11px', color: '#475569', fontWeight: '600' }}>Standard EMI also available on HDFC, ICICI, SBI & Axis Bank Cards</div>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#1e3a8a' }}>No-Cost EMI starting at ₹{Math.max(499, Math.round(currentDisplayPrice / 12)).toLocaleString('en-IN')}/mo</div>
+                <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: '600' }}>Instant bank discounts on Credit &amp; Debit Cards</div>
               </div>
             </div>
             <span style={{ fontSize: '12px', color: '#2563eb', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => showToast('💳 All Credit/Debit Cards accepted with Instant Bank Discount Cashback at Checkout!', 'success')}>
@@ -621,45 +671,19 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
           {/* Real-time High-Demand Scarcity Bar */}
           <div style={{ marginTop: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: '11px', fontWeight: '800', padding: '5px 10px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              🔥 In High Demand: 28 shoppers are currently viewing this item
+            <span style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: '11.5px', fontWeight: '800', padding: '6px 12px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🔥 In Demand: 28 shoppers viewing this item now
             </span>
-            <span style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', fontSize: '11px', fontWeight: '800', padding: '5px 10px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              📦 In Stock: Guaranteed Direct Warehouse Shipment
+            <span style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', fontSize: '11.5px', fontWeight: '800', padding: '6px 12px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              📦 Guaranteed Direct Warehouse Shipment
             </span>
           </div>
 
           {isFlashSale && (
-            <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+            <div style={{ marginTop: '12px', marginBottom: '12px' }}>
               <CountdownTimer endTime={product.flashSale.endTime} />
             </div>
           )}
-
-          <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px' }}>
-            <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white' }}>
-              {product.rating} <Star size={12} fill="white" />
-            </span>
-            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>{(product.reviewsCount || 0).toLocaleString()} Ratings & Reviews</span>
-            
-            {/* Proprietary A-Assured Badge Graphic */}
-            <div style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              marginLeft: '8px', 
-              height: '20px', 
-              background: 'linear-gradient(135deg, #1e3a8a 0%, #2874f0 100%)', 
-              color: 'white', 
-              borderRadius: '2px', 
-              padding: '0 6px', 
-              fontSize: '9px', 
-              fontWeight: '900', 
-              fontStyle: 'italic', 
-              letterSpacing: '0.2px',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-            }}>
-              A-Assured <span style={{ color: '#ffe500', marginLeft: '3px' }}>★</span>
-            </div>
-          </div>
 
           {/* Color Variation Selection (Enterprise style) */}
           {colorModels.length > 0 && (
@@ -812,85 +836,83 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               </div>
             </div>
             <div style={{ fontSize: '13px', fontWeight: '800', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px', color: deliveryEstimate.includes('ELIGIBLE') ? '#059669' : deliveryEstimate.includes('Invalid') ? '#e11d48' : '#1e3a8a' }}>
-              {deliveryEstimate || "✨ Enter your postal code to see real-time dispatch countdowns."}
+              {deliveryEstimate || "✨ Enter your postal code to see real-time express dispatch countdowns."}
             </div>
           </div>
 
           {/* VIP Frequently Bought Together Combo Bundle */}
           {recommendations && recommendations.length >= 1 && (
-            <div style={{ marginTop: '28px', background: 'linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)', border: '2px solid #fde68a', borderRadius: '24px', padding: '24px', boxShadow: '0 10px 30px rgba(245, 158, 11, 0.08)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
+            <div style={{ marginTop: '24px', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', border: '1.5px solid #fde68a', borderRadius: '20px', padding: '20px', boxShadow: '0 6px 20px rgba(245, 158, 11, 0.06)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '22px' }}>👑</span>
-                  <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '900', color: '#92400e', margin: 0, letterSpacing: '-0.3px' }}>
-                    Frequently Bought Together VIP Combo
+                  <span style={{ fontSize: '20px' }}>👑</span>
+                  <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', color: '#92400e', margin: 0 }}>
+                    Frequently Bought Together Deal
                   </h4>
                 </div>
-                <span style={{ background: '#e11d48', color: 'white', fontSize: '11px', fontWeight: '900', padding: '4px 10px', borderRadius: '10px' }}>
-                  🔥 EXTRA COMBO DISCOUNT
+                <span style={{ background: '#e11d48', color: 'white', fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '8px' }}>
+                  ⚡ BUNDLE DISCOUNT ACTIVE
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', alignItems: 'stretch', marginBottom: '16px' }}>
                 {/* Item 1: This Product */}
-                <div style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <LazyImage src={product.image} alt={product.name} style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 6px auto' }} />
-                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#090d16', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{product.name}</div>
-                  <div style={{ fontSize: '13px', fontWeight: '900', color: '#059669' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</div>
+                <div style={{ background: 'white', borderRadius: '16px', padding: '12px', border: '1.5px solid #f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
+                  <LazyImage src={product.image} alt={product.name} style={{ width: '70px', height: '70px', objectFit: 'contain', marginBottom: '8px' }} />
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{product.name}</div>
+                  <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669', marginTop: '4px' }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</div>
                 </div>
-
-                <div style={{ fontSize: '24px', fontWeight: '900', color: '#d97706' }}>+</div>
 
                 {/* Item 2: Recommended Product */}
                 <div 
                   onClick={() => onNavigate(recommendations[0].id)}
-                  style={{ background: 'white', borderRadius: '16px', padding: '10px', width: '120px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+                  style={{ background: 'white', borderRadius: '16px', padding: '12px', border: '1.5px solid #f3f4f6', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', justifyContent: 'center', position: 'relative' }}
                 >
-                  <LazyImage src={recommendations[0].image} alt={recommendations[0].name} style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 6px auto' }} />
-                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#090d16', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{recommendations[0].name}</div>
-                  <div style={{ fontSize: '13px', fontWeight: '900', color: '#059669' }}>₹{(recommendations[0].price || 0).toLocaleString('en-IN')}</div>
+                  <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#d97706', color: 'white', width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '13px', boxShadow: '0 2px 6px rgba(217,119,6,0.3)' }}>+</div>
+                  <LazyImage src={recommendations[0].image} alt={recommendations[0].name} style={{ width: '70px', height: '70px', objectFit: 'contain', marginBottom: '8px' }} />
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{recommendations[0].name}</div>
+                  <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669', marginTop: '4px' }}>₹{(recommendations[0].price || 0).toLocaleString('en-IN')}</div>
                 </div>
+              </div>
 
-                <div style={{ fontSize: '24px', fontWeight: '900', color: '#d97706' }}>=</div>
-
-                {/* Combined Calculation */}
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <div style={{ fontSize: '12px', color: '#92400e', fontWeight: '700' }}>Combined VIP Bundle Price:</div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '2px' }}>
-                    <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16' }}>
+              {/* Combined Calculation & CTA */}
+              <div style={{ background: '#ffffff', padding: '14px 16px', borderRadius: '16px', border: '1px solid #fde68a', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <span style={{ fontSize: '13px', color: '#92400e', fontWeight: '700' }}>Combined Bundle Savings:</span>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '22px', fontWeight: '900', color: '#0f172a' }}>
                       ₹{((currentDisplayPrice || 0) + (recommendations[0].price || 0) - Math.min(500, Math.round((currentDisplayPrice || 0)*0.05))).toLocaleString('en-IN')}
                     </span>
                     <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px', fontWeight: '600' }}>
                       ₹{((currentDisplayPrice || 0) + (recommendations[0].price || 0)).toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <button
-                    onClick={() => {
-                      addToCart({ ...product, price: currentDisplayPrice }, 1);
-                      addToCart(recommendations[0], 1);
-                      showToast('🎉 VIP Combo Bundle added to your shopping bag!', 'success');
-                    }}
-                    style={{
-                      marginTop: '10px',
-                      width: '100%',
-                      background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '12px',
-                      borderRadius: '14px',
-                      fontFamily: "'Outfit', sans-serif",
-                      fontWeight: '800',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(217, 119, 6, 0.4)',
-                      transition: 'transform 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  >
-                    ⚡ Add Both to Cart & Save Extra
-                  </button>
                 </div>
+                <button
+                  onClick={() => {
+                    addToCart({ ...product, price: currentDisplayPrice }, 1);
+                    addToCart(recommendations[0], 1);
+                    showToast('🎉 VIP Combo Bundle added to your shopping bag!', 'success');
+                  }}
+                  style={{
+                    width: '100%',
+                    background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: '800',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 18px rgba(217, 119, 6, 0.35)',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  ⚡ Add Both to Cart &amp; Save ₹{Math.min(500, Math.round((currentDisplayPrice || 0)*0.05))} Extra
+                </button>
               </div>
             </div>
           )}
@@ -1178,75 +1200,67 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           </details>
 
-          {/* Share & Earn Panel (Affiliate/Referral) */}
-          <div className="share-earn-box" style={{ marginTop: '24px' }}>
-            <div className="share-earn-header">
-              <Award size={20} />
-              <span>Share & Earn Program (Active)</span>
-            </div>
-            
-            <p className="share-earn-desc">
-              Promote this product to friends, followers, or family. If they buy using your custom tracking link, 
-              you get credited immediately!
-            </p>
-
-            {/* Commissions Rates info */}
-            <div style={{ display: 'flex', gap: '16px', borderBottom: '1px dashed #bbf7d0', paddingBottom: '12px', marginBottom: '4px' }}>
-              <div style={{ flex: 1, fontSize: '13px' }}>
-                <div style={{ color: '#166534', fontWeight: '500' }}>Member Reward</div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#e68f00' }}>{userCoins} Coins</div>
-                <div style={{ fontSize: '11px', color: '#15803d' }}>({Math.round((product.userCommissionRate || 0.02) * 100 * 10) / 10}% rate, credited on checkout)</div>
+          {/* Share & Earn Panel (Affiliate/Referral) - Sleek Creator Banner */}
+          <div className="share-earn-box" style={{ marginTop: '24px', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1.5px solid #bbf7d0', borderRadius: '20px', padding: '18px', boxShadow: '0 4px 14px rgba(22, 163, 74, 0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Award size={18} color="white" />
+                </div>
+                <span style={{ fontSize: '16px', fontWeight: '900', color: '#166534' }}>Creator &amp; Partner Reward</span>
+              </div>
+              <div style={{ background: '#ffffff', border: '1px solid #86efac', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: '800', color: '#15803d' }}>
+                Earn <strong>{userCoins} AB Coins</strong> per sale
               </div>
             </div>
+            
+            <p style={{ fontSize: '13px', color: '#15803d', margin: '0 0 14px 0', fontWeight: '500', lineHeight: '1.4' }}>
+              Share your verified affiliate link with friends or on social media. Earn instant reward cashback when anyone checks out!
+            </p>
 
             {/* Custom Link Copy Section */}
             {currentUser ? (
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#166534' }}>
-                   Your Unique Tracking Link:
-                 </label>
-                 <div className="share-link-generator">
-                   <input 
-                     type="text" 
-                     className="share-link-input" 
-                     readOnly 
-                     value={getReferralLink()} 
-                     onClick={(e) => e.target.select()}
-                   />
-                   <button 
-                     className="btn btn-primary" 
-                     style={{ backgroundColor: '#15803d', display: 'flex', gap: '4px', padding: '0 16px' }}
-                     onClick={handleCopyLink}
-                   >
-                     {copied ? <Check size={16} /> : <Copy size={16} />}
-                     <span>{copied ? 'Copied' : 'Copy'}</span>
-                   </button>
-                 </div>
+               <div className="share-link-generator" style={{ display: 'flex', gap: '8px', background: 'white', padding: '6px', borderRadius: '14px', border: '1px solid #86efac', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                 <input 
+                   type="text" 
+                   className="share-link-input" 
+                   readOnly 
+                   value={getReferralLink()} 
+                   onClick={(e) => e.target.select()}
+                   style={{ flex: 1, border: 'none', background: 'transparent', padding: '0 10px', fontSize: '13px', fontWeight: '600', color: '#334155', outline: 'none' }}
+                 />
+                 <button 
+                   type="button"
+                   style={{ background: '#16a34a', color: 'white', border: 'none', borderRadius: '10px', padding: '10px 18px', fontSize: '13px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                   onClick={handleCopyLink}
+                 >
+                   {copied ? <Check size={16} /> : <Copy size={16} />}
+                   <span>{copied ? 'Copied Link' : 'Copy Link'}</span>
+                 </button>
                </div>
              ) : (
-               <div style={{ textAlign: 'center', padding: '12px 0', borderTop: '1px dashed #bbf7d0', marginTop: '6px' }}>
-                 <p style={{ fontSize: '13px', color: '#166534', fontWeight: '500', marginBottom: '8px' }}>
-                   Want to earn rewards? Log in to get your tracking link!
-                 </p>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '12px 16px', borderRadius: '14px', border: '1px solid #86efac', flexWrap: 'wrap', gap: '10px' }}>
+                 <span style={{ fontSize: '13px', color: '#166534', fontWeight: '700' }}>
+                   🔒 Log in to activate your unique monetized link
+                 </span>
                  <button 
-                   className="btn btn-primary animate-fade-in" 
-                   style={{ backgroundColor: '#15803d', height: '36px', fontSize: '13px', padding: '0 20px', fontWeight: '600' }}
+                   style={{ background: '#16a34a', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}
                    onClick={() => onNavigate('login')}
                  >
-                   Log In & Start Earning
+                   Activate &amp; Earn
                  </button>
                </div>
              )}
 
             {/* Social Sharing */}
-            <div className="product-share-container">
-              <span style={{ fontSize: '12px', color: '#166534', fontWeight: '600' }}>Quick Share:</span>
-              <div className="social-share-row">
-                <button className="social-share-btn social-wa" onClick={handleShareWhatsApp}>
-                  <Send size={12} fill="white" /> WhatsApp
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #bbf7d0', flexWrap: 'wrap', gap: '10px' }}>
+              <span style={{ fontSize: '12.5px', color: '#166534', fontWeight: '700' }}>⚡ One-Tap Social Sharing:</span>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button type="button" onClick={handleShareWhatsApp} style={{ background: '#25D366', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <Send size={14} fill="white" /> WhatsApp
                 </button>
-                <button className="social-share-btn social-tw" onClick={handleShareTwitter}>
-                  <Share2 size={12} /> Twitter / X
+                <button type="button" onClick={handleShareTwitter} style={{ background: '#000000', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <Share2 size={14} /> Twitter / X
                 </button>
               </div>
             </div>

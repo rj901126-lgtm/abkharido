@@ -221,27 +221,12 @@
 }
 
 @media (max-width: 768px) {
-  /* Keep inline Action Hub inside card flow on mobile since we have the permanent VIP Fixed Purchase Ribbon at screen bottom */
+  /* HIDE inline Action Hub on mobile so there are NO DUPLICATE buttons! The sticky footer bar handles all purchases on mobile! */
   .action-buttons-container {
-    position: relative !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    background: #ffffff !important;
-    padding: 16px !important;
-    box-shadow: 0 10px 24px rgba(9, 13, 22, 0.05) !important;
-    z-index: 10 !important;
-    border-radius: 20px !important;
-    margin-top: 16px !important;
-    margin-bottom: 24px !important;
-    display: block !important;
+    display: none !important;
   }
   .action-buttons-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-    margin: 0 !important;
-    flex: none !important;
+    display: none !important;
   }
   .mobile-price-preview {
     display: flex !important;
