@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Shield, ShieldAlert, CheckCircle, Clock, Lock, Unlock, Mail, Phone, MapPin, DollarSign, Award, Filter, RefreshCw, AlertTriangle, UserCheck, Key, Eye, Sparkles } from 'lucide-react';
+import { Users, Search, Shield, ShieldCheck, ShieldAlert, CheckCircle, Clock, Lock, Unlock, Mail, Phone, MapPin, DollarSign, Award, Filter, RefreshCw, AlertTriangle, UserCheck, Key, Eye, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const AdminUsers = () => {
