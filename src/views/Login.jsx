@@ -355,12 +355,24 @@ const Login = ({ onNavigate }) => {
               </div>
               <h2 className="lp-form-title">Enter OTP Code</h2>
               
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 16px', borderRadius: '14px', marginBottom: '24px', fontSize: '14px', color: '#334155' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 16px', borderRadius: '14px', marginBottom: '16px', fontSize: '14px', color: '#334155' }}>
                 <span>Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91 {phone}</strong></span>
                 <button type="button" onClick={handleGoBack} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', fontSize: '12px', padding: '5px 10px', borderRadius: '8px' }}>
                   CHANGE ✏️
                 </button>
               </div>
+
+              {smsNotice && (
+                <div style={{ padding: '14px', background: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: '14px', fontSize: '12.5px', color: '#991b1b', lineHeight: 1.5, fontWeight: '600', marginBottom: '20px', boxShadow: '0 4px 12px rgba(239,68,68,0.08)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '800', fontSize: '13px', color: '#7f1d1d', marginBottom: '4px' }}>
+                    <span>⚠️ Firebase SMS Gateway Blocked</span>
+                  </div>
+                  {smsNotice}
+                  <div style={{ marginTop: '8px', fontSize: '11.5px', color: '#450a0a', background: '#fee2e2', padding: '8px 10px', borderRadius: '8px', fontWeight: '700' }}>
+                    💡 Solution: Add <u>{typeof window !== 'undefined' && window.location.hostname}</u> to Firebase Console ➔ Authentication ➔ Settings ➔ Authorized Domains.
+                  </div>
+                </div>
+              )}
 
               <form onSubmit={handleVerifyOtp} className="lp-form">
                 <div className="lp-otp-row">
