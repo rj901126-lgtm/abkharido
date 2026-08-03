@@ -260,7 +260,7 @@ const Login = ({ onNavigate }) => {
         @media (max-width: 991px) {
           .lp-left-desktop-only { display: none !important; width: 0 !important; height: 0 !important; opacity: 0 !important; visibility: hidden !important; }
           .lp-right { padding: 0 !important; background: #f8fafc !important; justify-content: flex-start !important; }
-          .lp-form-card { max-width: 100% !important; border-radius: 28px 28px 0 0 !important; margin-top: -24px !important; border: none !important; box-shadow: 0 -8px 24px rgba(0,0,0,0.12) !important; padding: 32px 20px 60px !important; z-index: 10 !important; min-height: 70vh !important; }
+          .lp-form-card { max-width: 100% !important; border-radius: 28px 28px 0 0 !important; margin-top: -24px !important; border: none !important; box-shadow: 0 -8px 24px rgba(0,0,0,0.12) !important; padding: 28px 16px 60px !important; z-index: 10 !important; min-height: 70vh !important; overflow: hidden !important; }
         }
         @media (min-width: 992px) {
           .lp-mobile-header { display: none !important; }
@@ -353,16 +353,17 @@ const Login = ({ onNavigate }) => {
               </div>
               <h2 className="lp-form-title">Enter OTP Code</h2>
               
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 16px', borderRadius: '14px', marginBottom: '16px', fontSize: '14px', color: '#334155' }}>
-                <span>Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91 {phone}</strong></span>
-                <button type="button" onClick={handleGoBack} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', fontSize: '12px', padding: '5px 10px', borderRadius: '8px' }}>
+              {/* Sent to + CHANGE — fully contained, no overflow */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '10px 12px', borderRadius: '14px', marginBottom: '16px', fontSize: '13px', color: '#334155', overflow: 'hidden', minWidth: 0 }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91{phone}</strong></span>
+                <button type="button" onClick={handleGoBack} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', fontSize: '11px', padding: '5px 10px', borderRadius: '8px', flexShrink: 0, whiteSpace: 'nowrap' }}>
                   CHANGE ✏️
                 </button>
               </div>
 
               {/* No scary error banners — OTP flow is clean */}
 
-              <form onSubmit={handleVerifyOtp} className="lp-form">
+              <form onSubmit={handleVerifyOtp} className="lp-form" style={{ overflow: 'hidden' }}>
                 <div className="lp-otp-row">
                   {otpCode.map((data, index) => (
                     <input
