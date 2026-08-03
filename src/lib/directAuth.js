@@ -9,21 +9,41 @@ const generateToken = (id) => {
   });
 };
 
+// Normalize any phone format (+919172600587, 919172600587, 9172600587) to 10 digits
+function normalizePhone(phone) {
+  if (!phone) return phone;
+  let p = phone.toString().replace(/\s/g, '').replace(/-/g, '');
+  // Remove +91 or 91 prefix if present (Indian numbers)
+  if (p.startsWith('+91')) p = p.slice(3);
+  else if (p.startsWith('91') && p.length === 12) p = p.slice(2);
+  return p;
+}
+
 export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) {
   await connectDB();
   if (!phone) throw new Error('Phone number is required from Firebase SMS verification');
 
-  let user = await User.findOne({ phone });
+  const normalizedPhone = normalizePhone(phone);
+
+  // Search by normalized 10-digit phone OR with +91 prefix (to find any existing account)
+  let user = await User.findOne({ $or: [
+    { phone: normalizedPhone },
+    { phone: '+91' + normalizedPhone },
+    { phone: '91' + normalizedPhone },
+  ] });
+
   if (!user) {
-    const cleanPhone = phone.replace('+', '').trim();
-    const username = cleanPhone + '_' + Math.floor(100 + Math.random() * 900);
+    const username = normalizedPhone + '_' + Math.floor(100 + Math.random() * 900);
     user = await User.create({
       username,
-      phone,
+      phone: normalizedPhone,
       email: email || undefined,
       fullName: fullName || 'VIP Member',
       password: 'FirebaseVerifiedUser123!'
     });
+  } else if (user.phone !== normalizedPhone) {
+    user.phone = normalizedPhone;
+    await user.save();
   }
 
   return {
@@ -41,7 +61,14 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
 
 export async function verifyOtpDirect({ recipient, otp, fullName }) {
   await connectDB();
-  const storedOtpDoc = await Otp.findOne({ phone: recipient }).sort({ createdAt: -1 });
+  const normalizedRecipient = recipient.includes('@') ? recipient : normalizePhone(recipient);
+
+  // Find OTP stored under any phone format
+  let storedOtpDoc = await Otp.findOne({ phone: normalizedRecipient }).sort({ createdAt: -1 });
+  if (!storedOtpDoc) {
+    // Try with +91 prefix as fallback
+    storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
+  }
   if (!storedOtpDoc) {
     throw new Error('OTP expired or not found in secure escrow. Please request a new OTP.');
   }
@@ -51,23 +78,36 @@ export async function verifyOtpDirect({ recipient, otp, fullName }) {
     throw new Error('Incorrect OTP code. Please check the digits and try again.');
   }
 
-  await Otp.deleteMany({ phone: recipient });
+  await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
 
-  let user = await User.findOne({ $or: [{ email: recipient }, { phone: recipient }] });
+  const isEmail = normalizedRecipient.includes('@');
+  // Search for existing user by ALL possible phone formats
+  let user;
+  if (isEmail) {
+    user = await User.findOne({ email: normalizedRecipient });
+  } else {
+    user = await User.findOne({ $or: [
+      { phone: normalizedRecipient },
+      { phone: '+91' + normalizedRecipient },
+      { phone: '91' + normalizedRecipient },
+    ] });
+  }
+
   if (!user) {
-    const isEmail = recipient.includes('@');
-    let username = isEmail ? recipient.split('@')[0] : recipient.replace(/\D/g, '');
+    let username = isEmail ? normalizedRecipient.split('@')[0] : normalizedRecipient;
     const existing = await User.findOne({ username });
-    if (existing && isEmail) {
-      username = username + Math.floor(Math.random() * 1000);
-    }
+    if (existing) username = username + '_' + Math.floor(100 + Math.random() * 900);
     user = await User.create({
       username,
-      email: isEmail ? recipient : undefined,
-      phone: !isEmail ? recipient : undefined,
+      email: isEmail ? normalizedRecipient : undefined,
+      phone: !isEmail ? normalizedRecipient : undefined,
       fullName: fullName || 'VIP Member',
       password: 'abkharido_otp_user_' + Date.now()
     });
+  } else if (!isEmail && user.phone !== normalizedRecipient) {
+    // Fix stored phone number format
+    user.phone = normalizedRecipient;
+    await user.save();
   }
 
   return {
@@ -103,8 +143,11 @@ export async function loginPasswordDirect({ username, password }) {
 
 export async function sendOtpDirect({ recipient }) {
   await connectDB();
+  const normalizedRecipient = recipient.includes('@') ? recipient : normalizePhone(recipient);
   const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-  await Otp.create({ phone: recipient, otp: generatedOtp });
-  console.log(`[Direct OTP] Generated DB OTP ${generatedOtp} for ${recipient}`);
+  // Delete any old OTPs for this number first
+  await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
+  await Otp.create({ phone: normalizedRecipient, otp: generatedOtp });
+  console.log(`[Direct OTP] Generated DB OTP ${generatedOtp} for ${normalizedRecipient}`);
   return { success: true, message: 'OTP stored securely in database' };
 }

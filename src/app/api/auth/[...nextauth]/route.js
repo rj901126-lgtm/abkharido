@@ -48,13 +48,19 @@ export const authOptions = {
       async authorize(credentials, req) {
         try {
           let path, bodyObj;
+
+          // Normalize phone to 10 digits before all operations
+          const rawPhone = credentials.phone || '';
+          const normalizedPhone = rawPhone.startsWith('+91') ? rawPhone.slice(3)
+            : (rawPhone.startsWith('91') && rawPhone.length === 12) ? rawPhone.slice(2)
+            : rawPhone;
           
           if (credentials.firebaseIdToken) {
              path = `/api/auth/verify-firebase`;
-             bodyObj = { idToken: credentials.firebaseIdToken, phone: credentials.phone };
-          } else if (credentials.otp && credentials.phone) {
+             bodyObj = { idToken: credentials.firebaseIdToken, phone: normalizedPhone };
+          } else if (credentials.otp && normalizedPhone) {
              path = `/api/auth/verify-otp`;
-             bodyObj = { recipient: credentials.phone, otp: credentials.otp };
+             bodyObj = { recipient: normalizedPhone, otp: credentials.otp };
           } else if (credentials.username && credentials.password) {
              path = `/api/auth/login`;
              bodyObj = { username: credentials.username, password: credentials.password };
@@ -85,10 +91,13 @@ export const authOptions = {
           const userObj = data?.user || data;
           
           if (userObj && (userObj.token || data?.token || userObj._id)) {
+            // Use username (not email) as NextAuth `name` to avoid email displaying in profile header
+            // Store phone separately so AppContext can show correct mobile number
             return {
               id: userObj._id?.toString() || userObj.id,
-              name: userObj.username || userObj.name || userObj.phone,
-              email: userObj.email,
+              name: userObj.username || userObj.name || normalizedPhone,
+              email: userObj.email || null,  // only set if user actually has an email
+              phone: userObj.phone || normalizedPhone,
               role: userObj.role || 'user',
               accessToken: userObj.token || data?.token,
             };
@@ -108,6 +117,8 @@ export const authOptions = {
         token.id = user.id;
         token.role = user.role;
         token.accessToken = user.accessToken;
+        token.phone = user.phone;   // persist phone in JWT
+        token.email = user.email;   // persist actual email (may be null for OTP users)
       }
       return token;
     },
@@ -115,6 +126,8 @@ export const authOptions = {
       if (session && session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.phone = token.phone;   // expose phone to client
+        if (!token.email) session.user.email = null;  // don't show Gmail if no real email
         session.accessToken = token.accessToken;
       }
       return session;

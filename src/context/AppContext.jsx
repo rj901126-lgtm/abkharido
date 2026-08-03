@@ -58,7 +58,9 @@ export const AppProvider = ({ children }) => {
     ...session.user, 
     _id: session.user?.id || session.user?._id || session?.id || 'vip_user',
     token: session.accessToken, 
-    username: session.user.name, 
+    username: session.user.name,
+    phone: session.user.phone || session.user.name,  // phone from JWT session
+    email: session.user.email || undefined,  // null-safe: don't show Google email if OTP login
     ...(dbUser || {}) 
   } : (localSession ? { _id: localSession._id || localSession.id || 'vip_user', ...localSession, ...(dbUser || {}) } : null);
 
