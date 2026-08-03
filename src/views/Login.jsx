@@ -263,6 +263,11 @@ const Login = ({ onNavigate }) => {
       <style>{`
         @media (max-width: 991px) {
           .lp-left-desktop-only { display: none !important; width: 0 !important; height: 0 !important; opacity: 0 !important; visibility: hidden !important; }
+          .lp-right { padding: 0 !important; background: #f8fafc !important; justify-content: flex-start !important; }
+          .lp-form-card { max-width: 100% !important; border-radius: 28px 28px 0 0 !important; margin-top: -24px !important; border: none !important; box-shadow: 0 -8px 24px rgba(0,0,0,0.12) !important; padding: 32px 20px 60px !important; z-index: 10 !important; min-height: 70vh !important; }
+        }
+        @media (min-width: 992px) {
+          .lp-mobile-header { display: none !important; }
         }
       `}</style>
       <div id="recaptcha-container"></div>
@@ -306,6 +311,36 @@ const Login = ({ onNavigate }) => {
 
       {/* ── Right / Mobile: Form Panel ── */}
       <div className="lp-right">
+        {/* ── Mobile Vibrant Brand Header (Flipkart/Swiggy style) ── */}
+        <div className="lp-mobile-header" style={{
+          background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%)',
+          width: '100%',
+          padding: '36px 24px 52px 24px',
+          color: '#ffffff',
+          textAlign: 'left',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ position: 'absolute', right: '-20px', bottom: '-20px', width: '160px', height: '160px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)', filter: 'blur(20px)' }} />
+          <div className="lp-logo-row" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '24px', fontWeight: '900', fontStyle: 'italic', letterSpacing: '-0.5px' }}>
+              AbKharido<span style={{ color: '#fbbf24' }}>.com</span>
+            </span>
+            <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '100px', fontWeight: '800', border: '1px solid rgba(255,255,255,0.2)' }}>
+              VIP INDIA
+            </span>
+          </div>
+          <h1 style={{ fontSize: '24px', fontWeight: '900', lineHeight: 1.25, marginBottom: '8px', letterSpacing: '-0.3px' }}>
+            India&apos;s #1 Direct Buy<br />&amp; Earn SuperStore 🚀
+          </h1>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: '0 0 16px 0', lineHeight: 1.4 }}>
+            Login now for VIP Prices, Free Shipping &amp; Instant Cashback on every order!
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', fontSize: '11px', fontWeight: '700', color: '#38bdf8' }}>
+            <span style={{ background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.3)', padding: '4px 10px', borderRadius: '20px' }}>⚡ Up to 70% OFF</span>
+            <span style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', color: '#34d399', padding: '4px 10px', borderRadius: '20px' }}>🛡️ 100% Assured</span>
+          </div>
+        </div>
 
         <div className="lp-form-card">
 
@@ -429,6 +464,13 @@ const Login = ({ onNavigate }) => {
                 <span>
                   By proceeding, you agree to our <a className="lp-policy-link">Terms</a> & <a className="lp-policy-link">Privacy Policy</a>
                 </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginTop: '28px', padding: '14px 16px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '20px' }}>🛡️</span>
+                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', lineHeight: 1.4 }}>
+                  <span style={{ color: '#0f172a', fontWeight: '800' }}>100% Safe, Secure &amp; Direct</span><br />
+                  Powered by Cashfree Escrow &amp; Firebase Auth
+                </div>
               </div>
             </>
           )}

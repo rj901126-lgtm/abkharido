@@ -1682,7 +1682,38 @@ button:active .lucide, a:active .lucide, .interactive-icon:active .lucide {
     font-size: 14px;
     border-radius: 10px;
   }
+  .lp-input-group { border-radius: 12px; }
+  .lp-input { height: 48px; font-size: 15px; }
+  .lp-input-prefix { height: 48px; font-size: 14px; }
+  .lp-submit-btn { height: 50px; font-size: 15px; margin-top: 4px; }
+  .lp-switch-row { margin-top: 16px; font-size: 13px; }
+  .lp-switch-btn { font-size: 13px; }
+
+  .lp-otp-box {
+    width: 100%;
+    max-width: 42px;
+    height: 48px;
+    font-size: 18px;
+    border-radius: 10px;
+    min-width: 0;
+  }
+  .lp-otp-row { gap: 6px; }
+  .lp-resend-row { font-size: 12px; margin-top: 6px; }
+  .lp-back-btn { font-size: 13px; margin-bottom: 20px; }
 }
+
+/* Dev OTP Banner */
+.lp-otp-dev-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff8e1;
+  border: 1px dashed #ffe082;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
 /* Addictive UI / Skeleton Loaders */
 .skeleton-container {
   animation: fade-in 0.3s ease-out;
