@@ -509,37 +509,29 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
       {/* 2. CATALOG MAIN AREA: Products grid + Mobile filter buttons */}
       <main className="catalog-main" style={{ paddingBottom: '120px' }}>
-        {/* Category Banner Carousel - Displayed FIRST at the top for true VIP impression */}
-        {(() => {
-          const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[currentCategory];
-          const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
-          if (slides.length === 0) return null;
-          return <CatBannerCarousel slides={slides} />;
-        })()}
+        <style>{`
+          .catalog-sticky-filter {
+            position: sticky !important;
+            top: 64px !important;
+            z-index: 800 !important;
+            background: #ffffff;
+            padding: 10px 4px !important;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
+          }
+          @media (max-width: 768px) {
+            .catalog-sticky-filter {
+              top: 104px !important; /* Perfectly docked underneath mobile dark header */
+              padding: 10px 0px !important;
+              margin-bottom: 14px;
+            }
+          }
+        `}</style>
 
-        {/* Sticky Header with Results Count & Sort/Filter Toolbar */}
-        <div style={{
-          position: 'sticky',
-          top: '0',
-          zIndex: 50,
-          background: '#ffffff',
-          padding: '10px 0 12px 0',
-          marginBottom: '16px',
-          borderBottom: '1px solid #f1f5f9',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="results-count" style={{ fontSize: '14px', fontWeight: '700', color: '#090d16', fontFamily: "'Outfit', sans-serif" }}>
-              {searchQuery ? (
-                <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
-              ) : (
-                <span>Showing <strong>{filteredProducts.length} products</strong> in <strong>{currentCategory === 'all' ? 'All Categories' : currentCategory.toUpperCase()}</strong></span>
-              )}
-            </span>
-          </div>
-
+        {/* Sticky Sort & Filter Toolbar - Fixed precisely beneath the main navbar */}
+        <div className="catalog-sticky-filter">
           <div style={{
             display: 'flex',
             gap: '8px',
@@ -593,6 +585,25 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Category Banner Carousel */}
+        {(() => {
+          const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[currentCategory];
+          const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
+          if (slides.length === 0) return null;
+          return <CatBannerCarousel slides={slides} />;
+        })()}
+
+        {/* Results Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', padding: '0 4px' }}>
+          <span className="results-count" style={{ fontSize: '14px', fontWeight: '700', color: '#090d16', fontFamily: "'Outfit', sans-serif" }}>
+            {searchQuery ? (
+              <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
+            ) : (
+              <span>Showing <strong>{filteredProducts.length} products</strong> in <strong>{currentCategory === 'all' ? 'All Categories' : currentCategory.toUpperCase()}</strong></span>
+            )}
+          </span>
         </div>
 
         {/* Grid listing */}
