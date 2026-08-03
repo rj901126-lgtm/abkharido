@@ -174,6 +174,7 @@ export default function ClientLayout({ children }) {
   // 2. REGULAR STOREFRONT VIEW WITH DYNAMIC BANNER & WHATSAPP SUPPORT
   const cleanPhone = (globalConfig.supportPhone || '9118001234567').replace(/[^0-9]/g, '');
   const isProductPage = pathname?.startsWith('/product');
+  const isHomePage = pathname === '/' || pathname === '';
 
   return (
     <div className="app-container">
@@ -233,8 +234,8 @@ export default function ClientLayout({ children }) {
         {children}
       </main>
 
-      {/* VIP Corporate E-Commerce Footer */}
-      {!isPortalPage && !isProductPage && <Footer onNavigate={handleNavigate} />}
+      {/* VIP Corporate E-Commerce Footer (Home page only) */}
+      {isHomePage && <Footer onNavigate={handleNavigate} />}
 
       {/* Real-Time Live Social Proof Buyer Toast */}
       {!isPortalPage && <LivePurchasePopup />}
