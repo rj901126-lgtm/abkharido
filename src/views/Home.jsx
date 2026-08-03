@@ -377,16 +377,16 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
         <div className="home-brand-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
           {[
-            { name: "APPLE", desc: "Flagship Mac & iPhone", icon: "🍏", accent: "#38bdf8", border: "rgba(56, 189, 248, 0.25)", tag: "DIRECT PARTNER" },
-            { name: "SAMSUNG", desc: "Galaxy AI & Ultra 5G", icon: "✨", accent: "#818cf8", border: "rgba(129, 140, 248, 0.25)", tag: "FLUSH STOCK" },
-            { name: "SONY AUDIO", desc: "Noise Cancel & Studio", icon: "🎧", accent: "#a78bfa", border: "rgba(167, 139, 250, 0.25)", tag: "AUDIOPHILE" },
-            { name: "NIKE SPORT", desc: "VaporFly & Air Max", icon: "⚡", accent: "#f43f5e", border: "rgba(244, 63, 94, 0.25)", tag: "AUTHORIZED" },
-            { name: "BOSE LUXE", desc: "Acoustic QuietComfort", icon: "🎼", accent: "#34d399", border: "rgba(52, 211, 153, 0.25)", tag: "PREMIUM" },
-            { name: "ROLEX / TAG", desc: "Titanium Swiss Couture", icon: "⌚", accent: "#fde047", border: "rgba(253, 224, 71, 0.25)", tag: "HERITAGE" }
+            { name: "APPLE", desc: "Flagship Mac & iPhone", icon: "🍏", accent: "#38bdf8", border: "rgba(56, 189, 248, 0.25)", tag: "DIRECT PARTNER", query: "Apple" },
+            { name: "SAMSUNG", desc: "Galaxy AI & Ultra 5G", icon: "🌌", accent: "#818cf8", border: "rgba(129, 140, 248, 0.25)", tag: "FLUSH STOCK", query: "Samsung" },
+            { name: "SONY AUDIO", desc: "Noise Cancel & Studio", icon: "🎧", accent: "#a78bfa", border: "rgba(167, 139, 250, 0.25)", tag: "AUDIOPHILE", query: "Sony" },
+            { name: "NIKE SPORT", desc: "VaporFly & Air Max", icon: "👟", accent: "#f43f5e", border: "rgba(244, 63, 94, 0.25)", tag: "AUTHORIZED", query: "Nike" },
+            { name: "BOSE LUXE", desc: "Acoustic QuietComfort", icon: "🔊", accent: "#34d399", border: "rgba(52, 211, 153, 0.25)", tag: "PREMIUM", query: "Bose" },
+            { name: "ROLEX / TAG", desc: "Titanium Swiss Couture", icon: "⌚", accent: "#fde047", border: "rgba(253, 224, 71, 0.25)", tag: "HERITAGE", query: "Rolex" }
           ].map((brand, bIdx) => (
             <div 
               key={bIdx}
-              onClick={() => onNavigate('catalog')}
+              onClick={() => onNavigate('catalog?search=' + encodeURIComponent(brand.query))}
               style={{
                 background: 'linear-gradient(145deg, #0f172a 0%, #090d16 100%)',
                 border: `1px solid ${brand.border}`,
