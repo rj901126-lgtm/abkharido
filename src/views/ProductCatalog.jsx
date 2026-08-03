@@ -319,6 +319,15 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     // Base products: either from Search Engine or Context Cache
     let filtered = serverProducts !== null ? [...serverProducts] : [...contextProducts];
 
+    // ── Guaranteed Category Filter (prevent cross-category leakage on fallback) ──
+    if (currentCategory && currentCategory !== 'all') {
+      const cat = currentCategory.toLowerCase().trim();
+      filtered = filtered.filter(p => {
+        const prodCat = p.category ? p.category.toLowerCase().trim() : '';
+        return prodCat === cat || prodCat.includes(cat) || cat.includes(prodCat);
+      });
+    }
+
     // Client-side smart query overrides for promo tags
     if (searchQuery && searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase().trim();
