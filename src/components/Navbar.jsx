@@ -40,9 +40,28 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const [isListening, setIsListening] = useState(false);
   const searchInputRef = useRef(null);
 
+  const playBeep = (freq = 800, duration = 0.15) => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+  };
+
   const handleVoiceSearch = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       alert('Voice search is not supported in this browser. Please use Chrome.');
+      return;
+    }
+    if (isListening) {
+      setIsListening(false);
       return;
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -51,8 +70,10 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     setIsListening(true);
+    playBeep(880, 0.15); // Pleasant chime on activation
     recognition.start();
     recognition.onresult = (event) => {
+      playBeep(1200, 0.2); // Pleasant success chime
       const transcript = event.results[0][0].transcript;
       const normalized = normalizeSearchQuery(transcript);
       setSearchQuery(normalized);
@@ -115,54 +136,117 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
           {/* Search form */}
           <form className="search-form" onSubmit={handleSearchSubmit}>
-            <div className="search-input-wrapper" style={{ position: 'relative' }}>
+            <div className="search-input-wrapper" style={{ position: 'relative', border: isListening ? '1.5px solid #ef4444' : undefined, boxShadow: isListening ? '0 0 16px rgba(239, 68, 68, 0.35)' : undefined, transition: 'all 0.3s ease' }}>
               <input
                 ref={searchInputRef}
                 type="text"
                 className="search-input"
-                placeholder="Search for products, brands and more..."
+                placeholder={isListening ? "🎙️ Listening... Speak your product name now..." : "Search for products, brands and more..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
-                style={{ paddingRight: '40px' }}
+                style={{ paddingRight: searchQuery ? '88px' : '62px', background: isListening ? 'rgba(239, 68, 68, 0.04)' : undefined }}
               />
-              {searchQuery && (
+              {searchQuery && !isListening && (
                 <button 
                   type="button" 
                   onClick={() => { setSearchQuery(''); if (searchInputRef.current) searchInputRef.current.focus(); }}
-                  style={{ position: 'absolute', right: '40px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  style={{ position: 'absolute', right: '64px', top: '50%', transform: 'translateY(-50%)', background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '22px', height: '22px', color: '#64748b', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 6, transition: 'all 0.2s' }}
                 >
                   ✕
                 </button>
               )}
-              <button type="submit" className="search-button">
-                <Search size={18} />
-              </button>
-              {/* Voice Search Mic */}
+              {/* Voice Search Mic Button - cleanly spaced to never overlap clear button */}
               <button
                 type="button"
                 onClick={handleVoiceSearch}
                 title="Search by voice"
                 style={{
                   position: 'absolute',
-                  right: '44px',
+                  right: '34px',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  padding: '4px',
-                  cursor: 'pointer',
+                  background: isListening ? '#ef4444' : 'rgba(241, 245, 249, 0.8)',
+                  color: isListening ? '#ffffff' : '#475569',
+                  border: isListening ? '1px solid #dc2626' : '1px solid #e2e8f0',
+                  borderRadius: '100px',
+                  width: '28px',
+                  height: '28px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: isListening ? '#ef4444' : '#94a3b8',
-                  animation: isListening ? 'pulse 1s infinite' : 'none',
-                  transition: 'color 0.2s'
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: isListening ? '0 0 12px rgba(239, 68, 68, 0.6)' : 'none',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  zIndex: 5
                 }}
               >
-                <Mic size={16} />
+                <Mic size={14} style={{ animation: isListening ? 'pulse 0.8s infinite' : 'none' }} />
+              </button>
+              <button type="submit" className="search-button">
+                <Search size={18} />
               </button>
             </div>
+            {/* Active Voice Listening Visual Dialog Banner */}
+            {isListening && (
+              <div style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                left: 0,
+                right: 0,
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                padding: '14px 16px',
+                borderRadius: '16px',
+                border: '1px solid rgba(239, 68, 68, 0.5)',
+                boxShadow: '0 16px 40px rgba(9, 13, 22, 0.45)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                zIndex: 9999
+              }}>
+                <div style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1.5px solid #ef4444',
+                  flexShrink: 0
+                }}>
+                  <Mic size={18} color="#ef4444" style={{ animation: 'pulse 0.6s infinite' }} />
+                </div>
+                <div style={{ flex: 1, textAlign: 'left' }}>
+                  <div style={{ fontSize: '13px', fontWeight: '900', color: '#f8fafc', letterSpacing: '-0.2px' }}>
+                    🎙️ Listening... Boliye kya chahiye!
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px', fontWeight: '500' }}>
+                    E.g. &quot;Samsung Mobile&quot;, &quot;Shoes&quot;, &quot;Watch&quot;, ya &quot;Tshirt&quot;
+                  </div>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setIsListening(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    color: '#ffffff',
+                    padding: '6px 12px',
+                    borderRadius: '100px',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    transition: 'background 0.2s'
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
             {showSuggestions && products && (
               <div className="search-suggestions-dropdown" style={{
                 position: 'absolute',
