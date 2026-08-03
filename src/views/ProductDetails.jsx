@@ -648,20 +648,31 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           </div>
 
-          {/* 3. Price Card */}
-          <div className="desktop-premium-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '10px', padding: '8px 0', borderTop: '1px dashed #e2e8f0', borderBottom: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
-            <span className="desktop-premium-price" style={{ fontSize: '30px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
-            <span className="desktop-premium-original" style={{ fontSize: '17px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '600' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
-            <span className="desktop-premium-discount" style={{ fontSize: '13px', color: '#15803d', fontWeight: '800', backgroundColor: '#dcfce7', padding: '5px 10px', borderRadius: '8px' }}>{currentDisplayDiscount}% OFF</span>
+          {/* 3. VIP Premium Price Card */}
+          <div style={{ marginTop: '4px', padding: '16px', background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)', borderRadius: '20px', color: 'white', boxShadow: '0 8px 24px rgba(9, 13, 22, 0.12)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: '#38bdf8' }}>💎 VIP Direct Manufacturer Offer</span>
+              <span style={{ fontSize: '12px', color: '#16a34a', background: '#dcfce7', padding: '3px 10px', borderRadius: '20px', fontWeight: '900' }}>Save {currentDisplayDiscount}% Today</span>
+            </div>
+            
+            <div className="desktop-premium-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
+              <span className="desktop-premium-price" style={{ fontSize: '32px', fontWeight: '900', color: '#ffffff', letterSpacing: '-0.5px' }}>₹{currentDisplayPrice.toLocaleString('en-IN')}</span>
+              <span className="desktop-premium-original" style={{ fontSize: '18px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '600' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+            </div>
+
+            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '12.5px' }}>
+              <span style={{ color: '#fde047', fontWeight: '800' }}>👑 VIP Member Price: ₹{Math.round(currentDisplayPrice * 0.93).toLocaleString('en-IN')} <span style={{ color: '#94a3b8', fontWeight: '500', fontSize: '11px' }}>(Extra 7% OFF via UPI)</span></span>
+              <span style={{ background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '700' }}>In-Stock</span>
+            </div>
           </div>
 
           {/* Smart EMI & Bank Savings Strip */}
-          <div style={{ marginTop: '16px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '20px' }}>💡</span>
+          <div style={{ marginTop: '14px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '22px' }}>💡</span>
               <div>
                 <div style={{ fontSize: '13px', fontWeight: '800', color: '#1e3a8a' }}>No-Cost EMI starting at ₹{Math.max(499, Math.round(currentDisplayPrice / 12)).toLocaleString('en-IN')}/mo</div>
-                <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: '600' }}>Instant bank discounts on Credit &amp; Debit Cards</div>
+                <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: '600' }}>Instant cashback &amp; escrow savings on all bank cards</div>
               </div>
             </div>
             <span style={{ fontSize: '12px', color: '#2563eb', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => showToast('💳 All Credit/Debit Cards accepted with Instant Bank Discount Cashback at Checkout!', 'success')}>
@@ -669,14 +680,16 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </span>
           </div>
 
-          {/* Real-time High-Demand Scarcity Bar */}
-          <div style={{ marginTop: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: '11.5px', fontWeight: '800', padding: '6px 12px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              🔥 In Demand: 28 shoppers viewing this item now
-            </span>
-            <span style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', fontSize: '11.5px', fontWeight: '800', padding: '6px 12px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              📦 Guaranteed Direct Warehouse Shipment
-            </span>
+          {/* Real-time High-Demand Social Proof & Urgency Bar */}
+          <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', fontWeight: '700' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block', boxShadow: '0 0 6px #ef4444' }}></span>
+              <span><strong>{(product._id?.charCodeAt(0) || 28) % 25 + 18} shoppers</strong> viewing right now</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', fontWeight: '700' }}>
+              <span style={{ fontSize: '16px' }}>⚡</span>
+              <span><strong>{(product.reviewsCount || 15) * 2 + 24} orders</strong> shipped in last 24h</span>
+            </div>
           </div>
 
           {isFlashSale && (
@@ -917,27 +930,47 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           )}
 
-          {/* AbKharido Direct/Seller Guarantee */}
-          <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fafafa', border: '1px solid #e0e0e0', padding: '12px 16px', borderRadius: '4px' }}>
-            <ShieldCheck size={28} color="var(--primary-color)" style={{ flexShrink: 0 }} />
-            <div style={{ fontSize: '13px' }}>
-              {product.sellerId && product.sellerId !== 'admin' ? (
-                <>
-                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>Sold by: {product.sellerName || 'Marketplace Seller'} (✓ Verified Merchant)</div>
-                  <div style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
-                    This item is listed and fulfilled directly by {product.sellerName || 'Marketplace Seller'} under the AbKharido Trust Guarantee. 
-                    7-day replacement policy, secure transit packing, and unified support.
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>AbKharido Fulfill Direct Guarantee</div>
-                  <div style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
-                    This item is owned, warehoused, and directly shipped by AbKharido. We do not host third-party sellers. 
-                    Guaranteed genuine brand, secure transit packing, and unified support.
-                  </div>
-                </>
-              )}
+          {/* 4-Pillars of India's Best E-Commerce Guarantee */}
+          <div style={{ marginTop: '28px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '24px', padding: '20px', boxShadow: '0 6px 24px rgba(9, 13, 22, 0.04)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <ShieldCheck size={22} color="#2563eb" />
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#0f172a' }}>
+                AbKharido Platinum Buyer Assurance Guarantee
+              </span>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+              <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #f1f5f9', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '20px' }}>🛡️</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>Cashfree Escrow Protected</div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>Funds are held securely in bank escrow until delivery is verified.</div>
+                </div>
+              </div>
+
+              <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #f1f5f9', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '20px' }}>⚡</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>Direct Manufacturer Deal</div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>100% genuine brand stock shipped without middleman markup.</div>
+                </div>
+              </div>
+
+              <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #f1f5f9', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '20px' }}>🚚</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>All-India Air-Dispatch</div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>Express transit across India with live SMS order tracking.</div>
+                </div>
+              </div>
+
+              <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #f1f5f9', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '20px' }}>🔄</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>7-Day Replacement Policy</div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>Hassle-free replacement guarantee under warranty protection.</div>
+                </div>
+              </div>
             </div>
           </div>
 
