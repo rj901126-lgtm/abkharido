@@ -254,7 +254,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
       </section>
 
-      <FlashDealBanner />
 
       {slides.length > 0 && (
         <section 
@@ -291,27 +290,27 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                     {slideDesc}
                   </p>
                   
-                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button 
                       className="btn animate-fade-in" 
                       style={{ 
                         background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%)',
                         color: 'white',
                         borderRadius: '30px', 
-                        padding: '16px 36px', 
+                        padding: '12px 24px', 
                         display: 'inline-flex', 
                         alignItems: 'center', 
-                        gap: '10px', 
+                        gap: '8px', 
                         border: '1px solid rgba(255, 255, 255, 0.3)', 
                         fontFamily: "'Outfit', sans-serif",
                         fontWeight: '800', 
-                        fontSize: '16px',
-                        boxShadow: '0 14px 32px -5px rgba(99, 102, 241, 0.6)',
+                        fontSize: '14px',
+                        boxShadow: '0 8px 20px -4px rgba(99, 102, 241, 0.5)',
                         cursor: 'pointer'
                       }}
                       onClick={() => onSelectCategory(slideCat)}
                     >
-                      ⚡ Grab Deal Now <ArrowRight size={18} />
+                      ⚡ Grab Deal Now <ArrowRight size={16} />
                     </button>
                   </div>
                 </div>
@@ -327,6 +326,9 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </button>
         </section>
       )}
+
+      {/* ⚡ Flash Deal Strip — compact, below hero */}
+      <FlashDealBanner />
 
       <div className="home-trust-grid" style={{ margin: '8px 0 16px 0' }}>
         {[
