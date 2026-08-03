@@ -11,18 +11,15 @@ const AdminAnalytics = () => {
   const [salesData, setSalesData] = useState([]);
   const [chartMode, setChartMode] = useState('30days'); // '30days' | '90days' | 'ai_forecast'
   const [kpis, setKpis] = useState({
-    totalUsers: 1842,
-    totalProducts: 45,
-    totalOrders: 1240,
-    liveOrders: 14,
-    totalRevenue: 1845290,
-    clv: 4250,
-    retentionRate: 78.4
+    totalUsers: 0,
+    totalProducts: 0,
+    totalOrders: 0,
+    liveOrders: 0,
+    totalRevenue: 0,
+    clv: 0,
+    retentionRate: 0
   });
-  const [predictions, setPredictions] = useState([
-    { productId: 'P-101', name: 'Apple iPhone 15 Pro Max (512GB, Titanium)', daysUntilOos: 2, velocity: 12 },
-    { productId: 'P-102', name: 'Sony WH-1000XM5 Wireless Headphones', daysUntilOos: 4, velocity: 8 }
-  ]);
+  const [predictions, setPredictions] = useState([]);
   const [liveOrderFeed, setLiveOrderFeed] = useState([]);
   const [categoryStats, setCategoryStats] = useState([]);
   const [loading, setLoading] = useState(true);

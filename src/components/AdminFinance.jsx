@@ -16,8 +16,8 @@ const AdminFinance = () => {
     phone: '',
     accountNumber: '',
     ifscCode: '',
-    totalEarned: '45000',
-    pendingBalance: '12500'
+    totalEarned: '0',
+    pendingBalance: '0'
   });
 
   // Financial Security Toggles
