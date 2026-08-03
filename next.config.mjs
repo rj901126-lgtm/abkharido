@@ -11,7 +11,7 @@ const nextConfig = {
   // Enable standalone output for AWS Docker, but disable it if running on Vercel
   output: process.env.VERCEL ? undefined : 'standalone',
   async rewrites() {
-    const backendUrl = process.env.BACKEND_API_URL || 'http://16.16.195.180:5000';
+    const backendUrl = process.env.BACKEND_API_URL || 'http://127.0.0.1:5000';
     return {
       fallback: [
         {
