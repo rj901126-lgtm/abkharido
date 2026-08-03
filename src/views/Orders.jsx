@@ -1,10 +1,24 @@
 import React, { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 // eslint-disable-next-line
 import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp, ChevronRight, Download, Search, Filter } from 'lucide-react';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Orders = ({ onNavigate }) => {
+  const router = useRouter();
+  const navigateTo = (path) => {
+    if (onNavigate && typeof onNavigate === 'function') {
+      onNavigate(path);
+    } else if (path === 'home' || path === '') {
+      router.push('/');
+    } else if (!path.startsWith('/')) {
+      router.push('/' + path);
+    } else {
+      router.push(path);
+    }
+  };
+
   const { orders, hasMoreOrders, currentUser, fetchOrders, cancelOrder, addToCart, showToast } = useApp();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,7 +142,7 @@ const Orders = ({ onNavigate }) => {
         boxShadow: '0 12px 40px rgba(30, 27, 75, 0.3)',
         border: '1px solid rgba(255,255,255,0.08)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: (orders.length === 0 && !searchQuery && statusFilter === 'all') ? '0px' : '16px' }}>
           <div style={{
             width: '44px', height: '44px',
             background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
@@ -143,44 +157,48 @@ const Orders = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Search inside header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '10px',
-          background: 'rgba(255,255,255,0.1)', borderRadius: '12px',
-          padding: '10px 14px', border: '1px solid rgba(255,255,255,0.12)',
-          marginBottom: '12px',
-        }}>
-          <Search size={16} color="rgba(255,255,255,0.5)" />
-          <input
-            type="text"
-            placeholder="Search orders, products or IDs..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              flex: 1, border: 'none', background: 'transparent',
-              color: '#ffffff', fontSize: '13px', outline: 'none',
-            }}
-          />
-        </div>
+        {/* Search & filter inside header - hidden when user has zero order history to eliminate clutter */}
+        {(orders.length > 0 || searchQuery !== '' || statusFilter !== 'all') && (
+          <>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              background: 'rgba(255,255,255,0.1)', borderRadius: '12px',
+              padding: '10px 14px', border: '1px solid rgba(255,255,255,0.12)',
+              marginBottom: '12px',
+            }}>
+              <Search size={16} color="rgba(255,255,255,0.5)" />
+              <input
+                type="text"
+                placeholder="Search orders, products or IDs..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  flex: 1, border: 'none', background: 'transparent',
+                  color: '#ffffff', fontSize: '13px', outline: 'none',
+                }}
+              />
+            </div>
 
-        {/* Filter pills */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {[{v:'all',l:'All'},{v:'processing',l:'In Progress'},{v:'delivered',l:'Delivered'},{v:'cancelled',l:'Cancelled'}].map(opt => (
-            <button key={opt.v} onClick={() => setStatusFilter(opt.v)} style={{
-              padding: '6px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
-              border: statusFilter === opt.v ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.15)',
-              background: statusFilter === opt.v ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : 'rgba(255,255,255,0.08)',
-              color: statusFilter === opt.v ? '#ffffff' : 'rgba(255,255,255,0.6)',
-              cursor: 'pointer', transition: 'all 0.2s',
-            }}>{opt.l}</button>
-          ))}
-        </div>
+            {/* Filter pills */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {[{v:'all',l:'All'},{v:'processing',l:'In Progress'},{v:'delivered',l:'Delivered'},{v:'cancelled',l:'Cancelled'}].map(opt => (
+                <button key={opt.v} onClick={() => setStatusFilter(opt.v)} style={{
+                  padding: '6px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
+                  border: statusFilter === opt.v ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.15)',
+                  background: statusFilter === opt.v ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : 'rgba(255,255,255,0.08)',
+                  color: statusFilter === opt.v ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                }}>{opt.l}</button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {orders.length === 0 ? (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          padding: '48px 24px 120px 24px', textAlign: 'center',
+          padding: '40px 20px 120px 20px', textAlign: 'center',
         }}>
           {/* Animated icon */}
           <div style={{
@@ -197,25 +215,66 @@ const Orders = ({ onNavigate }) => {
           <h2 style={{ fontSize: '24px', fontWeight: '900', color: '#090d16', fontFamily: "'Outfit', sans-serif", marginBottom: '10px' }}>
             {searchQuery || statusFilter !== 'all' ? 'No Orders Found' : 'No Orders Yet'}
           </h2>
-          <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '260px', lineHeight: '1.6', marginBottom: '28px' }}>
+          <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '280px', lineHeight: '1.6', marginBottom: '28px' }}>
             {searchQuery || statusFilter !== 'all'
               ? "Try a different search or filter to find your orders."
-              : "You haven't placed any orders yet on AbKharido.com. Start exploring VIP deals!"}
+              : "You haven't placed any orders yet on AbKharido.com. Start exploring VIP deals and live savings!"}
           </p>
           {!searchQuery && statusFilter === 'all' && (
-            <button
-              onClick={() => onNavigate('catalog')}
-              style={{
-                padding: '15px 32px',
-                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                color: 'white', border: 'none', borderRadius: '14px',
-                fontSize: '15px', fontWeight: '800', cursor: 'pointer',
-                boxShadow: '0 8px 24px rgba(79, 70, 229, 0.4)',
-                fontFamily: "'Outfit', sans-serif",
-              }}
-            >
-              🛍️ Start Shopping
-            </button>
+            <div style={{ width: '100%', maxWidth: '440px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '28px' }}>
+              <button
+                onClick={() => navigateTo('home')}
+                style={{
+                  width: '100%',
+                  padding: '16px 32px',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  color: 'white', border: 'none', borderRadius: '16px',
+                  fontSize: '16px', fontWeight: '800', cursor: 'pointer',
+                  boxShadow: '0 8px 28px rgba(79, 70, 229, 0.45)',
+                  fontFamily: "'Outfit', sans-serif",
+                  transition: 'transform 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                🛍️ Start Shopping Now
+              </button>
+
+              <div style={{ width: '100%', textAlign: 'left' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px', textAlign: 'center' }}>
+                  ✨ Popular Categories to Explore
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                  {[
+                    { title: '⚡ Lightning Deals', sub: 'Up to 80% Off', color: '#d97706', bg: '#fffbeb', border: '#fde68a', path: 'home' },
+                    { title: '📱 Smartphones', sub: '5G & VIP Models', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', path: 'catalog' },
+                    { title: '👑 VIP Vault', sub: 'Member Exclusives', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe', path: 'home' },
+                    { title: '🎧 Tech & Gadgets', sub: 'Trending Sellers', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', path: 'catalog' }
+                  ].map((card, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => navigateTo(card.path)}
+                      style={{
+                        background: card.bg,
+                        border: `1.5px solid ${card.border}`,
+                        borderRadius: '16px',
+                        padding: '14px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                        transition: 'transform 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <span style={{ fontWeight: '800', fontSize: '13px', color: '#090d16', fontFamily: "'Outfit', sans-serif" }}>{card.title}</span>
+                      <span style={{ fontWeight: '700', fontSize: '11px', color: card.color }}>{card.sub} →</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       ) : (
@@ -621,7 +680,7 @@ const Orders = ({ onNavigate }) => {
                     onClick={() => {
                       const productToAdd = { id: item.product, name: item.name, price: item.price, image: item.image, selectedColor: item.selectedColor, selectedVariant: item.selectedVariant };
                       addToCart(productToAdd, 1);
-                      onNavigate('cart');
+                      navigateTo('cart');
                     }}
                   >
                     Buy Again
