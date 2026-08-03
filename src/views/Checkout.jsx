@@ -388,7 +388,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   }
 
   return (
-    <div className="container animate-fade-in desktop-premium-checkout" style={{ padding: '24px 0 100px 0', maxWidth: '800px' }}>
+    <div className="container animate-fade-in desktop-premium-checkout" style={{ padding: '24px 0 150px 0', maxWidth: '800px' }}>
       
       {/* Wizard Step Progress Tracker */}
       {step < 4 && (

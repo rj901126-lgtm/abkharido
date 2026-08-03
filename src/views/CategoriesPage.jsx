@@ -205,6 +205,24 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             </h2>
           </div>
 
+          {/* VIP Vault Exclusives Membership Banner */}
+          <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)', borderRadius: '18px', padding: '16px', marginBottom: '18px', color: 'white', border: '1px solid rgba(253, 224, 71, 0.35)', boxShadow: '0 8px 24px rgba(30, 27, 75, 0.25)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: '900', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: '#ffffff', padding: '4px 12px', borderRadius: '100px', letterSpacing: '0.4px', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)' }}>
+                👑 VIP VAULT UNLOCKED
+              </span>
+              <span style={{ fontSize: '11.5px', color: '#fde047', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                ⚡ MEMBER EXCLUSIVE
+              </span>
+            </div>
+            <div style={{ fontSize: '15.5px', fontWeight: '900', letterSpacing: '-0.2px', marginBottom: '5px', lineHeight: '1.3' }}>
+              Instant Extra 15% Savings with AB Coins!
+            </div>
+            <p style={{ fontSize: '12px', color: '#cbd5e1', margin: 0, lineHeight: '1.45', fontWeight: '500' }}>
+              Unlock wholesale direct factory prices across all {CATEGORIES.find(c => c.id === selectedCatId)?.name || 'All'} items. Zero hidden charges or processing fees.
+            </p>
+          </div>
+
           {/* Category Banner Carousel */}
           {(() => {
             const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[selectedCatId];

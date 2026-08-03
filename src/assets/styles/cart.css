@@ -275,7 +275,7 @@
 /* Mobile Sticky Checkout Bar (100-Crore Enterprise Match) */
 .mobile-cart-sticky-bar {
   position: fixed;
-  bottom: 68px !important; /* Pushed up above the bottom navigation bar */
+  bottom: 82px !important; /* Pushed up above the 78px floating navigation island */
   left: 0 !important;
   right: 0 !important;
   z-index: 1999;
@@ -322,7 +322,7 @@
     display: none !important;
   }
   .cart-layout-grid {
-    padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: calc(180px + env(safe-area-inset-bottom)) !important;
   }
 }
 
