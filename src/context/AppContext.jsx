@@ -274,17 +274,17 @@ export const AppProvider = ({ children }) => {
       let res;
       // Try reliable lookup by MongoDB ID first if available
       if (id && id !== 'vip_user') {
-        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${id}`, { headers });
+        res = await fetch(`/api/users/${id}`, { headers });
       }
       
       // Fallback to username
       if (!res || !res.ok) {
-        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${username}`, { headers });
+        res = await fetch(`/api/users/${username}`, { headers });
       }
       
       // If username lookup fails (404) and we have a phone, try phone-based lookup
       if ((!res || !res.ok) && phone && phone !== username) {
-        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${phone}`, { headers });
+        res = await fetch(`/api/users/${phone}`, { headers });
       }
 
       if (res && res.ok) {
@@ -530,7 +530,7 @@ export const AppProvider = ({ children }) => {
         ? currentUser._id 
         : (currentUser.username || currentUser.name);
         
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${targetIdentifier}/update`, {
+      const res = await fetch(`/api/users/${targetIdentifier}/update`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
