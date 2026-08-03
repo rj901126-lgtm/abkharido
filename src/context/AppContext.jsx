@@ -56,10 +56,11 @@ export const AppProvider = ({ children }) => {
 
   const currentUser = session ? { 
     ...session.user, 
+    _id: session.user?.id || session.user?._id || session?.id || 'vip_user',
     token: session.accessToken, 
     username: session.user.name, 
     ...(dbUser || {}) 
-  } : (localSession ? { ...localSession, ...(dbUser || {}) } : null);
+  } : (localSession ? { _id: localSession._id || localSession.id || 'vip_user', ...localSession, ...(dbUser || {}) } : null);
 
   const [cart, setCart] = useState(() => {
     try {
