@@ -95,6 +95,9 @@ export async function POST(req, { params }) {
     if (body.email) user.email = body.email;
     if (body.phone) user.phone = body.phone;
     if (body.address) user.address = body.address;
+    if (body.houseNo) user.houseNo = body.houseNo;
+    if (body.streetArea) user.streetArea = body.streetArea;
+    if (body.addressType) user.addressType = body.addressType;
     if (body.pincode) user.pincode = body.pincode;
     if (body.city) user.city = body.city;
     if (body.state) user.state = body.state;

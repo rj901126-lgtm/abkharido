@@ -66,7 +66,12 @@ export const updateUserProfile = async (req, res, next) => {
       if (req.body.email) user.email = req.body.email;
       if (req.body.phone) user.phone = req.body.phone;
       if (req.body.address) user.address = req.body.address;
+      if (req.body.houseNo) user.houseNo = req.body.houseNo;
+      if (req.body.streetArea) user.streetArea = req.body.streetArea;
+      if (req.body.addressType) user.addressType = req.body.addressType;
       if (req.body.pincode) user.pincode = req.body.pincode;
+      if (req.body.city) user.city = req.body.city;
+      if (req.body.state) user.state = req.body.state;
       
       const updatedUser = await user.save();
       res.json(updatedUser);
