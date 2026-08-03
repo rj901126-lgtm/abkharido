@@ -26,10 +26,15 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
   const normalizedPhone = normalizePhone(phone);
 
   // Search by normalized 10-digit phone OR with +91 prefix (to find any existing account)
+  // Since 'phone' is encrypted by mongoose-field-encryption, we cannot query it directly.
+  // Instead, we search by username which is always created as `${phone}_${random}` or just `${phone}`.
   let user = await User.findOne({ $or: [
+    { username: new RegExp('^' + normalizedPhone + '(_|$)') },
+    { username: new RegExp('^\\+91' + normalizedPhone + '(_|$)') },
+    { username: new RegExp('^91' + normalizedPhone + '(_|$)') },
+    // Also try to find by phone just in case it wasn't encrypted (e.g. legacy records)
     { phone: normalizedPhone },
-    { phone: '+91' + normalizedPhone },
-    { phone: '91' + normalizedPhone },
+    { phone: '+91' + normalizedPhone }
   ] });
 
   if (!user) {

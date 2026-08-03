@@ -46,7 +46,19 @@ export const AppProvider = ({ children }) => {
   }, []);
   
   const { data: session, status } = useSession();
-  const [dbUser, setDbUser] = useState(null);
+  const [dbUser, setDbUser] = useState(() => {
+    try {
+      const cached = localStorage.getItem('abkharido_cached_profile');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Use cache if it's less than 10 minutes old
+        if (parsed._cachedAt && Date.now() - parsed._cachedAt < 10 * 60 * 1000) {
+          return parsed;
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  });
   const [localSession, setLocalSession] = useState(() => {
     try {
       const saved = localStorage.getItem('abkharido_user_session');
@@ -121,10 +133,13 @@ export const AppProvider = ({ children }) => {
   // --- Fetch User Data when Session Loads ---
   useEffect(() => {
     if (session?.user?.name) {
-      fetchUser(session.user.name);
-      fetchOrders(session.user.email);
+      // Try both username, phone, and ID to find the right user record
+      const phone = session.user.phone || '';
+      const id = session.user.id || session.user._id || '';
+      fetchUser(session.user.name, phone, id);
+      fetchOrders(session.user.email || phone);
     }
-  }, [session?.user?.name, session?.user?.email]);
+  }, [session?.user?.name, session?.user?.phone, session?.user?.id]);
 
   // --- Sync Temporary Cart details ---
   useEffect(() => {
@@ -251,15 +266,39 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const fetchUser = async (username) => {
+  const fetchUser = async (username, phone = '', id = '') => {
     try {
-      const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session'))?.token;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${username}`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
-      if (res.ok) {
+      const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      
+      let res;
+      // Try reliable lookup by MongoDB ID first if available
+      if (id && id !== 'vip_user') {
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${id}`, { headers });
+      }
+      
+      // Fallback to username
+      if (!res || !res.ok) {
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${username}`, { headers });
+      }
+      
+      // If username lookup fails (404) and we have a phone, try phone-based lookup
+      if ((!res || !res.ok) && phone && phone !== username) {
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${phone}`, { headers });
+      }
+
+      if (res && res.ok) {
         const userData = await res.json();
-        setDbUser(userData);
+        if (userData && !userData.error) {
+          setDbUser(userData);
+          // Cache in localStorage so profile loads instantly on next visit
+          try {
+            localStorage.setItem('abkharido_cached_profile', JSON.stringify({
+              ...userData,
+              _cachedAt: Date.now()
+            }));
+          } catch (e) { /* storage full */ }
+        }
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to sync user profile:', err);
@@ -486,8 +525,12 @@ export const AppProvider = ({ children }) => {
     if (!currentUser) return false;
     try {
       const token = currentUser.token;
-      const targetUsername = currentUser.username || currentUser.name;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${targetUsername}/update`, {
+      // ALWAYS use _id to update if available, otherwise fallback
+      const targetIdentifier = (currentUser._id && currentUser._id !== 'vip_user') 
+        ? currentUser._id 
+        : (currentUser.username || currentUser.name);
+        
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${targetIdentifier}/update`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -496,7 +539,7 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(details)
       });
       if (res.ok) {
-        fetchUser(targetUsername);
+        fetchUser(currentUser.username || currentUser.name, currentUser.phone, currentUser._id);
         showToast('Profile updated successfully!', 'success');
         return true;
       } else {

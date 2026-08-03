@@ -55,6 +55,19 @@ export const authOptions = {
             : (rawPhone.startsWith('91') && rawPhone.length === 12) ? rawPhone.slice(2)
             : rawPhone;
           
+        // Try to fetch existing user profile based on phone
+        // Since 'phone' is encrypted, query by username which starts with the phone number
+        const User = (await import('../../../../../server/models/User.js')).default;
+        
+        let dbUser = await User.findOne({ $or: [
+          { username: new RegExp('^' + normalizedPhone + '(_|$)') },
+          { username: new RegExp('^\\+91' + normalizedPhone + '(_|$)') },
+          { username: new RegExp('^91' + normalizedPhone + '(_|$)') },
+          // Legacy plain-text phone check
+          { phone: normalizedPhone },
+          { phone: '+91' + normalizedPhone }
+        ] });
+
           if (credentials.firebaseIdToken) {
              path = `/api/auth/verify-firebase`;
              bodyObj = { idToken: credentials.firebaseIdToken, phone: normalizedPhone };
