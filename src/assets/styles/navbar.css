@@ -528,3 +528,92 @@
   background-color: #f8fafc;
 }
 
+/* ══════════════════════════════════════════════════════
+   MOBILE DARK NAVBAR — Maximum Specificity Override
+   Forces dark theme on all mobile screens ≤768px
+   ══════════════════════════════════════════════════════ */
+@media screen and (max-width: 768px) {
+  /* Force dark background on header */
+  header.navbar-header,
+  .navbar-header {
+    background: #090d16 !important;
+    background-color: #090d16 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  /* Logo white text */
+  .navbar-header .logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+  }
+  .navbar-header .logo-plus {
+    color: #fbbf24 !important;
+    -webkit-text-fill-color: #fbbf24 !important;
+  }
+  .navbar-header .logo-sub {
+    color: rgba(255, 255, 255, 0.45) !important;
+  }
+  .navbar-header .logo-sub span {
+    color: rgba(255, 255, 255, 0.7) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  /* Nav items white */
+  .navbar-header .nav-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  .navbar-header .nav-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Login button — frosted pill on dark */
+  .navbar-header .nav-item-btn {
+    background: rgba(255, 255, 255, 0.10) !important;
+    background-color: rgba(255, 255, 255, 0.10) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 20px !important;
+  }
+  .navbar-header .nav-item-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+  }
+
+  /* Cart badge gold */
+  .navbar-header .cart-badge {
+    background: #f59e0b !important;
+    border-color: #090d16 !important;
+  }
+
+  /* Search bar pill on dark */
+  .navbar-header .search-input-wrapper {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 99px !important;
+  }
+  .navbar-header .search-input-wrapper:focus-within {
+    background: rgba(255, 255, 255, 0.13) !important;
+    border-color: rgba(99, 102, 241, 0.65) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18) !important;
+  }
+  .navbar-header .search-input {
+    color: #ffffff !important;
+    background: transparent !important;
+  }
+  .navbar-header .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+  }
+  .navbar-header .search-button {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+  .navbar-header .search-button svg {
+    stroke: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  /* Home category strip correct top offset */
+  .home-category-strip {
+    top: 104px !important;
+  }
+}

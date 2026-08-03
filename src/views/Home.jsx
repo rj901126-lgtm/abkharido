@@ -328,7 +328,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </section>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', margin: '16px 0 28px 0' }}>
+      <div className="home-trust-grid" style={{ margin: '8px 0 16px 0' }}>
         {[
           { icon: <Zap size={24} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe", accent: "#0284c7" },
           { icon: <ShieldCheck size={24} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade escrow security", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5", accent: "#059669" },
@@ -391,19 +391,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       )}
 
       {/* 🏛️ OFFICIAL BRAND PAVILIONS & AUTHORISED BOUTIQUES */}
-      <section style={{ marginTop: '28px', backgroundColor: '#ffffff', borderRadius: '32px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(9, 13, 22, 0.03)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '20px 16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.04)', margin: '0 12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-              <span>🏛️</span> Official Authorised Brand Pavilions
+            <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <span>🏛️</span> Top Brand Partners
             </h3>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b', fontWeight: '600' }}>Direct inventory shipped directly from licensed national brand distributors</p>
+            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Direct from licensed brand distributors</p>
           </div>
-          <span style={{ fontSize: '12px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '6px 14px', borderRadius: '20px', border: '1px solid #a7f3d0' }}>
-            ✓ 100% Genuine Brand Warranty
+          <span style={{ fontSize: '11px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '5px 12px', borderRadius: '20px', border: '1px solid #a7f3d0', whiteSpace: 'nowrap' }}>
+            ✓ 100% Genuine
           </span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '16px' }}>
+        <div className="home-brand-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
           {[
             { name: "APPLE", desc: "Flagship Mac & iPhone", icon: "🍏", accent: "#38bdf8", border: "rgba(56, 189, 248, 0.25)", tag: "DIRECT PARTNER" },
             { name: "SAMSUNG", desc: "Galaxy AI & Ultra 5G", icon: "✨", accent: "#818cf8", border: "rgba(129, 140, 248, 0.25)", tag: "FLUSH STOCK" },
