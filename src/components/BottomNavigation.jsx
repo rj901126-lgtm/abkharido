@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Home, LayoutGrid, ShoppingBag, Heart, User } from 'lucide-react';
+import { Home, Zap, ShoppingBag, Package, User } from 'lucide-react';
 import '../assets/styles/bottomnav.css';
 
 const BottomNavigation = ({ activePage, onNavigate }) => {
@@ -24,7 +24,7 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         onClick={() => onNavigate('categories')}
       >
         <div className="nav-icon-wrapper">
-          <LayoutGrid size={20} />
+          <Zap size={20} />
         </div>
         <span>VIP Vault</span>
       </button>
@@ -47,11 +47,8 @@ const BottomNavigation = ({ activePage, onNavigate }) => {
         className={`bottom-nav-item ${activePage === 'orders' ? 'active' : ''}`}
         onClick={() => onNavigate('orders')}
       >
-        <div className="nav-icon-wrapper">
-          <Heart size={20} />
-          {wishlist && wishlist.length > 0 && (
-            <span className="floating-wishlist-dot"></span>
-          )}
+        <div className="nav-icon-wrapper" style={{ position: 'relative' }}>
+          <Package size={20} />
         </div>
         <span>Orders</span>
       </button>

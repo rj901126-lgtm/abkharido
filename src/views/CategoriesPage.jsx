@@ -77,17 +77,21 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
   // eslint-disable-next-line
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Map category id to emoji for rich visual icons on mobile
+  // Map category id to clear, accurate emoji icons
   const CAT_EMOJIS = {
-    all: '🛍️',
-    electronics: '📱',
-    fashion: '👗',
-    home: '🏠',
-    beauty: '✨',
-    sports: '⚡',
-    mobiles: '📱',
-    appliances: '📺',
-    laptop: '💻',
+    all:         '🛍️',   // shopping bags = all
+    mobiles:     '📱',   // phone = mobiles ✓
+    electronics: '🎧',   // headphones = electronics (audio/gadgets)
+    fashion:     '👗',   // dress = fashion ✓
+    home:        '🏠',   // house = home & living ✓
+    beauty:      '💄',   // lipstick = beauty & personal care
+    sports:      '🏏',   // cricket bat = sports (India loves cricket)
+    appliances:  '🫧',   // washing = appliances
+    laptop:      '💻',   // laptop ✓
+    grocery:     '🛒',   // cart = grocery
+    toys:        '🧸',   // teddy = toys
+    books:       '📚',   // books ✓
+    jewelry:     '💍',   // ring = jewelry
   };
 
   const renderCatIcon = (cat) => {
