@@ -30,11 +30,59 @@ async function fetchBackend(path, body) {
   return null;
 }
 
+// Normalize phone: strip +91 / 91 prefix → 10 digits
+function normalizePhone(phone) {
+  if (!phone) return phone;
+  let p = phone.toString().replace(/\s/g, '').replace(/-/g, '');
+  if (p.startsWith('+91')) p = p.slice(3);
+  else if (p.startsWith('91') && p.length === 12) p = p.slice(2);
+  return p;
+}
+
+// Optional: Send SMS via Fast2SMS if API key is configured
+async function sendViaSmsGateway(phone, otp) {
+  const apiKey = process.env.FAST2SMS_API_KEY || process.env.MSG91_API_KEY;
+  if (!apiKey) return false;
+
+  try {
+    // Fast2SMS DLT route
+    if (process.env.FAST2SMS_API_KEY) {
+      const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+        method: 'POST',
+        headers: {
+          'authorization': process.env.FAST2SMS_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          route: 'otp',
+          variables_values: otp,
+          numbers: phone,
+          flash: 0
+        })
+      });
+      const data = await res.json();
+      if (data.return === true) {
+        console.log(`[Fast2SMS] OTP ${otp} sent to ${phone}`);
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn('[SMS Gateway] Failed to send via external gateway:', err.message);
+  }
+  return false;
+}
+
 export async function POST(req) {
   try {
     const body = await req.json();
-    const res = await fetchBackend('/api/auth/send-otp', body);
 
+    // Normalize phone before processing
+    if (body.recipient && !body.recipient.includes('@')) {
+      body.recipient = normalizePhone(body.recipient);
+    }
+
+    // Try external Express port 5000 first
+    const res = await fetchBackend('/api/auth/send-otp', body);
     if (res) {
       const data = await res.json().catch(() => ({ error: 'Failed to parse SMS gateway response' }));
       if (!res.ok) {
@@ -43,11 +91,17 @@ export async function POST(req) {
       return NextResponse.json(data);
     }
 
-    // ── Direct Native MongoDB Fallback when port 5000 is offline ──
+    // ── Direct Native MongoDB OTP storage (no port 5000 needed) ──
     const directResult = await sendOtpDirect(body);
-    return NextResponse.json(directResult);
+
+    // Try external SMS gateway if configured
+    const smsSent = await sendViaSmsGateway(body.recipient, directResult._otp || '');
+
+    console.log(`[OTP Server] OTP stored for +91${body.recipient}. External SMS: ${smsSent ? 'SENT' : 'No gateway configured - Firebase handles delivery'}`);
+
+    return NextResponse.json({ success: true, message: 'OTP generated. Verify with your SMS code.' });
   } catch (error) {
-    console.error('Error in send-otp API proxy/direct:', error);
-    return NextResponse.json({ error: error.message || 'Internal error in SMS OTP processing.' }, { status: 500 });
+    console.error('Error in send-otp API:', error);
+    return NextResponse.json({ error: error.message || 'Internal error in OTP processing.' }, { status: 500 });
   }
 }

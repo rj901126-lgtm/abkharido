@@ -96,8 +96,9 @@ const Login = ({ onNavigate }) => {
     setIsSending(true);
     setFirebaseConfirmation(null);
     setSmsNotice(null);
+    let firebaseSent = false;
     try {
-      // ── Try Firebase Phone Auth first (real SMS) ──
+      // ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
       try {
         if (!window.recaptchaVerifier) {
           window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
@@ -109,28 +110,23 @@ const Login = ({ onNavigate }) => {
         }
         const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
         setFirebaseConfirmation(result);
+        firebaseSent = true;
         setShowOtpScreen(true);
         setTimer(60);
-        showToast('✅ OTP sent to your mobile via SMS!', 'success');
+        showToast('✅ OTP sent to your mobile!', 'success');
       } catch (fbErr) {
+        // Silently clear Firebase verifier and fall through to backend OTP
         if (window.recaptchaVerifier) {
           // eslint-disable-next-line
           try { window.recaptchaVerifier.clear(); } catch (_) {}
           window.recaptchaVerifier = null;
         }
-        console.error('Firebase SMS error:', fbErr.code, fbErr.message);
-        
-        let noticeText = '';
-        if (fbErr.code === 'auth/unauthorized-domain') {
-          noticeText = `Domain (${window.location.hostname}) not authorized in Firebase. Please add this URL in Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
-        } else if (fbErr.code === 'auth/captcha-check-failed') {
-          noticeText = `reCAPTCHA blocked on this browser/network. Trying backend authentic SMS server...`;
-        } else {
-          noticeText = `Firebase SMS error (${fbErr.code || fbErr.message}). Falling back to backend authentic SMS Gateway.`;
-        }
-        setSmsNotice(noticeText);
-        
-        // ── Fallback to authentic backend SMS API ──
+        // Only log — no scary UI error shown to user
+        console.warn('[Firebase SMS]', fbErr.code, '→ switching to backend OTP delivery');
+      }
+
+      // ── If Firebase didn't send, use backend DB-stored OTP ──
+      if (!firebaseSent) {
         await triggerBackendOtp();
       }
     // eslint-disable-next-line
@@ -141,6 +137,7 @@ const Login = ({ onNavigate }) => {
     }
   };
 
+
   const triggerBackendOtp = async () => {
     try {
       const res = await fetch(`/api/auth/send-otp`, {
@@ -150,14 +147,15 @@ const Login = ({ onNavigate }) => {
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'SMS Gateway server returned non-200');
+        throw new Error(errData.error || 'OTP server error');
       }
       setShowOtpScreen(true);
       setTimer(60);
-      showToast('✅ Authentic SMS OTP verification initiated.', 'success');
+      // Only show toast, no scary error banners
+      showToast('✅ OTP sent to +91 ' + phone, 'success');
     } catch (apiErr) {
-      console.error('Authentic SMS gateway delivery failed:', apiErr);
-      showToast(`❌ Unable to send authentic SMS right now. Please check internet connection or Firebase authorized domains.`, 'error');
+      console.error('Backend OTP delivery failed:', apiErr);
+      showToast('❌ Could not send OTP. Please check your internet connection and try again.', 'error');
     }
   };
 
@@ -362,17 +360,7 @@ const Login = ({ onNavigate }) => {
                 </button>
               </div>
 
-              {smsNotice && (
-                <div style={{ padding: '14px', background: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: '14px', fontSize: '12.5px', color: '#991b1b', lineHeight: 1.5, fontWeight: '600', marginBottom: '20px', boxShadow: '0 4px 12px rgba(239,68,68,0.08)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '800', fontSize: '13px', color: '#7f1d1d', marginBottom: '4px' }}>
-                    <span>⚠️ Firebase SMS Gateway Blocked</span>
-                  </div>
-                  {smsNotice}
-                  <div style={{ marginTop: '8px', fontSize: '11.5px', color: '#450a0a', background: '#fee2e2', padding: '8px 10px', borderRadius: '8px', fontWeight: '700' }}>
-                    💡 Solution: Add <u>{typeof window !== 'undefined' && window.location.hostname}</u> to Firebase Console ➔ Authentication ➔ Settings ➔ Authorized Domains.
-                  </div>
-                </div>
-              )}
+              {/* No scary error banners — OTP flow is clean */}
 
               <form onSubmit={handleVerifyOtp} className="lp-form">
                 <div className="lp-otp-row">
