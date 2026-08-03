@@ -202,6 +202,9 @@ const Login = ({ onNavigate }) => {
 
       if (result && !result.error) {
         showToast('Welcome back! 👋', 'success');
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('abkharido_was_on_otp');
+        }
         window.location.reload();
       } else {
         showToast(result?.error || 'Authentication failed. Incorrect OTP.', 'error');
