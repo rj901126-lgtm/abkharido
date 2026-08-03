@@ -7,14 +7,14 @@ import ScratchCard from '../components/ScratchCard';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const { cart, currentUser, placeOrder, showToast, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards } = useApp();
-  const [step, setStep] = useState(1); // 1: Address, 2: Summary, 3: Payment, 4: Success
+  const [step, setStep] = useState(1); / 1: Address, 2: Summary, 3: Payment, 4: Success
   const [selectedSavedCard, setSelectedSavedCard] = useState(null);
 
   useEffect(() => {
     fetchUserSavedCards();
   }, []);
 
-  // Form states
+  / Form states
   const [address, setAddress] = useState({
     name: currentUser ? (currentUser.fullName || '') : '',
     phone: currentUser ? (currentUser.phone || '') : '',
@@ -28,7 +28,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const [shippingServiceability, setShippingServiceability] = useState(null);
   const [isCheckingShipping, setIsCheckingShipping] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
+  const [paymentMethod, setPaymentMethod] = useState('cod'); / cod, online
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -36,12 +36,12 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const invoiceRef = useRef();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Coupon states
+  / Coupon states
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
-  // Synchronize currentUser fields
+  / Synchronize currentUser fields
   useEffect(() => {
     if (currentUser) {
       setAddress(prev => ({
@@ -56,14 +56,14 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     }
   }, [currentUser]);
 
-  // Resolve Indian postal pincode details automatically
+  / Resolve Indian postal pincode details automatically
   useEffect(() => {
     const controller = new AbortController();
     const resolvePincode = async () => {
       const pinStr = String(address.pincode || '');
-      if (pinStr.length !== 6 || isNaN(pinStr)) return; // only call when full 6 digits
+      if (pinStr.length !== 6 || isNaN(pinStr)) return; / only call when full 6 digits
       try {
-        const res = await fetch(`https://api.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal });
+        const res = await fetch(`https://pi.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal });
         if (res.ok) {
           const data = await res.json();
           if (data[0]?.Status === "Success") {
@@ -73,7 +73,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               city: postOffice.District || postOffice.Name,
               state: postOffice.State
             }));
-            // eslint-disable-next-line
+            / eslint-disable-next-line
             showToast(`Pincode resolved: ${postOffice.District}, ${postOffice.State}!`, 'success');
           }
         }
@@ -90,10 +90,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       }
     };
     resolvePincode();
-    return () => controller.abort(); // cleanup on unmount or pincode change
+    return () => controller.abort(); / cleanup on unmount or pincode change
   }, [address.pincode]);
 
-  // Shiprocket Pincode Serviceability Check
+  / Shiprocket Pincode Serviceability Check
   useEffect(() => {
     const pinStr = String(address.pincode || '');
     if (pinStr.length !== 6 || isNaN(pinStr)) {
@@ -104,7 +104,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     const checkShipping = async () => {
       setIsCheckingShipping(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/shipping/serviceability`, {
+        const res = await fetch(`/api/shipping/serviceability`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deliveryPincode: pinStr })
@@ -124,7 +124,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         } else {
           setShippingServiceability({ serviceable: false, error: 'Could not fetch serviceability' });
         }
-      // eslint-disable-next-line
+      / eslint-disable-next-line
       } catch (err) {
         setShippingServiceability({ serviceable: false, error: 'Network error checking shipping' });
       } finally {
@@ -135,7 +135,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     checkShipping();
   }, [address.pincode]);
 
-  // Price calculations — safe fallbacks to prevent NaN
+  / Price calculations — safe fallbacks to prevent NaN
   const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
@@ -148,7 +148,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     if (!couponCode) return;
     setApplyingCoupon(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/coupons/validate`, {
+      const res = await fetch(`/api/coupons/validate`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         setAppliedCoupon(null);
         showToast(data.error || data.message || 'Invalid Coupon', 'error');
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Error applying coupon', 'error');
     } finally {
@@ -172,7 +172,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     }
   };
 
-  // Handle Address Submit
+  / Handle Address Submit
   const handleAddressSubmit = (e) => {
     e.preventDefault();
     if (!address.name || !address.phone || !address.pincode || !address.streetAddress) {
@@ -191,17 +191,17 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     setStep(2);
   };
 
-  // Handle Payment Submit and Order Placement (Cashfree Integration)
+  / Handle Payment Submit and Order Placement (Cashfree Integration)
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     
-    // Prevent double submission synchronously with ref
+    / Prevent double submission synchronously with ref
     if (isSubmittingRef.current || isSubmitting) return;
     isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     if (paymentMethod === 'cod') {
-      // Direct Cash on Delivery placement
+      / Direct Cash on Delivery placement
       const orderDetails = await placeOrder(
         address, 
         'Cash on Delivery',
@@ -214,7 +214,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         setStep(4);
         triggerConfetti();
         
-        // Auto-save address to profile
+        / Auto-save address to profile
         if (updateUserProfile) {
           updateUserProfile({
             fullName: address.name,
@@ -226,16 +226,16 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           });
         }
 
-        // Auto-generate invoice after a short delay so DOM is ready
+        / Auto-generate invoice after a short delay so DOM is ready
         setTimeout(() => triggerInvoiceDownload(), 500);
       }
       return;
     }
 
-    // Cashfree PG integration
+    / Cashfree PG integration
     try {
       showToast('Initializing Cashfree gateway...', 'info');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payment/session`, {
+      const res = await fetch(`/api/payment/session`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
       const data = await res.json();
       
-      // Pre-create order in database as PENDING before starting payment
+      / Pre-create order in database as PENDING before starting payment
       const orderDetails = await placeOrder(
         address,
         'Online Payment',
@@ -273,13 +273,13 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       }
       
       if (data.simulated) {
-        // Developer simulated successful checkout (Verify instantly)
+        / Developer simulated successful checkout (Verify instantly)
         showToast('Verifying simulated payment...', 'info');
         const isVerified = await verifyPayment(orderDetails._id || data.orderId);
         
         if (isVerified) {
           showToast('Payment Verified Successfully!', 'success');
-          // Fetch updated order details
+          / Fetch updated order details
           setCreatedOrder({
             ...orderDetails,
             paymentStatus: 'SUCCESS',
@@ -288,7 +288,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           setStep(4);
           triggerConfetti();
           
-          // Auto-save address to profile
+          / Auto-save address to profile
           if (updateUserProfile) {
             updateUserProfile({
               fullName: address.name,
@@ -307,7 +307,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           setIsSubmitting(false);
         }
       } else {
-        // Real Cashfree integration
+        / Real Cashfree integration
         showToast('Launching Cashfree Gateway...', 'success');
         if (window.Cashfree) {
           const isProd = process.env.VITE_CASHFREE_PROD === 'true';
@@ -317,7 +317,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           
           cashfree.checkout({
             paymentSessionId: data.paymentSessionId,
-            redirectTarget: "_self" // Redirects to return_url configured in backend
+            redirectTarget: "_self" / Redirects to return_url configured in backend
           }).then(() => {
             isSubmittingRef.current = false;
             setIsSubmitting(false);
@@ -337,7 +337,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   };
 
   const triggerConfetti = () => {
-    // Fire multiple bursts of confetti
+    / Fire multiple bursts of confetti
     const duration = 3 * 1000;
     const end = Date.now() + duration;
 

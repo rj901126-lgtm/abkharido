@@ -6,7 +6,7 @@ const AdminProductStudio = ({ onFinish }) => {
   const { addProduct, editProduct, showToast } = useApp();
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
   
-  // Form state
+  / Form state
   const [formData, setFormData] = useState({
     name: '',
     category: 'Mobiles',
@@ -16,7 +16,7 @@ const AdminProductStudio = ({ onFinish }) => {
     description: '',
     brand: 'Apple / Premium',
     sku: '',
-    image: 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?auto=format&fit=crop&w=600&q=80',
+    image: 'https://mages.unsplash.com/photo-1591337676887-a217a6970a8a?auto=format&fit=crop&w=600&q=80',
     isFlashDeal: false
   });
 
@@ -86,17 +86,17 @@ const AdminProductStudio = ({ onFinish }) => {
     if (addProduct) addProduct(createdProduct);
     showToastMsg(`🚀 Product "${formData.name.slice(0, 25)}..." successfully synchronized to Live Storefront & MongoDB!`, 'success');
     
-    // Clear form after slight delay
+    / Clear form after slight delay
     setTimeout(() => {
       if (onFinish) onFinish();
     }, 1500);
   };
 
-  // Profit calculations
+  / Profit calculations
   const priceVal = parseFloat(formData.price) || 0;
   const mrpVal = parseFloat(formData.mrp) || priceVal * 1.2;
   const discountPercent = mrpVal > priceVal ? Math.round(((mrpVal - priceVal) / mrpVal) * 100) : 0;
-  const estMargin = Math.round(priceVal * 0.22); // ~22% net platform margin
+  const estMargin = Math.round(priceVal * 0.22); / ~22% net platform margin
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '26px', animation: 'fadeIn 0.2s', paddingBottom: '40px' }}>
@@ -270,7 +270,7 @@ const AdminProductStudio = ({ onFinish }) => {
             {/* Product Card Rendering */}
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', height: '220px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={formData.image} alt={formData.name || 'Product'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'; }} />
+                <img src={formData.image} alt={formData.name || 'Product'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = 'https://mages.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'; }} />
                 {discountPercent > 0 && (
                   <span style={{ position: 'absolute', top: '12px', left: '12px', background: '#dc2626', color: '#fff', fontSize: '11px', fontWeight: '900', padding: '4px 10px', borderRadius: '100px' }}>
                     {discountPercent}% OFF

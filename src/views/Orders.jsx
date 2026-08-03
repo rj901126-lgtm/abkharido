@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp, ChevronRight, Download, Search, Filter } from 'lucide-react';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
@@ -32,7 +32,7 @@ const Orders = ({ onNavigate }) => {
   const [orderToReturn, setOrderToReturn] = useState(null); 
   const [returnReason, setReturnReason] = useState('');
 
-  // Debounce search input
+  / Debounce search input
   React.useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -40,11 +40,11 @@ const Orders = ({ onNavigate }) => {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // Fetch orders when user or filters change
+  / Fetch orders when user or filters change
   React.useEffect(() => {
     if (currentUser) {
       setCurrentPage(1);
-      // eslint-disable-next-line
+      / eslint-disable-next-line
       fetchOrders(currentUser.username || currentUser.email, 1, debouncedSearch, statusFilter, timeFilter);
     }
   }, [currentUser, debouncedSearch, statusFilter, timeFilter]);
@@ -485,7 +485,7 @@ const Orders = ({ onNavigate }) => {
                           <span>Courier Partner: <strong style={{ color: 'white' }}>{order.courierPartner || 'Delhivery Express Air'}</strong> · AWB: <strong style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: '13px' }}>{order.trackingNumber || `DEL${order._id.replace(/\D/g, '') || '87492104'}`}</strong></span>
                         </span>
                         <a 
-                          href={`https://shiprocket.co/tracking/${order.trackingNumber || ('DEL' + (order._id.replace(/\D/g, '') || '87492104'))}`}
+                          href={`https://hiprocket.co/tracking/${order.trackingNumber || ('DEL' + (order._id.replace(/\D/g, '') || '87492104'))}`}
                           target="_blank" 
                           rel="noopener noreferrer"
                           style={{ color: '#fde047', fontWeight: '800', textDecoration: 'underline', background: 'rgba(253, 224, 71, 0.1)', padding: '4px 10px', borderRadius: '8px' }}
@@ -507,12 +507,12 @@ const Orders = ({ onNavigate }) => {
               const p2 = { x: 350, y: 20 };
               const p3 = { x: 450, y: 80 };
               
-              let t = 0.15; // default Processing
+              let t = 0.15; / default Processing
               if (status === 'Packed') t = 0.45;
               else if (status === 'In Transit') t = 0.75;
               else if (status === 'Delivered') t = 1.0;
               
-              // Cubic Bezier curve path math
+              / Cubic Bezier curve path math
               const getCubicBezierXY = (paramT, start, c1, c2, end) => {
                 const mt = 1 - paramT;
                 const x = Math.pow(mt, 3) * start.x + 
@@ -529,14 +529,14 @@ const Orders = ({ onNavigate }) => {
               const truckPos = getCubicBezierXY(t, p0, p1, p2, p3);
               const strokeOffset = 420 * (1 - t);
               
-              // Date calculations
+              / Date calculations
               const orderDate = order.createdAt;
               const getFormattedDate = (days) => {
                 try {
                   const date = new Date(orderDate);
                   date.setDate(date.getDate() + days);
                   return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-                // eslint-disable-next-line
+                / eslint-disable-next-line
                 } catch (e) {
                   return orderDate;
                 }
@@ -557,7 +557,7 @@ const Orders = ({ onNavigate }) => {
                         {order.trackingNumber || `12${order._id.replace(/\D/g, '') || '9873210423'}`}
                       </div>
                       <a 
-                        href={`https://shiprocket.co/tracking/${order.trackingNumber || ('12' + (order._id.replace(/\D/g, '') || '9873210423'))}`}
+                        href={`https://hiprocket.co/tracking/${order.trackingNumber || ('12' + (order._id.replace(/\D/g, '') || '9873210423'))}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         style={{ fontSize: '11px', color: 'var(--success)', fontWeight: 'bold', textDecoration: 'underline', marginTop: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}

@@ -11,7 +11,7 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
     setMounted(true);
   }, []);
 
-  // Prevent background scroll when drawer is open
+  / Prevent background scroll when drawer is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';

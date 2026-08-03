@@ -7,9 +7,9 @@ import {
   Package, 
   Image, 
   Tag, 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   DollarSign, 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   Coins, 
   Layers,
   ArrowLeft,
@@ -33,7 +33,7 @@ import AdminCMSBuilder from '../components/AdminCMSBuilder';
 import AdminCoupons from '../components/AdminCoupons';
 import AdminOMS from '../components/AdminOMS';
 import AdminCRM from '../components/AdminCRM';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import AdminAuditLogs from '../components/AdminAuditLogs';
 import AdminFinance from '../components/AdminFinance';
 import AdminHelpdesk from '../components/AdminHelpdesk';
@@ -42,7 +42,7 @@ import AdminPromotions from '../components/AdminPromotions';
 import AdminUsers from '../components/AdminUsers';
 import AdminProductStudio from '../components/AdminProductStudio';
 
-// eslint-disable-next-line
+/ eslint-disable-next-line
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
   return new Promise((resolve, reject) => {
     try {
@@ -78,7 +78,7 @@ const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
               reject(err);
             }
           };
-          // eslint-disable-next-line
+          / eslint-disable-next-line
           img.onerror = (error) => reject(new Error("Image failed to load for compression"));
           img.src = event.target.result;
         } catch (err) {
@@ -99,7 +99,7 @@ const uploadToCloudinary = async (file) => {
   formData.append('upload_preset', 'abkharido_uploads');
   formData.append('cloud_name', 'rx1klbob');
   
-  const res = await fetch('https://api.cloudinary.com/v1_1/rx1klbob/auto/upload', {
+  const res = await fetch('https://pi.cloudinary.com/v1_1/rx1klbob/auto/upload', {
     method: 'POST',
     body: formData
   });
@@ -111,13 +111,13 @@ const uploadToCloudinary = async (file) => {
 };
 
 const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   const { products, addProduct, editProduct, removeProduct, showToast, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); 
   
   const userRole = currentUser?.role || (sessionStorage.getItem('abkharido_admin_token') ? 'super_admin' : 'admin');
   
-  // RBAC Helpers
+  / RBAC Helpers
   const isSuperAdmin = userRole === 'super_admin';
   const canManageCatalog = userRole === 'catalog_manager' || userRole === 'admin' || isSuperAdmin;
   const canManageSupport = userRole === 'support_agent' || userRole === 'admin' || isSuperAdmin;
@@ -135,7 +135,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [sellerSearchQuery, setSellerSearchQuery] = useState('');
   const [userInnerTab, setUserInnerTab] = useState('customers');
   
-  // Advanced CRM Controls State
+  / Advanced CRM Controls State
   const [activeWalletModal, setActiveWalletModal] = useState(null);
   const [walletAmount, setWalletAmount] = useState('');
   const [walletNote, setWalletNote] = useState('');
@@ -144,10 +144,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [activeOrderHistoryModal, setActiveOrderHistoryModal] = useState(null);
   const [activeCatalogModal, setActiveCatalogModal] = useState(null);
   
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   const [inventorySearchQuery, setInventorySearchQuery] = useState('');
 
-  // Command Center Search
+  / Command Center Search
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [globalSearchResults, setGlobalSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -195,14 +195,14 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setSpecs(prod.specs?.length ? prod.specs : [{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
     setMedia(prod.images || [prod.image].filter(Boolean));
     
-    // Flash Sale Pre-fill
+    / Flash Sale Pre-fill
     setFlashSaleActive(prod.flashSale?.isActive || false);
     setFlashSalePrice(prod.flashSale?.price?.toString() || '');
     setFlashSaleEndTime(prod.flashSale?.endTime ? new Date(prod.flashSale.endTime).toISOString().slice(0, 16) : '');
 
     setHasProCare(prod.hasProCare || false);
 
-    // Set PIM Fields
+    / Set PIM Fields
     setMetaTitle(prod.seo?.metaTitle || '');
     setMetaDescription(prod.seo?.metaDescription || '');
     setHsnCode(prod.hsnCode || '');
@@ -282,7 +282,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setSearchTags('');
   };
 
-  // Promotions Management States
+  / Promotions Management States
   const [promoDealsTimer, setPromoDealsTimer] = useState('');
   const [promoBudgetThreshold, setPromoBudgetThreshold] = useState(15000);
   const [announcementShow, setAnnouncementShow] = useState(false);
@@ -293,20 +293,20 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [banners, setBanners] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
 
-  // New Slide Form Inputs
+  / New Slide Form Inputs
   const [newSlideTitle, setNewSlideTitle] = useState('');
   const [newSlideDesc, setNewSlideDesc] = useState('');
   const [newSlideTag, setNewSlideTag] = useState('');
   const [newSlideCat, setNewSlideCat] = useState('all');
   const [newSlideBg, setNewSlideBg] = useState('linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)');
   
-  // Custom image & banner mode state
+  / Custom image & banner mode state
   const [newSlideUseImage, setNewSlideUseImage] = useState(false);
   const [newSlideImage, setNewSlideImage] = useState('');
   const [newSlideImageOnly, setNewSlideImageOnly] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Category Banners — multi-slide structure
+  / Category Banners — multi-slide structure
   const EMPTY_CAT_BANNERS = {
     all:        { slides: [], show: false },
     mobiles:    { slides: [], show: false },
@@ -317,7 +317,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   };
   const [categoryBanners, setCategoryBanners] = useState(EMPTY_CAT_BANNERS);
 
-  // Per-category new slide form state — full fields matching homepage slide builder
+  / Per-category new slide form state — full fields matching homepage slide builder
   const EMPTY_SLIDE_FORM = { image: '', title: '', desc: '', tag: '', bg: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)', useImage: false, imageOnly: false, uploading: false };
   const [catSlideForm, setCatSlideForm] = useState({
     all:        { ...EMPTY_SLIDE_FORM },
@@ -353,7 +353,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   };
 
-  // Upload image for a category slide form
+  / Upload image for a category slide form
   const handleCatSlideImageUpload = async (catKey, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -417,7 +417,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   };
 
-  // Synchronize state when promotions prop loads
+  / Synchronize state when promotions prop loads
   React.useEffect(() => {
     if (promotions) {
       setPromoDealsTimer(promotions.dealsTimer ? new Date(promotions.dealsTimer).toISOString().substring(0, 16) : '');
@@ -427,7 +427,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       setDealOfTheDayProducts(promotions.dealOfTheDayProducts || []);
       setAnnouncementLink(promotions.announcement?.link || '');
       setBanners(promotions.banners || []);
-      // Normalise old single-image docs → new slides[] format
+      / Normalise old single-image docs → new slides[] format
       const rawCB = promotions.categoryBanners || {};
       const normCB = {};
       ['all','mobiles','electronics','fashion','home','appliances'].forEach(k => {
@@ -435,7 +435,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         if (Array.isArray(existing.slides)) {
           normCB[k] = existing;
         } else if (existing.image) {
-          // Migrate old single image into slides array
+          / Migrate old single image into slides array
           normCB[k] = { slides: [{ image: existing.image, title: '' }], show: existing.show || false };
         } else {
           normCB[k] = { slides: [], show: false };
@@ -445,7 +445,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   }, [promotions]);
 
-  // Security Auth State
+  / Security Auth State
   const [authorized, setAuthorized] = useState(() => {
     return !!sessionStorage.getItem('abkharido_admin_token');
   });
@@ -469,7 +469,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         sessionStorage.setItem('abkharido_admin_token', data.token);
         setAuthorized(true);
         showToast('Access Granted. Welcome Administrator!', 'success');
-        // Trigger initial data loads on success
+        / Trigger initial data loads on success
         setTimeout(() => {
           fetchAllOrders();
         }, 100);
@@ -477,7 +477,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         setLoginError('Incorrect Security Password/PIN. Please try again.');
         showToast('Access Denied. Incorrect PIN.', 'error');
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       setLoginError('Failed to connect to security backend.');
     } finally {
@@ -485,7 +485,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   };
 
-  // Fetch all orders for management
+  / Fetch all orders for management
   const fetchAllOrders = async () => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     if (!token) return;
@@ -508,7 +508,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   }, [authorized]);
 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   const handleUpdateStatus = async (orderId, newStatus) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
@@ -647,13 +647,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         showToast(`User ${newStatus === 'Suspended' ? 'suspended' : 'activated'} successfully!`, 'success');
         fetchAllUsers();
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Failed to update user status.', 'error');
     }
   };
 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   const handleAddWallet = async (userObj) => {
     const amount = window.prompt(`Enter amount to add to ${userObj.username}'s wallet (Refund/Cashback):`, "0");
     if (!amount || isNaN(amount) || Number(amount) <= 0) return;
@@ -669,7 +669,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         showToast(`Added ₹${amount} to wallet successfully!`, 'success');
         fetchAllUsers();
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Failed to add wallet balance.', 'error');
     }
@@ -701,7 +701,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   };
 
-  // --- Add Product Form State ---
+  / --- Add Product Form State ---
   const [id, setId] = useState('');
   const [name, setName] = useState('');
   const [category, setCategory] = useState('electronics');
@@ -716,21 +716,21 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [stock, setStock] = useState('100');
   const [badge, setBadge] = useState('none');
   
-  // Flash Sale Engine State
+  / Flash Sale Engine State
   const [flashSaleActive, setFlashSaleActive] = useState(false);
   const [flashSalePrice, setFlashSalePrice] = useState('');
   const [flashSaleEndTime, setFlashSaleEndTime] = useState('');
 
-  // Services
+  / Services
   const [hasProCare, setHasProCare] = useState(false);
 
-  // Enterprise PIM State
+  / Enterprise PIM State
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [hsnCode, setHsnCode] = useState('');
   const [vendorId, setVendorId] = useState('');
 
-  // 5x Revenue & Safeguard Engine States
+  / 5x Revenue & Safeguard Engine States
   const [lowStockThreshold, setLowStockThreshold] = useState('5');
   const [volumeDiscounts, setVolumeDiscounts] = useState([
     { minQty: '2', discountPct: '10', title: 'Buy 2 Get 10% Extra Savings' },
@@ -758,13 +758,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   };
 
-  // Dynamic spec list key-value rows
+  / Dynamic spec list key-value rows
   const [specs, setSpecs] = useState([
     { key: 'Brand', value: '' },
     { key: 'Model', value: '' }
   ]);
 
-  // Colors & Variants State
+  / Colors & Variants State
   const [colorModels, setColorModels] = useState([]);
 
   const handleAddColorModel = () => {
@@ -854,10 +854,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }));
   };
 
-  // Dynamic commission rates (pre-filled on category change for helper guidance)
-  const [userCommission, setUserCommission] = useState('0.012'); // 1.2%
+  / Dynamic commission rates (pre-filled on category change for helper guidance)
+  const [userCommission, setUserCommission] = useState('0.012'); / 1.2%
 
-  // Update commission presets and smart spec templates automatically when changing category
+  / Update commission presets and smart spec templates automatically when changing category
   const handleCategoryChange = (cat) => {
     setCategory(cat);
     switch (cat) {
@@ -987,10 +987,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       return;
     }
 
-    // Clean specifications (filter empty rows)
+    / Clean specifications (filter empty rows)
     const cleanSpecs = specs.filter(s => s.key.trim() !== '' && s.value.trim() !== '');
 
-    // Process Color Models & Variants
+    / Process Color Models & Variants
     const cleanColorModels = colorModels.map(cm => {
       const extraImages = cm.imagesInput
         ? cm.imagesInput.split(',').map(url => url.trim()).filter(url => url !== '')
@@ -1019,7 +1019,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       };
     }).filter(cm => cm.name !== '' && cm.primaryImage !== '' && cm.variants.length > 0);
 
-    // Construct product object
+    / Construct product object
     const newProduct = {
       id: id.toLowerCase().trim().replace(/[\s\W]+/g, '-'),
       name,
@@ -1043,7 +1043,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         price: Number(flashSalePrice || 0),
         endTime: flashSaleEndTime ? new Date(flashSaleEndTime) : null
       },
-      // PIM Fields
+      / PIM Fields
       hsnCode: hsnCode.trim(),
       vendorId: vendorId.trim() || undefined,
       lowStockThreshold: Number(lowStockThreshold || 5),
@@ -1065,7 +1065,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     resetForm();
   };
 
-  // --- ADVANCED CRM HANDLERS ---
+  / --- ADVANCED CRM HANDLERS ---
   const handleOpenWalletModal = (user) => {
     setActiveWalletModal(user);
     setWalletAmount('');
@@ -1087,8 +1087,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         },
         body: JSON.stringify({
           amount: Number(walletAmount),
-          action: walletAction, // 'add' or 'deduct'
-          type: walletType, // 'cash' or 'coins'
+          action: walletAction, / 'add' or 'deduct'
+          type: walletType, / 'cash' or 'coins'
           note: walletNote
         })
       });
@@ -1096,7 +1096,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       if (res.ok) {
         showToast(`Successfully ${walletAction === 'add' ? 'added' : 'deducted'} ${walletType === 'cash' ? '₹' : '🪙'}${walletAmount} ${walletAction === 'add' ? 'to' : 'from'} ${activeWalletModal.email}'s wallet.`, 'success');
         
-        // Since we don't have a real mailer yet, keep the UI toast for mail
+        / Since we don't have a real mailer yet, keep the UI toast for mail
         setTimeout(() => {
           showToast(`Automated Email sent to ${activeWalletModal.email} regarding wallet update.`, 'info');
         }, 1500);
@@ -1106,7 +1106,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         const err = await res.json();
         showToast(err.error || 'Failed to process wallet transaction.', 'error');
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Connection error while updating wallet.', 'error');
     }
@@ -1511,7 +1511,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       const rawUsername = String(u.username || '');
                       const isNumeric = /^\d+$/.test(rawUsername);
                       const cleanPhone = isNumeric && rawUsername.length >= 10 ? rawUsername.slice(0, 10) : (u.phone ? String(u.phone).replace(/\D/g, '').slice(-10) : rawUsername);
-                      // Derive a 100% unique customer ID tag from their immutable database primary key (_id/id) to prevent prefix collisions across crores of users
+                      / Derive a 100% unique customer ID tag from their immutable database primary key (_id/id) to prevent prefix collisions across crores of users
                       const custTag = `#CUST_${String(u._id || u.id || rawUsername).slice(-6).toUpperCase()}`;
 
                       const userCode = u.isInfluencer ? u.creatorCode : u.referralCode;
@@ -1526,7 +1526,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                       const salesCount = referredOrdersList.length;
                       const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
-                      // Calculate customer spending & orders for VIP Tier determination
+                      / Calculate customer spending & orders for VIP Tier determination
                       const customerOrders = adminOrders.filter(o => 
                         (o.customerDetails?.email && u.email && o.customerDetails.email === u.email) ||
                         (o.customerDetails?.phone && (o.customerDetails.phone.includes(cleanPhone) || (u.phone && o.customerDetails.phone === u.phone))) ||
@@ -1630,7 +1630,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                               <button
                                 onClick={() => {
                                   const text = `Hi ${u.fullName || 'Valued Customer'}! ✨ We missed you at AbKharido! Here is an exclusive gift: Get special instant discounts on our luxury electronics & gadgets today. ORDER NOW & Claim your reward!`;
-                                  window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                                  window.open(`https://a.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
                                   showToast(`Opening WhatsApp offer chat for +91 ${cleanPhone}...`, 'success');
                                 }}
                                 style={{ width: '100%', fontSize: '12px', padding: '8px 10px', borderRadius: '8px', fontWeight: '800', background: '#22c55e', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
@@ -2357,7 +2357,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                         onChange={() => {}} 
                         style={{ width: '18px', height: '18px', accentColor: '#4f46e5', cursor: 'pointer' }}
                       />
-                      <img src={prod.image || prod.images?.[0] || 'https://via.placeholder.com/40'} alt="" style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} />
+                      <img src={prod.image || prod.images?.[0] || 'https://ia.placeholder.com/40'} alt="" style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} />
                       <div style={{ flex: 1, overflow: 'hidden' }}>
                         <div style={{ fontSize: '13px', fontWeight: '700', color: isSelected ? '#4338ca' : '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prod.name}</div>
                         <div style={{ fontSize: '12px', fontWeight: '800', color: '#16a34a' }}>₹{Number(prod.price).toLocaleString('en-IN')}</div>
@@ -3157,7 +3157,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           </div>
                           <div style={{ flex: 1, minWidth: '200px' }}>
                             <label className="form-label-txt" style={{ fontSize: '11px' }}>Or paste Image URL</label>
-                            <input type="text" className="admin-form-input" placeholder="https://..."
+                            <input type="text" className="admin-form-input" placeholder="https://.."
                               value={form.image}
                               onChange={e => updateCatForm(catKey, 'image', e.target.value)}
                               style={{ fontSize: '12px' }}
@@ -3245,7 +3245,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           };
                           setCategoryBanners(prev => {
                             const existingSlides = prev[catKey]?.slides || [];
-                            // Auto-enable show when adding the first slide
+                            / Auto-enable show when adding the first slide
                             const autoShow = existingSlides.length === 0 ? true : prev[catKey].show;
                             return {
                               ...prev,
@@ -3400,7 +3400,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           <button
                             onClick={() => {
                               const text = `Hi ${activeOrderHistoryModal.fullName || 'Valued Customer'}! ✨ We have a special VIP reward voucher waiting for your next purchase on AbKharido!`;
-                              window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                              window.open(`https://a.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
                             }}
                             style={{ padding: '8px 12px', background: '#22c55e', color: 'white', fontWeight: '800', fontSize: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '8px', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.3)' }}
                           >

@@ -20,7 +20,7 @@ const AdminStaff = () => {
     enforceMfa: true
   });
 
-  // Zero-Trust Permission Matrix State
+  / Zero-Trust Permission Matrix State
   const [permissionsMatrix, setPermissionsMatrix] = useState({
     super_admin: { viewRawData: true, exportCsiv: true, deleteContent: true, manageFinance: true },
     admin: { viewRawData: false, exportCsiv: true, deleteContent: true, manageFinance: false },
@@ -42,7 +42,7 @@ const AdminStaff = () => {
         try { setPermissionsMatrix(JSON.parse(savedMatrix)); } catch (e) {}
       }
 
-      // Removed localStorage caching to force authentic API fetch
+      / Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, { headers: { 'x-admin-token': token } });
@@ -55,7 +55,7 @@ const AdminStaff = () => {
         }
       }
 
-      // No dummy data
+      / No dummy data
       setStaff([]);
     } catch (err) {
       showToastMsg('Notice: Offline inspection mode active', 'info');
@@ -133,7 +133,7 @@ const AdminStaff = () => {
     showToastMsg('⚡ Zero-Trust Permission Matrix broadcasted to API gateways and edge servers! Customer database fully secured.', 'success');
   };
 
-  // Filter & Search
+  / Filter & Search
   const filteredStaff = staff.filter(member => {
     const matchesSearch = (member.fullName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (member.username || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -143,7 +143,7 @@ const AdminStaff = () => {
     return true;
   });
 
-  // KPIs
+  / KPIs
   const activeCount = staff.filter(s => s.status === 'Active').length;
   const suspendedCount = staff.filter(s => s.status !== 'Active').length;
 

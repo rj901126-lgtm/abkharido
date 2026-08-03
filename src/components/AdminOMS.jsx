@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import { FileText, Truck, Printer, Search, CheckSquare, Eye, X, Settings, XCircle, Package, Phone, MessageCircle, MapPin, DollarSign, ExternalLink, RefreshCw, CheckCircle, Shield, AlertTriangle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import WorldClassInvoice from './WorldClassInvoice';
@@ -13,7 +13,7 @@ const AdminOMS = () => {
   const [activeTab, setActiveTab] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Modals state
+  / Modals state
   const [viewingOrder, setViewingOrder] = useState(null);
   const [dispatchOrder, setDispatchOrder] = useState(null);
   const [courierPartner, setCourierPartner] = useState('Delhivery Express');
@@ -44,7 +44,7 @@ const AdminOMS = () => {
         }
       }
       
-      // No dummy data; use real data only
+      / No dummy data; use real data only
       setOrders([]);
     } catch (err) {
       console.error(err);
@@ -184,7 +184,7 @@ const AdminOMS = () => {
         const err = await res.json();
         showToast(err.error || 'Failed to cancel order', 'error');
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Network error while cancelling order', 'error');
     }
@@ -233,7 +233,7 @@ const AdminOMS = () => {
           status: 'Shipped',
           courierPartner: courierPartner,
           awbNumber: finalAwb,
-          trackingUrl: `https://track.abkharido.com/${finalAwb}`
+          trackingUrl: `https://rack.abkharido.com/${finalAwb}`
         })
       });
 
@@ -307,7 +307,7 @@ const AdminOMS = () => {
         const err = await res.json();
         showToast(err.error || 'Failed to send email', 'error');
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Network error while sending email', 'error');
     } finally {
@@ -315,7 +315,7 @@ const AdminOMS = () => {
     }
   };
 
-  // Status & Tab Filtering logic
+  / Status & Tab Filtering logic
   const liveCount = orders.filter(o => !['CANCELLED', 'Cancelled', 'cancelled', 'DELIVERED', 'Delivered', 'delivered', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)).length;
   const processingCount = orders.filter(o => !o.status || o.status.toLowerCase() === 'processing' || o.status.toLowerCase() === 'pending').length;
   const shippedCount = orders.filter(o => o.status && o.status.toLowerCase() === 'shipped').length;
@@ -323,7 +323,7 @@ const AdminOMS = () => {
   const cancelledCount = orders.filter(o => ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status) || (o.returnStatus && o.returnStatus !== 'None')).length;
 
   const filteredOrders = orders.filter(o => {
-    // 1. Tab Filter
+    / 1. Tab Filter
     if (activeTab === 'LIVE') {
       if (['CANCELLED', 'Cancelled', 'cancelled', 'DELIVERED', 'Delivered', 'delivered', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)) return false;
     } else if (activeTab === 'PROCESSING') {
@@ -338,7 +338,7 @@ const AdminOMS = () => {
       if (!isCancelled && !hasReturn) return false;
     }
 
-    // 2. Search Query Filter
+    / 2. Search Query Filter
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     const oId = String(o.id || o._id).toLowerCase();
@@ -734,7 +734,7 @@ const AdminOMS = () => {
                   {viewingOrder.shippingAddress?.phone && (
                     <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #cbd5e1', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                       <a 
-                        href={`https://wa.me/91${viewingOrder.shippingAddress.phone}?text=Hi%20${encodeURIComponent(viewingOrder.shippingAddress.fullName || 'Sir/Madam')},%20regarding%20your%20AbKharido%20order%20%23${String(viewingOrder.id || viewingOrder._id).slice(-8).toUpperCase()}...`} 
+                        href={`https://a.me/91${viewingOrder.shippingAddress.phone}?text=Hi%20${encodeURIComponent(viewingOrder.shippingAddress.fullName || 'Sir/Madam')},%20regarding%20your%20AbKharido%20order%20%23${String(viewingOrder.id || viewingOrder._id).slice(-8).toUpperCase()}...`} 
                         target="_blank" 
                         rel="noreferrer"
                         style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', background: '#10b981', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
@@ -798,7 +798,7 @@ const AdminOMS = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                           <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                             {item.image ? (
-                              <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80'; }} />
+                              <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.src = 'https://mages.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80'; }} />
                             ) : (
                               <Package size={24} color="#94a3b8" />
                             )}

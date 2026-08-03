@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import { HeadphonesIcon, MessageSquare, Send, User } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -9,12 +9,12 @@ const CustomerTickets = () => {
   const [loading, setLoading] = useState(true);
   const [activeTicket, setActiveTicket] = useState(null);
   
-  // New Ticket State
+  / New Ticket State
   const [isCreating, setIsCreating] = useState(false);
   const [newSubject, setNewSubject] = useState('');
   const [newMessage, setNewMessage] = useState('');
   
-  // Reply State
+  / Reply State
   const [replyContent, setReplyContent] = useState('');
 
   const fetchMyTickets = async () => {
@@ -68,7 +68,7 @@ const CustomerTickets = () => {
       } else {
         showToast('Failed to create ticket', 'error');
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Network error', 'error');
     }
@@ -95,7 +95,7 @@ const CustomerTickets = () => {
         setReplyContent('');
         setTickets(tickets.map(t => t._id === updatedTicket._id ? updatedTicket : t));
       }
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     } catch (err) {
       showToast('Error sending reply', 'error');
     }

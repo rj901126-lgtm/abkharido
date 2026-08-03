@@ -1,8 +1,8 @@
 import React from 'react';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-// eslint-disable-next-line
+/ eslint-disable-next-line
 const Toast = ({ message, type = 'success', onClose }) => {
   const getIcon = () => {
     switch (type) {

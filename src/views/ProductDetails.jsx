@@ -1,5 +1,5 @@
 import LazyImage from '../components/LazyImage';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
@@ -10,11 +10,11 @@ import {
   Share2, 
   Copy, 
   Send,
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   ShieldAlert,
   ShieldCheck,
   Check,
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   ChevronLeft,
   ChevronRight,
   Heart,
@@ -30,12 +30,12 @@ import CountdownTimer from '../components/CountdownTimer';
 import ProductCard from '../components/ProductCard';
 
 
-// eslint-disable-next-line
+/ eslint-disable-next-line
 const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState(currentUser?.pincode || '400001');
-  // Dynamic delivery estimate
+  / Dynamic delivery estimate
   const getTomorrowDay = () => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -59,7 +59,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     window.scrollTo(0, 0);
 
     const handleGlobalScroll = () => {
-      // Show sticky CTA if scrolled past the main purchase buttons (approx 600px on mobile)
+      / Show sticky CTA if scrolled past the main purchase buttons (approx 600px on mobile)
       if (window.scrollY > 600) {
         setShowStickyCTA(true);
       } else {
@@ -76,7 +76,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   const [showStickyCTA, setShowStickyCTA] = useState(false);
 
-  // --- Dynamic Customer Reviews hooks ---
+  / --- Dynamic Customer Reviews hooks ---
   const [reviewsList, setReviewsList] = useState(() => {
     try {
       const saved = localStorage.getItem(`product_${productId}_reviews`);
@@ -91,7 +91,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
-  const [selectedPhotos, setSelectedPhotos] = useState([]); // Base64 strings
+  const [selectedPhotos, setSelectedPhotos] = useState([]); / Base64 strings
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   React.useEffect(() => {
@@ -100,13 +100,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   const wordCount = newComment.trim() === '' ? 0 : newComment.trim().split(/\s+/).length;
 
-  // 1. Verified Purchaser Check: Has ordered this product and order status is not CANCELLED
+  / 1. Verified Purchaser Check: Has ordered this product and order status is not CANCELLED
   const hasPurchased = orders ? orders.some(order => 
     order && order.status !== 'CANCELLED' && 
     order.items?.some(item => item && item.product && item.product.id === productId)
   ) : false;
 
-  // 2. Review count check: Max 2 reviews per product per user
+  / 2. Review count check: Max 2 reviews per product per user
   const userReviewsCount = currentUser 
     ? reviewsList.filter(r => r.username === currentUser.username).length 
     : 0;
@@ -185,7 +185,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     }
 
     showToast(`⚡ Verifying express postal service for ${pincode}...`, 'info');
-    fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+    fetch(`https://pi.postalpincode.in/pincode/${pincode}`)
       .then(res => res.json())
       .then(data => {
         if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
@@ -202,11 +202,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       });
   };
 
-  // Find product in list
-  // Find product in list
+  / Find product in list
+  / Find product in list
   const productFromContext = products.find(p => p.id === productId);
 
-  // Fallback to individual fetch if not in the first 100 products loaded by AppContext
+  / Fallback to individual fetch if not in the first 100 products loaded by AppContext
   const [fetchedProduct, setFetchedProduct] = useState(null);
   const [isFetchingLocal, setIsFetchingLocal] = useState(false);
   const [fetchError, setFetchError] = useState(false);
@@ -236,7 +236,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     if (!prod) return [];
     if (prod.colorModels && prod.colorModels.length > 0) return prod.colorModels;
     
-    // Default model if no color models exist
+    / Default model if no color models exist
     const discount = prod.originalPrice > 0 ? Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100) : 0;
     return [
       {
@@ -273,16 +273,16 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Sync state when color selection triggers
+  / Sync state when color selection triggers
   React.useEffect(() => {
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     if (activeColor) {
       setActiveImageIndex(0);
       setSelectedVariant(activeColor.variants[0]);
     }
   }, [selectedColor]);
 
-  // Sync product selection on initial mount or swap
+  / Sync product selection on initial mount or swap
   const [recommendations, setRecommendations] = useState([]);
   
   React.useEffect(() => {
@@ -292,7 +292,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       setSelectedVariant(models[0].variants[0]);
       setActiveImageIndex(0);
 
-      // Fetch AI Recommendations
+      / Fetch AI Recommendations
       fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${product.id}/recommendations`)
         .then(res => res.json())
         .then(data => {
@@ -356,14 +356,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     );
   }
 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   const discountPercent = product.originalPrice > 0
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
   const userCoins = Math.round((product.price || 0) * (product.userCommissionRate || 0.02));
 
-  // Generate the unique referral tracking link
+  / Generate the unique referral tracking link
   const getReferralLink = () => {
     if (!currentUser) return '';
     const origin = window.location.origin;
@@ -377,7 +377,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       setCopied(true);
       showToast('Affiliate tracking link copied to clipboard!', 'success');
       setTimeout(() => setCopied(false), 2000);
-    // eslint-disable-next-line
+    / eslint-disable-next-line
     }).catch(err => {
       showToast('Failed to copy link.', 'error');
     });
@@ -385,13 +385,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
   const handleShareWhatsApp = () => {
     const text = `Hey! Check out this awesome ${product.name} on AbKharido: ${getReferralLink()}`;
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    const url = `https://pi.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 
   const handleShareTwitter = () => {
     const text = `Check out this product on AbKharido.com: ${product.name}`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getReferralLink())}`;
+    const url = `https://witter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getReferralLink())}`;
     window.open(url, '_blank');
   };
 
@@ -421,8 +421,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 scrollSnapType: 'x mandatory',
                 scrollBehavior: 'smooth',
                 WebkitOverflowScrolling: 'touch',
-                scrollbarWidth: 'none', // Firefox
-                msOverflowStyle: 'none' // IE
+                scrollbarWidth: 'none', / Firefox
+                msOverflowStyle: 'none' / IE
               }}
             >
               {/* Hide scrollbar for Chrome/Safari */}

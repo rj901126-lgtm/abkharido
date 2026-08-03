@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import '../assets/styles/product.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
@@ -263,23 +263,23 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   const [serverProducts, setServerProducts] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Filter States
+  / Filter States
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(150000);
   const [selectedRating, setSelectedRating] = useState(null);
-  const [sortBy, setSortBy] = useState('popularity'); // popularity, priceLow, priceHigh
+  const [sortBy, setSortBy] = useState('popularity'); / popularity, priceLow, priceHigh
   const [showSortModal, setShowSortModal] = useState(false);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
 
-  // Scroll to top when category changes
+  / Scroll to top when category changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentCategory]);
 
-  // Enterprise Scale: Fetch from Backend Search API instead of client-side filtering
+  / Enterprise Scale: Fetch from Backend Search API instead of client-side filtering
   useEffect(() => {
     const fetchSearchResults = async () => {
-      // If there's no search query and category is all, fallback to context products for immediate load
+      / If there's no search query and category is all, fallback to context products for immediate load
       if ((!searchQuery || searchQuery.trim() === '') && currentCategory === 'all') {
         setServerProducts(null);
         return;
@@ -306,7 +306,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       }
     };
 
-    // Debounce search requests
+    / Debounce search requests
     const timeoutId = setTimeout(() => {
       fetchSearchResults();
     }, 300);
@@ -314,12 +314,12 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     return () => clearTimeout(timeoutId);
   }, [searchQuery, currentCategory]);
 
-  // Apply secondary filters (Price, Rating, Sort)
+  / Apply secondary filters (Price, Rating, Sort)
   const getFilteredProducts = () => {
-    // Base products: either from Search Engine or Context Cache
+    / Base products: either from Search Engine or Context Cache
     let filtered = serverProducts !== null ? [...serverProducts] : [...contextProducts];
 
-    // ── Guaranteed Category Filter (prevent cross-category leakage on fallback) ──
+    / ── Guaranteed Category Filter (prevent cross-category leakage on fallback) ──
     if (currentCategory && currentCategory !== 'all') {
       const cat = currentCategory.toLowerCase().trim();
       filtered = filtered.filter(p => {
@@ -328,7 +328,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       });
     }
 
-    // Client-side smart query overrides for promo tags
+    / Client-side smart query overrides for promo tags
     if (searchQuery && searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase().trim();
       if (query.includes('min') && query.includes('off')) {
@@ -349,7 +349,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           filtered = filtered.filter(p => p.originalPrice > p.price);
         }
       } else if (serverProducts === null) {
-        // Fallback local filtering for context products using smart bilingual normalized query
+        / Fallback local filtering for context products using smart bilingual normalized query
         const normQuery = normalizeSearchQuery(query);
         filtered = filtered.filter(p => {
           const name = p.name ? p.name.toLowerCase() : '';
@@ -360,17 +360,17 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       }
     }
 
-    // 3. Price Filter
+    / 3. Price Filter
     filtered = filtered.filter(p => p.price >= minPrice && p.price <= maxPrice);
 
-    // 4. Rating Filter
+    / 4. Rating Filter
     if (selectedRating) {
       filtered = filtered.filter(p => p.rating >= selectedRating);
     }
 
-    // 5. Sorting
+    / 5. Sorting
     if (sortBy === 'popularity') {
-      // Sort by reviews count as proxy for popularity
+      / Sort by reviews count as proxy for popularity
       filtered.sort((a, b) => b.reviewsCount - a.reviewsCount);
     } else if (sortBy === 'priceLow') {
       filtered.sort((a, b) => (a.price || 0) - (b.price || 0));

@@ -13,13 +13,13 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
   const isInWishlist = Array.isArray(wishlist) && wishlist.some(id => id === product.id || id.id === product.id);
 
-  // Flash Sale Engine Check
+  / Flash Sale Engine Check
   const isFlashSale = product.flashSale?.isActive && new Date(product.flashSale.endTime) > new Date();
   const price = isFlashSale ? product.flashSale.price : (product.price || 0);
   const originalPrice = product.originalPrice || (isFlashSale ? product.price : price);
   const discountPercent = originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
-  // Dynamic earnings display
+  / Dynamic earnings display
   const userEarningsCoins = Math.round(price * (product.userCommissionRate || 0.05));
   const influencerEarningsCash = Math.round(price * (product.influencerCommissionRate || 0.08));
 

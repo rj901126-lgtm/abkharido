@@ -5,7 +5,7 @@ const FlashDealBanner = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 45, seconds: 0 });
 
   useEffect(() => {
-    // Determine end time dynamically (e.g. 2 hours from now if not in localStorage)
+    / Determine end time dynamically (e.g. 2 hours from now if not in localStorage)
     const storedEndTime = localStorage.getItem('abkharido_flash_deal_end');
     let endTime;
     
@@ -23,7 +23,7 @@ const FlashDealBanner = () => {
       const difference = endTime.getTime() - now.getTime();
 
       if (difference <= 0) {
-        // Reset timer to another 2 hours to keep the FOMO loop going infinitely for demo
+        / Reset timer to another 2 hours to keep the FOMO loop going infinitely for demo
         const newEnd = new Date();
         newEnd.setHours(newEnd.getHours() + 2);
         localStorage.setItem('abkharido_flash_deal_end', newEnd.toISOString());

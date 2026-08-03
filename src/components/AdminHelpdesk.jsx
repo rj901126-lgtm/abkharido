@@ -33,7 +33,7 @@ const AdminHelpdesk = () => {
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      // Removed localStorage caching to force authentic API fetch
+      / Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets`, { headers: { 'x-admin-token': token } });
@@ -47,7 +47,7 @@ const AdminHelpdesk = () => {
         }
       }
 
-      // No tickets found from API
+      / No tickets found from API
       setTickets([]);
       setActiveTicket(null);
     } catch (err) {
@@ -61,7 +61,7 @@ const AdminHelpdesk = () => {
     const found = tickets.find(t => t._id === id);
     if (found) {
       setActiveTicket(found);
-      setIsMasked(true); // Re-mask on switching tickets for zero-trust security
+      setIsMasked(true); / Re-mask on switching tickets for zero-trust security
     }
   };
 
@@ -134,7 +134,7 @@ const AdminHelpdesk = () => {
     const cleanPhone = phone.replace(/[^0-9]/g, '');
     const fullPhone = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
     const text = encodeURIComponent(`Hello ${activeTicket.customer.name}!\n\nRegarding your AbKharido Support Ticket [${activeTicket._id}] (${activeTicket.subject}):\nWe have reviewed your request and are providing instant live assistance here on WhatsApp. How can we help you immediately?`);
-    window.open(`https://api.whatsapp.com/send?phone=${fullPhone}&text=${text}`, '_blank');
+    window.open(`https://pi.whatsapp.com/send?phone=${fullPhone}&text=${text}`, '_blank');
     showToastMsg(`💬 Launched WhatsApp Live Support Broadcast for ${activeTicket.customer.name}!`, 'success');
   };
 
@@ -143,7 +143,7 @@ const AdminHelpdesk = () => {
     showToastMsg('🤖 AI Smart Template loaded into response buffer!', 'success');
   };
 
-  // AI Smart Templates List
+  / AI Smart Templates List
   const aiPresets = [
     { label: '📦 Dispatch Updated', text: "Hello! Good news — your order has departed our high-speed warehouse facility and is currently in transit. You will receive real-time SMS delivery notifications shortly!" },
     { label: '💸 Refund Executed', text: "We have processed your full refund directly to your original Cashfree escrow payment mode. It will safely reflect in your bank account within 2 to 4 business hours." },

@@ -83,14 +83,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         {
           title: 'Titanium AI Sound. Studio Perfected.',
           desc: 'Experience our flagship spatial noise-cancelling headphones. Up to 60 hours of hyper-battery and quantum acoustics.',
-          bg: 'url(https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
+          bg: 'url(https://mages.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
           tag: '🇮🇳 AUDIO CHAMPION DEAL',
           cat: 'electronics'
         },
         {
           title: 'The Platinum Standard in Indian Couture',
           desc: 'Elevate your aesthetic with our direct-from-designer runway collection. Uncompromising titanium luxury at revolutionary member prices.',
-          bg: 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
+          bg: 'url(https://mages.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
           tag: '✨ VIP SUMMER COLLECTION',
           cat: 'fashion'
         }

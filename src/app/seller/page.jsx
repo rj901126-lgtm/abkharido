@@ -3,7 +3,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 
-// Disable SSR for SellerDashboard to prevent hydration issues and split bundle
+/ Disable SSR for SellerDashboard to prevent hydration issues and split bundle
 const SellerDashboard = dynamic(() => import('../../views/SellerDashboard'), { ssr: false });
 
 export default function Page() {

@@ -17,23 +17,23 @@ const LiveSocialProof = () => {
       const name = NAMES[Math.floor(Math.random() * NAMES.length)];
       const city = CITIES[Math.floor(Math.random() * CITIES.length)];
       const product = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
-      const timeAgo = Math.floor(Math.random() * 59) + 1; // 1 to 59 mins ago
+      const timeAgo = Math.floor(Math.random() * 59) + 1; / 1 to 59 mins ago
 
       setNotification({ name, city, product, timeAgo });
       setIsVisible(true);
 
-      // Hide after 5 seconds
+      / Hide after 5 seconds
       timeoutTimer = setTimeout(() => {
         setIsVisible(false);
       }, 5000);
     };
 
-    // Show first notification after 3 seconds
+    / Show first notification after 3 seconds
     const initialTimer = setTimeout(() => {
       showRandomNotification();
     }, 3000);
 
-    // Then show every 15-25 seconds randomly
+    / Then show every 15-25 seconds randomly
     intervalTimer = setInterval(() => {
       if (!document.hidden) {
         showRandomNotification();

@@ -21,7 +21,7 @@ export default function ClientLayout({ children }) {
   
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   
-  // Global Store Configuration State
+  / Global Store Configuration State
   const [globalConfig, setGlobalConfig] = useState({
     themeColor: '#2874f0',
     supportEmail: 'support@abkharido.com',
@@ -34,7 +34,7 @@ export default function ClientLayout({ children }) {
 
   const isPortalPage = pathname?.startsWith('/admin') || pathname?.startsWith('/seller') || pathname?.startsWith('/login');
   
-  // Load and subscribe to global admin configurations
+  / Load and subscribe to global admin configurations
   useEffect(() => {
     const loadConfig = () => {
       const saved = localStorage.getItem('abkharido_global_config');
@@ -51,7 +51,7 @@ export default function ClientLayout({ children }) {
 
     loadConfig();
 
-    // Check periodically for real-time toggling across tabs without refresh
+    / Check periodically for real-time toggling across tabs without refresh
     const interval = setInterval(loadConfig, 2000);
     window.addEventListener('storage', loadConfig);
     return () => {
@@ -82,7 +82,7 @@ export default function ClientLayout({ children }) {
     router.push(`/catalog?category=${catId}`);
   };
 
-  // Verify Cashfree Payment if params exist in URL
+  / Verify Cashfree Payment if params exist in URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cfOrderId = params.get('order_id');
@@ -105,8 +105,8 @@ export default function ClientLayout({ children }) {
   const activeAnnouncementText = promoAnnouncement?.text !== undefined ? promoAnnouncement.text : globalConfig.announcementBar;
   const showAnnouncement = !isPortalPage && (promoAnnouncement?.show !== undefined ? (promoAnnouncement.show && Boolean(activeAnnouncementText?.trim())) : Boolean(globalConfig.announcementBar?.trim()));
 
-  // 1. SYSTEM MAINTENANCE & SECURITY LOCK SCREEN ENFORCEMENT
-  // If Maintenance Mode is active in Admin settings and user is NOT on Admin/Login portal, lock down storefront!
+  / 1. SYSTEM MAINTENANCE & SECURITY LOCK SCREEN ENFORCEMENT
+  / If Maintenance Mode is active in Admin settings and user is NOT on Admin/Login portal, lock down storefront!
   if (globalConfig.maintenanceMode && !isPortalPage) {
     return (
       <div style={{
@@ -171,7 +171,7 @@ export default function ClientLayout({ children }) {
     );
   }
 
-  // 2. REGULAR STOREFRONT VIEW WITH DYNAMIC BANNER & WHATSAPP SUPPORT
+  / 2. REGULAR STOREFRONT VIEW WITH DYNAMIC BANNER & WHATSAPP SUPPORT
   const cleanPhone = (globalConfig.supportPhone || '9118001234567').replace(/[^0-9]/g, '');
   const isProductPage = pathname?.startsWith('/product');
   const isHomePage = pathname === '/' || pathname === '';
@@ -243,7 +243,7 @@ export default function ClientLayout({ children }) {
       {/* Floating WhatsApp Live Customer Support Widget */}
       {!isPortalPage && globalConfig.enableWhatsAppFloat && (
         <a
-          href={`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent('Hello AbKharido Support! I need some assistance with my shopping.')}`}
+          href={`https://pi.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent('Hello AbKharido Support! I need some assistance with my shopping.')}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{

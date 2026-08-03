@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 
-// Disable SSR for AdminDashboard to avoid sessionStorage/window errors during build
+/ Disable SSR for AdminDashboard to avoid sessionStorage/window errors during build
 const AdminDashboard = dynamic(() => import('../../views/AdminDashboard'), { ssr: false });
 
 export default function Page() {

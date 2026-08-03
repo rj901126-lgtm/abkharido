@@ -3,11 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../utils/constants';
 import { 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   Search, 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   ShoppingCart, 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   Camera, 
   ArrowRight,
   LayoutGrid,
@@ -72,26 +72,26 @@ const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
 
 const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions, onSearch }) => {
   const { products, cart } = useApp();
-  const [selectedCatId, setSelectedCatId] = useState('mobiles'); // default start on mobiles category
+  const [selectedCatId, setSelectedCatId] = useState('mobiles'); / default start on mobiles category
 
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Map category id to clear, accurate emoji icons
+  / Map category id to clear, accurate emoji icons
   const CAT_EMOJIS = {
-    all:         '🛍️',   // shopping bags = all
-    mobiles:     '📱',   // phone = mobiles ✓
-    electronics: '🎧',   // headphones = electronics (audio/gadgets)
-    fashion:     '👗',   // dress = fashion ✓
-    home:        '🏠',   // house = home & living ✓
-    beauty:      '💄',   // lipstick = beauty & personal care
-    sports:      '🏏',   // cricket bat = sports (India loves cricket)
-    appliances:  '🫧',   // washing = appliances
-    laptop:      '💻',   // laptop ✓
-    grocery:     '🛒',   // cart = grocery
-    toys:        '🧸',   // teddy = toys
-    books:       '📚',   // books ✓
-    jewelry:     '💍',   // ring = jewelry
+    all:         '🛍️',   / shopping bags = all
+    mobiles:     '📱',   / phone = mobiles ✓
+    electronics: '🎧',   / headphones = electronics (audio/gadgets)
+    fashion:     '👗',   / dress = fashion ✓
+    home:        '🏠',   / house = home & living ✓
+    beauty:      '💄',   / lipstick = beauty & personal care
+    sports:      '🏏',   / cricket bat = sports (India loves cricket)
+    appliances:  '🫧',   / washing = appliances
+    laptop:      '💻',   / laptop ✓
+    grocery:     '🛒',   / cart = grocery
+    toys:        '🧸',   / teddy = toys
+    books:       '📚',   / books ✓
+    jewelry:     '💍',   / ring = jewelry
   };
 
   const renderCatIcon = (cat) => {
@@ -101,52 +101,52 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
     );
   };
 
-  // Get active category's products (with safe list check)
+  / Get active category's products (with safe list check)
   const productList = Array.isArray(products) ? products : [];
   const categoryProducts = productList.filter(p => {
     if (!p) return false;
     if (selectedCatId === 'all') return true;
     return p.category === selectedCatId;
-  }).slice(0, 5); // display up to 5 items inside grid, then show "View All" button
+  }).slice(0, 5); / display up to 5 items inside grid, then show "View All" button
 
-  // Mock circular stores list for popular store row
+  / Mock circular stores list for popular store row
   const getMockStoresForCat = (catId) => {
     switch (catId) {
       case 'mobiles':
         return [
-          { name: 'Big Bachat Days', badge: 'SALE LIVE', img: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=150&q=80' },
-          { name: 'Apple Authorized', badge: 'NEW S24', img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=150&q=80' },
-          { name: 'Refurbished Hub', badge: 'MIN 40% OFF', img: 'https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=150&q=80' }
+          { name: 'Big Bachat Days', badge: 'SALE LIVE', img: 'https://mages.unsplash.com/photo-1610945415295-d9bbf067e59c?w=150&q=80' },
+          { name: 'Apple Authorized', badge: 'NEW S24', img: 'https://mages.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=150&q=80' },
+          { name: 'Refurbished Hub', badge: 'MIN 40% OFF', img: 'https://mages.unsplash.com/photo-1598327105666-5b89351cb31b?w=150&q=80' }
         ];
       case 'electronics':
         return [
-          { name: 'Intel Zone', badge: 'GEN 14', img: 'https://images.unsplash.com/photo-1531297172867-4f444c66657c?w=150&q=80' },
-          { name: 'Audio Fest', badge: 'UP TO 50%', img: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=150&q=80' },
-          { name: 'Gaming Hub', badge: 'RTX 4090', img: 'https://images.unsplash.com/photo-1600861194942-f88481e1d071?w=150&q=80' }
+          { name: 'Intel Zone', badge: 'GEN 14', img: 'https://mages.unsplash.com/photo-1531297172867-4f444c66657c?w=150&q=80' },
+          { name: 'Audio Fest', badge: 'UP TO 50%', img: 'https://mages.unsplash.com/photo-1546435770-a3e426bf472b?w=150&q=80' },
+          { name: 'Gaming Hub', badge: 'RTX 4090', img: 'https://mages.unsplash.com/photo-1600861194942-f88481e1d071?w=150&q=80' }
         ];
       case 'fashion':
         return [
-          { name: 'Trending Styles', badge: '70% OFF', img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=150&q=80' },
-          { name: 'Shoes & Clogs', badge: 'FLAT ₹500', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&q=80' },
-          { name: 'Premium Brands', badge: 'NEW IN', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=150&q=80' }
+          { name: 'Trending Styles', badge: '70% OFF', img: 'https://mages.unsplash.com/photo-1515886657613-9f3515b0c78f?w=150&q=80' },
+          { name: 'Shoes & Clogs', badge: 'FLAT ₹500', img: 'https://mages.unsplash.com/photo-1542291026-7eec264c27ff?w=150&q=80' },
+          { name: 'Premium Brands', badge: 'NEW IN', img: 'https://mages.unsplash.com/photo-1490481651871-ab68de25d43d?w=150&q=80' }
         ];
       case 'home':
         return [
-          { name: 'Bedsheets Club', badge: 'BUY 1 GET 1', img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=150&q=80' },
-          { name: 'Kitchen Tools', badge: 'MIN 30% OFF', img: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=150&q=80' },
-          { name: 'Home Decor', badge: 'UNDER ₹499', img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=150&q=80' }
+          { name: 'Bedsheets Club', badge: 'BUY 1 GET 1', img: 'https://mages.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=150&q=80' },
+          { name: 'Kitchen Tools', badge: 'MIN 30% OFF', img: 'https://mages.unsplash.com/photo-1556911220-e15b29be8c8f?w=150&q=80' },
+          { name: 'Home Decor', badge: 'UNDER ₹499', img: 'https://mages.unsplash.com/photo-1513694203232-719a280e022f?w=150&q=80' }
         ];
       case 'appliances':
         return [
-          { name: 'Smart TVs', badge: '₹8,990 ONWARDS', img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=150&q=80' },
-          { name: 'Cooling Fest', badge: 'AC OFFERS', img: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150&q=80' },
-          { name: 'Direct Cooling', badge: 'MIN 20% OFF', img: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=150&q=80' }
+          { name: 'Smart TVs', badge: '₹8,990 ONWARDS', img: 'https://mages.unsplash.com/photo-1593359677879-a4bb92f829d1?w=150&q=80' },
+          { name: 'Cooling Fest', badge: 'AC OFFERS', img: 'https://mages.unsplash.com/photo-1585338107529-13afc5f02586?w=150&q=80' },
+          { name: 'Direct Cooling', badge: 'MIN 20% OFF', img: 'https://mages.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=150&q=80' }
         ];
       default:
         return [
-          { name: 'Best Offers', badge: 'SALE LIVE', img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=150&q=80' },
-          { name: 'New Launches', badge: 'JUST IN', img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&q=80' },
-          { name: 'Hot Sellers', badge: 'HOT', img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150&q=80' }
+          { name: 'Best Offers', badge: 'SALE LIVE', img: 'https://mages.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=150&q=80' },
+          { name: 'New Launches', badge: 'JUST IN', img: 'https://mages.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&q=80' },
+          { name: 'Hot Sellers', badge: 'HOT', img: 'https://mages.unsplash.com/photo-1523275335684-37898b6baf30?w=150&q=80' }
         ];
     }
   };
@@ -160,13 +160,13 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
   const handleViewAllClick = () => {
     onSelectCategory(selectedCatId);
     if (onSearch) onSearch('');
-    else onNavigate('catalog'); // correctly go to catalog page, not home
+    else onNavigate('catalog'); / correctly go to catalog page, not home
   };
 
   const handleStoreClick = (store) => {
     onSelectCategory(selectedCatId);
     if (onSearch) {
-      // Find a searchable keyword from badge or name
+      / Find a searchable keyword from badge or name
       const q = store.badge.toLowerCase();
       onSearch(q);
     } else {

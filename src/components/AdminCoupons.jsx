@@ -5,7 +5,7 @@ const AdminCoupons = () => {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // all, active, expired
+  const [filterStatus, setFilterStatus] = useState('all'); / all, active, expired
   const [copiedCode, setCopiedCode] = useState(null);
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
   
@@ -45,11 +45,11 @@ const AdminCoupons = () => {
           return;
         }
       }
-      // Use real backend data only
+      / Use real backend data only
       setCoupons([]);
     } catch (err) {
       console.error('Error fetching coupons:', err);
-      // Use real backend data only
+      / Use real backend data only
       setCoupons([]);
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ const AdminCoupons = () => {
         setCoupons([created, ...coupons]);
         showToast('🎉 Coupon created and live on storefront successfully!', 'success');
       } else {
-        // Optimistic UX fallback for instant admin feedback during transition
+        / Optimistic UX fallback for instant admin feedback during transition
         const fallbackId = Date.now().toString();
         const optimisticCoupon = {
           _id: fallbackId,
@@ -130,13 +130,13 @@ const AdminCoupons = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('🚨 Are you sure you want to permanently delete this coupon code? It will immediately cease working at checkout!')) return;
     
-    // Optimistic instantaneous removal in UI
+    / Optimistic instantaneous removal in UI
     setCoupons(prev => prev.filter(c => c._id !== id));
     showToast('🗑️ Coupon removed and disconnected from checkout successfully.', 'success');
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
-      // Fixed: changed from /api/v2/coupons/${id} to /api/coupons/${id} to match Express routing
+      / Fixed: changed from /api/v2/coupons/${id} to /api/coupons/${id} to match Express routing
       await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/coupons/${id}`, {
         method: 'DELETE',
         headers: { 
@@ -203,7 +203,7 @@ const AdminCoupons = () => {
   };
 
   const copyDealToClipboard = (coupon) => {
-    const dealText = `Use Code: ${coupon.code} - Get ${coupon.discountType === 'FLAT' ? 'Flat ₹' + coupon.discountValue : coupon.discountValue + '%'} OFF on Ab Kharido! (Min order ₹${coupon.minCartValue}). Shop now at https://abkharido.in`;
+    const dealText = `Use Code: ${coupon.code} - Get ${coupon.discountType === 'FLAT' ? 'Flat ₹' + coupon.discountValue : coupon.discountValue + '%'} OFF on Ab Kharido! (Min order ₹${coupon.minCartValue}). Shop now at https://bkharido.in`;
     navigator.clipboard.writeText(dealText);
     setCopiedCode(coupon.code);
     showToast(`📋 Copied promotional deal for code ${coupon.code}!`, 'success');
@@ -212,17 +212,17 @@ const AdminCoupons = () => {
 
   const handleWhatsAppBroadcast = (coupon) => {
     const discountText = coupon.discountType === 'FLAT' ? `Flat ₹${coupon.discountValue} OFF` : `${coupon.discountValue}% OFF (Up to ₹${coupon.maxDiscount})`;
-    const message = `🎉 *EXCLUSIVE VIP OFFER from Ab Kharido!* 🛍️\n\nEnjoy *${discountText}* on our entire premium catalog!\n\n🔑 *Your Coupon Code:* ${coupon.code}\n🛒 *Minimum Basket:* ₹${coupon.minCartValue}\n⏳ *Valid Till:* ${new Date(coupon.expiryDate).toLocaleDateString()}\n\n👉 *Click & redeem instore:* https://abkharido.in\n\n_Limited to first ${coupon.usageLimit} shoppers only! Hurry!_`;
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    const message = `🎉 *EXCLUSIVE VIP OFFER from Ab Kharido!* 🛍️\n\nEnjoy *${discountText}* on our entire premium catalog!\n\n🔑 *Your Coupon Code:* ${coupon.code}\n🛒 *Minimum Basket:* ₹${coupon.minCartValue}\n⏳ *Valid Till:* ${new Date(coupon.expiryDate).toLocaleDateString()}\n\n👉 *Click & redeem instore:* https://bkharido.in\n\n_Limited to first ${coupon.usageLimit} shoppers only! Hurry!_`;
+    const whatsappUrl = `https://pi.whatsapp.com/send?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
-  // Analytics Calculation
+  / Analytics Calculation
   const totalRedemptions = coupons.reduce((sum, c) => sum + (c.usedCount || 0), 0);
   const activeCouponsCount = coupons.filter(c => c.isActive && (new Date(c.expiryDate) >= new Date() && c.usedCount < c.usageLimit)).length;
   const avgMinOrder = coupons.length > 0 ? Math.round(coupons.reduce((sum, c) => sum + (c.minCartValue || 0), 0) / coupons.length) : 0;
 
-  // Filtering & Searching
+  / Filtering & Searching
   const filteredCoupons = coupons.filter(coupon => {
     const matchesSearch = coupon.code.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           coupon.discountType.toLowerCase().includes(searchQuery.toLowerCase());

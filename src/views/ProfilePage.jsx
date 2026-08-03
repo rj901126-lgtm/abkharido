@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-// eslint-disable-next-line
+/ eslint-disable-next-line
 import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight, CreditCard, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
@@ -21,7 +21,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     return () => { isMountedRef.current = false; };
   }, []);
   
-  // Helper for Avatar Initials
+  / Helper for Avatar Initials
   const getInitials = (user) => {
     if (!user) return 'U';
     if (user.fullName) {
@@ -36,7 +36,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     return 'VIP';
   };
 
-  // State hooks
+  / State hooks
   const initialFirstName = currentUser?.firstName || (currentUser?.fullName ? currentUser.fullName.split(' ')[0] : '');
   const initialLastName = currentUser?.lastName || (currentUser?.fullName ? currentUser.fullName.split(' ').slice(1).join(' ') : '');
   
@@ -53,9 +53,9 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
+  const [activeTab, setActiveTab] = useState('overview'); / 'overview', 'wishlist', 'support'
 
-  // Sync state with currentUser when not editing or when currentUser updates
+  / Sync state with currentUser when not editing or when currentUser updates
   React.useEffect(() => {
     if (!isEditing && currentUser) {
       setFirstName(currentUser.firstName || (currentUser.fullName ? currentUser.fullName.split(' ')[0] : ''));
@@ -70,13 +70,13 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     }
   }, [isEditing, currentUser]);
 
-  // Auto-detect city & state when user enters a 6-digit pincode
+  / Auto-detect city & state when user enters a 6-digit pincode
   React.useEffect(() => {
     if (pincodeInput && pincodeInput.trim().length === 6 && !isNaN(pincodeInput)) {
       const pinStr = pincodeInput.trim();
       const controller = new AbortController();
       setIsDetectingPincode(true);
-      fetch(`https://api.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal })
+      fetch(`https://pi.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal })
         .then(res => res.json())
         .then(data => {
           if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
@@ -174,7 +174,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
   const wishlistProducts = products ? products.filter(p => wishlist?.includes(p.id)) : [];
 
-  // Check if inputs differ from database values
+  / Check if inputs differ from database values
   const hasChanges = 
     firstName !== initialFirstName ||
     lastName !== initialLastName ||
@@ -221,7 +221,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
     if (success) {
       showToast('Profile & delivery address updated successfully! 🎉', 'success');
-      setIsEditing(false); // Disable editing mode once successfully updated
+      setIsEditing(false); / Disable editing mode once successfully updated
     }
     setIsUpdating(false);
   };
@@ -234,7 +234,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     }
 
     setIsVerifyingEmail(true);
-    // Simulate SMTP delivery network delay
+    / Simulate SMTP delivery network delay
     setTimeout(async () => {
       if (!isMountedRef.current) return;
       const success = await updateUserProfile({
@@ -256,7 +256,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       navigator.geolocation.getCurrentPosition(async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const res = await fetch(`https://ominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
           if (res.ok) {
             const data = await res.json();
             const postCode = data.address?.postcode || '';
@@ -267,7 +267,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               setPincodeInput('560001');
             }
           }
-        // eslint-disable-next-line
+        / eslint-disable-next-line
         } catch (e) {
           setPincodeInput('400001');
         }

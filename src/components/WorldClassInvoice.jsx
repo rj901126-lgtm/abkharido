@@ -9,20 +9,20 @@ const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
       if (!element) return;
 
       const opt = {
-        margin:       [10, 10, 10, 10], // top, left, bottom, right
+        margin:       [10, 10, 10, 10], / top, left, bottom, right
         filename:     `Invoice_${order.id}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // Ensure the element is temporarily visible for rendering
+      / Ensure the element is temporarily visible for rendering
       element.style.display = 'block';
       try {
         const html2pdf = (await import('html2pdf.js')).default;
         await html2pdf().from(element).set(opt).save();
       } finally {
-        element.style.display = 'none'; // hide it back
+        element.style.display = 'none'; / hide it back
         if (onGenerated) onGenerated();
       }
     }

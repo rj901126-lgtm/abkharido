@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  // eslint-disable-next-line
+  / eslint-disable-next-line
   BarChart, Bar, AreaChart, Area
 } from 'recharts';
 import { DollarSign, ShoppingCart, Users, Package, TrendingUp, Zap, ShieldCheck, Activity, Sparkles, Flame, CheckCircle, RefreshCw, BarChart3, Clock, ArrowUpRight } from 'lucide-react';
 
 const AdminAnalytics = () => {
   const [salesData, setSalesData] = useState([]);
-  const [chartMode, setChartMode] = useState('30days'); // '30days' | '90days' | 'ai_forecast'
+  const [chartMode, setChartMode] = useState('30days'); / '30days' | '90days' | 'ai_forecast'
   const [kpis, setKpis] = useState({
     totalUsers: 0,
     totalProducts: 0,
@@ -54,7 +54,7 @@ const AdminAnalytics = () => {
       }
     } catch (error) {
       console.log('Error fetching real analytics data', error);
-      // Empty fallbacks for real DB integration
+      / Empty fallbacks for real DB integration
       setLiveOrderFeed([]);
       setCategoryStats([]);
       setSalesData([]);
@@ -74,7 +74,7 @@ const AdminAnalytics = () => {
     );
   }
 
-  // Choose appropriate data dataset based on switcher
+  / Choose appropriate data dataset based on switcher
   const displayChartData = chartMode === 'ai_forecast' ? salesData.map(d => ({ ...d, revenue: d.forecast })) : salesData;
 
   return (

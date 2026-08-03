@@ -15,13 +15,13 @@ import '../assets/styles/partner.css';
 const PartnerCenter = () => {
   const { currentUser, partnerStats, requestPayout, showToast, products } = useApp();
 
-  const [activeTab, setActiveTab] = useState('overview'); // overview, generator, history, payouts
+  const [activeTab, setActiveTab] = useState('overview'); / overview, generator, history, payouts
   const [copiedLink, setCopiedLink] = useState('');
   
-  // Link Generator States
+  / Link Generator States
   const [selectedProdId, setSelectedProdId] = useState(products && products.length > 0 ? products[0].id : '');
 
-  // Withdrawal States
+  / Withdrawal States
   const [withdrawCoins, setWithdrawCoins] = useState('');
   const [withdrawMethod, setWithdrawMethod] = useState('upi');
   const [bankAcc, setBankAcc] = useState('');

@@ -5,7 +5,7 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function GlobalError({ error, reset }) {
   useEffect(() => {
-    // Log the error to an error reporting service
+    / Log the error to an error reporting service
     console.error('AbKharido Global Error Boundary Caught:', error);
   }, [error]);
 
