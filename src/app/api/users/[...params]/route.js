@@ -31,7 +31,8 @@ async function fetchBackend(url, options = {}) {
 
 export async function GET(req, { params }) {
   try {
-    const routeParams = params?.params || [];
+    const resolvedParams = await params;
+    const routeParams = resolvedParams?.params || [];
     const path = `/api/users/${routeParams.join('/')}`;
     
     // Skip proxying to Express for profile GET requests to ensure our new fields are returned 
@@ -71,7 +72,8 @@ export async function GET(req, { params }) {
 
 export async function POST(req, { params }) {
   try {
-    const routeParams = params?.params || [];
+    const resolvedParams = await params;
+    const routeParams = resolvedParams?.params || [];
     const path = `/api/users/${routeParams.join('/')}`;
     const body = await req.json();
 
