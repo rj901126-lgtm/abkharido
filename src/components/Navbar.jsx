@@ -27,6 +27,7 @@ import {
   Package
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
+import { normalizeSearchQuery } from '../utils/searchHelper';
 
 const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, onCartClick, style }) => {
   const searchParams = useSearchParams();
@@ -46,16 +47,17 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'hi-IN';
+    recognition.lang = 'en-IN'; // Indian English / Hinglish so names like iPhone, Samsung, Mobile transcribe directly in English!
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     setIsListening(true);
     recognition.start();
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
-      setSearchQuery(transcript);
+      const normalized = normalizeSearchQuery(transcript);
+      setSearchQuery(normalized);
       setIsListening(false);
-      if (onSearch) onSearch(transcript);
+      if (onSearch) onSearch(normalized);
     };
     recognition.onerror = () => setIsListening(false);
     recognition.onend = () => setIsListening(false);
@@ -78,7 +80,11 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    onSearch(searchQuery);
+    const normalized = normalizeSearchQuery(searchQuery);
+    if (normalized !== searchQuery) {
+      setSearchQuery(normalized);
+    }
+    onSearch(normalized);
     setShowSuggestions(false);
   };
 
@@ -217,8 +223,9 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                     const matches = products.filter(p => {
                       const name = p.name ? p.name.toLowerCase() : '';
                       const category = p.category ? p.category.toLowerCase() : '';
-                      const query = searchQuery.toLowerCase();
-                      return name.includes(query) || category.includes(query);
+                      const desc = p.description ? p.description.toLowerCase() : '';
+                      const query = normalizeSearchQuery(searchQuery.toLowerCase());
+                      return name.includes(query) || category.includes(query) || desc.includes(query);
                     }).slice(0, 6);
                     
                     return matches.length > 0 ? (

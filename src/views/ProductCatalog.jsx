@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 // eslint-disable-next-line
 import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import '../assets/styles/product.css';
+import { normalizeSearchQuery } from '../utils/searchHelper';
 
 /* ─── Auto-rotating Category Banner Carousel ─── */
 const CatBannerCarousel = ({ slides }) => {
@@ -290,7 +291,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           limit: 100,
         });
         
-        if (searchQuery) queryParams.append('search', searchQuery.trim());
+        if (searchQuery) queryParams.append('search', normalizeSearchQuery(searchQuery.trim()));
         if (currentCategory && currentCategory !== 'all') queryParams.append('category', currentCategory);
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?${queryParams.toString()}`);
@@ -338,6 +339,15 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
         } else if (query.includes('flat')) {
           filtered = filtered.filter(p => p.originalPrice > p.price);
         }
+      } else if (serverProducts === null) {
+        // Fallback local filtering for context products using smart bilingual normalized query
+        const normQuery = normalizeSearchQuery(query);
+        filtered = filtered.filter(p => {
+          const name = p.name ? p.name.toLowerCase() : '';
+          const category = p.category ? p.category.toLowerCase() : '';
+          const desc = p.description ? p.description.toLowerCase() : '';
+          return name.includes(normQuery) || category.includes(normQuery) || desc.includes(normQuery);
+        });
       }
     }
 
