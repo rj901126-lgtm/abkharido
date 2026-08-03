@@ -107,67 +107,59 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           {product.name}
         </h4>
 
-        {/* Rating and VIP Assurance Stamp */}
-        <div className="product-card-rating-row" style={styles.ratingRow}>
-          <span style={styles.ratingTag}>
-            <span style={{ fontSize: '12px', fontWeight: '800' }}>{product.rating}</span>
-            <span style={{ color: '#fde047', fontSize: '11px', marginLeft: '1px' }}>★</span>
-          </span>
-          <span style={styles.reviewsCount}>({product.reviewsCount || Math.floor(Math.random() * 400 + 50)})</span>
-        </div>
-
-        {/* Pricing Row with Clean Wrapping */}
-        <div className="product-card-price-row" style={styles.priceRow}>
-          <span style={styles.price}>₹{(price).toLocaleString('en-IN')}</span>
-          {discountPercent > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              <span style={styles.originalPrice}>₹{(originalPrice).toLocaleString('en-IN')}</span>
-              <span style={{ ...styles.discount, fontSize: '12px', fontWeight: '900', padding: '3px 7px' }}>{discountPercent}% OFF</span>
-            </div>
-          )}
-        </div>
-
-        {/* Free Delivery tag */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '3px' }}>
-            🚚 FREE Delivery
-          </span>
-          {discountPercent >= 20 && (
-            <span style={{ fontSize: '10px', color: '#dc2626', fontWeight: '700', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '4px', padding: '1px 5px' }}>
-              Limited Deal
+        {/* Merged Rating & Coins Stamp - Prevents text collisions on mobile */}
+        <div className="product-card-rating-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', flexWrap: 'wrap', marginTop: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={styles.ratingTag}>
+              <span style={{ fontSize: '11px', fontWeight: '800' }}>{product.rating || '4.5'}</span>
+              <span style={{ color: '#fde047', fontSize: '10px', marginLeft: '1px' }}>★</span>
+            </span>
+            <span style={styles.reviewsCount}>({product.reviewsCount || Math.floor(Math.random() * 400 + 50)})</span>
+          </div>
+          {!(currentUser && currentUser.isInfluencer) && (
+            <span style={{ fontSize: '11px', color: '#334155', fontWeight: '700', background: '#fffbeb', border: '1px solid #fde68a', padding: '1px 6px', borderRadius: '6px' }}>
+              🪙 <strong style={{ color: '#d97706' }}>+{userEarningsCoins}</strong>
             </span>
           )}
         </div>
 
-        {/* Consolidated Single-Line VIP Benefit Strip */}
-        {currentUser && currentUser.isInfluencer ? (
+        {/* Pricing Row - Clean Single Line Alignment */}
+        <div className="product-card-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+          <span style={styles.price}>₹{(price).toLocaleString('en-IN')}</span>
+          {discountPercent > 0 && (
+            <>
+              <span style={styles.originalPrice}>₹{(originalPrice).toLocaleString('en-IN')}</span>
+              <span style={{ ...styles.discount, fontSize: '11px', fontWeight: '800', padding: '2px 5px' }}>{discountPercent}% OFF</span>
+            </>
+          )}
+        </div>
+
+        {/* Partner Benefit Strip for Influencers */}
+        {currentUser && currentUser.isInfluencer && (
           <div className="product-card-reward-banner" style={styles.rewardBanner}>
             <Award size={13} color="#4338ca" style={{ flexShrink: 0 }} />
             <div style={styles.rewardText}>
-              <span>Partner Reward: <strong style={{ color: '#059669', fontSize: '12px' }}>₹{influencerEarningsCash} Cash</strong></span>
+              <span>Reward: <strong style={{ color: '#059669', fontSize: '12px' }}>₹{influencerEarningsCash} Cash</strong></span>
             </div>
-          </div>
-        ) : (
-          <div style={{ marginTop: 'auto', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', padding: '5px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '11px', color: '#059669', fontWeight: '700' }}>⚡ Free Express</span>
-            <span style={{ fontSize: '11px', color: '#334155', fontWeight: '700' }}>🪙 <strong style={{ color: '#d97706' }}>+{userEarningsCoins}</strong> Coins</span>
           </div>
         )}
 
-        {/* Clean, Executive Action Button */}
+        {/* Vibrant Executive Action CTA */}
         <button 
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? '#4f46e5' : '#090d16',
-            boxShadow: isBtnHovered ? '0 8px 20px rgba(79, 70, 229, 0.35)' : '0 2px 8px rgba(9, 13, 22, 0.15)',
-            transform: isBtnHovered ? 'translateY(-2px)' : 'none'
+            background: isBtnHovered ? 'linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+            boxShadow: isBtnHovered ? '0 6px 16px rgba(79, 70, 229, 0.4)' : '0 2px 8px rgba(79, 70, 229, 0.2)',
+            transform: isBtnHovered ? 'translateY(-2px)' : 'none',
+            marginTop: 'auto',
+            width: '100%'
           }} 
           onClick={handleAddToCart}
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={15} style={{ color: '#10b981' }} /> <span>Add to Cart</span>
+          <ShoppingCart size={14} style={{ color: '#ffffff' }} /> <span style={{ fontSize: '13px', fontWeight: '800' }}>Add to Bag</span>
         </button>
       </div>
     </div>

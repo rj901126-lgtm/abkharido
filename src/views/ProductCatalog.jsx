@@ -112,25 +112,21 @@ const CatBannerCarousel = ({ slides }) => {
           margin-bottom: 8px;
           text-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
-        
         @media (max-width: 768px) {
           .cat-banner-inner {
-            height: 180px !important;
-            padding: 24px 20px !important;
+            min-height: 160px !important;
+            height: auto !important;
+            padding: 24px 18px !important;
           }
           .cat-banner-text-wrap {
-            max-width: 90% !important;
-            padding: 0 8px !important;
+            max-width: 95% !important;
+            padding: 0 !important;
           }
           .cat-banner-title {
-            font-size: 24px !important;
+            font-size: 22px !important;
           }
           .cat-banner-desc {
             font-size: 13px !important;
-          }
-          .world-class-btn {
-            font-size: 12px !important;
-            padding: 8px 16px !important;
           }
         }
       `}</style>
@@ -139,14 +135,14 @@ const CatBannerCarousel = ({ slides }) => {
         className={`cat-banner-inner ${!hasImage ? "animated-gradient-bg" : ""}`}
         style={{
           width: '100%',
-          height: '220px',
+          minHeight: '200px',
           background: hasImage 
             ? `url(${slide.image}) no-repeat right center / contain, ${slide.bg || 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)'}` 
             : undefined,
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          padding: hasImage && isImageOnly ? '0' : '32px 40px'
+          padding: hasImage && isImageOnly ? '0' : '32px 36px'
         }}
       >
         {/* Decorative Floating Orbs when no image */}
@@ -170,15 +166,15 @@ const CatBannerCarousel = ({ slides }) => {
             zIndex: 1, 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: '12px', 
-            maxWidth: '70%',
-            padding: '0 12px'
+            gap: '10px', 
+            maxWidth: '75%',
+            padding: '0 4px'
           }}>
             {slide.tag && (
               <span style={{ 
                 fontSize: '11px', 
                 fontWeight: '900', 
-                letterSpacing: '1.5px', 
+                letterSpacing: '1.2px', 
                 textTransform: 'uppercase', 
                 color: '#fff', 
                 background: 'linear-gradient(90deg, #ec4899 0%, #f43f5e 100%)', 
@@ -191,31 +187,48 @@ const CatBannerCarousel = ({ slides }) => {
               </span>
             )}
             {slide.title && (
-              <span className="cat-banner-title">
+              <h2 className="cat-banner-title" style={{ margin: 0 }}>
                 {slide.title}
-              </span>
+              </h2>
             )}
             {slide.desc && (
-              <span className="cat-banner-desc">
+              <span className="cat-banner-desc" style={{ margin: 0 }}>
                 {slide.desc}
               </span>
             )}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '4px', fontSize: '12px', color: '#38bdf8', fontWeight: '700', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              <span>✨ 100% Direct Inventory</span>
-              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
-              <span>🛡️ Cashfree Escrow Assured</span>
-              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
-              <span>⚡ Express Dispatch</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: '20px',
+                padding: '5px 12px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '11.5px',
+                color: '#ffffff',
+                fontWeight: '800',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+              }}>
+                <span style={{ color: '#38bdf8' }}>⚡</span> Zero-Cost EMI & Instant Discounts
+              </div>
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.2)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                borderRadius: '20px',
+                padding: '5px 12px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '11.5px',
+                color: '#a7f3d0',
+                fontWeight: '800',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+              }}>
+                🛡️ 100% Direct Escrow Assured
+              </div>
             </div>
-            <button 
-              className="world-class-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.scrollBy({ top: 500, behavior: 'smooth' });
-              }}
-            >
-              Explore Collection ✨
-            </button>
           </div>
         )}
       </div>
@@ -495,71 +508,8 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       </aside>
 
       {/* 2. CATALOG MAIN AREA: Products grid + Mobile filter buttons */}
-      <main className="catalog-main">
-        {/* Premium Mobile Sort & Filter Bar */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          padding: '10px 0 8px 0',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          WebkitScrollbar: 'none',
-          marginBottom: '12px',
-          position: 'sticky',
-          top: '0',
-          zIndex: 50,
-          background: 'white',
-          paddingBottom: '10px',
-          borderBottom: '1px solid #f1f5f9'
-        }}>
-          {/* Filter button */}
-          <button
-            onClick={() => setShowFilterDrawer(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: showFilterDrawer ? '#4f46e5' : '#f8fafc',
-              color: showFilterDrawer ? '#fff' : '#334155',
-              border: '1.5px solid #e2e8f0',
-              borderRadius: '20px', padding: '7px 14px',
-              fontSize: '13px', fontWeight: '700',
-              cursor: 'pointer', whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-            }}
-          >
-            <SlidersHorizontal size={14} /> Filter
-          </button>
-
-          {/* Quick Sort Chips */}
-          {[
-            { id: 'popularity', label: '🔥 Popular' },
-            { id: 'priceLow', label: '📉 Low to High' },
-            { id: 'priceHigh', label: '📈 High to Low' },
-            { id: 'rating', label: '⭐ Top Rated' },
-            { id: 'discount', label: '🏷️ Best Discount' },
-          ].map(opt => (
-            <button
-              key={opt.id}
-              onClick={() => setSortBy(opt.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '4px',
-                background: sortBy === opt.id ? '#090d16' : '#f8fafc',
-                color: sortBy === opt.id ? '#ffffff' : '#475569',
-                border: sortBy === opt.id ? '1.5px solid #090d16' : '1.5px solid #e2e8f0',
-                borderRadius: '20px', padding: '7px 14px',
-                fontSize: '13px', fontWeight: sortBy === opt.id ? '700' : '600',
-                cursor: 'pointer', whiteSpace: 'nowrap',
-                flexShrink: 0,
-                transition: 'all 0.2s',
-                boxShadow: sortBy === opt.id ? '0 2px 8px rgba(9,13,22,0.2)' : '0 1px 4px rgba(0,0,0,0.06)'
-              }}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Category Banner Carousel */}
+      <main className="catalog-main" style={{ paddingBottom: '120px' }}>
+        {/* Category Banner Carousel - Displayed FIRST at the top for true VIP impression */}
         {(() => {
           const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[currentCategory];
           const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
@@ -567,15 +517,82 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           return <CatBannerCarousel slides={slides} />;
         })()}
 
-        {/* Results Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <span className="results-count" style={{ fontSize: '13px', fontWeight: '500', color: '#666666' }}>
-            {searchQuery ? (
-              <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
-            ) : (
-              <span>Showing {filteredProducts.length} products in <strong>{currentCategory === 'all' ? 'All Categories' : currentCategory.toUpperCase()}</strong></span>
-            )}
-          </span>
+        {/* Sticky Header with Results Count & Sort/Filter Toolbar */}
+        <div style={{
+          position: 'sticky',
+          top: '0',
+          zIndex: 50,
+          background: '#ffffff',
+          padding: '10px 0 12px 0',
+          marginBottom: '16px',
+          borderBottom: '1px solid #f1f5f9',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="results-count" style={{ fontSize: '14px', fontWeight: '700', color: '#090d16', fontFamily: "'Outfit', sans-serif" }}>
+              {searchQuery ? (
+                <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
+              ) : (
+                <span>Showing <strong>{filteredProducts.length} products</strong> in <strong>{currentCategory === 'all' ? 'All Categories' : currentCategory.toUpperCase()}</strong></span>
+              )}
+            </span>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            WebkitScrollbar: 'none',
+          }}>
+            {/* Filter button */}
+            <button
+              onClick={() => setShowFilterDrawer(true)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                background: showFilterDrawer ? '#4f46e5' : '#f8fafc',
+                color: showFilterDrawer ? '#fff' : '#334155',
+                border: '1.5px solid #e2e8f0',
+                borderRadius: '20px', padding: '7px 14px',
+                fontSize: '13px', fontWeight: '700',
+                cursor: 'pointer', whiteSpace: 'nowrap',
+                flexShrink: 0,
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+              }}
+            >
+              <SlidersHorizontal size={14} /> Filter
+            </button>
+
+            {/* Quick Sort Chips */}
+            {[
+              { id: 'popularity', label: '🔥 Popular' },
+              { id: 'priceLow', label: '📉 Low to High' },
+              { id: 'priceHigh', label: '📈 High to Low' },
+              { id: 'rating', label: '⭐ Top Rated' },
+              { id: 'discount', label: '🏷️ Best Discount' },
+            ].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => setSortBy(opt.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '4px',
+                  background: sortBy === opt.id ? '#090d16' : '#f8fafc',
+                  color: sortBy === opt.id ? '#ffffff' : '#475569',
+                  border: sortBy === opt.id ? '1.5px solid #090d16' : '1.5px solid #e2e8f0',
+                  borderRadius: '20px', padding: '7px 14px',
+                  fontSize: '13px', fontWeight: sortBy === opt.id ? '700' : '600',
+                  cursor: 'pointer', whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  transition: 'all 0.2s',
+                  boxShadow: sortBy === opt.id ? '0 2px 8px rgba(9,13,22,0.2)' : '0 1px 4px rgba(0,0,0,0.06)'
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Grid listing */}
