@@ -53,16 +53,7 @@ const AdminCRM = () => {
   const fetchCRMData = (savedLeads) => {
     setLoading(true);
     setTimeout(() => {
-      if (savedLeads) {
-        try {
-          const parsed = JSON.parse(savedLeads);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setAbandonedCarts(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch (e) {}
-      }
+      // Removed localStorage caching to force authentic API fetch
 
       // Use real backend data here instead of mocks
       setAbandonedCarts([]);

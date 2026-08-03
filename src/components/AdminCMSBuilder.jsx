@@ -35,16 +35,7 @@ const AdminCMSBuilder = () => {
         try { setSeoConfig(JSON.parse(savedSeo)); } catch (e) {}
       }
 
-      if (savedLayout) {
-        try {
-          const parsed = JSON.parse(savedLayout);
-          if (parsed && Array.isArray(parsed.components) && parsed.components.length > 0) {
-            setLayout(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch (e) {}
-      }
+      // Removed layout caching to force authentic DB fetch
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`);
       if (res.ok) {

@@ -33,23 +33,11 @@ const AdminAuditLogs = () => {
           return;
         }
       }
-      // Enterprise realistic fallback state during transition or offline inspection
-      const simulatedLogs = [
-        { _id: 'a1', createdAt: new Date(Date.now() - 120000).toISOString(), adminName: 'Master Admin', action: 'UPDATE_ORDER_STATUS', targetModel: 'Order', targetId: '6ad9f5128a1941200', ipAddress: '136.192.115.78' },
-        { _id: 'a2', createdAt: new Date(Date.now() - 450000).toISOString(), adminName: 'Master Admin', action: 'CANCEL_ORDER', targetModel: 'Order', targetId: '6ad4ee923cb181145', ipAddress: '136.192.115.78' },
-        { _id: 'a3', createdAt: new Date(Date.now() - 980000).toISOString(), adminName: 'Staff Manager', action: 'CREATE_PRODUCT', targetModel: 'Product', targetId: 'PRD-92180419020921', ipAddress: '117.199.249.104' },
-        { _id: 'a4', createdAt: new Date(Date.now() - 1420000).toISOString(), adminName: 'Master Admin', action: 'UPDATE_ORDER_STATUS', targetModel: 'Order', targetId: '6ad3d0189a8183204', ipAddress: '136.192.115.78' },
-        { _id: 'a5', createdAt: new Date(Date.now() - 3600000).toISOString(), adminName: 'Staff Manager', action: 'DELETE_COUPON', targetModel: 'Coupon', targetId: 'OLD-SUMMER20', ipAddress: '117.199.249.104' },
-        { _id: 'a6', createdAt: new Date(Date.now() - 7200000).toISOString(), adminName: 'Master Admin', action: 'UPDATE_GLOBAL_THEME', targetModel: 'System', targetId: 'THEME-CONFIG-01', ipAddress: '136.192.115.78' },
-        { _id: 'a7', createdAt: new Date(Date.now() - 14400000).toISOString(), adminName: 'Master Admin', action: 'SHIP_ORDER', targetModel: 'Order', targetId: '6ad9a811234910283', ipAddress: '136.192.115.78' },
-        { _id: 'a8', createdAt: new Date(Date.now() - 28800000).toISOString(), adminName: 'Security Engine', action: 'AUTO_LOCK_INACTIVE', targetModel: 'Session', targetId: 'STAFF-SESS-8921', ipAddress: 'localhost' }
-      ];
-      setLogs(simulatedLogs);
+      // Removed mock fallback
+      setLogs([]);
     } catch (err) {
       console.error('Error fetching logs:', err);
-      setLogs([
-        { _id: 'a1', createdAt: new Date().toISOString(), adminName: 'Master Admin', action: 'SYSTEM_BOOT', targetModel: 'Security', targetId: 'INIT_AUTH', ipAddress: '136.192.115.78' }
-      ]);
+      setLogs([]);
     } finally {
       setLoading(false);
     }

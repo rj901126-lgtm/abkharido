@@ -24,17 +24,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const savedUsers = localStorage.getItem('abkharido_customer_vault');
-      if (savedUsers) {
-        try {
-          const parsed = JSON.parse(savedUsers);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setUsers(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch (e) {}
-      }
+      // Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users`, {

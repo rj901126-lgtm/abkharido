@@ -42,17 +42,7 @@ const AdminStaff = () => {
         try { setPermissionsMatrix(JSON.parse(savedMatrix)); } catch (e) {}
       }
 
-      const savedStaff = localStorage.getItem('abkharido_staff_list');
-      if (savedStaff) {
-        try {
-          const parsed = JSON.parse(savedStaff);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setStaff(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch (e) {}
-      }
+      // Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, { headers: { 'x-admin-token': token } });
@@ -65,15 +55,8 @@ const AdminStaff = () => {
         }
       }
 
-      // High-tech enterprise simulation personnel
-      const simulatedStaff = [
-        { _id: 's1', fullName: 'System Administrator', username: 'admin', email: 'admin@abkharido.com', role: 'super_admin', status: 'Active', mfaStatus: 'Verified & Active (YubiKey)', lastActive: '2 mins ago', ipAddress: '136.192.115.78', actionsCount: 142 },
-        { _id: 's2', fullName: 'Vikram Mehta', username: 'vikram.mgr', email: 'vikram@abkharido.com', role: 'admin', status: 'Active', mfaStatus: '2FA Active (Google Auth)', lastActive: '18 mins ago', ipAddress: '136.192.115.78', actionsCount: 64 },
-        { _id: 's3', fullName: 'Neha Singh', username: 'neha.catalog', email: 'neha@abkharido.com', role: 'catalog_manager', status: 'Active', mfaStatus: '2FA Active (SMS)', lastActive: '1 hour ago', ipAddress: '117.199.249.104', actionsCount: 31 },
-        { _id: 's4', fullName: 'Ankit Sharma', username: 'ankit.support', email: 'ankit.s@abkharido.com', role: 'support_agent', status: 'Suspended', mfaStatus: 'Locked (Reset Required)', lastActive: '3 days ago', ipAddress: '192.168.1.14', actionsCount: 8 }
-      ];
-      setStaff(simulatedStaff);
-      localStorage.setItem('abkharido_staff_list', JSON.stringify(simulatedStaff));
+      // No dummy data
+      setStaff([]);
     } catch (err) {
       showToastMsg('Notice: Offline inspection mode active', 'info');
     } finally {

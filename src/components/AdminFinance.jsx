@@ -47,16 +47,7 @@ const AdminFinance = () => {
       }
 
       const savedVendors = localStorage.getItem('abkharido_vendor_ledgers');
-      if (savedVendors) {
-        try {
-          const parsed = JSON.parse(savedVendors);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setVendors(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch (e) {}
-      }
+      // Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const vendorsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/finance/vendors-balance`, { headers: { 'x-admin-token': token } });

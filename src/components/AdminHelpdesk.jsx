@@ -33,18 +33,7 @@ const AdminHelpdesk = () => {
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const savedTickets = localStorage.getItem('abkharido_helpdesk_tickets');
-      if (savedTickets) {
-        try {
-          const parsed = JSON.parse(savedTickets);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setTickets(parsed);
-            setActiveTicket(parsed[0]);
-            setLoading(false);
-            return;
-          }
-        } catch (e) {}
-      }
+      // Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets`, { headers: { 'x-admin-token': token } });
@@ -58,54 +47,9 @@ const AdminHelpdesk = () => {
         }
       }
 
-      // Enterprise Support Simulation Queue (Zendesk / Freshdesk Level)
-      const simulatedTickets = [
-        {
-          _id: 'TICK-9082',
-          subject: 'Refund status for Apple AirPods Pro order #ORD-7741',
-          status: 'Open',
-          priority: '🚨 Urgent',
-          slaRemaining: '1h 24m remaining',
-          customer: { name: 'Rahul Sharma', email: 'rahul.sharma@gmail.com', phone: '9820491829' },
-          orderRef: 'ORD-7741',
-          updatedAt: new Date().toISOString(),
-          messages: [
-            { isAdmin: false, content: "Hi AbKharido Support, I initiated a cancellation for my Apple AirPods Pro yesterday because I mistakenly selected the wrong delivery address. When will the refund appear in my Cashfree Bank account?", createdAt: new Date(Date.now() - 3600000 * 2).toISOString() },
-            { isAdmin: true, content: "Hello Rahul! Thank you for contacting AbKharido Enterprise Support. I have verified your order #ORD-7741 and raised an immediate priority verification request with our finance desk.", createdAt: new Date(Date.now() - 3600000 * 1).toISOString() }
-          ]
-        },
-        {
-          _id: 'TICK-8814',
-          subject: 'Urgent shipping address correction before warehouse dispatch',
-          status: 'In Progress',
-          priority: '⚠️ High',
-          slaRemaining: '2h 50m remaining',
-          customer: { name: 'Sneha Verma', email: 'sneha.verma@outlook.com', phone: '9711829302' },
-          orderRef: 'ORD-9912',
-          updatedAt: new Date(Date.now() - 7200000).toISOString(),
-          messages: [
-            { isAdmin: false, content: "Please hold my shipment! I typed Flat 204 instead of Flat 402 in Sunrise Towers Bangalore. Can you update my shipping label before the courier leaves?", createdAt: new Date(Date.now() - 7200000).toISOString() }
-          ]
-        },
-        {
-          _id: 'TICK-6421',
-          subject: 'Promo code DIWALI50 discount calculation inquiry',
-          status: 'Resolved',
-          priority: '🟢 Normal',
-          slaRemaining: 'Resolved within SLA',
-          customer: { name: 'Aditya Mehta', email: 'aditya.m@techcorp.in', phone: '9988273645' },
-          orderRef: 'ORD-5531',
-          updatedAt: new Date(Date.now() - 86400000).toISOString(),
-          messages: [
-            { isAdmin: false, content: "Why did my DIWALI50 code only apply 30% discount on cart value above ₹10,000?", createdAt: new Date(Date.now() - 90000000).toISOString() },
-            { isAdmin: true, content: "Dear Aditya, the DIWALI50 promotion includes a maximum discount ceiling of ₹2,500 per transaction as per our promotion rules. We have also credited an additional ₹500 store loyalty voucher to your profile as a goodwill token!", createdAt: new Date(Date.now() - 86400000).toISOString() }
-          ]
-        }
-      ];
-
-      setTickets(simulatedTickets);
-      setActiveTicket(simulatedTickets[0]);
-      localStorage.setItem('abkharido_helpdesk_tickets', JSON.stringify(simulatedTickets));
+      // No tickets found from API
+      setTickets([]);
+      setActiveTicket(null);
     } catch (err) {
       showToastMsg('Notice: Offline inspection mode active', 'info');
     } finally {
