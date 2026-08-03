@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { verifyFirebaseDirect, verifyOtpDirect, loginPasswordDirect } from '../../../../lib/directAuth.js';
 
-// Resilient helper to connect to Express backend across local loopback and external IPs
 async function fetchBackend(path, body) {
   const hosts = [
     process.env.BACKEND_API_URL,
@@ -12,12 +12,11 @@ async function fetchBackend(path, body) {
 
   const uniqueHosts = [...new Set(hosts.map(h => h.replace(/\/$/, '')))];
   
-  let lastErr = null;
   for (const host of uniqueHosts) {
     try {
       const url = `${host}${path}`;
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => controller.abort(), 2000); // 2s quick failover
       
       const res = await fetch(url, {
         method: 'POST',
@@ -27,14 +26,12 @@ async function fetchBackend(path, body) {
       });
       clearTimeout(timeout);
       
-      if (res) return res;
+      if (res && res.status < 500) return res;
     } catch (err) {
-      console.warn(`[NextAuth] Backend connection attempt failed for ${host}${path}:`, err.message || err);
-      lastErr = err;
+      // Continue to next host or native DB fallback
     }
   }
-
-  throw new Error(`Backend Authentication Server Unreachable: Tested ${uniqueHosts.join(', ')}. Please check if port 5000 server is running.`);
+  return null;
 }
 
 export const authOptions = {
@@ -50,38 +47,54 @@ export const authOptions = {
       },
       async authorize(credentials, req) {
         try {
-          let path, body;
+          let path, bodyObj;
           
           if (credentials.firebaseIdToken) {
              path = `/api/auth/verify-firebase`;
-             body = JSON.stringify({ idToken: credentials.firebaseIdToken, phone: credentials.phone });
+             bodyObj = { idToken: credentials.firebaseIdToken, phone: credentials.phone };
           } else if (credentials.otp && credentials.phone) {
              path = `/api/auth/verify-otp`;
-             body = JSON.stringify({ recipient: credentials.phone, otp: credentials.otp });
+             bodyObj = { recipient: credentials.phone, otp: credentials.otp };
           } else if (credentials.username && credentials.password) {
              path = `/api/auth/login`;
-             body = JSON.stringify({ username: credentials.username, password: credentials.password });
+             bodyObj = { username: credentials.username, password: credentials.password };
           } else {
              throw new Error('Invalid login credentials provided');
           }
 
-          const res = await fetchBackend(path, body);
-          const data = await res.json().catch(() => ({ error: 'Invalid JSON from auth service' }));
+          let data = null;
+          const res = await fetchBackend(path, JSON.stringify(bodyObj));
           
-          // OTP responses sometimes wrap user inside `data.user` rather than top-level
-          const userObj = data.user || data;
+          if (res) {
+            data = await res.json().catch(() => null);
+            if (!res.ok) {
+               throw new Error(data?.message || data?.error || 'Authentication failed on verification service');
+            }
+          } else {
+            // ── Native Direct MongoDB Authentication Fallback ──
+            console.log(`[NextAuth] External port 5000 unreachable. Executing Native Direct MongoDB Auth for ${path}...`);
+            if (credentials.firebaseIdToken) {
+               data = await verifyFirebaseDirect(bodyObj);
+            } else if (credentials.otp && credentials.phone) {
+               data = await verifyOtpDirect(bodyObj);
+            } else if (credentials.username && credentials.password) {
+               data = await loginPasswordDirect(bodyObj);
+            }
+          }
           
-          if (res.ok && userObj && (userObj.token || data.token)) {
+          const userObj = data?.user || data;
+          
+          if (userObj && (userObj.token || data?.token || userObj._id)) {
             return {
-              id: userObj._id,
-              name: userObj.username,
+              id: userObj._id?.toString() || userObj.id,
+              name: userObj.username || userObj.name || userObj.phone,
               email: userObj.email,
-              role: userObj.role,
-              accessToken: userObj.token || data.token,
+              role: userObj.role || 'user',
+              accessToken: userObj.token || data?.token,
             };
           }
           
-          throw new Error(data?.message || data?.error || 'Authentication failed on verification server');
+          throw new Error(data?.message || data?.error || 'Authentication verification failed');
         } catch (error) {
           console.error('[NextAuth] Authorize Error:', error.message || error);
           throw new Error(error.message || 'Authentication system error');

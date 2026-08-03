@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { verifyOtpDirect } from '../../../../lib/directAuth.js';
 
 async function fetchBackend(path, body) {
   const hosts = [
@@ -13,7 +14,7 @@ async function fetchBackend(path, body) {
     try {
       const url = `${host}${path}`;
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 4000);
+      const timeout = setTimeout(() => controller.abort(), 2500);
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -21,9 +22,9 @@ async function fetchBackend(path, body) {
         signal: controller.signal
       });
       clearTimeout(timeout);
-      if (res) return res;
+      if (res && res.status < 500) return res;
     } catch (err) {
-      console.warn(`[Verify Proxy] Failed connecting to ${host}:`, err.message || err);
+      // Continue to next host or direct DB fallback
     }
   }
   return null;
@@ -34,18 +35,19 @@ export async function POST(req) {
     const body = await req.json();
     const res = await fetchBackend('/api/auth/verify-otp', body);
 
-    if (!res) {
-      return NextResponse.json({ error: 'Unable to reach backend verification server on port 5000 (tested loopback and external IP).' }, { status: 502 });
+    if (res) {
+      const data = await res.json().catch(() => ({ error: 'Failed to parse verification response' }));
+      if (!res.ok) {
+        return NextResponse.json({ error: data.error || data.message || 'OTP verification failed' }, { status: res.status });
+      }
+      return NextResponse.json(data);
     }
 
-    const data = await res.json().catch(() => ({ error: 'Failed to parse response from backend verification service' }));
-    if (!res.ok) {
-      return NextResponse.json({ error: data.error || data.message || 'OTP verification failed' }, { status: res.status });
-    }
-
-    return NextResponse.json(data);
+    // ── Direct Native MongoDB Fallback when port 5000 is offline ──
+    const directResult = await verifyOtpDirect(body);
+    return NextResponse.json(directResult);
   } catch (error) {
-    console.error('Error in Next.js verify-otp API proxy:', error);
-    return NextResponse.json({ error: 'Internal system error during OTP verification proxy.' }, { status: 500 });
+    console.error('Error in verify-otp API proxy/direct:', error);
+    return NextResponse.json({ error: error.message || 'Incorrect OTP or verification failed.' }, { status: 400 });
   }
 }
