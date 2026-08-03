@@ -152,7 +152,7 @@ const AdminAnalytics = () => {
             <p style={{ margin: 0, fontSize: '12px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span className="live-pulse-dot" style={{ backgroundColor: '#22c55e' }}></span> Live Orders
             </p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '900', fontFamily: 'Outfit, sans-serif' }}>{kpis.liveOrders || 14} Active</h3>
+            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '900', fontFamily: 'Outfit, sans-serif' }}>{kpis.liveOrders} Active</h3>
             <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', marginTop: '4px', display: 'block' }}>⚡ Instant processing</span>
           </div>
         </div>
@@ -185,7 +185,7 @@ const AdminAnalytics = () => {
           </div>
           <div>
             <p style={{ margin: 0, fontSize: '12px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Retention Rate</p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '900', fontFamily: 'Outfit, sans-serif' }}>{kpis.retentionRate || 78.4}%</h3>
+            <h3 style={{ margin: '4px 0 0', fontSize: '26px', color: '#0f172a', fontWeight: '900', fontFamily: 'Outfit, sans-serif' }}>{kpis.retentionRate}%</h3>
             <span style={{ fontSize: '11px', fontWeight: '800', color: '#059669', marginTop: '4px', display: 'block' }}>🔥 High Brand Loyalty</span>
           </div>
         </div>
