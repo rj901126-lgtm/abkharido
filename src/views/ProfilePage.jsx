@@ -22,11 +22,18 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   }, []);
   
   // Helper for Avatar Initials
-  const getInitials = (f, l, u) => {
-    if (f && l) return (f[0] + l[0]).toUpperCase();
-    if (f) return f.substring(0, 2).toUpperCase();
-    if (u) return u.substring(0, 2).toUpperCase();
-    return 'U';
+  const getInitials = (user) => {
+    if (!user) return 'U';
+    if (user.fullName) {
+      const parts = user.fullName.trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      if (parts[0].length >= 2) return parts[0].substring(0, 2).toUpperCase();
+      return parts[0][0].toUpperCase();
+    }
+    if (user.firstName && user.lastName) return (user.firstName[0] + user.lastName[0]).toUpperCase();
+    if (user.firstName) return user.firstName.substring(0, 2).toUpperCase();
+    if (user.username && !/^\d/.test(user.username)) return user.username.substring(0, 2).toUpperCase();
+    return 'VIP';
   };
 
   // State hooks
@@ -235,46 +242,72 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   return (
     <div className="profile-page-container animate-fade-in" style={{ padding: '0', background: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. Clean Minimal Header */}
-      <div className="profile-dashboard-header">
+      {/* 1. VIP Luxury Dashboard Header */}
+      <div className="profile-dashboard-header" style={{ background: 'linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #7c3aed 100%)', boxShadow: '0 8px 30px rgba(79, 70, 229, 0.15)' }}>
         <div className="profile-header-user">
-          <div className="profile-header-avatar">
-            {getInitials(currentUser.firstName, currentUser.lastName, currentUser.username)}
+          <div className="profile-header-avatar" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', border: '3px solid #fde68a', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)' }}>
+            {getInitials(currentUser)}
           </div>
           <div className="profile-header-info">
             <h2 className="profile-header-name">
               {(currentUser.firstName || currentUser.lastName)
                 ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
-                : currentUser.fullName || 'AbKharido User'}
+                : currentUser.fullName || 'AbKharido Member'}
             </h2>
-            <p className="profile-header-phone">
-              ⭐ AbKharido Member
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(254, 243, 199, 0.2)', border: '1px solid rgba(253, 230, 138, 0.4)', color: '#fef3c7', padding: '3px 10px', borderRadius: '100px', fontSize: '12px', fontWeight: '700', backdropFilter: 'blur(4px)' }}>
+                👑 VIP Member
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(255, 255, 255, 0.15)', color: '#ffffff', padding: '3px 10px', borderRadius: '100px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }} onClick={() => setActiveTab('rewards')}>
+                🪙 {currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} Coins Active &gt;
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '0 16px', marginTop: '-20px', position: 'relative', zIndex: 10 }}>
+      <div style={{ padding: '0 16px', marginTop: '-24px', position: 'relative', zIndex: 10 }}>
         
-        {/* 2. Quick Action Grid (2x2) */}
-        <div className="profile-quick-actions">
-          <div className="quick-action-card" onClick={() => onNavigate('orders')}>
-            <ShoppingBag size={24} color="#4f46e5" /> 
-            <span>My Orders</span>
+        {/* 2. Upgraded Quick Action Cards */}
+        <div className="profile-quick-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+          <div className="quick-action-card" onClick={() => onNavigate('orders')} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0 }}>
+            <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <ShoppingBag size={24} color="#2563eb" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>My Orders</span>
+              <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Track &amp; Reorder Items</small>
+            </div>
           </div>
-          <div className="quick-action-card" onClick={() => {
-            setActiveTab('wishlist');
-          }}>
-            <Heart size={24} color="#ec4899" /> 
-            <span>Wishlist</span>
+
+          <div className="quick-action-card" onClick={() => setActiveTab('wishlist')} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0 }}>
+            <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Heart size={24} fill="#dc2626" color="#dc2626" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>Wishlist ({wishlistProducts.length})</span>
+              <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Saved Deals &amp; Offers</small>
+            </div>
           </div>
-          <div className="quick-action-card" onClick={() => onNavigate('partner')}>
-            <Award size={24} color="#f59e0b" /> 
-            <span>Creator Hub</span>
+
+          <div className="quick-action-card" onClick={() => setActiveTab('rewards')} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px solid #fde68a', background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 100%)', borderRadius: '16px', boxShadow: '0 4px 14px rgba(245,158,11,0.06)', margin: 0 }}>
+            <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '24px' }}>
+              🪙
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '15px', fontWeight: '800', color: '#92400e' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} AB Coins</span>
+              <small style={{ fontSize: '11.5px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>Redeem for Cashback</small>
+            </div>
           </div>
-          <div className="quick-action-card" onClick={() => setIsEditing(!isEditing)}>
-            <Edit2 size={24} color="#10b981" /> 
-            <span>{isEditing ? 'Close Settings' : 'Settings'}</span>
+
+          <div className="quick-action-card" onClick={() => { setActiveTab('overview'); setIsEditing(!isEditing); }} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0 }}>
+            <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Edit2 size={24} color="#16a34a" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>{isEditing ? 'Close Edit' : 'Edit Profile'}</span>
+              <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Addresses &amp; Security</small>
+            </div>
           </div>
         </div>
 
@@ -650,16 +683,74 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
           </h3>
 
           {wishlistProducts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-secondary)' }}>
-              <ShoppingBag size={36} color="#878787" style={{ margin: '0 auto 12px auto', opacity: 0.6 }} />
-              <p style={{ fontSize: '13px' }}>Your wishlist is empty.</p>
-              <button 
-                onClick={() => onNavigate('home')}
-                className="btn btn-outline" 
-                style={{ marginTop: '12px', fontSize: '12px', padding: '6px 12px', width: '100%' }}
-              >
-                Explore Products
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {/* Luxury Empty Banner */}
+              <div style={{ textAlign: 'center', padding: '48px 24px', background: 'linear-gradient(135deg, #fff1f2 0%, #fef2f2 100%)', borderRadius: '24px', border: '1.5px dashed #fecdd3', boxShadow: '0 10px 25px -5px rgba(244,63,94,0.08)' }}>
+                <div style={{ width: '76px', height: '76px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 8px 20px rgba(244,63,94,0.15)', fontSize: '36px' }}>
+                  💖
+                </div>
+                <h3 style={{ fontSize: '20px', fontWeight: '900', color: '#881337', margin: '0 0 8px 0', letterSpacing: '-0.3px' }}>Your Wishlist is Empty</h3>
+                <p style={{ fontSize: '14px', color: '#9f1239', margin: '0 auto 24px auto', maxWidth: '440px', lineHeight: '1.5', fontWeight: '500' }}>
+                  Don&apos;t lose track of lightning deals and discounts! Save your favorite electronics, gadgets &amp; fashions here for instant price drop alerts.
+                </p>
+                <button 
+                  onClick={() => onNavigate('home')}
+                  style={{ background: 'linear-gradient(135deg, #e11d48 0%, #be123c 100%)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '100px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 6px 16px rgba(225,29,72,0.3)', transition: 'transform 0.2s', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                >
+                  ✨ Explore Trending Deals Now
+                </button>
+              </div>
+
+              {/* Recommended Products right in empty wishlist */}
+              {products && products.length > 0 && (
+                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
+                  <h4 style={{ fontSize: '17px', fontWeight: '900', color: '#0f172a', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>🔥 Recommended For You</span>
+                    <span style={{ fontSize: '11.5px', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '100px', fontWeight: '700' }}>Cashback Eligible</span>
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
+                    {products.slice(0, 4).map(p => {
+                      const discount = p.originalPrice > p.price ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
+                      return (
+                        <div key={p.id} style={{ border: '1.5px solid #e2e8f0', borderRadius: '16px', background: 'white', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.2s', position: 'relative', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                          {discount > 0 && (
+                            <div style={{ position: 'absolute', top: '8px', left: '8px', background: '#ef4444', color: 'white', padding: '2px 8px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800', zIndex: 3 }}>
+                              {discount}% OFF
+                            </div>
+                          )}
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); toggleWishlist(p.id); showToast('Added to Wishlist! ❤️', 'success'); }} 
+                            style={{ position: 'absolute', top: '8px', right: '8px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 3, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}
+                            title="Save to Wishlist"
+                          >
+                            <Heart size={16} color="#dc2626" />
+                          </button>
+                          <div onClick={() => onNavigate(`product-${p.id}`)} style={{ height: '150px', padding: '12px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          </div>
+                          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', gap: '8px' }}>
+                            <div>
+                              <h5 onClick={() => onNavigate(`product-${p.id}`)} style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0', cursor: 'pointer', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.3' }}>
+                                {p.name}
+                              </h5>
+                              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                                <span style={{ fontSize: '15px', fontWeight: '900', color: '#10b981' }}>₹{(p.price || 0).toLocaleString('en-IN')}</span>
+                                {p.originalPrice > p.price && <span style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{p.originalPrice.toLocaleString('en-IN')}</span>}
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => { addToCart(p); showToast('Added to Bag! 🛍️', 'success'); }}
+                              style={{ width: '100%', background: '#4f46e5', color: 'white', border: 'none', padding: '8px 0', borderRadius: '8px', fontSize: '12px', fontWeight: '800', cursor: 'pointer' }}
+                            >
+                              🛍️ ADD TO BAG
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px', minWidth: 0 }}>
