@@ -1031,42 +1031,40 @@ input:focus, textarea:focus, select:focus {
 .lp-wrapper {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(-45deg, #3b82f6, #8b5cf6, #4f46e5, #1e3a8a);
-  background-size: 400% 400%;
-  animation: meshGradient 15s ease infinite;
+  background: #f8fafc;
 }
 
-@keyframes meshGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* ── Left Image Panel (Desktop Only) ── */
+/* ── Left Premium Dark Panel (Desktop Only) ── */
 .lp-left {
-  width: 48%;
-  background: url(https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=1200&auto=format&fit=crop) center/cover no-repeat;
+  width: 50%;
+  background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
+              linear-gradient(135deg, #090d16 0%, #0f172a 60%, #1e1b4b 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px 40px;
+  padding: 60px 48px;
   position: relative;
   overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .lp-left::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.7) 0%, rgba(30, 27, 75, 0.9) 100%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  pointer-events: none;
   z-index: 1;
 }
 .lp-left-content {
   position: relative;
   z-index: 2;
   color: white;
+  max-width: 480px;
 }
 
 .lp-logo-row {

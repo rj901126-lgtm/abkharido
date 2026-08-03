@@ -23,6 +23,7 @@ const Login = ({ onNavigate }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [firebaseConfirmation, setFirebaseConfirmation] = useState(null); // Firebase SMS result
+  const [smsNotice, setSmsNotice] = useState(null); // SMS Gateway diagnostics notice
 
   useEffect(() => {
     if (currentUser) onNavigate('home');
@@ -94,21 +95,15 @@ const Login = ({ onNavigate }) => {
     if (!validatePhone()) return;
     setIsSending(true);
     setFirebaseConfirmation(null);
+    setSmsNotice(null);
     try {
-      // We skip check-user because backend automatically creates an account 
-      // if the phone number doesn't exist upon OTP verification. Seamless login/signup!
-
       // ── Try Firebase Phone Auth first (real SMS) ──
       try {
         if (!window.recaptchaVerifier) {
           window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
-            size: 'invisible', // Invisible reCAPTCHA for ultra-smooth experience
-            callback: () => {
-              // Automatically handled
-            },
-            'expired-callback': () => {
-              window.recaptchaVerifier = null;
-            }
+            size: 'invisible',
+            callback: () => {},
+            'expired-callback': () => { window.recaptchaVerifier = null; }
           });
           await window.recaptchaVerifier.render();
         }
@@ -118,24 +113,24 @@ const Login = ({ onNavigate }) => {
         setTimer(60);
         showToast('✅ OTP sent to your mobile via SMS!', 'success');
       } catch (fbErr) {
-        // Clear broken reCAPTCHA
         if (window.recaptchaVerifier) {
           // eslint-disable-next-line
           try { window.recaptchaVerifier.clear(); } catch (_) {}
           window.recaptchaVerifier = null;
         }
         console.error('Firebase SMS error:', fbErr.code, fbErr.message);
-        // Show specific error to help diagnose
-        const fbErrMsg = {
-          'auth/unauthorized-domain': 'Domain not authorized in Firebase Console. Please add this website domain in Firebase Auth -> Settings.',
-          'auth/network-request-failed': 'Network blocked Firebase connection. Please check internet connection or disable ad-blockers.',
-          'auth/too-many-requests': 'Too many OTP requests from this phone number. Please try again after a few minutes.',
-          'auth/quota-exceeded': 'Firebase SMS Daily Quota has been exceeded.',
-          'auth/captcha-check-failed': 'reCAPTCHA verification failed on this mobile browser. Try opening in Chrome/Safari main browser.',
-          'auth/invalid-phone-number': 'Invalid mobile number format.',
-        }[fbErr.code] || `SMS Delivery Error: ${fbErr.code || fbErr.message}`;
-        showToast(`⚠️ ${fbErrMsg}`, 'error');
-        // ── Fallback to authentic backend SMS API only (No mock codes!) ──
+        
+        let noticeText = '';
+        if (fbErr.code === 'auth/unauthorized-domain') {
+          noticeText = `Domain (${window.location.hostname}) not authorized in Firebase. Please add this URL in Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
+        } else if (fbErr.code === 'auth/captcha-check-failed') {
+          noticeText = `reCAPTCHA blocked on this browser/network. Trying backend authentic SMS server...`;
+        } else {
+          noticeText = `Firebase SMS error (${fbErr.code || fbErr.message}). Falling back to backend authentic SMS Gateway.`;
+        }
+        setSmsNotice(noticeText);
+        
+        // ── Fallback to authentic backend SMS API ──
         await triggerBackendOtp();
       }
     // eslint-disable-next-line
@@ -148,7 +143,7 @@ const Login = ({ onNavigate }) => {
 
   const triggerBackendOtp = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/send-otp`, {
+      const res = await fetch(`/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipient: phone })
@@ -159,10 +154,10 @@ const Login = ({ onNavigate }) => {
       }
       setShowOtpScreen(true);
       setTimer(60);
-      showToast('✅ Authentic OTP sent to your number successfully.', 'success');
+      showToast('✅ Authentic SMS OTP verification initiated.', 'success');
     } catch (apiErr) {
       console.error('Authentic SMS gateway delivery failed:', apiErr);
-      showToast(`❌ Unable to send authentic SMS OTP right now. Please verify internet connection or try again later.`, 'error');
+      showToast(`❌ Unable to send authentic SMS right now. Please check internet connection or Firebase authorized domains.`, 'error');
     }
   };
 
@@ -275,39 +270,41 @@ const Login = ({ onNavigate }) => {
       `}</style>
       <div id="recaptcha-container"></div>
 
-      {/* ── Desktop: Left Blue Panel ── */}
+      {/* ── Desktop: Left Titanium Security & Assurance Panel ── */}
       <div className="lp-left lp-left-desktop-only">
-        <div className="lp-left-content">
-          <div className="lp-logo-row">
-            <span className="lp-brand-text">
-              AbKharido<span className="lp-brand-dot">.com</span>
+        <div className="lp-left-content" style={{ maxWidth: '440px' }}>
+          <div className="lp-logo-row" style={{ marginBottom: '24px' }}>
+            <span className="lp-brand-text" style={{ fontSize: '28px', fontStyle: 'normal' }}>
+              AbKharido<span className="lp-brand-dot" style={{ color: '#fde047' }}>.com</span>
             </span>
-            <span className="lp-brand-sub">Direct Buy &amp; Earn</span>
+            <span style={{ fontSize: '11px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '4px 10px', borderRadius: '100px', fontWeight: '800', color: '#38bdf8' }}>
+              🇮🇳 INDIA VIP
+            </span>
           </div>
-          <h1 className="lp-left-title">
-            {showOtpScreen
-              ? 'Verify your\nnumber'
-              : 'Welcome\nto Abkharido'}
+
+          <h1 className="lp-left-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '36px', fontWeight: '900', lineHeight: '1.15', letterSpacing: '-0.5px', marginBottom: '16px' }}>
+            {showOtpScreen ? 'Two-Step\nOTP Security 🔐' : 'Buy Direct.\nSave Big.\nEarn Rewards. 🚀'}
           </h1>
-          <p className="lp-left-sub">
-            {showOtpScreen
-              ? `OTP sent to +91 ${phone}`
-              : 'Get access to your Orders, Wishlist & Recommendations'}
+          <p className="lp-left-sub" style={{ fontSize: '14.5px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '36px' }}>
+            {showOtpScreen ? `We sent an authentic 6-digit SMS code to +91 ${phone}. No backup bypasses allowed for your absolute account security.` : 'India’s premier direct-from-warehouse E-Commerce platform with zero middleman commissions.'}
           </p>
-          <div className="lp-illustration">
-            <svg viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="110" cy="90" r="55" fill="rgba(255,255,255,0.07)" />
-              <rect x="75" y="50" width="70" height="50" rx="6" fill="white" />
-              <rect x="80" y="55" width="60" height="35" rx="3" fill="#e8f0fe" />
-              <rect x="100" y="100" width="20" height="10" fill="#c5d8f5" />
-              <rect x="90" y="110" width="40" height="4" rx="2" fill="#b0c9ee" />
-              <circle cx="110" cy="72" r="8" fill="#fbbf24" />
-              <path d="M45 55c-3-3-7-3-10 0a7 7 0 000 10l10 10 10-10a7 7 0 000-10z" fill="#f87171" />
-              <rect x="155" y="75" width="28" height="28" rx="4" fill="#fbbf24" />
-              <path d="M162 75v-5a7 7 0 0114 0v5" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
-              <circle cx="168" cy="88" r="2.5" fill="#374151" />
-              <circle cx="176" cy="88" r="2.5" fill="#374151" />
-            </svg>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '24px', background: 'rgba(239, 68, 68, 0.2)', padding: '10px', borderRadius: '12px' }}>🛡️</span>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>Cashfree Escrow Shield</div>
+                <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Your funds are protected in bank escrow until delivery is verified at your doorstep.</div>
+              </div>
+            </div>
+
+            <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '24px', background: 'rgba(34, 197, 94, 0.2)', padding: '10px', borderRadius: '12px' }}>⚡</span>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>Zero Middleman Margin</div>
+                <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Direct shipment from manufacturers with genuine brand assurance and express air-dispatch.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -404,20 +401,26 @@ const Login = ({ onNavigate }) => {
             </>
           ) : (
             <>
-              <h2 className="lp-form-title">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#059669', padding: '5px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: '800', marginBottom: '12px', border: '1px solid #a7f3d0' }}>
+                <span>🔒</span> BANKING-GRADE AUTHENTIC OTP
+              </div>
+
+              <h2 className="lp-form-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.4px', margin: '0 0 6px 0' }}>
                 Login or Signup
               </h2>
-              <p className="lp-form-sub">
-                Enter your mobile number to continue
+              <p className="lp-form-sub" style={{ fontSize: '14px', color: '#64748b', margin: '0 0 24px 0' }}>
+                Enter your 10-digit mobile number to verify via SMS
               </p>
 
               <form onSubmit={handleRequestOtp} className="lp-form">
                 {/* Phone Input */}
-                <div className="lp-input-group">
-                  <span className="lp-input-prefix">+91</span>
+                <div className="lp-input-group" style={{ height: '54px', border: '2px solid #cbd5e1', borderRadius: '16px', background: '#ffffff', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+                  <span className="lp-input-prefix" style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', padding: '0 16px', borderRight: '2px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '6px', height: '100%' }}>
+                    🇮🇳 +91
+                  </span>
                   <input
                     type="tel"
-                    placeholder="Mobile Number"
+                    placeholder="Mobile Number (e.g. 9876543210)"
                     value={phone}
                     onChange={(e) => {
                       let val = e.target.value.replace(/\D/g, '');
@@ -429,29 +432,40 @@ const Login = ({ onNavigate }) => {
                       localStorage.setItem('abkharido_login_phone', val);
                     }}
                     className="lp-input lp-input-phone"
+                    style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a', letterSpacing: '0.5px', height: '100%', paddingLeft: '16px', fontFamily: 'monospace' }}
                     inputMode="numeric"
                     disabled={isSending}
                     required
                   />
-                  <Phone size={16} className="lp-input-icon-right" />
+                  <Phone size={18} style={{ position: 'absolute', right: '16px', color: phone.length === 10 ? '#059669' : '#94a3b8', transition: 'color 0.2s' }} />
                 </div>
 
-                <button type="submit" className="lp-submit-btn" disabled={isSending}>
-                  {isSending ? 'Sending OTP...' : 'CONTINUE'}
-                  {!isSending && <ChevronRight size={18} />}
+                {smsNotice && (
+                  <div style={{ padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', fontSize: '12px', color: '#92400e', lineHeight: 1.4, fontWeight: '600' }}>
+                    <strong>ℹ️ SMS Diagnostics Notice:</strong> {smsNotice}
+                  </div>
+                )}
+
+                <button type="submit" className="lp-submit-btn" disabled={isSending} style={{ height: '52px', borderRadius: '16px', fontSize: '15px', fontWeight: '800', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'transform 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                  {isSending ? 'Sending Authentic OTP...' : 'CONTINUE'}
+                  {!isSending && <ChevronRight size={20} />}
                 </button>
               </form>
-              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '24px' }}>
+
+              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '24px', fontSize: '12.5px', color: '#64748b' }}>
                 <CheckCircle size={14} color="#10b981" />
                 <span>
-                  By proceeding, you agree to our <a className="lp-policy-link">Terms</a> & <a className="lp-policy-link">Privacy Policy</a>
+                  By proceeding, you agree to our <a className="lp-policy-link" style={{ color: '#2563eb', fontWeight: '700' }}>Terms</a> &amp; <a className="lp-policy-link" style={{ color: '#2563eb', fontWeight: '700' }}>Privacy Policy</a>
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginTop: '28px', padding: '14px 16px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                <span style={{ fontSize: '20px' }}>🛡️</span>
-                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', lineHeight: 1.4 }}>
-                  <span style={{ color: '#0f172a', fontWeight: '800' }}>100% Safe, Secure &amp; Direct</span><br />
-                  Powered by Cashfree Escrow &amp; Firebase Auth
+
+              <div style={{ marginTop: '24px', padding: '16px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', borderRadius: '20px', border: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800', color: '#1e3a8a' }}>
+                  <span>🛡️ 100% Safe &amp; Direct</span>
+                  <span style={{ color: '#059669' }}>✓ Zero Backup Bypass</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#475569', lineHeight: 1.4 }}>
+                  To ensure maximum privacy &amp; safety against account takeovers, we rely strictly on authentic SMS OTP verification. Powered by Cashfree Escrow &amp; Firebase Auth.
                 </div>
               </div>
             </>
