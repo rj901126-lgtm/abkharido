@@ -355,12 +355,12 @@
     height: calc(104px + env(safe-area-inset-top)) !important;
     padding-top: env(safe-area-inset-top) !important;
     align-items: flex-start !important;
-    /* Dark premium glass navbar on mobile */
-    background: rgba(9, 13, 22, 0.98) !important;
+    /* Sleek light glassmorphism for premium feel */
+    background: rgba(255, 255, 255, 0.85) !important;
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04) !important;
   }
 
   .navbar-container {
@@ -374,25 +374,25 @@
     width: 100% !important;
   }
 
-  /* White logo on dark navbar */
+  /* Black logo on light navbar */
   .logo-text {
-    font-size: 20px !important;
-    background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 100%) !important;
+    font-size: 22px !important;
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
   }
 
   .logo-plus {
-    color: #fbbf24 !important;
-    -webkit-text-fill-color: #fbbf24 !important;
+    color: #f59e0b !important;
+    -webkit-text-fill-color: #f59e0b !important;
   }
 
   .logo-sub {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(15, 23, 42, 0.5) !important;
     font-size: 10px !important;
   }
 
-  /* Right side icons on dark background */
+  /* Right side icons on light background */
   .navbar-right {
     position: absolute !important;
     right: 12px !important;
@@ -400,40 +400,40 @@
     gap: 6px !important;
   }
 
-  /* Nav item (logged-in user, cart) — white on dark */
+  /* Nav item (logged-in user, cart) — dark on light */
   .nav-item {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: rgba(15, 23, 42, 0.9) !important;
   }
 
   .nav-item:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(15, 23, 42, 0.05) !important;
   }
 
-  /* Login button — dark transparent style */
+  /* Login button — sleek light style */
   .nav-item-btn {
-    background: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
     border-radius: 20px !important;
     padding: 5px 16px !important;
     font-size: 13px !important;
   }
 
   .nav-item-btn:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: #f1f5f9 !important;
   }
 
   /* Cart badge */
   .cart-badge {
-    background: #f59e0b !important;
-    border-color: #090d16 !important;
+    background: #ef4444 !important;
+    border-color: #ffffff !important;
   }
 
   .nav-text {
     display: none;
   }
 
-  /* Pill-shaped search bar on dark background */
+  /* Sleek search bar on light background */
   .search-form {
     width: 100% !important;
     max-width: 100% !important;
@@ -442,34 +442,34 @@
 
   .search-input-wrapper {
     border-radius: 99px !important;
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: #f1f5f9 !important;
+    border: 1px solid transparent !important;
     box-shadow: none !important;
   }
 
   .search-input-wrapper:focus-within {
-    background: rgba(255, 255, 255, 0.14) !important;
-    border-color: rgba(99, 102, 241, 0.7) !important;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2) !important;
+    background: #ffffff !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
   }
 
   .search-input {
     padding: 8px 12px !important;
-    font-size: 16px !important;
-    color: #ffffff !important;
+    font-size: 15px !important;
+    color: #0f172a !important;
   }
 
   .search-input::placeholder {
-    color: rgba(255, 255, 255, 0.45) !important;
+    color: rgba(15, 23, 42, 0.45) !important;
   }
 
   .search-button {
     padding: 0 14px !important;
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(15, 23, 42, 0.7) !important;
   }
 
   .search-button svg {
-    stroke: rgba(255, 255, 255, 0.7) !important;
+    stroke: rgba(15, 23, 42, 0.7) !important;
   }
 
   /* Category bar below dark navbar */
@@ -496,51 +496,33 @@
 
   .cat-item {
     flex-shrink: 0;
-    flex-direction: column !important;
+    flex-direction: row !important; /* Pill shape horizontal */
     align-items: center !important;
-    gap: 4px !important;
-    font-size: 11px !important;
+    gap: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
     border-bottom: none !important;
-    padding: 4px 0 !important;
-    color: #616161 !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
+    padding: 8px 16px !important;
+    color: #334155 !important;
+    background-color: #f8fafc !important;
+    border-radius: 99px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
   }
 
   .cat-item::before {
-    content: '';
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid var(--border-light);
-    font-size: 18px;
-    margin-bottom: 2px;
-    transition: all var(--transition-fast);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    display: none !important; /* Hide old pseudo-element circles */
   }
 
-  .cat-item:nth-child(1)::before { content: '🛍️'; background: linear-gradient(135deg, #fff9db 0%, #ffe066 100%); }
-  .cat-item:nth-child(2)::before { content: '📱'; background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%); }
-  .cat-item:nth-child(3)::before { content: '💻'; background: linear-gradient(135deg, #e0f7fa 0%, #4dd0e1 100%); }
-  .cat-item:nth-child(4)::before { content: '👕'; background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%); }
-  .cat-item:nth-child(5)::before { content: '🏠'; background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%); }
-  .cat-item:nth-child(6)::before { content: '📺'; background: linear-gradient(135deg, #ffebee 0%, #ef9a9a 100%); }
-
-  .cat-item.active::before {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25) !important;
+  .cat-item.active {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2) !important;
   }
 
   .cat-item.active, .cat-item:hover {
-    color: var(--primary-color) !important;
-    font-weight: 700 !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    transform: none !important;
+    font-weight: 600 !important;
   }
 }
 
@@ -548,92 +530,4 @@
   background-color: #f8fafc;
 }
 
-/* ══════════════════════════════════════════════════════
-   MOBILE DARK NAVBAR — Maximum Specificity Override
-   Forces dark theme on all mobile screens ≤768px
-   ══════════════════════════════════════════════════════ */
-@media screen and (max-width: 768px) {
-  /* Force dark background on header */
-  header.navbar-header,
-  .navbar-header {
-    background: #090d16 !important;
-    background-color: #090d16 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.6) !important;
-  }
-
-  /* Logo white text */
-  .navbar-header .logo-text {
-    background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-  }
-  .navbar-header .logo-plus {
-    color: #fbbf24 !important;
-    -webkit-text-fill-color: #fbbf24 !important;
-  }
-  .navbar-header .logo-sub {
-    color: rgba(255, 255, 255, 0.45) !important;
-  }
-  .navbar-header .logo-sub span {
-    color: rgba(255, 255, 255, 0.7) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
-  }
-
-  /* Nav items white */
-  .navbar-header .nav-item {
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
-  .navbar-header .nav-item:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-  }
-
-  /* Login button — frosted pill on dark */
-  .navbar-header .nav-item-btn {
-    background: rgba(255, 255, 255, 0.10) !important;
-    background-color: rgba(255, 255, 255, 0.10) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.22) !important;
-    border-radius: 20px !important;
-  }
-  .navbar-header .nav-item-btn:hover {
-    background: rgba(255, 255, 255, 0.18) !important;
-  }
-
-  /* Cart badge gold */
-  .navbar-header .cart-badge {
-    background: #f59e0b !important;
-    border-color: #090d16 !important;
-  }
-
-  /* Search bar pill on dark */
-  .navbar-header .search-input-wrapper {
-    background: rgba(255, 255, 255, 0.09) !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    border-radius: 99px !important;
-  }
-  .navbar-header .search-input-wrapper:focus-within {
-    background: rgba(255, 255, 255, 0.13) !important;
-    border-color: rgba(99, 102, 241, 0.65) !important;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18) !important;
-  }
-  .navbar-header .search-input {
-    color: #ffffff !important;
-    background: transparent !important;
-  }
-  .navbar-header .search-input::placeholder {
-    color: rgba(255, 255, 255, 0.4) !important;
-  }
-  .navbar-header .search-button {
-    color: rgba(255, 255, 255, 0.65) !important;
-  }
-  .navbar-header .search-button svg {
-    stroke: rgba(255, 255, 255, 0.65) !important;
-  }
-
-  /* Home category strip correct top offset */
-  .home-category-strip {
-    top: 104px !important;
-  }
-}
+/* Removing the Maximum Specificity Override block which forced the dark background entirely */

@@ -44,14 +44,15 @@
   padding: 0 80px;
 }
 
-/* Background image slightly zooms out when it becomes active for a premium feel */
+/* Background image gently scales down to cover when it becomes active for a premium feel */
 .carousel-slide {
   background-size: 110% !important;
   background-position: center !important;
-  transition: opacity 1s ease-in-out, background-size 8s ease-out;
+  background-repeat: no-repeat !important;
+  transition: opacity 1s ease-in-out, background-size 8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .carousel-slide.active {
-  background-size: 100% !important;
+  background-size: cover !important;
   opacity: 1;
   z-index: 1;
 }
@@ -491,10 +492,10 @@
 
   /* ── Hero Carousel Mobile ── */
   .hero-carousel {
-    height: 300px !important;
-    border-radius: 0 0 20px 20px !important;
-    margin-bottom: 0 !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+    height: 380px !important; /* Taller for better aspect ratio */
+    border-radius: 28px !important; /* Premium rounded corners all around */
+    margin: 12px 12px 24px 12px !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12) !important;
   }
   .carousel-slide {
     padding: 16px 14px !important;

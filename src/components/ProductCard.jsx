@@ -149,17 +149,20 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? 'linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-            boxShadow: isBtnHovered ? '0 6px 16px rgba(79, 70, 229, 0.4)' : '0 2px 8px rgba(79, 70, 229, 0.2)',
+            background: isBtnHovered ? '#1e293b' : '#0f172a',
+            color: '#ffffff',
+            boxShadow: isBtnHovered ? '0 6px 16px rgba(15, 23, 42, 0.25)' : 'none',
+            border: 'none',
             transform: isBtnHovered ? 'translateY(-2px)' : 'none',
             marginTop: 'auto',
-            width: '100%'
+            width: '100%',
+            transition: 'all 0.3s ease'
           }} 
           onClick={handleAddToCart}
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={14} style={{ color: '#ffffff' }} /> <span style={{ fontSize: '13px', fontWeight: '800' }}>Add to Bag</span>
+          <ShoppingCart size={15} style={{ color: '#ffffff' }} /> <span style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.2px' }}>Add to Bag</span>
         </button>
       </div>
     </div>
@@ -169,7 +172,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 const styles = {
   card: {
     backgroundColor: 'white',
-    borderRadius: '20px',
+    borderRadius: '24px',
     border: '1px solid #f1f5f9',
     overflow: 'hidden',
     cursor: 'pointer',
@@ -178,7 +181,7 @@ const styles = {
     position: 'relative',
     height: '100%',
     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-    boxShadow: '0 4px 16px -2px rgba(9, 13, 22, 0.04)',
+    boxShadow: '0 8px 24px -6px rgba(0, 0, 0, 0.05), 0 4px 10px -4px rgba(0, 0, 0, 0.03)',
     boxSizing: 'border-box'
   },
   imageWrapper: {

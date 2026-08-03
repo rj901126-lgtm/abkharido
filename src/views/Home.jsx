@@ -192,62 +192,32 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 style={{
                   flexShrink: 0,
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: 'row',
                   alignItems: 'center',
-                  gap: '5px',
-                  background: 'none',
-                  border: 'none',
+                  gap: '8px',
+                  background: isSelected ? '#0f172a' : '#f8fafc',
+                  border: isSelected ? '1px solid #0f172a' : '1px solid #e2e8f0',
                   cursor: 'pointer',
-                  padding: '4px 10px',
-                  transition: 'all 0.2s ease',
-                  minWidth: '64px',
+                  padding: '8px 16px',
+                  borderRadius: '99px',
+                  boxShadow: isSelected ? '0 4px 12px rgba(15, 23, 42, 0.15)' : '0 2px 4px rgba(0,0,0,0.02)',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  height: '42px',
                 }}
               >
-                {/* Circular icon */}
-                <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: isSelected ? cat.bg || 'linear-gradient(135deg, #ede9fe, #ddd6fe)' : cat.bg || '#f8fafc',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px',
-                  border: isSelected 
-                    ? `2.5px solid ${cat.color || '#4f46e5'}` 
-                    : '2px solid rgba(226, 232, 240, 0.8)',
-                  boxShadow: isSelected 
-                    ? `0 6px 18px -4px ${cat.color || '#4f46e5'}55` 
-                    : '0 2px 8px rgba(0,0,0,0.06)',
-                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
-                  transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                }}>
-                  {cat.icon}
-                </div>
+                {/* Sleek small icon */}
+                <span style={{ fontSize: '15px' }}>{cat.icon}</span>
 
                 {/* Label */}
                 <span style={{
-                  fontSize: '10.5px',
-                  fontWeight: isSelected ? '800' : '600',
-                  color: isSelected ? (cat.color || '#4f46e5') : '#475569',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: isSelected ? '#ffffff' : '#475569',
                   fontFamily: "'Outfit', sans-serif",
-                  letterSpacing: '-0.1px',
                   whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease',
                 }}>
                   {cat.label}
                 </span>
-
-                {/* Active dot indicator */}
-                {isSelected && (
-                  <div style={{
-                    width: '4px',
-                    height: '4px',
-                    borderRadius: '50%',
-                    background: cat.color || '#4f46e5',
-                    marginTop: '-2px',
-                  }} />
-                )}
               </button>
             );
           })}
