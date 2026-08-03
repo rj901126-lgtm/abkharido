@@ -47,12 +47,19 @@ export const AppProvider = ({ children }) => {
   
   const { data: session, status } = useSession();
   const [dbUser, setDbUser] = useState(null);
+  const [localSession, setLocalSession] = useState(() => {
+    try {
+      const saved = localStorage.getItem('abkharido_user_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+
   const currentUser = session ? { 
     ...session.user, 
     token: session.accessToken, 
     username: session.user.name, 
     ...(dbUser || {}) 
-  } : null;
+  } : (localSession ? { ...localSession, ...(dbUser || {}) } : null);
 
   const [cart, setCart] = useState(() => {
     try {
@@ -465,6 +472,7 @@ export const AppProvider = ({ children }) => {
   // --- Logout Action ---
   const logout = async () => {
     localStorage.removeItem('abkharido_user_session');
+    setLocalSession(null);
     setOrders([]);
     await signOut({ redirect: false });
     showToast('Logged out successfully.', 'info');
