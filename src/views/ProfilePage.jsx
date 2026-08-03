@@ -6,11 +6,18 @@ import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
-  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard } = useApp();
+  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard, addToCart } = useApp();
   const isMountedRef = useRef(true);
   React.useEffect(() => {
     isMountedRef.current = true;
     fetchUserSavedCards();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab && ['overview', 'rewards', 'wishlist', 'savedcards', 'support'].includes(tab)) {
+        setActiveTab(tab);
+      }
+    }
     return () => { isMountedRef.current = false; };
   }, []);
   
@@ -655,52 +662,88 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
-              {wishlistProducts.map(p => (
-                <div 
-                  key={p.id}
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '12px', 
-                    borderBottom: '1px solid #f0f0f0', 
-                    paddingBottom: '12px',
-                    position: 'relative',
-                    minWidth: 0
-                  }}
-                >
-                  <img 
-                    src={p.image} 
-                    alt={p.name} 
-                    style={{ width: '50px', height: '50px', objectFit: 'contain', border: '1px solid #f0f0f0', borderRadius: '4px', padding: '2px', backgroundColor: 'white' }} 
-                  />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h4 
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px', minWidth: 0 }}>
+              {wishlistProducts.map(p => {
+                const discount = p.originalPrice > p.price ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
+                return (
+                  <div 
+                    key={p.id}
+                    style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      border: '1.5px solid #e2e8f0', 
+                      borderRadius: '16px',
+                      background: '#ffffff',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                    }}
+                    className="wishlist-product-card"
+                  >
+                    {/* Top Badges */}
+                    {discount > 0 && (
+                      <div style={{ position: 'absolute', top: '8px', left: '8px', background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)', color: 'white', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', zIndex: 5, boxShadow: '0 2px 6px rgba(239,68,68,0.3)' }}>
+                        🔥 {discount}% OFF
+                      </div>
+                    )}
+                    
+                    <button 
+                      onClick={() => toggleWishlist(p.id)}
+                      style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(255, 255, 255, 0.9)', border: '1px solid #e2e8f0', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626', cursor: 'pointer', zIndex: 5, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                      title="Remove from Wishlist"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+
+                    {/* Image */}
+                    <div 
                       onClick={() => {
                         if (onNavigateProduct) onNavigateProduct(p.id);
                         else onNavigate(`product-${p.id}`);
                       }}
-                      style={{ fontSize: '13px', fontWeight: '600', color: '#212121', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      style={{ height: '160px', width: '100%', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', cursor: 'pointer' }}
                     >
-                      {p.name}
-                    </h4>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121' }}>₹{(p.price || 0).toLocaleString('en-IN')}</span>
-                      <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>₹{(p.originalPrice || p.price || 0).toLocaleString('en-IN')}</span>
-                      <span style={{ fontSize: '11px', color: '#388e3c', fontWeight: 'bold' }}>
-                        {p.originalPrice > p.price ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0}% off
-                      </span>
+                      <img 
+                        src={p.image} 
+                        alt={p.name} 
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.3s ease' }} 
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', gap: '8px' }}>
+                      <div>
+                        <h4 
+                          onClick={() => {
+                            if (onNavigateProduct) onNavigateProduct(p.id);
+                            else onNavigate(`product-${p.id}`);
+                          }}
+                          style={{ fontSize: '13.5px', fontWeight: '700', color: '#0f172a', cursor: 'pointer', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.3', minHeight: '35px', margin: '0 0 6px 0' }}
+                        >
+                          {p.name}
+                        </h4>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '15px', fontWeight: '900', color: '#10b981' }}>₹{(p.price || 0).toLocaleString('en-IN')}</span>
+                          {p.originalPrice > p.price && (
+                            <span style={{ fontSize: '11.5px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(p.originalPrice || 0).toLocaleString('en-IN')}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => {
+                          addToCart(p);
+                          showToast('Added to Bag! 🛍️', 'success');
+                        }}
+                        style={{ width: '100%', background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)', color: 'white', border: 'none', padding: '10px 0', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 10px rgba(79,70,229,0.2)' }}
+                      >
+                        <ShoppingBag size={15} /> ADD TO BAG
+                      </button>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => toggleWishlist(p.id)}
-                    style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', padding: '6px' }}
-                    title="Remove from Wishlist"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -226,38 +226,67 @@ const Orders = ({ onNavigate }) => {
           
           if (!isExpanded) {
             return (
-              <div key={order._id} style={{ cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', background: '#fff', border: '1px solid #f1f5f9', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', transition: 'all 0.2s' }} onClick={() => setExpandedOrderId(order._id)}>
+              <div key={order._id} style={{ cursor: 'pointer', display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.03)', transition: 'all 0.2s', position: 'relative' }} onClick={() => setExpandedOrderId(order._id)}>
                 {order.orderItems && order.orderItems.length > 0 ? (
-                  <div style={{ width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
-                    <img src={order.orderItems[0].image} alt={order.orderItems[0].name} style={{ maxWidth: '85%', maxHeight: '85%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+                  <div style={{ width: '74px', height: '74px', borderRadius: '12px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', padding: '4px' }}>
+                    <img src={order.orderItems[0].image} alt={order.orderItems[0].name} style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
                   </div>
                 ) : (
-                  <div style={{ width: '70px', height: '70px', borderRadius: '8px', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
-                    <ShoppingBag size={24} color="#94a3b8" />
+                  <div style={{ width: '74px', height: '74px', borderRadius: '12px', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
+                    <ShoppingBag size={26} color="#94a3b8" />
                   </div>
                 )}
                 
-                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: '800', color: order.status === 'CANCELLED' ? '#ef4444' : order.status === 'Delivered' ? '#059669' : '#d97706', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {order.status === 'Delivered' ? 'Delivered' : order.status}
-                    {order.status === 'Delivered' && <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'none', fontWeight: '500' }}>on {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>}
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{ 
+                      padding: '4px 10px', 
+                      borderRadius: '100px', 
+                      fontSize: '11px', 
+                      fontWeight: '800',
+                      letterSpacing: '0.4px',
+                      textTransform: 'uppercase',
+                      background: order.status === 'CANCELLED' ? '#fef2f2' : order.status === 'Delivered' ? '#ecfdf5' : '#fffbeb',
+                      color: order.status === 'CANCELLED' ? '#ef4444' : order.status === 'Delivered' ? '#059669' : '#d97706',
+                      border: `1px solid ${order.status === 'CANCELLED' ? '#fecaca' : order.status === 'Delivered' ? '#a7f3d0' : '#fde68a'}`
+                    }}>
+                      {order.status === 'Delivered' ? '✅ Delivered' : order.status === 'CANCELLED' ? '❌ Cancelled' : `🚚 ${order.status || 'Processing'}`}
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
+                      ₹{(order.totalPrice || 0).toLocaleString('en-IN')} • {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                    </span>
                   </div>
                   
                   {order.orderItems && order.orderItems.length > 0 && (
-                    <div style={{ fontSize: '15px', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: '14.5px', color: '#0f172a', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '2px' }}>
                       {order.orderItems[0].name}
                     </div>
                   )}
                   
                   {order.orderItems && order.orderItems.length > 1 && (
-                    <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>
-                      +{order.orderItems.length - 1} more item{order.orderItems.length - 1 > 1 ? 's' : ''}
+                    <div style={{ fontSize: '12.5px', color: '#4f46e5', fontWeight: '700' }}>
+                      +{order.orderItems.length - 1} more item{order.orderItems.length - 1 > 1 ? 's' : ''} in shipment
                     </div>
                   )}
                 </div>
-                
-                <div style={{ paddingLeft: '4px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
-                  <ChevronRight size={24} />
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (order.orderItems) {
+                        order.orderItems.forEach(item => addToCart(item));
+                        showToast('Items added back to cart! 🛍️', 'success');
+                      }
+                    }}
+                    style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(37,99,235,0.08)' }}
+                    title="Repeat order"
+                  >
+                    🔄 Reorder
+                  </button>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', display: 'flex', alignItems: 'center' }}>
+                    Details <ChevronRight size={14} />
+                  </span>
                 </div>
               </div>
             );

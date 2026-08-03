@@ -23,7 +23,8 @@ import {
   Heart,
   Store,
   ArrowLeft,
-  Mic
+  Mic,
+  Package
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
@@ -286,48 +287,74 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
                 {dropdownOpen && (
                   <div className="dropdown-menu">
-                    <div className="dropdown-user-info">
-                      <div className="dropdown-name">{currentUser.fullName}</div>
-                      <div className="dropdown-email">{currentUser.email}</div>
+                    <div className="dropdown-header-banner" style={{
+                      background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)',
+                      padding: '16px',
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      borderBottom: '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#fbbf24', color: '#1e1b4b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '900', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                        {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <div style={{ overflow: 'hidden' }}>
+                        <div className="dropdown-name" style={{ color: '#ffffff', fontSize: '15px', fontWeight: '800', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{currentUser.fullName}</div>
+                        <div className="dropdown-email" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '11.5px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{currentUser.email || 'VIP Indian Member'}</div>
+                      </div>
                     </div>
 
-                    {currentUser.isInfluencer ? (
-                      <div className="dropdown-item" style={{ color: 'var(--success)', fontWeight: '600' }}>
-                        <CircleDollarSign size={16} /> Withdrawable: ₹{(currentUser.walletCash || 0).toFixed(2)}
-                      </div>
-                    ) : (
-                      <div className="dropdown-item" style={{ color: '#e68f00', fontWeight: '600' }}>
-                        <Coins size={16} /> My Coins: {currentUser.walletCoins}
-                      </div>
-                    )}
+                    <div style={{ padding: '10px' }}>
+                      {currentUser.isInfluencer ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', color: '#059669', fontWeight: '800', fontSize: '13px', marginBottom: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                          <CircleDollarSign size={18} color="#059669" /> 
+                          <span>Withdrawable: ₹{(currentUser.walletCash || 0).toFixed(2)}</span>
+                        </div>
+                      ) : (
+                        <a href="#rewards" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile?tab=rewards'); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderRadius: '12px', color: '#b45309', fontWeight: '800', fontSize: '13.5px', marginBottom: '8px', border: '1px solid #fde68a', boxShadow: '0 2px 4px rgba(245,158,11,0.06)', textDecoration: 'none', cursor: 'pointer', transition: 'transform 0.2s' }}>
+                          <span style={{ fontSize: '22px' }}>🪙</span> 
+                          <div style={{ flex: 1 }}>
+                            <div style={{ color: '#92400e', lineHeight: 1.2, fontSize: '13px' }}>My Coins: <span style={{ color: '#d97706', fontWeight: '900', fontSize: '16px', marginLeft: '2px' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100}</span></div>
+                            <div style={{ fontSize: '10px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>✨ View & Redeem rewards &gt;</div>
+                          </div>
+                        </a>
+                      )}
 
-                    {currentUser.isInfluencer && (
-                      <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('partner'); }}>
-                        <Award size={16} /> Creator Dashboard
+                      {currentUser.isInfluencer && (
+                        <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('partner'); }}>
+                          <div className="dropdown-icon-box" style={{ background: '#ecfdf5', color: '#059669' }}><Award size={16} /></div>
+                          <span style={{ fontWeight: '600' }}>Creator Dashboard</span>
+                        </a>
+                      )}
+
+                      <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile'); }}>
+                        <div className="dropdown-icon-box" style={{ background: '#eff6ff', color: '#2563eb' }}><User size={16} /></div>
+                        <span style={{ fontWeight: '600', color: '#1e293b' }}>My Profile</span>
                       </a>
-                    )}
 
-                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile'); }}>
-                      <User size={16} /> My Profile
-                    </a>
+                      <a href="#wishlist" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile?tab=wishlist'); }}>
+                        <div className="dropdown-icon-box" style={{ background: '#fef2f2', color: '#dc2626' }}><Heart size={16} fill="#dc2626" /></div>
+                        <span style={{ fontWeight: '600', color: '#1e293b' }}>My Wishlist</span>
+                      </a>
 
-                    <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile'); setTimeout(() => { document.getElementById('wishlist-section')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}>
-                      <Heart size={16} fill="#d32f2f" color="#d32f2f" /> My Wishlist
-                    </a>
+                      <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('orders'); }}>
+                        <div className="dropdown-icon-box" style={{ background: '#f0fdf4', color: '#16a34a' }}><Package size={16} /></div>
+                        <span style={{ fontWeight: '600', color: '#1e293b' }}>My Orders</span>
+                      </a>
 
-                    <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('orders'); }}>
-                      <History size={16} /> My Orders
-                    </a>
+                      <a href="#seller" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('seller'); }}>
+                        <div className="dropdown-icon-box" style={{ background: '#faf5ff', color: '#9333ea' }}><Store size={16} /></div>
+                        <span style={{ fontWeight: '600', color: '#1e293b' }}>Sell on AbKharido</span>
+                      </a>
 
-                    <a href="#seller" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('seller'); }}>
-                      <Store size={16} /> Sell on AbKharido
-                    </a>
+                      <div className="dropdown-divider" style={{ margin: '8px 0', borderColor: '#e2e8f0' }}></div>
 
-                    <div className="dropdown-divider"></div>
-
-                    <button className="dropdown-item" onClick={() => { setDropdownOpen(false); logout(); }} style={{ color: 'var(--error)' }}>
-                      <LogOut size={16} /> Logout Account
-                    </button>
+                      <button className="dropdown-item" onClick={() => { setDropdownOpen(false); logout(); }} style={{ color: '#e11d48', width: '100%', border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', padding: '10px 12px', borderRadius: '10px' }}>
+                        <div className="dropdown-icon-box" style={{ background: '#fff1f2', color: '#e11d48' }}><LogOut size={16} /></div>
+                        <span style={{ fontWeight: '700' }}>Logout Account</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
