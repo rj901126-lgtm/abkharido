@@ -206,7 +206,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
           </div>
 
           {/* VIP Vault Exclusives Membership Banner */}
-          <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)', borderRadius: '18px', padding: '16px', marginBottom: '18px', color: 'white', border: '1px solid rgba(253, 224, 71, 0.35)', boxShadow: '0 8px 24px rgba(30, 27, 75, 0.25)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)', borderRadius: '24px', padding: '20px', marginBottom: '20px', color: 'white', border: '1px solid rgba(253, 224, 71, 0.25)', boxShadow: '0 12px 32px rgba(30, 27, 75, 0.2)', position: 'relative', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: '900', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: '#ffffff', padding: '4px 12px', borderRadius: '100px', letterSpacing: '0.4px', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)' }}>
                 👑 VIP VAULT UNLOCKED

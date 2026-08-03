@@ -51,95 +51,70 @@
 
 .sidebar-category-btn {
   width: 100%;
-  padding: 10px 6px;
+  padding: 12px 6px;
   border: none;
   background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
   position: relative;
+  margin-bottom: 6px;
 }
 
-/* Active left bar indicator */
+/* Active left bar indicator - removed in favor of pill background */
 .sidebar-category-btn.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 36px;
-  background: linear-gradient(180deg, #4f46e5, #7c3aed);
-  border-radius: 0 4px 4px 0;
+  display: none;
 }
 
 .sidebar-category-btn.active {
-  background: #f5f3ff;
+  background: #ffffff;
 }
 
 /* ── Icon circle wrapper ── */
 .sidebar-category-icon-wrapper {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
   background: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #94a3b8;
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1.5px solid #f1f5f9;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
 }
 
 /* ── Per-category icon gradient colors ── */
-.sidebar-category-btn:nth-child(1) .sidebar-category-icon-wrapper {
-  background: linear-gradient(135deg, #fff9db 0%, #fef08a 100%);
-  border-color: #fde047;
-}
-.sidebar-category-btn:nth-child(2) .sidebar-category-icon-wrapper {
-  background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
-  border-color: #60a5fa;
-}
-.sidebar-category-btn:nth-child(3) .sidebar-category-icon-wrapper {
-  background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%);
-  border-color: #f472b6;
-}
-.sidebar-category-btn:nth-child(4) .sidebar-category-icon-wrapper {
-  background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
-  border-color: #34d399;
-}
-.sidebar-category-btn:nth-child(5) .sidebar-category-icon-wrapper {
-  background: linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%);
-  border-color: #a78bfa;
-}
-.sidebar-category-btn:nth-child(6) .sidebar-category-icon-wrapper {
-  background: linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%);
-  border-color: #f87171;
-}
+.sidebar-category-btn:nth-child(1) .sidebar-category-icon-wrapper { background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%); border-color: #fde047; }
+.sidebar-category-btn:nth-child(2) .sidebar-category-icon-wrapper { background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%); border-color: #93c5fd; }
+.sidebar-category-btn:nth-child(3) .sidebar-category-icon-wrapper { background: linear-gradient(135deg, #fdf2f8 0%, #fbcfe8 100%); border-color: #f9a8d4; }
+.sidebar-category-btn:nth-child(4) .sidebar-category-icon-wrapper { background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%); border-color: #6ee7b7; }
+.sidebar-category-btn:nth-child(5) .sidebar-category-icon-wrapper { background: linear-gradient(135deg, #f5f3ff 0%, #ddd6fe 100%); border-color: #c4b5fd; }
+.sidebar-category-btn:nth-child(6) .sidebar-category-icon-wrapper { background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); border-color: #fca5a5; }
 
-/* Active state — brand purple gradient */
+/* Active state — elegant deep purple gradient */
 .sidebar-category-btn.active .sidebar-category-icon-wrapper {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%) !important;
   color: white !important;
   border-color: #4f46e5 !important;
-  box-shadow: 0 6px 18px rgba(79,70,229,0.35) !important;
-  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(79,70,229,0.3) !important;
+  transform: scale(1.08);
 }
 
 .sidebar-category-btn:hover:not(.active) .sidebar-category-icon-wrapper {
   transform: scale(1.05);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
 }
 
 .sidebar-category-icon-wrapper .lucide {
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .sidebar-category-btn.active .sidebar-category-icon-wrapper .lucide {
@@ -256,20 +231,21 @@
 }
 
 .popular-store-circle {
-  width: 74px;
-  height: 74px;
-  border-radius: 18px;
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   position: relative;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-  border: 2px solid white;
-  transition: all 0.25s ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #ffffff;
 }
 
 .popular-store-item:hover .popular-store-circle {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(79,70,229,0.18);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(79,70,229,0.15);
 }
 
 .store-badge-pill {
@@ -308,22 +284,22 @@
 
 .category-grid-item {
   background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
 }
 
 .category-grid-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 24px rgba(79,70,229,0.1);
-  border-color: rgba(79,70,229,0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(79,70,229,0.12);
+  border-color: rgba(79,70,229,0.2);
 }
 
 .category-item-image-wrapper {
@@ -379,31 +355,30 @@
   font-family: 'Outfit', sans-serif;
 }
 
-/* ── Floating Add Button — Bigger touch target ── */
 .category-item-add-btn {
   position: absolute;
-  bottom: 10px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  bottom: 12px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #0f172a;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(79,70,229,0.35);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
-  min-width: 32px;
-  min-height: 32px;
+  min-width: 36px;
+  min-height: 36px;
 }
 
 .category-item-add-btn:hover {
-  transform: scale(1.15) rotate(90deg);
-  box-shadow: 0 8px 20px rgba(79,70,229,0.45);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3);
 }
 
 .category-item-add-btn:active {
