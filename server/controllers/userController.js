@@ -1,12 +1,18 @@
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 
-// @desc    Get user profile by username
+// @desc    Get user profile by username or id
 // @route   GET /api/users/:username
 // @access  Public
 export const getUserByUsername = async (req, res, next) => {
   try {
-    const user = await User.findOne({ username: req.params.username });
+    const username = req.params.username;
+    // Support lookup by _id if parameter is an ObjectId
+    const query = (username && username.length === 24) 
+      ? { $or: [{ username }, { _id: username }] }
+      : { username };
+      
+    const user = await User.findOne(query);
     if (user) {
       // Calculate 8-Day Locked Coins
       const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
@@ -34,13 +40,20 @@ export const getUserByUsername = async (req, res, next) => {
 // @access  Private
 export const updateUserProfile = async (req, res, next) => {
   try {
+    const usernameParam = req.params.username;
+    
     // Check authorization: User can only update their own profile unless they are a super_admin
-    if (req.user.username !== req.params.username && req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+    // (allow if the param matches their username or their _id)
+    if (req.user.username !== usernameParam && req.user._id.toString() !== usernameParam && req.user.role !== 'super_admin' && req.user.role !== 'admin') {
       res.status(403);
       throw new Error('Not authorized to update this profile');
     }
 
-    const user = await User.findOne({ username: req.params.username });
+    const query = (usernameParam && usernameParam.length === 24) 
+      ? { $or: [{ username: usernameParam }, { _id: usernameParam }] }
+      : { username: usernameParam };
+      
+    const user = await User.findOne(query);
     if (user) {
       // Handle both firstName+lastName and combined fullName
       if (req.body.firstName && req.body.lastName) {
