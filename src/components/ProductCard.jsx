@@ -110,14 +110,10 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         {/* Rating and VIP Assurance Stamp */}
         <div className="product-card-rating-row" style={styles.ratingRow}>
           <span style={styles.ratingTag}>
-            {product.rating} <Star size={11} fill="white" />
+            <span style={{ fontSize: '12px', fontWeight: '800' }}>{product.rating}</span>
+            <span style={{ color: '#fde047', fontSize: '11px', marginLeft: '1px' }}>★</span>
           </span>
           <span style={styles.reviewsCount}>({product.reviewsCount || Math.floor(Math.random() * 400 + 50)})</span>
-          
-          <div style={styles.assuredBadge}>
-            <ShieldCheck size={12} color="#047857" style={{ marginRight: '3px' }} />
-            <span style={{ fontSize: '10px', color: '#047857', fontWeight: '800', letterSpacing: '0.3px' }}>VIP ASSURED</span>
-          </div>
         </div>
 
         {/* Pricing Row with Clean Wrapping */}
@@ -126,8 +122,20 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           {discountPercent > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
               <span style={styles.originalPrice}>₹{(originalPrice).toLocaleString('en-IN')}</span>
-              <span style={styles.discount}>{discountPercent}% OFF</span>
+              <span style={{ ...styles.discount, fontSize: '12px', fontWeight: '900', padding: '3px 7px' }}>{discountPercent}% OFF</span>
             </div>
+          )}
+        </div>
+
+        {/* Free Delivery tag */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '3px' }}>
+            🚚 FREE Delivery
+          </span>
+          {discountPercent >= 20 && (
+            <span style={{ fontSize: '10px', color: '#dc2626', fontWeight: '700', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '4px', padding: '1px 5px' }}>
+              Limited Deal
+            </span>
           )}
         </div>
 

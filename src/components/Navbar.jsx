@@ -22,7 +22,8 @@ import {
   Settings,
   Heart,
   Store,
-  ArrowLeft
+  ArrowLeft,
+  Mic
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 
@@ -34,7 +35,30 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const searchInputRef = useRef(null);
+
+  const handleVoiceSearch = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice search is not supported in this browser. Please use Chrome.');
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'hi-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    setIsListening(true);
+    recognition.start();
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+      setIsListening(false);
+      if (onSearch) onSearch(transcript);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+  };
 
   useEffect(() => {
     const handleFocusSearch = () => {
@@ -107,6 +131,29 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               )}
               <button type="submit" className="search-button">
                 <Search size={18} />
+              </button>
+              {/* Voice Search Mic */}
+              <button
+                type="button"
+                onClick={handleVoiceSearch}
+                title="Search by voice"
+                style={{
+                  position: 'absolute',
+                  right: '44px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  padding: '4px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: isListening ? '#ef4444' : '#94a3b8',
+                  animation: isListening ? 'pulse 1s infinite' : 'none',
+                  transition: 'color 0.2s'
+                }}
+              >
+                <Mic size={16} />
               </button>
             </div>
             {showSuggestions && products && (

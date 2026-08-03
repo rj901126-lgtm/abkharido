@@ -341,11 +341,17 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
       // Sort by reviews count as proxy for popularity
       filtered.sort((a, b) => b.reviewsCount - a.reviewsCount);
     } else if (sortBy === 'priceLow') {
-      filtered.sort((a, b) => a.price - b.price);
+      filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
     } else if (sortBy === 'priceHigh') {
-      filtered.sort((a, b) => b.price - a.price);
+      filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
     } else if (sortBy === 'rating') {
-      filtered.sort((a, b) => b.rating - a.rating);
+      filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sortBy === 'discount') {
+      filtered.sort((a, b) => {
+        const discA = a.originalPrice > 0 ? ((a.originalPrice - a.price) / a.originalPrice) * 100 : 0;
+        const discB = b.originalPrice > 0 ? ((b.originalPrice - b.price) / b.originalPrice) * 100 : 0;
+        return discB - discA;
+      });
     }
 
     return filtered;
@@ -490,23 +496,67 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
       {/* 2. CATALOG MAIN AREA: Products grid + Mobile filter buttons */}
       <main className="catalog-main">
-        {/* Sticky Mobile Sort & Filter Bar (Fixed at top) */}
-        <div className="mobile-catalog-top-bar">
-          <button 
-            onClick={() => setShowSortModal(true)} 
-            className="mobile-bar-btn"
+        {/* Premium Mobile Sort & Filter Bar */}
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          padding: '10px 0 8px 0',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          WebkitScrollbar: 'none',
+          marginBottom: '12px',
+          position: 'sticky',
+          top: '0',
+          zIndex: 50,
+          background: 'white',
+          paddingBottom: '10px',
+          borderBottom: '1px solid #f1f5f9'
+        }}>
+          {/* Filter button */}
+          <button
+            onClick={() => setShowFilterDrawer(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: showFilterDrawer ? '#4f46e5' : '#f8fafc',
+              color: showFilterDrawer ? '#fff' : '#334155',
+              border: '1.5px solid #e2e8f0',
+              borderRadius: '20px', padding: '7px 14px',
+              fontSize: '13px', fontWeight: '700',
+              cursor: 'pointer', whiteSpace: 'nowrap',
+              flexShrink: 0,
+              boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+            }}
           >
-            <ArrowUpDown size={16} color="#4f46e5" />
-            Sort
+            <SlidersHorizontal size={14} /> Filter
           </button>
-          <div style={{ width: '1px', backgroundColor: '#eaeaea' }}></div>
-          <button 
-            onClick={() => setShowFilterDrawer(true)} 
-            className="mobile-bar-btn"
-          >
-            <SlidersHorizontal size={16} color="#4f46e5" />
-            Filter
-          </button>
+
+          {/* Quick Sort Chips */}
+          {[
+            { id: 'popularity', label: '🔥 Popular' },
+            { id: 'priceLow', label: '📉 Low to High' },
+            { id: 'priceHigh', label: '📈 High to Low' },
+            { id: 'rating', label: '⭐ Top Rated' },
+            { id: 'discount', label: '🏷️ Best Discount' },
+          ].map(opt => (
+            <button
+              key={opt.id}
+              onClick={() => setSortBy(opt.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                background: sortBy === opt.id ? '#090d16' : '#f8fafc',
+                color: sortBy === opt.id ? '#ffffff' : '#475569',
+                border: sortBy === opt.id ? '1.5px solid #090d16' : '1.5px solid #e2e8f0',
+                borderRadius: '20px', padding: '7px 14px',
+                fontSize: '13px', fontWeight: sortBy === opt.id ? '700' : '600',
+                cursor: 'pointer', whiteSpace: 'nowrap',
+                flexShrink: 0,
+                transition: 'all 0.2s',
+                boxShadow: sortBy === opt.id ? '0 2px 8px rgba(9,13,22,0.2)' : '0 1px 4px rgba(0,0,0,0.06)'
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
 
         {/* Category Banner Carousel */}
