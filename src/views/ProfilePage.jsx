@@ -44,7 +44,12 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [lastName, setLastName] = useState(initialLastName);
   const [emailInput, setEmailInput] = useState(currentUser?.email || '');
   const [pincodeInput, setPincodeInput] = useState(currentUser?.pincode || '');
-  const [addressInput, setAddressInput] = useState(currentUser?.address || '');
+  const [houseFlatInput, setHouseFlatInput] = useState(currentUser?.houseNo || '');
+  const [streetAreaInput, setStreetAreaInput] = useState(currentUser?.streetArea || currentUser?.address || '');
+  const [cityInput, setCityInput] = useState(currentUser?.city || '');
+  const [stateInput, setStateInput] = useState(currentUser?.state || '');
+  const [addressType, setAddressType] = useState(currentUser?.addressType || 'Home');
+  const [isDetectingPincode, setIsDetectingPincode] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -57,9 +62,34 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       setLastName(currentUser.lastName || (currentUser.fullName ? currentUser.fullName.split(' ').slice(1).join(' ') : ''));
       setEmailInput(currentUser.email || '');
       setPincodeInput(currentUser.pincode || '');
-      setAddressInput(currentUser.address || '');
+      setHouseFlatInput(currentUser.houseNo || '');
+      setStreetAreaInput(currentUser.streetArea || currentUser.address || '');
+      setCityInput(currentUser.city || '');
+      setStateInput(currentUser.state || '');
+      setAddressType(currentUser.addressType || 'Home');
     }
   }, [isEditing, currentUser]);
+
+  // Auto-detect city & state when user enters a 6-digit pincode
+  React.useEffect(() => {
+    if (pincodeInput && pincodeInput.trim().length === 6 && !isNaN(pincodeInput)) {
+      const pinStr = pincodeInput.trim();
+      const controller = new AbortController();
+      setIsDetectingPincode(true);
+      fetch(`https://api.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const po = data[0].PostOffice[0];
+            setCityInput(po.District || po.Block || po.Name || '');
+            setStateInput(po.State || '');
+          }
+        })
+        .catch(() => {})
+        .finally(() => setIsDetectingPincode(false));
+      return () => controller.abort();
+    }
+  }, [pincodeInput]);
 
   const isProfileSyncing = currentUser && !currentUser._id;
 
@@ -151,7 +181,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     firstName !== initialFirstName ||
     lastName !== initialLastName ||
     pincodeInput !== (currentUser.pincode || '') ||
-    addressInput !== (currentUser.address || '') ||
+    houseFlatInput !== (currentUser.houseNo || '') ||
+    streetAreaInput !== (currentUser.streetArea || currentUser.address || '') ||
+    cityInput !== (currentUser.city || '') ||
+    stateInput !== (currentUser.state || '') ||
+    addressType !== (currentUser.addressType || 'Home') ||
     emailInput !== (currentUser.email || '');
 
   const handleUpdateProfile = async (e) => {
@@ -160,8 +194,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       showToast('First name and surname are required.', 'error');
       return;
     }
-    if (!addressInput.trim()) {
-      showToast('Address is required.', 'error');
+    if (!streetAreaInput.trim()) {
+      showToast('Please enter your street address or locality.', 'error');
       return;
     }
     if (pincodeInput.trim().length !== 6 || isNaN(pincodeInput)) {
@@ -169,17 +203,26 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       return;
     }
 
+    const fullMergedAddress = houseFlatInput.trim() 
+      ? `${houseFlatInput.trim()}, ${streetAreaInput.trim()}` 
+      : streetAreaInput.trim();
+
     setIsUpdating(true);
     const success = await updateUserProfile({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       pincode: pincodeInput.trim(),
-      address: addressInput.trim(),
+      address: fullMergedAddress,
+      houseNo: houseFlatInput.trim(),
+      streetArea: streetAreaInput.trim(),
+      city: cityInput.trim(),
+      state: stateInput.trim(),
+      addressType: addressType,
       email: emailInput.trim()
     });
 
     if (success) {
-      showToast('Profile details updated successfully!', 'success');
+      showToast('Profile & delivery address updated successfully! 🎉', 'success');
       setIsEditing(false); // Disable editing mode once successfully updated
     }
     setIsUpdating(false);
@@ -269,7 +312,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       <div style={{ padding: '0 16px', marginTop: '-24px', position: 'relative', zIndex: 10 }}>
         
         {/* 2. Upgraded Quick Action Cards */}
-        <div className="profile-quick-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+        <div className="profile-quick-actions">
           <div className="quick-action-card" onClick={() => onNavigate('orders')} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0 }}>
             <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <ShoppingBag size={24} color="#2563eb" />
@@ -448,22 +491,65 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             )}
           </div>
 
-          {/* Address Settings Section */}
+          {/* Address Settings Section - 100 Crore E-commerce Look */}
           <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px', marginTop: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <h4 style={{ fontSize: '17px', fontWeight: '900', color: '#0f172a', margin: '0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>🏠 Address Book</span>
-                <span style={{ background: '#e0e7ff', color: '#4f46e5', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800' }}>DEFAULT DELIVERY</span>
-              </h4>
-              <button type="button" onClick={() => showToast('Multiple delivery addresses coming soon in v2.0!', 'info')} style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '6px 14px', borderRadius: '8px', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}>
-                + Add New Address
-              </button>
+              <div>
+                <h4 style={{ fontSize: '17px', fontWeight: '900', color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>📍 Delivery Address Book</span>
+                  <span style={{ background: '#e0e7ff', color: '#4f46e5', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800' }}>FAST CHECKOUT READY</span>
+                </h4>
+                <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0, fontWeight: '500' }}>
+                  Save structured location details for instant order dispatch &amp; accurate delivery estimation.
+                </p>
+              </div>
             </div>
 
-            <div className="animate-fade-in" style={{ background: '#f8fafc', padding: '20px', borderRadius: '16px', border: '1.5px solid #cbd5e1' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <label className="profile-input-label">DELIVERY PINCODE *</label>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div className="animate-fade-in" style={{ background: '#f8fafc', padding: '20px', borderRadius: '20px', border: '1.5px solid #cbd5e1', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              
+              {/* Address Type Selector */}
+              <div>
+                <label className="profile-input-label" style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: '800', color: '#334155' }}>SAVE ADDRESS AS</label>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {[
+                    { id: 'Home', icon: '🏠', label: 'Home (All day)' },
+                    { id: 'Work', icon: '🏢', label: 'Office (10 AM - 6 PM)' },
+                    { id: 'Other', icon: '📍', label: 'Other / Partner' },
+                  ].map(type => (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => setAddressType(type.id)}
+                      style={{
+                        padding: '10px 16px',
+                        borderRadius: '12px',
+                        border: addressType === type.id ? '2px solid #4f46e5' : '1.5px solid #cbd5e1',
+                        background: addressType === type.id ? '#e0e7ff' : '#ffffff',
+                        color: addressType === type.id ? '#4f46e5' : '#64748b',
+                        fontWeight: '800',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 0.2s',
+                        boxShadow: addressType === type.id ? '0 2px 8px rgba(79,70,229,0.15)' : 'none'
+                      }}
+                    >
+                      <span>{type.icon}</span>
+                      <span>{type.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pincode and Auto-Detect Location Row */}
+              <div>
+                <label className="profile-input-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span>DELIVERY PINCODE *</span>
+                  {isDetectingPincode && <span style={{ color: '#2563eb', fontWeight: '700', fontSize: '12px' }}>⚡ Verifying postal area...</span>}
+                </label>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <input 
                     type="text" 
                     maxLength="6"
@@ -471,30 +557,67 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                     onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
                     placeholder="e.g. 401404"
                     className="profile-input"
-                    style={{ flex: '1 1 120px', letterSpacing: '2px', fontWeight: '700', fontSize: '16px', background: 'white' }}
+                    style={{ flex: '1 1 120px', letterSpacing: '2px', fontWeight: '800', fontSize: '16px', background: 'white', border: '1.5px solid #cbd5e1', margin: 0 }}
                     required
                   />
                   <button 
                     type="button" 
                     onClick={handleGeolocate}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#eff6ff', color: '#2563eb', border: '1.5px solid #bfdbfe', padding: '0 20px', borderRadius: '12px', fontSize: '13.5px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', minHeight: '52px', flex: '1 1 160px', boxShadow: '0 2px 6px rgba(37,99,235,0.08)' }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#eff6ff', color: '#2563eb', border: '1.5px solid #93c5fd', padding: '12px 18px', borderRadius: '12px', fontSize: '13.5px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', flex: '1 1 160px', boxShadow: '0 2px 6px rgba(37,99,235,0.08)', whiteSpace: 'nowrap', margin: 0 }}
                   >
-                    <MapPin size={18} /> 📍 Auto-Detect Live Pincode
+                    <MapPin size={18} /> 📍 Auto-Detect Pincode
                   </button>
+                </div>
+                
+                {/* Auto-resolved City & State tag */}
+                {(cityInput || stateInput) && (
+                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '8px 14px', borderRadius: '10px', color: '#166534', fontSize: '13px', fontWeight: '700' }}>
+                    <span>🇮🇳 Confirmed Delivery Area: <strong>{cityInput}{cityInput && stateInput ? ', ' : ''}{stateInput}</strong></span>
+                  </div>
+                )}
+              </div>
+
+              {/* Structured Address: Flat / Building and Street / Locality */}
+              <div className="profile-input-grid" style={{ margin: 0 }}>
+                <div>
+                  <label className="profile-input-label" style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '6px' }}>
+                    HOUSE / FLAT NO., BUILDING NAME, APARTMENT
+                  </label>
+                  <input 
+                    type="text" 
+                    value={houseFlatInput} 
+                    onChange={(e) => setHouseFlatInput(e.target.value)} 
+                    placeholder="e.g. Flat 204, Shiv Kripa Building"
+                    className="profile-input"
+                    style={{ background: 'white', fontSize: '15px', fontWeight: '600', border: '1.5px solid #cbd5e1', margin: 0 }}
+                  />
+                </div>
+                <div>
+                  <label className="profile-input-label" style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '6px' }}>
+                    AREA, STREET NAME, SECTOR &amp; LANDMARK *
+                  </label>
+                  <input 
+                    type="text" 
+                    value={streetAreaInput} 
+                    onChange={(e) => setStreetAreaInput(e.target.value)} 
+                    placeholder="e.g. Station Road, Near Shiv Sena Office, Palghar West"
+                    className="profile-input"
+                    style={{ background: 'white', fontSize: '15px', fontWeight: '600', border: '1.5px solid #cbd5e1', margin: 0 }}
+                    required
+                  />
                 </div>
               </div>
 
-              <div>
-                <label className="profile-input-label">COMPLETE HOUSE / STREET ADDRESS *</label>
-                <textarea 
-                  value={addressInput} 
-                  onChange={(e) => setAddressInput(e.target.value)} 
-                  placeholder="House / Flat No, Building Name, Street Area, Landmark, City & State"
-                  className="profile-input"
-                  style={{ height: '84px', padding: '14px', resize: 'vertical', lineHeight: '1.5', background: 'white', fontSize: '14.5px', fontWeight: '500' }}
-                  required
-                />
+              {/* Live Preview Card */}
+              <div style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 16px', fontSize: '13px', color: '#475569' }}>
+                <div style={{ fontWeight: '800', color: '#0f172a', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>📦 Checkout Address Preview ({addressType}):</span>
+                </div>
+                <div style={{ fontStyle: 'italic' }}>
+                  {houseFlatInput.trim() ? `${houseFlatInput.trim()}, ` : ''}{streetAreaInput || 'Street area...'}, {cityInput || 'City'} - {pincodeInput || 'PINCODE'}
+                </div>
               </div>
+
             </div>
           </div>
 
