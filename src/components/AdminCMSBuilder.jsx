@@ -56,19 +56,9 @@ const AdminCMSBuilder = () => {
         }
       }
 
-      // Default Enterprise Holiday Storefront Setup
-      const defaultLayout = {
-        type: 'home_page',
-        components: [
-          { id: 'BLK-1', type: 'banner', title: 'Grand Festive Electronics & Smartphone Carnival', data: 'https://images.unsplash.com/photo-1592659762303-90081d34b277?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '9.2%', views: '48,120' },
-          { id: 'BLK-2', type: 'deals_row', title: '⚡ Flash Deals of the Day (Expires Midnight)', data: 'flash-deals', order: 2, ctr: '14.5%', views: '65,340' },
-          { id: 'BLK-3', type: 'category_row', title: '📱 Smart Mobiles & Flagship Accessories', data: 'mobiles', order: 3, ctr: '8.1%', views: '32,400' },
-          { id: 'BLK-4', type: 'category_row', title: '💻 Best of Enterprise Tech & Laptops', data: 'electronics', order: 4, ctr: '7.4%', views: '29,110' }
-        ]
-      };
-
-      setLayout(defaultLayout);
-      localStorage.setItem('abkharido_cms_storefront_v2', JSON.stringify(defaultLayout));
+      // Real DB baseline without dummy data
+      setLayout({ type: 'home_page', components: [] });
+      localStorage.setItem('abkharido_cms_storefront_v2', JSON.stringify({ type: 'home_page', components: [] }));
     } catch (err) {
       showToastMsg('Notice: Offline inspection mode active', 'info');
     } finally {

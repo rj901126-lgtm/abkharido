@@ -40,60 +40,29 @@ const AdminAnalytics = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        // Resilient merge with fallback enterprise baselines if 0 or empty
-        if (data.kpis && data.kpis.totalRevenue > 0) {
+        if (data.kpis) {
           setKpis({
-            totalUsers: data.kpis.totalUsers || 1842,
-            totalProducts: data.kpis.totalProducts || 45,
-            totalOrders: data.kpis.totalOrders || 1240,
-            liveOrders: data.kpis.liveOrders !== undefined ? data.kpis.liveOrders : 14,
-            totalRevenue: data.kpis.totalRevenue || 1845290,
-            clv: data.kpis.clv || 4250,
-            retentionRate: data.kpis.retentionRate || 78.4
+            totalUsers: data.kpis.totalUsers || 0,
+            totalProducts: data.kpis.totalProducts || 0,
+            totalOrders: data.kpis.totalOrders || 0,
+            liveOrders: data.kpis.liveOrders || 0,
+            totalRevenue: data.kpis.totalRevenue || 0,
+            clv: data.kpis.clv || 0,
+            retentionRate: data.kpis.retentionRate || 0
           });
         }
-        if (data.salesData && data.salesData.length > 0) setSalesData(data.salesData);
-        if (data.liveOrderFeed && data.liveOrderFeed.length > 0) setLiveOrderFeed(data.liveOrderFeed);
-        if (data.categoryStats && data.categoryStats.length > 0) setCategoryStats(data.categoryStats);
+        if (data.salesData) setSalesData(data.salesData);
+        if (data.liveOrderFeed) setLiveOrderFeed(data.liveOrderFeed);
+        if (data.categoryStats) setCategoryStats(data.categoryStats);
       }
     } catch (error) {
-      console.log('Using resilient enterprise intelligence baselines');
+      console.log('Error fetching real analytics data', error);
+      // Empty fallbacks for real DB integration
+      setLiveOrderFeed([]);
+      setCategoryStats([]);
+      setSalesData([]);
+      setKpis({ totalUsers: 0, totalProducts: 0, totalOrders: 0, liveOrders: 0, totalRevenue: 0, clv: 0, retentionRate: 0 });
     } finally {
-      // Resilient default synthesis if still empty
-      if (liveOrderFeed.length === 0) {
-        setLiveOrderFeed([
-          { _id: 'ORD-9921', customerName: 'Rajesh K.', city: 'Mumbai', totalPrice: 129999, status: 'Cashfree Escrow Verified', time: '4s ago', color: '#166534', bg: '#dcfce7', icon: '🟢' },
-          { _id: 'ORD-9920', customerName: 'Sneha M.', city: 'Delhi', totalPrice: 26990, status: 'Shipped & In-Transit', time: '45s ago', color: '#166534', bg: '#dcfce7', icon: '🟢' },
-          { _id: 'ORD-9919', customerName: 'Amit P.', city: 'Bengaluru', totalPrice: 64500, status: 'Packaging in Warehouse', time: '2m ago', color: '#b45309', bg: '#fef3c7', icon: '🟡' },
-          { _id: 'ORD-9918', customerName: 'Priya S.', city: 'Kolkata', totalPrice: 12499, status: 'Express Delivery Assigned', time: '5m ago', color: '#166534', bg: '#dcfce7', icon: '🟢' },
-          { _id: 'ORD-9917', customerName: 'Vikrant R.', city: 'Hyderabad', totalPrice: 48900, status: 'Payment Authorized', time: '8m ago', color: '#1e40af', bg: '#dbeafe', icon: '🔵' }
-        ]);
-      }
-
-      if (categoryStats.length === 0) {
-        setCategoryStats([
-          { _id: 'Smart Mobiles & 5G', productCount: 18, avgPrice: 42500, margin: '+18.5%', badge: 'High Volume', statusClass: 'success' },
-          { _id: 'Enterprise Laptops & Tech', productCount: 12, avgPrice: 65000, margin: '+22.4%', badge: 'Strong Yield', statusClass: 'success' },
-          { _id: 'Designer Ethnic & Street Wear', productCount: 24, avgPrice: 2499, margin: '+42.1% 🔥', badge: 'Mega Cash Cow', statusClass: 'hot' },
-          { _id: 'Royal Living & Smart Home', productCount: 15, avgPrice: 8400, margin: '+34.8%', badge: 'Consistent Growth', statusClass: 'info' }
-        ]);
-      }
-
-      if (salesData.length === 0) {
-        const generated = [];
-        const baseDate = new Date();
-        for (let i = 15; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(baseDate.getDate() - (i * 2));
-          generated.push({
-            date: d.toISOString().slice(0, 10),
-            revenue: Math.floor(28000 + Math.random() * 22000),
-            forecast: Math.floor(32000 + Math.random() * 25000)
-          });
-        }
-        setSalesData(generated);
-      }
-
       setLoading(false);
     }
   };

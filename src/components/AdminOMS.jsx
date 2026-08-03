@@ -44,12 +44,8 @@ const AdminOMS = () => {
         }
       }
       
-      // Resilient Enterprise Order Simulation Baseline (Delhivery & Cashfree Integrated)
-      setOrders([
-        { _id: 'ORD-8819', user: { email: 'rahul.sharma@gmail.com', fullName: 'Rahul Sharma', isEmailVerified: true }, totalPrice: 129999, status: 'Processing', isPaid: true, paymentMethod: 'Cashfree Escrow', createdAt: new Date(Date.now() - 3600000).toISOString(), shippingAddress: { fullName: 'Rahul Sharma', address: 'Flat 402, Sea Green Heights, Worli', city: 'Mumbai', state: 'Maharashtra', postalCode: '400018', phone: '9820491829' }, orderItems: [{ name: 'Apple iPhone 15 Pro Max (256GB, Natural Titanium)', qty: 1, price: 129999, image: 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?auto=format&fit=crop&w=300&q=80' }] },
-        { _id: 'ORD-8820', user: { email: 'priya.nair@techcorp.co', fullName: 'Priya Nair', isEmailVerified: true }, totalPrice: 26990, status: 'Shipped', isPaid: true, paymentMethod: 'Credit Card EMI', awbNumber: 'DLV99281726EXP', courierPartner: 'Delhivery Air Express', createdAt: new Date(Date.now() - 14400000).toISOString(), shippingAddress: { fullName: 'Priya Nair', address: 'Villa 14, Prestige Tech Park Road', city: 'Bengaluru', state: 'Karnataka', postalCode: '560103', phone: '9123498871' }, orderItems: [{ name: 'Sony WH-1000XM5 Wireless Noise Cancelling Headphones', qty: 1, price: 26990, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80' }] },
-        { _id: 'ORD-8821', user: { email: 'amit.patwa@gmail.com', fullName: 'Amit Patwa', isEmailVerified: false }, totalPrice: 64500, status: 'Delivered', isPaid: false, paymentMethod: 'Cash on Delivery (Verified OTP)', awbNumber: 'DLV44102983SFC', courierPartner: 'BlueDart Surface', createdAt: new Date(Date.now() - 86400000).toISOString(), shippingAddress: { fullName: 'Amit Patwa', address: 'Plot 12, Sector 18, Cyber City', city: 'Gurugram', state: 'Haryana', postalCode: '122002', phone: '9811094833' }, orderItems: [{ name: 'Enterprise M3 Laptop Workstation Bundle', qty: 1, price: 64500, image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=300&q=80' }] }
-      ]);
+      // No dummy data; use real data only
+      setOrders([]);
     } catch (err) {
       console.error(err);
     } finally {

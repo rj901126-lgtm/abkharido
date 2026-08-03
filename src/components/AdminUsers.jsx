@@ -37,7 +37,7 @@ const AdminUsers = () => {
       }
 
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users`, {
         headers: { 'x-admin-token': token }
       });
       if (res.ok) {
@@ -56,17 +56,9 @@ const AdminUsers = () => {
         }
       }
 
-      // Enterprise Resilient Baseline (Customer Security Vault)
-      const enterpriseUsers = [
-        { _id: 'USR-1001', name: 'Rahul Sharma', email: 'rahul.sharma@gmail.com', phone: '9820491829', city: 'Mumbai, MH', totalSpent: 184500, orderCount: 14, tier: 'VIP Platinum', status: 'Verified KYC', isFrozen: false, joinedDate: '2026-04-12' },
-        { _id: 'USR-1002', name: 'Priya Nair', email: 'priya.nair.tech@yahoo.com', phone: '9123498871', city: 'Bengaluru, KA', totalSpent: 94200, orderCount: 8, tier: 'VIP Platinum', status: 'Verified KYC', isFrozen: false, joinedDate: '2026-05-01' },
-        { _id: 'USR-1003', name: 'Vikrant Mehta', email: 'vikrant.m@outlook.com', phone: '9811094833', city: 'New Delhi, DL', totalSpent: 22490, orderCount: 3, tier: 'Active Buyer', status: 'Verified KYC', isFrozen: false, joinedDate: '2026-06-18' },
-        { _id: 'USR-1004', name: 'Sneha Kulkarni', email: 'sneha.k@pune.co.in', phone: '9920192844', city: 'Pune, MH', totalSpent: 64500, orderCount: 5, tier: 'VIP Platinum', status: 'Verified KYC', isFrozen: false, joinedDate: '2026-06-25' },
-        { _id: 'USR-1005', name: 'Suspicious_Account_991', email: 'anon.proxy99@tormail.xyz', phone: '0000000000', city: 'Unknown Proxy', totalSpent: 0, orderCount: 0, tier: 'Flagged Risk', status: 'Flagged Suspicious', isFrozen: true, joinedDate: '2026-07-29' }
-      ];
-
-      setUsers(enterpriseUsers);
-      localStorage.setItem('abkharido_customer_vault', JSON.stringify(enterpriseUsers));
+      // No dummy data; use real data only
+      setUsers([]);
+      localStorage.setItem('abkharido_customer_vault', JSON.stringify([]));
       setLoading(false);
     } catch (err) {
       console.error(err);

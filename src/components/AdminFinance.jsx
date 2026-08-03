@@ -70,16 +70,9 @@ const AdminFinance = () => {
         }
       }
 
-      // Enterprise Resilient Treasury simulation data
-      const simulatedVendors = [
-        { _id: 'v1', name: 'TechVision India Private Ltd.', email: 'accounts@techvision.in', phone: '9820011223', accountNumber: '50100298171120', ifscCode: 'HDFC0000452', totalEarned: 845000, totalSettled: 720000, pendingBalance: 125000, status: 'Active (KYC Verified)' },
-        { _id: 'v2', name: 'Royal Silk Apparels Group', email: 'finance@royalsilk.co', phone: '9711002899', accountNumber: '00311029847291', ifscCode: 'ICIC0000031', totalEarned: 420000, totalSettled: 420000, pendingBalance: 0, status: 'Active (KYC Verified)' },
-        { _id: 'v3', name: 'SmartHome Appliances LLP', email: 'payouts@smarthome.in', phone: '9988114455', accountNumber: '3029188271650', ifscCode: 'SBIN0001248', totalEarned: 310000, totalSettled: 260000, pendingBalance: 50000, status: 'Active (KYC Verified)' },
-        { _id: 'v4', name: 'PureOrganic Wellness Co.', email: 'billing@pureorganic.org', phone: '9123489201', accountNumber: '9012847721833', ifscCode: 'UTIB0000142', totalEarned: 270000, totalSettled: 195000, pendingBalance: 75000, status: 'Active (KYC Verified)' }
-      ];
-
-      setVendors(simulatedVendors);
-      localStorage.setItem('abkharido_vendor_ledgers', JSON.stringify(simulatedVendors));
+      // Use real backend data only
+      setVendors([]);
+      localStorage.setItem('abkharido_vendor_ledgers', JSON.stringify([]));
     } catch (err) {
       showToastMsg('Notice: Offline inspection mode active', 'info');
     } finally {

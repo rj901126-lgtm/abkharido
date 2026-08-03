@@ -45,20 +45,12 @@ const AdminCoupons = () => {
           return;
         }
       }
-      // Enterprise realistic fallback state if DB empty or starting up
-      setCoupons([
-        { _id: '1', code: 'DIWALI20', discountType: 'PERCENTAGE', discountValue: 20, maxDiscount: 500, minCartValue: 1500, expiryDate: '2026-11-15', usedCount: 142, usageLimit: 250, isActive: true },
-        { _id: '2', code: 'NEWUSER100', discountType: 'FLAT', discountValue: 100, maxDiscount: 0, minCartValue: 499, expiryDate: '2026-12-31', usedCount: 310, usageLimit: 500, isActive: true },
-        { _id: '3', code: 'VIPFLASH30', discountType: 'PERCENTAGE', discountValue: 30, maxDiscount: 1000, minCartValue: 2500, expiryDate: '2026-08-15', usedCount: 48, usageLimit: 50, isActive: true },
-        { _id: '4', code: 'SAVE250', discountType: 'FLAT', discountValue: 250, maxDiscount: 0, minCartValue: 1200, expiryDate: '2026-06-30', usedCount: 100, usageLimit: 100, isActive: false }
-      ]);
+      // Use real backend data only
+      setCoupons([]);
     } catch (err) {
       console.error('Error fetching coupons:', err);
-      // Fallback data
-      setCoupons([
-        { _id: '1', code: 'DIWALI20', discountType: 'PERCENTAGE', discountValue: 20, maxDiscount: 500, minCartValue: 1500, expiryDate: '2026-11-15', usedCount: 142, usageLimit: 250, isActive: true },
-        { _id: '2', code: 'NEWUSER100', discountType: 'FLAT', discountValue: 100, maxDiscount: 0, minCartValue: 499, expiryDate: '2026-12-31', usedCount: 310, usageLimit: 500, isActive: true }
-      ]);
+      // Use real backend data only
+      setCoupons([]);
     } finally {
       setLoading(false);
     }

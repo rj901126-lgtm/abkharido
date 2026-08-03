@@ -64,14 +64,9 @@ const AdminCRM = () => {
         } catch (e) {}
       }
 
-      const initialData = [
-        { _id: 'c1', name: 'Rahul Verma', email: 'rahul.v@gmail.com', phone: '9876543210', cartValue: 2499, itemsCount: 3, lastActive: new Date(Date.now() - 3600000 * 5).toISOString(), status: 'pending' },
-        { _id: 'c2', name: 'Priya Sharma', email: 'priya.s@gmail.com', phone: '9123456789', cartValue: 12500, itemsCount: 5, lastActive: new Date(Date.now() - 3600000 * 26).toISOString(), status: 'pending' },
-        { _id: 'c3', name: 'Amit Kumar', email: 'amit_kumar@yahoo.com', phone: '9988776655', cartValue: 1450, itemsCount: 2, lastActive: new Date(Date.now() - 3600000 * 48).toISOString(), status: 'sent_whatsapp' },
-        { _id: 'c4', name: 'Sneha Patel', email: 'sneha.p@outlook.com', phone: '9765432109', cartValue: 4599, itemsCount: 4, lastActive: new Date(Date.now() - 3600000 * 72).toISOString(), status: 'recovered' }
-      ];
-      setAbandonedCarts(initialData);
-      localStorage.setItem('abkharido_crm_leads', JSON.stringify(initialData));
+      // Use real backend data here instead of mocks
+      setAbandonedCarts([]);
+      localStorage.setItem('abkharido_crm_leads', JSON.stringify([]));
       setLoading(false);
     }, 600);
   };
