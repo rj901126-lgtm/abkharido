@@ -31,11 +31,17 @@ export async function GET(req, { params }) {
     const routeParams = params?.params || [];
     const path = `/api/users/${routeParams.join('/')}`;
     
-    // Try external Express service first
-    const backendRes = await fetchBackend(path, { method: 'GET', headers: { 'Authorization': req.headers.get('authorization') || '' } });
-    if (backendRes) {
-      const data = await backendRes.json().catch(() => ({ error: 'Invalid backend JSON' }));
-      return NextResponse.json(data, { status: backendRes.status });
+    // Skip proxying to Express for profile GET requests to ensure our new fields are returned 
+    // (the old Express server's Mongoose schema would strip them out)
+    if (routeParams.length > 0 && routeParams[0] !== 'admin') {
+      // Proceed directly to the Mongoose fallback below
+    } else {
+      // Try external Express service first for other routes
+      const backendRes = await fetchBackend(path, { method: 'GET', headers: { 'Authorization': req.headers.get('authorization') || '' } });
+      if (backendRes) {
+        const data = await backendRes.json().catch(() => ({ error: 'Invalid backend JSON' }));
+        return NextResponse.json(data, { status: backendRes.status });
+      }
     }
 
     // ── Native Direct Mongoose Fallback when port 5000 is offline ──
@@ -66,14 +72,17 @@ export async function POST(req, { params }) {
     const path = `/api/users/${routeParams.join('/')}`;
     const body = await req.json();
 
-    const backendRes = await fetchBackend(path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': req.headers.get('authorization') || '' },
-      body: JSON.stringify(body)
-    });
-    if (backendRes) {
-      const data = await backendRes.json().catch(() => ({ error: 'Invalid backend JSON' }));
-      return NextResponse.json(data, { status: backendRes.status });
+    // Skip proxying to Express for profile updates to ensure our new fields are saved by the updated Next.js route
+    if (!path.endsWith('/update')) {
+      const backendRes = await fetchBackend(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': req.headers.get('authorization') || '' },
+        body: JSON.stringify(body)
+      });
+      if (backendRes) {
+        const data = await backendRes.json().catch(() => ({ error: 'Invalid backend JSON' }));
+        return NextResponse.json(data, { status: backendRes.status });
+      }
     }
 
     // ── Native Direct Mongoose Fallback when port 5000 is offline ──
