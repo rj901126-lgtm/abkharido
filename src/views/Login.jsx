@@ -378,8 +378,17 @@ const Login = ({ onNavigate }) => {
                 <ArrowLeft size={16} /> Back
               </button>
 
-              <h2 className="lp-form-title">Enter OTP</h2>
-              <p className="lp-form-sub">6-digit code sent to <strong>+91 {phone}</strong></p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#eff6ff', color: '#2563eb', padding: '6px 14px', borderRadius: '100px', fontSize: '12px', fontWeight: '800', marginBottom: '12px', border: '1px solid #bfdbfe' }}>
+                <span>🔐</span> TWO-STEP SECURITY
+              </div>
+              <h2 className="lp-form-title">Enter OTP Code</h2>
+              
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 16px', borderRadius: '14px', marginBottom: '24px', fontSize: '14px', color: '#334155' }}>
+                <span>Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91 {phone}</strong></span>
+                <button type="button" onClick={handleGoBack} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', fontSize: '12px', padding: '5px 10px', borderRadius: '8px' }}>
+                  CHANGE ✏️
+                </button>
+              </div>
 
               <form onSubmit={handleVerifyOtp} className="lp-form">
                 <div className="lp-otp-row">
@@ -402,7 +411,7 @@ const Login = ({ onNavigate }) => {
                 </div>
 
                 <button type="submit" className="lp-submit-btn" disabled={isVerifying}>
-                  {isVerifying ? 'Verifying...' : 'VERIFY & CONTINUE'}
+                  {isVerifying ? 'Verifying...' : '⚡ VERIFY & LOGIN'}
                   {!isVerifying && <ChevronRight size={18} />}
                 </button>
 
@@ -410,13 +419,11 @@ const Login = ({ onNavigate }) => {
                   {timer > 0 ? (
                     <span className="lp-timer">Resend OTP in <strong>{timer}s</strong></span>
                   ) : (
-                    <button type="button" onClick={() => handleRequestOtp(null)} className="lp-link-btn">
-                      Resend OTP
+                    <button type="button" onClick={() => handleRequestOtp(null)} className="lp-link-btn" style={{ fontSize: '14px', fontWeight: '800', color: '#4f46e5' }}>
+                      🔄 Resend OTP
                     </button>
                   )}
-                  <button type="button" onClick={handleGoBack} className="lp-link-btn">
-                    Edit Number
-                  </button>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Auto-verifying SMS...</span>
                 </div>
               </form>
             </>
