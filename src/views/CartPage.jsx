@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-/ eslint-disable-next-line
+// eslint-disable-next-line
 import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck, Lock, Heart } from 'lucide-react';
 import '../assets/styles/cart.css';
 
@@ -143,20 +143,20 @@ const CartPage = ({ onNavigate, onCheckout }) => {
     );
   }
 
-  / Price calculations
+  // Price calculations
   const itemsPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const originalItemsPrice = cart.reduce((acc, item) => acc + item.product.originalPrice * item.quantity, 0);
   
   const discountValue = originalItemsPrice - itemsPrice;
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
   
-  / Coin redemption calculation
+  // Coin redemption calculation
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
   const maxCoinsToRedeem = Math.min(userCoins, itemsPrice);
   const coinsDiscount = useCoinsDiscount ? maxCoinsToRedeem : 0;
   const finalAmount = itemsPrice - coinsDiscount + deliveryCharge;
 
-  / Calculate simulated referrer rewards to display in cart for visual feedback
+  // Calculate simulated referrer rewards to display in cart for visual feedback
   const getReferrerRewardText = () => {
     if (!activeReferral) return null;
 
@@ -400,7 +400,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           className="btn btn-accent btn-lg cart-checkout-btn-desktop" 
           onClick={() => onCheckout(useCoinsDiscount)}
         >
-          / eslint-disable-next-line
+          // eslint-disable-next-line
           <Lock size={18} /> PLACE ORDER
         </button>
 

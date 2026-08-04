@@ -10,7 +10,7 @@ export default function HomeClientWrapper({ serverProducts }) {
   const { promotions, setProducts, products } = useApp();
 
   useEffect(() => {
-    / Sync the server-fetched products into the AppContext so other components can use them
+    // Sync the server-fetched products into the AppContext so other components can use them
     if (serverProducts && serverProducts.length > 0 && products.length === 0) {
       setProducts(serverProducts);
     }
@@ -22,7 +22,7 @@ export default function HomeClientWrapper({ serverProducts }) {
       onNavigateProduct={(id) => router.push('/product/' + id)} 
       onSelectCategory={(cat) => router.push('/catalog?category=' + cat)} 
       promotions={promotions}
-      / Pass serverProducts directly to Home for instant initial render
+      // Pass serverProducts directly to Home for instant initial render
       initialProducts={serverProducts}
     />
   );

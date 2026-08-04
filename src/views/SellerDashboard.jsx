@@ -3,12 +3,12 @@ import { useApp } from '../context/AppContext';
 import { 
   PlusCircle, 
   Trash2, 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Settings, 
   Package, 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Image, 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Tag, 
   DollarSign, 
   Layers,
@@ -21,20 +21,20 @@ import {
   CreditCard,
   AlertCircle,
   LogOut,
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Lock,
   CheckCircle2,
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Mail,
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Phone
 } from 'lucide-react';
-import '../assets/styles/admin.css'; / Reuse administrative styling framework
+import '../assets/styles/admin.css'; // Reuse administrative styling framework
 
 const SellerDashboard = ({ onNavigate }) => {
   const { showToast, products } = useApp();
   
-  / Decoupled Merchant Account Session
+  // Decoupled Merchant Account Session
   const [currentSeller, setCurrentSeller] = useState(() => {
     try {
       const saved = localStorage.getItem('abkharido_seller_session');
@@ -42,17 +42,17 @@ const SellerDashboard = ({ onNavigate }) => {
     } catch { return null; }
   });
 
-  const [activeTab, setActiveTab] = useState('analytics'); / 'analytics' | 'inventory' | 'orders' | 'payouts'
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'inventory' | 'orders' | 'payouts'
   const [sellerOrders, setSellerOrders] = useState([]);
   const [sellerProducts, setSellerProducts] = useState([]);
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   const [loading, setLoading] = useState(false);
 
-  / --- Login / Signup Form Toggle ---
-  const [authMode, setAuthMode] = useState('login'); / 'login' | 'signup'
-  const [regStep, setRegStep] = useState(1); / 1: Email & Password, 2: Business Details
+  // --- Login / Signup Form Toggle ---
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup'
+  const [regStep, setRegStep] = useState(1); // 1: Email & Password, 2: Business Details
   
-  / Signup State fields
+  // Signup State fields
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,7 +63,7 @@ const SellerDashboard = ({ onNavigate }) => {
   const [bankAccount, setBankAccount] = useState('');
   const [bankIfsc, setBankIfsc] = useState('');
 
-  / Simulated OTP States
+  // Simulated OTP States
   const [mobileOtpSent, setMobileOtpSent] = useState(false);
   const [mobileOtpInput, setMobileOtpInput] = useState('');
   const [mobileVerified, setMobileVerified] = useState(false);
@@ -72,7 +72,7 @@ const SellerDashboard = ({ onNavigate }) => {
   const [emailOtpInput, setEmailOtpInput] = useState('');
   const [emailVerified, setEmailVerified] = useState(false);
 
-  / --- Add Product Form State ---
+  // --- Add Product Form State ---
   const [id, setId] = useState('');
   const [name, setName] = useState('');
   const [category, setCategory] = useState('electronics');
@@ -86,7 +86,7 @@ const SellerDashboard = ({ onNavigate }) => {
   ]);
   const [colorModels, setColorModels] = useState([]);
 
-  / Payout request form
+  // Payout request form
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawMethod, setWithdrawMethod] = useState('UPI');
 
@@ -94,14 +94,14 @@ const SellerDashboard = ({ onNavigate }) => {
     if (!currentSeller || !currentSeller.isApproved) return;
     setLoading(true);
     try {
-      / Fetch seller's products
+      // Fetch seller's products
       const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/products?sellerId=${currentSeller.email}`);
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         setSellerProducts(prodData);
       }
       
-      / Fetch seller's orders
+      // Fetch seller's orders
       const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/orders?sellerId=${currentSeller.email}`);
       if (orderRes.ok) {
         const orderData = await orderRes.json();
@@ -115,11 +115,11 @@ const SellerDashboard = ({ onNavigate }) => {
   };
 
   useEffect(() => {
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     fetchSellerData();
   }, [currentSeller, products]);
 
-  / Sync profile details after payout changes
+  // Sync profile details after payout changes
   const fetchUpdatedSellerProfile = async () => {
     if (!currentSeller) return;
     try {
@@ -148,7 +148,7 @@ const SellerDashboard = ({ onNavigate }) => {
     showToast('Merchant session logged out successfully.', 'info');
   };
 
-  / Simulated OTP helpers
+  // Simulated OTP helpers
   const handleSendMobileOtp = () => {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone)) {
@@ -189,7 +189,7 @@ const SellerDashboard = ({ onNavigate }) => {
     }
   };
 
-  / --- Authentications handlers ---
+  // --- Authentications handlers ---
   const handleAuthSubmit = async (e) => {
     if (e) e.preventDefault();
     
@@ -213,12 +213,12 @@ const SellerDashboard = ({ onNavigate }) => {
           const err = await res.json();
           showToast(err.error || 'Authentication failed.', 'error');
         }
-      / eslint-disable-next-line
+      // eslint-disable-next-line
       } catch (err) {
         showToast('Fulfillment server lookup error.', 'error');
       }
     } else {
-      / Sign up process (Step 2 Submit)
+      // Sign up process (Step 2 Submit)
       if (!shopName || !address || !upi) {
         showToast('Please fill out all required business fields.', 'error');
         return;
@@ -245,7 +245,7 @@ const SellerDashboard = ({ onNavigate }) => {
           const err = await res.json();
           showToast(err.error || 'Registration failed.', 'error');
         }
-      / eslint-disable-next-line
+      // eslint-disable-next-line
       } catch (err) {
         showToast('Fulfillment server registration error.', 'error');
       }
@@ -269,14 +269,14 @@ const SellerDashboard = ({ onNavigate }) => {
     setRegStep(2);
   };
 
-  / --- Specs rows handlers ---
+  // --- Specs rows handlers ---
   const handleAddSpecRow = () => setSpecs([...specs, { key: '', value: '' }]);
   const handleRemoveSpecRow = (idx) => setSpecs(specs.filter((_, i) => i !== idx));
   const handleSpecChange = (idx, field, val) => {
     setSpecs(specs.map((spec, i) => i === idx ? { ...spec, [field]: val } : spec));
   };
 
-  / --- Variations handlers ---
+  // --- Variations handlers ---
   const handleAddColorModel = () => {
     setColorModels([...colorModels, {
       name: '',
@@ -310,7 +310,7 @@ const SellerDashboard = ({ onNavigate }) => {
     } : cm));
   };
 
-  / --- Form submission ---
+  // --- Form submission ---
   const handleSubmitProduct = async (e) => {
     e.preventDefault();
     if (!id || !name || !price || !originalPrice || !image || !description) {
@@ -358,8 +358,8 @@ const SellerDashboard = ({ onNavigate }) => {
       image,
       description,
       specifications: cleanSpecs,
-      influencerCommissionRate: 0.03, / default 3% creator payout
-      userCommissionRate: 0.012, / default 1.2% coin reward
+      influencerCommissionRate: 0.03, // default 3% creator payout
+      userCommissionRate: 0.012, // default 1.2% coin reward
       inStock: true,
       colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined
     };
@@ -388,7 +388,7 @@ const SellerDashboard = ({ onNavigate }) => {
         const err = await res.json();
         showToast(err.error || 'Failed to submit product.', 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Network error listing product.', 'error');
     }
@@ -407,7 +407,7 @@ const SellerDashboard = ({ onNavigate }) => {
         const err = await res.json();
         showToast(err.error || 'Failed to remove product.', 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Fulfillment server connection error.', 'error');
     }
@@ -443,13 +443,13 @@ const SellerDashboard = ({ onNavigate }) => {
         const err = await res.json();
         showToast(err.error || 'Payout failed.', 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Network error requesting withdrawal.', 'error');
     }
   };
 
-  / --- Auth Render View ---
+  // --- Auth Render View ---
   if (!currentSeller) {
     return (
       <div className="container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '32px 16px' }}>
@@ -731,7 +731,7 @@ const SellerDashboard = ({ onNavigate }) => {
     );
   }
 
-  / Verification pending landing
+  // Verification pending landing
   if (!currentSeller.isApproved) {
     return (
       <div className="container animate-fade-in" style={{ maxWidth: '500px', padding: '60px 20px' }}>
@@ -1197,7 +1197,7 @@ const SellerDashboard = ({ onNavigate }) => {
                   </tr>
                 ) : (
                   sellerOrders.map(o => {
-                    / Sum seller specific items cost (safely guarding against deleted products/null price values)
+                    // Sum seller specific items cost (safely guarding against deleted products/null price values)
                     const sellerTotal = (o.items || []).reduce((sum, item) => sum + ((item.product?.price || 0) * (item.quantity || 1)), 0);
                     return (
                       <tr key={o.id}>

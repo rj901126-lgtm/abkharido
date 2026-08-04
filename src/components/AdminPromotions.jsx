@@ -9,7 +9,7 @@ const AdminPromotions = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
 
-  / Promotional state architecture
+  // Promotional state architecture
   const [announcement, setAnnouncement] = useState({
     show: true,
     text: '🔥 MEGA FESTIVE CARNIVAL IS LIVE! Flat 60% OFF + Instant ₹2,000 Cashfree Escrow Cashback on all Tech & Fashion Orders above ₹4,999! 🚀',
@@ -76,7 +76,7 @@ const AdminPromotions = () => {
   };
 
   useEffect(() => {
-    / Load from local resilience vault if available
+    // Load from local resilience vault if available
     try {
       const saved = localStorage.getItem('abkharido_promotions_v2');
       if (saved) {
@@ -99,7 +99,7 @@ const AdminPromotions = () => {
     localStorage.setItem('abkharido_vip_categories', JSON.stringify(vipCategories));
     window.dispatchEvent(new Event('abkharido_promotions_updated'));
     
-    / Legacy sync
+    // Legacy sync
     try {
       localStorage.setItem('abkharido_announcement', JSON.stringify(announcement));
       localStorage.setItem('abkharido_banners', JSON.stringify(heroBanners));
@@ -120,7 +120,7 @@ const AdminPromotions = () => {
     }, 600);
   };
 
-  / AI Holiday Presets
+  // AI Holiday Presets
   const applyAIPreset = (preset) => {
     if (preset === 'diwali') {
       setHeroBanners([

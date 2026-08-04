@@ -24,19 +24,19 @@ const AdminDataGrid = ({ onEditProduct }) => {
     const catCode = (prod.category || 'GEN').slice(0, 3).toUpperCase();
     const shortId = cleanId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6).toUpperCase();
     
-    / Automated SKU Generation
+    // Automated SKU Generation
     const sku = (prod.sku && prod.sku !== 'NO-SKU') ? prod.sku : `ABK-${catCode}-${shortId}`;
     
-    / Resilient Stock Level (never default to embarrassing 0 unless explicitly overridden as 0)
+    // Resilient Stock Level (never default to embarrassing 0 unless explicitly overridden as 0)
     let stock = Number(prod.stock);
     if (isNaN(stock) || stock === 0 || !prod.hasOwnProperty('stock')) {
-      / Deterministic realistic stock based on ID hash
+      // Deterministic realistic stock based on ID hash
       let hash = 0;
       for (let i = 0; i < cleanId.length; i++) hash += cleanId.charCodeAt(i);
-      stock = (hash % 140) + 35; / Generates stock between 35 and 175 units
+      stock = (hash % 140) + 35; // Generates stock between 35 and 175 units
     }
 
-    / Profit Margin estimation
+    // Profit Margin estimation
     const margin = (16.5 + (stock % 12)).toFixed(1);
 
     return {
@@ -65,7 +65,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
         const json = await res.json();
         let loadedList = json.products || [];
         
-        / Apply localStorage overrides
+        // Apply localStorage overrides
         const overridesStr = localStorage.getItem('abkharido_inventory_overrides');
         let overrides = {};
         if (overridesStr) {
@@ -134,7 +134,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
         body: JSON.stringify({ stock: newStock })
       });
     } catch (err) {
-      / Backend error ignored since local resilient override preserves user state
+      // Backend error ignored since local resilient override preserves user state
     }
   };
 
@@ -177,7 +177,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
     showToastMsg(`✨ Product cloned into database successfully! Assigned SKU: ${newProduct.sku}`, 'success');
   };
 
-  / Bulk Actions
+  // Bulk Actions
   const handleToggleSelectAll = (e) => {
     if (e.target.checked) {
       setSelectedIds(filteredProducts.map(p => p.id));
@@ -226,7 +226,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
     showToastMsg(`📥 Downloaded customized CSV report for ${selectedItems.length} products!`, 'success');
   };
 
-  / Filter Logic
+  // Filter Logic
   const filteredProducts = data.products.filter(p => {
     if (stockFilter === 'in_stock' && (Number(p.stock) || 0) < 15) return false;
     if (stockFilter === 'low_stock' && (Number(p.stock) || 0) >= 15) return false;
@@ -234,7 +234,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
     return true;
   });
 
-  / KPIs
+  // KPIs
   const totalValuation = data.products.reduce((acc, p) => acc + ((Number(p.price) || 0) * (Number(p.stock) || 0)), 0);
   const totalHealthy = data.products.filter(p => (Number(p.stock) || 0) >= 15).length;
   const totalLow = data.products.filter(p => (Number(p.stock) || 0) < 15).length;

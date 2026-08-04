@@ -4,7 +4,7 @@ import logger from '../../server/config/logger.js';
 import connectDB from '../../server/config/db.js';
 import Product from '../../server/models/Product.js';
 
-export const revalidate = 60; / ISR: Revalidate every 60 seconds
+export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
 async function getProducts() {
   try {

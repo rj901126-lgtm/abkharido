@@ -35,7 +35,7 @@ const AdminCMSBuilder = () => {
         try { setSeoConfig(JSON.parse(savedSeo)); } catch (e) {}
       }
 
-      / Removed layout caching to force authentic DB fetch
+      // Removed layout caching to force authentic DB fetch
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`);
       if (res.ok) {
@@ -47,7 +47,7 @@ const AdminCMSBuilder = () => {
         }
       }
 
-      / Real DB baseline without dummy data
+      // Real DB baseline without dummy data
       setLayout({ type: 'home_page', components: [] });
       localStorage.setItem('abkharido_cms_storefront_v2', JSON.stringify({ type: 'home_page', components: [] }));
     } catch (err) {
@@ -132,7 +132,7 @@ const AdminCMSBuilder = () => {
     localStorage.setItem('abkharido_cms_storefront_v2', JSON.stringify(newLayout));
   };
 
-  / AI Holiday Preset Themes
+  // AI Holiday Preset Themes
   const handleApplyPreset = (presetName) => {
     let components = [];
     if (presetName === 'diwali') {
@@ -561,7 +561,7 @@ const AdminCMSBuilder = () => {
                       </div>
                     );
                   } else {
-                    / category_row
+                    // category_row
                     return (
                       <div key={i} style={{ background: 'rgba(255,255,255,0.06)', padding: '12px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>

@@ -7,18 +7,18 @@ import {
   ShoppingCart, 
   User, 
   ChevronDown, 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Layers, 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   TrendingUp, 
   LogOut, 
   Award,
   CircleDollarSign,
   Coins,
   History,
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   RotateCcw,
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Settings,
   Heart,
   Store,
@@ -32,7 +32,7 @@ import { normalizeSearchQuery } from '../utils/searchHelper';
 const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, onCartClick, style }) => {
   const searchParams = useSearchParams();
   const activeCat = searchParams ? (searchParams.get('category') || currentCategory || 'all') : (currentCategory || 'all');
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   const { currentUser, cart, logout, resetDatabase, products } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,14 +66,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-IN'; / Indian English / Hinglish so names like iPhone, Samsung, Mobile transcribe directly in English!
+    recognition.lang = 'en-IN'; // Indian English / Hinglish so names like iPhone, Samsung, Mobile transcribe directly in English!
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     setIsListening(true);
-    playBeep(880, 0.15); / Pleasant chime on activation
+    playBeep(880, 0.15); // Pleasant chime on activation
     recognition.start();
     recognition.onresult = (event) => {
-      playBeep(1200, 0.2); / Pleasant success chime
+      playBeep(1200, 0.2); // Pleasant success chime
       const transcript = event.results[0][0].transcript;
       const normalized = normalizeSearchQuery(transcript);
       setSearchQuery(normalized);
@@ -86,7 +86,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   useEffect(() => {
     const handleFocusSearch = () => {
-      / Focus element after small delay to allow Home page rendering
+      // Focus element after small delay to allow Home page rendering
       setTimeout(() => {
         if (searchInputRef.current) {
           searchInputRef.current.focus();
@@ -111,7 +111,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   const handleCategoryClick = (catId) => {
     onSelectCategory(catId);
-    / Automatically navigate to home/catalog page when selecting category
+    // Automatically navigate to home/catalog page when selecting category
     if (activePage !== 'home' && activePage !== 'catalog') {
       onNavigate('');
     }

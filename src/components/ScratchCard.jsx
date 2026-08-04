@@ -9,13 +9,13 @@ const ScratchCard = ({ rewardCode, onComplete }) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    / Setup Canvas
+    // Setup Canvas
     const width = 300;
     const height = 150;
     canvas.width = width;
     canvas.height = height;
 
-    / Fill with metallic silver coating
+    // Fill with metallic silver coating
     const gradient = ctx.createLinearGradient(0, 0, width, height);
     gradient.addColorStop(0, '#e2e8f0');
     gradient.addColorStop(0.5, '#94a3b8');
@@ -23,7 +23,7 @@ const ScratchCard = ({ rewardCode, onComplete }) => {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    / Add some scratch instructions text on top of the silver
+    // Add some scratch instructions text on top of the silver
     ctx.font = 'bold 18px "Inter", sans-serif';
     ctx.fillStyle = '#475569';
     ctx.textAlign = 'center';
@@ -76,7 +76,7 @@ const ScratchCard = ({ rewardCode, onComplete }) => {
       
       if (percentage > 50) {
         setIsScratched(true);
-        / Clear the remaining canvas instantly for a satisfying pop
+        // Clear the remaining canvas instantly for a satisfying pop
         ctx.clearRect(0, 0, width, height);
         if (onComplete) onComplete();
       }

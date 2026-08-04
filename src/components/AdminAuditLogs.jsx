@@ -5,7 +5,7 @@ const AdminAuditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all'); / all, critical, orders, catalog
+  const [filterCategory, setFilterCategory] = useState('all'); // all, critical, orders, catalog
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
@@ -33,7 +33,7 @@ const AdminAuditLogs = () => {
           return;
         }
       }
-      / Removed mock fallback
+      // Removed mock fallback
       setLogs([]);
     } catch (err) {
       console.error('Error fetching logs:', err);
@@ -82,7 +82,7 @@ const AdminAuditLogs = () => {
     showToastMsg('🔒 Security SOC Perimeter Activated! All suspicious background sessions purged & IP rate-limiting enforced.', 'success');
   };
 
-  / Filter & Search Logic
+  // Filter & Search Logic
   const filteredLogs = logs.filter(log => {
     const matchesSearch = (log.adminName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (log.action || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -103,11 +103,11 @@ const AdminAuditLogs = () => {
     return true;
   });
 
-  / Pagination Logic
+  // Pagination Logic
   const totalPages = Math.ceil(filteredLogs.length / rowsPerPage) || 1;
   const currentSlice = filteredLogs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-  / KPIs
+  // KPIs
   const criticalEventsCount = logs.filter(l => l.action.includes('DELETE') || l.action.includes('CANCEL') || l.action.includes('LOCK')).length;
   const uniqueStaff = new Set(logs.map(l => l.adminName || 'Admin')).size;
   const uniqueIPs = new Set(logs.map(l => l.ipAddress)).size;

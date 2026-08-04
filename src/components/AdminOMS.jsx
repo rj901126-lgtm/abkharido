@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-/ eslint-disable-next-line
+// eslint-disable-next-line
 import { FileText, Truck, Printer, Search, CheckSquare, Eye, X, Settings, XCircle, Package, Phone, MessageCircle, MapPin, DollarSign, ExternalLink, RefreshCw, CheckCircle, Shield, AlertTriangle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import WorldClassInvoice from './WorldClassInvoice';
@@ -13,7 +13,7 @@ const AdminOMS = () => {
   const [activeTab, setActiveTab] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   
-  / Modals state
+  // Modals state
   const [viewingOrder, setViewingOrder] = useState(null);
   const [dispatchOrder, setDispatchOrder] = useState(null);
   const [courierPartner, setCourierPartner] = useState('Delhivery Express');
@@ -44,7 +44,7 @@ const AdminOMS = () => {
         }
       }
       
-      / No dummy data; use real data only
+      // No dummy data; use real data only
       setOrders([]);
     } catch (err) {
       console.error(err);
@@ -184,7 +184,7 @@ const AdminOMS = () => {
         const err = await res.json();
         showToast(err.error || 'Failed to cancel order', 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Network error while cancelling order', 'error');
     }
@@ -307,7 +307,7 @@ const AdminOMS = () => {
         const err = await res.json();
         showToast(err.error || 'Failed to send email', 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Network error while sending email', 'error');
     } finally {
@@ -315,7 +315,7 @@ const AdminOMS = () => {
     }
   };
 
-  / Status & Tab Filtering logic
+  // Status & Tab Filtering logic
   const liveCount = orders.filter(o => !['CANCELLED', 'Cancelled', 'cancelled', 'DELIVERED', 'Delivered', 'delivered', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)).length;
   const processingCount = orders.filter(o => !o.status || o.status.toLowerCase() === 'processing' || o.status.toLowerCase() === 'pending').length;
   const shippedCount = orders.filter(o => o.status && o.status.toLowerCase() === 'shipped').length;
@@ -323,7 +323,7 @@ const AdminOMS = () => {
   const cancelledCount = orders.filter(o => ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status) || (o.returnStatus && o.returnStatus !== 'None')).length;
 
   const filteredOrders = orders.filter(o => {
-    / 1. Tab Filter
+    // 1. Tab Filter
     if (activeTab === 'LIVE') {
       if (['CANCELLED', 'Cancelled', 'cancelled', 'DELIVERED', 'Delivered', 'delivered', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)) return false;
     } else if (activeTab === 'PROCESSING') {
@@ -338,7 +338,7 @@ const AdminOMS = () => {
       if (!isCancelled && !hasReturn) return false;
     }
 
-    / 2. Search Query Filter
+    // 2. Search Query Filter
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     const oId = String(o.id || o._id).toLowerCase();

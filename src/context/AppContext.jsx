@@ -5,11 +5,11 @@ import { useSession, signOut } from 'next-auth/react';
 
 const AppContext = createContext();
 
-/ eslint-disable-next-line
+// eslint-disable-next-line
 export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
-  / Start with empty array, fetch from enterprise backend API
+  // Start with empty array, fetch from enterprise backend API
   const [products, setProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const loadPromotionsFromStorage = () => {
@@ -51,7 +51,7 @@ export const AppProvider = ({ children }) => {
       const cached = localStorage.getItem('abkharido_cached_profile');
       if (cached) {
         const parsed = JSON.parse(cached);
-        / Use cache if it's less than 10 minutes old
+        // Use cache if it's less than 10 minutes old
         if (parsed._cachedAt && Date.now() - parsed._cachedAt < 10 * 60 * 1000) {
           return parsed;
         }
@@ -71,8 +71,8 @@ export const AppProvider = ({ children }) => {
     _id: session.user?.id || session.user?._id || session?.id || 'vip_user',
     token: session.accessToken, 
     username: session.user.name,
-    phone: session.user.phone || session.user.name,  / phone from JWT session
-    email: session.user.email || undefined,  / null-safe: don't show Google email if OTP login
+    phone: session.user.phone || session.user.name,  // phone from JWT session
+    email: session.user.email || undefined,  // null-safe: don't show Google email if OTP login
     ...(dbUser || {}) 
   } : (localSession ? { _id: localSession._id || localSession.id || 'vip_user', ...localSession, ...(dbUser || {}) } : null);
 
@@ -111,7 +111,7 @@ export const AppProvider = ({ children }) => {
 
   const [savedCards, setSavedCards] = useState([]);
 
-  / --- Secure Storage Helper (Prevent DOS via QuotaExceededError) ---
+  // --- Secure Storage Helper (Prevent DOS via QuotaExceededError) ---
   const safeSetItem = (key, value) => {
     try {
       localStorage.setItem(key, value);
@@ -124,16 +124,16 @@ export const AppProvider = ({ children }) => {
     safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
-  / --- Fetch Data on Mount ---
+  // --- Fetch Data on Mount ---
   useEffect(() => {
     fetchProducts();
     fetchStats();
   }, []);
 
-  / --- Fetch User Data when Session Loads ---
+  // --- Fetch User Data when Session Loads ---
   useEffect(() => {
     if (session?.user?.name) {
-      / Try both username, phone, and ID to find the right user record
+      // Try both username, phone, and ID to find the right user record
       const phone = session.user.phone || '';
       const id = session.user.id || session.user._id || '';
       fetchUser(session.user.name, phone, id);
@@ -141,11 +141,11 @@ export const AppProvider = ({ children }) => {
     }
   }, [session?.user?.name, session?.user?.phone, session?.user?.id]);
 
-  / --- Sync Temporary Cart details ---
+  // --- Sync Temporary Cart details ---
   useEffect(() => {
     safeSetItem('abkharido_cart', JSON.stringify(cart));
     
-    / Background sync to database if logged in
+    // Background sync to database if logged in
     if (currentUser?.token) {
       const syncTimeout = setTimeout(() => {
         fetch(`/api/cart/sync`, {
@@ -161,7 +161,7 @@ export const AppProvider = ({ children }) => {
     }
   }, [cart, currentUser]);
 
-  / --- Initial Cross-Device Cart Merge ---
+  // --- Initial Cross-Device Cart Merge ---
   useEffect(() => {
     const initBackendCart = async () => {
       if (currentUser?.token) {
@@ -176,14 +176,14 @@ export const AppProvider = ({ children }) => {
             if (backendCart.length > 0 || localCart.length > 0) {
               const mergedMap = new Map();
               
-              / Load backend cart first
+              // Load backend cart first
               backendCart.forEach(item => {
                 if (item.product && item.product.id) {
                   mergedMap.set(item.product.id, item);
                 }
               });
               
-              / Load local cart (overwrites qty if local has more)
+              // Load local cart (overwrites qty if local has more)
               localCart.forEach(item => {
                 if (item.product && item.product.id) {
                   const existing = mergedMap.get(item.product.id);
@@ -196,7 +196,7 @@ export const AppProvider = ({ children }) => {
               });
               
               const finalCart = Array.from(mergedMap.values());
-              setCart(finalCart); / This will trigger the background sync useEffect automatically
+              setCart(finalCart); // This will trigger the background sync useEffect automatically
             }
           }
         } catch (err) {
@@ -205,9 +205,9 @@ export const AppProvider = ({ children }) => {
       }
     };
     
-    / Only run this ONCE when user session initializes
+    // Only run this ONCE when user session initializes
     initBackendCart();
-    / eslint-disable-next-line
+    // eslint-disable-next-line
   }, [currentUser?.token]);
 
   useEffect(() => {
@@ -218,19 +218,19 @@ export const AppProvider = ({ children }) => {
     }
   }, [activeReferral]);
 
-  / --- URL Referral Tracking ---
+  // --- URL Referral Tracking ---
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     let refUser = params.get('ref');
     const productIdParam = params.get('prod');
 
-    / Security Fix: Prevent DOS attacks via massive link-sharing payloads
+    // Security Fix: Prevent DOS attacks via massive link-sharing payloads
     if (refUser && refUser.length > 50) {
       refUser = null;
     }
 
     if (refUser) {
-      / eslint-disable-next-line
+      // eslint-disable-next-line
       if (currentUser && refUser === (currentUser.username || currentUser.name)) {
         showToast('Self-referral links do not earn rewards.', 'warning');
       } else {
@@ -244,11 +244,11 @@ export const AppProvider = ({ children }) => {
         showToast(`Referral active: Shopping via link shared by ${refUser}!`, 'info');
       }
     }
-  }, []); / Only parse URL params once on mount, not on every user change
+  }, []); // Only parse URL params once on mount, not on every user change
 
-  / --- API Fetches ---
+  // --- API Fetches ---
   const fetchProducts = async () => {
-    / If SSR has already hydrated products, skip the client-side initial fetch
+    // If SSR has already hydrated products, skip the client-side initial fetch
     if (products.length > 0) {
       setIsLoadingProducts(false);
       return;
@@ -272,17 +272,17 @@ export const AppProvider = ({ children }) => {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
       
       let res;
-      / Try reliable lookup by MongoDB ID first if available
+      // Try reliable lookup by MongoDB ID first if available
       if (id && id !== 'vip_user') {
         res = await fetch(`/api/users/${id}`, { headers, cache: 'no-store' });
       }
       
-      / Fallback to username
+      // Fallback to username
       if (!res || !res.ok) {
         res = await fetch(`/api/users/${username}`, { headers, cache: 'no-store' });
       }
       
-      / If username lookup fails (404) and we have a phone, try phone-based lookup
+      // If username lookup fails (404) and we have a phone, try phone-based lookup
       if ((!res || !res.ok) && phone && phone !== username) {
         res = await fetch(`/api/users/${phone}`, { headers, cache: 'no-store' });
       }
@@ -291,7 +291,7 @@ export const AppProvider = ({ children }) => {
         const userData = await res.json();
         if (userData && !userData.error) {
           setDbUser(userData);
-          / Cache in localStorage so profile loads instantly on next visit
+          // Cache in localStorage so profile loads instantly on next visit
           try {
             localStorage.setItem('abkharido_cached_profile', JSON.stringify({
               ...userData,
@@ -389,7 +389,7 @@ export const AppProvider = ({ children }) => {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       if (res.ok) {
-        / Successfully cancelled
+        // Successfully cancelled
         if (currentUser) {
           fetchOrders(currentUser.email);
         }
@@ -441,7 +441,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  / --- Helper: Show Toast ---
+  // --- Helper: Show Toast ---
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => {
@@ -449,7 +449,7 @@ export const AppProvider = ({ children }) => {
     }, 4500);
   };
 
-  / --- Helper: Increment Referrer Clicks via API ---
+  // --- Helper: Increment Referrer Clicks via API ---
   const incrementReferrerClicks = async () => {
     try {
       const res = await fetch(`/api/stats/click`, { method: 'POST' });
@@ -461,7 +461,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  / --- Cart Actions ---
+  // --- Cart Actions ---
   const addToCart = (product, qty = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
@@ -494,7 +494,7 @@ export const AppProvider = ({ children }) => {
         const stock = item.product.stock ?? 99;
         if (qty > stock) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
-          return item; / don't update
+          return item; // don't update
         }
         return { ...item, quantity: qty };
       }
@@ -511,7 +511,7 @@ export const AppProvider = ({ children }) => {
     setCart([]);
   };
 
-  / --- Logout Action ---
+  // --- Logout Action ---
   const logout = async () => {
     localStorage.removeItem('abkharido_user_session');
     setLocalSession(null);
@@ -520,12 +520,12 @@ export const AppProvider = ({ children }) => {
     showToast('Logged out successfully.', 'info');
   };
 
-  / --- Update User Profile Action ---
+  // --- Update User Profile Action ---
   const updateUserProfile = async (details) => {
     if (!currentUser) return false;
     try {
       const token = currentUser.token;
-      / ALWAYS use _id to update if available, otherwise fallback
+      // ALWAYS use _id to update if available, otherwise fallback
       const targetIdentifier = (currentUser._id && currentUser._id !== 'vip_user') 
         ? currentUser._id 
         : (currentUser.username || currentUser.name);
@@ -546,14 +546,14 @@ export const AppProvider = ({ children }) => {
         const err = await res.json();
         showToast(err.error || 'Failed to update profile.', 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (e) {
       showToast('Network error updating profile.', 'error');
     }
     return false;
   };
 
-  / --- Admin Panel API Actions ---
+  // --- Admin Panel API Actions ---
   const addProduct = async (newProduct) => {
     const adminToken = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
@@ -573,7 +573,7 @@ export const AppProvider = ({ children }) => {
       const data = await res.json();
       setProducts(prev => [...prev, data]);
       showToast(`Product "${data.name}" added successfully!`, 'success');
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Failed to connect to backend server.', 'error');
     }
@@ -596,11 +596,11 @@ export const AppProvider = ({ children }) => {
         return false;
       }
       
-      / Update local state for storefront
+      // Update local state for storefront
       setProducts(prev => prev.map(p => p.id === productId ? { ...p, ...updates } : p));
       showToast('Product updated successfully', 'success');
       return true;
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Network error while updating product', 'error');
       return false;
@@ -624,13 +624,13 @@ export const AppProvider = ({ children }) => {
       setProducts(prev => prev.filter(p => p.id !== productId));
       removeFromCart(productId);
       showToast('Product removed successfully.', 'success');
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Failed to connect to backend server.', 'error');
     }
   };
 
-  / --- Wallet API Actions ---
+  // --- Wallet API Actions ---
 
   const registerAsSeller = async (shopName, sellerAddress, payoutDetails) => {
     if (!currentUser) {
@@ -658,7 +658,7 @@ export const AppProvider = ({ children }) => {
       safeSetItem('abkharido_user_session', JSON.stringify(data));
       showToast('Shop registered! Awaiting admin approval.', 'success');
       return true;
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Failed to connect to backend server.', 'error');
       return false;
@@ -698,14 +698,14 @@ export const AppProvider = ({ children }) => {
         showToast(`Payout request of ₹${amount} submitted successfully!`, 'success');
         return true;
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Failed to submit payout withdrawal request.', 'error');
     }
     return false;
   };
 
-  / --- Place Order & Attributions API Checkout ---
+  // --- Place Order & Attributions API Checkout ---
   const placeOrder = async (shippingAddress, paymentMethod, useCoinsDiscount = false, cfOrderId = null, couponCode = null) => {
     if (!currentUser) {
       showToast('Please log in to place an order.', 'error');
@@ -747,14 +747,14 @@ export const AppProvider = ({ children }) => {
         console.error('Order API error:', res.status, errData);
         showToast(`Order failed: ${errMsg}`, 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Failed to connect to checkout database.', 'error');
     }
     return null;
   };
 
-  / --- Cashfree Payment Status verification ---
+  // --- Cashfree Payment Status verification ---
   const verifyPayment = async (orderId) => {
     try {
       const token = currentUser?.token;
@@ -805,7 +805,7 @@ export const AppProvider = ({ children }) => {
         clearCart();
         setActiveReferral(null);
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Failed to communicate database reset.', 'error');
     }

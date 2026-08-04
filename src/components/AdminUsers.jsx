@@ -24,7 +24,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      / Removed localStorage caching to force authentic API fetch
+      // Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users`, {
@@ -46,7 +46,7 @@ const AdminUsers = () => {
         }
       }
 
-      / No dummy data; use real data only
+      // No dummy data; use real data only
       setUsers([]);
       localStorage.setItem('abkharido_customer_vault', JSON.stringify([]));
       setLoading(false);

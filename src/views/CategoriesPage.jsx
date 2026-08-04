@@ -3,11 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../utils/constants';
 import { 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Search, 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   ShoppingCart, 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   Camera, 
   ArrowRight,
   LayoutGrid,
@@ -72,26 +72,26 @@ const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
 
 const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions, onSearch }) => {
   const { products, cart } = useApp();
-  const [selectedCatId, setSelectedCatId] = useState('mobiles'); / default start on mobiles category
+  const [selectedCatId, setSelectedCatId] = useState('mobiles'); // default start on mobiles category
 
-  / eslint-disable-next-line
+  // eslint-disable-next-line
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  / Map category id to clear, accurate emoji icons
+  // Map category id to clear, accurate emoji icons
   const CAT_EMOJIS = {
-    all:         '🛍️',   / shopping bags = all
-    mobiles:     '📱',   / phone = mobiles ✓
-    electronics: '🎧',   / headphones = electronics (audio/gadgets)
-    fashion:     '👗',   / dress = fashion ✓
-    home:        '🏠',   / house = home & living ✓
-    beauty:      '💄',   / lipstick = beauty & personal care
-    sports:      '🏏',   / cricket bat = sports (India loves cricket)
-    appliances:  '🫧',   / washing = appliances
-    laptop:      '💻',   / laptop ✓
-    grocery:     '🛒',   / cart = grocery
-    toys:        '🧸',   / teddy = toys
-    books:       '📚',   / books ✓
-    jewelry:     '💍',   / ring = jewelry
+    all:         '🛍️',   // shopping bags = all
+    mobiles:     '📱',   // phone = mobiles ✓
+    electronics: '🎧',   // headphones = electronics (audio/gadgets)
+    fashion:     '👗',   // dress = fashion ✓
+    home:        '🏠',   // house = home & living ✓
+    beauty:      '💄',   // lipstick = beauty & personal care
+    sports:      '🏏',   // cricket bat = sports (India loves cricket)
+    appliances:  '🫧',   // washing = appliances
+    laptop:      '💻',   // laptop ✓
+    grocery:     '🛒',   // cart = grocery
+    toys:        '🧸',   // teddy = toys
+    books:       '📚',   // books ✓
+    jewelry:     '💍',   // ring = jewelry
   };
 
   const renderCatIcon = (cat) => {
@@ -101,15 +101,15 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
     );
   };
 
-  / Get active category's products (with safe list check)
+  // Get active category's products (with safe list check)
   const productList = Array.isArray(products) ? products : [];
   const categoryProducts = productList.filter(p => {
     if (!p) return false;
     if (selectedCatId === 'all') return true;
     return p.category === selectedCatId;
-  }).slice(0, 5); / display up to 5 items inside grid, then show "View All" button
+  }).slice(0, 5); // display up to 5 items inside grid, then show "View All" button
 
-  / Mock circular stores list for popular store row
+  // Mock circular stores list for popular store row
   const getMockStoresForCat = (catId) => {
     switch (catId) {
       case 'mobiles':
@@ -160,13 +160,13 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
   const handleViewAllClick = () => {
     onSelectCategory(selectedCatId);
     if (onSearch) onSearch('');
-    else onNavigate('catalog'); / correctly go to catalog page, not home
+    else onNavigate('catalog'); // correctly go to catalog page, not home
   };
 
   const handleStoreClick = (store) => {
     onSelectCategory(selectedCatId);
     if (onSearch) {
-      / Find a searchable keyword from badge or name
+      // Find a searchable keyword from badge or name
       const q = store.badge.toLowerCase();
       onSearch(q);
     } else {

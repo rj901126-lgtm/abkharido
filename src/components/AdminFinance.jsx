@@ -9,7 +9,7 @@ const AdminFinance = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
 
-  / New Vendor Form
+  // New Vendor Form
   const [newVendor, setNewVendor] = useState({
     name: '',
     email: '',
@@ -20,7 +20,7 @@ const AdminFinance = () => {
     pendingBalance: '0'
   });
 
-  / Financial Security Toggles
+  // Financial Security Toggles
   const [safeguards, setSafeguards] = useState({
     requireDualOtp: true,
     autoFreezeSuspicious: true,
@@ -47,7 +47,7 @@ const AdminFinance = () => {
       }
 
       const savedVendors = localStorage.getItem('abkharido_vendor_ledgers');
-      / Removed localStorage caching to force authentic API fetch
+      // Removed localStorage caching to force authentic API fetch
 
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const vendorsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/finance/vendors-balance`, { headers: { 'x-admin-token': token } });
@@ -61,7 +61,7 @@ const AdminFinance = () => {
         }
       }
 
-      / Use real backend data only
+      // Use real backend data only
       setVendors([]);
       localStorage.setItem('abkharido_vendor_ledgers', JSON.stringify([]));
     } catch (err) {
@@ -183,9 +183,9 @@ const AdminFinance = () => {
     showToastMsg('📥 Global Vendor Settlement Ledger downloaded successfully!', 'success');
   };
 
-  / Financial Calculations & KPIs
+  // Financial Calculations & KPIs
   const totalEarnedVol = vendors.reduce((acc, v) => acc + (v.totalEarned || 0), 0) + 1845000;
-  const totalPlatformRev = Math.round(totalEarnedVol * 0.10); / 10% Platform Commission
+  const totalPlatformRev = Math.round(totalEarnedVol * 0.10); // 10% Platform Commission
   const totalSettledVol = vendors.reduce((acc, v) => acc + (v.totalSettled || 0), 0) + 1420000;
   const totalPendingVol = vendors.reduce((acc, v) => acc + (v.pendingBalance || 0), 0);
   const totalGstCollected = Math.round(totalPlatformRev * 0.18);

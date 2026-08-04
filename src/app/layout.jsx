@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { AppProvider } from '../context/AppContext';
-import ClientLayout from '../components/ClientLayout'; / We will create this for client-side layout features
+import ClientLayout from '../components/ClientLayout'; // We will create this for client-side layout features
 import NextAuthProvider from '../components/NextAuthProvider';
 import Script from 'next/script';
 

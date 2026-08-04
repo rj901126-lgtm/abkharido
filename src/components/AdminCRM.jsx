@@ -10,7 +10,7 @@ const AdminCRM = () => {
   const [newLead, setNewLead] = useState({ name: '', email: '', phone: '', cartValue: '' });
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
 
-  / Security & Privacy State
+  // Security & Privacy State
   const [securitySettings, setSecuritySettings] = useState({
     maskCustomerData: true,
     dpdpCompliance: true,
@@ -18,7 +18,7 @@ const AdminCRM = () => {
     sslEncryption: 'TLS 1.3 Strict'
   });
 
-  / Global Store Settings State
+  // Global Store Settings State
   const [settings, setSettings] = useState({
     themeColor: '#2874f0',
     supportEmail: 'support@abkharido.com',
@@ -35,7 +35,7 @@ const AdminCRM = () => {
   };
 
   useEffect(() => {
-    / Load saved global config & security config from persistence if available
+    // Load saved global config & security config from persistence if available
     const savedGlobal = localStorage.getItem('abkharido_global_config');
     const savedSecurity = localStorage.getItem('abkharido_security_config');
     const savedLeads = localStorage.getItem('abkharido_crm_leads');
@@ -53,9 +53,9 @@ const AdminCRM = () => {
   const fetchCRMData = (savedLeads) => {
     setLoading(true);
     setTimeout(() => {
-      / Removed localStorage caching to force authentic API fetch
+      // Removed localStorage caching to force authentic API fetch
 
-      / Use real backend data here instead of mocks
+      // Use real backend data here instead of mocks
       setAbandonedCarts([]);
       localStorage.setItem('abkharido_crm_leads', JSON.stringify([]));
       setLoading(false);
@@ -142,7 +142,7 @@ const AdminCRM = () => {
     showToastMsg(`🛡️ Security setting '${key}' updated immediately. Customer database protected!`, 'success');
   };
 
-  / KPIs
+  // KPIs
   const totalRecoverable = abandonedCarts.filter(c => c.status !== 'recovered').reduce((sum, c) => sum + (c.cartValue || 0), 0);
   const recoveredCount = abandonedCarts.filter(c => c.status === 'recovered').length;
   const messagesSentCount = abandonedCarts.filter(c => c.status === 'sent_whatsapp' || c.status === 'sent_email').length;

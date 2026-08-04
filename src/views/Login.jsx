@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-/ eslint-disable-next-line
+// eslint-disable-next-line
 import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle } from 'lucide-react';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { signIn } from 'next-auth/react';
@@ -22,8 +22,8 @@ const Login = ({ onNavigate }) => {
   const [timer, setTimer] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [firebaseConfirmation, setFirebaseConfirmation] = useState(null); / Firebase SMS result
-  const [smsNotice, setSmsNotice] = useState(null); / SMS Gateway diagnostics notice
+  const [firebaseConfirmation, setFirebaseConfirmation] = useState(null); // Firebase SMS result
+  const [smsNotice, setSmsNotice] = useState(null); // SMS Gateway diagnostics notice
 
   useEffect(() => {
     if (currentUser) onNavigate('home');
@@ -37,7 +37,7 @@ const Login = ({ onNavigate }) => {
       clearInterval(interval);
     }
 
-    / Web OTP API for seamless Android auto-fill
+    // Web OTP API for seamless Android auto-fill
     let ac;
     if (showOtpScreen && 'OTPCredential' in window) {
       ac = new AbortController();
@@ -62,7 +62,7 @@ const Login = ({ onNavigate }) => {
     };
   }, [showOtpScreen, timer]);
 
-  / Session recovery logic: mobile browsers often reload when returning from background
+  // Session recovery logic: mobile browsers often reload when returning from background
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const wasOnOtp = sessionStorage.getItem('abkharido_was_on_otp');
@@ -98,7 +98,7 @@ const Login = ({ onNavigate }) => {
     setSmsNotice(null);
     let firebaseSent = false;
     try {
-      / ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
+      // ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
       try {
         if (!window.recaptchaVerifier) {
           window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
@@ -115,21 +115,21 @@ const Login = ({ onNavigate }) => {
         setTimer(60);
         showToast('✅ OTP sent to your mobile!', 'success');
       } catch (fbErr) {
-        / Silently clear Firebase verifier and fall through to backend OTP
+        // Silently clear Firebase verifier and fall through to backend OTP
         if (window.recaptchaVerifier) {
-          / eslint-disable-next-line
+          // eslint-disable-next-line
           try { window.recaptchaVerifier.clear(); } catch (_) {}
           window.recaptchaVerifier = null;
         }
-        / Only log — no scary UI error shown to user
+        // Only log — no scary UI error shown to user
         console.warn('[Firebase SMS]', fbErr.code, '→ switching to backend OTP delivery');
       }
 
-      / ── If Firebase didn't send, use backend DB-stored OTP ──
+      // ── If Firebase didn't send, use backend DB-stored OTP ──
       if (!firebaseSent) {
         await triggerBackendOtp();
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Unable to initiate OTP verification. Please check network.', 'error');
     } finally {
@@ -151,7 +151,7 @@ const Login = ({ onNavigate }) => {
       }
       setShowOtpScreen(true);
       setTimer(60);
-      / Only show toast, no scary error banners
+      // Only show toast, no scary error banners
       showToast('✅ OTP sent to +91 ' + phone, 'success');
     } catch (apiErr) {
       console.error('Backend OTP delivery failed:', apiErr);
@@ -168,9 +168,9 @@ const Login = ({ onNavigate }) => {
     }
     setIsVerifying(true);
     try {
-      / NextAuth Integration
+      // NextAuth Integration
       let result;
-      / ── Path 1: Firebase SMS OTP (real SMS was sent) ──
+      // ── Path 1: Firebase SMS OTP (real SMS was sent) ──
       if (firebaseConfirmation) {
         try {
           const confirmationResult = await firebaseConfirmation.confirm(enteredOtp);
@@ -181,14 +181,14 @@ const Login = ({ onNavigate }) => {
              phone,
              firebaseIdToken
           });
-        / eslint-disable-next-line
+        // eslint-disable-next-line
         } catch (fbErr) {
           showToast('Invalid OTP. Please check and try again.', 'error');
           setIsVerifying(false);
           return;
         }
       } else {
-        / ── Path 2: Backend authentic OTP verification ──
+        // ── Path 2: Backend authentic OTP verification ──
         try {
           result = await signIn('credentials', {
              redirect: false,
@@ -209,7 +209,7 @@ const Login = ({ onNavigate }) => {
       } else {
         showToast(result?.error || 'Authentication failed. Incorrect OTP.', 'error');
       }
-    / eslint-disable-next-line
+    // eslint-disable-next-line
     } catch (err) {
       showToast('Verification failed. Try again.', 'error');
     } finally {
@@ -221,16 +221,16 @@ const Login = ({ onNavigate }) => {
     const val = element.value;
     if (isNaN(val)) return;
     
-    / Handle Autofill or Paste (multiple digits)
+    // Handle Autofill or Paste (multiple digits)
     if (val.length > 1) {
       const chars = val.replace(/\D/g, '').split('').slice(0, 6);
       const newOtp = [...otpCode];
       chars.forEach((char, i) => {
-        if (i < 6) newOtp[i] = char; / fill from beginning
+        if (i < 6) newOtp[i] = char; // fill from beginning
       });
       setOtpCode(newOtp);
       
-      / Focus the appropriate box
+      // Focus the appropriate box
       const focusIndex = Math.min(chars.length, 5);
       const parent = element.parentNode;
       if (parent && parent.childNodes[focusIndex]) {
@@ -239,7 +239,7 @@ const Login = ({ onNavigate }) => {
       return;
     }
 
-    / Normal single-character typing
+    // Normal single-character typing
     setOtpCode([...otpCode.map((d, idx) => (idx === index ? val : d))]);
     if (element.nextSibling && val) element.nextSibling.focus();
   };

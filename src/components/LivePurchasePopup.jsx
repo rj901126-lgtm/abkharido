@@ -18,7 +18,7 @@ const LivePurchasePopup = () => {
       const randomCity = CITIES[Math.floor(Math.random() * CITIES.length)];
       const randomProduct = products[Math.floor(Math.random() * products.length)];
       
-      const timeAgo = Math.floor(Math.random() * 59) + 1; / 1 to 59 mins ago
+      const timeAgo = Math.floor(Math.random() * 59) + 1; // 1 to 59 mins ago
 
       setPopupData({
         name: randomName,
@@ -28,17 +28,17 @@ const LivePurchasePopup = () => {
       });
       setVisible(true);
 
-      / Hide after 4 seconds
+      // Hide after 4 seconds
       setTimeout(() => {
         setVisible(false);
       }, 4000);
     };
 
-    / Show first popup after 4 seconds for instant social trust
+    // Show first popup after 4 seconds for instant social trust
     const initialTimer = setTimeout(() => {
       showRandomPurchase();
       
-      / Then show every 12 to 18 seconds
+      // Then show every 12 to 18 seconds
       const interval = setInterval(() => {
         showRandomPurchase();
       }, Math.random() * 6000 + 12000);
