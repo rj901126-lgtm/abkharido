@@ -284,7 +284,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     <div className="profile-page-container animate-fade-in" style={{ padding: '0 0 130px 0', background: '#f8fafc', minHeight: '100vh' }}>
       
       {/* 1. VIP Luxury Dashboard Header */}
-      <div className="profile-dashboard-header" style={{ background: 'linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #7c3aed 100%)', boxShadow: '0 8px 30px rgba(79, 70, 229, 0.15)' }}>
+      <div className="profile-dashboard-header" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)', boxShadow: '0 8px 30px rgba(79, 70, 229, 0.08)', paddingBottom: '54px' }}>
         <div className="profile-header-user">
           <div className="profile-header-avatar" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', border: '3px solid #fde68a', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)' }}>
             {getInitials(currentUser)}
@@ -307,12 +307,12 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
         </div>
       </div>
 
-      <div style={{ padding: '0 16px', marginTop: '-24px', position: 'relative', zIndex: 10 }}>
+      <div style={{ padding: '0 16px', marginTop: '-34px', position: 'relative', zIndex: 10 }}>
         
         {/* 2. Upgraded Smart Quick Action Dashboard (Only on Overview) */}
         {activeTab === 'overview' ? (
           <div className="profile-quick-actions" style={{ marginTop: '4px' }}>
-            <div className="quick-action-card" onClick={() => onNavigate('orders')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="quick-action-card" onClick={() => onNavigate('orders')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <ShoppingBag size={22} color="#2563eb" />
               </div>
@@ -322,7 +322,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               </div>
             </div>
 
-            <div className="quick-action-card" onClick={() => setActiveTab('wishlist')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="quick-action-card" onClick={() => setActiveTab('wishlist')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Heart size={22} fill="#dc2626" color="#dc2626" />
               </div>
@@ -332,7 +332,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               </div>
             </div>
 
-            <div className="quick-action-card" onClick={() => setActiveTab('rewards')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #fde68a', background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 100%)', borderRadius: '16px', boxShadow: '0 4px 14px rgba(245,158,11,0.06)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="quick-action-card" onClick={() => setActiveTab('rewards')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '22px' }}>
                 🪙
               </div>
@@ -342,7 +342,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               </div>
             </div>
 
-            <div className="quick-action-card" onClick={() => setActiveTab('support')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="quick-action-card" onClick={() => setActiveTab('support')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <ShieldCheck size={22} color="#16a34a" />
               </div>
@@ -601,15 +601,15 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 className="profile-submit-btn"
                 style={{ 
                   width: '100%',
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%)',
-                  color: 'white',
-                  padding: '16px 24px',
+                  padding: '16px 20px',
                   borderRadius: '16px',
+                  background: '#0f172a',
+                  color: '#ffffff',
                   fontSize: '16px',
-                  fontWeight: '900',
+                  fontWeight: '800',
                   letterSpacing: '0.3px',
                   border: 'none',
-                  boxShadow: '0 10px 25px -5px rgba(124, 58, 237, 0.45)',
+                  boxShadow: '0 6px 16px rgba(15, 23, 42, 0.15)',
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'flex',
