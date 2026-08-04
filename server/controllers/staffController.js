@@ -6,7 +6,7 @@ import User from '../models/User.js';
 export const getStaff = async (req, res, next) => {
   try {
     const staffRoles = ['admin', 'super_admin', 'support_agent', 'catalog_manager'];
-    const staff = await User.find({ role: { $in: staffRoles } }).select('-password');
+    const staff = await User.find({ role: { $in: staffRoles } }).select('-password').lean();
     res.json(staff);
   } catch (error) {
     next(error);

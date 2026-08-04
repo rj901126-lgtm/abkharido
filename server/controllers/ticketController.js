@@ -35,7 +35,7 @@ export const getMyTickets = async (req, res, next) => {
   try {
     const tickets = await Ticket.find({ customerId: req.user._id })
       .sort({ updatedAt: -1 })
-      .populate('orderId', 'createdAt totalPrice status');
+      .populate('orderId', 'createdAt totalPrice status').lean();
       
     res.json(tickets);
   } catch (error) {
@@ -51,7 +51,7 @@ export const getAllTickets = async (req, res, next) => {
     const tickets = await Ticket.find({})
       .sort({ createdAt: -1 })
       .populate('customerId', 'name email')
-      .populate('orderId', 'totalPrice');
+      .populate('orderId', 'totalPrice').lean();
       
     res.json(tickets);
   } catch (error) {
@@ -67,7 +67,7 @@ export const getTicketById = async (req, res, next) => {
     const ticket = await Ticket.findById(req.params.id)
       .populate('customerId', 'name email')
       .populate('orderId', 'totalPrice createdAt')
-      .populate('messages.senderId', 'name email');
+      .populate('messages.senderId', 'name email').lean();
 
     if (ticket) {
       // Ensure customer only sees their own ticket

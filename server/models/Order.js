@@ -54,7 +54,15 @@ const orderSchema = new mongoose.Schema({
   isDelivered: { type: Boolean, required: true, default: false },
   deliveredAt: { type: Date },
   
-  status: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Processing', 'Packed', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Cancelled'], default: 'Pending' },
+
+  // Visual Order Tracking History
+  trackingHistory: [{
+    status: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    location: { type: String },
+    comment: { type: String }
+  }],
 
   // Returns / RMA Engine
   returnStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Rejected', 'Refunded'], default: 'None' },

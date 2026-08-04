@@ -137,43 +137,40 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     setSelectedPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleReviewSubmit = (e) => {
+  const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!currentUser) {
       showToast('Please log in to submit a review.', 'error');
       return;
     }
-    if (!hasPurchased) {
-      showToast('You can only review products you have purchased.', 'error');
-      return;
-    }
-    if (userReviewsCount >= 2) {
-      showToast('You cannot submit more than 2 reviews for this product.', 'error');
-      return;
-    }
-    if (wordCount > 500) {
-      showToast('Review comment cannot exceed 500 words.', 'error');
-      return;
-    }
 
     setIsSubmittingReview(true);
-    setTimeout(() => {
-      const reviewObj = {
-        name: currentUser.fullName || 'Verified Buyer',
-        username: currentUser.username,
-        rating: newRating,
-        comment: newComment.trim(),
-        date: new Date().toISOString().split('T')[0],
-        photos: selectedPhotos
-      };
-
-      setReviewsList(prev => [reviewObj, ...prev]);
-      setNewComment('');
-      setSelectedPhotos([]);
-      setNewRating(5);
+    try {
+      const res = await fetch(`/api/products/${product.id}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token || ''}`
+        },
+        body: JSON.stringify({
+          rating: newRating,
+          comment: newComment.trim()
+        })
+      });
+      if (res.ok) {
+        setNewComment('');
+        setNewRating(5);
+        showToast('Review submitted successfully!', 'success');
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        showToast(data.error || data.message || 'Failed to submit review.', 'error');
+      }
+    } catch (err) {
+      showToast('Error submitting review.', 'error');
+    } finally {
       setIsSubmittingReview(false);
-      showToast('Review submitted successfully!', 'success');
-    }, 800);
+    }
   };
 
   const handlePincodeCheck = () => {
@@ -1027,6 +1024,36 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
             </div>
           </details>
 
+          {/* Frequently Bought Together section */}
+          {recommendations && recommendations.length > 0 && (
+            <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#1f2937' }}>
+                Frequently Bought Together
+              </h3>
+              <div style={{
+                display: 'flex',
+                overflowX: 'auto',
+                gap: '16px',
+                paddingBottom: '16px',
+                scrollbarWidth: 'thin'
+              }}>
+                {recommendations.map(rec => (
+                  <div key={rec.id} style={{ minWidth: '180px', flex: '0 0 auto', backgroundColor: 'white', borderRadius: '8px', padding: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                    <img src={rec.image || (rec.images && rec.images[0])} alt={rec.name} style={{ width: '100%', height: '140px', objectFit: 'contain', marginBottom: '8px' }} />
+                    <div style={{ fontSize: '14px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{rec.name}</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#059669', marginTop: '4px' }}>₹{rec.price}</div>
+                    <button 
+                      onClick={() => onNavigate('product', rec.id)}
+                      style={{ width: '100%', padding: '6px', marginTop: '8px', border: '1px solid #4f46e5', backgroundColor: 'white', color: '#4f46e5', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      View Details
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Ratings & Reviews section */}
           <details className="pdp-accordion" id="reviews-section">
             <summary style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1064,14 +1091,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
 
             {/* List of customer comments */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-              {reviewsList.map((rev, idx) => (
+              {(product.reviews && product.reviews.length > 0 ? product.reviews : reviewsList).map((rev, idx) => (
                 <div key={idx} style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', textAlign: 'left' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span className="rating-tag" style={{ fontSize: '10px', padding: '1px 5px', height: '16px', display: 'inline-flex', alignItems: 'center' }}>
                       {rev.rating} ★
                     </span>
                     <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{rev.name}</strong>
-                    <span style={{ fontSize: '11px', color: '#888', marginLeft: 'auto' }}>{rev.date}</span>
+                    <span style={{ fontSize: '11px', color: '#888', marginLeft: 'auto' }}>{rev.date || (rev.createdAt ? new Date(rev.createdAt).toISOString().split('T')[0] : '')}</span>
                   </div>
                   <p style={{ fontSize: '13px', color: '#555', marginTop: '6px', lineHeight: '1.4' }}>{rev.comment}</p>
                   
@@ -1100,14 +1127,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 <div style={{ backgroundColor: '#f9f9f9', padding: '16px', borderRadius: '4px', textAlign: 'center' }}>
                   <p style={{ fontSize: '13px', color: '#666', marginBottom: '10px' }}>Sign in to write reviews and upload photos.</p>
                   <button className="btn btn-primary" onClick={() => onNavigate('login')} style={{ height: '36px', padding: '0 16px', fontSize: '12px' }}>Sign In</button>
-                </div>
-              ) : !hasPurchased ? (
-                <div style={{ backgroundColor: '#fff9e6', border: '1px solid #ffe0b2', padding: '12px 16px', borderRadius: '4px', color: '#b78103', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>⚠️ Only verified customers who have bought this product can post reviews.</span>
-                </div>
-              ) : userReviewsCount >= 2 ? (
-                <div style={{ backgroundColor: '#eef9ff', border: '1px solid #b3e5fc', padding: '12px 16px', borderRadius: '4px', color: '#0288d1', fontSize: '13px' }}>
-                  <span>ℹ️ You have already posted 2 reviews for this product. Further submissions are locked.</span>
                 </div>
               ) : (
                 <form onSubmit={handleReviewSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

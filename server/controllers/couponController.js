@@ -5,7 +5,7 @@ import Coupon from '../models/Coupon.js';
 // @access  Private/Admin
 export const getCoupons = async (req, res, next) => {
   try {
-    const coupons = await Coupon.find({});
+    const coupons = await Coupon.find({}).lean();
     res.json(coupons);
   } catch (error) {
     next(error);
@@ -19,7 +19,7 @@ export const createCoupon = async (req, res, next) => {
   try {
     const { code, discountType, discountValue, minCartValue, maxDiscount, expiryDate, usageLimit } = req.body;
     
-    const couponExists = await Coupon.findOne({ code: code.toUpperCase() });
+    const couponExists = await Coupon.findOne({ code: code.toUpperCase() }).lean();
     if (couponExists) {
       res.status(400);
       throw new Error('Coupon code already exists');

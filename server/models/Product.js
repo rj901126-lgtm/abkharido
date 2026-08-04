@@ -22,6 +22,17 @@ const specSchema = new mongoose.Schema({
   value: { type: String, required: true }
 }, { _id: false });
 
+const reviewSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+  name: { type: String, required: true },
+  rating: { type: Number, required: true },
+  comment: { type: String, required: true },
+  isVerifiedPurchase: { type: Boolean, default: false }
+}, {
+  timestamps: true
+});
+
+
 const productSchema = new mongoose.Schema({
   id: { 
     type: String, 
@@ -56,9 +67,10 @@ const productSchema = new mongoose.Schema({
   image: { type: String, required: true },
   images: [{ type: String }],
   
-  // Ratings
+  // Ratings & Reviews
   rating: { type: Number, default: 4.5 },
   reviewsCount: { type: Number, default: 0 },
+  reviews: [reviewSchema],
   
   // SEO
   seo: {

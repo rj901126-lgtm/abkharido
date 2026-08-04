@@ -41,7 +41,7 @@ export const getProducts = async (req, res, next) => {
       }
     }
     
-    let query = Product.find(filter, projection);
+    let query = Product.find(filter, projection).lean();
     
     if (Object.keys(sortOptions).length > 0) {
       query = query.sort(sortOptions);
@@ -73,7 +73,7 @@ export const getProductById = async (req, res, next) => {
   try {
 
     // Lookup by the custom string `id` field, not the MongoDB `_id`
-    const product = await Product.findOne({ id: req.params.id });
+    const product = await Product.findOne({ id: req.params.id }).lean();
 
     if (product) {
       res.json(product);
@@ -190,7 +190,7 @@ export const updateProductStock = async (req, res, next) => {
 // @access  Public
 export const getProductRecommendations = async (req, res, next) => {
   try {
-    const product = await Product.findOne({ id: req.params.id });
+    const product = await Product.findOne({ id: req.params.id }).lean();
     if (!product) {
       res.status(404);
       throw new Error('Product not found');
@@ -200,17 +200,69 @@ export const getProductRecommendations = async (req, res, next) => {
     let recommendations = await Product.find({
       category: product.category,
       _id: { $ne: product._id }
-    }).limit(4);
+    }).limit(4).lean();
 
     // If not enough products in the same category, fetch random ones
     if (recommendations.length < 4) {
       const extraProducts = await Product.find({
         _id: { $ne: product._id, $nin: recommendations.map(r => r._id) }
-      }).limit(4 - recommendations.length);
+      }).limit(4 - recommendations.length).lean();
       recommendations = [...recommendations, ...extraProducts];
     }
 
     res.json(recommendations);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create new review
+// @route   POST /api/products/:id/reviews
+// @access  Private
+export const createProductReview = async (req, res, next) => {
+  try {
+    const { rating, comment } = req.body;
+    const product = await Product.findOne({ id: req.params.id });
+
+    if (product) {
+      const alreadyReviewed = product.reviews.find(
+        (r) => r.user.toString() === req.user._id.toString()
+      );
+
+      if (alreadyReviewed) {
+        res.status(400);
+        throw new Error('Product already reviewed');
+      }
+
+      const review = {
+        name: req.user.name || 'User',
+        rating: Number(rating),
+        comment,
+        user: req.user._id,
+        isVerifiedPurchase: true
+      };
+
+      // Calculate new average using moving average to avoid race conditions on the total
+      const currentReviewsCount = product.reviewsCount || product.reviews.length || 0;
+      const currentRating = product.rating || 0;
+      const currentTotalRating = currentRating * currentReviewsCount;
+      const newReviewsCount = currentReviewsCount + 1;
+      const newRating = (currentTotalRating + Number(rating)) / newReviewsCount;
+
+      await Product.updateOne(
+        { _id: product._id },
+        {
+          $push: { reviews: review },
+          $inc: { reviewsCount: 1 },
+          $set: { rating: newRating }
+        }
+      );
+      await clearCache('cache:/api/products*');
+      res.status(201).json({ message: 'Review added' });
+    } else {
+      res.status(404);
+      throw new Error('Product not found');
+    }
   } catch (error) {
     next(error);
   }

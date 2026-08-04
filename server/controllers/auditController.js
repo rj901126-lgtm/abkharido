@@ -5,7 +5,7 @@ import AuditLog from '../models/AuditLog.js';
 // @access  Private/SuperAdmin
 export const getAuditLogs = async (req, res, next) => {
   try {
-    const logs = await AuditLog.find({}).sort({ createdAt: -1 }).limit(500);
+    const logs = await AuditLog.find({}).sort({ createdAt: -1 }).limit(500).lean();
     res.json(logs);
   } catch (error) {
     next(error);

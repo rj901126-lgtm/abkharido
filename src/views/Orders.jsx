@@ -618,59 +618,53 @@ const Orders = ({ onNavigate }) => {
                     </svg>
                   </div>
 
-                  {/* Detailed Shipping Checkpoints Stepper */}
+                  {/* Detailed Shipping Checkpoints Stepper (Dynamic from DB) */}
                   <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '12px' }}>
                     <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginBottom: '12px' }}>Shipment Checkpoints</div>
                     <div className="tracking-checkpoints-list">
-                      
-                      {/* Delivered step */}
-                      {(status === 'Delivered') && (
-                        <div className="tracking-checkpoint-item completed">
-                          <div className="tracking-checkpoint-node"></div>
-                          <div className="tracking-checkpoint-title">Delivered Successfully</div>
-                          <div className="tracking-checkpoint-desc">Package delivered directly to {(order.shippingAddress?.name || order.shippingAddress?.fullName || 'Customer')} at destination location.</div>
-                          <div className="tracking-checkpoint-date">{getFormattedDate(2)}</div>
-                        </div>
-                      )}
+                      {(() => {
+                        // Fallback mock history if DB doesn't have it (for legacy orders)
+                        let history = order.trackingHistory;
+                        if (!history || history.length === 0) {
+                          history = [
+                            { status: 'Placed', timestamp: new Date(new Date(order.createdAt || Date.now()).getTime() - 2000).toISOString(), comment: 'Order Placed & Confirmed' }
+                          ];
+                          if (status === 'Processing' || status === 'Packed' || status === 'Shipped' || status === 'In Transit' || status === 'Out for Delivery' || status === 'Delivered') {
+                            history.unshift({ status: 'Packed', timestamp: new Date(new Date(order.createdAt || Date.now()).getTime() + 86400000).toISOString(), comment: 'Package Packed & Secured' });
+                          }
+                          if (status === 'Shipped' || status === 'In Transit' || status === 'Out for Delivery' || status === 'Delivered') {
+                            history.unshift({ status: 'In Transit', timestamp: new Date(new Date(order.createdAt || Date.now()).getTime() + 172800000).toISOString(), comment: 'Out for Delivery / Reached Hub' });
+                          }
+                          if (status === 'Delivered') {
+                            history.unshift({ status: 'Delivered', timestamp: order.deliveredAt || new Date().toISOString(), comment: 'Delivered Successfully' });
+                          }
+                        } else {
+                          // Sort history descending by timestamp
+                          history = [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        }
 
-                      {/* Out for Delivery step */}
-                      {(status === 'In Transit' || status === 'Delivered') && (
-                        <div className={`tracking-checkpoint-item ${status === 'In Transit' ? 'active' : 'completed'}`}>
-                          <div className="tracking-checkpoint-node"></div>
-                          <div className="tracking-checkpoint-title">Out for Delivery</div>
-                          <div className="tracking-checkpoint-desc">Package is with local courier delivery partner near {(order.shippingAddress?.city || '') || 'your city'}.</div>
-                          <div className="tracking-checkpoint-date">{getFormattedDate(1)}</div>
-                        </div>
-                      )}
-
-                      {/* Transit Hub step */}
-                      {(status === 'Packed' || status === 'In Transit' || status === 'Delivered') && (
-                        <div className={`tracking-checkpoint-item ${status === 'Packed' ? 'active' : 'completed'}`}>
-                          <div className="tracking-checkpoint-node"></div>
-                          <div className="tracking-checkpoint-title">Reached Sorting Hub</div>
-                          <div className="tracking-checkpoint-desc">Package processed and dispatched from regional sorting facility hub.</div>
-                          <div className="tracking-checkpoint-date">{getFormattedDate(1)}</div>
-                        </div>
-                      )}
-
-                      {/* Packed step */}
-                      {(status === 'Processing' || status === 'Packed' || status === 'In Transit' || status === 'Delivered') && (
-                        <div className={`tracking-checkpoint-item ${status === 'Processing' ? 'active' : 'completed'}`}>
-                          <div className="tracking-checkpoint-node"></div>
-                          <div className="tracking-checkpoint-title">Package Packed & Secured</div>
-                          <div className="tracking-checkpoint-desc">Item inspected, bubble wrapped and handed over to Delhivery logistics partner.</div>
-                          <div className="tracking-checkpoint-date">{getFormattedDate(0)}</div>
-                        </div>
-                      )}
-
-                      {/* Order Placed step */}
-                      <div className="tracking-checkpoint-item completed">
-                        <div className="tracking-checkpoint-node"></div>
-                        <div className="tracking-checkpoint-title">Order Placed & Confirmed</div>
-                        <div className="tracking-checkpoint-desc">Order request received and payment validation checked successfully.</div>
-                        <div className="tracking-checkpoint-date">{getFormattedDate(0)}</div>
-                      </div>
-
+                        return history.map((event, index) => {
+                          const isCompleted = index !== 0 || status === 'Delivered';
+                          const isActive = index === 0 && status !== 'Delivered';
+                          
+                          // Map status to nice titles
+                          let title = event.status;
+                          if (title === 'Placed' || title === 'Pending') title = 'Order Placed & Confirmed';
+                          if (title === 'Processing' || title === 'Packed') title = 'Package Packed & Secured';
+                          if (title === 'Shipped' || title === 'In Transit') title = 'In Transit / Sorting Hub';
+                          if (title === 'Out for Delivery') title = 'Out for Delivery';
+                          if (title === 'Delivered') title = 'Delivered Successfully';
+                          
+                          return (
+                            <div key={index} className={`tracking-checkpoint-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}>
+                              <div className="tracking-checkpoint-node"></div>
+                              <div className="tracking-checkpoint-title">{title}</div>
+                              <div className="tracking-checkpoint-desc">{event.comment || `Order status updated to ${event.status}`}{event.location ? ` at ${event.location}` : ''}</div>
+                              <div className="tracking-checkpoint-date">{new Date(event.timestamp).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
                 </div>

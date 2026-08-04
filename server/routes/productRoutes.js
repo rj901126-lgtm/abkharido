@@ -6,7 +6,8 @@ import {
   updateProduct, 
   deleteProduct,
   updateProductStock,
-  getProductRecommendations
+  getProductRecommendations,
+  createProductReview
 } from '../controllers/productController.js';
 import { protect, seller, admin } from '../middleware/authMiddleware.js';
 import { cache } from '../middleware/cacheMiddleware.js';
@@ -31,5 +32,8 @@ router.route('/:id/stock')
 
 router.route('/:id/recommendations')
   .get(cache(300), getProductRecommendations);
+
+router.route('/:id/reviews')
+  .post(protect, createProductReview);
 
 export default router;

@@ -21,7 +21,7 @@ export const globalSearch = async (req, res, next) => {
         { name: regex },
         { sku: regex }
       ]
-    }).limit(5).select('_id name sku price category');
+    }).limit(5).select('_id name sku price category').lean();
 
     // Search Users (Name, Email, Username)
     const users = await User.find({
@@ -30,13 +30,13 @@ export const globalSearch = async (req, res, next) => {
         { email: regex },
         { username: regex }
       ]
-    }).limit(5).select('_id fullName email username role');
+    }).limit(5).select('_id fullName email username role').lean();
 
     // Search Orders (Order ID)
     let orders = [];
     if (q.length === 24) {
       // If it looks like a Mongo Object ID
-      const order = await Order.findById(q).populate('user', 'name email');
+      const order = await Order.findById(q).populate('user', 'name email').lean();
       if (order) orders.push(order);
     }
 

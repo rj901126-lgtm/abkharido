@@ -52,7 +52,7 @@ export const addOrderItems = async (req, res, next) => {
 
       // Securely fetch the actual price from the database
       let query = pId !== 'custom' ? { _id: pId } : { id: customId };
-      const dbProduct = await Product.findOne(query);
+      const dbProduct = await Product.findOne(query).lean();
 
       if (!dbProduct) {
         throw new Error(`Product not found: ${productObj.name || customId}`);
@@ -88,7 +88,7 @@ export const addOrderItems = async (req, res, next) => {
     // Secure Coupon Application
     let appliedCouponRecord = null;
     if (couponCode) {
-      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
+      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true }).lean();
       if (!coupon) {
         res.status(404);
         throw new Error('Invalid or inactive coupon code');
@@ -142,56 +142,32 @@ export const addOrderItems = async (req, res, next) => {
           return item;
         }
         
-        // Stock Verification
-        // If stock tracking is configured (stock > 0), verify availability
-        if (product.stock > 0 && product.stock < item.qty) {
-          res.status(400);
-          throw new Error(`Item out of stock: ${product.name}. Available: ${product.stock}, Requested: ${item.qty}`);
-        }
         if (!product.inStock) {
           res.status(400);
           throw new Error(`Item is currently out of stock: ${product.name}`);
         }
 
-        let lockKey = null;
-        let lockAcquired = false;
-        
-        // Distributed Lock (Phase 5 - Concurrency)
-        if (redisClient && product.stock > 0) {
-           lockKey = `lock:product:${product._id}`;
-           const lock = await redisClient.set(lockKey, 'locked', 'NX', 'PX', 5000); // 5 seconds lock
-           if (!lock) {
-              res.status(429);
-              throw new Error(`High traffic for ${product.name}. Item is currently being purchased by someone else. Please try again in a few seconds.`);
-           }
-           lockAcquired = true;
-        }
-        
-        try {
-          // Re-fetch product inside the lock to ensure we have the absolute latest stock from DB
-          // if we are under heavy concurrency
-          if (lockAcquired) {
-             const latestProduct = await Product.findById(product._id);
-             if (latestProduct.stock < item.qty) {
-                res.status(400);
-                throw new Error(`Item out of stock: ${product.name}.`);
-             }
-             product.stock = latestProduct.stock; // Sync
-          }
+        // Atomic Inventory Deduction (Concurrency Safe)
+        if (product.stock > 0) {
+          const updatedProduct = await Product.findOneAndUpdate(
+            { _id: product._id, stock: { $gte: item.qty } },
+            { 
+              $inc: { stock: -item.qty, soldCount: item.qty }
+            },
+            { new: true }
+          );
 
-          // Deduct Stock only if stock tracking is configured
-          if (product.stock > 0) {
-            product.stock -= item.qty;
-            if (product.stock <= 0) {
-              product.inStock = false;
-            }
+          if (!updatedProduct) {
+            res.status(400);
+            throw new Error(`Item out of stock due to high demand: ${product.name}. Requested: ${item.qty}`);
           }
-          product.soldCount = (product.soldCount || 0) + item.qty;
-          await product.save();
-        } finally {
-          if (lockAcquired && lockKey) {
-             await redisClient.del(lockKey);
+          
+          if (updatedProduct.stock <= 0) {
+             await Product.updateOne({ _id: updatedProduct._id }, { inStock: false });
           }
+        } else {
+          // If no strict stock tracking is enforced, just increment soldCount
+          await Product.updateOne({ _id: product._id }, { $inc: { soldCount: item.qty } });
         }
 
         if (product.vendorId) {
@@ -232,7 +208,12 @@ export const addOrderItems = async (req, res, next) => {
         totalPlatformFee,
         appliedCoupon: appliedCouponRecord ? appliedCouponRecord.code : undefined,
         coinsUsed: coinsUsedAmount,
-        cfOrderId
+        cfOrderId,
+        trackingHistory: [{
+          status: 'Placed',
+          timestamp: Date.now(),
+          comment: 'Order placed successfully'
+        }]
       });
 
       // Handle Referral Rewards
@@ -259,11 +240,15 @@ export const addOrderItems = async (req, res, next) => {
 
       const createdOrder = await order.save();
       
-      // Track coupon usage
+      // Track coupon usage atomically
       if (appliedCouponRecord) {
-        appliedCouponRecord.usedBy.push(req.user._id);
-        appliedCouponRecord.usedCount += 1;
-        await appliedCouponRecord.save();
+        await Coupon.updateOne(
+          { _id: appliedCouponRecord._id },
+          { 
+            $push: { usedBy: req.user._id },
+            $inc: { usedCount: 1 }
+          }
+        );
       }
       
       // Fetch user to check email verification and auto-save profile details
@@ -379,7 +364,7 @@ export const getMyOrders = async (req, res, next) => {
     const orders = await Order.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit).lean();
 
     const total = await Order.countDocuments(query);
 
@@ -399,7 +384,7 @@ export const getMyOrders = async (req, res, next) => {
 // @access  Private/Admin
 export const getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({}).populate('user', 'id username email isEmailVerified fullName');
+    const orders = await Order.find({}).populate('user', 'id username email isEmailVerified fullName').lean();
     res.json(orders);
   } catch (error) {
     next(error);
@@ -454,7 +439,7 @@ export const exportOrdersBulk = async (req, res, next) => {
       throw new Error('Please provide an array of orderIds');
     }
 
-    const orders = await Order.find({ _id: { $in: orderIds } }).populate('user', 'username email');
+    const orders = await Order.find({ _id: { $in: orderIds } }).populate('user', 'username email').lean();
     
     // Create CSV Header
     let csvStr = "Order_ID,Customer_Name,Customer_Email,Address,City,PostalCode,Country,Total_Price,Payment_Method,Status\n";
@@ -489,7 +474,18 @@ export const updateOrderStatus = async (req, res, next) => {
       throw new Error('Order not found');
     }
     
-    if (req.body.status) order.status = req.body.status;
+    if (req.body.status && req.body.status !== order.status) {
+      order.status = req.body.status;
+      
+      // Update visual tracking history
+      if (!order.trackingHistory) order.trackingHistory = [];
+      order.trackingHistory.push({
+        status: req.body.status,
+        timestamp: Date.now(),
+        location: req.body.location || '',
+        comment: req.body.comment || `Status updated to ${req.body.status}`
+      });
+    }
     if (req.body.courierPartner !== undefined) order.courierPartner = req.body.courierPartner;
     if (req.body.awbNumber !== undefined) order.awbNumber = req.body.awbNumber;
     if (req.body.trackingUrl !== undefined) order.trackingUrl = req.body.trackingUrl;
@@ -536,50 +532,55 @@ export const cancelOrder = async (req, res, next) => {
 
     order.status = 'Cancelled';
     
-    // 1. Restore Stock
+    // 1. Restore Stock Atomically
     for (const item of order.orderItems) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        product.stock += item.qty;
-        product.inStock = product.stock > 0;
-        product.soldCount = Math.max(0, (product.soldCount || 0) - item.qty);
-        await product.save();
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.product },
+        { 
+          $inc: { stock: item.qty, soldCount: -item.qty } 
+        },
+        { new: true }
+      );
+      if (updatedProduct && updatedProduct.stock > 0 && !updatedProduct.inStock) {
+        await Product.updateOne({ _id: updatedProduct._id }, { inStock: true });
       }
     }
 
-    // 2. Restore Coupon
+    // 2. Restore Coupon Atomically
     if (order.appliedCoupon) {
-      const coupon = await Coupon.findOne({ code: order.appliedCoupon });
-      if (coupon) {
-        coupon.usedBy = coupon.usedBy.filter(userId => userId.toString() !== order.user.toString());
-        coupon.usedCount = Math.max(0, coupon.usedCount - 1);
-        await coupon.save();
-      }
+      await Coupon.updateOne(
+        { code: order.appliedCoupon },
+        { 
+          $pull: { usedBy: order.user },
+          $inc: { usedCount: -1 }
+        }
+      );
     }
 
-    // 3. Refund Coins and Cash
-    const user = await User.findById(order.user);
-    if (user) {
-      if (order.coinsUsed && order.coinsUsed > 0) {
-        user.walletCoins = (user.walletCoins || 0) + order.coinsUsed;
+    // 3. Refund Coins and Cash Atomically
+    let coinsRefund = 0;
+    let cashRefund = 0;
+    
+    if (order.coinsUsed && order.coinsUsed > 0) {
+      coinsRefund = order.coinsUsed;
+    }
+    
+    if (order.isPaid) {
+      const amountPaid = order.totalPrice;
+      let bankRefundSuccess = false;
+      if (order.cfOrderId) {
+        bankRefundSuccess = await processCashfreeRefund(order.cfOrderId, amountPaid);
       }
-      
-      // If paid via gateway, attempt bank refund
-      if (order.isPaid) {
-        const amountPaid = order.totalPrice;
-        let bankRefundSuccess = false;
-        
-        if (order.cfOrderId) {
-          bankRefundSuccess = await processCashfreeRefund(order.cfOrderId, amountPaid);
-        }
-        
-        if (!bankRefundSuccess) {
-          // Fallback to store credit if bank refund fails or missing cfOrderId
-          user.walletCash = (user.walletCash || 0) + amountPaid;
-        }
+      if (!bankRefundSuccess) {
+        cashRefund = amountPaid;
       }
-      
-      await user.save();
+    }
+    
+    if (coinsRefund > 0 || cashRefund > 0) {
+       const incObj = {};
+       if (coinsRefund > 0) incObj.walletCoins = coinsRefund;
+       if (cashRefund > 0) incObj.walletCash = cashRefund;
+       await User.updateOne({ _id: order.user }, { $inc: incObj });
     }
 
     await order.save();
@@ -614,50 +615,55 @@ export const userCancelOrder = async (req, res, next) => {
     
     order.status = 'Cancelled';
     
-    // 1. Restore Stock
+    // 1. Restore Stock Atomically
     for (const item of order.orderItems) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        product.stock += item.qty;
-        product.inStock = product.stock > 0;
-        product.soldCount = Math.max(0, (product.soldCount || 0) - item.qty);
-        await product.save();
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.product },
+        { 
+          $inc: { stock: item.qty, soldCount: -item.qty } 
+        },
+        { new: true }
+      );
+      if (updatedProduct && updatedProduct.stock > 0 && !updatedProduct.inStock) {
+        await Product.updateOne({ _id: updatedProduct._id }, { inStock: true });
       }
     }
 
-    // 2. Restore Coupon
+    // 2. Restore Coupon Atomically
     if (order.appliedCoupon) {
-      const coupon = await Coupon.findOne({ code: order.appliedCoupon });
-      if (coupon) {
-        coupon.usedBy = coupon.usedBy.filter(userId => userId.toString() !== order.user.toString());
-        coupon.usedCount = Math.max(0, coupon.usedCount - 1);
-        await coupon.save();
-      }
+      await Coupon.updateOne(
+        { code: order.appliedCoupon },
+        { 
+          $pull: { usedBy: order.user },
+          $inc: { usedCount: -1 }
+        }
+      );
     }
 
-    // 3. Refund Coins and Cash
-    const user = await User.findById(order.user);
-    if (user) {
-      if (order.coinsUsed && order.coinsUsed > 0) {
-        user.walletCoins = (user.walletCoins || 0) + order.coinsUsed;
+    // 3. Refund Coins and Cash Atomically
+    let coinsRefund = 0;
+    let cashRefund = 0;
+    
+    if (order.coinsUsed && order.coinsUsed > 0) {
+      coinsRefund = order.coinsUsed;
+    }
+    
+    if (order.isPaid) {
+      const amountPaid = order.totalPrice;
+      let bankRefundSuccess = false;
+      if (order.cfOrderId) {
+        bankRefundSuccess = await processCashfreeRefund(order.cfOrderId, amountPaid);
       }
-      
-      // If paid via gateway, attempt bank refund
-      if (order.isPaid) {
-        const amountPaid = order.totalPrice;
-        let bankRefundSuccess = false;
-        
-        if (order.cfOrderId) {
-          bankRefundSuccess = await processCashfreeRefund(order.cfOrderId, amountPaid);
-        }
-        
-        if (!bankRefundSuccess) {
-          // Fallback to store credit if bank refund fails or missing cfOrderId
-          user.walletCash = (user.walletCash || 0) + amountPaid;
-        }
+      if (!bankRefundSuccess) {
+        cashRefund = amountPaid;
       }
-      
-      await user.save();
+    }
+    
+    if (coinsRefund > 0 || cashRefund > 0) {
+       const incObj = {};
+       if (coinsRefund > 0) incObj.walletCoins = coinsRefund;
+       if (cashRefund > 0) incObj.walletCash = cashRefund;
+       await User.updateOne({ _id: order.user }, { $inc: incObj });
     }
 
     await order.save();

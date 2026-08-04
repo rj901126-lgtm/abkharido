@@ -7,7 +7,7 @@ import { clearCache } from '../middleware/cacheMiddleware.js';
 // @access  Public
 export const getLayout = async (req, res, next) => {
   try {
-    let layout = await Layout.findOne({ type: req.params.type, isActive: true });
+    let layout = await Layout.findOne({ type: req.params.type, isActive: true }).lean();
     
     // If no layout exists in DB yet, return a sensible default for the frontend
     if (!layout && req.params.type === 'home_page') {
@@ -36,7 +36,7 @@ export const getLayout = async (req, res, next) => {
 export const updateLayout = async (req, res, next) => {
   try {
     const { components } = req.body;
-    let layout = await Layout.findOne({ type: req.params.type });
+    let layout = await Layout.findOne({ type: req.params.type }).lean();
 
     if (layout) {
       layout.components = components;
@@ -60,7 +60,7 @@ export const updateLayout = async (req, res, next) => {
 // @access  Public
 export const getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find({ isActive: true });
+    const categories = await Category.find({ isActive: true }).lean();
     res.json(categories);
   } catch (error) {
     next(error);

@@ -14,7 +14,7 @@ export const registerSeller = async (req, res, next) => {
   try {
     const { username, password, email, shopName, phone, fullName } = req.body;
     
-    const sellerExists = await User.findOne({ $or: [{ username }, { email }] });
+    const sellerExists = await User.findOne({ $or: [{ username }, { email }] }).lean();
     if (sellerExists) {
       res.status(400);
       throw new Error('Seller already exists');
@@ -72,7 +72,7 @@ export const authSeller = async (req, res, next) => {
 // @access  Private/Admin
 export const getSellers = async (req, res, next) => {
   try {
-    const sellers = await User.find({ role: 'seller' });
+    const sellers = await User.find({ role: 'seller' }).lean();
     res.json(sellers);
   } catch (error) {
     next(error);

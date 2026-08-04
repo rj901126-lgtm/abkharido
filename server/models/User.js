@@ -36,6 +36,20 @@ const userSchema = new mongoose.Schema({
   state: { type: String },
   addressType: { type: String, enum: ['Home', 'Work', 'Other'], default: 'Home' },
   
+  // Address Book
+  addresses: [{
+    id: { type: String },
+    name: { type: String },
+    phone: { type: String },
+    houseNo: { type: String },
+    streetArea: { type: String },
+    city: { type: String },
+    pincode: { type: String },
+    state: { type: String },
+    addressType: { type: String, enum: ['Home', 'Work', 'Other'], default: 'Home' },
+    isDefault: { type: Boolean, default: false }
+  }],
+  
   // Seller fields
   shopName: { type: String },
   walletCoins: { type: Number, default: 100 },
@@ -79,7 +93,7 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
 
 // Add Field-Level Encryption Plugin
 userSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
-  fields: ['phone', 'email', 'address', 'houseNo', 'streetArea', 'city', 'pincode', 'state', 'payoutDetails'],
+  fields: ['phone', 'email', 'address', 'houseNo', 'streetArea', 'city', 'pincode', 'state', 'payoutDetails', 'addresses'],
   secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
   saltGenerator: function (secret) {
     return "1234567890123456"; // 16 byte static salt for deterministic encryption if needed, or let plugin handle it (if omitted, default is random salt per field, but mongoose-field-encryption defaults to random salt unless specified). Actually, omitting it is fine.

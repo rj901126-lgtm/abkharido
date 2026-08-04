@@ -9,7 +9,7 @@ import PayoutAuditLog from '../models/PayoutAuditLog.js';
 export const getFinanceStats = async (req, res, next) => {
   try {
     // Platform Revenue (Total of all platform fees from paid orders)
-    const paidOrders = await Order.find({ isPaid: true });
+    const paidOrders = await Order.find({ isPaid: true }).lean();
     
     let totalPlatformRevenue = 0;
     let totalSales = 0;
@@ -20,7 +20,7 @@ export const getFinanceStats = async (req, res, next) => {
     });
 
     // Total Settled (Total of all 'Paid' settlements)
-    const settledPayouts = await Settlement.find({ status: 'Paid' });
+    const settledPayouts = await Settlement.find({ status: 'Paid' }).lean();
     let totalSettled = 0;
     settledPayouts.forEach(s => totalSettled += s.amount);
 
@@ -39,7 +39,7 @@ export const getFinanceStats = async (req, res, next) => {
 // @access  Private/Admin
 export const getVendorsBalance = async (req, res, next) => {
   try {
-    const sellers = await User.find({ role: 'seller', sellerStatus: 'Approved' }).select('name email walletBalance');
+    const sellers = await User.find({ role: 'seller', sellerStatus: 'Approved' }).select('name email walletBalance').lean();
     
     const vendorBalances = [];
 
@@ -48,7 +48,7 @@ export const getVendorsBalance = async (req, res, next) => {
       const orders = await Order.find({ 
         isPaid: true, 
         'orderItems.vendorId': seller._id 
-      });
+      }).lean();
 
       let totalEarned = 0;
       orders.forEach(order => {
@@ -63,7 +63,7 @@ export const getVendorsBalance = async (req, res, next) => {
       const settlements = await Settlement.find({ 
         vendorId: seller._id, 
         status: 'Paid' 
-      });
+      }).lean();
       let totalSettled = 0;
       settlements.forEach(s => totalSettled += s.amount);
 
@@ -90,7 +90,7 @@ export const getVendorsBalance = async (req, res, next) => {
 // @access  Private/Admin
 export const getPayouts = async (req, res, next) => {
   try {
-    const payouts = await Settlement.find().populate('vendorId', 'name username email').sort({ createdAt: -1 });
+    const payouts = await Settlement.find().populate('vendorId', 'name username email').sort({ createdAt: -1 }).lean();
     res.json(payouts);
   } catch (error) {
     next(error);

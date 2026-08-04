@@ -53,6 +53,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
 
   // Sync state with currentUser when not editing or when currentUser updates
@@ -175,16 +177,87 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const wishlistProducts = products ? products.filter(p => wishlist?.includes(p.id)) : [];
 
   // Check if inputs differ from database values
-  const hasChanges = 
-    firstName !== initialFirstName ||
-    lastName !== initialLastName ||
-    pincodeInput !== (currentUser.pincode || '') ||
-    houseFlatInput !== (currentUser.houseNo || '') ||
-    streetAreaInput !== (currentUser.streetArea || currentUser.address || '') ||
-    cityInput !== (currentUser.city || '') ||
-    stateInput !== (currentUser.state || '') ||
-    addressType !== (currentUser.addressType || 'Home') ||
-    emailInput !== (currentUser.email || '');
+  const hasChanges = firstName !== initialFirstName || 
+                     lastName !== initialLastName || 
+                     emailInput !== (currentUser?.email || '');
+
+  const handleSaveAddress = async (e) => {
+    e.preventDefault();
+    if (!pincodeInput || !streetAreaInput) return;
+    
+    const addresses = currentUser.addresses && currentUser.addresses.length > 0 ? [...currentUser.addresses] : [];
+    const newAddress = {
+      id: editingAddressId || 'addr_' + Date.now(),
+      name: currentUser.fullName || 'User',
+      phone: currentUser.phone || '',
+      houseNo: houseFlatInput,
+      streetArea: streetAreaInput,
+      streetAddress: streetAreaInput,
+      city: cityInput,
+      pincode: pincodeInput,
+      state: stateInput,
+      addressType: addressType,
+      isDefault: editingAddressId ? undefined : (addresses.length === 0)
+    };
+
+    if (editingAddressId) {
+      const idx = addresses.findIndex(a => a.id === editingAddressId);
+      if (idx !== -1) {
+        if (newAddress.isDefault === undefined) newAddress.isDefault = addresses[idx].isDefault;
+        addresses[idx] = { ...addresses[idx], ...newAddress };
+      }
+    } else {
+      addresses.push(newAddress);
+    }
+
+    setIsUpdating(true);
+    const success = await updateUserProfile({
+        firstName,
+        lastName,
+        email: emailInput
+      });
+    if (success) setIsAddressModalOpen(false);
+    setIsUpdating(false);
+  };
+
+  const handleDeleteAddress = async (id) => {
+    if (!window.confirm('Delete this address?')) return;
+    const addresses = currentUser.addresses.filter(a => a.id !== id);
+    if (addresses.length > 0 && !addresses.find(a => a.isDefault)) {
+      addresses[0].isDefault = true;
+    }
+    await updateUserProfile({ addresses });
+  };
+
+  const handleSetDefaultAddress = async (id) => {
+    const addresses = currentUser.addresses.map(a => ({
+      ...a,
+      isDefault: a.id === id
+    }));
+    await updateUserProfile({ addresses });
+  };
+  
+  const openAddAddressModal = () => {
+    setEditingAddressId(null);
+    setPincodeInput('');
+    setHouseFlatInput('');
+    setStreetAreaInput('');
+    setCityInput('');
+    setStateInput('');
+    setAddressType('Home');
+    setIsAddressModalOpen(true);
+  };
+  
+  const openEditAddressModal = (addr) => {
+    setEditingAddressId(addr.id);
+    setPincodeInput(addr.pincode || '');
+    setHouseFlatInput(addr.houseNo || '');
+    setStreetAreaInput(addr.streetArea || addr.streetAddress || addr.address || '');
+    setCityInput(addr.city || '');
+    setStateInput(addr.state || '');
+    setAddressType(addr.addressType || 'Home');
+    setIsAddressModalOpen(true);
+  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -464,136 +537,61 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             )}
           </div>
 
-          {/* Address Settings Section - 100 Crore E-commerce Look */}
+
+          {/* Address Book Section */}
           <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px', marginTop: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <div>
                 <h4 style={{ fontSize: '17px', fontWeight: '900', color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>📍 Delivery Address Book</span>
-                  <span style={{ background: '#e0e7ff', color: '#4f46e5', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800' }}>FAST CHECKOUT READY</span>
+                  <span>📍 Address Book</span>
                 </h4>
                 <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0, fontWeight: '500' }}>
-                  Save structured location details for instant order dispatch &amp; accurate delivery estimation.
+                  Manage your delivery addresses for seamless checkout.
                 </p>
               </div>
+              <button 
+                type="button" 
+                onClick={openAddAddressModal}
+                style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                + Add New Address
+              </button>
             </div>
 
-            <div className="animate-fade-in" style={{ background: '#f8fafc', padding: '20px', borderRadius: '20px', border: '1.5px solid #cbd5e1', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              
-              {/* Compact Address Type Selector */}
-              <div>
-                <label className="profile-input-label" style={{ display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: '800', color: '#334155' }}>SAVE ADDRESS AS</label>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {[
-                    { id: 'Home', icon: '🏠', label: 'Home' },
-                    { id: 'Work', icon: '🏢', label: 'Office' },
-                    { id: 'Other', icon: '📍', label: 'Other' },
-                  ].map(type => (
-                    <button
-                      key={type.id}
-                      type="button"
-                      onClick={() => setAddressType(type.id)}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: '100px',
-                        border: addressType === type.id ? '2px solid #4f46e5' : '1.5px solid #cbd5e1',
-                        background: addressType === type.id ? '#e0e7ff' : '#ffffff',
-                        color: addressType === type.id ? '#4f46e5' : '#64748b',
-                        fontWeight: '800',
-                        fontSize: '12.5px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        transition: 'all 0.2s',
-                        boxShadow: addressType === type.id ? '0 2px 8px rgba(79,70,229,0.15)' : 'none'
-                      }}
-                    >
-                      <span>{type.icon}</span>
-                      <span>{type.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pincode and Auto-Detect Location Row */}
-              <div>
-                <label className="profile-input-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span>DELIVERY PINCODE *</span>
-                  {isDetectingPincode && <span style={{ color: '#2563eb', fontWeight: '700', fontSize: '12px' }}>⚡ Verifying postal area...</span>}
-                </label>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  <input 
-                    type="text" 
-                    maxLength="6"
-                    value={pincodeInput} 
-                    onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ''))} 
-                    placeholder="e.g. 401404"
-                    className="profile-input"
-                    style={{ flex: '1 1 120px', letterSpacing: '2px', fontWeight: '800', fontSize: '16px', background: 'white', border: '1.5px solid #cbd5e1', margin: 0 }}
-                    required
-                  />
-                  <button 
-                    type="button" 
-                    onClick={handleGeolocate}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#eff6ff', color: '#2563eb', border: '1.5px solid #93c5fd', padding: '12px 18px', borderRadius: '12px', fontSize: '13.5px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', flex: '1 1 160px', boxShadow: '0 2px 6px rgba(37,99,235,0.08)', whiteSpace: 'nowrap', margin: 0 }}
-                  >
-                    <MapPin size={18} /> 📍 Auto-Detect Pincode
-                  </button>
-                </div>
-                
-                {/* Auto-resolved City & State tag */}
-                {(cityInput || stateInput) && (
-                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '8px 14px', borderRadius: '10px', color: '#166534', fontSize: '13px', fontWeight: '700' }}>
-                    <span>🇮🇳 Confirmed Delivery Area: <strong>{cityInput}{cityInput && stateInput ? ', ' : ''}{stateInput}</strong></span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+              {currentUser.addresses && currentUser.addresses.length > 0 ? currentUser.addresses.map((addr) => (
+                <div key={addr.id} style={{ border: addr.isDefault ? '2px solid #4f46e5' : '1.5px solid #cbd5e1', borderRadius: '16px', padding: '16px', background: addr.isDefault ? '#f8fafc' : 'white', position: 'relative' }}>
+                  {addr.isDefault && (
+                    <span style={{ position: 'absolute', top: '-10px', right: '16px', background: '#4f46e5', color: 'white', fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px' }}>
+                      DEFAULT
+                    </span>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>{addr.addressType === 'Home' ? '🏠' : addr.addressType === 'Work' ? '🏢' : '📍'}</span>
+                    <strong style={{ fontSize: '15px', color: '#0f172a' }}>{addr.addressType}</strong>
                   </div>
-                )}
-              </div>
-
-              {/* Structured Address: Flat / Building and Street / Locality */}
-              <div className="profile-input-grid" style={{ margin: 0 }}>
-                <div>
-                  <label className="profile-input-label" style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '6px' }}>
-                    HOUSE / FLAT NO., BUILDING NAME, APARTMENT
-                  </label>
-                  <input 
-                    type="text" 
-                    value={houseFlatInput} 
-                    onChange={(e) => setHouseFlatInput(e.target.value)} 
-                    placeholder="e.g. Flat 204, Shiv Kripa Building"
-                    className="profile-input"
-                    style={{ background: 'white', fontSize: '15px', fontWeight: '600', border: '1.5px solid #cbd5e1', margin: 0 }}
-                  />
+                  <div style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.5', marginBottom: '16px' }}>
+                    <strong>{addr.name}</strong><br/>
+                    {addr.houseNo ? addr.houseNo + ', ' : ''}{addr.streetArea || addr.streetAddress}<br/>
+                    {addr.city}, {addr.state} - <strong>{addr.pincode}</strong><br/>
+                    Phone: {addr.phone}
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '12px', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
+                    <button type="button" onClick={() => openEditAddressModal(addr)} style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0 }}>Edit</button>
+                    <button type="button" onClick={() => handleDeleteAddress(addr.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0 }}>Delete</button>
+                    {!addr.isDefault && (
+                      <button type="button" onClick={() => handleSetDefaultAddress(addr.id)} style={{ background: 'none', border: 'none', color: '#10b981', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}>Set Default</button>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <label className="profile-input-label" style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '6px' }}>
-                    AREA, STREET NAME, SECTOR &amp; LANDMARK *
-                  </label>
-                  <input 
-                    type="text" 
-                    value={streetAreaInput} 
-                    onChange={(e) => setStreetAreaInput(e.target.value)} 
-                    placeholder="e.g. Station Road, Near Shiv Sena Office, Palghar West"
-                    className="profile-input"
-                    style={{ background: 'white', fontSize: '15px', fontWeight: '600', border: '1.5px solid #cbd5e1', margin: 0 }}
-                    required
-                  />
+              )) : (
+                <div style={{ gridColumn: '1 / -1', padding: '30px', textAlign: 'center', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
+                  <p style={{ color: '#64748b', fontSize: '14px', fontWeight: '600' }}>No addresses saved yet.</p>
                 </div>
-              </div>
-
-              {/* Live Preview Card */}
-              <div style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 16px', fontSize: '13px', color: '#475569' }}>
-                <div style={{ fontWeight: '800', color: '#0f172a', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>📦 Checkout Address Preview ({addressType}):</span>
-                </div>
-                <div style={{ fontStyle: 'italic' }}>
-                  {houseFlatInput.trim() ? `${houseFlatInput.trim()}, ` : ''}{streetAreaInput || 'Street area...'}, {cityInput || 'City'} - {pincodeInput || 'PINCODE'}
-                </div>
-              </div>
-
+              )}
             </div>
           </div>
-
           <div style={{ marginTop: '24px' }}>
             {hasChanges ? (
               <button 

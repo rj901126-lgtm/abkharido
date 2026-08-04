@@ -117,7 +117,7 @@ export const getInventoryPrediction = async (req, res, next) => {
     });
 
     // 2. Get Current Stock Levels
-    const products = await Product.find({ inStock: true }, 'id name colorModels');
+    const products = await Product.find({ inStock: true }, 'id name colorModels').lean();
     
     let predictions = [];
     products.forEach(p => {

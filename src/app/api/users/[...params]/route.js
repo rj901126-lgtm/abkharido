@@ -59,7 +59,25 @@ export async function GET(req, { params }) {
     const user = await User.findOne({ $or: [{ username }, { phone: username }, { email: username }, { _id: username.length === 24 ? username : undefined }].filter(Boolean) }).select('-password');
     
     if (user) {
-      const userObj = user.toObject();
+      let userObj = user.toObject();
+      
+      // Automatic fallback migration for legacy addresses
+      if ((!userObj.addresses || userObj.addresses.length === 0) && (userObj.address || userObj.city || userObj.pincode)) {
+        userObj.addresses = [{
+          id: 'legacy-1',
+          name: userObj.fullName || 'Default User',
+          phone: userObj.phone || '',
+          houseNo: userObj.houseNo || '',
+          streetArea: userObj.streetArea || '',
+          streetAddress: userObj.address || '',
+          city: userObj.city || '',
+          pincode: userObj.pincode || '',
+          state: userObj.state || '',
+          addressType: userObj.addressType || 'Home',
+          isDefault: true
+        }];
+      }
+      
       return NextResponse.json({ ...userObj, withdrawableCoins: userObj.walletCoins || 0, lockedCoins: 0 });
     }
 
@@ -108,13 +126,32 @@ export async function POST(req, { params }) {
     }
     if (body.email) user.email = body.email;
     if (body.phone) user.phone = body.phone;
-    if (body.address) user.address = body.address;
-    if (body.houseNo) user.houseNo = body.houseNo;
-    if (body.streetArea) user.streetArea = body.streetArea;
-    if (body.addressType) user.addressType = body.addressType;
-    if (body.pincode) user.pincode = body.pincode;
-    if (body.city) user.city = body.city;
-    if (body.state) user.state = body.state;
+    
+    // Handle Address Book Updates
+    if (body.addresses && Array.isArray(body.addresses)) {
+      user.addresses = body.addresses;
+      
+      // Keep legacy fields in sync with the default address (or the first one)
+      const defaultAddr = body.addresses.find(a => a.isDefault) || body.addresses[0];
+      if (defaultAddr) {
+        user.address = defaultAddr.streetAddress || defaultAddr.address || '';
+        user.houseNo = defaultAddr.houseNo || '';
+        user.streetArea = defaultAddr.streetArea || '';
+        user.addressType = defaultAddr.addressType || 'Home';
+        user.pincode = defaultAddr.pincode || '';
+        user.city = defaultAddr.city || '';
+        user.state = defaultAddr.state || '';
+      }
+    } else {
+      // Legacy updates
+      if (body.address !== undefined) user.address = body.address;
+      if (body.houseNo !== undefined) user.houseNo = body.houseNo;
+      if (body.streetArea !== undefined) user.streetArea = body.streetArea;
+      if (body.addressType !== undefined) user.addressType = body.addressType;
+      if (body.pincode !== undefined) user.pincode = body.pincode;
+      if (body.city !== undefined) user.city = body.city;
+      if (body.state !== undefined) user.state = body.state;
+    }
 
     const updatedUser = await user.save();
     return NextResponse.json(updatedUser.toObject());
