@@ -55,8 +55,10 @@ const LivePurchasePopup = () => {
     <div 
       style={{
         position: 'fixed',
-        bottom: '88px',
-        right: '20px',
+        bottom: '80px',
+        left: '16px',
+        right: '16px',
+        margin: '0 auto',
         backgroundColor: 'rgba(9, 13, 22, 0.94)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
@@ -72,7 +74,8 @@ const LivePurchasePopup = () => {
         transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         pointerEvents: 'none',
         zIndex: 9998,
-        maxWidth: '300px',
+        maxWidth: '320px',
+        width: 'max-content',
         fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif"
       }}
     >

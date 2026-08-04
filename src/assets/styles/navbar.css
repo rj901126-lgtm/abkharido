@@ -365,9 +365,9 @@
 
   .navbar-container {
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 4px !important;
     align-items: stretch !important;
-    padding: 10px 12px 8px 12px !important;
+    padding: 6px 12px 6px 12px !important;
   }
 
   .navbar-left {

@@ -388,11 +388,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
               key={bIdx}
               onClick={() => onNavigate('catalog?search=' + encodeURIComponent(brand.query))}
               style={{
-                background: 'linear-gradient(145deg, #0f172a 0%, #090d16 100%)',
-                border: `1px solid ${brand.border}`,
+                background: 'linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)',
+                border: `1px solid #e2e8f0`,
                 borderRadius: '24px',
                 padding: '22px 18px',
-                color: 'white',
+                color: '#0f172a',
                 cursor: 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                 position: 'relative',
@@ -401,20 +401,20 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 minHeight: '144px',
-                boxShadow: '0 10px 20px rgba(9, 13, 22, 0.15)'
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = `0 16px 32px -8px ${brand.accent}35`; e.currentTarget.style.borderColor = brand.accent; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 20px rgba(9, 13, 22, 0.15)'; e.currentTarget.style.borderColor = brand.border; }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = `0 16px 32px -8px rgba(0,0,0,0.1)`; e.currentTarget.style.borderColor = brand.accent; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.04)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '30px', filter: 'drop-shadow(0 4px 8px rgba(255,255,255,0.15))' }}>{brand.icon}</span>
-                <span style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.5px', background: 'rgba(255,255,255,0.06)', color: brand.accent, border: `1px solid ${brand.accent}50`, padding: '3px 9px', borderRadius: '12px', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '30px', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.08))' }}>{brand.icon}</span>
+                <span style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.5px', background: `${brand.accent}15`, color: brand.accent, border: `1px solid ${brand.accent}30`, padding: '3px 9px', borderRadius: '12px', textTransform: 'uppercase' }}>
                   {brand.tag}
                 </span>
               </div>
               <div style={{ marginTop: '16px' }}>
-                <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', margin: '0 0 4px 0', color: '#ffffff', letterSpacing: '0.4px' }}>{brand.name}</h4>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0, fontWeight: '600' }}>{brand.desc}</p>
+                <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', margin: '0 0 4px 0', color: '#0f172a', letterSpacing: '0.4px' }}>{brand.name}</h4>
+                <p style={{ fontSize: '12px', color: '#64748b', margin: 0, fontWeight: '600' }}>{brand.desc}</p>
               </div>
             </div>
           ))}
@@ -444,7 +444,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </section>
 
       <section style={{ margin: '28px 0 16px 0' }}>
-        <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #312e81 100%)', borderRadius: '32px', padding: '44px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 40px rgba(9, 13, 22, 0.15)' }}>
+        <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 60%, #312e81 100%)', borderRadius: '32px', padding: '24px 20px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 30px rgba(9, 13, 22, 0.15)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
             <div>
               <span style={{ background: '#fde047', color: '#090d16', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '900', display: 'inline-block', marginBottom: '12px' }}>

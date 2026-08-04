@@ -149,10 +149,11 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? '#1e293b' : '#0f172a',
-            color: '#ffffff',
-            boxShadow: isBtnHovered ? '0 6px 16px rgba(15, 23, 42, 0.25)' : 'none',
-            border: 'none',
+            background: isBtnHovered ? '#f8fafc' : '#ffffff',
+            color: '#0f172a',
+            border: '1.5px solid #e2e8f0',
+            borderColor: isBtnHovered ? '#cbd5e1' : '#e2e8f0',
+            boxShadow: 'none',
             transform: isBtnHovered ? 'translateY(-2px)' : 'none',
             marginTop: 'auto',
             width: '100%',
@@ -162,7 +163,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={15} style={{ color: '#ffffff' }} /> <span style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.2px' }}>Add to Bag</span>
+          <ShoppingCart size={15} style={{ color: '#0f172a' }} /> <span style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.2px' }}>Add to Bag</span>
         </button>
       </div>
     </div>
@@ -187,7 +188,7 @@ const styles = {
   imageWrapper: {
     width: '100%',
     height: '220px',
-    padding: '20px',
+    padding: '30px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
