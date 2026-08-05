@@ -171,36 +171,11 @@ export const AppProvider = ({ children }) => {
           });
           if (res.ok) {
             const backendCart = await res.json();
-            const localCart = JSON.parse(localStorage.getItem('abkharido_cart')) || [];
-            
-            if (backendCart.length > 0 || localCart.length > 0) {
-              const mergedMap = new Map();
-              
-              // Load backend cart first
-              backendCart.forEach(item => {
-                if (item.product && item.product.id) {
-                  mergedMap.set(item.product.id, item);
-                }
-              });
-              
-              // Load local cart (overwrites qty if local has more)
-              localCart.forEach(item => {
-                if (item.product && item.product.id) {
-                  const existing = mergedMap.get(item.product.id);
-                  if (existing) {
-                    mergedMap.set(item.product.id, { ...existing, quantity: Math.max(existing.quantity, item.quantity) });
-                  } else {
-                    mergedMap.set(item.product.id, item);
-                  }
-                }
-              });
-              
-              const finalCart = Array.from(mergedMap.values());
-              setCart(finalCart); // This will trigger the background sync useEffect automatically
-            }
+            setCart(backendCart);
+            safeSetItem('abkharido_cart', JSON.stringify(backendCart));
           }
         } catch (err) {
-          console.error('Failed to sync backend cart:', err);
+          console.error('Failed to fetch backend cart:', err);
         }
       }
     };
@@ -514,8 +489,10 @@ export const AppProvider = ({ children }) => {
   // --- Logout Action ---
   const logout = async () => {
     localStorage.removeItem('abkharido_user_session');
+    localStorage.removeItem('abkharido_cart');
     setLocalSession(null);
     setOrders([]);
+    setCart([]);
     await signOut({ redirect: false });
     showToast('Logged out successfully.', 'info');
   };
