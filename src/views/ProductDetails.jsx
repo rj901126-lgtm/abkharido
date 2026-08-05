@@ -419,7 +419,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 scrollBehavior: 'smooth',
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none', // Firefox
-                msOverflowStyle: 'none' / IE
+                msOverflowStyle: 'none' /* IE */
               }}
             >
               {/* Hide scrollbar for Chrome/Safari */}

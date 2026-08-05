@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import mongoSanitize from 'express-mongo-sanitize';
+// import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
@@ -74,7 +74,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Data Sanitization against NoSQL query injection & XSS
-app.use(mongoSanitize());
+// app.use(mongoSanitize());
 app.use(xss());
 
 // Logging
