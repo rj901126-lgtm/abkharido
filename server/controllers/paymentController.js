@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 
@@ -308,4 +309,100 @@ export const deleteSavedCard = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Handle Cashfree Webhook
+// @route   POST /api/payment/webhook
+// @access  Public
+export const cashfreeWebhook = async (req, res, next) => {
+  try {
+    const signature = req.headers['x-webhook-signature'];
+    const timestamp = req.headers['x-webhook-timestamp'];
+    
+    if (!signature || !timestamp) {
+      return res.status(400).json({ error: 'Missing webhook security headers' });
+    }
+
+    // 1. Replay Attack Prevention (5 minute window)
+    const currentTime = Math.floor(Date.now() / 1000);
+    const timeDiff = currentTime - parseInt(timestamp, 10) / 1000;
+    if (timeDiff > 300 || timeDiff < -300) {
+      return res.status(400).json({ error: 'Webhook timestamp invalid (possible replay attack)' });
+    }
+
+    // 2. Cryptographic Signature Verification
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    if (!secretKey) {
+      console.warn('Webhook received but CASHFREE_SECRET_KEY is not set');
+      return res.status(200).send('OK'); // Return 200 so CF stops retrying
+    }
+
+    const payload = timestamp + req.rawBody; // Note: req.rawBody was captured in app.js
+    const generatedSignature = crypto.createHmac('sha256', secretKey).update(payload).digest('base64');
+    
+    if (generatedSignature !== signature) {
+      console.error('Webhook signature mismatch!');
+      return res.status(400).json({ error: 'Invalid signature' });
+    }
+
+    // Payload is cryptographically secure, now parse it
+    const event = req.body;
+
+    if (event.type === 'PAYMENT_SUCCESS_WEBHOOK') {
+      const orderId = event.data?.order?.order_id;
+      if (!orderId) return res.status(400).json({ error: 'Order ID missing in payload' });
+
+      // 3. Server-to-Server Verification & Idempotency
+      const order = await Order.findOne({ cfOrderId: orderId });
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+      
+      // Idempotency: skip if already processed
+      if (order.isPaid) {
+        return res.status(200).send('Already processed');
+      }
+
+      // Fetch absolute truth from Cashfree (Zero Trust)
+      const appId = process.env.CASHFREE_APP_ID;
+      const isProd = process.env.CASHFREE_PROD === 'true';
+      const url = isProd 
+        ? `https://api.cashfree.com/pg/orders/${orderId}`
+        : `https://sandbox.cashfree.com/pg/orders/${orderId}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'x-client-id': appId,
+          'x-client-secret': secretKey,
+          'x-api-version': '2023-08-01'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch real status from Cashfree');
+      }
+      const data = await response.json();
+      
+      if (data.order_status === 'PAID') {
+        order.isPaid = true;
+        order.paidAt = new Date();
+        order.status = 'Processing';
+        await order.save();
+
+        // Award cashback
+        const user = await User.findById(order.user);
+        if (user) {
+          const cashback = Math.floor(order.totalPrice * 0.05);
+          user.coins = (user.coins || 0) + cashback;
+          await user.save();
+        }
+      }
+    }
+
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('Cashfree Webhook error:', error);
+    // Don't leak error stack to public webhook response
+    res.status(500).json({ error: 'Webhook processing failed' });
+  }
+};
+
 

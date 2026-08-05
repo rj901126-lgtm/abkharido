@@ -85,7 +85,14 @@ app.use(cors({
   credentials: true,
 }));
 app.use(compression()); // Compress all API responses to drastically reduce size
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ 
+  limit: '50mb',
+  verify: (req, res, buf) => {
+    if (req.originalUrl === '/api/payment/webhook') {
+      req.rawBody = buf.toString('utf8');
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Data Sanitization against NoSQL query injection (strips out $ and . characters from req.body, req.query, req.params)
