@@ -101,12 +101,22 @@ const Login = ({ onNavigate }) => {
       // ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
       try {
         if (!window.recaptchaVerifier) {
-          window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
-            size: 'invisible',
-            callback: () => {},
-            'expired-callback': () => { window.recaptchaVerifier = null; }
-          });
-          await window.recaptchaVerifier.render();
+          try {
+            // Clean up old instance if any lingering DOM remains
+            const container = document.getElementById('recaptcha-container');
+            if (container) container.innerHTML = '';
+            
+            window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
+              size: 'invisible',
+              callback: () => {},
+              'expired-callback': () => { window.recaptchaVerifier = null; }
+            });
+            await window.recaptchaVerifier.render();
+          } catch (e) {
+            console.error("[reCAPTCHA Render Error]:", e);
+            window.recaptchaVerifier = null;
+            throw e;
+          }
         }
         const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
         setFirebaseConfirmation(result);
