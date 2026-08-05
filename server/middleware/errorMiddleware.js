@@ -17,6 +17,19 @@ export const errorHandler = (err, req, res, next) => {
     statusCode = 404;
   }
 
+  // Check for MongoDB duplicate key error (e.g., duplicate email/phone on signup)
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue || {})[0] || 'field';
+    message = `A record with that ${field} already exists.`;
+    statusCode = 409;
+  }
+
+  // Check for Mongoose validation errors
+  if (err.name === 'ValidationError') {
+    message = Object.values(err.errors).map(e => e.message).join(', ');
+    statusCode = 400;
+  }
+
   // Log error using winston
   logger.error(`${statusCode} - ${message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
   if (statusCode === 500) {

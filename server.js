@@ -48,3 +48,16 @@ const shutdown = async (signal) => {
 // Listen for kill signals from Docker / AWS ECS
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Catch unhandled promise rejections — prevent silent crashes
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('UNHANDLED REJECTION! Reason:', reason);
+  // Log but do NOT exit — Docker/PM2 will restart if we crash, but
+  // a logged warning is safer than an abrupt restart mid-request.
+});
+
+// Catch synchronous uncaught exceptions — these ARE fatal
+process.on('uncaughtException', (err) => {
+  logger.error('UNCAUGHT EXCEPTION! Shutting down gracefully...', err);
+  shutdown('uncaughtException');
+});

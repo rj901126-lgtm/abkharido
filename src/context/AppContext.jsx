@@ -776,6 +776,12 @@ export const AppProvider = ({ children }) => {
         const errData = await res.json().catch(() => ({}));
         const errMsg = errData.message || errData.error || `Server error (${res.status})`;
         console.error('Order API error:', res.status, errData);
+        // Handle expired/invalid JWT — force re-login
+        if (res.status === 401) {
+          showToast('Your session has expired. Please log in again.', 'error');
+          logout();
+          return null;
+        }
         showToast(`Order failed: ${errMsg}`, 'error');
       }
     // eslint-disable-next-line

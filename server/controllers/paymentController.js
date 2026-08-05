@@ -68,10 +68,23 @@ export const generatePaymentSession = async (req, res, next) => {
 export const verifyPayment = async (req, res, next) => {
   try {
     const { orderId } = req.body;
+
+    if (!orderId) {
+      res.status(400);
+      throw new Error('orderId is required');
+    }
     
     const appId = process.env.CASHFREE_APP_ID;
     const secretKey = process.env.CASHFREE_SECRET_KEY;
     const isProd = process.env.CASHFREE_PROD === 'true';
+
+    // --- IDEMPOTENCY GUARD ---
+    // Check if order is already marked as paid before calling Cashfree API
+    const existingOrder = await Order.findOne({ cfOrderId: orderId });
+    if (existingOrder && existingOrder.isPaid) {
+      // Already processed — return success without awarding coins again
+      return res.json({ success: true, status: 'PAID', alreadyProcessed: true });
+    }
 
     let orderStatus = 'PAID'; // Default to simulated success
 
@@ -111,6 +124,7 @@ export const verifyPayment = async (req, res, next) => {
           order.status = 'Processing';
           await order.save();
 
+          // Award cashback coins only once (idempotency guard above prevents double-run)
           const user = await User.findById(order.user);
           if (user) {
             const cashback = Math.floor(order.totalPrice * 0.05);
