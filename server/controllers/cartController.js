@@ -50,7 +50,7 @@ export const syncCart = async (req, res, next) => {
         if (productId && productId.toString().length === 24) {
           incomingCart.push({
             product: productId.toString(),
-            quantity: item.quantity || 1
+            quantity: Math.max(1, parseInt(item.quantity, 10) || 1)
           });
         }
       }

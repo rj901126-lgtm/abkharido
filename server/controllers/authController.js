@@ -1,7 +1,7 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-
 import Otp from '../models/Otp.js';
+import redisClient from '../config/redis.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev', {
@@ -242,6 +242,22 @@ export const checkUser = async (req, res, next) => {
     } else {
       res.json({ exists: false, message: 'User not found' });
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Logout user / Revoke token
+// @route   POST /api/auth/logout
+// @access  Private
+export const logoutUser = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token && redisClient) {
+      // 30 days in seconds = 30 * 24 * 60 * 60 = 2592000
+      await redisClient.set(`blacklist:${token}`, 'true', 'EX', 2592000);
+    }
+    res.json({ success: true, message: 'Logged out successfully. Token revoked.' });
   } catch (error) {
     next(error);
   }

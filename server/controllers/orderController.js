@@ -69,7 +69,7 @@ export const addOrderItems = async (req, res, next) => {
         name: dbProduct.name,
         image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || 'https://via.placeholder.com/150',
         price: actualPrice,
-        qty: item.quantity || 1
+        qty: Math.max(1, parseInt(item.quantity, 10) || 1)
       };
     }));
 
@@ -523,10 +523,24 @@ export const updateOrderStatus = async (req, res, next) => {
     // Secure Referral System: Credit coins ONLY when order is successfully delivered
     if (order.status === 'Delivered' && order.referralApplied && order.referralApplied.referrerId && !order.referralApplied.isCredited) {
       const referrerUser = await User.findOne({ username: order.referralApplied.referrerId });
+      
       if (referrerUser) {
-        referrerUser.walletCoins = (referrerUser.walletCoins || 0) + order.referralApplied.rewardAmount;
-        await referrerUser.save();
-        order.referralApplied.isCredited = true;
+        // Prevent Self-Referral: The buyer cannot be the referrer
+        const isSelfReferral = referrerUser._id.toString() === order.user.toString();
+        
+        // Prevent Infinite Farming: Limit to 10 successful referrals per user
+        const currentReferrals = referrerUser.referralCount || 0;
+        const hasReachedLimit = currentReferrals >= 10;
+
+        if (!isSelfReferral && !hasReachedLimit) {
+          referrerUser.walletCoins = (referrerUser.walletCoins || 0) + order.referralApplied.rewardAmount;
+          referrerUser.referralCount = currentReferrals + 1;
+          await referrerUser.save();
+          order.referralApplied.isCredited = true;
+        } else {
+          // Mark as credited anyway so we don't keep retrying on every save
+          order.referralApplied.isCredited = true; 
+        }
       }
     }
 
@@ -542,25 +556,29 @@ export const updateOrderStatus = async (req, res, next) => {
 // @access  Private/Admin
 export const cancelOrder = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findOneAndUpdate(
+      { 
+        _id: req.params.id, 
+        status: { $nin: ['Cancelled', 'Shipped', 'Delivered', 'In Transit'] } 
+      },
+      { status: 'Cancelled' },
+      { new: true } // Returns the document AFTER update
+    );
+
     if (!order) {
-      res.status(404);
-      throw new Error('Order not found');
+      // If we didn't find the order, it means it either doesn't exist OR it was already in a terminal/shipped state.
+      // Let's do a fallback check just to give a good error message.
+      const fallbackCheck = await Order.findById(req.params.id);
+      if (!fallbackCheck) {
+        res.status(404);
+        throw new Error('Order not found');
+      }
+      res.status(400);
+      throw new Error(`Order cannot be cancelled because its current status is '${fallbackCheck.status}'`);
     }
     
-    if (order.status === 'Cancelled') {
-      res.status(400);
-      throw new Error('Order is already cancelled');
-    }
+    // Status is now securely 'Cancelled' in the database (atomically). We can proceed with refunds.
 
-    // State machine guard: cannot cancel terminal states
-    if (order.status === 'Delivered') {
-      res.status(400);
-      throw new Error('Cannot cancel a delivered order. Please raise a return/refund request instead.');
-    }
-
-    order.status = 'Cancelled';
-    
     // 1. Restore Stock Atomically
     for (const item of order.orderItems) {
       const updatedProduct = await Product.findOneAndUpdate(
@@ -624,26 +642,34 @@ export const cancelOrder = async (req, res, next) => {
 // @access  Private
 export const userCancelOrder = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id);
+    // Atomically cancel order ONLY if it belongs to the user and isn't already shipped/cancelled
+    const order = await Order.findOneAndUpdate(
+      { 
+        _id: req.params.id, 
+        user: req.user._id,
+        status: { $nin: ['Cancelled', 'Shipped', 'Delivered', 'In Transit', 'Out for Delivery'] } 
+      },
+      { status: 'Cancelled' },
+      { new: true }
+    );
+
     if (!order) {
-      res.status(404);
-      throw new Error('Order not found');
-    }
-    if (order.user.toString() !== req.user._id.toString()) {
-      res.status(403);
-      throw new Error('Not authorized to cancel this order');
-    }
-    if (order.status === 'In Transit' || order.status === 'Delivered' || order.status === 'Shipped') {
+      // Provide a good fallback error message
+      const fallbackCheck = await Order.findById(req.params.id);
+      if (!fallbackCheck) {
+        res.status(404);
+        throw new Error('Order not found');
+      }
+      if (fallbackCheck.user.toString() !== req.user._id.toString()) {
+        res.status(403);
+        throw new Error('Not authorized to cancel this order');
+      }
       res.status(400);
-      throw new Error('Cannot cancel an order that is already shipped');
-    }
-    if (order.status === 'Cancelled') {
-      res.status(400);
-      throw new Error('Order is already cancelled');
+      throw new Error(`Order cannot be cancelled (current status: '${fallbackCheck.status}')`);
     }
     
-    order.status = 'Cancelled';
-    
+    // Status is securely 'Cancelled'. Proceed with refunds.
+
     // 1. Restore Stock Atomically
     for (const item of order.orderItems) {
       const updatedProduct = await Product.findOneAndUpdate(

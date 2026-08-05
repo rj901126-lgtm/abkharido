@@ -233,7 +233,7 @@ const modalUI = `
       )}
 `;
 
-content = content.replace(/(?=\n    \<\/div\>\n  \);\n};\n\nexport default ProfilePage;)/, modalUI);
+content = content.replace(/(?=\n    <\/div>\n  \);\n};\n\nexport default ProfilePage;)/, modalUI);
 
 fs.writeFileSync('src/views/ProfilePage.jsx', content, 'utf8');
 console.log('Modified ProfilePage successfully.');
