@@ -46,7 +46,6 @@
     "tslib": "^2.8.1",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "xss-clean": "^0.1.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {
