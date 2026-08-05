@@ -141,14 +141,14 @@ export const AppProvider = ({ children }) => {
     }
   }, [session?.user?.name, session?.user?.phone, session?.user?.id]);
 
-  const [isCartInitialized, setIsCartInitialized] = useState(false);
+  const initializedForUser = useRef(null);
 
   // --- Sync Temporary Cart details ---
   useEffect(() => {
     safeSetItem('abkharido_cart', JSON.stringify(cart));
     
     // Background sync to database if logged in and initialized
-    if (currentUser?.token && isCartInitialized) {
+    if (currentUser?.token && initializedForUser.current === currentUser.token) {
       const syncTimeout = setTimeout(() => {
         fetch(`/api/cart/sync`, {
           method: 'POST',
@@ -161,7 +161,7 @@ export const AppProvider = ({ children }) => {
       }, 1000);
       return () => clearTimeout(syncTimeout);
     }
-  }, [cart, currentUser, isCartInitialized]);
+  }, [cart, currentUser]);
 
   // --- Initial Cross-Device Cart Merge ---
   useEffect(() => {
@@ -179,10 +179,10 @@ export const AppProvider = ({ children }) => {
         } catch (err) {
           console.error('Failed to fetch backend cart:', err);
         } finally {
-          setIsCartInitialized(true);
+          initializedForUser.current = currentUser.token;
         }
       } else {
-        setIsCartInitialized(true);
+        initializedForUser.current = null;
       }
     };
     
@@ -494,7 +494,7 @@ export const AppProvider = ({ children }) => {
 
   // --- Logout Action ---
   const logout = async () => {
-    setIsCartInitialized(false);
+    initializedForUser.current = null;
     localStorage.removeItem('abkharido_user_session');
     localStorage.removeItem('abkharido_cart');
     setLocalSession(null);
