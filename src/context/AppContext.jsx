@@ -283,6 +283,7 @@ export const AppProvider = ({ children }) => {
         showToast(`Referral active: Shopping via link shared by ${refUser}!`, 'info');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only parse URL params once on mount, not on every user change
 
   // --- API Fetches ---

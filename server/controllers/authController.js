@@ -126,7 +126,7 @@ export const sendOtp = async (req, res, next) => {
 export const verifyOtp = async (req, res, next) => {
   try {
     // eslint-disable-next-line
-    const { recipient, otp, fullName, isSignup } = req.body;
+    const { recipient, otp, fullName } = req.body;
 
     // Validate OTP from database
     const storedOtpDoc = await Otp.findOne({ phone: recipient }).sort({ createdAt: -1 }); // Get latest OTP

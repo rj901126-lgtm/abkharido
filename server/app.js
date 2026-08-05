@@ -11,6 +11,7 @@ import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import logger from './config/logger.js';
 import { initCronJobs } from './utils/cronJobs.js';
+import mongoSanitize from 'express-mongo-sanitize';
 // eslint-disable-next-line
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 

@@ -10,13 +10,8 @@ import {
   Share2, 
   Copy, 
   Send,
-  // eslint-disable-next-line
-  ShieldAlert,
   ShieldCheck,
   Check,
-  // eslint-disable-next-line
-  ChevronLeft,
-  ChevronRight,
   Heart,
   Store,
   Sparkles,
@@ -166,7 +161,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
         const data = await res.json();
         showToast(data.error || data.message || 'Failed to submit review.', 'error');
       }
-    } catch (err) {
+    } catch (_err) {
       showToast('Error submitting review.', 'error');
     } finally {
       setIsSubmittingReview(false);
@@ -277,6 +272,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
       setActiveImageIndex(0);
       setSelectedVariant(activeColor.variants[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedColor]);
 
   // Sync product selection on initial mount or swap
