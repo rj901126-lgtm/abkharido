@@ -111,7 +111,7 @@ export const sendOtp = async (req, res, next) => {
     // Store OTP in database (will be hashed automatically by pre-save hook and auto-deleted after 5 mins)
     await Otp.create({ phone: recipient, otp: generatedOtp });
     
-    console.log(`[OTP] Generated OTP ${generatedOtp} for ${recipient}`);
+    console.log(`[OTP] Generated OTP ****** for ${recipient.substring(0, 3)}****${recipient.substring(recipient.length - 3)}`);
     
     // In production with SMS gateway, do not send the OTP in response
     res.json({ success: true, message: 'OTP sent to mobile successfully' });

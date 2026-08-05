@@ -87,7 +87,8 @@ app.use(compression()); // Compress all API responses to drastically reduce size
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Data Sanitization against NoSQL query injection & XSS
+// Data Sanitization against NoSQL query injection (strips out $ and . characters from req.body, req.query, req.params)
+app.use(mongoSanitize());
 
 // Logging
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
@@ -112,11 +113,26 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts, please try again later.' },
   store: redisClient ? new RedisStore({
+  store: redisClient ? new RedisStore({
+    sendCommand: (...args) => redisClient.call(...args),
+  }) : undefined,
+});
+
+// Ultra-strict Rate Limiting for OTP / SMS Routes (Cost protection)
+const otpLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 5, // Limit each IP to 5 OTP requests per hour to prevent SMS cost drain
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many OTP requests. Please try again after an hour.' },
+  store: redisClient ? new RedisStore({
     sendCommand: (...args) => redisClient.call(...args),
   }) : undefined,
 });
 
 app.use('/api', apiLimiter);
+app.use('/api/auth/send-otp', otpLimiter);
+app.use('/api/auth/verify-otp', authLimiter); // 30 per 15 min is fine for verification attempts
 app.use('/api/auth', authLimiter);
 
 // --- NEW MVC ROUTES ---
