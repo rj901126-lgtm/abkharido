@@ -72,6 +72,7 @@ export const updateUserProfile = async (req, res, next) => {
       if (req.body.pincode) user.pincode = req.body.pincode;
       if (req.body.city) user.city = req.body.city;
       if (req.body.state) user.state = req.body.state;
+      if (req.body.isEmailVerified !== undefined) user.isEmailVerified = req.body.isEmailVerified;
       
       const updatedUser = await user.save();
       res.json(updatedUser);

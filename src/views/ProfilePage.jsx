@@ -4,6 +4,8 @@ import { useApp } from '../context/AppContext';
 import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight, CreditCard, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
+import { auth } from '../firebase';
+import { updateEmail, sendEmailVerification } from 'firebase/auth';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard, addToCart } = useApp();
@@ -56,6 +58,21 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
+
+  // Sync Firebase email verification status to backend DB
+  React.useEffect(() => {
+    const checkEmailSync = async () => {
+      if (auth.currentUser && auth.currentUser.emailVerified && currentUser && !currentUser.isEmailVerified) {
+        // Firebase says verified, but backend says false. Time to sync.
+        await updateUserProfile({
+          email: auth.currentUser.email,
+          isEmailVerified: true
+        });
+        showToast('Email successfully verified!', 'success');
+      }
+    };
+    checkEmailSync();
+  }, [currentUser, updateUserProfile, showToast]);
 
   // Sync state with currentUser when not editing or when currentUser updates
   React.useEffect(() => {
@@ -306,21 +323,35 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       return;
     }
 
+    if (!auth.currentUser) {
+      showToast('Authentication error. Please log in again.', 'error');
+      return;
+    }
+
     setIsVerifyingEmail(true);
-    // Simulate SMTP delivery network delay
-    setTimeout(async () => {
-      if (!isMountedRef.current) return;
-      const success = await updateUserProfile({
-        email: emailInput.trim(),
-        emailVerified: true
-      });
-      if (!isMountedRef.current) return;
-      if (success) {
-        showToast('Email verified successfully!', 'success');
-        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+    try {
+      // First update email in Firebase
+      await updateEmail(auth.currentUser, emailInput.trim());
+      // Then send verification email
+      await sendEmailVerification(auth.currentUser);
+      
+      showToast('Verification link sent! Please check your inbox.', 'success');
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+      
+      // Update email in our DB but leave isEmailVerified false until they click the link
+      await updateUserProfile({ email: emailInput.trim() });
+    } catch (error) {
+      console.error('Email verification error:', error);
+      if (error.code === 'auth/requires-recent-login') {
+        showToast('Please log out and log back in to update your email.', 'error');
+      } else {
+        showToast(error.message || 'Failed to send verification email.', 'error');
       }
-      setIsVerifyingEmail(false);
-    }, 1500);
+    } finally {
+      if (isMountedRef.current) {
+        setIsVerifyingEmail(false);
+      }
+    }
   };
 
   const handleGeolocate = () => {
@@ -504,7 +535,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
           <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '20px', marginTop: '4px' }}>
             <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <span>EMAIL ADDRESS</span>
-              {currentUser.emailVerified ? 
+              {currentUser.isEmailVerified ? 
                 <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>✔ VERIFIED</span> : 
                 <span style={{ color: '#ea580c', background: '#ffedd5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>⚠️ PENDING</span>
               }
@@ -515,11 +546,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 value={emailInput} 
                 onChange={(e) => setEmailInput(e.target.value)} 
                 placeholder="Enter valid email address..."
-                disabled={currentUser.emailVerified}
+                disabled={currentUser.isEmailVerified}
                 className="profile-input"
-                style={{ width: '100%', fontSize: '15px', fontWeight: '600', paddingRight: !currentUser.emailVerified ? '135px' : '40px', background: currentUser.emailVerified ? '#f8fafc' : 'white', border: '1.5px solid #cbd5e1', margin: 0 }}
+                style={{ width: '100%', fontSize: '15px', fontWeight: '600', paddingRight: !currentUser.isEmailVerified ? '135px' : '40px', background: currentUser.isEmailVerified ? '#f8fafc' : 'white', border: '1.5px solid #cbd5e1', margin: 0 }}
               />
-              {!currentUser.emailVerified && (
+              {!currentUser.isEmailVerified && (
                 <button 
                   type="button" 
                   onClick={handleVerifyEmail}
@@ -530,13 +561,12 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 </button>
               )}
             </div>
-            {!currentUser.emailVerified && (
+            {!currentUser.isEmailVerified && (
               <span style={{ fontSize: '12.5px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontWeight: '600' }}>
                 <ShieldAlert size={15} /> Verify email to receive invoice PDFs, shipping updates, and reward badges.
               </span>
             )}
           </div>
-
 
           {/* Address Book Section */}
           <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px', marginTop: '8px' }}>

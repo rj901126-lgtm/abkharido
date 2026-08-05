@@ -262,8 +262,8 @@ const Login = ({ onNavigate }) => {
       <style>{`
         @media (max-width: 991px) {
           .lp-left-desktop-only { display: none !important; width: 0 !important; height: 0 !important; opacity: 0 !important; visibility: hidden !important; }
-          .lp-right { padding: 0 !important; background: #ffffff !important; justify-content: flex-start !important; }
-          .lp-form-card { max-width: 100% !important; border-radius: 28px 28px 0 0 !important; margin-top: -24px !important; border: none !important; box-shadow: 0 -8px 24px rgba(0,0,0,0.12) !important; padding: 28px 20px 120px !important; z-index: 10 !important; flex-grow: 1 !important; overflow: hidden !important; }
+          .lp-right { padding: 0 !important; background: #ffffff !important; justify-content: flex-start !important; width: 100% !important; max-width: 100vw !important; overflow-x: hidden !important; }
+          .lp-form-card { width: 100% !important; max-width: 100vw !important; border-radius: 28px 28px 0 0 !important; margin-top: -24px !important; border: none !important; box-shadow: 0 -8px 24px rgba(0,0,0,0.12) !important; padding: 28px 20px 120px !important; z-index: 10 !important; flex-grow: 1 !important; box-sizing: border-box !important; }
         }
         @media (min-width: 992px) {
           .lp-mobile-header { display: none !important; }

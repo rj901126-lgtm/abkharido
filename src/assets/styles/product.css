@@ -161,6 +161,7 @@
   position: sticky;
   top: 80px;
   align-self: flex-start;
+  min-width: 0;
 }
 
 @media (max-width: 900px) {
@@ -288,6 +289,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .product-title-text {
