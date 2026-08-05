@@ -20,7 +20,6 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-async-handler": "^1.2.0",
-    "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.6.0",
     "firebase": "^12.16.0",
     "firebase-admin": "^14.1.0",
