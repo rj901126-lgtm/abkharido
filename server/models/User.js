@@ -73,7 +73,13 @@ const userSchema = new mongoose.Schema({
       min: 1
     }
   }],
-  cartUpdatedAt: { type: Date }
+  cartUpdatedAt: { type: Date },
+  
+  // Cross-device synced wishlist
+  wishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  }]
 }, {
   timestamps: true
 });

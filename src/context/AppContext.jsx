@@ -120,9 +120,25 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // --- Sync Temporary Wishlist details ---
   useEffect(() => {
     safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
+    
+    // Background sync to database if logged in and initialized
+    if (currentUser?.token && wishlistInitializedForUser.current === currentUser.token) {
+      const syncTimeout = setTimeout(() => {
+        fetch(`/api/wishlist/sync`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentUser.token}`
+          },
+          body: JSON.stringify({ wishlist })
+        }).catch(err => console.error('Wishlist background sync failed', err));
+      }, 1000);
+      return () => clearTimeout(syncTimeout);
+    }
+  }, [wishlist, currentUser]);
 
   // --- Fetch Data on Mount ---
   useEffect(() => {
@@ -142,6 +158,7 @@ export const AppProvider = ({ children }) => {
   }, [session?.user?.name, session?.user?.phone, session?.user?.id]);
 
   const initializedForUser = useRef(null);
+  const wishlistInitializedForUser = useRef(null);
 
   // --- Sync Temporary Cart details ---
   useEffect(() => {
@@ -189,6 +206,33 @@ export const AppProvider = ({ children }) => {
     // Only run this ONCE when user session initializes
     initBackendCart();
     // eslint-disable-next-line
+  }, [currentUser?.token]);
+
+  // --- Initial Cross-Device Wishlist Fetch ---
+  useEffect(() => {
+    const initBackendWishlist = async () => {
+      if (currentUser?.token) {
+        if (wishlistInitializedForUser.current === currentUser.token) return;
+        try {
+          const res = await fetch(`/api/wishlist`, {
+            headers: { 'Authorization': `Bearer ${currentUser.token}` }
+          });
+          if (res.ok) {
+            const backendWishlist = await res.json();
+            setWishlist(backendWishlist);
+            safeSetItem('abkharido_wishlist', JSON.stringify(backendWishlist));
+          }
+        } catch (err) {
+          console.error('Failed to fetch backend wishlist:', err);
+        } finally {
+          wishlistInitializedForUser.current = currentUser.token;
+        }
+      } else {
+        wishlistInitializedForUser.current = null;
+      }
+    };
+    
+    initBackendWishlist();
   }, [currentUser?.token]);
 
   useEffect(() => {
@@ -495,11 +539,14 @@ export const AppProvider = ({ children }) => {
   // --- Logout Action ---
   const logout = async () => {
     initializedForUser.current = null;
+    wishlistInitializedForUser.current = null;
     localStorage.removeItem('abkharido_user_session');
     localStorage.removeItem('abkharido_cart');
+    localStorage.removeItem('abkharido_wishlist');
     setLocalSession(null);
     setOrders([]);
     setCart([]);
+    setWishlist([]);
     await signOut({ redirect: false });
     showToast('Logged out successfully.', 'info');
   };
