@@ -67,7 +67,22 @@ initCronJobs();
 
 // Security & Compression Middleware
 app.use(helmet());
-app.use(cors({ origin: true, credentials: true }));
+const allowedOrigins = [
+  'https://www.abkharido.com',
+  'https://abkharido.com',
+  'http://localhost:3000',
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (server-to-server, Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use(compression()); // Compress all API responses to drastically reduce size
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
