@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo.jpg" />
       </head>
       <body>
-        <Script src="https://dk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
+        <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
         <NextAuthProvider>
           <AppProvider>
             <Suspense fallback={null}>
