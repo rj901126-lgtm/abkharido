@@ -475,15 +475,38 @@ export const updateOrderStatus = async (req, res, next) => {
     }
     
     if (req.body.status && req.body.status !== order.status) {
-      order.status = req.body.status;
+      const newStatus = req.body.status;
+
+      // ── ORDER STATE MACHINE ──
+      // Define which transitions are legally allowed
+      const allowedTransitions = {
+        'Pending':          ['Processing', 'Cancelled'],
+        'Processing':       ['Packed', 'Cancelled'],
+        'Packed':           ['Shipped', 'Cancelled'],
+        'Shipped':          ['In Transit'],
+        'In Transit':       ['Out for Delivery'],
+        'Out for Delivery': ['Delivered'],
+        'Delivered':        [], // Terminal state — no further transitions
+        'Cancelled':        [], // Terminal state — no further transitions
+      };
+
+      const allowed = allowedTransitions[order.status];
+      if (!allowed || !allowed.includes(newStatus)) {
+        res.status(400);
+        throw new Error(
+          `Invalid status transition: '${order.status}' → '${newStatus}'. Allowed next states: [${(allowed || []).join(', ') || 'none'}]`
+        );
+      }
+
+      order.status = newStatus;
       
       // Update visual tracking history
       if (!order.trackingHistory) order.trackingHistory = [];
       order.trackingHistory.push({
-        status: req.body.status,
+        status: newStatus,
         timestamp: Date.now(),
         location: req.body.location || '',
-        comment: req.body.comment || `Status updated to ${req.body.status}`
+        comment: req.body.comment || `Status updated to ${newStatus}`
       });
     }
     if (req.body.courierPartner !== undefined) order.courierPartner = req.body.courierPartner;
@@ -528,6 +551,12 @@ export const cancelOrder = async (req, res, next) => {
     if (order.status === 'Cancelled') {
       res.status(400);
       throw new Error('Order is already cancelled');
+    }
+
+    // State machine guard: cannot cancel terminal states
+    if (order.status === 'Delivered') {
+      res.status(400);
+      throw new Error('Cannot cancel a delivered order. Please raise a return/refund request instead.');
     }
 
     order.status = 'Cancelled';

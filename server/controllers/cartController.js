@@ -34,7 +34,7 @@ export const getCart = async (req, res, next) => {
 // @access  Private
 export const syncCart = async (req, res, next) => {
   try {
-    const { cart } = req.body;
+    const { cart, merge } = req.body; // merge=true means guest cart login merge
     
     if (!Array.isArray(cart)) {
       res.status(400);
@@ -42,14 +42,14 @@ export const syncCart = async (req, res, next) => {
     }
 
     // Convert frontend cart format to backend schema
-    const formattedCart = [];
+    const incomingCart = [];
     for (const item of cart) {
       if (item && item.product) {
         const productId = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
         // Validate ObjectId to prevent Mongoose CastError which causes 500s
         if (productId && productId.toString().length === 24) {
-          formattedCart.push({
-            product: productId,
+          incomingCart.push({
+            product: productId.toString(),
             quantity: item.quantity || 1
           });
         }
@@ -61,8 +61,34 @@ export const syncCart = async (req, res, next) => {
       res.status(404);
       throw new Error('User not found');
     }
-    
-    user.cart = formattedCart;
+
+    if (merge && user.cart && user.cart.length > 0) {
+      // ── SMART GUEST CART MERGE ──
+      // DB cart takes priority. Only add guest items that aren't already in DB cart.
+      const dbCartMap = new Map(
+        user.cart.map(item => [item.product.toString(), item])
+      );
+
+      for (const guestItem of incomingCart) {
+        if (!dbCartMap.has(guestItem.product)) {
+          // Item exists in guest cart but not in DB — add it
+          dbCartMap.set(guestItem.product, {
+            product: guestItem.product,
+            quantity: guestItem.quantity
+          });
+        }
+        // If item already in DB cart, keep the DB quantity (do not override)
+      }
+
+      user.cart = Array.from(dbCartMap.values());
+    } else {
+      // Normal sync: overwrite DB cart with frontend cart
+      user.cart = incomingCart.map(item => ({
+        product: item.product,
+        quantity: item.quantity
+      }));
+    }
+
     user.cartUpdatedAt = new Date();
     await user.save();
 

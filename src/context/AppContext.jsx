@@ -185,6 +185,20 @@ export const AppProvider = ({ children }) => {
     const initBackendCart = async () => {
       if (currentUser?.token) {
         try {
+          // If user had a local (guest) cart before logging in, merge it into their DB cart first
+          const localCart = cart;
+          if (localCart && localCart.length > 0) {
+            await fetch(`/api/cart/sync`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}`
+              },
+              body: JSON.stringify({ cart: localCart, merge: true })
+            }).catch(err => console.error('Guest cart merge failed', err));
+          }
+
+          // Then fetch the final merged cart from DB as the source of truth
           const res = await fetch(`/api/cart`, {
             headers: { 'Authorization': `Bearer ${currentUser.token}` }
           });
