@@ -387,6 +387,27 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     );
   }
 
+  if (step < 4 && (!cart || cart.length === 0)) {
+    return (
+      <div className="container animate-fade-in" style={{ padding: '100px 20px', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: '#fff1f2', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+          <ShoppingBag size={56} color="#e11d48" />
+        </div>
+        <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '16px', color: '#1f2937' }}>Your Cart is Empty</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '450px', lineHeight: '1.6', fontSize: '15px' }}>
+          It looks like you haven't added any items to your cart, or the items were removed from another device. Please add items to proceed with checkout.
+        </p>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => onNavigate('home')} 
+          style={{ padding: '14px 40px', fontSize: '16px', fontWeight: '600' }}
+        >
+          Continue Shopping
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="container animate-fade-in desktop-premium-checkout" style={{ padding: '24px 0 150px 0', maxWidth: '800px' }}>
       
