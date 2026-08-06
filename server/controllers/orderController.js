@@ -97,43 +97,83 @@ export const addOrderItems = async (req, res, next) => {
        totalPrice = Math.max(0, totalPrice - coinsUsedAmount); 
     }
 
-    // Secure Coupon Application
+    // ── ATOMIC COUPON CLAIM (TOCTOU Race Condition Fix) ──
+    // The old pattern was: findOne (READ) → validate → later updateOne (WRITE).
+    // This is a classic TOCTOU bug. If 3 tabs submit simultaneously, all 3 read
+    // usedCount=0 at the same time, all 3 pass validation, and all 3 get the discount.
+    //
+    // The fix: combine the READ + all condition checks + the WRITE into ONE atomic
+    // MongoDB operation. MongoDB processes findOneAndUpdate as a single document-level
+    // lock. Only ONE of the 3 concurrent requests can win — the others get null.
     let appliedCouponRecord = null;
+    let discountAmount = 0;
     if (couponCode) {
-      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true }).lean();
-      if (!coupon) {
-        res.status(404);
-        throw new Error('Invalid or inactive coupon code');
-      }
-      if (coupon.usedBy && coupon.usedBy.includes(req.user._id)) {
+      const now = new Date();
+      const claimedCoupon = await Coupon.findOneAndUpdate(
+        {
+          // All validation conditions embedded directly in the query filter:
+          code: couponCode.toUpperCase(),
+          isActive: true,
+          expiryDate: { $gt: now },                  // Not expired
+          usedBy: { $not: { $elemMatch: { $eq: req.user._id } } }, // Not already used by THIS user
+          $expr: { $lt: ['$usedCount', '$usageLimit'] } // Under global usage limit
+        },
+        {
+          // Atomically claim it in the same operation — no separate updateOne needed later
+          $push: { usedBy: req.user._id },
+          $inc: { usedCount: 1 }
+        },
+        { new: true } // Return updated document to calculate discount from
+      );
+
+      if (!claimedCoupon) {
+        // Could not claim — determine why for a helpful error message
+        const couponCheck = await Coupon.findOne({ code: couponCode.toUpperCase() }).lean();
+        if (!couponCheck) {
+          res.status(404);
+          throw new Error('Invalid coupon code');
+        }
+        if (!couponCheck.isActive) {
+          res.status(400);
+          throw new Error('This coupon is no longer active');
+        }
+        if (new Date() > new Date(couponCheck.expiryDate)) {
+          res.status(400);
+          throw new Error('This coupon has expired');
+        }
+        if (couponCheck.usedBy && couponCheck.usedBy.map(id => id.toString()).includes(req.user._id.toString())) {
+          res.status(400);
+          throw new Error('You have already used this coupon');
+        }
+        if (couponCheck.usedCount >= couponCheck.usageLimit) {
+          res.status(400);
+          throw new Error('This coupon usage limit has been reached. Try another code.');
+        }
         res.status(400);
-        throw new Error('You have already used this coupon');
-      }
-      if (new Date() > new Date(coupon.expiryDate)) {
-        res.status(400);
-        throw new Error('This coupon has expired');
-      }
-      if (coupon.usedCount >= coupon.usageLimit) {
-        res.status(400);
-        throw new Error('This coupon usage limit has been reached');
-      }
-      if (itemsPrice < coupon.minCartValue) {
-        res.status(400);
-        throw new Error(`Minimum cart value of ₹${coupon.minCartValue} required for this coupon`);
+        throw new Error('Coupon could not be applied. Please try again.');
       }
 
-      let discountAmount = 0;
-      if (coupon.discountType === 'FLAT') {
-        discountAmount = coupon.discountValue;
-      } else if (coupon.discountType === 'PERCENTAGE') {
-        discountAmount = (itemsPrice * coupon.discountValue) / 100;
-        if (coupon.maxDiscount > 0 && discountAmount > coupon.maxDiscount) {
-          discountAmount = coupon.maxDiscount;
+      if (itemsPrice < claimedCoupon.minCartValue) {
+        // Rollback the claim — cart value doesn't meet minimum
+        await Coupon.updateOne(
+          { _id: claimedCoupon._id },
+          { $pull: { usedBy: req.user._id }, $inc: { usedCount: -1 } }
+        );
+        res.status(400);
+        throw new Error(`Minimum cart value of ₹${claimedCoupon.minCartValue} required for this coupon`);
+      }
+
+      if (claimedCoupon.discountType === 'FLAT') {
+        discountAmount = claimedCoupon.discountValue;
+      } else if (claimedCoupon.discountType === 'PERCENTAGE') {
+        discountAmount = (itemsPrice * claimedCoupon.discountValue) / 100;
+        if (claimedCoupon.maxDiscount > 0 && discountAmount > claimedCoupon.maxDiscount) {
+          discountAmount = claimedCoupon.maxDiscount;
         }
       }
-      
+
       totalPrice = Math.max(0, totalPrice - discountAmount);
-      appliedCouponRecord = coupon;
+      appliedCouponRecord = claimedCoupon;
     }
     
     let totalPlatformFee = 0;
@@ -258,16 +298,8 @@ export const addOrderItems = async (req, res, next) => {
 
       const createdOrder = await order.save();
       
-      // Track coupon usage atomically
-      if (appliedCouponRecord) {
-        await Coupon.updateOne(
-          { _id: appliedCouponRecord._id },
-          { 
-            $push: { usedBy: req.user._id },
-            $inc: { usedCount: 1 }
-          }
-        );
-      }
+      // NOTE: Coupon usage is already claimed atomically BEFORE order.save() via
+      // findOneAndUpdate in the TOCTOU-safe flow above. No second update needed here.
       
       // Fetch user to check email verification and auto-save profile details
       const user = await User.findById(req.user._id);
@@ -325,6 +357,22 @@ export const addOrderItems = async (req, res, next) => {
         console.error('CRITICAL: Failed to rollback stock during checkout failure!', rollbackError);
       }
     }
+
+    // ── COUPON ROLLBACK ──
+    // If the coupon was atomically claimed but order creation subsequently failed
+    // (e.g. stock ran out after coupon claim), release the coupon claim so the
+    // user is not permanently locked out of their own coupon.
+    if (appliedCouponRecord && appliedCouponRecord._id) {
+      try {
+        await Coupon.updateOne(
+          { _id: appliedCouponRecord._id },
+          { $pull: { usedBy: req.user._id }, $inc: { usedCount: -1 } }
+        );
+      } catch (couponRollbackError) {
+        console.error('CRITICAL: Failed to rollback coupon claim during checkout failure!', couponRollbackError);
+      }
+    }
+
     next(error);
   }
 };
