@@ -177,7 +177,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     }
 
     showToast(`⚡ Verifying express postal service for ${pincode}...`, 'info');
-    fetch(`https://pi.postalpincode.in/pincode/${pincode}`)
+    fetch(`https://api.postalpincode.in/pincode/${pincode}`)
       .then(res => res.json())
       .then(data => {
         if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {

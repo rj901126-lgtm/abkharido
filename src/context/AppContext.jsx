@@ -157,7 +157,8 @@ export const AppProvider = ({ children }) => {
   // --- Initial Cross-Device Cart Merge ---
   useEffect(() => {
     const initBackendCart = async () => {
-      if (currentUser?.token) {
+      const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
+      if (token) {
         try {
           // If user had a local (guest) cart before logging in, merge it into their DB cart first
           const localCart = cart;
@@ -166,7 +167,7 @@ export const AppProvider = ({ children }) => {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.token}`
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({ cart: localCart, merge: true })
             }).then(() => {
@@ -176,7 +177,8 @@ export const AppProvider = ({ children }) => {
 
           // Then fetch the final merged cart from DB as the source of truth
           const res = await fetch(`/api/cart`, {
-            headers: { 'Authorization': `Bearer ${currentUser.token}` },
+            headers: { 'Authorization': `Bearer ${token}` },
+
             cache: 'no-store'
           });
           if (res.status === 401) {
@@ -207,8 +209,9 @@ export const AppProvider = ({ children }) => {
   // --- Initial Cross-Device Wishlist Fetch ---
   useEffect(() => {
     const initBackendWishlist = async () => {
-      if (currentUser?.token) {
-        if (wishlistInitializedForUser.current === currentUser.token) return;
+      const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
+      if (token) {
+        if (wishlistInitializedForUser.current === token) return;
         try {
           // If user had a local (guest) wishlist before logging in, merge it into their DB wishlist first
           const localWishlist = wishlist;
@@ -217,7 +220,7 @@ export const AppProvider = ({ children }) => {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.token}`
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({ wishlist: localWishlist, merge: true })
             }).then(() => {
@@ -226,7 +229,7 @@ export const AppProvider = ({ children }) => {
           }
 
           const res = await fetch(`/api/wishlist`, {
-            headers: { 'Authorization': `Bearer ${currentUser.token}` },
+            headers: { 'Authorization': `Bearer ${token}` },
             cache: 'no-store'
           });
           if (res.status === 401) {
@@ -242,7 +245,7 @@ export const AppProvider = ({ children }) => {
         } catch (err) {
           console.error('Failed to fetch backend wishlist:', err);
         } finally {
-          wishlistInitializedForUser.current = currentUser.token;
+          wishlistInitializedForUser.current = token;
         }
       } else {
         wishlistInitializedForUser.current = null;
@@ -350,7 +353,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const fetchUserSavedCards = async () => {
-    const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session'))?.token;
+    const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
     if (!token) return;
     try {
       const res = await fetch(`/api/payment/saved-cards`, {
@@ -366,7 +369,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const removeSavedCard = async (instrumentId) => {
-    const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session'))?.token;
+    const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
     if (!token) return false;
     try {
       const res = await fetch(`/api/payment/saved-cards/${instrumentId}`, {
@@ -389,7 +392,7 @@ export const AppProvider = ({ children }) => {
       const user = currentUser;
       const username = user ? (user.username || user.name) : '';
       const emailVal = emailOrUsername || (user ? user.email : '');
-      const token = user?.token;
+      const token = user?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
       
       const queryParams = new URLSearchParams({
         username,

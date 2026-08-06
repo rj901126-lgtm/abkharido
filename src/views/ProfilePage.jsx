@@ -95,7 +95,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
       const pinStr = pincodeInput.trim();
       const controller = new AbortController();
       setIsDetectingPincode(true);
-      fetch(`https://pi.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal })
+      fetch(`https://api.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal })
         .then(res => res.json())
         .then(data => {
           if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {

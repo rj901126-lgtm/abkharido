@@ -63,7 +63,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       const pinStr = String(address.pincode || '');
       if (pinStr.length !== 6 || isNaN(pinStr)) return; // only call when full 6 digits
       try {
-        const res = await fetch(`https://pi.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal });
+        const res = await fetch(`https://api.postalpincode.in/pincode/${pinStr}`, { signal: controller.signal });
         if (res.ok) {
           const data = await res.json();
           if (data[0]?.Status === "Success") {
