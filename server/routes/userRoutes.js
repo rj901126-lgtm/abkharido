@@ -1,12 +1,12 @@
 import express from 'express';
 import { getUserByUsername, updateUserProfile, getUsers, suspendUser, addWalletBalance, updateSellerStatus } from '../controllers/userController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect, admin, softProtect } from '../middleware/authMiddleware.js';
 import { logAdminAction } from '../middleware/auditMiddleware.js';
 
 const router = express.Router();
 
 router.get('/', protect, admin, getUsers);
-router.get('/:username', getUserByUsername);
+router.get('/:username', softProtect, getUserByUsername);
 router.post('/:username/update', protect, updateUserProfile);
 
 // Enterprise CRM Actions

@@ -395,8 +395,8 @@ export const getOrderById = async (req, res, next) => {
     );
 
     if (order) {
-      // Ensure the user owns the order, unless admin
-      if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      // Ensure the user owns the order, unless they are a privileged admin role
+      if (order.user._id.toString() !== req.user._id.toString() && !['admin', 'super_admin', 'support_agent'].includes(req.user.role)) {
         res.status(403);
         throw new Error('Not authorized to view this order');
       }

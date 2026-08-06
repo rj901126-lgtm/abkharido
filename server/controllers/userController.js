@@ -14,7 +14,36 @@ export const getUserByUsername = async (req, res, next) => {
       
     const user = await User.findOne(query);
     if (user) {
-      // Calculate 8-Day Locked Coins
+      const userObj = user.toObject();
+
+      // ── IDOR & PII REDACTION GUARD ──
+      // Check if the requester is the owner of the profile or an admin
+      const isOwner = req.user && req.user._id.toString() === user._id.toString();
+      const isAdmin = req.user && ['admin', 'super_admin'].includes(req.user.role);
+      const isAuthorized = isOwner || isAdmin;
+
+      if (!isAuthorized) {
+        // Redact all sensitive PII for public viewing
+        delete userObj.email;
+        delete userObj.phone;
+        delete userObj.address;
+        delete userObj.houseNo;
+        delete userObj.streetArea;
+        delete userObj.city;
+        delete userObj.pincode;
+        delete userObj.state;
+        delete userObj.addressType;
+        delete userObj.addresses;
+        delete userObj.payoutDetails;
+        delete userObj.walletCoins;
+        delete userObj.isEmailVerified;
+        delete userObj.cart;
+        delete userObj.wishlist;
+        
+        return res.json(userObj);
+      }
+
+      // If authorized (owner or admin), calculate wallet stats and return full profile
       const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
       const lockedOrders = await Order.find({
         'referralApplied.referrerId': user.username,
@@ -25,7 +54,7 @@ export const getUserByUsername = async (req, res, next) => {
       const lockedCoins = lockedOrders.reduce((sum, o) => sum + (o.referralApplied?.rewardAmount || 0), 0);
       const withdrawableCoins = Math.max(0, (user.walletCoins || 0) - lockedCoins);
 
-      res.json({ ...user.toObject(), withdrawableCoins, lockedCoins });
+      res.json({ ...userObj, withdrawableCoins, lockedCoins });
     } else {
       res.status(404);
       throw new Error('User not found');
