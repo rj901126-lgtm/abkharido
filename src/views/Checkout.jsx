@@ -483,12 +483,26 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   )
                 })}
               </div>
-              <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
                 <button 
                   onClick={() => setAddress({ name: currentUser?.fullName||'', phone: currentUser?.phone||'', pincode: '', locality: '', streetAddress: '', city: '', state: '' })}
-                  style={{ background: 'none', border: '1px dashed #94a3b8', color: '#475569', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
+                  style={{ 
+                    background: '#eef2ff', 
+                    border: '1px solid #c7d2fe', 
+                    color: '#4f46e5', 
+                    padding: '12px 24px', 
+                    borderRadius: '12px', 
+                    cursor: 'pointer', 
+                    fontWeight: '700',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#e0e7ff'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = '#eef2ff'; }}
                 >
-                  + Enter New Address
+                  <span style={{ fontSize: '18px', lineHeight: 1 }}>+</span> Enter New Address
                 </button>
               </div>
             </div>
@@ -547,12 +561,13 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             </form>
           )}
 
-          <div className="checkout-actions">
+          <div className="checkout-sticky-action-bar">
             <button 
               type="button" 
               onClick={handleAddressSubmit}
               disabled={!address.name || !address.phone || !address.pincode || !address.streetAddress || isCheckingShipping || (shippingServiceability && !shippingServiceability.serviceable)} 
-              className="btn btn-primary"
+              className="btn btn-primary checkout-btn"
+              style={{ width: '100%' }}
             >
               DELIVER HERE <ArrowRight size={18} />
             </button>
@@ -644,7 +659,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             </div>
           </div>
 
-          <div className="checkout-btn-group" style={{ display: 'flex', gap: '12px' }}>
+          <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '12px' }}>
             <button className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(1)}>BACK</button>
             <button className="btn btn-accent checkout-btn" style={{ flex: 2 }} onClick={() => setStep(3)}>PROCEED TO PAYMENT</button>
           </div>
@@ -749,7 +764,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
             </div>
 
-            <div className="checkout-btn-group" style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+            <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '12px' }}>
               <button type="button" className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(2)} disabled={isSubmitting}>BACK</button>
               <button type="submit" className="btn btn-accent checkout-btn" style={{ flex: 2 }} disabled={isSubmitting}>
                 {isSubmitting ? 'PROCESSING...' : `PLACE ORDER (₹${finalAmount.toLocaleString('en-IN')})`}

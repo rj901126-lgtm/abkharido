@@ -44,7 +44,8 @@
 .checkout-step-indicator.active .checkout-step-num {
   background: linear-gradient(135deg, #4f46e5, #7c3aed);
   color: white;
-  box-shadow: 0 4px 10px rgba(79,70,229,0.3);
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4), 0 0 0 4px rgba(79, 70, 229, 0.15);
+  transform: scale(1.1);
 }
 
 .checkout-step-connector {
@@ -250,5 +251,27 @@ textarea.checkout-input {
   
   .checkout-btn-group button {
     width: 100%;
+  }
+
+  .checkout-sticky-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1999;
+    padding: 16px 20px calc(16px + env(safe-area-inset-bottom)) 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.08);
+    border-radius: 24px 24px 0 0;
+  }
+
+  /* Padding at the bottom of the checkout page so content isn't hidden behind the sticky bar */
+  .checkout-card {
+    padding: 20px;
+    border-radius: 20px;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
   }
 }
