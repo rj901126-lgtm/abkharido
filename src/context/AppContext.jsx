@@ -520,8 +520,8 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(payload)
       });
       if (res.status === 401) {
-        logout();
-        showToast('Session expired. Please log in again.', 'error');
+        console.warn('Background sync returned 401. Session might be expiring.');
+        // logout(); // Removed: Do not abruptly log out user on background sync failures
         return;
       }
       if (res.ok) {

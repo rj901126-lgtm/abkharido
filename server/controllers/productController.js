@@ -91,8 +91,17 @@ export const getProductById = async (req, res, next) => {
 // @access  Private/Admin or Seller
 export const createProduct = async (req, res, next) => {
   try {
+    // [SEC-PATCH]: Prevent Mass Assignment Vulnerability
+    const sanitizedBody = { ...req.body };
+    delete sanitizedBody.rating;
+    delete sanitizedBody.reviewsCount;
+    delete sanitizedBody.reviews;
+    delete sanitizedBody.vendorId;
+    delete sanitizedBody.sellerId;
+    delete sanitizedBody.soldCount;
+
     const product = new Product({
-      ...req.body,
+      ...sanitizedBody,
       sellerId: req.user._id === 'master_admin_legacy' ? null : req.user._id
     });
     const createdProduct = await product.save();
@@ -117,7 +126,16 @@ export const updateProduct = async (req, res, next) => {
         throw new Error('Not authorized to edit this product');
       }
 
-      Object.assign(product, req.body);
+      // [SEC-PATCH]: Prevent Mass Assignment Vulnerability
+      const sanitizedBody = { ...req.body };
+      delete sanitizedBody.rating;
+      delete sanitizedBody.reviewsCount;
+      delete sanitizedBody.reviews;
+      delete sanitizedBody.vendorId;
+      delete sanitizedBody.sellerId;
+      delete sanitizedBody.soldCount;
+
+      Object.assign(product, sanitizedBody);
       const updatedProduct = await product.save();
       await clearCache('cache:/api/products*');
       res.json(updatedProduct);

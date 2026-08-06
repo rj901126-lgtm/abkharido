@@ -124,82 +124,7 @@ router.get('/seller/products', (req, res) => {
   res.json([]);
 });
 
-// TEMPORARY ROUTE TO MIGRATE DATA ON VERCEL
-router.get('/migrate-data', async (req, res) => {
-  try {
-    const mongooseModule = await import('mongoose');
-    const mongoose = mongooseModule.default;
-    
-    // Force connect if disconnected
-    if (mongoose.connection.readyState === 0) {
-        console.log("Mongoose disconnected, attempting to connect within route...");
-        await mongoose.connect(process.env.MONGODB_URI, {
-            maxPoolSize: 10,
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000,
-            family: 4,
-        });
-    }
-
-    // If connecting (which happens on cold start), wait for it to finish
-    if (mongoose.connection.readyState === 2) {
-        console.log("Mongoose is currently connecting, waiting...");
-        await new Promise(resolve => {
-            const checkInterval = setInterval(() => {
-                if (mongoose.connection.readyState !== 2) {
-                    clearInterval(checkInterval);
-                    resolve();
-                }
-            }, 500);
-        });
-    }
-
-    if (mongoose.connection.readyState !== 1) {
-       const uri = process.env.MONGODB_URI || 'UNDEFINED';
-       const pwdMatch = uri.match(/:([^:@]+)@/);
-       const pwd = pwdMatch ? pwdMatch[1] : '';
-       const pwdHint = pwd.length > 2 ? `${pwd[0]}...${pwd[pwd.length - 1]} (Length: ${pwd.length})` : 'none';
-       const maskedUri = uri.replace(/:([^:@]+)@/, ':***@');
-       return res.status(500).json({ 
-           error: 'Database is not connected after forced attempt!', 
-           readyState: mongoose.connection.readyState,
-           maskedUri: maskedUri,
-           pwdHint: pwdHint,
-           hint: 'Your Username/Password/IP is definitely wrong or blocked.'
-       });
-    }
-
-    const { default: Product } = await import('../models/Product.js');
-    const { default: User } = await import('../models/User.js');
-    const { default: productsData } = await import('../data/productsData.js');
-
-    await Product.deleteMany({});
-    
-    const docs = productsData.map(p => ({
-       ...p,
-       originalPrice: p.originalPrice || p.price + 500,
-       inStock: p.inStock !== undefined ? p.inStock : true,
-       soldCount: p.soldCount || 0
-    }));
-    
-    await Product.insertMany(docs);
-    
-    const adminExists = await User.findOne({ role: 'admin' });
-    if (!adminExists) {
-        await User.create({
-            username: 'admin',
-            email: 'admin@abkharido.com',
-            password: 'admin',
-            role: 'admin',
-            fullName: 'System Administrator'
-        });
-    }
-    
-    res.json({ success: true, message: `Migrated ${docs.length} products to MongoDB successfully.` });
-  } catch (error) {
-    res.status(500).json({ error: 'Migration failed: ' + error.message });
-  }
-});
+// [SEC-PATCH]: Removed highly vulnerable /migrate-data endpoint that bypassed all auth and allowed database wiping
 
 router.get('/seller/orders', (req, res) => {
   res.json([]);
@@ -285,40 +210,10 @@ router.get('/admin/analytics', protect, admin, async (req, res) => {
 router.post('/shipping/serviceability', (req, res) => {
   res.json({ success: true, status: 'Deliverable', estimatedDays: 3 });
 });
-router.post('/admin/verify', (req, res) => {
-  const { password } = req.body;
-  const validPin = process.env.ADMIN_SECURE_PIN || '2026';
-  if (password === validPin || password === 'admin' || password === '2026') {
-    const cryptoToken = jwt.sign({ role: 'super_admin', issuer: 'AbKharido Security Engine' }, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev', { expiresIn: '24h' });
-    res.json({ success: true, token: cryptoToken });
-  } else {
-    res.status(401).json({ error: 'Invalid PIN or Security Credential' });
-  }
-});
+// [SEC-PATCH]: Removed backdoor /admin/verify endpoint that allowed instant role elevation to super_admin
 router.post('/payment/session', (req, res) => {
   res.json({ success: true, sessionId: 'mock_session_id', id: 'mock_session_id' });
 });
-router.post('/payment/verify', protect, async (req, res) => {
-  try {
-    const { orderId } = req.body;
-    const order = await Order.findById(orderId);
-    if (order) {
-      // Securely update order as Paid
-      order.isPaid = true;
-      order.paidAt = Date.now();
-      order.paymentResult = { id: 'verified', status: 'SUCCESS', update_time: new Date().toISOString(), email_address: req.user.email };
-      // Move status forward if it's pending
-      if (order.status === 'Pending') {
-        order.status = 'Processing';
-      }
-      await order.save();
-      res.json({ success: true, message: 'Payment verified and order updated' });
-    } else {
-      res.status(404).json({ error: 'Order not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Payment verification failed' });
-  }
-});
+// [SEC-PATCH]: Removed fake /payment/verify endpoint that bypassed Cashfree API and allowed free checkout marking
 
 export default router;
