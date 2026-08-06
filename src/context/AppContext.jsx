@@ -204,7 +204,8 @@ export const AppProvider = ({ children }) => {
 
           // Then fetch the final merged cart from DB as the source of truth
           const res = await fetch(`/api/cart`, {
-            headers: { 'Authorization': `Bearer ${currentUser.token}` }
+            headers: { 'Authorization': `Bearer ${currentUser.token}` },
+            cache: 'no-store'
           });
           if (res.ok) {
             const backendCart = await res.json();
@@ -246,7 +247,8 @@ export const AppProvider = ({ children }) => {
           }
 
           const res = await fetch(`/api/wishlist`, {
-            headers: { 'Authorization': `Bearer ${currentUser.token}` }
+            headers: { 'Authorization': `Bearer ${currentUser.token}` },
+            cache: 'no-store'
           });
           if (res.ok) {
             const backendWishlist = await res.json();
