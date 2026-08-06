@@ -6,7 +6,13 @@ import Product from '../models/Product.js';
 // @access  Private
 export const getWishlist = async (req, res, next) => {
   try {
+    console.log(`[WISHLIST GET INIT] User: ${req.user._id}`);
     const user = await User.findById(req.user._id);
+    
+    // Set headers to explicitly prevent Vercel Edge caching
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     
     if (!user) {
       res.status(404);
@@ -18,6 +24,7 @@ export const getWishlist = async (req, res, next) => {
       .filter(item => item != null)
       .map(item => item.toString());
 
+    console.log(`[WISHLIST GET SUCCESS] User: ${req.user._id} | Fetched ${formattedWishlist.length} items`);
     res.json(formattedWishlist);
   } catch (error) {
     next(error);
@@ -30,6 +37,9 @@ export const getWishlist = async (req, res, next) => {
 export const syncWishlist = async (req, res, next) => {
   try {
     const { wishlist, merge, action, productId } = req.body;
+    console.log(`[WISHLIST SYNC INIT] User: ${req.user._id} | Action: ${action} | Merge: ${merge}`);
+    console.log(`[WISHLIST SYNC PAYLOAD]`, JSON.stringify(req.body, null, 2));
+
     const user = await User.findById(req.user._id);
     if (!user) {
       res.status(404);
@@ -52,11 +62,14 @@ export const syncWishlist = async (req, res, next) => {
       } else if (action === 'toggle' && productId) {
         const resolvedId = await resolveObjectId(productId);
         if (resolvedId) {
+          console.log(`[WISHLIST SYNC ACTION] toggle | Resolved ProductId: ${resolvedId}`);
           const existsIndex = user.wishlist.findIndex(id => id.toString() === resolvedId);
           if (existsIndex >= 0) {
             user.wishlist.splice(existsIndex, 1); // Remove
+            console.log(`[WISHLIST SYNC ACTION] Removed item from wishlist`);
           } else {
             user.wishlist.push(resolvedId); // Add
+            console.log(`[WISHLIST SYNC ACTION] Added item to wishlist`);
           }
         }
       }
@@ -71,13 +84,19 @@ export const syncWishlist = async (req, res, next) => {
       }
       
       if (req.body.merge && user.wishlist && user.wishlist.length > 0) {
+        console.log(`[WISHLIST SYNC MERGE] Starting guest merge. Incoming Guest Items: ${formattedWishlist.length}, Current DB Items: ${user.wishlist.length}`);
         const existingSet = new Set(user.wishlist.map(id => id.toString()));
         for (const item of formattedWishlist) {
           if (!existingSet.has(item)) {
+            console.log(`[WISHLIST SYNC MERGE] Adding guest item: ${item}`);
             user.wishlist.push(item);
+          } else {
+            console.log(`[WISHLIST SYNC MERGE] Item already in DB, skipping: ${item}`);
           }
         }
+        console.log(`[WISHLIST SYNC MERGE] Merge completed. Final Wishlist Size: ${user.wishlist.length}`);
       } else {
+        console.log(`[WISHLIST SYNC FULL] Replacing user wishlist with incoming array of ${formattedWishlist.length} items`);
         user.wishlist = formattedWishlist;
       }
     } else {
@@ -98,6 +117,7 @@ export const syncWishlist = async (req, res, next) => {
     await user.populate('wishlist');
     const returnedWishlist = user.wishlist.map(item => item.id || item._id);
 
+    console.log(`[WISHLIST SYNC SUCCESS] Returned ${returnedWishlist.length} items to frontend.`);
     res.json({ success: true, wishlist: returnedWishlist });
   } catch (error) {
     next(error);
