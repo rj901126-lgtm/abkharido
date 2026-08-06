@@ -1,0 +1,30 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/abkharido
+            git fetch origin
+            git reset --hard origin/main
+            
+            echo "Starting Docker deployments..."
+            
+            # Rebuild and start in detached mode
+            sudo docker compose build frontend backend
+            sudo docker compose up -d frontend backend
+            
+            echo "Deployment completed successfully!"
