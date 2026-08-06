@@ -179,6 +179,11 @@ export const AppProvider = ({ children }) => {
             headers: { 'Authorization': `Bearer ${currentUser.token}` },
             cache: 'no-store'
           });
+          if (res.status === 401) {
+            logout();
+            showToast('Session expired. Please log in again.', 'error');
+            return;
+          }
           if (res.ok) {
             const backendCart = await res.json();
             setCart(backendCart);
@@ -224,6 +229,11 @@ export const AppProvider = ({ children }) => {
             headers: { 'Authorization': `Bearer ${currentUser.token}` },
             cache: 'no-store'
           });
+          if (res.status === 401) {
+            logout();
+            showToast('Session expired. Please log in again.', 'error');
+            return;
+          }
           if (res.ok) {
             const backendWishlist = await res.json();
             setWishlist(backendWishlist);
@@ -506,6 +516,11 @@ export const AppProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
         body: JSON.stringify(payload)
       });
+      if (res.status === 401) {
+        logout();
+        showToast('Session expired. Please log in again.', 'error');
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         if (data[endpoint]) stateSetter(data[endpoint]); // Updates with merged DB state
