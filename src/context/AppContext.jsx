@@ -123,23 +123,6 @@ export const AppProvider = ({ children }) => {
   // --- Sync Temporary Wishlist details ---
   useEffect(() => {
     safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
-    
-    // Background sync to database if logged in and initialized
-    const token = currentUser?.token;
-    if (token && wishlistInitializedForUser.current === token) {
-      const syncTimeout = setTimeout(() => {
-        fetch(`/api/wishlist/sync`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ wishlist })
-        }).catch(err => console.error('Wishlist background sync failed', err));
-      }, 1000);
-      return () => clearTimeout(syncTimeout);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wishlist]);
 
   // --- Fetch Data on Mount ---
@@ -165,23 +148,6 @@ export const AppProvider = ({ children }) => {
   // --- Sync Temporary Cart details ---
   useEffect(() => {
     safeSetItem('abkharido_cart', JSON.stringify(cart));
-    
-    // Background sync to database if logged in and initialized
-    const token = currentUser?.token;
-    if (token && initializedForUser.current === token) {
-      const syncTimeout = setTimeout(() => {
-        fetch(`/api/cart/sync`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ cart })
-        }).catch(err => console.error('Cart background sync failed', err));
-      }, 1000);
-      return () => clearTimeout(syncTimeout);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart]);
 
   // --- Initial Cross-Device Cart Merge ---
@@ -482,6 +448,8 @@ export const AppProvider = ({ children }) => {
         return [...prev, productId];
       }
     });
+    
+    dispatchDeltaSync('wishlist', { action: 'toggle', productId }, setWishlist);
   };
 
   const fetchStats = async () => {
@@ -521,6 +489,24 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // --- Delta Sync Helper ---
+  const dispatchDeltaSync = async (endpoint, payload, stateSetter) => {
+    if (!currentUser?.token) return;
+    try {
+      const res = await fetch(`/api/${endpoint}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data[endpoint]) stateSetter(data[endpoint]); // Updates with merged DB state
+      }
+    } catch (err) {
+      console.error(`${endpoint} delta sync failed`, err);
+    }
+  };
+
   // --- Cart Actions ---
   const addToCart = (product, qty = 1) => {
     setCart(prev => {
@@ -542,6 +528,8 @@ export const AppProvider = ({ children }) => {
       showToast(`${product.name.substring(0, 20)}... added to cart!`);
       return [...prev, { product, quantity: qty }];
     });
+    
+    dispatchDeltaSync('cart', { action: 'add', item: { product: product._id || product.id, quantity: qty } }, setCart);
   };
 
   const updateCartQty = (productId, qty) => {
@@ -560,15 +548,19 @@ export const AppProvider = ({ children }) => {
       }
       return item;
     }));
+    
+    dispatchDeltaSync('cart', { action: 'update', item: { product: productId, quantity: qty } }, setCart);
   };
 
   const removeFromCart = (productId) => {
     setCart(prev => prev.filter(item => item.product.id !== productId));
     showToast('Item removed from cart.');
+    dispatchDeltaSync('cart', { action: 'remove', productId }, setCart);
   };
 
   const clearCart = () => {
     setCart([]);
+    dispatchDeltaSync('cart', { action: 'clear' }, setCart);
   };
 
   // --- Logout Action ---

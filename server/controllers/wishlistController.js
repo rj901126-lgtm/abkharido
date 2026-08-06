@@ -29,54 +29,76 @@ export const getWishlist = async (req, res, next) => {
 // @access  Private
 export const syncWishlist = async (req, res, next) => {
   try {
-    const { wishlist } = req.body;
-    
-    if (!Array.isArray(wishlist)) {
-      res.status(400);
-      throw new Error('Invalid wishlist data format');
-    }
-
-    // Convert string array to ObjectIds if valid
-    const formattedWishlist = [];
-    
-    // The frontend sends product slugs (e.g., 'iphone-16-pro') OR ObjectIds.
-    // We must resolve slugs to their actual MongoDB ObjectIds.
-    for (const item of wishlist) {
-      if (!item) continue;
-      const idStr = item.toString();
-      
-      if (idStr.length === 24) {
-        formattedWishlist.push(idStr);
-      } else {
-        // It's a slug, look up the actual Product ObjectId
-        const product = await Product.findOne({ id: idStr }).select('_id').lean();
-        if (product) {
-          formattedWishlist.push(product._id.toString());
-        }
-      }
-    }
-
+    const { wishlist, merge, action, productId } = req.body;
     const user = await User.findById(req.user._id);
     if (!user) {
       res.status(404);
       throw new Error('User not found');
     }
-    
-    if (req.body.merge && user.wishlist && user.wishlist.length > 0) {
-      // ── SMART GUEST WISHLIST MERGE ──
-      const existingSet = new Set(user.wishlist.map(id => id.toString()));
-      for (const item of formattedWishlist) {
-        if (!existingSet.has(item.toString())) {
-          user.wishlist.push(item);
+
+    // Helper: Resolve a product slug/id to a MongoDB ObjectId string
+    const resolveObjectId = async (idStr) => {
+      if (!idStr) return null;
+      idStr = idStr.toString();
+      if (idStr.length === 24) return idStr;
+      const productDoc = await Product.findOne({ id: idStr }).select('_id').lean();
+      return productDoc ? productDoc._id.toString() : null;
+    };
+
+    // ── DELTA SYNC ARCHITECTURE ──
+    if (action) {
+      if (action === 'clear') {
+        user.wishlist = [];
+      } else if (action === 'toggle' && productId) {
+        const resolvedId = await resolveObjectId(productId);
+        if (resolvedId) {
+          const existsIndex = user.wishlist.findIndex(id => id.toString() === resolvedId);
+          if (existsIndex >= 0) {
+            user.wishlist.splice(existsIndex, 1); // Remove
+          } else {
+            user.wishlist.push(resolvedId); // Add
+          }
         }
       }
+    } 
+    // ── LEGACY FULL-SYNC & GUEST MERGE ──
+    else if (Array.isArray(wishlist)) {
+      const formattedWishlist = [];
+      for (const item of wishlist) {
+        if (!item) continue;
+        const resolvedId = await resolveObjectId(item);
+        if (resolvedId) formattedWishlist.push(resolvedId);
+      }
+      
+      if (req.body.merge && user.wishlist && user.wishlist.length > 0) {
+        const existingSet = new Set(user.wishlist.map(id => id.toString()));
+        for (const item of formattedWishlist) {
+          if (!existingSet.has(item)) {
+            user.wishlist.push(item);
+          }
+        }
+      } else {
+        user.wishlist = formattedWishlist;
+      }
     } else {
-      user.wishlist = formattedWishlist;
+      res.status(400);
+      throw new Error('Invalid wishlist data format or missing action');
     }
     
     await user.save();
 
-    res.json({ success: true });
+    // Return the latest DB state (just an array of string ObjectIds/Slugs)
+    // Wait, the frontend `wishlist` array is just an array of IDs!
+    // But it's an array of slugs if added locally, and ObjectIds if from backend?
+    // The frontend `getWishlist` endpoint currently returns what? Let's check getWishlist.
+    // getWishlist populates and maps to just the `id`. 
+    // Actually getWishlist does: res.json(user.wishlist.map(item => item._id));
+    // Let's just return the user.wishlist as is, so the frontend receives the populated IDs.
+
+    await user.populate('wishlist');
+    const returnedWishlist = user.wishlist.map(item => item.id || item._id);
+
+    res.json({ success: true, wishlist: returnedWishlist });
   } catch (error) {
     next(error);
   }

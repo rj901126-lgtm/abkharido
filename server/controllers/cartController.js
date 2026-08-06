@@ -35,78 +35,100 @@ export const getCart = async (req, res, next) => {
 // @access  Private
 export const syncCart = async (req, res, next) => {
   try {
-    const { cart, merge } = req.body; // merge=true means guest cart login merge
-    
-    if (!Array.isArray(cart)) {
-      res.status(400);
-      throw new Error('Invalid cart data format');
-    }
-
-    // Convert frontend cart format to backend schema
-    // The frontend may send `item.product` as a slug OR an ObjectId.
-    const incomingCart = [];
-    for (const item of cart) {
-      if (!item || !item.product) continue;
-      
-      const productIdStr = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
-      if (!productIdStr) continue;
-
-      let validObjectId = null;
-      if (productIdStr.toString().length === 24) {
-        validObjectId = productIdStr.toString();
-      } else {
-        // It's a slug, look up the actual Product ObjectId
-        const productDoc = await Product.findOne({ id: productIdStr.toString() }).select('_id').lean();
-        if (productDoc) {
-          validObjectId = productDoc._id.toString();
-        }
-      }
-
-      if (validObjectId) {
-        incomingCart.push({
-          product: validObjectId,
-          quantity: Math.max(1, parseInt(item.quantity, 10) || 1)
-        });
-      }
-    }
-
+    const { cart, merge, action, item, productId } = req.body; 
     const user = await User.findById(req.user._id);
     if (!user) {
       res.status(404);
       throw new Error('User not found');
     }
 
-    if (merge && user.cart && user.cart.length > 0) {
-      // ── SMART GUEST CART MERGE ──
-      // DB cart takes priority. Only add guest items that aren't already in DB cart.
-      const dbCartMap = new Map(
-        user.cart.map(item => [item.product.toString(), item])
-      );
+    // Helper: Resolve a product slug/id to a MongoDB ObjectId string
+    const resolveObjectId = async (idStr) => {
+      if (!idStr) return null;
+      idStr = idStr.toString();
+      if (idStr.length === 24) return idStr;
+      const productDoc = await Product.findOne({ id: idStr }).select('_id').lean();
+      return productDoc ? productDoc._id.toString() : null;
+    };
 
-      for (const guestItem of incomingCart) {
-        if (!dbCartMap.has(guestItem.product)) {
-          // Item exists in guest cart but not in DB — add it
-          dbCartMap.set(guestItem.product, {
-            product: guestItem.product,
-            quantity: guestItem.quantity
+    // ── DELTA SYNC ARCHITECTURE (MULTI-DEVICE SAFE) ──
+    if (action) {
+      if (action === 'clear') {
+        user.cart = [];
+      } else if (action === 'remove' && productId) {
+        const resolvedId = await resolveObjectId(productId);
+        if (resolvedId) {
+          user.cart = user.cart.filter(cItem => cItem.product.toString() !== resolvedId);
+        }
+      } else if ((action === 'add' || action === 'update') && item) {
+        const pIdStr = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
+        const resolvedId = await resolveObjectId(pIdStr);
+        
+        if (resolvedId) {
+          const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
+          const existingIndex = user.cart.findIndex(cItem => cItem.product.toString() === resolvedId);
+          
+          if (existingIndex >= 0) {
+            user.cart[existingIndex].quantity = action === 'add' 
+              ? user.cart[existingIndex].quantity + qty 
+              : qty;
+          } else {
+            user.cart.push({ product: resolvedId, quantity: qty });
+          }
+        }
+      }
+    } 
+    // ── LEGACY FULL-SYNC & GUEST MERGE ──
+    else if (Array.isArray(cart)) {
+      const incomingCart = [];
+      for (const cItem of cart) {
+        if (!cItem || !cItem.product) continue;
+        const pIdStr = typeof cItem.product === 'object' ? (cItem.product.id || cItem.product._id) : cItem.product;
+        const resolvedId = await resolveObjectId(pIdStr);
+        if (resolvedId) {
+          incomingCart.push({
+            product: resolvedId,
+            quantity: Math.max(1, parseInt(cItem.quantity, 10) || 1)
           });
         }
-        // If item already in DB cart, keep the DB quantity (do not override)
       }
 
-      user.cart = Array.from(dbCartMap.values());
+      if (merge && user.cart && user.cart.length > 0) {
+        const dbCartMap = new Map(user.cart.map(i => [i.product.toString(), i]));
+        for (const guestItem of incomingCart) {
+          if (!dbCartMap.has(guestItem.product)) {
+            dbCartMap.set(guestItem.product, { product: guestItem.product, quantity: guestItem.quantity });
+          }
+        }
+        user.cart = Array.from(dbCartMap.values());
+      } else {
+        user.cart = incomingCart.map(i => ({ product: i.product, quantity: i.quantity }));
+      }
     } else {
-      // Normal sync: overwrite DB cart with frontend cart
-      user.cart = incomingCart.map(item => ({
-        product: item.product,
-        quantity: item.quantity
-      }));
+      res.status(400);
+      throw new Error('Invalid cart data format or missing action');
     }
 
     user.cartUpdatedAt = new Date();
     await user.save();
 
-    res.json({ success: true });
+    // Populate and return the absolute latest cart to sync the frontend
+    await user.populate('cart.product');
+    const formattedCart = user.cart
+      .filter(cItem => cItem.product != null)
+      .map(cItem => ({
+        product: {
+          id: cItem.product._id,
+          name: cItem.product.name,
+          price: cItem.product.price,
+          image: cItem.product.images?.[0] || cItem.product.image || '',
+          brand: cItem.product.brand,
+          stock: cItem.product.stock
+        },
+        quantity: cItem.quantity
+      }));
+
+    res.json({ success: true, cart: formattedCart });
   } catch (error) {
     next(error);
   }
