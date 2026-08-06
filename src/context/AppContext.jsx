@@ -125,20 +125,22 @@ export const AppProvider = ({ children }) => {
     safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
     
     // Background sync to database if logged in and initialized
-    if (currentUser?.token && wishlistInitializedForUser.current === currentUser.token) {
+    const token = currentUser?.token;
+    if (token && wishlistInitializedForUser.current === token) {
       const syncTimeout = setTimeout(() => {
         fetch(`/api/wishlist/sync`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentUser.token}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ wishlist })
         }).catch(err => console.error('Wishlist background sync failed', err));
       }, 1000);
       return () => clearTimeout(syncTimeout);
     }
-  }, [wishlist, currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wishlist]);
 
   // --- Fetch Data on Mount ---
   useEffect(() => {
@@ -165,20 +167,22 @@ export const AppProvider = ({ children }) => {
     safeSetItem('abkharido_cart', JSON.stringify(cart));
     
     // Background sync to database if logged in and initialized
-    if (currentUser?.token && initializedForUser.current === currentUser.token) {
+    const token = currentUser?.token;
+    if (token && initializedForUser.current === token) {
       const syncTimeout = setTimeout(() => {
         fetch(`/api/cart/sync`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentUser.token}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ cart })
         }).catch(err => console.error('Cart background sync failed', err));
       }, 1000);
       return () => clearTimeout(syncTimeout);
     }
-  }, [cart, currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart]);
 
   // --- Initial Cross-Device Cart Merge ---
   useEffect(() => {
@@ -228,6 +232,19 @@ export const AppProvider = ({ children }) => {
       if (currentUser?.token) {
         if (wishlistInitializedForUser.current === currentUser.token) return;
         try {
+          // If user had a local (guest) wishlist before logging in, merge it into their DB wishlist first
+          const localWishlist = wishlist;
+          if (localWishlist && localWishlist.length > 0) {
+            await fetch(`/api/wishlist/sync`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}`
+              },
+              body: JSON.stringify({ wishlist: localWishlist, merge: true })
+            }).catch(err => console.error('Guest wishlist merge failed', err));
+          }
+
           const res = await fetch(`/api/wishlist`, {
             headers: { 'Authorization': `Bearer ${currentUser.token}` }
           });
@@ -247,6 +264,7 @@ export const AppProvider = ({ children }) => {
     };
     
     initBackendWishlist();
+    // eslint-disable-next-line
   }, [currentUser?.token]);
 
   useEffect(() => {

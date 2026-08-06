@@ -49,7 +49,18 @@ export const syncWishlist = async (req, res, next) => {
       throw new Error('User not found');
     }
     
-    user.wishlist = formattedWishlist;
+    if (req.body.merge && user.wishlist && user.wishlist.length > 0) {
+      // ── SMART GUEST WISHLIST MERGE ──
+      const existingSet = new Set(user.wishlist.map(id => id.toString()));
+      for (const item of formattedWishlist) {
+        if (!existingSet.has(item.toString())) {
+          user.wishlist.push(item);
+        }
+      }
+    } else {
+      user.wishlist = formattedWishlist;
+    }
+    
     await user.save();
 
     res.json({ success: true });
