@@ -23,8 +23,8 @@ jobs:
             
             echo "Starting Docker deployments..."
             
-            # Rebuild and start in detached mode
-            sudo docker compose build frontend backend
-            sudo docker compose up -d frontend backend
+            # Rebuild and start only the backend in detached mode (Frontend is handled by Vercel)
+            sudo docker compose build backend
+            sudo docker compose up -d backend
             
             echo "Deployment completed successfully!"
