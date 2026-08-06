@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Product from '../models/Product.js';
 
 // @desc    Get logged in user's cart
 // @route   GET /api/cart
@@ -42,17 +43,30 @@ export const syncCart = async (req, res, next) => {
     }
 
     // Convert frontend cart format to backend schema
+    // The frontend may send `item.product` as a slug OR an ObjectId.
     const incomingCart = [];
     for (const item of cart) {
-      if (item && item.product) {
-        const productId = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
-        // Validate ObjectId to prevent Mongoose CastError which causes 500s
-        if (productId && productId.toString().length === 24) {
-          incomingCart.push({
-            product: productId.toString(),
-            quantity: Math.max(1, parseInt(item.quantity, 10) || 1)
-          });
+      if (!item || !item.product) continue;
+      
+      const productIdStr = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
+      if (!productIdStr) continue;
+
+      let validObjectId = null;
+      if (productIdStr.toString().length === 24) {
+        validObjectId = productIdStr.toString();
+      } else {
+        // It's a slug, look up the actual Product ObjectId
+        const productDoc = await Product.findOne({ id: productIdStr.toString() }).select('_id').lean();
+        if (productDoc) {
+          validObjectId = productDoc._id.toString();
         }
+      }
+
+      if (validObjectId) {
+        incomingCart.push({
+          product: validObjectId,
+          quantity: Math.max(1, parseInt(item.quantity, 10) || 1)
+        });
       }
     }
 

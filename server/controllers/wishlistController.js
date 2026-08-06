@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Product from '../models/Product.js';
 
 // @desc    Get logged in user's wishlist
 // @route   GET /api/wishlist
@@ -37,9 +38,21 @@ export const syncWishlist = async (req, res, next) => {
 
     // Convert string array to ObjectIds if valid
     const formattedWishlist = [];
+    
+    // The frontend sends product slugs (e.g., 'iphone-16-pro') OR ObjectIds.
+    // We must resolve slugs to their actual MongoDB ObjectIds.
     for (const item of wishlist) {
-      if (item && item.toString().length === 24) {
-        formattedWishlist.push(item);
+      if (!item) continue;
+      const idStr = item.toString();
+      
+      if (idStr.length === 24) {
+        formattedWishlist.push(idStr);
+      } else {
+        // It's a slug, look up the actual Product ObjectId
+        const product = await Product.findOne({ id: idStr }).select('_id').lean();
+        if (product) {
+          formattedWishlist.push(product._id.toString());
+        }
       }
     }
 
