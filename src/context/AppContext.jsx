@@ -122,8 +122,10 @@ export const AppProvider = ({ children }) => {
 
   // --- Sync Temporary Wishlist details ---
   useEffect(() => {
-    safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
+    if (!currentUser?.token) {
+      safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
+    }
+  }, [wishlist, currentUser?.token]);
 
   // --- Fetch Data on Mount ---
   useEffect(() => {
@@ -147,8 +149,10 @@ export const AppProvider = ({ children }) => {
 
   // --- Sync Temporary Cart details ---
   useEffect(() => {
-    safeSetItem('abkharido_cart', JSON.stringify(cart));
-  }, [cart]);
+    if (!currentUser?.token) {
+      safeSetItem('abkharido_cart', JSON.stringify(cart));
+    }
+  }, [cart, currentUser?.token]);
 
   // --- Initial Cross-Device Cart Merge ---
   useEffect(() => {
@@ -165,7 +169,9 @@ export const AppProvider = ({ children }) => {
                 'Authorization': `Bearer ${currentUser.token}`
               },
               body: JSON.stringify({ cart: localCart, merge: true })
-            }).catch(err => console.error('Guest cart merge failed', err));
+            }).then(() => {
+              localStorage.removeItem('abkharido_cart');
+            }).catch(err => console.error('Guest cart sync failed', err));
           }
 
           // Then fetch the final merged cart from DB as the source of truth
@@ -209,7 +215,9 @@ export const AppProvider = ({ children }) => {
                 'Authorization': `Bearer ${currentUser.token}`
               },
               body: JSON.stringify({ wishlist: localWishlist, merge: true })
-            }).catch(err => console.error('Guest wishlist merge failed', err));
+            }).then(() => {
+              localStorage.removeItem('abkharido_wishlist');
+            }).catch(err => console.error('Guest wishlist sync failed', err));
           }
 
           const res = await fetch(`/api/wishlist`, {
