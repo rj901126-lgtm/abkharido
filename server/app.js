@@ -121,7 +121,6 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts, please try again later.' },
   store: redisClient ? new RedisStore({
-  store: redisClient ? new RedisStore({
     sendCommand: (...args) => redisClient.call(...args),
   }) : undefined,
 });
