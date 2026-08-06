@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import logger from './config/logger.js';
 import { initCronJobs } from './utils/cronJobs.js';
-import mongoSanitize from 'express-mongo-sanitize';
+
 // eslint-disable-next-line
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
@@ -95,9 +95,32 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Data Sanitization against NoSQL query injection (strips out $ and . characters from req.body, req.query, req.params)
-app.use(mongoSanitize());
-
+// Custom Data Sanitization against NoSQL query injection (Express 5 safe)
+const sanitizeObject = (obj) => {
+  if (obj && typeof obj === 'object') {
+    Object.keys(obj).forEach((key) => {
+      if (key.includes('$') || key.includes('.')) {
+        // Strip prohibited characters from keys
+        const cleanKey = key.replace(/\$|\./g, '');
+        obj[cleanKey] = obj[key];
+        delete obj[key];
+        sanitizeObject(obj[cleanKey]);
+      } else {
+        sanitizeObject(obj[key]);
+      }
+    });
+  }
+};
+app.use((req, res, next) => {
+  if (req.body) sanitizeObject(req.body);
+  if (req.params) sanitizeObject(req.params);
+  // Mutate req.query in place, do not reassign
+  if (req.query) {
+    const queryObj = req.query; 
+    sanitizeObject(queryObj);
+  }
+  next();
+});
 // Logging
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
