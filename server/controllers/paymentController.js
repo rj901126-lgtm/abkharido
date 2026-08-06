@@ -104,17 +104,12 @@ export const verifyPayment = async (req, res, next) => {
     }
 
     if (orderStatus === 'PAID') {
-      // ── ATOMIC IDEMPOTENCY GUARD (Bug 2: Webhook + Frontend Race Condition) ──
-      // findOneAndUpdate with { isPaid: false } is a single atomic DB operation.
-      // If two concurrent requests (frontend redirect + webhook) both reach here,
-      // only ONE will match the condition and proceed. The other gets null → returns early.
-      const order = await Order.findOneAndUpdate(
-        { cfOrderId: orderId, isPaid: false }, // Condition: only match unpaid orders
-        { $set: { isPaid: true, paidAt: new Date(), status: 'Processing' } },
-        { new: true }
-      );
+      const amountPaid = data.order_amount;
 
-      if (!order) {
+      // Fetch the order first to verify the amount
+      const pendingOrder = await Order.findOne({ cfOrderId: orderId, isPaid: false });
+
+      if (!pendingOrder) {
         // Either order not found OR already paid by another concurrent request — both safe
         const alreadyPaid = await Order.findOne({ cfOrderId: orderId, isPaid: true });
         if (alreadyPaid) {
@@ -122,6 +117,26 @@ export const verifyPayment = async (req, res, next) => {
         }
         res.status(404);
         throw new Error('Order not found for payment verification');
+      }
+
+      // ── CRITICAL PAYMENT AMOUNT VERIFICATION GUARD ──
+      // Prevent arbitrary amount bypass (e.g. paying ₹1 for a ₹10,000 order)
+      if (Math.abs(pendingOrder.totalPrice - amountPaid) > 0.1) {
+        res.status(400);
+        throw new Error(`Amount mismatch bypass attempt. Order total: ₹${pendingOrder.totalPrice}, Paid: ₹${amountPaid}`);
+      }
+
+      // ── ATOMIC IDEMPOTENCY GUARD (Bug 2: Webhook + Frontend Race Condition) ──
+      // findOneAndUpdate with { isPaid: false } is a single atomic DB operation.
+      const order = await Order.findOneAndUpdate(
+        { _id: pendingOrder._id, isPaid: false }, // Condition: only match unpaid orders
+        { $set: { isPaid: true, paidAt: new Date(), status: 'Processing' } },
+        { new: true }
+      );
+
+      if (!order) {
+        // Race condition lost to another concurrent request — safe to return early
+        return res.json({ success: true, status: 'PAID', alreadyProcessed: true });
       }
 
       // Award cashback coins only once — atomic guard above prevents double-award.

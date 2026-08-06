@@ -85,16 +85,18 @@ export const addOrderItems = async (req, res, next) => {
       };
     }));
 
+    const round2 = (num) => Math.round(num * 100) / 100;
+
     // Calculate Prices dynamically
-    const itemsPrice = orderItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+    const itemsPrice = round2(orderItems.reduce((acc, item) => acc + item.price * item.qty, 0));
     const shippingPrice = itemsPrice > 500 ? 0 : 50; 
-    const taxPrice = Number((0.18 * itemsPrice).toFixed(2));
-    let totalPrice = itemsPrice + shippingPrice + taxPrice;
+    const taxPrice = round2(0.18 * itemsPrice);
+    let totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
     
     let coinsUsedAmount = 0;
     if (useCoinsDiscount) {
        coinsUsedAmount = 50;
-       totalPrice = Math.max(0, totalPrice - coinsUsedAmount); 
+       totalPrice = round2(Math.max(0, totalPrice - coinsUsedAmount)); 
     }
 
     // ── ATOMIC COUPON CLAIM (TOCTOU Race Condition Fix) ──
@@ -166,13 +168,13 @@ export const addOrderItems = async (req, res, next) => {
       if (claimedCoupon.discountType === 'FLAT') {
         discountAmount = claimedCoupon.discountValue;
       } else if (claimedCoupon.discountType === 'PERCENTAGE') {
-        discountAmount = (itemsPrice * claimedCoupon.discountValue) / 100;
+        discountAmount = round2((itemsPrice * claimedCoupon.discountValue) / 100);
         if (claimedCoupon.maxDiscount > 0 && discountAmount > claimedCoupon.maxDiscount) {
           discountAmount = claimedCoupon.maxDiscount;
         }
       }
 
-      totalPrice = Math.max(0, totalPrice - discountAmount);
+      totalPrice = round2(Math.max(0, totalPrice - discountAmount));
       appliedCouponRecord = claimedCoupon;
     }
     
@@ -228,11 +230,11 @@ export const addOrderItems = async (req, res, next) => {
         }
 
         if (product.vendorId) {
-          const itemTotal = item.price * item.qty;
-          const platformCut = itemTotal * 0.10; // 10% Enterprise Platform Fee
-          const vendorCut = itemTotal - platformCut;
+          const itemTotal = round2(item.price * item.qty);
+          const platformCut = round2(itemTotal * 0.10); // 10% Enterprise Platform Fee
+          const vendorCut = round2(itemTotal - platformCut);
           
-          totalPlatformFee += platformCut;
+          totalPlatformFee = round2(totalPlatformFee + platformCut);
           
           enrichedOrderItems.push({
             ...item,
