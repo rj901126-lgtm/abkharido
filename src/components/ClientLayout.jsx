@@ -274,7 +274,7 @@ export default function ClientLayout({ children }) {
       )}
 
       {/* Mobile Sticky Bottom Tab Bar */}
-      {!pathname?.startsWith('/product') && (
+      {!pathname?.startsWith('/product') && !pathname?.startsWith('/cart') && !pathname?.startsWith('/checkout') && (
         <BottomNavigation activePage={pathname?.replace('/', '') || 'home'} onNavigate={handleNavigate} />
       )}
 
