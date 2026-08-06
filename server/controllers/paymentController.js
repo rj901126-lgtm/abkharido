@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import crypto from 'crypto';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
@@ -79,14 +78,6 @@ export const verifyPayment = async (req, res, next) => {
     const secretKey = process.env.CASHFREE_SECRET_KEY;
     const isProd = process.env.CASHFREE_PROD === 'true';
 
-    // --- IDEMPOTENCY GUARD ---
-    // Check if order is already marked as paid before calling Cashfree API
-    const existingOrder = await Order.findOne({ cfOrderId: orderId });
-    if (existingOrder && existingOrder.isPaid) {
-      // Already processed — return success without awarding coins again
-      return res.json({ success: true, status: 'PAID', alreadyProcessed: true });
-    }
-
     let orderStatus = 'PAID'; // Default to simulated success
 
     if (appId && secretKey) {
@@ -112,30 +103,36 @@ export const verifyPayment = async (req, res, next) => {
       orderStatus = data.order_status;
     }
 
-      if (orderStatus === 'PAID') {
-        const query = { cfOrderId: orderId };
-        if (mongoose.Types.ObjectId.isValid(orderId)) {
-          query.$or = [{ _id: orderId }, { cfOrderId: orderId }];
+    if (orderStatus === 'PAID') {
+      // ── ATOMIC IDEMPOTENCY GUARD (Bug 2: Webhook + Frontend Race Condition) ──
+      // findOneAndUpdate with { isPaid: false } is a single atomic DB operation.
+      // If two concurrent requests (frontend redirect + webhook) both reach here,
+      // only ONE will match the condition and proceed. The other gets null → returns early.
+      const order = await Order.findOneAndUpdate(
+        { cfOrderId: orderId, isPaid: false }, // Condition: only match unpaid orders
+        { $set: { isPaid: true, paidAt: new Date(), status: 'Processing' } },
+        { new: true }
+      );
+
+      if (!order) {
+        // Either order not found OR already paid by another concurrent request — both safe
+        const alreadyPaid = await Order.findOne({ cfOrderId: orderId, isPaid: true });
+        if (alreadyPaid) {
+          return res.json({ success: true, status: 'PAID', alreadyProcessed: true });
         }
+        res.status(404);
+        throw new Error('Order not found for payment verification');
+      }
 
-        const order = await Order.findOne(query);
-        if (order) {
-          order.isPaid = true;
-          order.paidAt = new Date();
-          order.status = 'Processing';
-          await order.save();
+      // Award cashback coins only once — atomic guard above prevents double-award.
+      // Bug 4 fix: use walletCoins (not the ghost field `coins`)
+      await User.updateOne(
+        { _id: order.user },
+        { $inc: { walletCoins: Math.floor(order.totalPrice * 0.05) } }
+      );
 
-          // Award cashback coins only once (idempotency guard above prevents double-run)
-          const user = await User.findById(order.user);
-          if (user) {
-            const cashback = Math.floor(order.totalPrice * 0.05);
-            user.coins = (user.coins || 0) + cashback;
-            await user.save();
-          }
-        }
-
-        res.json({ success: true, status: orderStatus });
-      } else {
+      res.json({ success: true, status: orderStatus });
+    } else {
       res.status(400);
       throw new Error(`Payment verification failed: ${orderStatus}`);
     }
@@ -351,16 +348,7 @@ export const cashfreeWebhook = async (req, res, next) => {
       const orderId = event.data?.order?.order_id;
       if (!orderId) return res.status(400).json({ error: 'Order ID missing in payload' });
 
-      // 3. Server-to-Server Verification & Idempotency
-      const order = await Order.findOne({ cfOrderId: orderId });
-      if (!order) return res.status(404).json({ error: 'Order not found' });
-      
-      // Idempotency: skip if already processed
-      if (order.isPaid) {
-        return res.status(200).send('Already processed');
-      }
-
-      // Fetch absolute truth from Cashfree (Zero Trust)
+      // Fetch absolute truth from Cashfree (Zero Trust — never trust webhook payload alone)
       const appId = process.env.CASHFREE_APP_ID;
       const isProd = process.env.CASHFREE_PROD === 'true';
       const url = isProd 
@@ -382,18 +370,28 @@ export const cashfreeWebhook = async (req, res, next) => {
       const data = await response.json();
       
       if (data.order_status === 'PAID') {
-        order.isPaid = true;
-        order.paidAt = new Date();
-        order.status = 'Processing';
-        await order.save();
+        // ── ATOMIC IDEMPOTENCY GUARD (Bug 2: Webhook Replay / Race Condition) ──
+        // This single atomic operation replaces the old 2-step read-then-write.
+        // If Cashfree sends the webhook twice (network timeout retry), or if the
+        // frontend's verifyPayment fires at the same time, only ONE request will
+        // match { isPaid: false } and proceed. The other gets null and returns 200 safely.
+        const order = await Order.findOneAndUpdate(
+          { cfOrderId: orderId, isPaid: false }, // Condition: only match still-unpaid orders
+          { $set: { isPaid: true, paidAt: new Date(), status: 'Processing' } },
+          { new: true }
+        );
 
-        // Award cashback
-        const user = await User.findById(order.user);
-        if (user) {
-          const cashback = Math.floor(order.totalPrice * 0.05);
-          user.coins = (user.coins || 0) + cashback;
-          await user.save();
+        if (!order) {
+          // Already processed by a previous webhook or verifyPayment — idempotent success
+          return res.status(200).send('Already processed');
         }
+
+        // Award cashback — atomic guard above ensures this runs exactly once.
+        // Bug 4 fix: use walletCoins (not the ghost field `coins` which nobody reads)
+        await User.updateOne(
+          { _id: order.user },
+          { $inc: { walletCoins: Math.floor(order.totalPrice * 0.05) } }
+        );
       }
     }
 

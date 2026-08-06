@@ -13,6 +13,7 @@ import redisClient from '../config/redis.js';
 // @route   POST /api/orders
 // @access  Private
 export const addOrderItems = async (req, res, next) => {
+  let deductedStockTracker = [];
   try {
     const {
       cart,
@@ -37,6 +38,17 @@ export const addOrderItems = async (req, res, next) => {
     if (validCart.length === 0) {
       res.status(400);
       throw new Error('No valid order items found after filtering');
+    }
+
+    // ── IDEMPOTENCY GUARD (Bug 1: Double-Click / Double-Submit) ──
+    // If the frontend sends the same cfOrderId twice (double-click, network retry),
+    // return the already-created order instead of creating a duplicate.
+    if (cfOrderId) {
+      const existingOrder = await Order.findOne({ cfOrderId });
+      if (existingOrder) {
+        console.warn(`[IDEMPOTENCY] Order already exists for cfOrderId: ${cfOrderId}. Returning existing.`);
+        return res.status(200).json(existingOrder);
+      }
     }
 
     // Map frontend cart array to backend orderItems schema and SECURELY fetch prices
@@ -127,7 +139,8 @@ export const addOrderItems = async (req, res, next) => {
     let totalPlatformFee = 0;
       
       // Calculate Enterprise Finance splits & Deduct Stock
-      const enrichedOrderItems = await Promise.all(orderItems.map(async (item) => {
+      const enrichedOrderItems = [];
+      for (const item of orderItems) {
         // Try by MongoDB _id first, then fallback to custom slug id field
         let product = null;
         if (item.product !== 'custom' && /^[0-9a-fA-F]{24}$/.test(item.product)) {
@@ -139,7 +152,8 @@ export const addOrderItems = async (req, res, next) => {
         
         if (!product) {
           // Truly unknown / mock product — skip stock deduction, treat as plain item
-          return item;
+          enrichedOrderItems.push(item);
+          continue;
         }
         
         if (!product.inStock) {
@@ -162,6 +176,9 @@ export const addOrderItems = async (req, res, next) => {
             throw new Error(`Item out of stock due to high demand: ${product.name}. Requested: ${item.qty}`);
           }
           
+          // Track successfully deducted stock for potential rollback
+          deductedStockTracker.push({ productId: product._id, qty: item.qty });
+          
           if (updatedProduct.stock <= 0) {
              await Product.updateOne({ _id: updatedProduct._id }, { inStock: false });
           }
@@ -177,15 +194,16 @@ export const addOrderItems = async (req, res, next) => {
           
           totalPlatformFee += platformCut;
           
-          return {
+          enrichedOrderItems.push({
             ...item,
             vendorId: product.vendorId,
             vendorAmount: vendorCut,
             platformFee: platformCut
-          };
+          });
+          continue;
         }
-        return item;
-      }));
+        enrichedOrderItems.push(item);
+      }
 
       // Map frontend shipping address to backend schema requirements
       const mappedShippingAddress = {
@@ -279,8 +297,34 @@ export const addOrderItems = async (req, res, next) => {
       // Add to enterprise background queue (Phase 2)
       await addOrderToQueue(createdOrder._id);
 
+      // ── ATOMIC CART CLEAR (Bug 3: Orphaned Cart) ──
+      // Clear the server-side cart ONLY after the order is fully confirmed in the DB.
+      // This prevents the race condition where payment fails but the cart is already gone.
+      await User.updateOne(
+        { _id: req.user._id },
+        { $set: { cart: [], cartUpdatedAt: new Date() } }
+      );
+
       res.status(201).json(createdOrder);
   } catch (error) {
+    // ── TWO-PHASE COMMIT ROLLBACK ──
+    // If order fails (e.g. out of stock halfway through), restore any previously deducted stock
+    if (deductedStockTracker.length > 0) {
+      try {
+        for (const item of deductedStockTracker) {
+          const restored = await Product.findOneAndUpdate(
+            { _id: item.productId },
+            { $inc: { stock: item.qty, soldCount: -item.qty } },
+            { new: true }
+          );
+          if (restored && restored.stock > 0 && !restored.inStock) {
+             await Product.updateOne({ _id: restored._id }, { inStock: true });
+          }
+        }
+      } catch (rollbackError) {
+        console.error('CRITICAL: Failed to rollback stock during checkout failure!', rollbackError);
+      }
+    }
     next(error);
   }
 };

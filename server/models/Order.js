@@ -74,7 +74,9 @@ const orderSchema = new mongoose.Schema({
   courierPartner: { type: String },
   
   // Payment Gateway Tracking
-  cfOrderId: { type: String },
+  // sparse: true allows multiple null values (for COD orders without a cfOrderId)
+  // unique: true is the DB-level guard against double-submit race conditions
+  cfOrderId: { type: String, unique: true, sparse: true },
 
   // Referral Rewards
   referralApplied: {
@@ -92,7 +94,7 @@ orderSchema.index({ user: 1, createdAt: -1 }); // Fast lookup for user's order h
 orderSchema.index({ 'orderItems.vendorId': 1, createdAt: -1 }); // Fast lookup for seller dashboards
 orderSchema.index({ status: 1, createdAt: -1 }); // Fast lookup for admin filtering
 orderSchema.index({ createdAt: -1 }); // Fast lookup for admin sorting by date
-orderSchema.index({ cfOrderId: 1 }); // Fast lookup for payment webhooks/polling
+// NOTE: cfOrderId index is auto-created by { unique: true, sparse: true } on the field itself
 orderSchema.index({ 'orderItems.product': 1 }); // Fast lookup for product sales analysis
 
 // Add Field-Level Encryption Plugin to protect Customer PII
