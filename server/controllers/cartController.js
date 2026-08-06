@@ -14,7 +14,7 @@ export const getCart = async (req, res, next) => {
       .filter(item => item.product != null)
       .map(item => ({
         product: {
-          id: item.product._id,
+          id: item.product.id || item.product._id, // Prefer slug for frontend consistency
           name: item.product.name,
           price: item.product.price,
           image: item.product.images?.[0] || item.product.image || '',
@@ -118,7 +118,7 @@ export const syncCart = async (req, res, next) => {
       .filter(cItem => cItem.product != null)
       .map(cItem => ({
         product: {
-          id: cItem.product._id,
+          id: cItem.product.id || cItem.product._id,
           name: cItem.product.name,
           price: cItem.product.price,
           image: cItem.product.images?.[0] || cItem.product.image || '',
