@@ -14,6 +14,17 @@ const fileRotateTransport = new winston.transports.DailyRotateFile({
   maxSize: '20m',
 });
 
+const transports = [
+  new winston.transports.Console({
+    format: combine(colorize(), logFormat)
+  })
+];
+
+// Only write logs to disk if we are not running on Vercel Serverless (which is Read-Only)
+if (!process.env.VERCEL) {
+  transports.push(fileRotateTransport);
+}
+
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: combine(
@@ -21,12 +32,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     logFormat
   ),
-  transports: [
-    fileRotateTransport,
-    new winston.transports.Console({
-      format: combine(colorize(), logFormat)
-    })
-  ],
+  transports,
 });
 
 export default logger;
