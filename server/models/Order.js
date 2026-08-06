@@ -78,6 +78,13 @@ const orderSchema = new mongoose.Schema({
   // unique: true is the DB-level guard against double-submit race conditions
   cfOrderId: { type: String, unique: true, sparse: true },
 
+  // TTL Stock-Release Engine
+  // Set to 15 minutes after order creation for online payments.
+  // The releaseExpiredOrderStock cron queries { status: 'Pending', isPaid: false, paymentExpiresAt: { $lt: now } }
+  // and atomically cancels the order + restores stock.
+  // COD orders should have this set to a far-future date or null.
+  paymentExpiresAt: { type: Date, index: true },
+
   // Referral Rewards
   referralApplied: {
     referrerId: { type: String }, // username of the referrer
@@ -96,6 +103,8 @@ orderSchema.index({ status: 1, createdAt: -1 }); // Fast lookup for admin filter
 orderSchema.index({ createdAt: -1 }); // Fast lookup for admin sorting by date
 // NOTE: cfOrderId index is auto-created by { unique: true, sparse: true } on the field itself
 orderSchema.index({ 'orderItems.product': 1 }); // Fast lookup for product sales analysis
+// Compound index for the TTL stock-release cron — covers the exact query it uses
+orderSchema.index({ status: 1, isPaid: 1, paymentExpiresAt: 1 });
 
 // Add Field-Level Encryption Plugin to protect Customer PII
 import mongooseFieldEncryption from 'mongoose-field-encryption';

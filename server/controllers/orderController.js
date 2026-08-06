@@ -254,6 +254,12 @@ export const addOrderItems = async (req, res, next) => {
         country: shippingAddress.country || 'India'
       };
 
+      // Set payment expiry: 15 minutes for online payments, null for COD.
+      // The releaseExpiredOrderStock cron uses this to find and release stale Pending orders.
+      const PAYMENT_TTL_MS = 15 * 60 * 1000; // 15 minutes
+      const isCOD = paymentMethod && paymentMethod.toLowerCase().includes('cod');
+      const paymentExpiresAt = isCOD ? null : new Date(Date.now() + PAYMENT_TTL_MS);
+
       const order = new Order({
         orderItems: enrichedOrderItems,
         user: req.user._id,
@@ -267,6 +273,7 @@ export const addOrderItems = async (req, res, next) => {
         appliedCoupon: appliedCouponRecord ? appliedCouponRecord.code : undefined,
         coinsUsed: coinsUsedAmount,
         cfOrderId,
+        paymentExpiresAt,
         trackingHistory: [{
           status: 'Placed',
           timestamp: Date.now(),
