@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-lint:
     runs-on: ubuntu-latest
+    env:
+      CI: false
     
     strategy:
       matrix:
