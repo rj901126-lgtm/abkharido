@@ -7,12 +7,15 @@ const logFormat = printf(({ level, message, timestamp, stack }) => {
   return `${timestamp} ${level}: ${stack || message}`;
 });
 
-const fileRotateTransport = new winston.transports.DailyRotateFile({
-  filename: 'logs/abkharido-%DATE%.log',
-  datePattern: 'YYYY-MM-DD',
-  maxFiles: '14d',
-  maxSize: '20m',
-});
+let fileRotateTransport = null;
+if (!process.env.VERCEL) {
+  fileRotateTransport = new winston.transports.DailyRotateFile({
+    filename: 'logs/abkharido-%DATE%.log',
+    datePattern: 'YYYY-MM-DD',
+    maxFiles: '14d',
+    maxSize: '20m',
+  });
+}
 
 const transports = [
   new winston.transports.Console({
@@ -21,7 +24,7 @@ const transports = [
 ];
 
 // Only write logs to disk if we are not running on Vercel Serverless (which is Read-Only)
-if (!process.env.VERCEL) {
+if (!process.env.VERCEL && fileRotateTransport) {
   transports.push(fileRotateTransport);
 }
 
