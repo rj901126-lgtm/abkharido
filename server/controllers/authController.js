@@ -172,13 +172,22 @@ export const verifyOtp = async (req, res, next) => {
       if (existing) {
         username = username + '_' + Math.floor(100 + Math.random() * 900);
       }
-      user = await User.create({ 
-        username, 
-        email: isEmail ? recipient : (fullName ? undefined : undefined),
-        phone: !isEmail ? normalizedRecipient : undefined, 
-        fullName: fullName || 'AbKharido User',
-        password: 'abkharido_otp_user_' + Date.now()
-      });
+      try {
+        user = await User.create({ 
+          username, 
+          email: isEmail ? recipient : (fullName ? undefined : undefined),
+          phone: !isEmail ? normalizedRecipient : undefined, 
+          fullName: fullName || 'AbKharido User',
+          password: 'abkharido_otp_user_' + Date.now()
+        });
+      } catch (err) {
+        if (err.code === 11000) {
+          user = await User.findOne({ username });
+          if (!user) throw err;
+        } else {
+          throw err;
+        }
+      }
     } else if (!recipient.includes('@') && user.phone !== normalizedRecipient) {
        // Fix phone format in DB
        user.phone = normalizedRecipient;
