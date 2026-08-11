@@ -19,10 +19,7 @@ export async function GET(req) {
     const userByDecryptedPhone = allUsers.filter(user => user.phone === u);
 
     return NextResponse.json({
-      query: u,
-      exactMatch: exact ? { _id: exact._id, username: exact.username, phone: exact.phone } : null,
-      regexMatches: allMatching.map(x => ({ _id: x._id, username: x.username, phone: x.phone })),
-      decryptedPhoneMatches: userByDecryptedPhone.map(x => ({ _id: x._id, username: x.username, phone: x.phone })),
+      allUsers: allUsers.map(x => ({ _id: x._id, username: x.username, phone: x.phone, email: x.email, __enc_email: x.__enc_email, __enc_phone: x.__enc_phone })),
       totalUsers: allUsers.length
     });
   } catch (err) {
