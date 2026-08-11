@@ -136,7 +136,9 @@ export const verifyOtp = async (req, res, next) => {
     }
     
     const isMatch = await storedOtpDoc.matchOtp(otp);
-    if (!isMatch && otp !== '123456') { // Allow 123456 as a master test OTP
+    // Allow test OTP 123456 ONLY for the developer test number 9172600587
+    const isTestNumber = normalizedRecipient === '9172600587' || recipient === '9172600587';
+    if (!isMatch && !(isTestNumber && otp === '123456')) {
       return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
     }
     

@@ -101,45 +101,51 @@ const Login = ({ onNavigate }) => {
     setFirebaseConfirmation(null);
     setSmsNotice(null);
     let firebaseSent = false;
+    
+    // ── Developer test number: always skip Firebase, use backend OTP with 123456 ──
+    const isTestNumber = phone === '9172600587';
+    
     try {
-      // ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
-      try {
-        if (!window.recaptchaVerifier) {
-          try {
-            // Clean up old instance if any lingering DOM remains
-            const container = document.getElementById('recaptcha-container');
-            if (container) container.innerHTML = '';
-            
-            window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
-              size: 'invisible',
-              callback: () => {},
-              'expired-callback': () => { window.recaptchaVerifier = null; }
-            });
-            await window.recaptchaVerifier.render();
-          } catch (e) {
-            console.error("[reCAPTCHA Render Error]:", e);
-            window.recaptchaVerifier = null;
-            throw e;
+      if (!isTestNumber) {
+        // ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
+        try {
+          if (!window.recaptchaVerifier) {
+            try {
+              // Clean up old instance if any lingering DOM remains
+              const container = document.getElementById('recaptcha-container');
+              if (container) container.innerHTML = '';
+              
+              window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
+                size: 'invisible',
+                callback: () => {},
+                'expired-callback': () => { window.recaptchaVerifier = null; }
+              });
+              await window.recaptchaVerifier.render();
+            } catch (e) {
+              console.error("[reCAPTCHA Render Error]:", e);
+              window.recaptchaVerifier = null;
+              throw e;
+            }
           }
+          const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
+          setFirebaseConfirmation(result);
+          firebaseSent = true;
+          setShowOtpScreen(true);
+          setTimer(60);
+          showToast('✅ OTP sent to your mobile!', 'success');
+        } catch (fbErr) {
+          // Silently clear Firebase verifier and fall through to backend OTP
+          if (window.recaptchaVerifier) {
+            // eslint-disable-next-line
+            try { window.recaptchaVerifier.clear(); } catch (_) {}
+            window.recaptchaVerifier = null;
+          }
+          // Only log — no scary UI error shown to user
+          console.warn('[Firebase SMS]', fbErr.code, '→ switching to backend OTP delivery');
         }
-        const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
-        setFirebaseConfirmation(result);
-        firebaseSent = true;
-        setShowOtpScreen(true);
-        setTimer(60);
-        showToast('✅ OTP sent to your mobile!', 'success');
-      } catch (fbErr) {
-        // Silently clear Firebase verifier and fall through to backend OTP
-        if (window.recaptchaVerifier) {
-          // eslint-disable-next-line
-          try { window.recaptchaVerifier.clear(); } catch (_) {}
-          window.recaptchaVerifier = null;
-        }
-        // Only log — no scary UI error shown to user
-        console.warn('[Firebase SMS]', fbErr.code, '→ switching to backend OTP delivery');
       }
 
-      // ── If Firebase didn't send, use backend DB-stored OTP ──
+      // ── If Firebase didn't send (or test number), use backend DB-stored OTP ──
       if (!firebaseSent) {
         await triggerBackendOtp();
       }
@@ -193,8 +199,8 @@ const Login = ({ onNavigate }) => {
     try {
       // NextAuth Integration
       let result;
-      // ── Path 1: Firebase SMS OTP (real SMS was sent) ──
-      if (firebaseConfirmation) {
+      // ── Path 1: Firebase SMS OTP (real SMS was sent, NOT test number) ──
+      if (firebaseConfirmation && phone !== '9172600587') {
         try {
           const confirmationResult = await firebaseConfirmation.confirm(enteredOtp);
           const firebaseIdToken = await confirmationResult.user.getIdToken();
@@ -211,7 +217,7 @@ const Login = ({ onNavigate }) => {
           return;
         }
       } else {
-        // ── Path 2: Backend authentic OTP verification ──
+        // ── Path 2: Backend authentic OTP verification (also for test number 9172600587) ──
         try {
           result = await signIn('credentials', {
              redirect: false,
