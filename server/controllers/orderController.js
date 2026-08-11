@@ -14,6 +14,7 @@ import redisClient from '../config/redis.js';
 // @access  Private
 export const addOrderItems = async (req, res, next) => {
   let deductedStockTracker = [];
+  let appliedCouponRecord = null;
   try {
     const {
       cart,
@@ -107,7 +108,6 @@ export const addOrderItems = async (req, res, next) => {
     // The fix: combine the READ + all condition checks + the WRITE into ONE atomic
     // MongoDB operation. MongoDB processes findOneAndUpdate as a single document-level
     // lock. Only ONE of the 3 concurrent requests can win — the others get null.
-    let appliedCouponRecord = null;
     let discountAmount = 0;
     if (couponCode) {
       const now = new Date();
