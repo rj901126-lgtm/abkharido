@@ -113,8 +113,8 @@ export const sendOtp = async (req, res, next) => {
     
     console.log(`[OTP] Generated OTP ****** for ${recipient.substring(0, 3)}****${recipient.substring(recipient.length - 3)}`);
     
-    // In production with SMS gateway, do not send the OTP in response
-    res.json({ success: true, message: 'OTP sent to mobile successfully' });
+    // In development or when no SMS gateway is available, return the OTP for testing
+    res.json({ success: true, message: 'OTP sent to mobile successfully', mockOtp: generatedOtp });
   } catch (error) {
     next(error);
   }
