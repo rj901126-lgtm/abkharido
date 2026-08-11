@@ -150,6 +150,54 @@ export const AppProvider = ({ children }) => {
 
   const initializedForUser = useRef(null);
   const wishlistInitializedForUser = useRef(null);
+  const lastVisibilitySyncAt = useRef(0);
+
+  // --- Cross-Device Visibility Sync ---
+  // When user switches back to this tab/app (from another device session or tab),
+  // silently re-fetch cart and wishlist from backend without any page reload.
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== 'visible') return;
+
+      const token = currentUser?.token;
+      if (!token) return;
+
+      // Throttle: don't sync more than once every 30 seconds
+      const now = Date.now();
+      if (now - lastVisibilitySyncAt.current < 30_000) return;
+      lastVisibilitySyncAt.current = now;
+
+      try {
+        // Silently fetch fresh cart from backend
+        const cartRes = await fetch('/api/cart', {
+          headers: { 'Authorization': `Bearer ${token}` },
+          cache: 'no-store'
+        });
+        if (cartRes.ok) {
+          const freshCart = await cartRes.json();
+          setCart(freshCart);
+          safeSetItem('abkharido_cached_cart', JSON.stringify(freshCart));
+        }
+      } catch (e) { /* silent fail — user doesn't see anything */ }
+
+      try {
+        // Silently fetch fresh wishlist from backend
+        const wlRes = await fetch('/api/wishlist', {
+          headers: { 'Authorization': `Bearer ${token}` },
+          cache: 'no-store'
+        });
+        if (wlRes.ok) {
+          const freshWishlist = await wlRes.json();
+          setWishlist(freshWishlist);
+          safeSetItem('abkharido_cached_wishlist', JSON.stringify(freshWishlist));
+        }
+      } catch (e) { /* silent fail */ }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    // eslint-disable-next-line
+  }, [currentUser?.token]);
 
   // --- Sync Temporary Cart details ---
   useEffect(() => {
