@@ -24,6 +24,10 @@ const Login = ({ onNavigate }) => {
   const [isSending, setIsSending] = useState(false);
   const [firebaseConfirmation, setFirebaseConfirmation] = useState(null); // Firebase SMS result
   const [smsNotice, setSmsNotice] = useState(null); // SMS Gateway diagnostics notice
+  const isVerifyingRef = useRef(false);
+
+  // Focus management
+  const otpRefs = useRef([]);
 
   useEffect(() => {
     if (currentUser) onNavigate('home');
@@ -183,6 +187,8 @@ const Login = ({ onNavigate }) => {
       showToast('Please enter all 6 digits.', 'error');
       return;
     }
+    if (isVerifyingRef.current) return;
+    isVerifyingRef.current = true;
     setIsVerifying(true);
     try {
       // NextAuth Integration
@@ -230,6 +236,7 @@ const Login = ({ onNavigate }) => {
     } catch (err) {
       showToast('Verification failed. Try again.', 'error');
     } finally {
+      isVerifyingRef.current = false;
       setIsVerifying(false);
     }
   };
