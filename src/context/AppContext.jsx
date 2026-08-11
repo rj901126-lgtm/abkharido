@@ -476,17 +476,26 @@ export const AppProvider = ({ children }) => {
       return;
     }
     setWishlist(prev => {
-      const exists = prev.includes(productId);
+      // Handle both slug-based IDs and MongoDB ObjectIds for comparison
+      const exists = prev.some(id => {
+        const idStr = (id?.id || id?.toString() || id);
+        return idStr === productId || idStr === productId?.toString();
+      });
       if (exists) {
         showToast('Removed from Wishlist!', 'info');
-        return prev.filter(id => id !== productId);
+        return prev.filter(id => {
+          const idStr = (id?.id || id?.toString() || id);
+          return idStr !== productId && idStr !== productId?.toString();
+        });
       } else {
         showToast('Added to Wishlist!', 'success');
         return [...prev, productId];
       }
     });
     
-    dispatchDeltaSync('wishlist', { action: 'toggle', productId }, setWishlist);
+    // Sync to backend but DON'T overwrite local slug-based state with ObjectIds from response
+    // Pass null stateSetter for wishlist so local state stays intact after sync
+    dispatchDeltaSync('wishlist', { action: 'toggle', productId }, null);
   };
 
   const fetchStats = async () => {
@@ -540,7 +549,7 @@ export const AppProvider = ({ children }) => {
         // logout(); // Removed: Do not abruptly log out user on background sync failures
         return;
       }
-      if (res.ok) {
+      if (res.ok && stateSetter) {
         const data = await res.json();
         if (data[endpoint]) stateSetter(data[endpoint]); // Updates with merged DB state
       }

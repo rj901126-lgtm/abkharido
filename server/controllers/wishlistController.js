@@ -7,7 +7,7 @@ import Product from '../models/Product.js';
 export const getWishlist = async (req, res, next) => {
   try {
     console.log(`[WISHLIST GET INIT] User: ${req.user._id}`);
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id).populate('wishlist', 'id _id');
     
     // Set headers to explicitly prevent Vercel Edge caching
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -19,10 +19,11 @@ export const getWishlist = async (req, res, next) => {
       throw new Error('User not found');
     }
 
-    // The frontend expects an array of product ID strings
+    // Return product slugs (the `id` field) so frontend can match with product.id
+    // If product was deleted or slug not found, fall back to ObjectId string
     const formattedWishlist = user.wishlist
       .filter(item => item != null)
-      .map(item => item.toString());
+      .map(item => item.id || item._id?.toString() || item.toString());
 
     console.log(`[WISHLIST GET SUCCESS] User: ${req.user._id} | Fetched ${formattedWishlist.length} items`);
     res.json(formattedWishlist);
@@ -106,16 +107,11 @@ export const syncWishlist = async (req, res, next) => {
     
     await user.save();
 
-    // Return the latest DB state (just an array of string ObjectIds/Slugs)
-    // Wait, the frontend `wishlist` array is just an array of IDs!
-    // But it's an array of slugs if added locally, and ObjectIds if from backend?
-    // The frontend `getWishlist` endpoint currently returns what? Let's check getWishlist.
-    // getWishlist populates and maps to just the `id`. 
-    // Actually getWishlist does: res.json(user.wishlist.map(item => item._id));
-    // Let's just return the user.wishlist as is, so the frontend receives the populated IDs.
-
-    await user.populate('wishlist');
-    const returnedWishlist = user.wishlist.map(item => item.id || item._id);
+    // Populate and return product slugs so frontend can match with product.id (slug)
+    await user.populate('wishlist', 'id _id');
+    const returnedWishlist = user.wishlist
+      .filter(item => item != null)
+      .map(item => item.id || item._id?.toString() || item.toString());
 
     console.log(`[WISHLIST SYNC SUCCESS] Returned ${returnedWishlist.length} items to frontend.`);
     res.json({ success: true, wishlist: returnedWishlist });
