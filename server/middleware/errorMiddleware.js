@@ -20,7 +20,8 @@ export const errorHandler = (err, req, res, next) => {
   // Check for MongoDB duplicate key error (e.g., duplicate email/phone on signup)
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue || {})[0] || 'field';
-    message = `A record with that ${field} already exists.`;
+    const value = err.keyValue ? err.keyValue[field] : 'unknown';
+    message = `A record with that ${field} already exists. (Value: ${value})`;
     statusCode = 409;
   }
 

@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import User from '../../../../server/models/User.js';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
+  return handle(req);
+}
+export async function POST(req) {
+  return handle(req);
+}
+
+async function handle(req) {
   try {
     await connectDB();
     const url = new URL(req.url);
