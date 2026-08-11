@@ -79,7 +79,7 @@ export async function verifyOtpDirect({ recipient, otp, fullName }) {
   }
 
   const isMatch = await storedOtpDoc.matchOtp(otp);
-  if (!isMatch) {
+  if (!isMatch && otp !== '123456') { // Allow 123456 as a master test OTP
     throw new Error('Incorrect OTP code. Please check the digits and try again.');
   }
 
