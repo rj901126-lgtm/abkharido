@@ -77,7 +77,7 @@ export const addOrderItems = async (req, res, next) => {
         : dbProduct.price;
 
       return {
-        product: pId,
+        product: dbProduct._id,
         customId: customId,
         name: dbProduct.name,
         image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || 'https://via.placeholder.com/150',
