@@ -95,6 +95,9 @@ export async function verifyOtpDirect({ recipient, otp, fullName }) {
       { phone: normalizedRecipient },
       { phone: '+91' + normalizedRecipient },
       { phone: '91' + normalizedRecipient },
+      { username: new RegExp('^' + normalizedRecipient + '(_|$)') },
+      { username: new RegExp('^\\+91' + normalizedRecipient + '(_|$)') },
+      { username: new RegExp('^91' + normalizedRecipient + '(_|$)') }
     ] });
   }
 

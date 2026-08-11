@@ -158,7 +158,11 @@ export const verifyOtp = async (req, res, next) => {
       { phone: recipient },
       { phone: normalizedRecipient },
       { phone: '+91' + normalizedRecipient },
-      { phone: '91' + normalizedRecipient }
+      { phone: '91' + normalizedRecipient },
+      // Search by username since phone might be encrypted
+      { username: new RegExp('^' + normalizedRecipient + '(_|$)') },
+      { username: new RegExp('^\\+91' + normalizedRecipient + '(_|$)') },
+      { username: new RegExp('^91' + normalizedRecipient + '(_|$)') }
     ] });
     
     if (!user) {
