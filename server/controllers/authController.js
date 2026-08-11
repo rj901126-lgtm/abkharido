@@ -143,22 +143,42 @@ export const verifyOtp = async (req, res, next) => {
     // OTP is valid — delete it to prevent reuse
     await Otp.deleteMany({ phone: recipient });
     
+    // Normalize phone to catch all formats
+    let normalizedRecipient = recipient;
+    if (!recipient.includes('@')) {
+       normalizedRecipient = recipient.replace(/\D/g, '');
+       if (normalizedRecipient.startsWith('91') && normalizedRecipient.length === 12) {
+         normalizedRecipient = normalizedRecipient.slice(2);
+       }
+    }
+    
     // create or find user
-    let user = await User.findOne({ $or: [{ email: recipient }, { phone: recipient }] });
+    let user = await User.findOne({ $or: [
+      { email: recipient }, 
+      { phone: recipient },
+      { phone: normalizedRecipient },
+      { phone: '+91' + normalizedRecipient },
+      { phone: '91' + normalizedRecipient }
+    ] });
+    
     if (!user) {
       const isEmail = recipient.includes('@');
-      let username = isEmail ? recipient.split('@')[0] : recipient.replace(/\D/g, '');
+      let username = isEmail ? recipient.split('@')[0] : normalizedRecipient;
       const existing = await User.findOne({ username });
-      if (existing && isEmail) {
-        username = username + Math.floor(Math.random() * 1000);
+      if (existing) {
+        username = username + '_' + Math.floor(100 + Math.random() * 900);
       }
       user = await User.create({ 
         username, 
         email: isEmail ? recipient : (fullName ? undefined : undefined),
-        phone: !isEmail ? recipient : undefined, 
+        phone: !isEmail ? normalizedRecipient : undefined, 
         fullName: fullName || 'AbKharido User',
         password: 'abkharido_otp_user_' + Date.now()
       });
+    } else if (!recipient.includes('@') && user.phone !== normalizedRecipient) {
+       // Fix phone format in DB
+       user.phone = normalizedRecipient;
+       await user.save();
     }
     // Update fullName/email if provided during signup
     if (fullName && !user.fullName) {
