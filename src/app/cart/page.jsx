@@ -9,12 +9,13 @@ export default function Page() {
   const router = useRouter();
   const { currentUser, showToast } = useApp();
 
-  const handleCheckout = () => {
+  const handleCheckout = (useCoinsDiscount) => {
+    const checkoutUrl = useCoinsDiscount ? '/checkout?coins=true' : '/checkout';
     if (!currentUser) {
       showToast('Please login to proceed to checkout', 'info');
-      router.push('/login?redirect=/checkout');
+      router.push('/login?redirect=' + encodeURIComponent(checkoutUrl));
     } else {
-      router.push('/checkout');
+      router.push(checkoutUrl);
     }
   };
 
