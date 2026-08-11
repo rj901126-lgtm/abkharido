@@ -8,7 +8,7 @@
     "server": "node server.js",
     "start": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "next build",
-    "lint": "oxlint"
+    "lint": "npx oxlint@latest"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -52,7 +52,6 @@
   "devDependencies": {
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "concurrently": "^10.0.3",
-    "oxlint": "^1.71.0"
+    "concurrently": "^10.0.3"
   }
 }
