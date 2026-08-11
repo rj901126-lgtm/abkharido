@@ -78,7 +78,8 @@ export const AppProvider = ({ children }) => {
 
   const [cart, setCart] = useState(() => {
     try {
-      const saved = localStorage.getItem('abkharido_cart');
+      const isLoggedIn = !!localStorage.getItem('abkharido_user_session');
+      const saved = localStorage.getItem(isLoggedIn ? 'abkharido_cached_cart' : 'abkharido_cart');
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
@@ -104,7 +105,8 @@ export const AppProvider = ({ children }) => {
 
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem('abkharido_wishlist');
+      const isLoggedIn = !!localStorage.getItem('abkharido_user_session');
+      const saved = localStorage.getItem(isLoggedIn ? 'abkharido_cached_wishlist' : 'abkharido_wishlist');
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
@@ -124,6 +126,8 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (!currentUser?.token) {
       safeSetItem('abkharido_wishlist', JSON.stringify(wishlist));
+    } else {
+      safeSetItem('abkharido_cached_wishlist', JSON.stringify(wishlist));
     }
   }, [wishlist, currentUser?.token]);
 
@@ -151,6 +155,8 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (!currentUser?.token) {
       safeSetItem('abkharido_cart', JSON.stringify(cart));
+    } else {
+      safeSetItem('abkharido_cached_cart', JSON.stringify(cart));
     }
   }, [cart, currentUser?.token]);
 
@@ -161,15 +167,20 @@ export const AppProvider = ({ children }) => {
       if (token) {
         try {
           // If user had a local (guest) cart before logging in, merge it into their DB cart first
-          const localCart = cart;
-          if (localCart && localCart.length > 0) {
+          let guestCart = null;
+          try {
+            const saved = localStorage.getItem('abkharido_cart');
+            if (saved) guestCart = JSON.parse(saved);
+          } catch(e) {}
+          
+          if (guestCart && guestCart.length > 0) {
             await fetch(`/api/cart/sync`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
-              body: JSON.stringify({ cart: localCart, merge: true })
+              body: JSON.stringify({ cart: guestCart, merge: true })
             }).then(() => {
               localStorage.removeItem('abkharido_cart');
             }).catch(err => console.error('Guest cart sync failed', err));
@@ -189,7 +200,7 @@ export const AppProvider = ({ children }) => {
           if (res.ok) {
             const backendCart = await res.json();
             setCart(backendCart);
-            safeSetItem('abkharido_cart', JSON.stringify(backendCart));
+            safeSetItem('abkharido_cached_cart', JSON.stringify(backendCart));
           }
         } catch (err) {
           console.error('Failed to fetch backend cart:', err);
@@ -214,15 +225,20 @@ export const AppProvider = ({ children }) => {
         if (wishlistInitializedForUser.current === token) return;
         try {
           // If user had a local (guest) wishlist before logging in, merge it into their DB wishlist first
-          const localWishlist = wishlist;
-          if (localWishlist && localWishlist.length > 0) {
+          let guestWishlist = null;
+          try {
+            const saved = localStorage.getItem('abkharido_wishlist');
+            if (saved) guestWishlist = JSON.parse(saved);
+          } catch(e) {}
+          
+          if (guestWishlist && guestWishlist.length > 0) {
             await fetch(`/api/wishlist/sync`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
-              body: JSON.stringify({ wishlist: localWishlist, merge: true })
+              body: JSON.stringify({ wishlist: guestWishlist, merge: true })
             }).then(() => {
               localStorage.removeItem('abkharido_wishlist');
             }).catch(err => console.error('Guest wishlist sync failed', err));
@@ -240,7 +256,7 @@ export const AppProvider = ({ children }) => {
           if (res.ok) {
             const backendWishlist = await res.json();
             setWishlist(backendWishlist);
-            safeSetItem('abkharido_wishlist', JSON.stringify(backendWishlist));
+            safeSetItem('abkharido_cached_wishlist', JSON.stringify(backendWishlist));
           }
         } catch (err) {
           console.error('Failed to fetch backend wishlist:', err);
@@ -595,7 +611,9 @@ export const AppProvider = ({ children }) => {
     wishlistInitializedForUser.current = null;
     localStorage.removeItem('abkharido_user_session');
     localStorage.removeItem('abkharido_cart');
+    localStorage.removeItem('abkharido_cached_cart');
     localStorage.removeItem('abkharido_wishlist');
+    localStorage.removeItem('abkharido_cached_wishlist');
     setLocalSession(null);
     setOrders([]);
     setCart([]);
