@@ -28,8 +28,13 @@ async function handle(req) {
     const userByDecryptedPhone = allUsers.filter(user => user.phone === u);
 
     const indexes = await User.collection.indexes();
+    let testFind = null;
+    if (u) {
+      testFind = await User.findOne({ phone: u });
+    }
+
     return NextResponse.json({
-      indexes,
+      testFind,
       allUsers: allUsers.map(x => ({ _id: x._id, username: x.username, phone: x.phone, email: x.email, __enc_email: x.__enc_email, __enc_phone: x.__enc_phone })),
       totalUsers: allUsers.length
     });
