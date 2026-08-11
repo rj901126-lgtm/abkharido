@@ -18,7 +18,9 @@ export async function GET(req) {
     const allUsers = await User.find({}).lean();
     const userByDecryptedPhone = allUsers.filter(user => user.phone === u);
 
+    const indexes = await User.collection.indexes();
     return NextResponse.json({
+      indexes,
       allUsers: allUsers.map(x => ({ _id: x._id, username: x.username, phone: x.phone, email: x.email, __enc_email: x.__enc_email, __enc_phone: x.__enc_phone })),
       totalUsers: allUsers.length
     });
