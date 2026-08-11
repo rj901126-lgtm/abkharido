@@ -327,6 +327,10 @@ export const addOrderItems = async (req, res, next) => {
           user.state = mappedShippingAddress.state || '';
           profileUpdated = true;
         }
+        // Bug Fix: Prevent E11000 dup key errors on sparse encrypted fields
+        if (user.email === '') { user.email = undefined; profileUpdated = true; }
+        if (user.phone === '') { user.phone = undefined; profileUpdated = true; }
+        
         if (profileUpdated) {
           await user.save();
         }

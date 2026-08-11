@@ -84,12 +84,24 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Pre-save hook to handle empty strings for sparse unique indexes
+userSchema.pre('save', function(next) {
+  if (this.email === '') {
+    this.email = undefined;
+  }
+  if (this.phone === '') {
+    this.phone = undefined;
+  }
+  next();
+});
+
 // Hash password before saving
-userSchema.pre('save', async function() {
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return;
   
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 // Match password method
