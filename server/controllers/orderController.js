@@ -95,8 +95,10 @@ export const addOrderItems = async (req, res, next) => {
     let totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
     
     let coinsUsedAmount = 0;
-    if (useCoinsDiscount) {
-       coinsUsedAmount = 50;
+    const currentUserForCoins = await User.findById(req.user._id).select('walletCoins');
+    if (useCoinsDiscount && currentUserForCoins) {
+       const userCoins = currentUserForCoins.walletCoins || 0;
+       coinsUsedAmount = Math.min(userCoins, itemsPrice);
        totalPrice = round2(Math.max(0, totalPrice - coinsUsedAmount)); 
     }
 
@@ -338,12 +340,15 @@ export const addOrderItems = async (req, res, next) => {
       // Add to enterprise background queue (Phase 2)
       await addOrderToQueue(createdOrder._id);
 
-      // ── ATOMIC CART CLEAR (Bug 3: Orphaned Cart) ──
+      // ── ATOMIC CART CLEAR & COIN DEDUCTION ──
       // Clear the server-side cart ONLY after the order is fully confirmed in the DB.
-      // This prevents the race condition where payment fails but the cart is already gone.
+      // Also deduct any coins that were used in this order.
       await User.updateOne(
         { _id: req.user._id },
-        { $set: { cart: [], cartUpdatedAt: new Date() } }
+        { 
+          $set: { cart: [], cartUpdatedAt: new Date() },
+          $inc: { walletCoins: -coinsUsedAmount }
+        }
       );
 
       res.status(201).json(createdOrder);
