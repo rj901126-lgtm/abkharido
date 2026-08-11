@@ -183,7 +183,17 @@ export const verifyOtp = async (req, res, next) => {
       } catch (err) {
         if (err.code === 11000) {
           user = await User.findOne({ username });
-          if (!user) throw err;
+          if (!user) {
+             // Ultimate fallback to prevent locking user out in case of orphaned index or Mongoose bug
+             const fallbackUsername = username + '_otp_' + Date.now();
+             user = await User.create({ 
+               username: fallbackUsername, 
+               email: isEmail ? recipient : (fullName ? undefined : undefined),
+               phone: !isEmail ? normalizedRecipient : undefined, 
+               fullName: fullName || 'AbKharido User',
+               password: 'abkharido_otp_user_' + Date.now()
+             });
+          }
         } else {
           throw err;
         }
@@ -229,20 +239,42 @@ export const verifyFirebase = async (req, res, next) => {
       throw new Error('Phone number is required from Firebase payload');
     }
 
-    let user = await User.findOne({ phone });
+    let user = await User.findOne({ $or: [
+      { phone },
+      { phone: phone.replace('+', '').trim() },
+      { username: new RegExp('^' + phone.replace('+', '').trim() + '(_|$)') }
+    ]});
     
     if (!user) {
       if (!isSignup) {
         // If not signup, maybe they just haven't set up a profile, let's auto-create
       }
-      const username = phone.replace('+', '').trim();
-      user = await User.create({ 
-        username, 
-        phone, 
-        email: email || undefined, 
-        fullName: fullName || 'New User',
-        password: 'FirebaseVerifiedUser123!' 
-      });
+      let username = phone.replace('+', '').trim();
+      try {
+        user = await User.create({ 
+          username, 
+          phone, 
+          email: email || undefined, 
+          fullName: fullName || 'New User',
+          password: 'FirebaseVerifiedUser123!' 
+        });
+      } catch (err) {
+        if (err.code === 11000) {
+          user = await User.findOne({ username });
+          if (!user) {
+            // Ultimate fallback to prevent locking user out
+            user = await User.create({
+              username: username + '_fb_' + Date.now(),
+              phone,
+              email: email || undefined,
+              fullName: fullName || 'New User',
+              password: 'FirebaseVerifiedUser123!'
+            });
+          }
+        } else {
+          throw err;
+        }
+      }
     }
 
     res.json({ 
