@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Order from '../models/Order.js';
+import mongoose from 'mongoose';
 
 // @desc    Get user profile by username or id
 // @route   GET /api/users/:username
@@ -102,6 +103,25 @@ export const updateUserProfile = async (req, res, next) => {
       if (req.body.city) user.city = req.body.city;
       if (req.body.state) user.state = req.body.state;
       if (req.body.isEmailVerified !== undefined) user.isEmailVerified = req.body.isEmailVerified;
+      
+      // Bug Fix: Prevent E11000 dup key errors on sparse encrypted fields
+      let unsetQuery = {};
+      if (user.email === '') {
+        unsetQuery.email = "";
+        unsetQuery.__enc_email = "";
+        user.email = undefined;
+      }
+      if (user.phone === '') {
+        unsetQuery.phone = "";
+        unsetQuery.__enc_phone = "";
+        user.phone = undefined;
+      }
+      if (Object.keys(unsetQuery).length > 0) {
+        await mongoose.connection.db.collection('users').updateOne(
+          { _id: user._id },
+          { $unset: unsetQuery }
+        );
+      }
       
       const updatedUser = await user.save();
       res.json(updatedUser);

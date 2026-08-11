@@ -344,8 +344,27 @@ export const addOrderItems = async (req, res, next) => {
           profileUpdated = true;
         }
         // Bug Fix: Prevent E11000 dup key errors on sparse encrypted fields
-        if (user.email === '') { user.email = undefined; profileUpdated = true; }
-        if (user.phone === '') { user.phone = undefined; profileUpdated = true; }
+        // 1. Manually clean the database to bypass mongoose-field-encryption re-encryption bugs
+        let unsetQuery = {};
+        if (user.email === '') {
+          unsetQuery.email = "";
+          unsetQuery.__enc_email = "";
+          user.email = undefined;
+          profileUpdated = true;
+        }
+        if (user.phone === '') {
+          unsetQuery.phone = "";
+          unsetQuery.__enc_phone = "";
+          user.phone = undefined;
+          profileUpdated = true;
+        }
+        
+        if (Object.keys(unsetQuery).length > 0) {
+          await mongoose.connection.db.collection('users').updateOne(
+            { _id: user._id },
+            { $unset: unsetQuery }
+          );
+        }
         
         if (profileUpdated) {
           await user.save();
