@@ -400,7 +400,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           className="btn btn-accent btn-lg cart-checkout-btn-desktop" 
           onClick={() => onCheckout(useCoinsDiscount)}
         >
-          // eslint-disable-next-line
+          {/* eslint-disable-next-line */}
           <Lock size={18} /> PLACE ORDER
         </button>
 
