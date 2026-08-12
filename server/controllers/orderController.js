@@ -104,10 +104,10 @@ export const addOrderItems = async (req, res, next) => {
 
     const round2 = (num) => Math.round(num * 100) / 100;
 
-    // Calculate Prices dynamically
+    // Calculate Prices dynamically to MATCH FRONTEND (Checkout.jsx / CartPage.jsx)
     const itemsPrice = round2(orderItems.reduce((acc, item) => acc + item.price * item.qty, 0));
-    const shippingPrice = itemsPrice > 500 ? 0 : 50; 
-    const taxPrice = round2(0.18 * itemsPrice);
+    const shippingPrice = itemsPrice > 500 ? 0 : 40; // Matched with frontend's 40
+    const taxPrice = 0; // Frontend does not calculate or charge tax
     let totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
     
     let coinsUsedAmount = 0;
