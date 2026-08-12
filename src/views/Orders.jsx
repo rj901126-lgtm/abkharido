@@ -31,6 +31,7 @@ const Orders = ({ onNavigate }) => {
   const [orderToCancel, setOrderToCancel] = useState(null);
   const [orderToReturn, setOrderToReturn] = useState(null); 
   const [returnReason, setReturnReason] = useState('');
+  const [isFetching, setIsFetching] = useState(false);
 
   // Debounce search input
   React.useEffect(() => {
@@ -44,8 +45,11 @@ const Orders = ({ onNavigate }) => {
   React.useEffect(() => {
     if (currentUser) {
       setCurrentPage(1);
-      // eslint-disable-next-line
-      fetchOrders(currentUser.username || currentUser.email, 1, debouncedSearch, statusFilter, timeFilter);
+      setIsFetching(true);
+      // fetchOrders returns a Promise if we wait for it, wait, it's async so we can await or .finally
+      // Actually fetchOrders in AppContext is async but doesn't return anything. Still, we can await it.
+      fetchOrders(currentUser.username || currentUser.email, 1, debouncedSearch, statusFilter, timeFilter)
+        .finally(() => setIsFetching(false));
     }
   }, [currentUser, debouncedSearch, statusFilter, timeFilter]);
 
@@ -195,7 +199,15 @@ const Orders = ({ onNavigate }) => {
         )}
       </div>
 
-      {orders.length === 0 ? (
+      {isFetching ? (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          padding: '80px 20px', textAlign: 'center',
+        }}>
+          <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
+          <div style={{ color: '#64748b', fontWeight: '600' }}>Fetching latest orders...</div>
+        </div>
+      ) : orders.length === 0 ? (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           padding: '40px 20px 120px 20px', textAlign: 'center',

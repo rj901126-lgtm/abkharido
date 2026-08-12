@@ -717,63 +717,164 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
         {/* AB Rewards Hub Section */}
         {activeTab === 'rewards' && (
-          <div className="animate-fade-in" style={{ background: 'white', padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', marginBottom: '24px' }}>
+          <div className="animate-fade-in" style={{ padding: '0px', display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px' }}>
+            <style>
+              {`
+                @keyframes holographic-shine {
+                  0% { background-position: -200% 50%; }
+                  100% { background-position: 200% 50%; }
+                }
+                @keyframes mesh-pulse {
+                  0% { transform: scale(1) translate(0, 0); opacity: 0.15; }
+                  50% { transform: scale(1.2) translate(10px, -10px); opacity: 0.25; }
+                  100% { transform: scale(1) translate(0, 0); opacity: 0.15; }
+                }
+                .premium-wallet-card {
+                  background: linear-gradient(135deg, #09090b 0%, #171717 100%);
+                  position: relative;
+                  overflow: hidden;
+                  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.1);
+                  transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                .premium-wallet-card:hover {
+                  transform: translateY(-5px);
+                  box-shadow: 0 35px 60px -15px rgba(245, 158, 11, 0.2), inset 0 1px 1px rgba(255,255,255,0.15);
+                }
+                .wallet-shine-overlay {
+                  position: absolute;
+                  top: 0; left: 0; right: 0; bottom: 0;
+                  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.08) 25%, transparent 30%);
+                  background-size: 200% auto;
+                  animation: holographic-shine 6s linear infinite;
+                  z-index: 2;
+                  pointer-events: none;
+                }
+                .glass-action-card {
+                  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                  border: 1px solid rgba(255,255,255,0.8);
+                  box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05), inset 0 2px 5px rgba(255,255,255,1);
+                  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                  position: relative;
+                  overflow: hidden;
+                }
+                .glass-action-card:hover {
+                  transform: translateY(-8px);
+                  box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.15), inset 0 2px 5px rgba(255,255,255,1);
+                  border-color: rgba(79, 70, 229, 0.2);
+                }
+                .action-arrow-btn {
+                  transition: transform 0.2s ease;
+                }
+                .glass-action-card:hover .action-arrow-btn {
+                  transform: translateX(4px);
+                }
+              `}
+            </style>
             
-            {/* Digital Wallet Card */}
-            <div style={{ background: 'linear-gradient(135deg, #27272a, #09090b)', borderRadius: '20px', padding: '32px', color: 'white', position: 'relative', overflow: 'hidden', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)' }}>
-              {/* Decorative background glows */}
-              <div style={{ position: 'absolute', top: '-50%', right: '-20%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(245,158,11,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
-              <div style={{ position: 'absolute', bottom: '-50%', left: '-20%', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(234,88,12,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
+            {/* Ultra Premium Obsidian Wallet Card */}
+            <div className="premium-wallet-card" style={{ borderRadius: '28px', padding: '36px', color: 'white' }}>
+              <div className="wallet-shine-overlay"></div>
+              
+              {/* Animated mesh gradients */}
+              <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(245,158,11,0.2) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%', animation: 'mesh-pulse 8s ease-in-out infinite alternate', zIndex: 1 }}></div>
+              <div style={{ position: 'absolute', bottom: '-30%', left: '-10%', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%', animation: 'mesh-pulse 10s ease-in-out infinite alternate-reverse', zIndex: 1 }}></div>
               
               <div style={{ position: 'relative', zIndex: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.9 }}>
-                    <div style={{ background: 'linear-gradient(135deg, #fef3c7, #fde68a)', color: '#b45309', padding: '6px', borderRadius: '50%' }}>
-                      <Coins size={20} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)', color: '#ffffff', padding: '10px', borderRadius: '12px', boxShadow: '0 8px 16px rgba(245, 158, 11, 0.3), inset 0 2px 4px rgba(255,255,255,0.4)' }}>
+                      <Coins size={24} strokeWidth={2.5} />
                     </div>
-                    <span style={{ fontSize: '16px', fontWeight: '600', letterSpacing: '1px', textTransform: 'uppercase' }}>AB Coin Wallet</span>
+                    <div>
+                      <span style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '1px', background: 'linear-gradient(to right, #fef3c7, #fde68a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'block' }}>AB Coin Wallet</span>
+                      <span style={{ fontSize: '12px', color: '#a1a1aa', fontWeight: '500', letterSpacing: '2px', textTransform: 'uppercase' }}>Rewards Hub</span>
+                    </div>
                   </div>
-                  <div style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: '20px', fontSize: '12px', fontWeight: '600', backdropFilter: 'blur(10px)' }}>
-                    VIP MEMBER
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ fontSize: '14px', color: '#a1a1aa' }}>Available Balance</div>
-                  <div style={{ fontSize: '48px', fontWeight: '900', background: 'linear-gradient(to right, #fde68a, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>
-                    {currentUser.walletCoins?.toLocaleString('en-IN') || 0} <span style={{ fontSize: '24px', opacity: 0.8 }}>Coins</span>
+                  <div style={{ padding: '6px 16px', background: 'linear-gradient(135deg, rgba(251,191,36,0.2) 0%, rgba(180,83,9,0.2) 100%)', border: '1px solid rgba(251,191,36,0.4)', borderRadius: '100px', fontSize: '12px', fontWeight: '800', color: '#fde68a', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <ShieldCheck size={14} /> VIP MEMBER
                   </div>
                 </div>
 
-                <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#a1a1aa', marginBottom: '4px' }}>Equivalent Value</div>
-                    <div style={{ fontSize: '16px', fontWeight: '700' }}>₹{currentUser.walletCoins?.toLocaleString('en-IN') || 0}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingBottom: '32px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ fontSize: '13px', color: '#a1a1aa', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>Available Balance</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontSize: '64px', fontWeight: '900', background: 'linear-gradient(to bottom, #ffffff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: '1', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))' }}>
+                      {currentUser.walletCoins?.toLocaleString('en-IN') || 0}
+                    </span>
+                    <span style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b', textShadow: '0 2px 10px rgba(245,158,11,0.4)' }}>Coins</span>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '12px', color: '#a1a1aa', marginBottom: '4px' }}>Lifetime Earned</div>
-                    <div style={{ fontSize: '16px', fontWeight: '700' }}>{((currentUser.walletCoins || 0) + (currentUser.totalSpent || 0) * 0.05).toLocaleString('en-IN')}</div>
+                </div>
+
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                  <div style={{ display: 'flex', gap: '32px' }}>
+                    <div>
+                      <div style={{ fontSize: '12px', color: '#71717a', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Equivalent Value</div>
+                      <div style={{ fontSize: '18px', fontWeight: '800', color: '#e4e4e7' }}>₹{currentUser.walletCoins?.toLocaleString('en-IN') || 0}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: '#71717a', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Lifetime Earned</div>
+                      <div style={{ fontSize: '18px', fontWeight: '800', color: '#e4e4e7' }}>{((currentUser.walletCoins || 0) + (currentUser.totalSpent || 0) * 0.05).toLocaleString('en-IN')}</div>
+                    </div>
                   </div>
+                  <button onClick={() => onNavigate('home')} style={{ background: 'white', color: '#09090b', border: 'none', padding: '12px 28px', borderRadius: '100px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255,255,255,0.2)', transition: 'transform 0.2s' }}>
+                    Redeem Now
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* How to Earn */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
-              <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-                <div style={{ background: '#e0e7ff', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5', marginBottom: '16px' }}>
-                  <ShoppingBag size={24} />
-                </div>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#0f172a' }}>Shop & Earn</h4>
-                <p style={{ margin: 0, color: '#64748b', fontSize: '14px', lineHeight: '1.5' }}>Earn up to 5% back in AB Coins on every successful purchase you make.</p>
+            {/* Dynamic Gamification Section */}
+            <div style={{ background: 'white', borderRadius: '24px', padding: '28px', border: '1px solid #f1f5f9', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Award size={20} color="#4f46e5" /> Reward Milestone
+                </h4>
+                <span style={{ background: '#f5f3ff', color: '#6d28d9', padding: '6px 14px', borderRadius: '100px', fontSize: '12px', fontWeight: '800' }}>Silver Tier Unlocked</span>
               </div>
-              <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-                <div style={{ background: '#fef3c7', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', marginBottom: '16px' }}>
-                  <Award size={24} />
+              <p style={{ margin: '0 0 24px 0', fontSize: '14.5px', color: '#64748b' }}>Earn <strong>{(500 - (currentUser.walletCoins || 0) % 500)}</strong> more coins to unlock the <strong>Gold Tier</strong> and receive a ₹500 mystery voucher!</p>
+              
+              <div style={{ width: '100%', height: '14px', background: '#f1f5f9', borderRadius: '10px', overflow: 'hidden', position: 'relative' }}>
+                <div style={{ 
+                  height: '100%', 
+                  width: `${Math.min(((currentUser.walletCoins || 0) % 500) / 500 * 100, 100)}%`, 
+                  background: 'linear-gradient(90deg, #6366f1 0%, #a855f7 50%, #f59e0b 100%)',
+                  borderRadius: '10px',
+                  position: 'relative'
+                }}>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)', animation: 'holographic-shine 2s linear infinite' }}></div>
                 </div>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#0f172a' }}>Refer & Earn</h4>
-                <p style={{ margin: 0, color: '#64748b', fontSize: '14px', lineHeight: '1.5' }}>Share your influencer link to earn massive AB Coins when friends buy!</p>
               </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', fontSize: '13px', fontWeight: '800', color: '#94a3b8' }}>
+                <span>0</span>
+                <span>500 Coins</span>
+              </div>
+            </div>
+
+            {/* Elevated How to Earn Action Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              
+              <div className="glass-action-card" style={{ padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)', width: '60px', height: '60px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5', marginBottom: '24px', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.15)' }}>
+                  <ShoppingBag size={28} />
+                </div>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>Shop & Earn</h4>
+                <p style={{ margin: '0 0 32px 0', color: '#64748b', fontSize: '14.5px', lineHeight: '1.6', flex: 1 }}>Earn up to <strong>5% cashback</strong> in AB Coins on every successful purchase you make across our entire store.</p>
+                <button onClick={() => onNavigate('home')} style={{ alignSelf: 'flex-start', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 24px', borderRadius: '12px', color: '#334155', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Start Shopping <ArrowRight size={16} className="action-arrow-btn" />
+                </button>
+              </div>
+
+              <div className="glass-action-card" style={{ padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ background: 'linear-gradient(135deg, #fef3c7, #fde68a)', width: '60px', height: '60px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', marginBottom: '24px', boxShadow: '0 8px 16px rgba(217, 119, 6, 0.15)' }}>
+                  <Award size={28} />
+                </div>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>Refer & Earn</h4>
+                <p style={{ margin: '0 0 32px 0', color: '#64748b', fontSize: '14.5px', lineHeight: '1.6', flex: 1 }}>Share your influencer link to earn massive AB Coins bonuses whenever your friends sign up and make a purchase!</p>
+                <button onClick={() => onNavigate('partner')} style={{ alignSelf: 'flex-start', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 24px', borderRadius: '12px', color: '#334155', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Get Referral Link <ArrowRight size={16} className="action-arrow-btn" />
+                </button>
+              </div>
+
             </div>
 
           </div>
