@@ -346,7 +346,16 @@ const Orders = ({ onNavigate }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (order.orderItems) {
-                        order.orderItems.forEach(item => addToCart(item));
+                        order.orderItems.forEach(item => {
+                          const reorderProduct = {
+                            id: item.product,
+                            name: item.name,
+                            price: item.price,
+                            image: item.image,
+                            originalPrice: item.price,
+                          };
+                          addToCart(reorderProduct, item.qty || 1);
+                        });
                         showToast('Items added back to cart! 🛍️', 'success');
                       }
                     }}
