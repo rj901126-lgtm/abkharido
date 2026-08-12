@@ -367,17 +367,18 @@ export const addOrderItems = async (req, res, next) => {
         }
         
         if (profileUpdated) {
+          const setQuery = {};
+          if (user.fullName !== undefined) setQuery.fullName = user.fullName;
+          if (user.address !== undefined) setQuery.address = user.address;
+          if (user.city !== undefined) setQuery.city = user.city;
+          if (user.pincode !== undefined) setQuery.pincode = user.pincode;
+          if (user.state !== undefined) setQuery.state = user.state;
+          if (user.email !== undefined) setQuery.email = user.email;
+          if (user.phone !== undefined) setQuery.phone = user.phone;
+
           await User.updateOne(
             { _id: user._id },
-            { $set: { 
-                fullName: user.fullName,
-                address: user.address,
-                city: user.city,
-                pincode: user.pincode,
-                state: user.state,
-                email: user.email,
-                phone: user.phone
-            } }
+            { $set: setQuery }
           );
         }
 
@@ -475,7 +476,7 @@ export const getOrderById = async (req, res, next) => {
 export const getMyOrders = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 20; // Increased to 20 to prevent truncation
     const skip = (page - 1) * limit;
     
     const { search, status, time } = req.query;
@@ -485,7 +486,7 @@ export const getMyOrders = async (req, res, next) => {
     if (status && status !== 'all') {
       if (status === 'processing') query.status = { $in: ['Processing', 'Shipped', 'In Transit'] };
       else if (status === 'delivered') query.status = 'Delivered';
-      else if (status === 'cancelled') query.status = 'Cancelled';
+      else if (status === 'cancelled') query.status = { $regex: /^cancelled$/i }; // Case-insensitive to catch 'Cancelled' or 'CANCELLED'
       else if (status === 'returned') query.returnStatus = { $in: ['Requested', 'Approved', 'Refunded', 'Rejected'] };
     }
 

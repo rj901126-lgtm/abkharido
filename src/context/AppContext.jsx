@@ -462,7 +462,7 @@ export const AppProvider = ({ children }) => {
         username,
         email: emailVal || '',
         page,
-        limit: 5,
+        limit: 20,
         search,
         status,
         time
@@ -594,41 +594,60 @@ export const AppProvider = ({ children }) => {
       });
       if (res.status === 401) {
         console.warn('Background sync returned 401. Session might be expiring.');
-        // logout(); // Removed: Do not abruptly log out user on background sync failures
         return;
       }
       if (res.ok && stateSetter) {
         const data = await res.json();
-        if (data[endpoint]) stateSetter(data[endpoint]); // Updates with merged DB state
+        if (data && data[endpoint]) {
+          stateSetter(data[endpoint]); // Updates with merged DB state
+        }
+      } else if (!res.ok) {
+        console.error(`[DeltaSync API Error] ${endpoint} returned ${res.status}`);
+        try {
+          const errData = await res.json();
+          console.error(`Error details:`, errData);
+        } catch (e) {
+          console.error(`Could not parse error response`);
+        }
       }
     } catch (err) {
-      console.error(`${endpoint} delta sync failed`, err);
+      console.error(`${endpoint} delta sync failed network-wise`, err);
     }
   };
 
   // --- Cart Actions ---
   const addToCart = (product, qty = 1) => {
+    if (!product) return;
+    const pId = product.id || product._id;
+    if (!pId) {
+      showToast('Error: Product ID is missing', 'error');
+      return;
+    }
+
     setCart(prev => {
-      const existing = prev.find(item => item.product.id === product.id);
+      const existing = prev.find(item => {
+        const itemId = item.product?.id || item.product?._id;
+        return itemId === pId;
+      });
       const stock = product.stock ?? 99;
+      
       if (existing) {
         const newQty = existing.quantity + qty;
         if (newQty > stock) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
           return prev;
         }
-        showToast(`${product.name.substring(0, 20)}... quantity updated!`);
-        return prev.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: newQty }
-            : item
-        );
+        showToast(`${product.name?.substring(0, 20)}... quantity updated!`);
+        return prev.map(item => {
+          const itemId = item.product?.id || item.product?._id;
+          return itemId === pId ? { ...item, quantity: newQty } : item;
+        });
       }
-      showToast(`${product.name.substring(0, 20)}... added to cart!`);
+      showToast(`${product.name?.substring(0, 20)}... added to cart!`);
       return [...prev, { product, quantity: qty }];
     });
     
-    dispatchDeltaSync('cart', { action: 'add', item: { product: product._id || product.id, quantity: qty } }, setCart);
+    dispatchDeltaSync('cart', { action: 'add', item: { product: pId, quantity: qty } }, setCart);
   };
 
   const updateCartQty = (productId, qty) => {
@@ -637,7 +656,8 @@ export const AppProvider = ({ children }) => {
       return;
     }
     setCart(prev => prev.map(item => {
-      if (item.product.id === productId) {
+      const itemId = item.product?.id || item.product?._id;
+      if (itemId === productId) {
         const stock = item.product.stock ?? 99;
         if (qty > stock) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
@@ -652,7 +672,10 @@ export const AppProvider = ({ children }) => {
   };
 
   const removeFromCart = (productId) => {
-    setCart(prev => prev.filter(item => item.product.id !== productId));
+    setCart(prev => prev.filter(item => {
+      const itemId = item.product?.id || item.product?._id;
+      return itemId !== productId;
+    }));
     showToast('Item removed from cart.');
     dispatchDeltaSync('cart', { action: 'remove', productId }, setCart);
   };
