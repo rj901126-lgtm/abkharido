@@ -123,7 +123,26 @@ export const updateUserProfile = async (req, res, next) => {
         );
       }
       
-      const updatedUser = await user.save();
+      await User.updateOne(
+        { _id: user._id },
+        { $set: {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            fullName: user.fullName,
+            email: user.email,
+            phone: user.phone,
+            address: user.address,
+            houseNo: user.houseNo,
+            streetArea: user.streetArea,
+            addressType: user.addressType,
+            pincode: user.pincode,
+            city: user.city,
+            state: user.state,
+            isEmailVerified: user.isEmailVerified
+          }
+        }
+      );
+      const updatedUser = user;
       res.json(updatedUser);
     } else {
       res.status(404);
@@ -157,7 +176,7 @@ export const suspendUser = async (req, res, next) => {
       throw new Error('User not found');
     }
     user.status = req.body.status || 'Suspended';
-    await user.save();
+    await User.updateOne({ _id: user._id }, { $set: { status: user.status } });
     res.json(user);
   } catch (error) {
     next(error);
@@ -176,7 +195,7 @@ export const addWalletBalance = async (req, res, next) => {
       throw new Error('User not found');
     }
     user.walletCoins = (user.walletCoins || 0) + Number(amount);
-    await user.save();
+    await User.updateOne({ _id: user._id }, { $set: { walletCoins: user.walletCoins } });
     res.json(user);
   } catch (error) {
     next(error);
@@ -201,7 +220,7 @@ export const updateSellerStatus = async (req, res, next) => {
     } else if (status === 'Rejected' || status === 'Suspended') {
       user.role = 'user'; // Demote
     }
-    await user.save();
+    await User.updateOne({ _id: user._id }, { $set: { sellerStatus: user.sellerStatus, role: user.role } });
     res.json(user);
   } catch (error) {
     next(error);

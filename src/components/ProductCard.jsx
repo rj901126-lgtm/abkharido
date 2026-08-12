@@ -144,26 +144,29 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           </div>
         )}
 
-        {/* Vibrant Executive Action CTA */}
+        {/* Vibrant Premium Action CTA */}
         <button 
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? '#f8fafc' : '#ffffff',
-            color: '#0f172a',
-            border: '1.5px solid #e2e8f0',
-            borderColor: isBtnHovered ? '#cbd5e1' : '#e2e8f0',
-            boxShadow: 'none',
+            background: isBtnHovered ? 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)' : 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)',
+            color: '#ffffff',
+            border: 'none',
+            boxShadow: isBtnHovered ? '0 8px 16px rgba(79, 70, 229, 0.3)' : '0 4px 10px rgba(15, 23, 42, 0.15)',
             transform: isBtnHovered ? 'translateY(-2px)' : 'none',
             marginTop: 'auto',
             width: '100%',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
           }} 
-          onClick={handleAddToCart}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            addToCart(product);
+          }}
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={15} style={{ color: '#0f172a' }} /> <span style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.2px' }}>Add to Bag</span>
+          <ShoppingCart size={16} style={{ color: '#ffffff' }} /> <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.5px' }}>Add to Bag</span>
         </button>
       </div>
     </div>
@@ -172,28 +175,28 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
 const styles = {
   card: {
-    backgroundColor: 'white',
-    borderRadius: '24px',
-    border: '1px solid #f1f5f9',
+    backgroundColor: '#ffffff',
+    borderRadius: '20px',
+    border: '1px solid rgba(226, 232, 240, 0.8)',
     overflow: 'hidden',
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     height: '100%',
-    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-    boxShadow: '0 8px 24px -6px rgba(0, 0, 0, 0.05), 0 4px 10px -4px rgba(0, 0, 0, 0.03)',
+    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+    boxShadow: '0 4px 20px -4px rgba(15, 23, 42, 0.05), 0 2px 8px -2px rgba(15, 23, 42, 0.02)',
     boxSizing: 'border-box'
   },
   imageWrapper: {
     width: '100%',
-    height: '220px',
-    padding: '30px',
+    height: '240px',
+    padding: '24px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#f8fafc',
-    borderBottom: '1px solid #f1f5f9',
+    background: 'radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%)',
+    borderBottom: '1px solid rgba(226, 232, 240, 0.6)',
     position: 'relative',
     overflow: 'hidden',
     boxSizing: 'border-box',

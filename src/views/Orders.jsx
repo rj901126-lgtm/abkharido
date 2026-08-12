@@ -76,7 +76,7 @@ const Orders = ({ onNavigate }) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderToCancel}/user-cancel`, {
         method: 'POST',
-        headers: { 'x-auth-token': token }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
         showToast('Order cancelled successfully', 'success');
@@ -99,7 +99,7 @@ const Orders = ({ onNavigate }) => {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'x-auth-token': token 
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({ reason: returnReason })
       });
@@ -317,11 +317,11 @@ const Orders = ({ onNavigate }) => {
                       fontWeight: '800',
                       letterSpacing: '0.4px',
                       textTransform: 'uppercase',
-                      background: order.status === 'CANCELLED' ? '#fef2f2' : order.status === 'Delivered' ? '#ecfdf5' : '#fffbeb',
-                      color: order.status === 'CANCELLED' ? '#ef4444' : order.status === 'Delivered' ? '#059669' : '#d97706',
-                      border: `1px solid ${order.status === 'CANCELLED' ? '#fecaca' : order.status === 'Delivered' ? '#a7f3d0' : '#fde68a'}`
+                      background: order.status === 'Cancelled' ? '#fef2f2' : order.status === 'Delivered' ? '#ecfdf5' : '#fffbeb',
+                      color: order.status === 'Cancelled' ? '#ef4444' : order.status === 'Delivered' ? '#059669' : '#d97706',
+                      border: `1px solid ${order.status === 'Cancelled' ? '#fecaca' : order.status === 'Delivered' ? '#a7f3d0' : '#fde68a'}`
                     }}>
-                      {order.status === 'Delivered' ? '✅ Delivered' : order.status === 'CANCELLED' ? '❌ Cancelled' : `🚚 ${order.status || 'Processing'}`}
+                      {order.status === 'Delivered' ? '✅ Delivered' : order.status === 'Cancelled' ? '❌ Cancelled' : `🚚 ${order.status || 'Processing'}`}
                     </span>
                     <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
                       ₹{(order.totalPrice || 0).toLocaleString('en-IN')} • {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}

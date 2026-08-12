@@ -67,12 +67,15 @@ export const syncCart = async (req, res, next) => {
     // ── DELTA SYNC ARCHITECTURE (MULTI-DEVICE SAFE) ──
     if (action) {
       if (action === 'clear') {
-        user.cart = [];
+        await User.updateOne({ _id: req.user._id }, { $set: { cart: [], cartUpdatedAt: new Date() } });
       } else if (action === 'remove' && productId) {
         const resolvedId = await resolveObjectId(productId);
         if (resolvedId) {
           console.log(`[CART SYNC ACTION] remove | Resolved ProductId: ${resolvedId}`);
-          user.cart = user.cart.filter(cItem => cItem.product.toString() !== resolvedId);
+          await User.updateOne(
+            { _id: req.user._id },
+            { $pull: { cart: { product: resolvedId } }, $set: { cartUpdatedAt: new Date() } }
+          );
         }
       } else if ((action === 'add' || action === 'update') && item) {
         const pIdStr = typeof item.product === 'object' ? (item.product.id || item.product._id) : item.product;
@@ -81,16 +84,26 @@ export const syncCart = async (req, res, next) => {
         if (resolvedId) {
           console.log(`[CART SYNC ACTION] ${action} | Resolved ProductId: ${resolvedId} | Qty: ${item.quantity}`);
           const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
-          const existingIndex = user.cart.findIndex(cItem => cItem.product.toString() === resolvedId);
           
-          if (existingIndex >= 0) {
-            user.cart[existingIndex].quantity = action === 'add' 
-              ? user.cart[existingIndex].quantity + qty 
-              : qty;
-            console.log(`[CART SYNC ACTION] Updated existing item qty to: ${user.cart[existingIndex].quantity}`);
-          } else {
-            user.cart.push({ product: resolvedId, quantity: qty });
-            console.log(`[CART SYNC ACTION] Added new item to cart`);
+          if (action === 'update') {
+            await User.updateOne(
+              { _id: req.user._id, 'cart.product': resolvedId },
+              { $set: { 'cart.$.quantity': qty, cartUpdatedAt: new Date() } }
+            );
+          } else if (action === 'add') {
+            // First try to increment if it exists
+            const updateRes = await User.updateOne(
+              { _id: req.user._id, 'cart.product': resolvedId },
+              { $inc: { 'cart.$.quantity': qty }, $set: { cartUpdatedAt: new Date() } }
+            );
+            
+            // If it didn't exist in cart, push new item
+            if (updateRes.matchedCount === 0) {
+              await User.updateOne(
+                { _id: req.user._id },
+                { $push: { cart: { product: resolvedId, quantity: qty } }, $set: { cartUpdatedAt: new Date() } }
+              );
+            }
           }
         }
       }
@@ -117,30 +130,27 @@ export const syncCart = async (req, res, next) => {
           if (!dbCartMap.has(guestItem.product)) {
             console.log(`[CART SYNC MERGE] Adding guest item: ${guestItem.product}`);
             dbCartMap.set(guestItem.product, { product: guestItem.product, quantity: guestItem.quantity });
-          } else {
-            console.log(`[CART SYNC MERGE] Item already in DB, skipping: ${guestItem.product}`);
           }
         }
         user.cart = Array.from(dbCartMap.values());
-        console.log(`[CART SYNC MERGE] Merge completed. Final Cart Size: ${user.cart.length}`);
       } else {
         console.log(`[CART SYNC FULL] Replacing user cart with incoming array of ${incomingCart.length} items`);
         user.cart = incomingCart.map(i => ({ product: i.product, quantity: i.quantity }));
       }
+      
+      user.cartUpdatedAt = new Date();
+      await User.updateOne(
+        { _id: user._id },
+        { $set: { cart: user.cart, cartUpdatedAt: user.cartUpdatedAt } }
+      );
     } else {
       res.status(400);
       throw new Error('Invalid cart data format or missing action');
     }
 
-    user.cartUpdatedAt = new Date();
-    await User.updateOne(
-      { _id: user._id },
-      { $set: { cart: user.cart, cartUpdatedAt: user.cartUpdatedAt } }
-    );
-
-    // Populate and return the absolute latest cart to sync the frontend
-    await user.populate('cart.product');
-    const formattedCart = user.cart
+    // Fetch the absolutely latest cart after all atomic updates
+    const updatedUser = await User.findById(req.user._id).populate('cart.product');
+    const formattedCart = updatedUser.cart
       .filter(cItem => cItem.product != null)
       .map(cItem => ({
         product: {

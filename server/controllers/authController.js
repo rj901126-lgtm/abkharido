@@ -203,12 +203,12 @@ export const verifyOtp = async (req, res, next) => {
     } else if (!recipient.includes('@') && user.phone !== normalizedRecipient) {
        // Fix phone format in DB
        user.phone = normalizedRecipient;
-       await user.save();
+       await User.updateOne({ _id: user._id }, { $set: { phone: user.phone } });
     }
     // Update fullName/email if provided during signup
     if (fullName && !user.fullName) {
       user.fullName = fullName;
-      await user.save();
+      await User.updateOne({ _id: user._id }, { $set: { fullName: user.fullName } });
     }
     res.json({ 
       success: true, 

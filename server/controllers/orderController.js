@@ -367,7 +367,18 @@ export const addOrderItems = async (req, res, next) => {
         }
         
         if (profileUpdated) {
-          await user.save();
+          await User.updateOne(
+            { _id: user._id },
+            { $set: { 
+                fullName: user.fullName,
+                address: user.address,
+                city: user.city,
+                pincode: user.pincode,
+                state: user.state,
+                email: user.email,
+                phone: user.phone
+            } }
+          );
         }
 
         if (user.isEmailVerified && user.email) {
@@ -682,7 +693,12 @@ export const updateOrderStatus = async (req, res, next) => {
         if (!isSelfReferral && !hasReachedLimit) {
           referrerUser.walletCoins = (referrerUser.walletCoins || 0) + order.referralApplied.rewardAmount;
           referrerUser.referralCount = currentReferrals + 1;
-          await referrerUser.save();
+          await User.updateOne({ _id: referrerUser._id }, { 
+            $inc: { 
+              walletCoins: order.referralApplied.rewardAmount,
+              referralCount: 1 
+            } 
+          });
           order.referralApplied.isCredited = true;
         } else {
           // Mark as credited anyway so we don't keep retrying on every save
