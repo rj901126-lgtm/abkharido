@@ -541,36 +541,60 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
               </span>
             </div>
             
-            <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', position: 'relative' }}>
+              <style>{`
+                @keyframes pulse-glow {
+                  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+                  70% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); }
+                  100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+                }
+                .buy-now-pulse-btn {
+                  animation: pulse-glow 2s infinite;
+                  background-size: 200% auto;
+                  transition: 0.5s;
+                }
+                .buy-now-pulse-btn:hover {
+                  background-position: right center; /* change the direction of the change here */
+                  transform: translateY(-2px);
+                }
+                .add-cart-outline-btn {
+                  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+                .add-cart-outline-btn:hover {
+                  background: #4f46e5 !important;
+                  color: #ffffff !important;
+                  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+                  transform: translateY(-2px);
+                }
+              `}</style>
               <button
+                className="add-cart-outline-btn"
                 onClick={() => {
                   const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                   addToCart(customProduct);
                 }}
                 style={{
                   flex: '1 1 180px',
-                  height: '52px',
+                  height: '54px',
                   border: '2px solid #4f46e5',
                   borderRadius: '16px',
                   background: '#ffffff',
                   color: '#4f46e5',
                   fontWeight: '900',
-                  fontSize: '15px',
+                  fontSize: '15.5px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                   fontFamily: "'Outfit', sans-serif",
-                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.1)'
+                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.05)'
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f3ff'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'none'; }}
               >
                 <ShoppingCart size={20} /> Add to Cart
               </button>
               <button
+                className="buy-now-pulse-btn"
                 onClick={() => {
                   const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                   addToCart(customProduct, 1);
@@ -578,24 +602,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 }}
                 style={{
                   flex: '1 1 180px',
-                  height: '52px',
+                  height: '54px',
                   border: 'none',
                   borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                  backgroundImage: 'linear-gradient(to right, #4f46e5 0%, #7c3aed 51%, #4f46e5 100%)',
                   color: '#ffffff',
                   fontWeight: '900',
-                  fontSize: '15px',
+                  fontSize: '15.5px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                   fontFamily: "'Outfit', sans-serif",
-                  boxShadow: '0 10px 25px rgba(79, 70, 229, 0.4)',
-                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+                  boxShadow: '0 10px 25px rgba(79, 70, 229, 0.4)'
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 32px rgba(79, 70, 229, 0.55)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(79, 70, 229, 0.4)'; }}
               >
                 <Zap size={20} fill="white" /> Buy Now
               </button>
@@ -1365,12 +1386,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
           {/* Right Side: Instant Action Purchase Buttons (Fixed & Easily Accessible on ALL Devices) */}
           <div className="vip-fixed-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
             <button
+              className="add-cart-outline-btn"
               onClick={() => {
                 const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                 addToCart(customProduct);
               }}
               style={{
-                height: '50px',
+                height: '52px',
                 padding: '0 26px',
                 border: '2px solid #4f46e5',
                 borderRadius: '16px',
@@ -1384,27 +1406,25 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 justifyContent: 'center',
                 gap: '8px',
                 fontFamily: "'Outfit', sans-serif",
-                transition: 'all 0.2s',
                 boxShadow: '0 2px 8px rgba(79, 70, 229, 0.1)',
                 whiteSpace: 'nowrap'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f3ff'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'none'; }}
             >
               <ShoppingCart size={20} /> <span className="buy-bar-btn-text">Add to Cart</span>
             </button>
             <button
+              className="buy-now-pulse-btn"
               onClick={() => {
                 const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                 addToCart(customProduct, 1);
                 onBuyNow(customProduct);
               }}
               style={{
-                height: '50px',
+                height: '52px',
                 padding: '0 32px',
                 border: 'none',
                 borderRadius: '16px',
-                background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                backgroundImage: 'linear-gradient(to right, #4f46e5 0%, #7c3aed 51%, #4f46e5 100%)',
                 color: '#ffffff',
                 fontWeight: '900',
                 fontSize: '16px',
@@ -1415,13 +1435,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
                 gap: '8px',
                 fontFamily: "'Outfit', sans-serif",
                 boxShadow: '0 8px 25px rgba(79, 70, 229, 0.4)',
-                transition: 'all 0.2s',
                 whiteSpace: 'nowrap'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 30px rgba(79, 70, 229, 0.55)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(79, 70, 229, 0.4)'; }}
             >
-              <Zap size={20} fill="white" /> <span>Buy Now</span>
+              <Zap size={20} fill="white" /> Buy Now
             </button>
           </div>
         </div>

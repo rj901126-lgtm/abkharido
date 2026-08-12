@@ -195,15 +195,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: '8px',
-                  background: isSelected ? '#0f172a' : '#f8fafc',
-                  border: isSelected ? '1px solid #0f172a' : '1px solid #e2e8f0',
+                  background: isSelected ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' : '#ffffff',
+                  border: isSelected ? '1px solid transparent' : '1px solid #e2e8f0',
                   cursor: 'pointer',
-                  padding: '8px 16px',
+                  padding: '8px 18px',
                   borderRadius: '99px',
-                  boxShadow: isSelected ? '0 4px 12px rgba(15, 23, 42, 0.15)' : '0 2px 4px rgba(0,0,0,0.02)',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: isSelected ? '0 4px 16px rgba(124, 58, 237, 0.35)' : '0 2px 6px rgba(0,0,0,0.03)',
+                  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                   height: '42px',
                 }}
+                onMouseEnter={(e) => { if(!isSelected) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = '#cbd5e1'; } }}
+                onMouseLeave={(e) => { if(!isSelected) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.03)'; e.currentTarget.style.borderColor = '#e2e8f0'; } }}
               >
                 {/* Sleek small icon */}
                 <span style={{ fontSize: '15px' }}>{cat.icon}</span>
@@ -261,26 +263,41 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   </p>
                   
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <style>{`
+                      @keyframes premium-pulse {
+                        0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+                        70% { box-shadow: 0 0 0 14px rgba(99, 102, 241, 0); }
+                        100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+                      }
+                      .hero-cta-btn {
+                        animation: premium-pulse 2s infinite;
+                        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+                      }
+                      .hero-cta-btn:hover {
+                        transform: scale(1.05) translateY(-2px);
+                      }
+                    `}</style>
                     <button 
-                      className="btn animate-fade-in" 
+                      className="btn animate-fade-in hero-cta-btn" 
                       style={{ 
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%)',
+                        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
                         color: 'white',
                         borderRadius: '30px', 
-                        padding: '12px 24px', 
+                        padding: '14px 30px', 
                         display: 'inline-flex', 
                         alignItems: 'center', 
-                        gap: '8px', 
-                        border: '1px solid rgba(255, 255, 255, 0.3)', 
+                        gap: '10px', 
+                        border: '1px solid rgba(255, 255, 255, 0.4)', 
                         fontFamily: "'Outfit', sans-serif",
-                        fontWeight: '800', 
-                        fontSize: '14px',
-                        boxShadow: '0 8px 20px -4px rgba(99, 102, 241, 0.5)',
+                        fontWeight: '900', 
+                        fontSize: '15px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
                         cursor: 'pointer'
                       }}
                       onClick={() => onSelectCategory(slideCat)}
                     >
-                      ⚡ Grab Deal Now <ArrowRight size={16} />
+                      ⚡ Claim Deal Now <ArrowRight size={18} />
                     </button>
                   </div>
                 </div>

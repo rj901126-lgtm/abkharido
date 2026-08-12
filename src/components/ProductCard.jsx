@@ -38,9 +38,9 @@ const ProductCard = ({ product, onNavigateProduct }) => {
       className="card product-card" 
       style={{
         ...styles.card,
-        transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
-        boxShadow: isHovered ? '0 18px 40px -10px rgba(9, 13, 22, 0.16)' : '0 4px 16px rgba(9, 13, 22, 0.05)',
-        borderColor: isHovered ? '#818cf8' : '#e2e8f0'
+        transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
+        boxShadow: isHovered ? '0 25px 50px -12px rgba(99, 102, 241, 0.25)' : '0 4px 16px rgba(9, 13, 22, 0.05)',
+        borderColor: isHovered ? '#6366f1' : '#e2e8f0'
       }} 
       onClick={() => onNavigateProduct(product.id)}
       onMouseEnter={() => setIsHovered(true)}
@@ -202,7 +202,7 @@ const styles = {
     position: 'absolute', 
     top: '12px', 
     left: '12px', 
-    backgroundColor: '#090d16', 
+    background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)', 
     color: '#fde047', 
     fontSize: '10px', 
     fontWeight: '900', 
@@ -210,33 +210,36 @@ const styles = {
     borderRadius: '8px', 
     zIndex: 2, 
     letterSpacing: '0.5px',
-    border: '1px solid #334155'
+    border: '1px solid #334155',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
   },
   badgeTrending: {
     position: 'absolute', 
     top: '12px', 
     left: '12px', 
-    backgroundColor: '#059669', 
+    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', 
     color: 'white', 
     fontSize: '10px', 
     fontWeight: '900', 
     padding: '4px 10px', 
     borderRadius: '8px', 
     zIndex: 2, 
-    letterSpacing: '0.5px'
+    letterSpacing: '0.5px',
+    boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)'
   },
   badgeNew: {
     position: 'absolute', 
     top: '12px', 
     left: '12px', 
-    backgroundColor: '#4338ca', 
+    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', 
     color: 'white', 
     fontSize: '10px', 
     fontWeight: '900', 
     padding: '4px 10px', 
     borderRadius: '8px', 
     zIndex: 2, 
-    letterSpacing: '0.5px'
+    letterSpacing: '0.5px',
+    boxShadow: '0 4px 10px rgba(124, 58, 237, 0.3)'
   },
   info: {
     padding: '16px 18px 18px 18px',
