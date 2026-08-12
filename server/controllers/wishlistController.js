@@ -105,7 +105,10 @@ export const syncWishlist = async (req, res, next) => {
       throw new Error('Invalid wishlist data format or missing action');
     }
     
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { wishlist: user.wishlist } }
+    );
 
     // Populate and return product slugs so frontend can match with product.id (slug)
     await user.populate('wishlist', 'id _id');

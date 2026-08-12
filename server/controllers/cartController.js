@@ -133,7 +133,10 @@ export const syncCart = async (req, res, next) => {
     }
 
     user.cartUpdatedAt = new Date();
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { cart: user.cart, cartUpdatedAt: user.cartUpdatedAt } }
+    );
 
     // Populate and return the absolute latest cart to sync the frontend
     await user.populate('cart.product');
