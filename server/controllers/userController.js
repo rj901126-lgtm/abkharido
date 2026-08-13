@@ -93,8 +93,8 @@ export const updateUserProfile = async (req, res, next) => {
       } else if (req.body.fullName) {
         user.fullName = req.body.fullName;
       }
-      if (req.body.email) user.email = req.body.email;
-      if (req.body.phone) user.phone = req.body.phone;
+      if (req.body.email !== undefined) user.email = req.body.email;
+      if (req.body.phone !== undefined) user.phone = req.body.phone;
       if (req.body.address) user.address = req.body.address;
       if (req.body.houseNo) user.houseNo = req.body.houseNo;
       if (req.body.streetArea) user.streetArea = req.body.streetArea;
@@ -123,24 +123,24 @@ export const updateUserProfile = async (req, res, next) => {
         );
       }
       
+      const setQuery = {};
+      if (user.firstName !== undefined) setQuery.firstName = user.firstName;
+      if (user.lastName !== undefined) setQuery.lastName = user.lastName;
+      if (user.fullName !== undefined) setQuery.fullName = user.fullName;
+      if (user.email !== undefined) setQuery.email = user.email;
+      if (user.phone !== undefined) setQuery.phone = user.phone;
+      if (user.address !== undefined) setQuery.address = user.address;
+      if (user.houseNo !== undefined) setQuery.houseNo = user.houseNo;
+      if (user.streetArea !== undefined) setQuery.streetArea = user.streetArea;
+      if (user.addressType !== undefined) setQuery.addressType = user.addressType;
+      if (user.pincode !== undefined) setQuery.pincode = user.pincode;
+      if (user.city !== undefined) setQuery.city = user.city;
+      if (user.state !== undefined) setQuery.state = user.state;
+      if (user.isEmailVerified !== undefined) setQuery.isEmailVerified = user.isEmailVerified;
+
       await User.updateOne(
         { _id: user._id },
-        { $set: {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            fullName: user.fullName,
-            email: user.email,
-            phone: user.phone,
-            address: user.address,
-            houseNo: user.houseNo,
-            streetArea: user.streetArea,
-            addressType: user.addressType,
-            pincode: user.pincode,
-            city: user.city,
-            state: user.state,
-            isEmailVerified: user.isEmailVerified
-          }
-        }
+        { $set: setQuery }
       );
       const updatedUser = user;
       res.json(updatedUser);
