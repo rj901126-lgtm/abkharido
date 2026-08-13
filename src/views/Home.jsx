@@ -250,10 +250,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 <div className="carousel-slide-overlay"></div>
                 
                 <div className="slide-content-box" style={{ maxWidth: '620px' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(12px)', padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.3)', marginBottom: '16px' }}>
-                    <Sparkles size={14} style={{ color: '#fde047' }} />
-                    <span style={{ fontSize: '12px', fontWeight: '900', letterSpacing: '0.5px', color: '#ffffff', textTransform: 'uppercase' }}>{slideTag}</span>
-                  </div>
                   
                   <h1 className="slide-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '42px', fontWeight: '900', lineHeight: '1.1', marginBottom: '16px', letterSpacing: '-1px' }}>
                     {slideTitle}

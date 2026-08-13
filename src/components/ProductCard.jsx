@@ -39,8 +39,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
       style={{
         ...styles.card,
         transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
-        boxShadow: isHovered ? '0 25px 50px -12px rgba(99, 102, 241, 0.25)' : '0 4px 16px rgba(9, 13, 22, 0.05)',
-        borderColor: isHovered ? '#6366f1' : '#e2e8f0'
+        boxShadow: isHovered ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' : '0 4px 16px rgba(9, 13, 22, 0.05)',
+        borderColor: isHovered ? '#cbd5e1' : '#e2e8f0'
       }} 
       onClick={() => onNavigateProduct(product.id)}
       onMouseEnter={() => setIsHovered(true)}
