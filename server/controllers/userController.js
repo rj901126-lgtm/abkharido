@@ -127,8 +127,8 @@ export const updateUserProfile = async (req, res, next) => {
       if (user.firstName !== undefined) setQuery.firstName = user.firstName;
       if (user.lastName !== undefined) setQuery.lastName = user.lastName;
       if (user.fullName !== undefined) setQuery.fullName = user.fullName;
-      if (user.email !== undefined) setQuery.email = user.email;
-      if (user.phone !== undefined) setQuery.phone = user.phone;
+      if (user.email) setQuery.email = user.email;
+      if (user.phone) setQuery.phone = user.phone;
       if (user.address !== undefined) setQuery.address = user.address;
       if (user.houseNo !== undefined) setQuery.houseNo = user.houseNo;
       if (user.streetArea !== undefined) setQuery.streetArea = user.streetArea;
@@ -138,6 +138,8 @@ export const updateUserProfile = async (req, res, next) => {
       if (user.state !== undefined) setQuery.state = user.state;
       if (user.isEmailVerified !== undefined) setQuery.isEmailVerified = user.isEmailVerified;
 
+      console.log('UNSET QUERY:', unsetQuery);
+      console.log('SET QUERY:', setQuery);
       await User.updateOne(
         { _id: user._id },
         { $set: setQuery }
