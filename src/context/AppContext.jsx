@@ -66,15 +66,17 @@ export const AppProvider = ({ children }) => {
     } catch { return null; }
   });
 
-  const currentUser = session ? { 
-    ...session.user, 
-    _id: session.user?.id || session.user?._id || session?.id || 'vip_user',
-    token: session.accessToken, 
-    username: session.user.name,
-    phone: session.user.phone || session.user.name,  // phone from JWT session
-    email: session.user.email || undefined,  // null-safe: don't show Google email if OTP login
-    ...(dbUser || {}) 
-  } : (localSession ? { _id: localSession._id || localSession.id || 'vip_user', ...localSession, ...(dbUser || {}) } : null);
+  const currentUser = React.useMemo(() => {
+    return session ? { 
+      ...session.user, 
+      _id: session.user?.id || session.user?._id || session?.id || 'vip_user',
+      token: session.accessToken, 
+      username: session.user.name,
+      phone: session.user.phone || session.user.name,  // phone from JWT session
+      email: session.user.email || undefined,  // null-safe: don't show Google email if OTP login
+      ...(dbUser || {}) 
+    } : (localSession ? { _id: localSession._id || localSession.id || 'vip_user', ...localSession, ...(dbUser || {}) } : null);
+  }, [session, localSession, dbUser]);
 
   const [cart, setCart] = useState(() => {
     try {
@@ -473,7 +475,7 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        const fetchedOrders = data.orders ? data.orders : data;
+        const fetchedOrders = Array.isArray(data.orders) ? data.orders : (Array.isArray(data) ? data : []);
         
         if (page === 1) {
           setOrders(fetchedOrders);
