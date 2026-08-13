@@ -138,8 +138,6 @@ export const updateUserProfile = async (req, res, next) => {
       if (user.state !== undefined) setQuery.state = user.state;
       if (user.isEmailVerified !== undefined) setQuery.isEmailVerified = user.isEmailVerified;
 
-      console.log('UNSET QUERY:', unsetQuery);
-      console.log('SET QUERY:', setQuery);
       await User.updateOne(
         { _id: user._id },
         { $set: setQuery }

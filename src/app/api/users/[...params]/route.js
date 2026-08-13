@@ -51,9 +51,29 @@ export async function GET(req, { params }) {
     // ── Native Direct Mongoose Fallback when port 5000 is offline ──
     await connectDB();
     const username = routeParams[0];
+    // SECURITY: VULN-03 — Only admins can list all users
     if (!username) {
-      const users = await User.find({}).limit(50).select('-password');
-      return NextResponse.json(users);
+      const authHeader = req.headers.get('authorization') || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+      if (!token) {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 401 });
+      }
+      try {
+        const { default: jwt } = await import('jsonwebtoken');
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+        const decoded = jwt.verify(token, jwtSecret);
+        await connectDB();
+        const { default: UserModel } = await import('../../../../../server/models/User.js');
+        const requester = await UserModel.findById(decoded.id).select('role').lean();
+        if (!requester || !['admin', 'super_admin'].includes(requester.role)) {
+          return NextResponse.json({ error: 'Not authorized as admin' }, { status: 403 });
+        }
+        const users = await UserModel.find({}).limit(50).select('-password');
+        return NextResponse.json(users);
+      } catch (e) {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 401 });
+      }
     }
 
     const user = await User.findOne({ $or: [{ username }, { phone: username }, { email: username }, { _id: username.length === 24 ? username : undefined }].filter(Boolean) }).select('-password');
@@ -108,6 +128,33 @@ export async function POST(req, { params }) {
       }
     }
 
+    // SECURITY: VULN-04 — Verify requester owns this resource or is an admin (IDOR fix)
+    const authHeader = req.headers.get('authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (token) {
+      try {
+        const { default: jwt } = await import('jsonwebtoken');
+        const jwtSecret = process.env.JWT_SECRET;
+        if (jwtSecret) {
+          const decoded = jwt.verify(token, jwtSecret);
+          await connectDB();
+          const targetUsername = routeParams[0];
+          // Allow only if: the token user's id/username matches the target, OR they are an admin
+          const isOwner = decoded.id === targetUsername || 
+            (await User.findById(decoded.id).select('username role').lean())?.username === targetUsername;
+          const requesterRole = (await User.findById(decoded.id).select('role').lean())?.role;
+          const isAdmin = ['admin', 'super_admin'].includes(requesterRole);
+          if (!isOwner && !isAdmin) {
+            return NextResponse.json({ error: 'Not authorized to update this profile' }, { status: 403 });
+          }
+        }
+      } catch (e) {
+        return NextResponse.json({ error: 'Not authorized: invalid token' }, { status: 401 });
+      }
+    } else {
+      // No token provided at all — reject
+      return NextResponse.json({ error: 'Not authorized: no token provided' }, { status: 401 });
+    }
     // ── Native Direct Mongoose Fallback when port 5000 is offline ──
     await connectDB();
     const username = routeParams[0];

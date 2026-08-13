@@ -19,7 +19,11 @@ export const protect = async (req, res, next) => {
         }
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev');
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        return res.status(500).json({ error: 'Server misconfiguration: JWT_SECRET is not set.' });
+      }
+      const decoded = jwt.verify(token, jwtSecret);
       
       req.user = await User.findById(decoded.id).select('-password');
       
@@ -35,11 +39,17 @@ export const protect = async (req, res, next) => {
   } else if (req.headers['x-admin-token']) {
     try {
       const adminToken = req.headers['x-admin-token'];
-      if (adminToken === (process.env.ADMIN_SECURE_TOKEN || 'abk_crypto_sec_2026_default') || adminToken === 'abkharido_master_admin_2024') {
+      const adminSecureToken = process.env.ADMIN_SECURE_TOKEN;
+      // SECURITY: No hardcoded fallback. If ADMIN_SECURE_TOKEN is not set, this path is disabled.
+      if (adminSecureToken && adminToken === adminSecureToken) {
         req.user = { role: 'super_admin' };
         return next();
       }
-      const decoded = jwt.verify(adminToken, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev');
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        return res.status(500).json({ error: 'Server misconfiguration: JWT_SECRET is not set.' });
+      }
+      const decoded = jwt.verify(adminToken, jwtSecret);
       req.user = decoded.role ? decoded : { role: 'super_admin', ...decoded };
       next();
     } catch (err) {
@@ -66,8 +76,11 @@ export const softProtect = async (req, res, next) => {
         }
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev');
-      req.user = await User.findById(decoded.id).select('-password');
+      const jwtSecret2 = process.env.JWT_SECRET;
+      if (jwtSecret2) {
+        const decoded = jwt.verify(token, jwtSecret2);
+        req.user = await User.findById(decoded.id).select('-password');
+      }
       // If user doesn't exist, req.user will be null, which is fine for softProtect
       next();
     } catch (error) {
@@ -77,12 +90,16 @@ export const softProtect = async (req, res, next) => {
   } else if (req.headers['x-admin-token']) {
     try {
       const adminToken = req.headers['x-admin-token'];
-      if (adminToken === (process.env.ADMIN_SECURE_TOKEN || 'abk_crypto_sec_2026_default') || adminToken === 'abkharido_master_admin_2024') {
+      const adminSecureToken2 = process.env.ADMIN_SECURE_TOKEN;
+      if (adminSecureToken2 && adminToken === adminSecureToken2) {
         req.user = { role: 'super_admin' };
         return next();
       }
-      const decoded = jwt.verify(adminToken, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev');
-      req.user = decoded.role ? decoded : { role: 'super_admin', ...decoded };
+      const jwtSecret3 = process.env.JWT_SECRET;
+      if (jwtSecret3) {
+        const decoded = jwt.verify(adminToken, jwtSecret3);
+        req.user = decoded.role ? decoded : { role: 'super_admin', ...decoded };
+      }
       next();
     } catch (err) {
       next();

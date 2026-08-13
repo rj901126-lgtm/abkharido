@@ -154,6 +154,8 @@ export const verifyOtp = async (req, res, next) => {
     // OTP is valid — delete it to prevent reuse
     await Otp.deleteMany({ phone: recipient });
     
+    // SECURITY: Escape user input before using in RegExp to prevent ReDoS
+    const escapedRecipient = normalizedRecipient.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // create or find user
     let user = await User.findOne({ $or: [
       { email: recipient }, 
@@ -162,9 +164,9 @@ export const verifyOtp = async (req, res, next) => {
       { phone: '+91' + normalizedRecipient },
       { phone: '91' + normalizedRecipient },
       // Search by username since phone might be encrypted
-      { username: new RegExp('^' + normalizedRecipient + '(_|$)') },
-      { username: new RegExp('^\\+91' + normalizedRecipient + '(_|$)') },
-      { username: new RegExp('^91' + normalizedRecipient + '(_|$)') }
+      { username: new RegExp('^' + escapedRecipient + '(_|$)') },
+      { username: new RegExp('^\\+91' + escapedRecipient + '(_|$)') },
+      { username: new RegExp('^91' + escapedRecipient + '(_|$)') }
     ] });
     
     if (!user) {

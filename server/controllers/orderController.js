@@ -63,28 +63,15 @@ export const addOrderItems = async (req, res, next) => {
         ? mongoId
         : (customId.length === 24 && /^[0-9a-fA-F]{24}$/.test(customId) ? customId : 'custom');
 
-      // Securely fetch the actual price from the database
-      let query = pId !== 'custom' ? { _id: pId } : { id: customId };
-      const dbProduct = await Product.findOne(query).lean();
+      // SECURITY: Only accept products that exist in our database.
+      // Auto-creating products from frontend data is a Stored XSS + price-bypass vulnerability.
+      let dbProduct = pId !== 'custom' ? await Product.findOne({ _id: pId }).lean() : null;
+      if (!dbProduct && customId) {
+        dbProduct = await Product.findOne({ id: customId }).lean();
+      }
 
       if (!dbProduct) {
-        console.log(`Auto-creating missing mock product for checkout: ${productObj.name || customId}`);
-        try {
-          const newMockProduct = await Product.create({
-            id: customId || `mock-${Date.now()}`,
-            name: productObj.name || 'Demo Product',
-            category: productObj.category || 'Electronics',
-            description: 'This is an auto-generated demo product for testing purposes.',
-            price: productObj.price || 999,
-            originalPrice: productObj.originalPrice || (productObj.price ? productObj.price * 1.5 : 1499),
-            inStock: true,
-            stock: 100,
-            image: productObj.image || 'https://via.placeholder.com/150'
-          });
-          dbProduct = newMockProduct.toObject();
-        } catch (createErr) {
-          throw new Error(`Failed to auto-create mock product: ${productObj.name || customId}. ${createErr.message}`);
-        }
+        throw new Error(`Product not found in database: ${productObj.name || customId || pId}. Please refresh your cart and try again.`);
       }
 
       // Check for active flash sale
@@ -455,8 +442,8 @@ export const getOrderById = async (req, res, next) => {
     );
 
     if (order) {
-      // Ensure the user owns the order, unless they are a privileged admin role
-      if (order.user._id.toString() !== req.user._id.toString() && !['admin', 'super_admin', 'support_agent'].includes(req.user.role)) {
+      // SECURITY: Null guard — order.user may be null if user was deleted
+      if (!order.user || (order.user._id.toString() !== req.user._id.toString() && !['admin', 'super_admin', 'support_agent'].includes(req.user.role))) {
         res.status(403);
         throw new Error('Not authorized to view this order');
       }
