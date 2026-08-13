@@ -7,7 +7,7 @@ import Product from '../models/Product.js';
 export const getCart = async (req, res, next) => {
   try {
     console.log(`[CART GET INIT] User: ${req.user._id}`);
-    const user = await User.findById(req.user._id).populate('cart.product');
+    const user = await User.findById(req.user._id).populate('cart.product').lean();
     
     // Set headers to explicitly prevent Vercel Edge caching
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -149,7 +149,8 @@ export const syncCart = async (req, res, next) => {
     }
 
     // Fetch the absolutely latest cart after all atomic updates
-    const updatedUser = await User.findById(req.user._id).populate('cart.product');
+    const updatedUser = await User.findById(req.user._id).populate('cart.product').lean();
+    
     const formattedCart = updatedUser.cart
       .filter(cItem => cItem.product != null)
       .map(cItem => ({

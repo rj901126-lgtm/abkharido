@@ -50,7 +50,7 @@ export const getUserByUsername = async (req, res, next) => {
         'referralApplied.referrerId': user.username,
         'referralApplied.isCredited': true,
         deliveredAt: { $gte: eightDaysAgo }
-      });
+      }).lean();
       
       const lockedCoins = lockedOrders.reduce((sum, o) => sum + (o.referralApplied?.rewardAmount || 0), 0);
       const withdrawableCoins = Math.max(0, (user.walletCoins || 0) - lockedCoins);
@@ -158,8 +158,14 @@ export const updateUserProfile = async (req, res, next) => {
 // @access  Private/Admin
 export const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find({});
-    res.json(users);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    const users = await User.find({}).skip(skip).limit(limit).lean();
+    const total = await User.countDocuments({});
+
+    res.json({ users, total, page, pages: Math.ceil(total / limit) });
   } catch (error) {
     next(error);
   }
