@@ -288,6 +288,7 @@ const AdminOMS = () => {
   };
 
   const handleSendInvoiceEmail = async (order) => {
+    // BUGFIX: order.user can be null for guest orders
     if (!order.user || !order.user.isEmailVerified) {
       showToast('Customer email is not verified.', 'error');
       return;
@@ -798,7 +799,7 @@ const AdminOMS = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                           <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                             {item.image ? (
-                              <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.src = 'https://mages.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80'; }} />
+                              <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80'; }} />
                             ) : (
                               <Package size={24} color="#94a3b8" />
                             )}

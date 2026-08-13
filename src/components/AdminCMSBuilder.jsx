@@ -83,7 +83,7 @@ const AdminCMSBuilder = () => {
       type: 'banner',
       title: 'New Promotional Hero Banner',
       order: layout.components.length + 1,
-      data: 'https://mages.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200',
+      data: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200',
       ctr: '7.8%',
       views: '35,000'
     };
@@ -137,26 +137,26 @@ const AdminCMSBuilder = () => {
     let components = [];
     if (presetName === 'diwali') {
       components = [
-        { id: 'DIW-1', type: 'banner', title: '🪔 Diwali Grand Festival & Gold Prosperity Sale', data: 'https://mages.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '15.8%', views: '89,400' },
+        { id: 'DIW-1', type: 'banner', title: '🪔 Diwali Grand Festival & Gold Prosperity Sale', data: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '15.8%', views: '89,400' },
         { id: 'DIW-2', type: 'deals_row', title: '⚡ Festive Midnight Flash Deals (Flat 60% Off)', data: 'diwali-deals', order: 2, ctr: '18.2%', views: '95,110' },
         { id: 'DIW-3', type: 'category_row', title: '👘 Traditional Fashion & Ethnic Ensembles', data: 'fashion', order: 3, ctr: '12.1%', views: '54,200' },
         { id: 'DIW-4', type: 'category_row', title: '🏠 Smart Home Decor & Festive Lighting', data: 'home', order: 4, ctr: '10.5%', views: '48,100' }
       ];
     } else if (presetName === 'freedom') {
       components = [
-        { id: 'IND-1', type: 'banner', title: '🇮🇳 Independence Day Freedom 78th Mega Carnival', data: 'https://mages.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '14.1%', views: '76,500' },
+        { id: 'IND-1', type: 'banner', title: '🇮🇳 Independence Day Freedom 78th Mega Carnival', data: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '14.1%', views: '76,500' },
         { id: 'IND-2', type: 'deals_row', title: '🎯 Freedom Hour Doorbuster Steals', data: 'freedom-deals', order: 2, ctr: '16.4%', views: '82,300' },
         { id: 'IND-3', type: 'category_row', title: '📱 Revolutionary Mobiles & AI Flagships', data: 'mobiles', order: 3, ctr: '11.4%', views: '61,200' }
       ];
     } else if (presetName === 'cyber') {
       components = [
-        { id: 'CYB-1', type: 'banner', title: '⚡ Cyber Midnight Tech Week & Gaming Extravaganza', data: 'https://mages.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '16.9%', views: '94,200' },
+        { id: 'CYB-1', type: 'banner', title: '⚡ Cyber Midnight Tech Week & Gaming Extravaganza', data: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '16.9%', views: '94,200' },
         { id: 'CYB-2', type: 'deals_row', title: '💥 Neon Flash Counter (Above 50% Off)', data: 'cyber-deals', order: 2, ctr: '19.4%', views: '1,12,000' },
         { id: 'CYB-3', type: 'category_row', title: '💻 Extreme Gaming Laptops & RTX Peripherals', data: 'electronics', order: 3, ctr: '13.8%', views: '74,500' }
       ];
     } else if (presetName === 'summer') {
       components = [
-        { id: 'SUM-1', type: 'banner', title: '🌸 Spring & Summer Vibes Wardrobe Refresh', data: 'https://mages.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '11.5%', views: '52,400' },
+        { id: 'SUM-1', type: 'banner', title: '🌸 Spring & Summer Vibes Wardrobe Refresh', data: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200', order: 1, ctr: '11.5%', views: '52,400' },
         { id: 'SUM-2', type: 'category_row', title: '👕 Airy Cotton Wear & Designer Sunglasses', data: 'fashion', order: 2, ctr: '9.8%', views: '44,200' }
       ];
     }

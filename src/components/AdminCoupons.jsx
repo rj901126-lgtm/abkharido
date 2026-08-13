@@ -224,8 +224,10 @@ const AdminCoupons = () => {
 
   // Filtering & Searching
   const filteredCoupons = coupons.filter(coupon => {
-    const matchesSearch = coupon.code.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          coupon.discountType.toLowerCase().includes(searchQuery.toLowerCase());
+    const couponCode = (coupon.code || '').toLowerCase();
+    const couponType = (coupon.discountType || '').toLowerCase();
+    const matchesSearch = couponCode.includes(searchQuery.toLowerCase()) || 
+                          couponType.includes(searchQuery.toLowerCase());
     const isExpiredOrExhausted = new Date() > new Date(coupon.expiryDate) || (coupon.usedCount >= coupon.usageLimit) || !coupon.isActive;
     if (filterStatus === 'active') return matchesSearch && !isExpiredOrExhausted;
     if (filterStatus === 'expired') return matchesSearch && isExpiredOrExhausted;

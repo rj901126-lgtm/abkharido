@@ -74,9 +74,12 @@ const AdminUsers = () => {
   };
 
   const filteredUsers = users.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          u.phone.includes(searchQuery);
+    const displayName = (u.fullName || u.name || u.username || '').toLowerCase();
+    const userEmail = (u.email || '').toLowerCase();
+    const userPhone = (u.phone || '');
+    const matchesSearch = displayName.includes(searchQuery.toLowerCase()) ||
+                          userEmail.includes(searchQuery.toLowerCase()) ||
+                          userPhone.includes(searchQuery);
     if (!matchesSearch) return false;
     if (filterTier === 'VIP') return u.tier === 'VIP Platinum' || u.totalSpent >= 50000;
     if (filterTier === 'ACTIVE') return !u.isFrozen && u.tier !== 'Flagged Risk';
@@ -201,13 +204,13 @@ const AdminUsers = () => {
                   <td style={{ padding: '16px 20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                       <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: user.tier === 'VIP Platinum' ? 'linear-gradient(135deg, #fef08a, #fde047)' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: user.tier === 'VIP Platinum' ? '#854d0e' : '#334155', fontSize: '16px' }}>
-                        {user.name.charAt(0)}
+                        {(user.fullName || user.name || user.username || '?').charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', color: '#0f172a', fontSize: '15px' }}>{user.name}</div>
+                        <div style={{ fontWeight: '900', color: '#0f172a', fontSize: '15px' }}>{user.fullName || user.name || user.username}</div>
                         <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '3px' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={11} /> {user.email}</span>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={11} /> {user.phone}</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={11} /> {user.email || '—'}</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={11} /> {user.phone || '—'}</span>
                         </div>
                       </div>
                     </div>

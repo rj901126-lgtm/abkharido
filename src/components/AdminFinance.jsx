@@ -73,7 +73,7 @@ const AdminFinance = () => {
 
   const maskAccount = (acc) => {
     if (!acc) return 'XXXX-XXXX-XXXX';
-    return `XXXX-XXXX-${acc.slice(-4)}`;
+    return `XXXX-XXXX-${String(acc).slice(-4)}`;
   };
 
   const handleSettle = (vendor) => {
@@ -101,7 +101,7 @@ const AdminFinance = () => {
 
     setVendors(updated);
     localStorage.setItem('abkharido_vendor_ledgers', JSON.stringify(updated));
-    showToastMsg(`🚀 Cashfree Escrow Payout Executed! Settled ₹${vendor.pendingBalance.toLocaleString()} directly to account ending ${vendor.accountNumber.slice(-4)} (UTR: ${transactionId}).`, 'success');
+    showToastMsg(`🚀 Cashfree Escrow Payout Executed! Settled ₹${vendor.pendingBalance.toLocaleString()} directly to account ending ${String(vendor.accountNumber).slice(-4)} (UTR: ${transactionId}).`, 'success');
   };
 
   const handleAddVendor = (e) => {

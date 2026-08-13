@@ -92,13 +92,16 @@ const AdminAuditLogs = () => {
     if (!matchesSearch) return false;
 
     if (filterCategory === 'critical') {
-      return log.action.includes('DELETE') || log.action.includes('CANCEL') || log.action.includes('SECURITY') || log.action.includes('LOCK');
+      const action = log.action || '';
+      return action.includes('DELETE') || action.includes('CANCEL') || action.includes('SECURITY') || action.includes('LOCK');
     }
     if (filterCategory === 'orders') {
-      return log.targetModel === 'Order' || log.action.includes('ORDER') || log.action.includes('SHIP');
+      const action = log.action || '';
+      return log.targetModel === 'Order' || action.includes('ORDER') || action.includes('SHIP');
     }
     if (filterCategory === 'catalog') {
-      return log.targetModel === 'Product' || log.targetModel === 'Coupon' || log.action.includes('PRODUCT') || log.action.includes('STOCK');
+      const action = log.action || '';
+      return log.targetModel === 'Product' || log.targetModel === 'Coupon' || action.includes('PRODUCT') || action.includes('STOCK');
     }
     return true;
   });
@@ -108,7 +111,7 @@ const AdminAuditLogs = () => {
   const currentSlice = filteredLogs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   // KPIs
-  const criticalEventsCount = logs.filter(l => l.action.includes('DELETE') || l.action.includes('CANCEL') || l.action.includes('LOCK')).length;
+  const criticalEventsCount = logs.filter(l => { const a = l.action || ''; return a.includes('DELETE') || a.includes('CANCEL') || a.includes('LOCK'); }).length;
   const uniqueStaff = new Set(logs.map(l => l.adminName || 'Admin')).size;
   const uniqueIPs = new Set(logs.map(l => l.ipAddress)).size;
 
@@ -304,8 +307,9 @@ const AdminAuditLogs = () => {
                 </tr>
               ) : (
                 currentSlice.map(log => {
-                  const isDeleteOrCancel = log.action.includes('DELETE') || log.action.includes('CANCEL') || log.action.includes('LOCK');
-                  const isCreateOrShip = log.action.includes('CREATE') || log.action.includes('SHIP') || log.action.includes('BOOT');
+                  const logAction = log.action || '';
+                  const isDeleteOrCancel = logAction.includes('DELETE') || logAction.includes('CANCEL') || logAction.includes('LOCK');
+                  const isCreateOrShip = logAction.includes('CREATE') || logAction.includes('SHIP') || logAction.includes('BOOT');
 
                   return (
                     <tr key={log._id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.15s' }} onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>

@@ -33,7 +33,7 @@ const AdminPromotions = () => {
       id: 'HERO-1',
       title: 'Grand Tech & Flagship Smartphone Carnival',
       subTitle: 'Experience unprecedented performance with Titanium designs and Next-Gen AI features.',
-      imageUrl: 'https://mages.unsplash.com/photo-1592659762303-90081d34b277?auto=format&fit=crop&q=80&w=1200',
+      imageUrl: 'https://images.unsplash.com/photo-1592659762303-90081d34b277?auto=format&fit=crop&q=80&w=1200',
       badge: 'FLAT 25% OFF + NO-COST EMI',
       link: '/category/mobiles',
       bgGradient: 'linear-gradient(135deg, #1e1b4b, #312e81)'
@@ -42,7 +42,7 @@ const AdminPromotions = () => {
       id: 'HERO-2',
       title: 'Royal Home Aesthetics & Smart Appliances Extravaganza',
       subTitle: 'Upgrade your lifestyle with energy-efficient 5-Star cooling & robotic vacuum systems.',
-      imageUrl: 'https://mages.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=1200',
+      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=1200',
       badge: 'FESTIVE SPECIAL DOORBUSTERS',
       link: '/category/home',
       bgGradient: 'linear-gradient(135deg, #451a03, #78350f)'
@@ -50,12 +50,12 @@ const AdminPromotions = () => {
   ]);
 
   const [categoryBanners, setCategoryBanners] = useState({
-    all: { show: true, slides: [{ id: 'CAT-ALL-1', title: 'Complete Megastore Catalog Savings', imageUrl: 'https://mages.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1000', badge: 'SPECIAL DISCOUNT CODES APPLICABLE' }] },
-    mobiles: { show: true, slides: [{ id: 'CAT-MOB-1', title: 'Flagship Smart Mobiles & 5G Revolution', imageUrl: 'https://mages.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1000', badge: 'INSTANT ₹5,000 BANK DISCOUNT' }] },
-    electronics: { show: true, slides: [{ id: 'CAT-ELE-1', title: 'Enterprise Tech, Laptops & RTX Peripherals', imageUrl: 'https://mages.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=1000', badge: 'ABOVE 40% REBATE ON WORKSTATIONS' }] },
-    fashion: { show: true, slides: [{ id: 'CAT-FAS-1', title: 'Designer Ethnic Ensembles & Western Street Wear', imageUrl: 'https://mages.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1000', badge: 'BUY 2 GET 1 FREE CARNIVAL' }] },
-    home: { show: true, slides: [{ id: 'CAT-HOM-1', title: 'Luxury Living Decor & Smart Lighting Aesthetics', imageUrl: 'https://mages.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1000', badge: 'FREE INSTALLATION + WARRANTY SHIELD' }] },
-    kitchen: { show: true, slides: [{ id: 'CAT-KIT-1', title: 'Chef-Grade Cookware & Automatic Kitchen Hubs', imageUrl: 'https://mages.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=1000', badge: 'UP TO 55% OFF ON BUNDLES' }] }
+    all: { show: true, slides: [{ id: 'CAT-ALL-1', title: 'Complete Megastore Catalog Savings', imageUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1000', badge: 'SPECIAL DISCOUNT CODES APPLICABLE' }] },
+    mobiles: { show: true, slides: [{ id: 'CAT-MOB-1', title: 'Flagship Smart Mobiles & 5G Revolution', imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1000', badge: 'INSTANT ₹5,000 BANK DISCOUNT' }] },
+    electronics: { show: true, slides: [{ id: 'CAT-ELE-1', title: 'Enterprise Tech, Laptops & RTX Peripherals', imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=1000', badge: 'ABOVE 40% REBATE ON WORKSTATIONS' }] },
+    fashion: { show: true, slides: [{ id: 'CAT-FAS-1', title: 'Designer Ethnic Ensembles & Western Street Wear', imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1000', badge: 'BUY 2 GET 1 FREE CARNIVAL' }] },
+    home: { show: true, slides: [{ id: 'CAT-HOM-1', title: 'Luxury Living Decor & Smart Lighting Aesthetics', imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1000', badge: 'FREE INSTALLATION + WARRANTY SHIELD' }] },
+    kitchen: { show: true, slides: [{ id: 'CAT-KIT-1', title: 'Chef-Grade Cookware & Automatic Kitchen Hubs', imageUrl: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=1000', badge: 'UP TO 55% OFF ON BUNDLES' }] }
   });
 
   const defaultVipCategories = [
@@ -128,7 +128,7 @@ const AdminPromotions = () => {
           id: `DIW-${Date.now()}`,
           title: '🪔 Diwali Gold Prosperity Mega Carnival',
           subTitle: 'Celebrate the festival of lights with up to 65% discounts on Flagship Electronics & Traditional Wear.',
-          imageUrl: 'https://mages.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&q=80&w=1200',
+          imageUrl: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&q=80&w=1200',
           badge: '🪔 MEGA DIWALI SPECIAL DEALS',
           link: '/catalog?sale=diwali',
           bgGradient: 'linear-gradient(135deg, #78350f, #451a03)'
@@ -137,7 +137,7 @@ const AdminPromotions = () => {
           id: `DIW-TECH-${Date.now()}`,
           title: '⚡ Dhanteras Flagship Smartphones & Smart TV Steals',
           subTitle: 'Instant cashback vouchers on Cashfree checkout and zero down payment EMI plans.',
-          imageUrl: 'https://mages.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200',
+          imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200',
           badge: 'FESTIVE DOORBUSTER HOUR',
           link: '/category/mobiles',
           bgGradient: 'linear-gradient(135deg, #1e3a8a, #0f172a)'
@@ -155,7 +155,7 @@ const AdminPromotions = () => {
           id: `CYB-${Date.now()}`,
           title: '⚡ Cyber Midnight Tech Week & Gaming Extravaganza',
           subTitle: 'RTX 4090 Workstations, OLED Monitors, and Mechanical Keyboard combos at wholesale vendor pricing.',
-          imageUrl: 'https://mages.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200',
+          imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200',
           badge: 'ABOVE 50% CYBER REBATE',
           link: '/category/electronics',
           bgGradient: 'linear-gradient(135deg, #3730a3, #1e1b4b)'
@@ -168,7 +168,7 @@ const AdminPromotions = () => {
           id: `SUM-${Date.now()}`,
           title: '🌸 Spring & Summer Vibes Designer Wardrobe Refresh',
           subTitle: 'Airy linen dresses, UV-shield eyewear, and luxury luxury watches at unbeatable seasonal discounts.',
-          imageUrl: 'https://mages.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200',
+          imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200',
           badge: 'SUMMER FASHION CARNIVAL',
           link: '/category/fashion',
           bgGradient: 'linear-gradient(135deg, #831843, #4c0519)'
@@ -193,7 +193,7 @@ const AdminPromotions = () => {
       id: `HERO-${Date.now().toString().slice(-4)}`,
       title: 'New Custom Promotional Campaign Title',
       subTitle: 'Enter a high-converting subtitle explaining key consumer benefits and warranty guarantees.',
-      imageUrl: 'https://mages.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200',
+      imageUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200',
       badge: 'SPECIAL PROMO DISCOUNT',
       link: '/catalog',
       bgGradient: 'linear-gradient(135deg, #1f2937, #111827)'
@@ -446,7 +446,7 @@ const AdminPromotions = () => {
                       type="text" 
                       value={slide.imageUrl}
                       onChange={e => updateHeroSlide(idx, 'imageUrl', e.target.value)}
-                      placeholder="https://mages.unsplash.com/..."
+                      placeholder="https://images.unsplash.com/..."
                       style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'monospace', boxSizing: 'border-box', color: '#334155' }}
                     />
                   </div>
