@@ -79,6 +79,7 @@ export const verifyPayment = async (req, res, next) => {
     const isProd = process.env.CASHFREE_PROD === 'true';
 
     let orderStatus = 'PAID'; // Default to simulated success
+    let amountPaid = 0;
 
     if (appId && secretKey) {
       const url = isProd 
@@ -101,11 +102,10 @@ export const verifyPayment = async (req, res, next) => {
 
       const data = await response.json();
       orderStatus = data.order_status;
+      amountPaid = data.order_amount;
     }
 
     if (orderStatus === 'PAID') {
-      const amountPaid = data.order_amount;
-
       // Fetch the order first to verify the amount
       const pendingOrder = await Order.findOne({ cfOrderId: orderId, isPaid: false });
 
@@ -121,7 +121,7 @@ export const verifyPayment = async (req, res, next) => {
 
       // ── CRITICAL PAYMENT AMOUNT VERIFICATION GUARD ──
       // Prevent arbitrary amount bypass (e.g. paying ₹1 for a ₹10,000 order)
-      if (Math.abs(pendingOrder.totalPrice - amountPaid) > 0.1) {
+      if (appId && secretKey && Math.abs(pendingOrder.totalPrice - amountPaid) > 0.1) {
         res.status(400);
         throw new Error(`Amount mismatch bypass attempt. Order total: ₹${pendingOrder.totalPrice}, Paid: ₹${amountPaid}`);
       }

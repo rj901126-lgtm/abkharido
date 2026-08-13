@@ -113,8 +113,8 @@ export const sendOtp = async (req, res, next) => {
     
     console.log(`[OTP] Generated OTP ****** for ${recipient.substring(0, 3)}****${recipient.substring(recipient.length - 3)}`);
     
-    // In development or when no SMS gateway is available, return the OTP for testing
-    res.json({ success: true, message: 'OTP sent to mobile successfully', mockOtp: generatedOtp });
+    // In production, send via SMS gateway. Do not leak OTP to frontend.
+    res.json({ success: true, message: 'OTP sent to mobile successfully' });
   } catch (error) {
     next(error);
   }
@@ -127,6 +127,15 @@ export const verifyOtp = async (req, res, next) => {
   try {
     // eslint-disable-next-line
     const { recipient, otp, fullName } = req.body;
+
+    // Normalize phone to catch all formats
+    let normalizedRecipient = recipient;
+    if (!recipient.includes('@')) {
+       normalizedRecipient = recipient.replace(/\D/g, '');
+       if (normalizedRecipient.startsWith('91') && normalizedRecipient.length === 12) {
+         normalizedRecipient = normalizedRecipient.slice(2);
+       }
+    }
 
     // Validate OTP from database
     const storedOtpDoc = await Otp.findOne({ phone: recipient }).sort({ createdAt: -1 }); // Get latest OTP
@@ -144,15 +153,6 @@ export const verifyOtp = async (req, res, next) => {
     
     // OTP is valid — delete it to prevent reuse
     await Otp.deleteMany({ phone: recipient });
-    
-    // Normalize phone to catch all formats
-    let normalizedRecipient = recipient;
-    if (!recipient.includes('@')) {
-       normalizedRecipient = recipient.replace(/\D/g, '');
-       if (normalizedRecipient.startsWith('91') && normalizedRecipient.length === 12) {
-         normalizedRecipient = normalizedRecipient.slice(2);
-       }
-    }
     
     // create or find user
     let user = await User.findOne({ $or: [
