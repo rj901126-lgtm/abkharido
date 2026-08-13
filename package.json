@@ -8,7 +8,9 @@
     "server": "node server.js",
     "start": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "next build",
-    "lint": "npx oxlint@latest"
+    "lint": "npx oxlint@latest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -50,8 +52,10 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "concurrently": "^10.0.3"
+    "concurrently": "^10.0.3",
+    "playwright": "^1.62.1"
   }
 }
