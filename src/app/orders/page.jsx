@@ -1,22 +1,20 @@
-"use client";
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import Orders from '../../views/Orders';
+import OrdersClient from './OrdersClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
+
+export const metadata = {
+  title: 'My Orders & Live Tracking | AbKharido',
+  description: 'Track your packages, view past purchase invoices, and request easy 7-day returns on AbKharido.',
+  alternates: {
+    canonical: `${SITE_URL}/orders`,
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function Page() {
-  const router = useRouter();
-  return (
-    <Orders 
-      onNavigate={(path) => {
-        if (path === 'home' || path === '') {
-          router.push('/');
-        } else if (!path.startsWith('/')) {
-          router.push('/' + path);
-        } else {
-          router.push(path);
-        }
-      }}
-      onNavigateProduct={(id) => router.push('/product/' + id)} 
-    />
-  );
+  return <OrdersClient />;
 }

@@ -1,14 +1,20 @@
-"use client";
 import React from 'react';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
-import { useApp } from '../../context/AppContext';
+import AdminClient from './AdminClient';
 
-// Disable SSR for AdminDashboard to avoid sessionStorage/window errors during build
-const AdminDashboard = dynamic(() => import('../../views/AdminDashboard'), { ssr: false });
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
+
+export const metadata = {
+  title: 'Executive Admin Control Center | AbKharido',
+  description: 'Enterprise ERP, OMS, CRM, and catalog management for AbKharido.',
+  alternates: {
+    canonical: `${SITE_URL}/admin`,
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function Page() {
-  const router = useRouter();
-  const { promotions } = useApp();
-  return <AdminDashboard onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} promotions={promotions} onUpdatePromotions={() => window.location.reload()} />;
+  return <AdminClient />;
 }

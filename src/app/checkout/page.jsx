@@ -1,15 +1,20 @@
-"use client";
-import React, { Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Checkout from '../../views/Checkout';
+import React from 'react';
+import CheckoutClient from './CheckoutClient';
 
-function CheckoutContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const coins = searchParams.get('coins') === 'true';
-  return <Checkout useCoinsDiscount={coins} onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} />;
-}
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
+
+export const metadata = {
+  title: 'Secure Express Checkout | AbKharido',
+  description: 'Complete your order securely with Cash on Delivery, UPI, Cards, and Net Banking on AbKharido.',
+  alternates: {
+    canonical: `${SITE_URL}/checkout`,
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function Page() {
-  return <Suspense fallback={<div>Loading...</div>}><CheckoutContent /></Suspense>;
+  return <CheckoutClient />;
 }

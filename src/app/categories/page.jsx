@@ -1,11 +1,37 @@
-"use client";
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import CategoriesPage from '../../views/CategoriesPage';
-import { useApp } from '../../context/AppContext';
+import CategoriesClient from './CategoriesClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
+
+export const metadata = {
+  title: 'All Categories - Explore Collections | AbKharido',
+  description: 'Browse all categories on AbKharido: Mobiles, Electronics, Designer Fashion, Home Decor, Appliances, and more with huge daily savings.',
+  alternates: {
+    canonical: `${SITE_URL}/categories`,
+  },
+  openGraph: {
+    title: 'Explore Collections & Categories | AbKharido',
+    description: 'Browse all departments on AbKharido with express doorstep delivery across India.',
+    url: `${SITE_URL}/categories`,
+    siteName: 'AbKharido',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/logo.jpg`,
+        width: 800,
+        height: 800,
+        alt: 'AbKharido Categories',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Explore Collections & Categories | AbKharido',
+    description: 'Browse all departments on AbKharido with express doorstep delivery.',
+    images: [`${SITE_URL}/logo.jpg`],
+  },
+};
 
 export default function Page() {
-  const router = useRouter();
-  const { promotions } = useApp();
-  return <CategoriesPage onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} onSelectCategory={(cat) => router.push('/catalog?category=' + cat)} onNavigateProduct={(id) => router.push('/product/' + id)} promotions={promotions} onSearch={(query) => router.push('/catalog?search=' + encodeURIComponent(query))} />;
+  return <CategoriesClient />;
 }

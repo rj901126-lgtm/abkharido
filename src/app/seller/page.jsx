@@ -1,12 +1,20 @@
-"use client";
 import React from 'react';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
+import SellerClient from './SellerClient';
 
-// Disable SSR for SellerDashboard to prevent hydration issues and split bundle
-const SellerDashboard = dynamic(() => import('../../views/SellerDashboard'), { ssr: false });
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
+
+export const metadata = {
+  title: 'Merchant & Seller Hub | AbKharido',
+  description: 'Sell on AbKharido. Direct access to high-converting buyers across Indian metros with express fulfillment and automated bank settlements.',
+  alternates: {
+    canonical: `${SITE_URL}/seller`,
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function Page() {
-  const router = useRouter();
-  return <SellerDashboard onNavigate={(p) => router.push(p === 'home' || p === '' ? '/' : '/' + p)} />;
+  return <SellerClient />;
 }

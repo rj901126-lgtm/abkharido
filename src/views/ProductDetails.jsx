@@ -26,7 +26,7 @@ import ProductCard from '../components/ProductCard';
 
 
 // eslint-disable-next-line
-const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
+const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialProduct }) => {
   const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState(currentUser?.pincode || '400001');
@@ -196,7 +196,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   const productFromContext = products.find(p => p.id === productId);
 
   // Fallback to individual fetch if not in the first 100 products loaded by AppContext
-  const [fetchedProduct, setFetchedProduct] = useState(null);
+  const [fetchedProduct, setFetchedProduct] = useState(initialProduct || null);
   const [isFetchingLocal, setIsFetchingLocal] = useState(false);
   const [fetchError, setFetchError] = useState(false);
 
@@ -219,7 +219,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
     }
   }, [productFromContext, isLoadingProducts, productId, fetchedProduct, isFetchingLocal, fetchError]);
 
-  const product = productFromContext || fetchedProduct;
+  const product = initialProduct || productFromContext || fetchedProduct;
 
   const getProductColorModels = (prod) => {
     if (!prod) return [];
