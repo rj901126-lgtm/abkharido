@@ -11,11 +11,18 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 768px) {
+  .home-page-layout-container {
+    padding: 16px 16px 110px 16px;
+    gap: 18px;
+  }
+}
+
 /* Hero Carousel */
 .hero-carousel {
   position: relative;
   height: 560px; /* Increased for a more immersive feel */
-  background-color: var(--bg-page);
+  background: linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #312e81 100%);
   overflow: hidden;
   border-radius: 32px; /* More rounded, modern look */
   box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;

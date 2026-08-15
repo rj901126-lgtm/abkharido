@@ -42,17 +42,18 @@ const FlashDealBanner = () => {
 
   return (
     <div 
+      className="flash-deal-banner-strip"
       style={{
         background: 'linear-gradient(90deg, #090d16 0%, #1e1b4b 40%, #312e81 60%, #090d16 100%)',
         color: '#f8fafc',
-        padding: '12px 24px',
+        padding: '12px 20px',
         margin: '8px 0 16px 0',
         borderRadius: '20px',
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '20px',
+        gap: '16px',
         width: '100%',
         boxShadow: '0 8px 24px rgba(9, 13, 22, 0.25)',
         border: '1px solid rgba(253, 224, 71, 0.3)',
@@ -62,6 +63,15 @@ const FlashDealBanner = () => {
         fontFamily: "'Outfit', sans-serif"
       }}
     >
+      <style>{`
+        @media (max-width: 640px) {
+          .flash-deal-banner-strip {
+            padding: 10px 12px !important;
+            gap: 10px !important;
+            border-radius: 16px !important;
+          }
+        }
+      `}</style>
       {/* Decorative ambient lighting */}
       <div style={{ position: 'absolute', left: '15%', opacity: 0.15, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}><Zap size={48} color="#fde047" /></div>
       <div style={{ position: 'absolute', right: '15%', opacity: 0.15, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}><Zap size={48} color="#fde047" /></div>

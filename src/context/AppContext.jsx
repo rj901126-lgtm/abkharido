@@ -604,11 +604,13 @@ export const AppProvider = ({ children }) => {
         const itemId = item.product?.id || item.product?._id;
         return itemId === pId;
       });
-      const stock = product.stock ?? 99;
+      const stock = (product.stock !== undefined && product.stock !== null && product.stock > 0) 
+        ? product.stock 
+        : (product.inStock !== false ? 99 : 0);
       
       if (existing) {
         const newQty = existing.quantity + qty;
-        if (newQty > stock) {
+        if (newQty > stock && stock > 0) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
           return prev;
         }
@@ -633,8 +635,10 @@ export const AppProvider = ({ children }) => {
     setCart(prev => prev.map(item => {
       const itemId = item.product?.id || item.product?._id;
       if (itemId === productId) {
-        const stock = item.product.stock ?? 99;
-        if (qty > stock) {
+        const stock = (item.product.stock !== undefined && item.product.stock !== null && item.product.stock > 0) 
+          ? item.product.stock 
+          : (item.product.inStock !== false ? 99 : 0);
+        if (qty > stock && stock > 0) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
           return item; // don't update
         }

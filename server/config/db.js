@@ -56,6 +56,7 @@ const seedDatabaseIfEmpty = async () => {
         const productsData = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
         const docs = productsData.map(p => ({
            ...p,
+           stock: (p.stock !== undefined && p.stock > 0) ? p.stock : 50,
            originalPrice: p.originalPrice || p.price + 500,
            inStock: p.inStock !== undefined ? p.inStock : true,
            soldCount: p.soldCount || 0

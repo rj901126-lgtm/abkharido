@@ -243,13 +243,14 @@ export default function ClientLayout({ children }) {
       {/* Floating WhatsApp Live Customer Support Widget */}
       {!isPortalPage && globalConfig.enableWhatsAppFloat && (
         <a
-          href={`https://pi.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent('Hello AbKharido Support! I need some assistance with my shopping.')}`}
+          href={`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent('Hello AbKharido Support! I need some assistance with my shopping.')}`}
           target="_blank"
           rel="noopener noreferrer"
+          className="whatsapp-floating-cta"
           style={{
             position: 'fixed',
-            bottom: '96px',
-            right: '18px',
+            bottom: '92px',
+            right: '20px',
             zIndex: 1050,
             background: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
             color: '#ffffff',

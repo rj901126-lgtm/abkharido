@@ -115,10 +115,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const { products, addProduct, editProduct, removeProduct, showToast, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('adminActiveTab') || 'analytics'); 
   
-  const userRole = currentUser?.role || (sessionStorage.getItem('abkharido_admin_token') ? 'super_admin' : 'admin');
+  const adminSessionToken = typeof window !== 'undefined' ? sessionStorage.getItem('abkharido_admin_token') : null;
+  const userRole = (currentUser?.role === 'super_admin' || currentUser?.role === 'admin' || currentUser?.role === 'catalog_manager' || currentUser?.role === 'support_agent') 
+    ? currentUser.role 
+    : (adminSessionToken ? 'super_admin' : (currentUser?.role || 'admin'));
   
   // RBAC Helpers
-  const isSuperAdmin = userRole === 'super_admin';
+  const isSuperAdmin = userRole === 'super_admin' || !!adminSessionToken;
   const canManageCatalog = userRole === 'catalog_manager' || userRole === 'admin' || isSuperAdmin;
   const canManageSupport = userRole === 'support_agent' || userRole === 'admin' || isSuperAdmin;
   const canManageFinance = isSuperAdmin;
