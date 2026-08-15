@@ -76,11 +76,39 @@ export async function GET(req, { params }) {
       }
     }
 
-    const user = await User.findOne({ $or: [{ username }, { phone: username }, { email: username }, { _id: username.length === 24 ? username : undefined }].filter(Boolean) }).select('-password');
+    const user = await User.findOne({ $or: [{ username }, { phone: username }, { email: username }, { _id: (username && username.length === 24 && /^[0-9a-fA-F]{24}$/.test(username)) ? username : undefined }].filter(Boolean) }).select('-password');
     
     if (user) {
       let userObj = user.toObject();
       
+      // Determine requester identity for IDOR PII guard
+      const authHeader = req.headers.get('authorization') || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+      let isOwnerOrAdmin = false;
+      if (token) {
+        try {
+          const { default: jwt } = await import('jsonwebtoken');
+          const jwtSecret = process.env.JWT_SECRET || 'abkharido_jwt_secret_dev';
+          const decoded = jwt.verify(token, jwtSecret);
+          if (decoded && (decoded.id === user._id.toString() || ['admin', 'super_admin'].includes(decoded.role))) {
+            isOwnerOrAdmin = true;
+          }
+        } catch {
+          // invalid token
+        }
+      }
+
+      if (!isOwnerOrAdmin) {
+        // Redact private PII for unauthorized third parties
+        return NextResponse.json({
+          _id: userObj._id,
+          username: userObj.username,
+          fullName: userObj.fullName,
+          avatar: userObj.avatar,
+          role: userObj.role
+        });
+      }
+
       // Automatic fallback migration for legacy addresses
       if ((!userObj.addresses || userObj.addresses.length === 0) && (userObj.address || userObj.city || userObj.pincode)) {
         userObj.addresses = [{
@@ -134,21 +162,41 @@ export async function POST(req, { params }) {
     if (token) {
       try {
         const { default: jwt } = await import('jsonwebtoken');
-        const jwtSecret = process.env.JWT_SECRET;
-        if (jwtSecret) {
-          const decoded = jwt.verify(token, jwtSecret);
-          await connectDB();
-          const targetUsername = routeParams[0];
-          // Allow only if: the token user's id/username matches the target, OR they are an admin
-          const isOwner = decoded.id === targetUsername || 
-            (await User.findById(decoded.id).select('username role').lean())?.username === targetUsername;
-          const requesterRole = (await User.findById(decoded.id).select('role').lean())?.role;
-          const isAdmin = ['admin', 'super_admin'].includes(requesterRole);
-          if (!isOwner && !isAdmin) {
-            return NextResponse.json({ error: 'Not authorized to update this profile' }, { status: 403 });
-          }
+        const jwtSecret = process.env.JWT_SECRET || 'abkharido_jwt_secret_dev';
+        const decoded = jwt.verify(token, jwtSecret);
+        await connectDB();
+        const targetUsername = routeParams[0];
+
+        // Lookup requester
+        const requester = await User.findById(decoded.id).lean() || 
+                          await User.findOne({ $or: [{ username: decoded.id }, { phone: decoded.id }, { email: decoded.id }] }).lean();
+
+        // Lookup target user
+        const targetUser = await User.findOne({ 
+          $or: [
+            { username: targetUsername }, 
+            { phone: targetUsername }, 
+            { email: targetUsername }, 
+            { _id: targetUsername?.length === 24 ? targetUsername : undefined }
+          ].filter(Boolean) 
+        }).lean();
+
+        const requesterId = requester?._id?.toString() || decoded.id?.toString();
+        const targetId = targetUser?._id?.toString() || targetUsername;
+
+        const isOwner = (requesterId && targetId && requesterId === targetId) || 
+                        decoded.id === targetUsername || 
+                        (requester?.username && requester.username === targetUsername) ||
+                        (requester?.phone && requester.phone === targetUsername);
+        
+        const requesterRole = requester?.role || decoded.role;
+        const isAdmin = ['admin', 'super_admin'].includes(requesterRole);
+        
+        if (!isOwner && !isAdmin) {
+          return NextResponse.json({ error: 'Not authorized to update this profile' }, { status: 403 });
         }
       } catch (e) {
+        console.error('[User Proxy POST Auth Error]:', e);
         return NextResponse.json({ error: 'Not authorized: invalid token' }, { status: 401 });
       }
     } else {

@@ -80,17 +80,17 @@ const LivePurchasePopup = () => {
       }}
     >
       <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #10b981', backgroundColor: '#ffffff', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <img src={popupData.product.image || (popupData.product.images && popupData.product.images[0]) || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
+        <img src={popupData?.product?.image || (popupData?.product?.images && popupData?.product?.images[0]) || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
         <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          <span>⚡ <strong style={{ color: '#ffffff' }}>{popupData.name}</strong> in <strong style={{ color: '#ffffff' }}>{popupData.city}</strong></span>
+          <span>⚡ <strong style={{ color: '#ffffff' }}>{popupData?.name || 'Customer'}</strong> in <strong style={{ color: '#ffffff' }}>{popupData?.city || 'India'}</strong></span>
         </div>
         <div style={{ fontSize: '12px', fontWeight: '800', color: '#f8fafc', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          Bought {popupData.product.name}
+          Bought {popupData?.product?.name || 'Exclusive Deal'}
         </div>
         <div style={{ fontSize: '10px', color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '800' }}>
-          <CheckCircle2 size={10} color="#34d399" /> Verified • {popupData.timeAgo}m ago
+          <CheckCircle2 size={10} color="#34d399" /> Verified • {popupData?.timeAgo || 1}m ago
         </div>
       </div>
     </div>

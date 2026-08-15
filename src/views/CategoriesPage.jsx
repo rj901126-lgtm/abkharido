@@ -190,7 +190,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                 {renderCatIcon(cat)}
               </div>
               <span className="sidebar-category-label">
-                {cat.name.split(' ')[0]}
+                {(cat?.name || 'Category').split(' ')[0]}
               </span>
             </button>
           ))}

@@ -70,8 +70,9 @@ export const getTicketById = async (req, res, next) => {
       .populate('messages.senderId', 'name email').lean();
 
     if (ticket) {
-      // Ensure customer only sees their own ticket
-      if (req.user.role !== 'admin' && ticket.customerId._id.toString() !== req.user._id.toString()) {
+      // Ensure customer only sees their own ticket unless staff/admin
+      const isStaffOrAdmin = ['admin', 'super_admin', 'support_agent'].includes(req.user.role);
+      if (!isStaffOrAdmin && ticket.customerId._id.toString() !== req.user._id.toString()) {
         res.status(403);
         throw new Error('Not authorized to view this ticket');
       }
@@ -95,16 +96,15 @@ export const replyTicket = async (req, res, next) => {
 
     if (ticket) {
       // Ensure auth
-      if (req.user.role !== 'admin' && ticket.customerId.toString() !== req.user._id.toString()) {
+      const isStaffOrAdmin = ['admin', 'super_admin', 'support_agent'].includes(req.user.role) || req.user.role === 'master_admin_legacy';
+      if (!isStaffOrAdmin && ticket.customerId.toString() !== req.user._id.toString()) {
         res.status(403);
         throw new Error('Not authorized to reply to this ticket');
       }
 
-      const isAdmin = req.user.role === 'admin' || req.user.role === 'master_admin_legacy';
-      
       ticket.messages.push({
         senderId: req.user._id,
-        isAdmin,
+        isAdmin: isStaffOrAdmin,
         content
       });
 

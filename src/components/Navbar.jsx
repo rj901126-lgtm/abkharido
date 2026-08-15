@@ -289,22 +289,23 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                     </div>
                     {products.slice(0, 3).map(p => (
                       <div 
-                        key={p.id}
-                        onMouseDown={() => { onNavigateProduct(p.id); setShowSuggestions(false); }}
+                        key={p?.id || Math.random()}
+                        onMouseDown={() => { if (p?.id) onNavigateProduct(p.id); setShowSuggestions(false); }}
                         style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 4px', cursor: 'pointer', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}
                       >
-                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
+                        <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
                         <div style={{ flex: 1, overflow: 'hidden' }}>
-                          <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>{p.name}</div>
-                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>⚡ Express Ready in {p.category}</div>
+                          <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
+                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>⚡ Express Ready in {p?.category || 'Catalog'}</div>
                         </div>
-                        <span style={{ fontSize: '14px', fontWeight: '900', color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: '8px' }}>₹{(p.price || 0).toLocaleString('en-IN')}</span>
+                        <span style={{ fontSize: '14px', fontWeight: '900', color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: '8px' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
                   (() => {
                     const matches = products.filter(p => {
+                      if (!p) return false;
                       const name = p.name ? p.name.toLowerCase() : '';
                       const category = p.category ? p.category.toLowerCase() : '';
                       const desc = p.description ? p.description.toLowerCase() : '';
@@ -317,10 +318,10 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                         <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Live Matches ({matches.length})</div>
                         {matches.map(p => (
                           <div 
-                            key={p.id} 
+                            key={p?.id || Math.random()} 
                             className="suggestion-item"
                             onMouseDown={() => {
-                              onNavigateProduct(p.id);
+                              if (p?.id) onNavigateProduct(p.id);
                               setSearchQuery('');
                               setShowSuggestions(false);
                             }}
@@ -337,14 +338,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                             onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
                             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                           >
-                            <img src={p.image} alt={p.name} style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '2px' }} />
+                            <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '2px' }} />
                             <div className="suggestion-text" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
-                              <div style={{ fontWeight: '800', color: '#090d16', fontSize: '13px', fontFamily: "'Outfit', sans-serif" }}>{p.name}</div>
-                              <span style={{ color: '#4338ca', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>💎 VIP Deals • {p.category}</span>
+                              <div style={{ fontWeight: '800', color: '#090d16', fontSize: '13px', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
+                              <span style={{ color: '#4338ca', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>💎 VIP Deals • {p?.category || 'General'}</span>
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669' }}>₹{(p.price || 0).toLocaleString('en-IN')}</div>
-                              {p.originalPrice > p.price && (
+                              <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</div>
+                              {(p?.originalPrice || 0) > (p?.price || 0) && (
                                 <div style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(p.originalPrice || 0).toLocaleString('en-IN')}</div>
                               )}
                             </div>

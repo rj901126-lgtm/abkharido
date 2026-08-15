@@ -99,7 +99,7 @@ export async function POST(req) {
 
     console.log(`[OTP Server] OTP stored for +91${body.recipient}. External SMS: ${smsSent ? 'SENT' : 'No gateway configured - Firebase handles delivery'}`);
 
-    return NextResponse.json({ success: true, message: 'OTP generated. Verify with your SMS code.', mockOtp: directResult._otp });
+    return NextResponse.json({ success: true, message: 'OTP sent successfully. Please check your SMS code.' });
   } catch (error) {
     console.error('Error in send-otp API:', error);
     return NextResponse.json({ error: error.message || 'Internal error in OTP processing.' }, { status: 500 });

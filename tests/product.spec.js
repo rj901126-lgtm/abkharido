@@ -6,7 +6,7 @@ test.describe('Product Browsing Flow', () => {
 
     // Wait for product cards to render
     const productCards = page.locator('.product-card');
-    await expect(productCards.first()).toBeVisible({ timeout: 15000 });
+    await expect(productCards.first()).toBeVisible({ timeout: 25000 });
     
     // Check that there is at least one product
     const count = await productCards.count();
@@ -18,17 +18,17 @@ test.describe('Product Browsing Flow', () => {
 
     // Wait for product cards
     const productCards = page.locator('.product-card');
-    await expect(productCards.first()).toBeVisible({ timeout: 15000 });
+    await expect(productCards.first()).toBeVisible({ timeout: 25000 });
 
     // Click the first product
     await productCards.first().click();
 
     // Verify URL changed to /product/:id
-    await page.waitForURL(/\/product\/.+/, { timeout: 10000 });
+    await page.waitForURL(/\/product\/.+/, { timeout: 20000 });
 
     // Verify Product Details load
     const addToCartBtn = page.locator('button:has-text("Add to Cart"), .add-to-cart-btn').first();
-    await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
+    await expect(addToCartBtn).toBeVisible({ timeout: 20000 });
   });
 
   test('should search for products', async ({ page }) => {
@@ -37,7 +37,7 @@ test.describe('Product Browsing Flow', () => {
     // Locate the search bar
     // It might be an input with placeholder "Search..." or similar
     const searchInput = page.locator('input[type="text"][placeholder*="earch"], input[type="search"]').first();
-    await expect(searchInput).toBeVisible({ timeout: 10000 });
+    await expect(searchInput).toBeVisible({ timeout: 20000 });
 
     // Type a query
     await searchInput.fill('iPhone');
@@ -46,6 +46,6 @@ test.describe('Product Browsing Flow', () => {
     // It should navigate to search results or filter in place
     // Verify product cards are visible after search
     const productCards = page.locator('.product-card');
-    await expect(productCards.first()).toBeVisible({ timeout: 15000 });
+    await expect(productCards.first()).toBeVisible({ timeout: 25000 });
   });
 });

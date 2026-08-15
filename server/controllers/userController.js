@@ -72,9 +72,14 @@ export const updateUserProfile = async (req, res, next) => {
   try {
     const usernameParam = req.params.username;
     
-    // Check authorization: User can only update their own profile unless they are a super_admin
-    // (allow if the param matches their username or their _id)
-    if (req.user.username !== usernameParam && req.user._id.toString() !== usernameParam && req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+    // Check authorization: User can only update their own profile unless they are a super_admin or admin
+    const isOwner = req.user.username === usernameParam || 
+                    req.user._id.toString() === usernameParam ||
+                    req.user.phone === usernameParam ||
+                    req.user.email === usernameParam;
+    const isAdmin = ['admin', 'super_admin'].includes(req.user.role);
+    
+    if (!isOwner && !isAdmin) {
       res.status(403);
       throw new Error('Not authorized to update this profile');
     }

@@ -468,16 +468,16 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontWeight: '700', fontSize: '15px' }}>
-                          {addr.addressType === 'Home' ? '🏠 ' : addr.addressType === 'Work' ? '🏢 ' : '📍 '} 
-                          {addr.addressType} {addr.isDefault && <span style={{fontSize: '11px', background: '#4f46e5', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px'}}>DEFAULT</span>}
+                          {addr?.addressType === 'Home' ? '🏠 ' : addr?.addressType === 'Work' ? '🏢 ' : '📍 '} 
+                          {addr?.addressType || 'Address'} {addr?.isDefault && <span style={{fontSize: '11px', background: '#4f46e5', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px'}}>DEFAULT</span>}
                         </div>
                         {isSelected && <CheckCircle2 size={18} color="#4f46e5" />}
                       </div>
                       <div style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.4' }}>
-                        {addr.name}<br/>
-                        {addr.houseNo ? addr.houseNo + ', ' : ''}{addr.streetArea || addr.streetAddress}<br/>
-                        {addr.city}, {addr.state} - <strong>{addr.pincode}</strong><br/>
-                        Phone: {addr.phone}
+                        {addr?.name || currentUser?.fullName || 'Customer'}<br/>
+                        {addr?.houseNo ? addr.houseNo + ', ' : ''}{addr?.streetArea || addr?.streetAddress || ''}<br/>
+                        {addr?.city || ''}, {addr?.state || ''} {addr?.pincode ? `- ${addr.pincode}` : ''}<br/>
+                        {addr?.phone ? `Phone: ${addr.phone}` : ''}
                       </div>
                     </div>
                   )
@@ -530,7 +530,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   {shippingServiceability && !isCheckingShipping && (
                     <div style={{ fontSize: '11px', marginTop: '4px', fontWeight: '500' }}>
                       {shippingServiceability.serviceable ? (
-                        <span style={{ color: '#2e7d32' }}>✓ Deliverable by {shippingServiceability.courier} in {shippingServiceability.estimatedDays || 4-5} days.</span>
+                        <span style={{ color: '#2e7d32' }}>✓ Deliverable by {shippingServiceability.courier || 'Express Air'} in {shippingServiceability.estimatedDays || '3-4'} days.</span>
                       ) : (
                         <span style={{ color: '#c62828' }}>✗ Delivery unavailable for this pin code.</span>
                       )}
@@ -591,10 +591,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
             {cart.map(item => (
               <div key={item.product.id} style={{ display: 'flex', gap: '16px', alignItems: 'center', borderBottom: '1px solid #f9f9f9', paddingBottom: '8px' }}>
-                <img src={item.product.image} alt={item.product.name} style={{ width: '50px', height: '50px', objectFit: 'contain', border: '1px solid #f0f0f0', padding: '2px', borderRadius: '4px' }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '14px', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.product.name}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Qty: {item.quantity} | Subtotal: ₹{((item.product.price || 0) * item.quantity).toLocaleString('en-IN')}</div>
+                <img src={item?.product?.image || ''} alt={item?.product?.name || 'Product'} style={{ width: '50px', height: '50px', objectFit: 'contain', border: '1px solid #f0f0f0', padding: '2px', borderRadius: '4px' }} />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item?.product?.name || 'Product'}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Qty: {item?.quantity || 1} {item?.selectedColor ? `| ${item.selectedColor}` : ''} {item?.selectedVariant ? `| ${item.selectedVariant}` : ''}</div>
                 </div>
               </div>
             ))}
@@ -712,56 +712,51 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 </div>
               )}
 
-              {/* Standard Online Payment */}
-              <div 
-                className={`checkout-payment-option ${paymentMethod === 'Online Payment' && !selectedSavedCard ? 'active' : ''}`}
-                onClick={() => {
-                  setPaymentMethod('Online Payment');
-                  setSelectedSavedCard(null);
-                }}
-                style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '12px' }}
+              {/* Online Payment Option */}
+              <label 
+                className={`checkout-payment-option ${paymentMethod === 'online' ? 'active' : ''}`}
+                style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', marginBottom: '12px', borderRadius: '16px', border: paymentMethod === 'online' ? '2px solid var(--primary-color)' : '1.5px solid #e2e8f0', background: paymentMethod === 'online' ? '#f5f3ff' : '#ffffff', transition: 'all 0.2s ease' }}
               >
-                <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid', borderColor: paymentMethod === 'Online Payment' && !selectedSavedCard ? 'var(--primary-color)' : '#cbd5e1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  {paymentMethod === 'Online Payment' && !selectedSavedCard && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary-color)' }} />}
+                <input 
+                  type="radio" 
+                  name="payment" 
+                  value="online" 
+                  checked={paymentMethod === 'online'}
+                  onChange={() => { setPaymentMethod('online'); setSelectedSavedCard(null); }}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: '800', fontSize: '15px', color: paymentMethod === 'online' ? 'var(--primary-color)' : '#0f172a' }}>
+                    ⚡ Instant Online Payment (UPI, Cards, Netbanking)
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
+                    Pay securely via UPI (Google Pay, PhonePe, Paytm), Cards &amp; Netbanking via Cashfree PG.
+                  </div>
                 </div>
-                <div>
-                  <div style={{ fontWeight: '600', color: paymentMethod === 'Online Payment' && !selectedSavedCard ? 'var(--primary-color)' : '#334155' }}>Online Payment (UPI, Cards, Netbanking)</div>
-                  <div style={{ fontSize: '13px', color: '#64748b' }}>Pay via Cashfree secure gateway.</div>
-                </div>
-              </div>
+              </label>
 
-              {/* COD */}
-              <label className={`checkout-payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
+              {/* Cash on Delivery Option */}
+              <label 
+                className={`checkout-payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}
+                style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', marginBottom: '12px', borderRadius: '16px', border: paymentMethod === 'cod' ? '2px solid var(--primary-color)' : '1.5px solid #e2e8f0', background: paymentMethod === 'cod' ? '#f5f3ff' : '#ffffff', transition: 'all 0.2s ease' }}
+              >
                 <input 
                   type="radio" 
                   name="payment" 
                   value="cod" 
                   checked={paymentMethod === 'cod'}
                   onChange={() => { setPaymentMethod('cod'); setSelectedSavedCard(null); }}
-                  style={{ width: '18px', height: '18px', marginTop: '2px' }}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
                 />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '15px' }}>Cash On Delivery (COD)</div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Pay with cash or digital scanning during delivery.</div>
+                  <div style={{ fontWeight: '800', fontSize: '15px', color: paymentMethod === 'cod' ? 'var(--primary-color)' : '#0f172a' }}>
+                    💵 Cash On Delivery (COD)
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
+                    Pay with cash or UPI QR scan at doorstep upon delivery.
+                  </div>
                 </div>
               </label>
-
-              {/* Cashfree Online Payment Gateway */}
-              <label className={`checkout-payment-option ${paymentMethod === 'online' ? 'active' : ''}`}>
-                <input 
-                  type="radio" 
-                  name="payment" 
-                  value="online" 
-                  checked={paymentMethod === 'online'}
-                  onChange={() => setPaymentMethod('online')}
-                  style={{ width: '18px', height: '18px', marginTop: '2px' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '15px' }}>Online Payment (UPI, Cards, Netbanking)</div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Pay securely using UPI, Credit/Debit Cards, Netbanking via Cashfree.</div>
-                </div>
-              </label>
-
             </div>
 
             <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '12px' }}>
@@ -787,11 +782,11 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
           <div style={{ backgroundColor: '#fafafa', border: '1px solid #e0e0e0', padding: '16px', borderRadius: '12px', textAlign: 'left', width: '100%', maxWidth: '550px', fontSize: '14px', margin: '8px 0' }}>
             <div style={{ fontWeight: 'bold', borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}><ShieldCheck size={16} color="var(--primary-color)" /> Direct Warehousing dispatch</div>
-            <div style={{ marginBottom: '4px' }}><strong>Deliver to:</strong> {createdOrder.shippingAddress.name}</div>
-            <div style={{ marginBottom: '8px' }}><strong>Address:</strong> {createdOrder.shippingAddress.streetAddress}, {createdOrder.shippingAddress.locality}, {createdOrder.shippingAddress.city} - {createdOrder.shippingAddress.pincode}</div>
+            <div style={{ marginBottom: '4px' }}><strong>Deliver to:</strong> {createdOrder?.shippingAddress?.name || createdOrder?.shippingAddress?.fullName || 'Customer'}</div>
+            <div style={{ marginBottom: '8px' }}><strong>Address:</strong> {createdOrder?.shippingAddress?.streetAddress || createdOrder?.shippingAddress?.address || ''}, {createdOrder?.shippingAddress?.locality || ''}, {createdOrder?.shippingAddress?.city || ''} {createdOrder?.shippingAddress?.pincode ? `- ${createdOrder.shippingAddress.pincode}` : ''}</div>
             <div style={{ marginBottom: '4px', color: '#059669', fontWeight: '500' }}><strong>Estimated Arrival:</strong> Next-day shipping</div>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #eee' }}><strong>Payment Mode:</strong> {createdOrder.paymentMethod}</div>
-            <div style={{ fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', fontSize: '16px' }}>Paid Amount: ₹{(createdOrder.totalPrice || 0).toLocaleString('en-IN')}</div>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #eee' }}><strong>Payment Mode:</strong> {createdOrder?.paymentMethod || 'Online'}</div>
+            <div style={{ fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', fontSize: '16px' }}>Paid Amount: ₹{(createdOrder?.totalPrice || 0).toLocaleString('en-IN')}</div>
           </div>
 
           {/* Post Purchase Referral Boost */}

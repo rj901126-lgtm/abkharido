@@ -26,45 +26,54 @@ export const AppProvider = ({ children }) => {
     } catch { return null; }
   };
 
-  const [promotions, setPromotions] = useState(() => {
-    if (typeof window !== 'undefined') return loadPromotionsFromStorage();
-    return null;
-  });
-
-  useEffect(() => {
-    const handlePromoSync = () => {
-      const fresh = loadPromotionsFromStorage();
-      if (fresh) setPromotions(fresh);
-    };
-    handlePromoSync();
-    window.addEventListener('abkharido_promotions_updated', handlePromoSync);
-    window.addEventListener('storage', handlePromoSync);
-    return () => {
-      window.removeEventListener('abkharido_promotions_updated', handlePromoSync);
-      window.removeEventListener('storage', handlePromoSync);
-    };
-  }, []);
-  
+  const [promotions, setPromotions] = useState(null);
   const { data: session, status } = useSession();
-  const [dbUser, setDbUser] = useState(() => {
+  const [dbUser, setDbUser] = useState(null);
+  const [localSession, setLocalSession] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [hasMoreOrders, setHasMoreOrders] = useState(false);
+  const [partnerStats, setPartnerStats] = useState({
+    clicks: 0,
+    conversions: 0,
+    history: [],
+    payouts: []
+  });
+  const [activeReferral, setActiveReferral] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [wishlist, setWishlist] = useState([]);
+  const [savedCards, setSavedCards] = useState([]);
+
+  // Hydrate client-only storage states after initial SSR mount
+  useEffect(() => {
     try {
-      const cached = localStorage.getItem('abkharido_cached_profile');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        // Use cache if it's less than 10 minutes old
+      const freshPromo = loadPromotionsFromStorage();
+      if (freshPromo) setPromotions(freshPromo);
+
+      const savedUserSession = localStorage.getItem('abkharido_user_session');
+      if (savedUserSession) setLocalSession(JSON.parse(savedUserSession));
+
+      const cachedProfile = localStorage.getItem('abkharido_cached_profile');
+      if (cachedProfile) {
+        const parsed = JSON.parse(cachedProfile);
         if (parsed._cachedAt && Date.now() - parsed._cachedAt < 10 * 60 * 1000) {
-          return parsed;
+          setDbUser(parsed);
         }
       }
-    } catch (e) { /* ignore */ }
-    return null;
-  });
-  const [localSession, setLocalSession] = useState(() => {
-    try {
-      const saved = localStorage.getItem('abkharido_user_session');
-      return saved ? JSON.parse(saved) : null;
-    } catch { return null; }
-  });
+
+      const isLoggedIn = !!savedUserSession;
+      const savedCart = localStorage.getItem(isLoggedIn ? 'abkharido_cached_cart' : 'abkharido_cart');
+      if (savedCart) setCart(JSON.parse(savedCart));
+
+      const savedWishlist = localStorage.getItem(isLoggedIn ? 'abkharido_cached_wishlist' : 'abkharido_wishlist');
+      if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+
+      const savedReferral = localStorage.getItem('abkharido_active_referral');
+      if (savedReferral) setActiveReferral(JSON.parse(savedReferral));
+    } catch (err) {
+      console.warn('[AppContext] Hydration from localStorage encountered non-fatal error:', err);
+    }
+  }, []);
 
   const currentUser = React.useMemo(() => {
     return (session && session.user) ? { 
@@ -78,42 +87,6 @@ export const AppProvider = ({ children }) => {
     } : (localSession ? { _id: localSession._id || localSession.id || 'vip_user', ...localSession, ...(dbUser || {}) } : null);
   }, [session, localSession, dbUser]);
 
-  const [cart, setCart] = useState(() => {
-    try {
-      const isLoggedIn = !!localStorage.getItem('abkharido_user_session');
-      const saved = localStorage.getItem(isLoggedIn ? 'abkharido_cached_cart' : 'abkharido_cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
-
-  const [orders, setOrders] = useState([]);
-  const [hasMoreOrders, setHasMoreOrders] = useState(false);
-  
-  const [partnerStats, setPartnerStats] = useState({
-    clicks: 0,
-    conversions: 0,
-    history: [],
-    payouts: []
-  });
-
-  const [activeReferral, setActiveReferral] = useState(() => {
-    try {
-      const saved = localStorage.getItem('abkharido_active_referral');
-      return saved ? JSON.parse(saved) : null;
-    } catch { return null; }
-  });
-
-  const [toast, setToast] = useState(null);
-
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const isLoggedIn = !!localStorage.getItem('abkharido_user_session');
-      const saved = localStorage.getItem(isLoggedIn ? 'abkharido_cached_wishlist' : 'abkharido_wishlist');
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
-
-  const [savedCards, setSavedCards] = useState([]);
 
   // --- Secure Storage Helper (Prevent DOS via QuotaExceededError) ---
   const safeSetItem = (key, value) => {

@@ -202,26 +202,26 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     e.preventDefault();
     if (!pincodeInput || !streetAreaInput) return;
     
-    const addresses = currentUser.addresses && currentUser.addresses.length > 0 ? [...currentUser.addresses] : [];
+    const addresses = Array.isArray(currentUser?.addresses) ? [...currentUser.addresses] : [];
     const newAddress = {
       id: editingAddressId || 'addr_' + Date.now(),
-      name: currentUser.fullName || 'User',
-      phone: currentUser.phone || '',
+      name: currentUser?.fullName || (currentUser?.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : 'User'),
+      phone: currentUser?.phone || '',
       houseNo: houseFlatInput,
       streetArea: streetAreaInput,
       streetAddress: streetAreaInput,
       city: cityInput,
       pincode: pincodeInput,
       state: stateInput,
-      addressType: addressType,
+      addressType: addressType || 'Home',
       isDefault: editingAddressId ? undefined : (addresses.length === 0)
     };
 
     if (editingAddressId) {
-      const idx = addresses.findIndex(a => a.id === editingAddressId);
+      const idx = addresses.findIndex(a => a?.id === editingAddressId);
       if (idx !== -1) {
-        if (newAddress.isDefault === undefined) newAddress.isDefault = addresses[idx].isDefault;
-        addresses[idx] = { ...addresses[idx], ...newAddress };
+        if (newAddress.isDefault === undefined) newAddress.isDefault = addresses[idx]?.isDefault;
+        addresses[idx] = { ...(addresses[idx] || {}), ...newAddress };
       }
     } else {
       addresses.push(newAddress);
@@ -229,27 +229,28 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
     setIsUpdating(true);
     const success = await updateUserProfile({
-        firstName,
-        lastName,
-        email: emailInput
-      });
+      addresses,
+      firstName,
+      lastName,
+      email: emailInput
+    });
     if (success) setIsAddressModalOpen(false);
     setIsUpdating(false);
   };
 
   const handleDeleteAddress = async (id) => {
     if (!window.confirm('Delete this address?')) return;
-    const addresses = currentUser.addresses.filter(a => a.id !== id);
-    if (addresses.length > 0 && !addresses.find(a => a.isDefault)) {
-      addresses[0].isDefault = true;
+    const addresses = (currentUser?.addresses || []).filter(a => a && a.id !== id);
+    if (addresses.length > 0 && !addresses.find(a => a?.isDefault)) {
+      if (addresses[0]) addresses[0].isDefault = true;
     }
     await updateUserProfile({ addresses });
   };
 
   const handleSetDefaultAddress = async (id) => {
-    const addresses = currentUser.addresses.map(a => ({
+    const addresses = (currentUser?.addresses || []).filter(Boolean).map(a => ({
       ...a,
-      isDefault: a.id === id
+      isDefault: a?.id === id
     }));
     await updateUserProfile({ addresses });
   };
@@ -589,29 +590,29 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-              {currentUser.addresses && currentUser.addresses.length > 0 ? currentUser.addresses.map((addr) => (
-                <div key={addr.id} style={{ border: addr.isDefault ? '2px solid #4f46e5' : '1.5px solid #cbd5e1', borderRadius: '16px', padding: '16px', background: addr.isDefault ? '#f8fafc' : 'white', position: 'relative' }}>
-                  {addr.isDefault && (
+              {Array.isArray(currentUser?.addresses) && currentUser.addresses.length > 0 ? currentUser.addresses.filter(Boolean).map((addr) => (
+                <div key={addr?.id || Math.random()} style={{ border: addr?.isDefault ? '2px solid #4f46e5' : '1.5px solid #cbd5e1', borderRadius: '16px', padding: '16px', background: addr?.isDefault ? '#f8fafc' : 'white', position: 'relative' }}>
+                  {addr?.isDefault && (
                     <span style={{ position: 'absolute', top: '-10px', right: '16px', background: '#4f46e5', color: 'white', fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px' }}>
                       DEFAULT
                     </span>
                   )}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '16px' }}>{addr.addressType === 'Home' ? '🏠' : addr.addressType === 'Work' ? '🏢' : '📍'}</span>
-                    <strong style={{ fontSize: '15px', color: '#0f172a' }}>{addr.addressType}</strong>
+                    <span style={{ fontSize: '16px' }}>{addr?.addressType === 'Home' ? '🏠' : addr?.addressType === 'Work' ? '🏢' : '📍'}</span>
+                    <strong style={{ fontSize: '15px', color: '#0f172a' }}>{addr?.addressType || 'Address'}</strong>
                   </div>
                   <div style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.5', marginBottom: '16px' }}>
-                    <strong>{addr.name}</strong><br/>
-                    {addr.houseNo ? addr.houseNo + ', ' : ''}{addr.streetArea || addr.streetAddress}<br/>
-                    {addr.city}, {addr.state} - <strong>{addr.pincode}</strong><br/>
-                    Phone: {addr.phone}
+                    <strong>{addr?.name || currentUser?.fullName || 'User'}</strong><br/>
+                    {addr?.houseNo ? addr.houseNo + ', ' : ''}{addr?.streetArea || addr?.streetAddress || addr?.address || ''}<br/>
+                    {addr?.city || ''}, {addr?.state || ''} {addr?.pincode ? `- ${addr.pincode}` : ''}<br/>
+                    {addr?.phone ? `Phone: ${addr.phone}` : ''}
                   </div>
                   
                   <div style={{ display: 'flex', gap: '12px', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
                     <button type="button" onClick={() => openEditAddressModal(addr)} style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0 }}>Edit</button>
-                    <button type="button" onClick={() => handleDeleteAddress(addr.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0 }}>Delete</button>
-                    {!addr.isDefault && (
-                      <button type="button" onClick={() => handleSetDefaultAddress(addr.id)} style={{ background: 'none', border: 'none', color: '#10b981', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}>Set Default</button>
+                    <button type="button" onClick={() => handleDeleteAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0 }}>Delete</button>
+                    {!addr?.isDefault && (
+                      <button type="button" onClick={() => handleSetDefaultAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#10b981', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}>Set Default</button>
                     )}
                   </div>
                 </div>

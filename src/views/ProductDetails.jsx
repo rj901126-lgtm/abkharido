@@ -72,34 +72,31 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions }) => {
   const [showStickyCTA, setShowStickyCTA] = useState(false);
 
   // --- Dynamic Customer Reviews hooks ---
-  const [reviewsList, setReviewsList] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`product_${productId}_reviews`);
-      if (saved) return JSON.parse(saved);
-    } catch { /* corrupted, fall through to defaults */ }
-    return [
-      { name: "Rajesh Kumar", username: "rajesh_k", rating: 5, comment: "Excellent build quality. Completely satisfied with the direct delivery. 100% original!", date: "2026-07-10", photos: [] },
-      { name: "Ananya Sharma", username: "ananya_s", rating: 4, comment: "Very fast shipping to Bengaluru. Product works perfectly. Value for money.", date: "2026-07-09", photos: [] },
-      { name: "Vikram Singh", username: "vikram_s", rating: 5, comment: "Superb product. The A-Assured badge is true to its word. High quality packaging.", date: "2026-07-08", photos: [] }
-    ];
-  });
+  const defaultReviews = [
+    { name: "Rajesh Kumar", username: "rajesh_k", rating: 5, comment: "Excellent build quality. Completely satisfied with the direct delivery. 100% original!", date: "2026-07-10", photos: [] },
+    { name: "Ananya Sharma", username: "ananya_s", rating: 4, comment: "Very fast shipping to Bengaluru. Product works perfectly. Value for money.", date: "2026-07-09", photos: [] },
+    { name: "Vikram Singh", username: "vikram_s", rating: 5, comment: "Superb product. The A-Assured badge is true to its word. High quality packaging.", date: "2026-07-08", photos: [] }
+  ];
 
+  const [reviewsList, setReviewsList] = useState(defaultReviews);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [selectedPhotos, setSelectedPhotos] = useState([]); // Base64 strings
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  React.useEffect(() => {
-    localStorage.setItem(`product_${productId}_reviews`, JSON.stringify(reviewsList));
-  }, [reviewsList, productId]);
-
   const wordCount = newComment.trim() === '' ? 0 : newComment.trim().split(/\s+/).length;
 
   // 1. Verified Purchaser Check: Has ordered this product and order status is not CANCELLED
-  const hasPurchased = orders ? orders.some(order => 
-    order && order.status !== 'CANCELLED' && 
-    order.items?.some(item => item && item.product && item.product.id === productId)
-  ) : false;
+  const hasPurchased = orders ? orders.some(order => {
+    if (!order || order.status === 'Cancelled' || order.status === 'CANCELLED') return false;
+    const items = order.orderItems || order.items || [];
+    return items.some(item => {
+      if (!item) return false;
+      const p = item.product;
+      const pId = typeof p === 'object' ? (p?._id || p?.id) : p;
+      return pId === productId || pId === product?._id || item.customId === productId;
+    });
+  }) : false;
 
   // 2. Review count check: Max 2 reviews per product per user
   const userReviewsCount = currentUser 

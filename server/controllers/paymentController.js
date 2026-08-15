@@ -385,24 +385,30 @@ export const cashfreeWebhook = async (req, res, next) => {
       const data = await response.json();
       
       if (data.order_status === 'PAID') {
-        // ── ATOMIC IDEMPOTENCY GUARD (Bug 2: Webhook Replay / Race Condition) ──
-        // This single atomic operation replaces the old 2-step read-then-write.
-        // If Cashfree sends the webhook twice (network timeout retry), or if the
-        // frontend's verifyPayment fires at the same time, only ONE request will
-        // match { isPaid: false } and proceed. The other gets null and returns 200 safely.
+        const pendingOrder = await Order.findOne({ cfOrderId: orderId, isPaid: false });
+        if (!pendingOrder) {
+          return res.status(200).send('Already processed or order not found');
+        }
+
+        // Amount verification guard against underpayment attacks
+        const paidAmount = Number(data.order_amount);
+        if (Math.abs(pendingOrder.totalPrice - paidAmount) > 0.1) {
+          console.error(`[SECURITY ALERT] Webhook underpayment detected! Order: ₹${pendingOrder.totalPrice}, Paid: ₹${paidAmount}`);
+          return res.status(400).json({ error: 'Order amount mismatch' });
+        }
+
+        // ── ATOMIC IDEMPOTENCY GUARD ──
         const order = await Order.findOneAndUpdate(
-          { cfOrderId: orderId, isPaid: false }, // Condition: only match still-unpaid orders
+          { _id: pendingOrder._id, isPaid: false },
           { $set: { isPaid: true, paidAt: new Date(), status: 'Processing' } },
           { new: true }
         );
 
         if (!order) {
-          // Already processed by a previous webhook or verifyPayment — idempotent success
           return res.status(200).send('Already processed');
         }
 
-        // Award cashback — atomic guard above ensures this runs exactly once.
-        // Bug 4 fix: use walletCoins (not the ghost field `coins` which nobody reads)
+        // Award cashback
         await User.updateOne(
           { _id: order.user },
           { $inc: { walletCoins: Math.floor(order.totalPrice * 0.05) } }

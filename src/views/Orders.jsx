@@ -72,7 +72,7 @@ const Orders = ({ onNavigate }) => {
 
   const handleCancelOrder = async () => {
     if (!orderToCancel) return;
-    const token = localStorage.getItem('abkharido_token');
+    const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderToCancel}/user-cancel`, {
         method: 'POST',
@@ -93,7 +93,7 @@ const Orders = ({ onNavigate }) => {
 
   const handleRequestReturn = async () => {
     if (!orderToReturn) return;
-    const token = localStorage.getItem('abkharido_token');
+    const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderToReturn}/return`, {
         method: 'POST',
@@ -298,9 +298,9 @@ const Orders = ({ onNavigate }) => {
           if (!isExpanded) {
             return (
               <div key={order._id} style={{ cursor: 'pointer', display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.03)', transition: 'all 0.2s', position: 'relative' }} onClick={() => setExpandedOrderId(order._id)}>
-                {order.orderItems && order.orderItems.length > 0 ? (
+                {order?.orderItems && order.orderItems.length > 0 && order.orderItems[0] ? (
                   <div style={{ width: '74px', height: '74px', borderRadius: '12px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', padding: '4px' }}>
-                    <img src={order.orderItems[0].image} alt={order.orderItems[0].name} style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+                    <img src={order.orderItems[0]?.image || ''} alt={order.orderItems[0]?.name || 'Product'} style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
                   </div>
                 ) : (
                   <div style={{ width: '74px', height: '74px', borderRadius: '12px', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
@@ -328,9 +328,9 @@ const Orders = ({ onNavigate }) => {
                     </span>
                   </div>
                   
-                  {order.orderItems && order.orderItems.length > 0 && (
+                  {order?.orderItems && order.orderItems.length > 0 && order.orderItems[0] && (
                     <div style={{ fontSize: '14.5px', color: '#0f172a', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '2px' }}>
-                      {order.orderItems[0].name}
+                      {order.orderItems[0]?.name || 'Purchased Item'}
                     </div>
                   )}
                   

@@ -134,7 +134,7 @@ const AdminHelpdesk = () => {
     const cleanPhone = phone.replace(/[^0-9]/g, '');
     const fullPhone = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
     const text = encodeURIComponent(`Hello ${activeTicket.customer.name}!\n\nRegarding your AbKharido Support Ticket [${activeTicket._id}] (${activeTicket.subject}):\nWe have reviewed your request and are providing instant live assistance here on WhatsApp. How can we help you immediately?`);
-    window.open(`https://pi.whatsapp.com/send?phone=${fullPhone}&text=${text}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${fullPhone}&text=${text}`, '_blank');
     showToastMsg(`💬 Launched WhatsApp Live Support Broadcast for ${activeTicket.customer.name}!`, 'success');
   };
 

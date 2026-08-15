@@ -87,10 +87,13 @@ const AdminCRM = () => {
   const sendWhatsAppRecovery = (cart) => {
     const couponCode = selectedVouchers[cart._id] || 'FESTIVE20';
     const discountNote = couponCode === 'FESTIVE20' ? 'an EXTRA 20% OFF' : couponCode === 'NEWUSER100' ? 'Flat ₹100 OFF' : 'VIP savings';
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://abkharido.vercel.app';
     
-    const message = `👋 Hi *${cart.name || 'Shopper'}*!\n\nWe noticed you left *₹${cart.cartValue.toLocaleString()}* worth of premium products sitting in your cart at *Ab Kharido*! 🛒\n\n🎁 To help you complete your shopping today, we have reserved a special voucher code for you: *${couponCode}* (${discountNote})!\n\n👉 Click here to checkout your items before stock runs out: https://bkharido.in/cart\n\n_Need any assistance? Reply to this message instantly!_`;
+    const message = `👋 Hi *${cart.name || 'Shopper'}*!\n\nWe noticed you left *₹${(cart.cartValue || 0).toLocaleString()}* worth of premium products sitting in your cart at *Ab Kharido*! 🛒\n\n🎁 To help you complete your shopping today, we have reserved a special voucher code for you: *${couponCode}* (${discountNote})!\n\n👉 Click here to checkout your items before stock runs out: ${baseUrl}/cart\n\n_Need any assistance? Reply to this message instantly!_`;
     
-    const url = `https://pi.whatsapp.com/send?phone=91${cart.phone}&text=${encodeURIComponent(message)}`;
+    const cleanPhone = (cart.phone || '').replace(/[^0-9]/g, '');
+    const formattedPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    const url = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
 
     updateLeadStatus(cart._id, 'sent_whatsapp');
@@ -100,7 +103,8 @@ const AdminCRM = () => {
   const sendEmailRecovery = (cart) => {
     const couponCode = selectedVouchers[cart._id] || 'FESTIVE20';
     const subject = `🛒 Don't miss out! Complete your AbKharido checkout with voucher ${couponCode}`;
-    const body = `Hi ${cart.name || 'Shopper'},\n\nYou left ₹${cart.cartValue.toLocaleString()} worth of great items in your shopping cart at AbKharido!\n\nWe want to make your decision easy. Use coupon code "${couponCode}" during checkout to unlock special instant savings!\n\nComplete checkout now: https://bkharido.in/cart\n\nBest regards,\nThe AbKharido Team`;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://abkharido.vercel.app';
+    const body = `Hi ${cart.name || 'Shopper'},\n\nYou left ₹${(cart.cartValue || 0).toLocaleString()} worth of great items in your shopping cart at AbKharido!\n\nWe want to make your decision easy. Use coupon code "${couponCode}" during checkout to unlock special instant savings!\n\nComplete checkout now: ${baseUrl}/cart\n\nBest regards,\nThe AbKharido Team`;
     
     window.open(`mailto:${cart.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
     updateLeadStatus(cart._id, 'sent_email');

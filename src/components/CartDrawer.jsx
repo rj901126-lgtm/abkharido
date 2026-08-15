@@ -113,38 +113,41 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {cart.map((item, index) => (
-                <div key={`${item.product.id}-${index}`} style={{ display: 'flex', gap: '16px', backgroundColor: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', border: '1px solid #f1f5f9' }}>
+              {cart.map((item, index) => {
+                const prod = item?.product || {};
+                const prodId = prod.id || prod._id || index;
+                return (
+                <div key={`${prodId}-${index}`} style={{ display: 'flex', gap: '16px', backgroundColor: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', border: '1px solid #f1f5f9' }}>
                   <img 
-                    src={item.product.image || (item.product.images && item.product.images[0]) || ''} 
-                    alt={item.product.name}
+                    src={prod.image || (prod.images && prod.images[0]) || ''} 
+                    alt={prod.name || 'Product'}
                     style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '12px', backgroundColor: '#f8fafc', padding: '4px' }}
                   />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', marginBottom: '4px', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {item.product.name}
+                      {prod.name || 'Product'}
                     </div>
                     
-                    {item.selectedVariant && (
+                    {item?.selectedVariant && (
                       <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Variant: {item.selectedVariant}</div>
                     )}
                     
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
-                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>₹{((item.product?.price) || 0).toLocaleString('en-IN')}</div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>₹{((prod.price) || 0).toLocaleString('en-IN')}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
-                          <button onClick={() => updateCartQty(item.product.id, item.quantity - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
-                          <span style={{ padding: '0 12px', fontSize: '13px', fontWeight: '600' }}>{item.quantity}</span>
-                          <button onClick={() => updateCartQty(item.product.id, item.quantity + 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
+                          <button onClick={() => updateCartQty(prodId, (item?.quantity || 1) - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
+                          <span style={{ padding: '0 12px', fontSize: '13px', fontWeight: '600' }}>{item?.quantity || 1}</span>
+                          <button onClick={() => updateCartQty(prodId, (item?.quantity || 1) + 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
                         </div>
-                        <button onClick={() => removeFromCart(item.product.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
+                        <button onClick={() => removeFromCart(prodId)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
                           <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>

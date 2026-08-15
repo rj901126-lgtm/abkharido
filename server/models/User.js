@@ -109,10 +109,10 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
 
 // Add Field-Level Encryption Plugin
 userSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
-  fields: ['phone', 'email', 'address', 'houseNo', 'streetArea', 'city', 'pincode', 'state', 'payoutDetails', 'addresses'],
+  fields: ['phone', 'email', 'address', 'houseNo', 'streetArea', 'city', 'pincode', 'state', 'payoutDetails'],
   secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
   saltGenerator: function (secret) {
-    return "1234567890123456"; // 16 byte static salt for deterministic encryption if needed, or let plugin handle it (if omitted, default is random salt per field, but mongoose-field-encryption defaults to random salt unless specified). Actually, omitting it is fine.
+    return "1234567890123456";
   },
 });
 

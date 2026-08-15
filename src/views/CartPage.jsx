@@ -237,28 +237,31 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         )}
 
         {/* List of Products in Cart */}
-        {cart.map(item => {
-          const discountPercent = item.product.originalPrice > 0
-            ? Math.round(((item.product.originalPrice - item.product.price) / item.product.originalPrice) * 100)
+        {cart.map((item, idx) => {
+          const prod = item?.product || {};
+          const discountPercent = (prod.originalPrice || 0) > 0
+            ? Math.round((((prod.originalPrice || 0) - (prod.price || 0)) / prod.originalPrice) * 100)
             : 0;
           return (
-            <div key={item.product.id} className="cart-item-card">
+            <div key={prod.id || prod._id || idx} className="cart-item-card">
               <div className="cart-item-image">
-                <img src={item.product.image} alt={item.product.name} />
+                <img src={prod.image || ''} alt={prod.name || 'Product'} />
               </div>
 
               <div className="cart-item-details">
-                <h3 className="cart-item-title">{item.product.name}</h3>
+                <h3 className="cart-item-title">{prod.name || 'Product'}</h3>
                 <span className="cart-item-category">
-                  Category: {item.product.category}
-                  {item.product.selectedColor && ` | Color: ${item.product.selectedColor}`}
-                  {item.product.selectedVariant && ` | Variant: ${item.product.selectedVariant}`}
+                  Category: {prod.category || 'General'}
+                  {prod.selectedColor && ` | Color: ${prod.selectedColor}`}
+                  {prod.selectedVariant && ` | Variant: ${prod.selectedVariant}`}
                 </span>
                 
                 <div className="cart-item-prices">
-                  <span className="cart-item-price">₹{(item.product.price || 0).toLocaleString('en-IN')}</span>
-                  <span className="cart-item-original">₹{(item.product.originalPrice || 0).toLocaleString('en-IN')}</span>
-                  <span className="cart-item-discount">{discountPercent}% Off</span>
+                  <span className="cart-item-price">₹{(prod.price || 0).toLocaleString('en-IN')}</span>
+                  <span className="cart-item-original">₹{(prod.originalPrice || 0).toLocaleString('en-IN')}</span>
+                  {discountPercent > 0 && (
+                    <span className="cart-item-discount">{discountPercent}% OFF</span>
+                  )}
                 </div>
 
                 <div className="qty-controls-row">

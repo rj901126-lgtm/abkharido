@@ -60,12 +60,23 @@ export const cache = (duration = 300) => {
 export const clearCache = async (pattern) => {
   try {
     if (redisClient) {
-      const keys = await redisClient.keys(pattern);
-      if (keys.length > 0) {
-        await redisClient.del(keys);
-      }
+      // Non-blocking cursor-based scanning to prevent stalling the Redis event loop
+      const stream = redisClient.scanStream({
+        match: pattern,
+        count: 100
+      });
+      stream.on('data', (resultKeys) => {
+        if (resultKeys.length) {
+          const pipeline = redisClient.pipeline();
+          resultKeys.forEach((key) => pipeline.del(key));
+          pipeline.exec().catch((err) => console.error('Redis pipeline del error:', err));
+        }
+      });
+      stream.on('error', (err) => {
+        console.error('Redis scanStream error:', err);
+      });
     } else {
-      // Very basic pattern matching for in-memory clear
+      // Basic pattern matching for in-memory clear
       const regex = new RegExp('^' + pattern.replace('*', '.*') + '$');
       for (const key of memoryCache.keys()) {
         if (regex.test(key)) {

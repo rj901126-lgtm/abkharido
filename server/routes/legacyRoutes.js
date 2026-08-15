@@ -101,34 +101,7 @@ router.post('/reset', protect, admin, (req, res) => {
   res.json({ success: true, message: 'Database reset successfully' });
 });
 
-// Legacy auth routes used by frontend
-router.post('/auth/send-otp', (req, res) => {
-  res.json({ success: true, otp: '123456' });
-});
-router.post('/auth/verify-otp', (req, res) => {
-  res.json({ success: true, token: 'mock_token', username: 'mock_user' });
-});
-router.post('/auth/check-user', (req, res) => {
-  res.json({ exists: true, role: 'user' });
-});
-router.post('/auth/verify-firebase', (req, res) => {
-  res.json({ success: true, token: 'mock_token', username: 'mock_user' });
-});
-router.post('/seller/signup', (req, res) => {
-  res.json({ success: true, token: 'mock_token', username: 'mock_seller' });
-});
-router.post('/seller/login', (req, res) => {
-  res.json({ success: true, token: 'mock_token', username: 'mock_seller' });
-});
-router.get('/seller/products', (req, res) => {
-  res.json([]);
-});
-
-// [SEC-PATCH]: Removed highly vulnerable /migrate-data endpoint that bypassed all auth and allowed database wiping
-
-router.get('/seller/orders', (req, res) => {
-  res.json([]);
-});
+// [SEC-PATCH]: Removed mock legacy auth and seller endpoints so all auth is handled strictly by authentic controllers.
 
 router.get('/admin/analytics', protect, admin, async (req, res) => {
   try {
