@@ -167,6 +167,6 @@ export async function sendOtpDirect({ recipient }) {
   // Delete any old OTPs for this number first
   await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
   await Otp.create({ phone: normalizedRecipient, otp: generatedOtp });
-  console.log(`[Direct OTP] Generated DB OTP ${generatedOtp} for ${normalizedRecipient}`);
+  console.log(`[Direct OTP] Generated DB OTP ****** for ${normalizedRecipient.substring(0, 3)}****${normalizedRecipient.substring(normalizedRecipient.length - 3)}`);
   return { success: true, message: 'OTP stored securely in database', _otp: generatedOtp };
 }

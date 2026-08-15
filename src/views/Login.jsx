@@ -172,14 +172,7 @@ const Login = ({ onNavigate }) => {
       const data = await res.json();
       setShowOtpScreen(true);
       setTimer(60);
-      
-      // If the backend returns a mock OTP (because SMS gateway is not configured), show it to the user!
-      if (data.mockOtp) {
-         showToast(`✅ Testing OTP for +91 ${phone} is: ${data.mockOtp}`, 'success');
-         console.log(`[TESTING OTP] Your OTP is: ${data.mockOtp}`);
-      } else {
-         showToast('✅ OTP sent to +91 ' + phone, 'success');
-      }
+      showToast('✅ OTP sent to +91 ' + phone, 'success');
     } catch (apiErr) {
       console.error('Backend OTP delivery failed:', apiErr);
       showToast('❌ Could not send OTP. Please check your internet connection and try again.', 'error');

@@ -31,13 +31,44 @@ router.get('/stats', (req, res) => {
   res.json({ sales: 0, orders: 0, users: 0, clicks: 0 });
 });
 
-router.post('/stats/click', (req, res) => {
-  res.json({ success: true });
+router.post('/stats/click', async (req, res) => {
+  try {
+    const { productId } = req.body || {};
+    if (productId && typeof productId === 'string' && productId.length < 100) {
+      const cleanId = productId.replace(/[^a-zA-Z0-9_-]/g, '');
+      if (cleanId) {
+        await Product.updateOne({ id: cleanId }, { $inc: { views: 1 } }).catch(() => null);
+      }
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: true });
+  }
 });
 
 router.post('/payouts', protect, async (req, res) => {
   try {
     const user = req.user; // populated by protect middleware
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (user.status === 'Suspended') {
+      return res.status(403).json({ error: 'Account suspended. Payouts disabled.' });
+    }
+
+    // Verify payout details exist
+    const hasUpi = Boolean(user.payoutDetails?.upiId && String(user.payoutDetails.upiId).trim().length > 3);
+    const hasBank = Boolean(user.payoutDetails?.bankAccount && String(user.payoutDetails.bankAccount).trim().length > 5);
+    if (!hasUpi && !hasBank) {
+      return res.status(400).json({ error: 'Please save your bank account or UPI ID in profile before requesting a payout.' });
+    }
+
+    // If seller role, must be approved
+    if (user.role === 'seller' && user.sellerStatus !== 'Approved') {
+      return res.status(403).json({ error: 'Seller account is pending approval. Payouts unavailable.' });
+    }
     
     // Calculate 8-Day Locked Coins
     const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
@@ -50,25 +81,37 @@ router.post('/payouts', protect, async (req, res) => {
     const lockedCoins = lockedOrders.reduce((sum, o) => sum + (o.referralApplied?.rewardAmount || 0), 0);
     const withdrawableCoins = Math.max(0, (user.walletCoins || 0) - lockedCoins);
 
-    const requestedAmount = req.body.amount || withdrawableCoins;
+    const rawAmount = Number(req.body.amount);
+    const requestedAmount = !isNaN(rawAmount) && rawAmount > 0 ? rawAmount : withdrawableCoins;
     
     if (requestedAmount < 1000) {
-      return res.status(400).json({ error: 'Minimum withdrawal amount is 1000 coins. You can still use your coins for purchases!' });
+      return res.status(400).json({ error: 'Minimum withdrawal amount is 1,000 coins. You can still use your coins for store purchases!' });
     }
     
     if (requestedAmount > withdrawableCoins) {
-      return res.status(400).json({ error: 'Insufficient withdrawable coins' });
+      return res.status(400).json({ error: 'Requested amount exceeds withdrawable coin balance.' });
+    }
+
+    // Atomic coin balance deduction to eliminate race conditions
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: user._id, walletCoins: { $gte: requestedAmount } },
+      { $inc: { walletCoins: -requestedAmount } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(400).json({ error: 'Insufficient withdrawable coins for this transaction.' });
     }
     
     // Create a strict Audit Trail
-    const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
 
     // Create a Pending Settlement Record
     const settlement = new Settlement({
       vendorId: user._id,
       amount: requestedAmount,
       status: 'Pending',
-      notes: 'User requested withdrawal to Bank Account'
+      notes: `User requested withdrawal via ${req.body.method || (hasUpi ? 'UPI' : 'Bank Transfer')}`
     });
     const createdSettlement = await settlement.save();
 
@@ -79,18 +122,20 @@ router.post('/payouts', protect, async (req, res) => {
       amount: requestedAmount,
       settlementId: createdSettlement._id,
       performedBy: user._id,
-      ipAddress,
+      ipAddress: String(ipAddress).substring(0, 50),
       details: {
+        method: req.body.method || 'Default',
+        destination: hasUpi ? user.payoutDetails.upiId : user.payoutDetails.bankAccount,
         message: 'User initiated withdrawal'
       }
     });
     await auditLog.save();
-
-    // Deduct coins
-    user.walletCoins = user.walletCoins - requestedAmount; 
-    await user.save();
     
-    res.json({ success: true, message: `Payout of ₹${requestedAmount} requested successfully. It is now pending admin approval.` });
+    res.json({ 
+      success: true, 
+      message: `Payout request of ₹${requestedAmount.toLocaleString('en-IN')} submitted successfully. It is now pending admin approval.`,
+      remainingCoins: updatedUser.walletCoins 
+    });
   } catch (err) {
     console.error('Payout Request Error:', err);
     res.status(500).json({ error: 'Failed to process payout request' });

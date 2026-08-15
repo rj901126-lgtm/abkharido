@@ -32,3 +32,5 @@ api/data/
 # Playwright test artifacts
 test-results/
 playwright-report/
+scratch/
+

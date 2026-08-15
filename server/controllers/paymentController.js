@@ -348,10 +348,13 @@ export const cashfreeWebhook = async (req, res, next) => {
       return res.status(200).send('OK'); // Return 200 so CF stops retrying
     }
 
-    const payload = timestamp + req.rawBody; // Note: req.rawBody was captured in app.js
+    const payload = timestamp + (req.rawBody || ''); // Note: req.rawBody was captured in app.js
     const generatedSignature = crypto.createHmac('sha256', secretKey).update(payload).digest('base64');
     
-    if (generatedSignature !== signature) {
+    const sigBuf = Buffer.from(signature, 'utf8');
+    const genBuf = Buffer.from(generatedSignature, 'utf8');
+
+    if (sigBuf.length !== genBuf.length || !crypto.timingSafeEqual(sigBuf, genBuf)) {
       console.error('Webhook signature mismatch!');
       return res.status(400).json({ error: 'Invalid signature' });
     }

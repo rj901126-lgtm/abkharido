@@ -1,6 +1,6 @@
-import redisClient from '../config/redis.js';
+import redisClient, { isRedisReady } from '../config/redis.js';
 
-// In-memory cache fallback for ultra-fast local development without Redis
+// In-memory cache fallback for local development or when Redis is offline
 const memoryCache = new Map();
 
 /**
@@ -17,8 +17,8 @@ export const cache = (duration = 300) => {
 
     try {
       let cachedResponse = null;
-      if (redisClient) {
-        cachedResponse = await redisClient.get(key);
+      if (isRedisReady()) {
+        cachedResponse = await redisClient.get(key).catch(() => null);
       } else {
         const memData = memoryCache.get(key);
         if (memData && memData.expires > Date.now()) {
@@ -35,9 +35,9 @@ export const cache = (duration = 300) => {
       const originalJson = res.json;
       res.json = function (body) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          if (redisClient) {
+          if (isRedisReady()) {
             redisClient.setex(key, duration, JSON.stringify(body))
-              .catch(err => console.error('Redis Cache Error:', err));
+              .catch(err => console.warn('Redis Cache Set Error:', err.message));
           } else {
             memoryCache.set(key, { data: JSON.stringify(body), expires: Date.now() + duration * 1000 });
           }
@@ -47,7 +47,7 @@ export const cache = (duration = 300) => {
 
       next();
     } catch (err) {
-      console.error('Cache Middleware Error:', err);
+      console.warn('Cache Middleware Notice (passing through):', err.message);
       next();
     }
   };
@@ -59,8 +59,7 @@ export const cache = (duration = 300) => {
  */
 export const clearCache = async (pattern) => {
   try {
-    if (redisClient) {
-      // Non-blocking cursor-based scanning to prevent stalling the Redis event loop
+    if (isRedisReady()) {
       const stream = redisClient.scanStream({
         match: pattern,
         count: 100
@@ -69,14 +68,13 @@ export const clearCache = async (pattern) => {
         if (resultKeys.length) {
           const pipeline = redisClient.pipeline();
           resultKeys.forEach((key) => pipeline.del(key));
-          pipeline.exec().catch((err) => console.error('Redis pipeline del error:', err));
+          pipeline.exec().catch((err) => console.warn('Redis pipeline del error:', err.message));
         }
       });
       stream.on('error', (err) => {
-        console.error('Redis scanStream error:', err);
+        console.warn('Redis scanStream notice:', err.message);
       });
     } else {
-      // Basic pattern matching for in-memory clear
       const regex = new RegExp('^' + pattern.replace('*', '.*') + '$');
       for (const key of memoryCache.keys()) {
         if (regex.test(key)) {
@@ -85,6 +83,6 @@ export const clearCache = async (pattern) => {
       }
     }
   } catch (err) {
-    console.error('Clear Cache Error:', err);
+    console.warn('Clear Cache Notice:', err.message);
   }
 };

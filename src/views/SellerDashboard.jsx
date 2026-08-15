@@ -91,18 +91,26 @@ const SellerDashboard = ({ onNavigate }) => {
   const [withdrawMethod, setWithdrawMethod] = useState('UPI');
 
   const fetchSellerData = async () => {
-    if (!currentSeller || !currentSeller.isApproved) return;
+    if (!currentSeller || (currentSeller.sellerStatus !== 'Approved' && currentSeller.isApproved !== true)) return;
     setLoading(true);
     try {
-      // Fetch seller's products
-      const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/products?sellerId=${currentSeller.email}`);
+      // Fetch seller's products with authenticated Bearer token
+      const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/products`, {
+        headers: {
+          'Authorization': `Bearer ${currentSeller.token}`
+        }
+      });
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         setSellerProducts(prodData);
       }
       
-      // Fetch seller's orders
-      const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/orders?sellerId=${currentSeller.email}`);
+      // Fetch seller's orders with authenticated Bearer token
+      const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/seller/orders`, {
+        headers: {
+          'Authorization': `Bearer ${currentSeller.token}`
+        }
+      });
       if (orderRes.ok) {
         const orderData = await orderRes.json();
         setSellerOrders(orderData);
@@ -117,7 +125,7 @@ const SellerDashboard = ({ onNavigate }) => {
   useEffect(() => {
     // eslint-disable-next-line
     fetchSellerData();
-  }, [currentSeller, products]);
+  }, [currentSeller]);
 
   // Sync profile details after payout changes
   const fetchUpdatedSellerProfile = async () => {
@@ -206,8 +214,9 @@ const SellerDashboard = ({ onNavigate }) => {
         });
         if (res.ok) {
           const data = await res.json();
-          setCurrentSeller(data.seller);
-          localStorage.setItem('abkharido_seller_session', JSON.stringify(data.seller));
+          const sellerObj = { ...data.seller, token: data.token };
+          setCurrentSeller(sellerObj);
+          localStorage.setItem('abkharido_seller_session', JSON.stringify(sellerObj));
           showToast(`Welcome back, ${data.seller.shopName}!`, 'success');
         } else {
           const err = await res.json();
@@ -233,14 +242,14 @@ const SellerDashboard = ({ onNavigate }) => {
             password,
             shopName,
             sellerAddress: address,
-            payoutDetails: { upi, bankAccount, bankIfsc }
+            payoutDetails: { upiId: upi, bankAccount, ifsc: bankIfsc }
           })
         });
         if (res.ok) {
           const data = await res.json();
           setCurrentSeller(data.seller);
           localStorage.setItem('abkharido_seller_session', JSON.stringify(data.seller));
-          showToast('Merchant account registered successfully!', 'success');
+          showToast(data.message || 'Seller application submitted! Pending admin verification.', 'success');
         } else {
           const err = await res.json();
           showToast(err.error || 'Registration failed.', 'error');
@@ -369,7 +378,7 @@ const SellerDashboard = ({ onNavigate }) => {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'x-seller-id': currentSeller.email
+          'Authorization': `Bearer ${currentSeller?.token}`
         },
         body: JSON.stringify(newProduct)
       });
@@ -398,7 +407,9 @@ const SellerDashboard = ({ onNavigate }) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${prodId}`, {
         method: 'DELETE',
-        headers: { 'x-seller-id': currentSeller.email }
+        headers: { 
+          'Authorization': `Bearer ${currentSeller?.token}` 
+        }
       });
       if (res.ok) {
         showToast('Product removed successfully.', 'success');
@@ -428,9 +439,11 @@ const SellerDashboard = ({ onNavigate }) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/payouts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentSeller?.token}`
+        },
         body: JSON.stringify({
-          username: currentSeller.email,
           amount,
           method: withdrawMethod
         })

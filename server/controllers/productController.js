@@ -2,21 +2,69 @@ import Product from '../models/Product.js';
 // eslint-disable-next-line
 import productsData from '../data/productsData.js';
 import { clearCache } from '../middleware/cacheMiddleware.js';
+
+// Public Product DTO Serializer to protect business confidentiality
+export const toPublicProductDTO = (product) => {
+  if (!product) return null;
+  return {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    description: product.description,
+    price: product.price,
+    originalPrice: product.originalPrice,
+    inStock: Boolean(product.inStock !== false && (product.stock === undefined || product.stock > 0)),
+    image: product.image,
+    images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
+    rating: product.rating || 4.5,
+    reviewsCount: product.reviewsCount || 0,
+    highlights: product.highlights || [],
+    features: product.features || [],
+    specs: product.specs || [],
+    specifications: product.specifications || product.specs || [],
+    colorModels: (product.colorModels || []).map(cm => ({
+      name: cm.name,
+      primaryImage: cm.primaryImage,
+      images: cm.images || [],
+      variants: (cm.variants || []).map(v => ({
+        name: v.name,
+        price: v.price,
+        originalPrice: v.originalPrice,
+        discount: v.discount
+      }))
+    })),
+    hasProCare: Boolean(product.hasProCare),
+    flashSale: product.flashSale?.isActive ? {
+      isActive: true,
+      price: product.flashSale.price,
+      endTime: product.flashSale.endTime
+    } : undefined
+  };
+};
+
+// @desc    Fetch all products with strict validation and public sanitization
+// @route   GET /api/products
 // @access  Public
-// eslint-disable-next-line
 export const getProducts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, search = '', category = '' } = req.query;
+    const rawPage = parseInt(req.query.page, 10);
+    const rawLimit = parseInt(req.query.limit, 10);
     
+    // Strict query validation (min 1, limit 1-50)
+    const page = !isNaN(rawPage) && rawPage >= 1 ? rawPage : 1;
+    const limit = !isNaN(rawLimit) && rawLimit >= 1 && rawLimit <= 50 ? rawLimit : 20;
+    const search = typeof req.query.search === 'string' ? req.query.search.trim().substring(0, 100) : '';
+    const category = typeof req.query.category === 'string' ? req.query.category.trim().substring(0, 50) : '';
 
     let filter = {};
-    if (category && category !== 'all') filter.category = category;
+    if (category && category.toLowerCase() !== 'all') {
+      filter.category = { $regex: new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+    }
     
     let sortOptions = {};
     let projection = {};
     
     if (search) {
-      // Try using Advanced Search Engine ($text index)
       filter.$text = { $search: search };
       projection = { score: { $meta: 'textScore' } };
       sortOptions = { score: { $meta: 'textScore' } };
@@ -25,15 +73,14 @@ export const getProducts = async (req, res, next) => {
     let total = 0;
     try {
       total = await Product.countDocuments(filter);
-    // eslint-disable-next-line
     } catch (err) {
-      // Fallback to regex if text index is missing or building
       if (search) {
         delete filter.$text;
+        const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         filter.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { id: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } }
+          { name: { $regex: escapedSearch, $options: 'i' } },
+          { id: { $regex: escapedSearch, $options: 'i' } },
+          { description: { $regex: escapedSearch, $options: 'i' } }
         ];
         projection = {};
         sortOptions = {};
@@ -47,22 +94,25 @@ export const getProducts = async (req, res, next) => {
       query = query.sort(sortOptions);
     }
     
-    if (Number(limit) > 0) {
-      const skip = (Number(page) - 1) * Number(limit);
-      query = query.skip(skip).limit(Number(limit));
-    }
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
     
     const products = await query;
     
+    // Check if requester is admin/seller with privileged access
+    const isPrivileged = req.user && ['admin', 'super_admin', 'seller'].includes(req.user.role);
+    const sanitizedProducts = isPrivileged ? products : products.map(toPublicProductDTO);
+
     res.json({
-      products,
+      products: sanitizedProducts,
       total,
-      page: Number(page),
-      limit: Number(limit),
-      totalPages: Number(limit) > 0 ? Math.ceil(total / Number(limit)) : 1
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1
     });
   } catch (error) {
-    res.status(500).json({ error: 'Products API Error', message: error.message });
+    console.error('Products API Error:', error);
+    res.status(500).json({ error: 'Failed to retrieve products' });
   }
 };
 
@@ -71,15 +121,18 @@ export const getProducts = async (req, res, next) => {
 // @access  Public
 export const getProductById = async (req, res, next) => {
   try {
+    const cleanId = String(req.params.id || '').trim();
+    if (!cleanId) {
+      return res.status(400).json({ error: 'Product ID is required' });
+    }
 
-    // Lookup by the custom string `id` field, not the MongoDB `_id`
-    const product = await Product.findOne({ id: req.params.id }).lean();
+    const product = await Product.findOne({ id: cleanId }).lean();
 
     if (product) {
-      res.json(product);
+      const isPrivileged = req.user && ['admin', 'super_admin', 'seller'].includes(req.user.role);
+      res.json(isPrivileged ? product : toPublicProductDTO(product));
     } else {
-      res.status(404);
-      throw new Error('Product not found');
+      res.status(404).json({ error: 'Product not found' });
     }
   } catch (error) {
     next(error);

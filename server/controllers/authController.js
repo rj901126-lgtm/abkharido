@@ -4,7 +4,12 @@ import Otp from '../models/Otp.js';
 import redisClient from '../config/redis.js';
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev', {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('Server misconfiguration: JWT_SECRET is not set');
+  }
+  return jwt.sign({ id }, secret, {
+    algorithm: 'HS256',
     expiresIn: '30d',
   });
 };
@@ -16,11 +21,14 @@ export const registerUser = async (req, res, next) => {
   try {
     const { username, password, email, phone, fullName } = req.body;
 
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
     const userExists = await User.findOne({ $or: [{ username }, { email }] });
 
     if (userExists) {
-      res.status(400);
-      throw new Error('User already exists');
+      return res.status(400).json({ error: 'An account with these credentials already exists.' });
     }
 
     const user = await User.create({
@@ -40,8 +48,7 @@ export const registerUser = async (req, res, next) => {
         token: generateToken(user._id),
       });
     } else {
-      res.status(400);
-      throw new Error('Invalid user data');
+      res.status(400).json({ error: 'Invalid user data provided' });
     }
   } catch (error) {
     next(error);
@@ -55,6 +62,10 @@ export const authUser = async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
     const user = await User.findOne({ username });
 
     if (user && (await user.matchPassword(password))) {
@@ -66,8 +77,7 @@ export const authUser = async (req, res, next) => {
         token: generateToken(user._id),
       });
     } else {
-      res.status(401);
-      throw new Error('Invalid username or password');
+      res.status(401).json({ error: 'Invalid credentials' });
     }
   } catch (error) {
     next(error);

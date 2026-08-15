@@ -3,6 +3,44 @@ import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
 import { PRODUCTS } from '../../../../db/mockData.js';
 
+function toPublicProductDTO(product) {
+  if (!product) return null;
+  return {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    description: product.description,
+    price: product.price,
+    originalPrice: product.originalPrice,
+    inStock: Boolean(product.inStock !== false && (product.stock === undefined || product.stock > 0)),
+    image: product.image,
+    images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
+    rating: product.rating || 4.5,
+    reviewsCount: product.reviewsCount || 0,
+    highlights: product.highlights || [],
+    features: product.features || [],
+    specs: product.specs || [],
+    specifications: product.specifications || product.specs || [],
+    colorModels: (product.colorModels || []).map(cm => ({
+      name: cm.name,
+      primaryImage: cm.primaryImage,
+      images: cm.images || [],
+      variants: (cm.variants || []).map(v => ({
+        name: v.name,
+        price: v.price,
+        originalPrice: v.originalPrice,
+        discount: v.discount
+      }))
+    })),
+    hasProCare: Boolean(product.hasProCare),
+    flashSale: product.flashSale?.isActive ? {
+      isActive: true,
+      price: product.flashSale.price,
+      endTime: product.flashSale.endTime
+    } : undefined
+  };
+}
+
 async function fetchBackend(url) {
   const hosts = [
     process.env.BACKEND_API_URL,
@@ -21,7 +59,7 @@ async function fetchBackend(url) {
       clearTimeout(timeout);
       if (res && res.status < 500) return res;
     } catch (err) {
-      // Continue to next host or native DB fallback
+      // Fallback
     }
   }
   return null;
@@ -30,27 +68,29 @@ async function fetchBackend(url) {
 export async function GET(req, { params }) {
   try {
     const id = params?.id;
-    if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
+    if (!id || typeof id !== 'string') return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
+
+    const cleanId = id.trim().substring(0, 100);
 
     // Try external port 5000 Express server first
-    const backendRes = await fetchBackend(`/api/products/${id}`);
+    const backendRes = await fetchBackend(`/api/products/${cleanId}`);
     if (backendRes) {
       const data = await backendRes.json().catch(() => null);
       if (data && !data.error) return NextResponse.json(data);
     }
 
-    // ── Native Mongoose / MongoDB Fallback when port 5000 is offline ──
+    // ── Native Mongoose / MongoDB Fallback ──
     try {
       await connectDB();
-      const product = await Product.findOne({ $or: [{ id }, { _id: id.length === 24 ? id : undefined }].filter(Boolean) });
-      if (product) return NextResponse.json(product);
+      const product = await Product.findOne({ $or: [{ id: cleanId }, { _id: cleanId.length === 24 ? cleanId : undefined }].filter(Boolean) }).lean();
+      if (product) return NextResponse.json(toPublicProductDTO(product));
     } catch (dbErr) {
       console.warn('[Product Detail DB Fallback Warning]:', dbErr.message);
     }
 
     // Fallback to local catalog if not found in database
-    const localProd = PRODUCTS.find(p => p.id === id || p._id === id);
-    if (localProd) return NextResponse.json(localProd);
+    const localProd = PRODUCTS.find(p => p.id === cleanId || p._id === cleanId);
+    if (localProd) return NextResponse.json(toPublicProductDTO(localProd));
 
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   } catch (error) {
