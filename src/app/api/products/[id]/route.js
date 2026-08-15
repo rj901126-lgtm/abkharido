@@ -65,8 +65,9 @@ async function fetchBackend(url) {
   return null;
 }
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
+    const params = await context.params;
     const id = params?.id;
     if (!id || typeof id !== 'string') return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
 

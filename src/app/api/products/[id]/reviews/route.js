@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
-export async function POST(req, { params }) {
+export async function POST(req, context) {
   try {
+    const params = await context.params;
     const id = params?.id;
     if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
 

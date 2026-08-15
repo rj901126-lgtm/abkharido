@@ -209,35 +209,45 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     setIsSubmitting(true);
 
     if (paymentMethod === 'cod') {
-      // Direct Cash on Delivery placement
-      const orderDetails = await placeOrder(
-        address, 
-        'Cash on Delivery',
-        useCoinsDiscount,
-        null,
-        appliedCoupon?.code
-      );
-      if (orderDetails) {
-        setCreatedOrder(orderDetails);
-        setStep(4);
-        triggerConfetti();
-        
-        // Auto-save address to profile
-        if (updateUserProfile) {
-          updateUserProfile({
-            fullName: address.name,
-            phone: address.phone,
-            pincode: address.pincode,
-            address: address.streetAddress,
-            city: address.city,
-            state: address.state
-          });
-        }
+      try {
+        // Direct Cash on Delivery placement
+        const orderDetails = await placeOrder(
+          address, 
+          'Cash on Delivery',
+          useCoinsDiscount,
+          null,
+          appliedCoupon?.code
+        );
+        if (orderDetails) {
+          setCreatedOrder(orderDetails);
+          setStep(4);
+          triggerConfetti();
+          
+          // Auto-save address to profile
+          if (updateUserProfile) {
+            updateUserProfile({
+              fullName: address.name,
+              phone: address.phone,
+              pincode: address.pincode,
+              address: address.streetAddress,
+              city: address.city,
+              state: address.state
+            });
+          }
 
-        // Auto-generate invoice after a short delay so DOM is ready
-        setTimeout(() => triggerInvoiceDownload(), 500);
+          // Auto-generate invoice after a short delay so DOM is ready
+          setTimeout(() => triggerInvoiceDownload(), 500);
+        } else {
+          showToast('Failed to place order. Please try again.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error placing order. Please try again.', 'error');
+      } finally {
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
       }
       return;
+
     }
 
     // Cashfree PG integration
