@@ -658,6 +658,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   <label className="checkout-label">State*</label>
                   <input type="text" value={address.state} onChange={(e) => setAddress({...address, state: e.target.value})} className="checkout-input" required />
                 </div>
+              </div>
+
               {/* WhatsApp Tracking Updates Opt-in */}
               <div style={{ marginTop: '16px', background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <input 
