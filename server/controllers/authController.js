@@ -115,16 +115,30 @@ export const getUserProfile = async (req, res, next) => {
 // @access  Public
 export const sendOtp = async (req, res, next) => {
   try {
-    const { recipient } = req.body;
+    const rawRecipient = req.body.phone || req.body.recipient || req.body.mobile || req.body.email || '';
+    if (!rawRecipient) {
+      return res.status(400).json({ error: 'Phone number is required.' });
+    }
+    const isEmail = rawRecipient.includes('@');
+    let normalizedRecipient = isEmail ? rawRecipient.trim().toLowerCase() : rawRecipient.replace(/\D/g, '');
+    if (!isEmail) {
+      if (normalizedRecipient.startsWith('91') && normalizedRecipient.length === 12) {
+        normalizedRecipient = normalizedRecipient.slice(2);
+      }
+      if (!/^[6-9]\d{9}$/.test(normalizedRecipient)) {
+        return res.status(400).json({ error: 'Please enter a valid 10-digit Indian mobile number starting with 6-9.' });
+      }
+    }
+
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
     
     // Store OTP in database (will be hashed automatically by pre-save hook and auto-deleted after 5 mins)
-    await Otp.create({ phone: recipient, otp: generatedOtp });
+    await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }, { phone: rawRecipient }] });
+    await Otp.create({ phone: normalizedRecipient, otp: generatedOtp });
     
-    console.log(`[OTP] Generated OTP ****** for ${recipient.substring(0, 3)}****${recipient.substring(recipient.length - 3)}`);
+    console.log(`[OTP] Generated OTP ****** for ${normalizedRecipient.substring(0, 3)}****${normalizedRecipient.substring(normalizedRecipient.length - 3)}`);
     
-    // In production, send via SMS gateway. Do not leak OTP to frontend.
-    res.json({ success: true, message: 'OTP sent to mobile successfully' });
+    res.json({ success: true, message: 'OTP sent to mobile successfully', phone: normalizedRecipient });
   } catch (error) {
     next(error);
   }
@@ -136,34 +150,50 @@ export const sendOtp = async (req, res, next) => {
 export const verifyOtp = async (req, res, next) => {
   try {
     // eslint-disable-next-line
-    const { recipient, otp, fullName } = req.body;
+    const { otp, fullName } = req.body;
+    const rawRecipient = req.body.phone || req.body.recipient || req.body.mobile || req.body.email || '';
+
+    if (!rawRecipient) {
+      return res.status(400).json({ error: 'Phone number is required.' });
+    }
+    if (!otp) {
+      return res.status(400).json({ error: 'OTP is required.' });
+    }
 
     // Normalize phone to catch all formats
-    let normalizedRecipient = recipient;
-    if (!recipient.includes('@')) {
-       normalizedRecipient = recipient.replace(/\D/g, '');
-       if (normalizedRecipient.startsWith('91') && normalizedRecipient.length === 12) {
-         normalizedRecipient = normalizedRecipient.slice(2);
-       }
+    const isEmail = rawRecipient.includes('@');
+    let normalizedRecipient = isEmail ? rawRecipient.trim().toLowerCase() : rawRecipient.replace(/\D/g, '');
+    if (!isEmail && normalizedRecipient.startsWith('91') && normalizedRecipient.length === 12) {
+      normalizedRecipient = normalizedRecipient.slice(2);
     }
 
     // Validate OTP from database
-    const storedOtpDoc = await Otp.findOne({ phone: recipient }).sort({ createdAt: -1 }); // Get latest OTP
-    
+    let storedOtpDoc = await Otp.findOne({ phone: normalizedRecipient }).sort({ createdAt: -1 }); // Get latest OTP
     if (!storedOtpDoc) {
+      storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
+    }
+    if (!storedOtpDoc) {
+      storedOtpDoc = await Otp.findOne({ phone: rawRecipient }).sort({ createdAt: -1 });
+    }
+    
+    // Allow test OTP 123456 ONLY for the developer test number 9172600587 in dev/sandbox environments
+    const isSandboxOrDev = process.env.NODE_ENV !== 'production' || process.env.ALLOW_TEST_OTP === 'true' || (!process.env.FAST2SMS_API_KEY && !process.env.MSG91_API_KEY);
+    const isTestNumber = normalizedRecipient === '9172600587' || rawRecipient === '9172600587';
+    const isTestOtp = isSandboxOrDev && isTestNumber && otp === '123456';
+
+    if (!storedOtpDoc && !isTestOtp) {
       return res.status(400).json({ error: 'OTP expired or not found. Please request a new OTP.' });
     }
     
-    const isMatch = await storedOtpDoc.matchOtp(otp);
-    // Allow test OTP 123456 ONLY for the developer test number 9172600587 in dev/sandbox environments
-    const isSandboxOrDev = process.env.NODE_ENV !== 'production' || process.env.ALLOW_TEST_OTP === 'true' || (!process.env.FAST2SMS_API_KEY && !process.env.MSG91_API_KEY);
-    const isTestNumber = normalizedRecipient === '9172600587' || recipient === '9172600587';
-    if (!isMatch && !(isSandboxOrDev && isTestNumber && otp === '123456')) {
-      return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
+    if (storedOtpDoc) {
+      const isMatch = await storedOtpDoc.matchOtp(otp);
+      if (!isMatch && !isTestOtp) {
+        return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
+      }
     }
     
     // OTP is valid — delete it to prevent reuse
-    await Otp.deleteMany({ phone: recipient });
+    await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }, { phone: rawRecipient }] });
     
     // SECURITY: Escape user input before using in RegExp to prevent ReDoS
     const escapedRecipient = normalizedRecipient.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

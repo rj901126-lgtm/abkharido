@@ -64,9 +64,21 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
   };
 }
 
-export async function verifyOtpDirect({ recipient, otp, fullName }) {
+export async function verifyOtpDirect(params = {}) {
   await connectDB();
-  const normalizedRecipient = recipient.includes('@') ? recipient : normalizePhone(recipient);
+  const rawRecipient = params.phone || params.recipient || params.mobile || params.email || '';
+  const otp = (params.otp || '').toString().trim();
+  const fullName = params.fullName || '';
+
+  if (!rawRecipient) {
+    throw new Error('Phone number is required for OTP verification.');
+  }
+  if (!otp) {
+    throw new Error('OTP is required.');
+  }
+
+  const isEmail = rawRecipient.includes('@');
+  const normalizedRecipient = isEmail ? rawRecipient.trim().toLowerCase() : normalizePhone(rawRecipient);
 
   // Find OTP stored under any phone format
   let storedOtpDoc = await Otp.findOne({ phone: normalizedRecipient }).sort({ createdAt: -1 });
@@ -93,7 +105,6 @@ export async function verifyOtpDirect({ recipient, otp, fullName }) {
 
   await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
 
-  const isEmail = normalizedRecipient.includes('@');
   // Search for existing user by ALL possible phone formats
   let user;
   if (isEmail) {
@@ -166,13 +177,23 @@ export async function loginPasswordDirect({ username, password }) {
   throw new Error('Invalid username or password');
 }
 
-export async function sendOtpDirect({ recipient }) {
+export async function sendOtpDirect(params = {}) {
   await connectDB();
-  const normalizedRecipient = recipient.includes('@') ? recipient : normalizePhone(recipient);
+  const rawRecipient = params.phone || params.recipient || params.mobile || params.email || '';
+  if (!rawRecipient) {
+    throw new Error('Phone number is required to send OTP.');
+  }
+  const isEmail = rawRecipient.includes('@');
+  const normalizedRecipient = isEmail ? rawRecipient.trim().toLowerCase() : normalizePhone(rawRecipient);
+
+  if (!isEmail && !/^[6-9]\d{9}$/.test(normalizedRecipient)) {
+    throw new Error('Please enter a valid 10-digit Indian mobile number starting with 6-9.');
+  }
+
   const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
   // Delete any old OTPs for this number first
   await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
   await Otp.create({ phone: normalizedRecipient, otp: generatedOtp });
   console.log(`[Direct OTP] Generated DB OTP ****** for ${normalizedRecipient.substring(0, 3)}****${normalizedRecipient.substring(normalizedRecipient.length - 3)}`);
-  return { success: true, message: 'OTP stored securely in database', _otp: generatedOtp };
+  return { success: true, message: 'OTP sent successfully. Please check your SMS code.', _otp: generatedOtp, phone: normalizedRecipient };
 }

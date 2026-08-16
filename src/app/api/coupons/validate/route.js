@@ -43,18 +43,18 @@ export async function POST(req) {
 
     // Built-in Native Fallback for standard store coupons (m1 fix)
     const upperCode = (code || '').trim().toUpperCase();
-    if (upperCode === 'FESTIVE20') {
+    if (upperCode === 'FESTIVE20' || upperCode === 'HURRY20') {
       if (value < 499) {
-        return NextResponse.json({ success: false, message: 'Minimum cart value of ₹499 required for FESTIVE20' }, { status: 400 });
+        return NextResponse.json({ success: false, message: `Minimum cart value of ₹499 required for ${upperCode}` }, { status: 400 });
       }
       const discount = Math.min(2000, Math.round(value * 0.20));
       return NextResponse.json({
         success: true,
-        couponCode: 'FESTIVE20',
+        couponCode: upperCode,
         discountType: 'percentage',
         discountValue: 20,
         discountAmount: discount,
-        message: '🎉 FESTIVE20 applied! 20% discount added to your cart.'
+        message: `🎉 ${upperCode} applied! 20% discount added to your cart.`
       });
     }
 

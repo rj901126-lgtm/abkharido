@@ -33,6 +33,13 @@ async function fetchBackend(path, body) {
 export async function POST(req) {
   try {
     const body = await req.json();
+    const rawTarget = body.phone || body.recipient || body.mobile || body.email || '';
+    if (!rawTarget) {
+      return NextResponse.json({ error: 'Phone number is required.' }, { status: 400 });
+    }
+    body.phone = rawTarget;
+    body.recipient = rawTarget;
+
     const res = await fetchBackend('/api/auth/verify-otp', body);
 
     if (res) {

@@ -32,6 +32,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const [whatsAppUpdates, setWhatsAppUpdates] = useState(true);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGuestCheckout, setIsGuestCheckout] = useState(false);
   const isSubmittingRef = useRef(false);
   
   const invoiceRef = useRef();
@@ -390,7 +391,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     }
   };
 
-  if (!currentUser) {
+  if (!currentUser && !isGuestCheckout) {
     return (
       <div className="container animate-fade-in" style={{ padding: '60px 20px', minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{
@@ -463,6 +464,37 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           >
             <span>Continue with Mobile / OTP</span>
             <ArrowRight size={18} />
+          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', margin: '18px 0', gap: '12px' }}>
+            <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: '#94a3b8' }}>OR</span>
+            <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+          </div>
+
+          <button 
+            type="button"
+            onClick={() => setIsGuestCheckout(true)} 
+            style={{ 
+              width: '100%',
+              padding: '14px 24px',
+              fontSize: '14.5px',
+              fontWeight: '700',
+              borderRadius: '16px',
+              background: '#ffffff',
+              border: '2px solid #cbd5e1',
+              color: '#334155',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.color = '#4f46e5'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#334155'; }}
+          >
+            ⚡ Continue as Guest (Fast 1-Step Checkout)
           </button>
 
           <div style={{

@@ -75,11 +75,20 @@ async function sendViaSmsGateway(phone, otp) {
 export async function POST(req) {
   try {
     const body = await req.json();
-
-    // Normalize phone before processing
-    if (body.recipient && !body.recipient.includes('@')) {
-      body.recipient = normalizePhone(body.recipient);
+    const rawTarget = body.phone || body.recipient || body.mobile || body.email || '';
+    if (!rawTarget) {
+      return NextResponse.json({ error: 'Phone number is required.' }, { status: 400 });
     }
+
+    const isEmail = rawTarget.includes('@');
+    const normalized = isEmail ? rawTarget.trim().toLowerCase() : normalizePhone(rawTarget);
+    
+    if (!isEmail && !/^[6-9]\d{9}$/.test(normalized)) {
+      return NextResponse.json({ error: 'Please enter a valid 10-digit Indian mobile number starting with 6-9.' }, { status: 400 });
+    }
+
+    body.phone = normalized;
+    body.recipient = normalized;
 
     // Try external Express port 5000 first
     const res = await fetchBackend('/api/auth/send-otp', body);
@@ -95,11 +104,11 @@ export async function POST(req) {
     const directResult = await sendOtpDirect(body);
 
     // Try external SMS gateway if configured
-    const smsSent = await sendViaSmsGateway(body.recipient, directResult._otp || '');
+    const smsSent = await sendViaSmsGateway(normalized, directResult._otp || '');
 
-    console.log(`[OTP Server] OTP stored for +91${body.recipient}. External SMS: ${smsSent ? 'SENT' : 'No gateway configured - Firebase handles delivery'}`);
+    console.log(`[OTP Server] OTP stored for +91${normalized}. External SMS: ${smsSent ? 'SENT' : 'Sandbox / direct DB escrow'}`);
 
-    return NextResponse.json({ success: true, message: 'OTP sent successfully. Please check your SMS code.' });
+    return NextResponse.json({ success: true, message: 'OTP sent successfully. Please check your SMS code.', phone: normalized });
   } catch (error) {
     console.error('Error in send-otp API:', error);
     return NextResponse.json({ error: error.message || 'Internal error in OTP processing.' }, { status: 500 });

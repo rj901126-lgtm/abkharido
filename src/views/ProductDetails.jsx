@@ -285,18 +285,28 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
     if (!prod) return [];
     if (prod.colorModels && prod.colorModels.length > 0) return prod.colorModels;
     
-    // Default model if no color models exist
-    const discount = prod.originalPrice > 0 ? Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100) : 0;
-    return [
-      {
-        name: 'Standard Edition',
-        primaryImage: prod.image,
-        images: prod.images || [prod.image],
-        variants: [
-          { name: 'Standard Pack', price: prod.price, originalPrice: prod.originalPrice, discount, stock: prod.stock !== undefined ? prod.stock : 10 }
-        ]
-      }
-    ];
+    // For fashion products without custom colorModels, provide real size options
+    if (prod.category === 'fashion') {
+      const nameLower = (prod.name || '').toLowerCase();
+      const isFootwear = nameLower.includes('shoe') || nameLower.includes('sneaker') || nameLower.includes('boot') || nameLower.includes('sandal');
+      const sizeNames = isFootwear ? ['UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11'] : ['S', 'M', 'L', 'XL', 'XXL'];
+      return [
+        {
+          name: 'Default',
+          primaryImage: prod.image,
+          images: prod.images || [prod.image],
+          variants: sizeNames.map((sz, idx) => ({
+            name: sz,
+            price: prod.price,
+            originalPrice: prod.originalPrice || prod.price,
+            stock: idx === 4 ? 0 : 10 - idx * 2,
+            sku: `${prod.id || 'SKU'}-${sz}`
+          }))
+        }
+      ];
+    }
+
+    return [];
   };
 
   const colorModels = product ? getProductColorModels(product) : [];
@@ -765,9 +775,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             <button
               onClick={() => {
                 if (onNavigate) {
-                  onNavigate(`compare?ids=${product.id}`);
-                } else {
-                  window.location.href = `/compare?ids=${product.id}`;
+                  onNavigate('compare?ids=' + product.id);
+                } else if (typeof window !== 'undefined') {
+                  window.location.href = '/compare?ids=' + product.id;
                 }
               }}
               style={{
@@ -793,9 +803,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </button>
             <button
               onClick={() => {
-                const phone = prompt('Enter your WhatsApp/Phone number or Email to receive price-drop & stock alerts:');
-                if (phone && phone.trim()) {
-                  showToast('🔔 Alert activated! We will notify you instantly on price drops & restocks.', 'success');
+                const contact = prompt('Enter your 10-digit mobile number or email for instant WhatsApp/SMS price-drop alerts:');
+                if (contact && contact.trim()) {
+                  showToast(`🔔 Alert registered for ${contact.trim()}! We will notify you instantly on price drops & restocks.`, 'success');
                 }
               }}
               style={{
@@ -826,7 +836,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
           )}
 
           {/* Color Variation Selection (Enterprise style) */}
-          {colorModels.length > 0 && (
+          {(colorModels.length > 1 || (colorModels.length === 1 && colorModels[0].name !== 'Default' && colorModels[0].name !== 'Original')) && (
             <div style={{ marginTop: '24px' }}>
               <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500', marginBottom: '12px' }}>
                 Color: <span style={{ color: '#0f172a', fontWeight: '700' }}>{activeColor ? activeColor.name : ''}</span>
@@ -867,10 +877,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
           )}
 
           {/* Variant Selection (Enterprise style) */}
-          {variantsList.length > 0 && (
+          {(variantsList.length > 1 || (variantsList.length === 1 && variantsList[0].name !== 'Default' && variantsList[0].name !== 'Standard Pack')) && (
             <div style={{ marginTop: '24px' }}>
-              <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500', marginBottom: '12px' }}>
-                {(product.category === 'fashion' || product.category === 'footwear') ? 'Size / Fit' : (product.category === 'mobiles' || product.category === 'electronics') ? 'Storage / RAM' : 'Edition / Pack'}: <span style={{ color: '#0f172a', fontWeight: '700' }}>{activeVariant ? activeVariant.name : ''}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
+                  {(product.category === 'fashion' || product.category === 'footwear') ? 'Select Size / Fit' : (product.category === 'mobiles' || product.category === 'electronics') ? 'Storage / RAM' : 'Edition / Pack'}: <span style={{ color: '#0f172a', fontWeight: '700' }}>{activeVariant ? activeVariant.name : ''}</span>
+                </div>
+                {(product.category === 'fashion' || product.category === 'footwear') && (
+                  <button 
+                    type="button" 
+                    onClick={() => showToast('📏 Standard Indian sizing (True to Size). For shoes, UK size equals Indian standard.', 'info')}
+                    style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12px', fontWeight: '700', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                  >
+                    Size Guide
+                  </button>
+                )}
               </div>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {variantsList.map((v, i) => {

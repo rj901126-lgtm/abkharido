@@ -872,16 +872,13 @@ export const AppProvider = ({ children }) => {
     return false;
   };
 
-  // --- Place Order & Attributions API Checkout ---
+  // --- Place Order & Attributions API Checkout (Supports Logged-in & Guest) ---
   const placeOrder = async (shippingAddress, paymentMethod, useCoinsDiscount = false, cfOrderId = null, couponCode = null) => {
-    if (!currentUser) {
-      showToast('Please log in to place an order.', 'error');
-      return null;
-    }
     if (cart.length === 0) {
       showToast('Cart is empty!', 'error');
       return null;
     }
+    const orderUsername = currentUser ? (currentUser.username || currentUser.name || currentUser.phone) : (shippingAddress.phone || 'guest_user');
     try {
       const res = await fetch(`/api/orders`, {
         method: 'POST',
@@ -891,10 +888,10 @@ export const AppProvider = ({ children }) => {
         },
         body: JSON.stringify({
           cart,
-          username: currentUser.username || currentUser.name,
+          username: orderUsername,
           shippingAddress,
           paymentMethod,
-          useCoinsDiscount,
+          useCoinsDiscount: currentUser ? useCoinsDiscount : false,
           activeReferral,
           cfOrderId,
           couponCode
@@ -902,10 +899,12 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        fetchUser(currentUser.username || currentUser.name);
+        if (currentUser) {
+          fetchUser(currentUser.username || currentUser.name);
+          fetchOrders(currentUser.email || currentUser.phone);
+        }
         clearCart();
         setActiveReferral(null);
-        fetchOrders(currentUser.email);
         fetchStats();
         return data;
       } else {
@@ -913,7 +912,7 @@ export const AppProvider = ({ children }) => {
         const errMsg = errData.message || errData.error || `Server error (${res.status})`;
         console.error('Order API error:', res.status, errData);
         // Handle expired/invalid JWT — force re-login
-        if (res.status === 401) {
+        if (res.status === 401 && currentUser) {
           showToast('Your session has expired. Please log in again.', 'error');
           logout();
           return null;
