@@ -62,7 +62,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   // Sync Firebase email verification status to backend DB
   React.useEffect(() => {
     const checkEmailSync = async () => {
-      if (auth.currentUser && auth.currentUser.emailVerified && currentUser && !currentUser.isEmailVerified) {
+      if (auth?.currentUser?.emailVerified && currentUser && !currentUser.isEmailVerified) {
         // Firebase says verified, but backend says false. Time to sync.
         await updateUserProfile({
           email: auth.currentUser.email,
@@ -178,13 +178,13 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               position: 'relative', 
               zIndex: 1
             }} 
-            onClick={() => onNavigate('login')}
+            onClick={() => onNavigate('login?callbackUrl=/profile')}
           >
             Sign In to Continue <ArrowRight size={18} />
           </button>
           
           <p style={{ marginTop: '20px', fontSize: '13px', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
-            New to AbKharido? <span onClick={() => onNavigate('login')} style={{ color: '#4f46e5', fontWeight: '700', cursor: 'pointer' }}>Create an Account</span>
+            New to AbKharido? <span onClick={() => onNavigate('login?callbackUrl=/profile')} style={{ color: '#4f46e5', fontWeight: '700', cursor: 'pointer' }}>Create an Account</span>
           </p>
         </div>
       </div>

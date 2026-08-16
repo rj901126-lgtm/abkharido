@@ -6,7 +6,7 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { signIn } from 'next-auth/react';
 import { auth as firebaseAuth } from '../firebase';
 
-const Login = ({ onNavigate }) => {
+const Login = ({ onNavigate, callbackUrl }) => {
   const { currentUser, showToast } = useApp();
   
   const [phone, setPhone] = useState('');
@@ -30,8 +30,11 @@ const Login = ({ onNavigate }) => {
   const otpRefs = useRef([]);
 
   useEffect(() => {
-    if (currentUser) onNavigate('home');
-  }, [currentUser, onNavigate]);
+    if (currentUser) {
+      const target = callbackUrl || 'profile';
+      onNavigate(target);
+    }
+  }, [currentUser, onNavigate, callbackUrl]);
 
   useEffect(() => {
     let interval = null;
@@ -106,7 +109,7 @@ const Login = ({ onNavigate }) => {
     const isTestNumber = phone === '9172600587';
     
     try {
-      if (!isTestNumber) {
+      if (!isTestNumber && firebaseAuth) {
         // ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
         try {
           if (!window.recaptchaVerifier) {
@@ -226,8 +229,10 @@ const Login = ({ onNavigate }) => {
         showToast('Welcome back! 👋', 'success');
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('abkharido_was_on_otp');
+          const params = new URLSearchParams(window.location.search);
+          const target = params.get('callbackUrl') || callbackUrl || '/profile';
+          window.location.href = target.startsWith('/') ? target : '/' + target;
         }
-        window.location.reload();
       } else {
         showToast(result?.error || 'Authentication failed. Incorrect OTP.', 'error');
       }

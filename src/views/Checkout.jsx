@@ -443,7 +443,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
           <button 
             className="btn btn-primary" 
-            onClick={() => onNavigate('login')} 
+            onClick={() => onNavigate('login?callbackUrl=/checkout')} 
             style={{ 
               width: '100%',
               padding: '16px 24px',

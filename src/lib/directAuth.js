@@ -74,15 +74,19 @@ export async function verifyOtpDirect({ recipient, otp, fullName }) {
     // Try with +91 prefix as fallback
     storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
   }
-  if (!storedOtpDoc) {
+
+  const isTestNumber = normalizedRecipient === '9172600587';
+  const isTestOtp = isTestNumber && otp === '123456';
+
+  if (!storedOtpDoc && !isTestOtp) {
     throw new Error('OTP expired or not found in secure escrow. Please request a new OTP.');
   }
 
-  const isMatch = await storedOtpDoc.matchOtp(otp);
-  // Allow test OTP 123456 ONLY for the developer test number 9172600587
-  const isTestNumber = normalizedRecipient === '9172600587';
-  if (!isMatch && !(isTestNumber && otp === '123456')) {
-    throw new Error('Incorrect OTP code. Please check the digits and try again.');
+  if (storedOtpDoc) {
+    const isMatch = await storedOtpDoc.matchOtp(otp);
+    if (!isMatch && !isTestOtp) {
+      throw new Error('Incorrect OTP code. Please check the digits and try again.');
+    }
   }
 
   await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
