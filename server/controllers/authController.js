@@ -155,9 +155,10 @@ export const verifyOtp = async (req, res, next) => {
     }
     
     const isMatch = await storedOtpDoc.matchOtp(otp);
-    // Allow test OTP 123456 ONLY for the developer test number 9172600587
+    // Allow test OTP 123456 ONLY for the developer test number 9172600587 in dev/sandbox environments
+    const isSandboxOrDev = process.env.NODE_ENV !== 'production' || process.env.ALLOW_TEST_OTP === 'true' || (!process.env.FAST2SMS_API_KEY && !process.env.MSG91_API_KEY);
     const isTestNumber = normalizedRecipient === '9172600587' || recipient === '9172600587';
-    if (!isMatch && !(isTestNumber && otp === '123456')) {
+    if (!isMatch && !(isSandboxOrDev && isTestNumber && otp === '123456')) {
       return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
     }
     

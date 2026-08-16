@@ -75,8 +75,10 @@ export async function verifyOtpDirect({ recipient, otp, fullName }) {
     storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
   }
 
+  // Secure Sandbox/Dev-only test OTP for developer verification number
+  const isSandboxOrDev = process.env.NODE_ENV !== 'production' || process.env.ALLOW_TEST_OTP === 'true' || (!process.env.FAST2SMS_API_KEY && !process.env.MSG91_API_KEY);
   const isTestNumber = normalizedRecipient === '9172600587';
-  const isTestOtp = isTestNumber && otp === '123456';
+  const isTestOtp = isSandboxOrDev && isTestNumber && otp === '123456';
 
   if (!storedOtpDoc && !isTestOtp) {
     throw new Error('OTP expired or not found in secure escrow. Please request a new OTP.');

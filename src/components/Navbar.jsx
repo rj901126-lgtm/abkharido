@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
+import LanguageToggle from './LanguageToggle';
 
 const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, onCartClick, style }) => {
   const searchParams = useSearchParams();
@@ -364,6 +365,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
           </form>
 
           <div className="navbar-right">
+            <LanguageToggle style={{ marginRight: '6px' }} />
             {currentUser ? (
               /* Profile Dropdown */
               <div 

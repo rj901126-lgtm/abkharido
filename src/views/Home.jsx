@@ -65,7 +65,7 @@ const defaultVipCategories = [
 ];
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
-  const { products: contextProducts } = useApp();
+  const { products: contextProducts, currentUser } = useApp();
   const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
   const [selectedCatPill, setSelectedCatPill] = useState('all');
@@ -226,6 +226,58 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
       </section>
 
+      {/* ── Personalized VIP Member Experience Bar ── */}
+      {currentUser && (
+        <div style={{ maxWidth: '1200px', margin: '14px auto 0', padding: '0 16px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)',
+            borderRadius: '20px',
+            padding: '16px 20px',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '14px',
+            border: '1px solid rgba(255,255,255,0.12)',
+            boxShadow: '0 8px 24px rgba(30, 27, 75, 0.2)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#fbbf24', color: '#1e1b4b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '900', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.2px' }}>
+                  Welcome back, {currentUser.fullName || currentUser.username || 'Member'}! 👋
+                </div>
+                <div style={{ fontSize: '12.5px', color: '#e0e7ff', marginTop: '2px', fontWeight: '500' }}>
+                  🪙 <strong style={{ color: '#fde047', fontWeight: '800' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} AB Coins</strong> available to redeem at checkout
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button 
+                onClick={() => onNavigate('orders')}
+                style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.25)', color: '#ffffff', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+              >
+                📦 Track Orders
+              </button>
+              <button 
+                onClick={() => onNavigate('wishlist')}
+                style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.25)', color: '#ffffff', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+              >
+                ❤️ Saved Items
+              </button>
+              <button 
+                onClick={() => onNavigate('profile?tab=rewards')}
+                style={{ background: '#fde047', border: 'none', color: '#1e1b4b', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                🪙 Rewards Hub &gt;
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {slides.length > 0 && (
         <section 

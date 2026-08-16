@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { AppProvider } from '../context/AppContext';
+import { LanguageProvider } from '../context/LanguageContext';
 import ClientLayout from '../components/ClientLayout';
 import NextAuthProvider from '../components/NextAuthProvider';
 import Script from 'next/script';
@@ -102,9 +103,11 @@ export default function RootLayout({ children }) {
         <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
         <NextAuthProvider>
           <AppProvider>
-            <Suspense fallback={null}>
-              <ClientLayout>{children}</ClientLayout>
-            </Suspense>
+            <LanguageProvider>
+              <Suspense fallback={null}>
+                <ClientLayout>{children}</ClientLayout>
+              </Suspense>
+            </LanguageProvider>
           </AppProvider>
         </NextAuthProvider>
       </body>

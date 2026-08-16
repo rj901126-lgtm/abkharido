@@ -264,7 +264,21 @@ export const addOrderItems = async (req, res, next) => {
       // Set payment expiry: 15 minutes for online payments, null for COD.
       // The releaseExpiredOrderStock cron uses this to find and release stale Pending orders.
       const PAYMENT_TTL_MS = 15 * 60 * 1000; // 15 minutes
-      const isCOD = paymentMethod && paymentMethod.toLowerCase().includes('cod');
+      const isCOD = paymentMethod && (paymentMethod.toLowerCase().includes('cod') || paymentMethod.toLowerCase().includes('cash'));
+      
+      // ── COD Fraud Protection: Check for repeat cancellations ──
+      if (isCOD) {
+        const cancelledCodCount = await Order.countDocuments({
+          user: req.user._id,
+          paymentMethod: { $regex: /cod|cash/i },
+          status: { $in: ['Cancelled', 'CANCELLED', 'Rejected', 'RTO'] }
+        });
+        if (cancelledCodCount >= 3) {
+          res.status(400);
+          throw new Error('Cash on Delivery is temporarily disabled on this account due to repeated cancellations. Please choose Instant Online Payment (UPI / Card) to complete your order.');
+        }
+      }
+
       const paymentExpiresAt = isCOD ? null : new Date(Date.now() + PAYMENT_TTL_MS);
 
       const order = new Order({

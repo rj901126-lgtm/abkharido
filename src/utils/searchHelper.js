@@ -72,7 +72,8 @@ export const normalizeSearchQuery = (query) => {
 
   // 2. Word-by-word replacement inside compound sentences (e.g. "samsung का फोन", "अच्छे जूते")
   Object.keys(hindiToEnglishMap).forEach(key => {
-    const regex = new RegExp(key, 'gi');
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedKey, 'gi');
     if (regex.test(clean)) {
       clean = clean.replace(regex, hindiToEnglishMap[key]);
     }
