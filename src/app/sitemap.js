@@ -1,4 +1,4 @@
-import { PRODUCTS } from '../db/mockData.js';
+import { PRODUCTS, CATEGORIES } from '../db/mockData.js';
 import connectDB from '../../server/config/db.js';
 import Product from '../../server/models/Product.js';
 import mongoose from 'mongoose';
@@ -11,12 +11,21 @@ export default async function sitemap() {
     '/catalog',
     '/categories',
     '/partner',
-    '/login'
+    '/login',
+    '/compare',
+    '/cart'
   ].map(route => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
     changeFrequency: 'daily',
     priority: route === '' ? 1.0 : 0.8,
+  }));
+
+  const categoryUrls = CATEGORIES.filter(c => c.id !== 'all').map(c => ({
+    url: `${baseUrl}/catalog?category=${c.id}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'daily',
+    priority: 0.85,
   }));
 
   // Fetch product IDs for dynamic sitemap
@@ -33,7 +42,7 @@ export default async function sitemap() {
         }));
       }
     }
-  } catch (err) {}
+  } catch (_err) {}
 
   if (productUrls.length === 0) {
     productUrls = PRODUCTS.map(p => ({
@@ -44,5 +53,6 @@ export default async function sitemap() {
     }));
   }
 
-  return [...staticPages, ...productUrls];
+  return [...staticPages, ...categoryUrls, ...productUrls];
 }
+

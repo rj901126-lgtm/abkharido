@@ -1,4 +1,5 @@
 import React from 'react';
+import { notFound } from 'next/navigation';
 import ProductClient from './ProductClient';
 import connectDB from '../../../../server/config/db.js';
 import Product from '../../../../server/models/Product.js';
@@ -41,44 +42,44 @@ export async function generateMetadata({ params }) {
   const id = resolvedParams?.id;
   const product = await getProduct(id);
 
-  if (product && product.name) {
-    const imageUrl = product.image || (product.images && product.images[0]) || `${SITE_URL}/logo.jpg`;
-    const canonicalUrl = `${SITE_URL}/product/${product.id || id}`;
-
+  if (!product || !product.name) {
     return {
-      title: `${product.name} - Best Price in India`,
-      description: product.description || `Buy ${product.name} online at the best price in India on AbKharido. Express Delivery, 7-Day Returns & Cash on Delivery available.`,
-      alternates: {
-        canonical: canonicalUrl,
-      },
-      openGraph: {
-        title: `${product.name} | AbKharido`,
-        description: product.description || `Shop ${product.name} on AbKharido for ₹${(product.price || 0).toLocaleString('en-IN')}. Fast shipping across India.`,
-        url: canonicalUrl,
-        siteName: 'AbKharido',
-        type: 'website',
-        locale: 'en_IN',
-        images: [
-          {
-            url: imageUrl,
-            width: 1200,
-            height: 1200,
-            alt: product.name,
-          },
-        ],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: `${product.name} - ₹${(product.price || 0).toLocaleString('en-IN')}`,
-        description: product.description || `Buy ${product.name} online at AbKharido.`,
-        images: [imageUrl],
-      },
+      title: 'Product Not Found | AbKharido',
+      description: 'The requested product could not be found in the AbKharido catalog. Explore top smartphones, electronics, and fashion deals.',
     };
   }
 
+  const imageUrl = product.image || (product.images && product.images[0]) || `${SITE_URL}/logo.jpg`;
+  const canonicalUrl = `${SITE_URL}/product/${product.id || id}`;
+
   return {
-    title: 'Product Details | AbKharido',
-    description: 'Explore top trending electronics, smartphones, and fashion on AbKharido.',
+    title: `${product.name} - Best Price in India`,
+    description: product.description || `Buy ${product.name} online at the best price in India on AbKharido. Express Delivery, 7-Day Returns & Cash on Delivery available.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${product.name} | AbKharido`,
+      description: product.description || `Shop ${product.name} on AbKharido for ₹${(product.price || 0).toLocaleString('en-IN')}. Fast shipping across India.`,
+      url: canonicalUrl,
+      siteName: 'AbKharido',
+      type: 'website',
+      locale: 'en_IN',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 1200,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} - ₹${(product.price || 0).toLocaleString('en-IN')}`,
+      description: product.description || `Buy ${product.name} online at AbKharido.`,
+      images: [imageUrl],
+    },
   };
 }
 
@@ -87,8 +88,13 @@ export default async function Page({ params }) {
   const id = resolvedParams?.id;
   const product = await getProduct(id);
 
+  // Return real HTTP 404 if product is not found
+  if (!product) {
+    notFound();
+  }
+
   // Generate Product JSON-LD structured data for Google Search snippet indexing
-  const productJsonLd = product ? {
+  const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
@@ -116,17 +122,16 @@ export default async function Page({ params }) {
       ratingValue: product.rating || 4.7,
       reviewCount: product.reviewsCount || 120
     }
-  } : null;
+  };
 
   return (
     <>
-      {productJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <ProductClient id={id} initialProduct={product} />
     </>
   );
 }
+

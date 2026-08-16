@@ -29,6 +29,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const [isCheckingShipping, setIsCheckingShipping] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
+  const [whatsAppUpdates, setWhatsAppUpdates] = useState(true);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -657,6 +658,18 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   <label className="checkout-label">State*</label>
                   <input type="text" value={address.state} onChange={(e) => setAddress({...address, state: e.target.value})} className="checkout-input" required />
                 </div>
+              {/* WhatsApp Tracking Updates Opt-in */}
+              <div style={{ marginTop: '16px', background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <input 
+                  type="checkbox" 
+                  id="whatsapp-optin"
+                  checked={whatsAppUpdates} 
+                  onChange={(e) => setWhatsAppUpdates(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: '#16a34a', cursor: 'pointer', flexShrink: 0 }}
+                />
+                <label htmlFor="whatsapp-optin" style={{ fontSize: '13px', color: '#166534', fontWeight: '700', cursor: 'pointer', margin: 0, lineHeight: '1.4' }}>
+                  💬 Send real-time courier tracking &amp; live dispatch updates via <strong>WhatsApp</strong> to {address.phone || 'my phone'}.
+                </label>
               </div>
             </form>
           )}

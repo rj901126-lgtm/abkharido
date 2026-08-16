@@ -258,9 +258,9 @@ const CatBannerCarousel = ({ slides }) => {
   );
 };
 
-const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct, promotions }) => {
+const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct, promotions, initialProducts }) => {
   const { products: contextProducts } = useApp();
-  const [serverProducts, setServerProducts] = useState(null);
+  const [serverProducts, setServerProducts] = useState(initialProducts || null);
   const [isSearching, setIsSearching] = useState(false);
 
   // Filter States
@@ -279,9 +279,9 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   // Enterprise Scale: Fetch from Backend Search API instead of client-side filtering
   useEffect(() => {
     const fetchSearchResults = async () => {
-      // If there's no search query and category is all, fallback to context products for immediate load
+      // If there's no search query and category is all, fallback to context/initial products for immediate load
       if ((!searchQuery || searchQuery.trim() === '') && currentCategory === 'all') {
-        setServerProducts(null);
+        setServerProducts(initialProducts || null);
         return;
       }
 
@@ -312,12 +312,14 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, currentCategory]);
+  }, [searchQuery, currentCategory, initialProducts]);
 
   // Apply secondary filters (Price, Rating, Sort)
   const getFilteredProducts = () => {
-    // Base products: either from Search Engine or Context Cache
-    let filtered = serverProducts !== null ? [...serverProducts] : [...contextProducts];
+    // Base products: either from Search Engine or Initial/Context Cache
+    const fallbackProducts = (initialProducts && initialProducts.length > 0) ? initialProducts : contextProducts;
+    let filtered = serverProducts !== null ? [...serverProducts] : [...fallbackProducts];
+
 
     // ── Guaranteed Category Filter (prevent cross-category leakage on fallback) ──
     if (currentCategory && currentCategory !== 'all') {
@@ -626,7 +628,44 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
         </div>
 
         {/* Grid listing */}
-        {filteredProducts.length > 0 ? (
+        {isSearching ? (
+          <div className="grid-cols-4" style={{ gap: '16px' }}>
+            {[...Array(8)].map((_, i) => (
+              <div 
+                key={i} 
+                style={{ 
+                  background: '#ffffff', 
+                  borderRadius: '16px', 
+                  border: '1px solid #f1f5f9', 
+                  padding: '16px', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                }}
+              >
+                <style>{`
+                  @keyframes shimmerPlaceholder {
+                    0% { background-position: -200% 0; }
+                    100% { background-position: 200% 0; }
+                  }
+                  .skeleton-shimmer {
+                    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+                    background-size: 200% 100%;
+                    animation: shimmerPlaceholder 1.5s infinite;
+                  }
+                `}</style>
+                <div className="skeleton-shimmer" style={{ width: '100%', height: '180px', borderRadius: '12px' }}></div>
+                <div className="skeleton-shimmer" style={{ width: '85%', height: '18px', borderRadius: '4px' }}></div>
+                <div className="skeleton-shimmer" style={{ width: '50%', height: '14px', borderRadius: '4px' }}></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                  <div className="skeleton-shimmer" style={{ width: '40%', height: '22px', borderRadius: '6px' }}></div>
+                  <div className="skeleton-shimmer" style={{ width: '32px', height: '32px', borderRadius: '8px' }}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid-cols-4" style={{ gap: '16px' }}>
             {filteredProducts.map(product => (
               <ProductCard 
@@ -637,11 +676,63 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', backgroundColor: 'white', padding: '60px 20px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>No products found</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '16px' }}>
-              We couldn't find any products in this category matching your search criteria.
+          <div style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '60px 24px', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', margin: '20px 0' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+            <h3 style={{ fontSize: '22px', fontWeight: '900', color: '#0f172a', marginBottom: '8px', fontFamily: "'Outfit', sans-serif" }}>
+              No products found {searchQuery ? `for "${searchQuery}"` : ''}
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '420px', margin: '0 auto 24px', lineHeight: '1.6' }}>
+              We couldn't find any exact matches. Try checking your spelling, using more general terms, or explore popular categories below.
             </p>
+
+            {/* Quick Category Shortcut Chips */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '28px' }}>
+              {[
+                { id: 'mobiles', label: '📱 Mobiles' },
+                { id: 'electronics', label: '🎧 Electronics' },
+                { id: 'fashion', label: '👗 Fashion' },
+                { id: 'home', label: '🏠 Home & Living' },
+                { id: 'appliances', label: '🫧 Appliances' }
+              ].map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => onSelectCategory(c.id)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    border: '1.5px solid #e2e8f0',
+                    background: '#f8fafc',
+                    color: '#334155',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.color = '#4f46e5'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#334155'; }}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleResetFilters}
+              style={{
+                background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                color: 'white',
+                border: 'none',
+                padding: '12px 28px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                fontFamily: "'Outfit', sans-serif",
+                boxShadow: '0 4px 14px rgba(79, 70, 229, 0.3)'
+              }}
+            >
+              🔄 Reset All Filters
+            </button>
           </div>
         )}
       </main>

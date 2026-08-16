@@ -33,6 +33,46 @@ export const PRODUCTS = [
       { key: 'Front Camera', value: '12MP TrueDepth Front Camera' },
       { key: 'Battery Life', value: 'Up to 23 hours video playback' }
     ],
+    colorModels: [
+      {
+        name: 'Natural Titanium',
+        primaryImage: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '128 GB', price: 129990, originalPrice: 134900, stock: 15, sku: 'IP15P-NT-128' },
+          { name: '256 GB', price: 139990, originalPrice: 144900, stock: 8, sku: 'IP15P-NT-256' },
+          { name: '512 GB', price: 159990, originalPrice: 164900, stock: 3, sku: 'IP15P-NT-512' },
+          { name: '1 TB', price: 179990, originalPrice: 184900, stock: 0, sku: 'IP15P-NT-1TB' }
+        ]
+      },
+      {
+        name: 'Black Titanium',
+        primaryImage: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1573148195900-7845dcb9b127?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '128 GB', price: 129990, originalPrice: 134900, stock: 12, sku: 'IP15P-BT-128' },
+          { name: '256 GB', price: 139990, originalPrice: 144900, stock: 6, sku: 'IP15P-BT-256' },
+          { name: '512 GB', price: 159990, originalPrice: 164900, stock: 2, sku: 'IP15P-BT-512' }
+        ]
+      },
+      {
+        name: 'White Titanium',
+        primaryImage: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '128 GB', price: 129990, originalPrice: 134900, stock: 5, sku: 'IP15P-WT-128' },
+          { name: '256 GB', price: 139990, originalPrice: 144900, stock: 4, sku: 'IP15P-WT-256' }
+        ]
+      }
+    ],
     influencerCommissionRate: 0.02, // 2% cash
     userCommissionRate: 0.005,      // 0.5% coins
     inStock: true
@@ -58,6 +98,32 @@ export const PRODUCTS = [
       { key: 'Rear Camera', value: '200MP Main + 50MP + 12MP + 10MP Quad Camera' },
       { key: 'Front Camera', value: '12MP Front Camera' },
       { key: 'S-Pen Support', value: 'Yes, Included in-box' }
+    ],
+    colorModels: [
+      {
+        name: 'Titanium Yellow',
+        primaryImage: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '256 GB / 12GB RAM', price: 129999, originalPrice: 139999, stock: 14, sku: 'S24U-TY-256' },
+          { name: '512 GB / 12GB RAM', price: 139999, originalPrice: 149999, stock: 5, sku: 'S24U-TY-512' },
+          { name: '1 TB / 12GB RAM', price: 159999, originalPrice: 169999, stock: 0, sku: 'S24U-TY-1TB' }
+        ]
+      },
+      {
+        name: 'Titanium Gray',
+        primaryImage: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '256 GB / 12GB RAM', price: 129999, originalPrice: 139999, stock: 10, sku: 'S24U-TG-256' },
+          { name: '512 GB / 12GB RAM', price: 139999, originalPrice: 149999, stock: 4, sku: 'S24U-TG-512' }
+        ]
+      }
     ],
     influencerCommissionRate: 0.02,
     userCommissionRate: 0.005,
@@ -85,6 +151,32 @@ export const PRODUCTS = [
       { key: 'Storage', value: '256GB Superfast SSD' },
       { key: 'OS', value: 'macOS Sonoma' }
     ],
+    colorModels: [
+      {
+        name: 'Space Gray',
+        primaryImage: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '8GB RAM / 256GB SSD', price: 104900, originalPrice: 114900, stock: 12, sku: 'MBA-M3-SG-256' },
+          { name: '16GB RAM / 512GB SSD', price: 124900, originalPrice: 134900, stock: 6, sku: 'MBA-M3-SG-512' },
+          { name: '24GB RAM / 512GB SSD', price: 144900, originalPrice: 154900, stock: 0, sku: 'MBA-M3-SG-1TB' }
+        ]
+      },
+      {
+        name: 'Midnight',
+        primaryImage: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '8GB RAM / 256GB SSD', price: 104900, originalPrice: 114900, stock: 8, sku: 'MBA-M3-MN-256' },
+          { name: '16GB RAM / 512GB SSD', price: 124900, originalPrice: 134900, stock: 4, sku: 'MBA-M3-MN-512' }
+        ]
+      }
+    ],
     influencerCommissionRate: 0.03, // 3% cash
     userCommissionRate: 0.01,       // 1% coins
     inStock: true
@@ -111,6 +203,30 @@ export const PRODUCTS = [
       { key: 'Charging', value: 'USB-PD Fast Charge (3 mins for 3 hours)' },
       { key: 'Bluetooth Version', value: '5.2' }
     ],
+    colorModels: [
+      {
+        name: 'Midnight Black',
+        primaryImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'Standard Edition', price: 29990, originalPrice: 34990, stock: 20, sku: 'SONY-XM5-BLK' },
+          { name: 'Pro Travel Pack (+ Hard Case)', price: 31990, originalPrice: 37990, stock: 5, sku: 'SONY-XM5-BLK-PRO' }
+        ]
+      },
+      {
+        name: 'Platinum Silver',
+        primaryImage: 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'Standard Edition', price: 29990, originalPrice: 34990, stock: 12, sku: 'SONY-XM5-SLV' }
+        ]
+      }
+    ],
     influencerCommissionRate: 0.03,
     userCommissionRate: 0.012, // 1.2% coins
     inStock: true
@@ -135,6 +251,35 @@ export const PRODUCTS = [
       { key: 'Fit', value: 'Slim Fit Biker Cut' },
       { key: 'Closure', value: 'Asymmetrical Heavy-Duty Zippers' },
       { key: 'Pockets', value: '3 Outer Zipper Pockets, 1 Inner Pocket' }
+    ],
+    colorModels: [
+      {
+        name: 'Pitch Black',
+        primaryImage: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'S (38)', price: 4999, originalPrice: 9999, stock: 4, sku: 'JKT-BLK-S' },
+          { name: 'M (40)', price: 4999, originalPrice: 9999, stock: 12, sku: 'JKT-BLK-M' },
+          { name: 'L (42)', price: 4999, originalPrice: 9999, stock: 8, sku: 'JKT-BLK-L' },
+          { name: 'XL (44)', price: 5299, originalPrice: 10499, stock: 3, sku: 'JKT-BLK-XL' },
+          { name: 'XXL (46)', price: 5499, originalPrice: 10999, stock: 0, sku: 'JKT-BLK-XXL' }
+        ]
+      },
+      {
+        name: 'Vintage Brown',
+        primaryImage: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'M (40)', price: 4999, originalPrice: 9999, stock: 7, sku: 'JKT-BRN-M' },
+          { name: 'L (42)', price: 4999, originalPrice: 9999, stock: 5, sku: 'JKT-BRN-L' },
+          { name: 'XL (44)', price: 5299, originalPrice: 10499, stock: 0, sku: 'JKT-BRN-XL' }
+        ]
+      }
     ],
     influencerCommissionRate: 0.07, // 7% cash (Fashion gets max commission)
     userCommissionRate: 0.03,       // 3% coins
@@ -161,6 +306,34 @@ export const PRODUCTS = [
       { key: 'Sole Material', value: 'EVA Midsole with Rubber Outsole' },
       { key: 'Weight', value: '240g (Single Shoe)' }
     ],
+    colorModels: [
+      {
+        name: 'Crimson Red',
+        primaryImage: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'UK 7 / EU 41', price: 2499, originalPrice: 4999, stock: 5, sku: 'SHOE-RED-7' },
+          { name: 'UK 8 / EU 42', price: 2499, originalPrice: 4999, stock: 15, sku: 'SHOE-RED-8' },
+          { name: 'UK 9 / EU 43', price: 2499, originalPrice: 4999, stock: 9, sku: 'SHOE-RED-9' },
+          { name: 'UK 10 / EU 44', price: 2499, originalPrice: 4999, stock: 3, sku: 'SHOE-RED-10' },
+          { name: 'UK 11 / EU 45', price: 2699, originalPrice: 5299, stock: 0, sku: 'SHOE-RED-11' }
+        ]
+      },
+      {
+        name: 'Stealth Black',
+        primaryImage: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'UK 8 / EU 42', price: 2499, originalPrice: 4999, stock: 8, sku: 'SHOE-BLK-8' },
+          { name: 'UK 9 / EU 43', price: 2499, originalPrice: 4999, stock: 6, sku: 'SHOE-BLK-9' }
+        ]
+      }
+    ],
     influencerCommissionRate: 0.07,
     userCommissionRate: 0.03,
     inStock: true
@@ -185,6 +358,20 @@ export const PRODUCTS = [
       { key: 'Movement', value: 'Japanese Quartz Movement' },
       { key: 'Water Resistance', value: '50 Meters (5 ATM)' },
       { key: 'Strap Material', value: 'Genuine Croco-Pattern Leather' }
+    ],
+    colorModels: [
+      {
+        name: 'Royal Gold & Pearl',
+        primaryImage: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'Leather Strap (42mm)', price: 8999, originalPrice: 17999, stock: 7, sku: 'WTCH-GLD-LTH' },
+          { name: 'Stainless Mesh (42mm)', price: 9999, originalPrice: 19999, stock: 4, sku: 'WTCH-GLD-MSH' }
+        ]
+      }
     ],
     influencerCommissionRate: 0.07,
     userCommissionRate: 0.03,
@@ -211,6 +398,20 @@ export const PRODUCTS = [
       { key: 'Heater Type', value: 'Thermo-Block Instant heating' },
       { key: 'Accessories', value: 'Portafilter, Single/Double shot filters, Tamper-Scoop' }
     ],
+    colorModels: [
+      {
+        name: 'Brushed Steel',
+        primaryImage: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'Standard Edition', price: 14999, originalPrice: 24999, stock: 8, sku: 'COF-15BAR-STD' },
+          { name: 'Barista Pack (+ Milk Pitcher & Tamper)', price: 16499, originalPrice: 26999, stock: 3, sku: 'COF-15BAR-PRO' }
+        ]
+      }
+    ],
     influencerCommissionRate: 0.05, // 5% cash
     userCommissionRate: 0.02,       // 2% coins
     inStock: true
@@ -235,6 +436,20 @@ export const PRODUCTS = [
       { key: 'Armrests', value: '3D Adjustable (Height, Depth, Angle)' },
       { key: 'Base', value: 'Heavy Duty Nylon Base with Silent Castors' },
       { key: 'Weight Capacity', value: 'Up to 135 kg' }
+    ],
+    colorModels: [
+      {
+        name: 'Onyx Black',
+        primaryImage: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1580481072645-022f9a6dbf27?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'Standard Headrest', price: 11999, originalPrice: 19999, stock: 11, sku: 'CHR-ERG-STD' },
+          { name: '3D Armrest + Footrest Pro', price: 14499, originalPrice: 22999, stock: 4, sku: 'CHR-ERG-PRO' }
+        ]
+      }
     ],
     influencerCommissionRate: 0.05,
     userCommissionRate: 0.02,
@@ -261,6 +476,19 @@ export const PRODUCTS = [
       { key: 'Connectivity', value: 'WiFi - Smart Life App / Alexa / Google Assistant' },
       { key: 'Noise Level', value: 'Ultra Silent 22dB in Sleep Mode' }
     ],
+    colorModels: [
+      {
+        name: 'Glacier White',
+        primaryImage: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'Standard H13 Unit', price: 8999, originalPrice: 12999, stock: 16, sku: 'AP-H13-STD' },
+          { name: 'Unit + Extra Pet Carbon Filter', price: 10499, originalPrice: 14999, stock: 5, sku: 'AP-H13-COMBO' }
+        ]
+      }
+    ],
     influencerCommissionRate: 0.04, // 4% cash
     userCommissionRate: 0.015,      // 1.5% coins
     inStock: true
@@ -286,6 +514,21 @@ export const PRODUCTS = [
       { key: 'Operating System', value: 'Android TV 11 with built-in Chromecast' },
       { key: 'Ports', value: '3 HDMI, 2 USB, Bluetooth 5.0, WiFi' }
     ],
+    colorModels: [
+      {
+        name: 'Bezel-less Black',
+        primaryImage: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1552975084-6e027cd345c2?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: '43-inch 4K', price: 24999, originalPrice: 34999, stock: 7, sku: 'TV-4K-43' },
+          { name: '55-inch 4K', price: 34999, originalPrice: 49999, stock: 12, sku: 'TV-4K-55' },
+          { name: '65-inch 4K', price: 54999, originalPrice: 74999, stock: 2, sku: 'TV-4K-65' }
+        ]
+      }
+    ],
     influencerCommissionRate: 0.04,
     userCommissionRate: 0.015,
     inStock: true
@@ -310,6 +553,21 @@ export const PRODUCTS = [
       { key: 'Switches', value: 'Pre-lubed Gateron G Pro Brown (Tactile)' },
       { key: 'Keycaps', value: 'Double-Shot PBT, OEM Profile' },
       { key: 'Battery', value: '4000mAh Rechargeable (Bluetooth/Wired)' }
+    ],
+    colorModels: [
+      {
+        name: 'Retro Charcoal & Cyan',
+        primaryImage: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&auto=format&fit=crop&q=80'
+        ],
+        variants: [
+          { name: 'Tactile Brown Switches', price: 7999, originalPrice: 9999, stock: 14, sku: 'KB-K8-BRN' },
+          { name: 'Linear Red Switches', price: 7999, originalPrice: 9999, stock: 6, sku: 'KB-K8-RED' },
+          { name: 'Clicky Blue Switches', price: 7999, originalPrice: 9999, stock: 0, sku: 'KB-K8-BLU' }
+        ]
+      }
     ],
     influencerCommissionRate: 0.03,
     userCommissionRate: 0.012,
@@ -342,3 +600,4 @@ export const INITIAL_PARTNER_STATS = {
   ],
   payouts: []
 };
+

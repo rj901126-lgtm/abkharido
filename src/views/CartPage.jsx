@@ -9,14 +9,10 @@ const CartPage = ({ onNavigate, onCheckout }) => {
   const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
 
   const handleMoveToWishlist = (productId) => {
-    if (!currentUser) {
-      showToast('Please log in to save items to your wishlist.', 'warning');
-      return;
-    }
     if (!wishlist.includes(productId)) {
       toggleWishlist(productId);
     } else {
-      showToast('Item saved for later!', 'info');
+      showToast('Item saved for later in your wishlist!', 'info');
     }
     removeFromCart(productId);
   };

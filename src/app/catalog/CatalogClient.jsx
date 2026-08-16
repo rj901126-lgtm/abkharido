@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCatalog from '../../views/ProductCatalog';
 import { useApp } from '../../context/AppContext';
 
-function CatalogContent({ initialCategory, initialSearch }) {
+function CatalogContent({ initialCategory, initialSearch, initialProducts }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { promotions } = useApp();
@@ -17,15 +17,17 @@ function CatalogContent({ initialCategory, initialSearch }) {
       onSelectCategory={(cat) => router.push('/catalog?category=' + cat)} 
       searchQuery={search} 
       onNavigateProduct={(id) => router.push('/product/' + id)} 
-      promotions={promotions} 
+      promotions={promotions}
+      initialProducts={initialProducts}
     />
   );
 }
 
-export default function CatalogClient({ initialCategory, initialSearch }) {
+export default function CatalogClient({ initialCategory, initialSearch, initialProducts }) {
   return (
     <Suspense fallback={<div className="container" style={{ padding: '80px 20px', textAlign: 'center' }}>Loading Catalog...</div>}>
-      <CatalogContent initialCategory={initialCategory} initialSearch={initialSearch} />
+      <CatalogContent initialCategory={initialCategory} initialSearch={initialSearch} initialProducts={initialProducts} />
     </Suspense>
   );
 }
+

@@ -494,10 +494,6 @@ export const AppProvider = ({ children }) => {
   };
 
   const toggleWishlist = (productId) => {
-    if (!currentUser) {
-      showToast('Please sign in to add items to your wishlist.', 'warning');
-      return;
-    }
     setWishlist(prev => {
       // Handle both slug-based IDs and MongoDB ObjectIds for comparison
       const exists = prev.some(id => {
@@ -506,20 +502,30 @@ export const AppProvider = ({ children }) => {
       });
       if (exists) {
         showToast('Removed from Wishlist!', 'info');
-        return prev.filter(id => {
+        const updated = prev.filter(id => {
           const idStr = (id?.id || id?.toString() || id);
           return idStr !== productId && idStr !== productId?.toString();
         });
+        if (!currentUser) {
+          safeSetItem('abkharido_wishlist', JSON.stringify(updated));
+        }
+        return updated;
       } else {
         showToast('Added to Wishlist!', 'success');
-        return [...prev, productId];
+        const updated = [...prev, productId];
+        if (!currentUser) {
+          safeSetItem('abkharido_wishlist', JSON.stringify(updated));
+        }
+        return updated;
       }
     });
     
-    // Sync to backend but DON'T overwrite local slug-based state with ObjectIds from response
-    // Pass null stateSetter for wishlist so local state stays intact after sync
-    dispatchDeltaSync('wishlist', { action: 'toggle', productId }, null);
+    // If user is logged in, sync to backend delta
+    if (currentUser) {
+      dispatchDeltaSync('wishlist', { action: 'toggle', productId }, null);
+    }
   };
+
 
   const fetchStats = async () => {
     try {

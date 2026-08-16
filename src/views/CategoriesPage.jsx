@@ -70,9 +70,11 @@ const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
   );
 };
 
-const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions, onSearch }) => {
-  const { products, cart } = useApp();
+const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions, onSearch, initialProducts }) => {
+  const { products: contextProducts, cart } = useApp();
+  const products = (initialProducts && initialProducts.length > 0) ? initialProducts : contextProducts;
   const [selectedCatId, setSelectedCatId] = useState('mobiles'); // default start on mobiles category
+
 
   // eslint-disable-next-line
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);

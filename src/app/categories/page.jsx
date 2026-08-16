@@ -1,7 +1,24 @@
 import React from 'react';
 import CategoriesClient from './CategoriesClient';
+import { PRODUCTS } from '../../db/mockData.js';
+import mongoose from 'mongoose';
+import Product from '../../../server/models/Product.js';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
+
+export const revalidate = 60; // Revalidate every 60 seconds
+
+async function getCategoriesProducts() {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const products = await Product.find({}).limit(100).lean();
+      if (products && products.length > 0) {
+        return JSON.parse(JSON.stringify(products));
+      }
+    }
+  } catch (_e) {}
+  return JSON.parse(JSON.stringify(PRODUCTS));
+}
 
 export const metadata = {
   title: 'All Categories - Explore Collections | AbKharido',
@@ -32,6 +49,8 @@ export const metadata = {
   },
 };
 
-export default function Page() {
-  return <CategoriesClient />;
+export default async function Page() {
+  const initialProducts = await getCategoriesProducts();
+  return <CategoriesClient initialProducts={initialProducts} />;
 }
+

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import CategoriesPage from '../../views/CategoriesPage';
 import { useApp } from '../../context/AppContext';
 
-export default function CategoriesClient() {
+export default function CategoriesClient({ initialProducts }) {
   const router = useRouter();
   const { promotions } = useApp();
   
@@ -15,6 +15,8 @@ export default function CategoriesClient() {
       onNavigateProduct={(id) => router.push('/product/' + id)} 
       promotions={promotions} 
       onSearch={(query) => router.push('/catalog?search=' + encodeURIComponent(query))} 
+      initialProducts={initialProducts}
     />
   );
 }
+
