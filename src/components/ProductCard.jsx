@@ -4,6 +4,15 @@ import { Star, Award, ShoppingCart, Heart, Zap, ShieldCheck } from 'lucide-react
 import LazyImage from './LazyImage';
 import CountdownTimer from './CountdownTimer';
 
+// Stable hash from a string — same string always yields same number
+function stableHash(str, min, max) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return min + (hash % (max - min + 1));
+}
+
 const ProductCard = ({ product, onNavigateProduct }) => {
   const { addToCart, currentUser, wishlist, toggleWishlist } = useApp();
   const [isHovered, setIsHovered] = useState(false);
@@ -114,7 +123,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
               <span style={{ fontSize: '11px', fontWeight: '800' }}>{product.rating || '4.5'}</span>
               <span style={{ color: '#fde047', fontSize: '10px', marginLeft: '1px' }}>★</span>
             </span>
-            <span style={styles.reviewsCount}>({product.reviewsCount || Math.floor(Math.random() * 400 + 50)})</span>
+            <span style={styles.reviewsCount}>({product.reviewsCount || stableHash(String(product.id || product.name || 'p'), 50, 490)})</span>
           </div>
           {!(currentUser && currentUser.isInfluencer) && (
             <span style={{ fontSize: '11px', color: '#334155', fontWeight: '700', background: '#fffbeb', border: '1px solid #fde68a', padding: '1px 6px', borderRadius: '6px' }}>

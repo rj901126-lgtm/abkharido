@@ -590,8 +590,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-              {Array.isArray(currentUser?.addresses) && currentUser.addresses.length > 0 ? currentUser.addresses.filter(Boolean).map((addr) => (
-                <div key={addr?.id || Math.random()} style={{ border: addr?.isDefault ? '2px solid #4f46e5' : '1.5px solid #cbd5e1', borderRadius: '16px', padding: '16px', background: addr?.isDefault ? '#f8fafc' : 'white', position: 'relative' }}>
+              {Array.isArray(currentUser?.addresses) && currentUser.addresses.length > 0 ? currentUser.addresses.filter(Boolean).map((addr, addrIdx) => (
+                <div key={addr?.id || `addr-${addrIdx}`} style={{ border: addr?.isDefault ? '2px solid #4f46e5' : '1.5px solid #cbd5e1', borderRadius: '16px', padding: '16px', background: addr?.isDefault ? '#f8fafc' : 'white', position: 'relative' }}>
                   {addr?.isDefault && (
                     <span style={{ position: 'absolute', top: '-10px', right: '16px', background: '#4f46e5', color: 'white', fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px' }}>
                       DEFAULT

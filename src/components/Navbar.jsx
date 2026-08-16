@@ -287,9 +287,9 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                     <div style={{ fontSize: '12px', fontWeight: '800', color: '#4338ca', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
                       💎 Instant VIP Deal Highlights
                     </div>
-                    {products.slice(0, 3).map(p => (
+                    {products.slice(0, 3).map((p, idx) => (
                       <div 
-                        key={p?.id || Math.random()}
+                        key={p?.id || `trending-${idx}`}
                         onMouseDown={() => { if (p?.id) onNavigateProduct(p.id); setShowSuggestions(false); }}
                         style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 4px', cursor: 'pointer', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}
                       >
@@ -316,9 +316,9 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                     return matches.length > 0 ? (
                       <div>
                         <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Live Matches ({matches.length})</div>
-                        {matches.map(p => (
+                        {matches.map((p, idx) => (
                           <div 
-                            key={p?.id || Math.random()} 
+                            key={p?.id || `match-${idx}`} 
                             className="suggestion-item"
                             onMouseDown={() => {
                               if (p?.id) onNavigateProduct(p.id);
