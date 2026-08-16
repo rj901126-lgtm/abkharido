@@ -27,8 +27,9 @@ const ProductReviews = ({ product, productId }) => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('Review submitted successfully! Refreshing...');
-        setTimeout(() => window.location.reload(), 1500);
+        setMessage('Review submitted! Thank you 🎉');
+        setComment('');
+        setRating(5);
       } else {
         setMessage(data.error || 'Failed to submit review');
       }

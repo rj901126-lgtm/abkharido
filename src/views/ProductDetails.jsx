@@ -150,10 +150,20 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
         })
       });
       if (res.ok) {
+        // Optimistically prepend the new review to local state — no full page reload needed
+        const newReview = {
+          name: currentUser.fullName || currentUser.username || 'You',
+          username: currentUser.username || '',
+          rating: newRating,
+          comment: newComment.trim(),
+          date: new Date().toISOString().split('T')[0],
+          photos: [...selectedPhotos]
+        };
+        setReviewsList(prev => [newReview, ...prev]);
         setNewComment('');
         setNewRating(5);
-        showToast('Review submitted successfully!', 'success');
-        window.location.reload();
+        setSelectedPhotos([]);
+        showToast('Review submitted successfully! 🎉', 'success');
       } else {
         const data = await res.json();
         showToast(data.error || data.message || 'Failed to submit review.', 'error');
@@ -164,6 +174,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
       setIsSubmittingReview(false);
     }
   };
+
 
   const handlePincodeCheck = () => {
     const pinRegex = /^[1-9][0-9]{5}$/;
