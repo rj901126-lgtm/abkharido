@@ -29,6 +29,8 @@ const Orders = ({ onNavigate }) => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   
   const [orderToCancel, setOrderToCancel] = useState(null);
@@ -93,6 +95,59 @@ const Orders = ({ onNavigate }) => {
         .finally(() => setIsFetching(false));
     }
   }, [currentUser, debouncedSearch, statusFilter, timeFilter]);
+
+  // Client-side instant filtering on top of server data
+  const filteredOrders = React.useMemo(() => {
+    return (orders || []).filter(order => {
+      if (!order) return false;
+
+      // 1. Search Query
+      if (debouncedSearch) {
+        const q = debouncedSearch.toLowerCase().trim();
+        const matchesId = (order._id || '').toLowerCase().includes(q);
+        const matchesItem = (order.orderItems || []).some(item => (item?.name || '').toLowerCase().includes(q));
+        const matchesCourier = (order.courierPartner || '').toLowerCase().includes(q) || (order.awbNumber || '').toLowerCase().includes(q);
+        if (!matchesId && !matchesItem && !matchesCourier) return false;
+      }
+
+      // 2. Status Filter
+      if (statusFilter !== 'all') {
+        const s = (order.status || '').toLowerCase();
+        if (statusFilter === 'delivered' && s !== 'delivered') return false;
+        if (statusFilter === 'processing' && (s === 'delivered' || s === 'cancelled' || s === 'returned')) return false;
+        if (statusFilter === 'cancelled' && s !== 'cancelled' && s !== 'returned') return false;
+      }
+
+      // 3. Date / Time Filter
+      if (timeFilter !== 'all') {
+        const orderDate = new Date(order.createdAt).getTime();
+        const now = Date.now();
+        if (timeFilter === '30days' && now - orderDate > 30 * 24 * 60 * 60 * 1000) return false;
+        if (timeFilter === '3months' && now - orderDate > 90 * 24 * 60 * 60 * 1000) return false;
+        if (timeFilter === '6months' && now - orderDate > 180 * 24 * 60 * 60 * 1000) return false;
+        if (timeFilter === '2026' && new Date(order.createdAt).getFullYear() !== 2026) return false;
+        if (timeFilter === '2025' && new Date(order.createdAt).getFullYear() !== 2025) return false;
+        if (timeFilter === 'custom') {
+          if (customStartDate) {
+            const start = new Date(customStartDate).getTime();
+            if (orderDate < start) return false;
+          }
+          if (customEndDate) {
+            const end = new Date(customEndDate);
+            end.setHours(23, 59, 59, 999);
+            if (orderDate > end.getTime()) return false;
+          }
+        }
+      }
+      return true;
+    });
+  }, [orders, debouncedSearch, statusFilter, timeFilter, customStartDate, customEndDate]);
+
+  // Order summary metrics
+  const totalOrdersCount = orders?.length || 0;
+  const activeInTransitCount = (orders || []).filter(o => o?.status !== 'Delivered' && o?.status !== 'Cancelled' && o?.status !== 'CANCELLED' && o?.status !== 'Returned').length;
+  const totalDeliveredCount = (orders || []).filter(o => o?.status === 'Delivered').length;
+  const totalSpentAmount = (orders || []).reduce((acc, o) => o?.status !== 'Cancelled' && o?.status !== 'CANCELLED' ? acc + (o?.totalPrice || 0) : acc, 0);
 
   const loadMoreOrders = () => {
     const next = currentPage + 1;
@@ -391,67 +446,166 @@ const Orders = ({ onNavigate }) => {
       {/* Premium Dark Orders Header */}
       <div style={{
         background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%)',
-        borderRadius: '20px',
-        padding: '20px',
-        marginBottom: '20px',
-        boxShadow: '0 12px 40px rgba(30, 27, 75, 0.25)',
+        borderRadius: '24px',
+        padding: '24px',
+        marginBottom: '24px',
+        boxShadow: '0 16px 40px rgba(30, 27, 75, 0.3)',
         border: '1px solid rgba(255,255,255,0.08)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: (orders.length === 0 && !searchQuery && statusFilter === 'all') ? '0px' : '16px' }}>
-          <div style={{
-            width: '44px', height: '44px',
-            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-            borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 8px 20px rgba(79,70,229,0.4)',
-          }}>
-            <History size={22} color="#ffffff" />
+        {/* Header Title & Subtitle */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{
+              width: '48px', height: '48px',
+              background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+              borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(79,70,229,0.45)',
+            }}>
+              <History size={24} color="#ffffff" />
+            </div>
+            <div>
+              <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#ffffff', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', margin: 0 }}>My Orders</h1>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', margin: 0, marginTop: '3px' }}>Track shipments, manage delivery slots, download GST invoices & request replacements</p>
+            </div>
           </div>
-          <div>
-            <h1 style={{ fontSize: '22px', fontWeight: '900', color: '#ffffff', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', margin: 0 }}>My Orders</h1>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', margin: 0, marginTop: '2px' }}>Track shipments, manage delivery slots, download GST invoices & request replacements</p>
+
+          {/* Quick Metrics Ribbon */}
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', fontWeight: '800', textTransform: 'uppercase' }}>Total Orders</div>
+              <div style={{ fontSize: '15px', fontWeight: '900', color: '#ffffff' }}>{totalOrdersCount}</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', fontWeight: '800', textTransform: 'uppercase' }}>In Transit</div>
+              <div style={{ fontSize: '15px', fontWeight: '900', color: '#38bdf8' }}>{activeInTransitCount}</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', fontWeight: '800', textTransform: 'uppercase' }}>Total Spent</div>
+              <div style={{ fontSize: '15px', fontWeight: '900', color: '#4ade80' }}>₹{totalSpentAmount.toLocaleString('en-IN')}</div>
+            </div>
           </div>
         </div>
 
-        {/* Search & filter inside header */}
-        {(orders.length > 0 || searchQuery !== '' || statusFilter !== 'all') && (
-          <>
+        {/* Search & Filter Bar */}
+        {(orders.length > 0 || searchQuery !== '' || statusFilter !== 'all' || timeFilter !== 'all') && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {/* Search Input */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: '10px',
-              background: 'rgba(255,255,255,0.1)', borderRadius: '12px',
-              padding: '10px 14px', border: '1px solid rgba(255,255,255,0.12)',
-              marginBottom: '12px',
+              background: 'rgba(255,255,255,0.1)', borderRadius: '14px',
+              padding: '12px 16px', border: '1px solid rgba(255,255,255,0.14)',
             }}>
-              <Search size={16} color="rgba(255,255,255,0.5)" />
+              <Search size={18} color="rgba(255,255,255,0.6)" />
               <input
                 type="text"
-                placeholder="Search orders by product name, brand, or Order ID..."
+                placeholder="Search orders by product name, brand, Order ID, or AWB tracking..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   flex: 1, border: 'none', background: 'transparent',
-                  color: '#ffffff', fontSize: '13px', outline: 'none',
+                  color: '#ffffff', fontSize: '13.5px', outline: 'none',
                 }}
               />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>
+                  Clear
+                </button>
+              )}
             </div>
 
-            {/* Filter pills */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {[
-                { v: 'all', l: 'All Orders' },
-                { v: 'processing', l: 'In Progress 🚚' },
-                { v: 'delivered', l: 'Delivered ✅' },
-                { v: 'cancelled', l: 'Cancelled ❌' }
-              ].map(opt => (
-                <button key={opt.v} onClick={() => setStatusFilter(opt.v)} style={{
-                  padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
-                  border: statusFilter === opt.v ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.15)',
-                  background: statusFilter === opt.v ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : 'rgba(255,255,255,0.08)',
-                  color: statusFilter === opt.v ? '#ffffff' : 'rgba(255,255,255,0.7)',
-                  cursor: 'pointer', transition: 'all 0.2s',
-                }}>{opt.l}</button>
-              ))}
+            {/* Filter Controls: Status Tabs & Date Period Selector */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              {/* Status Filter Pills */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {[
+                  { v: 'all', l: 'All Orders' },
+                  { v: 'processing', l: 'In Progress 🚚' },
+                  { v: 'delivered', l: 'Delivered ✅' },
+                  { v: 'cancelled', l: 'Cancelled ❌' }
+                ].map(opt => (
+                  <button key={opt.v} onClick={() => setStatusFilter(opt.v)} style={{
+                    padding: '7px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
+                    border: statusFilter === opt.v ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.15)',
+                    background: statusFilter === opt.v ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : 'rgba(255,255,255,0.08)',
+                    color: statusFilter === opt.v ? '#ffffff' : 'rgba(255,255,255,0.7)',
+                    cursor: 'pointer', transition: 'all 0.2s',
+                  }}>{opt.l}</button>
+                ))}
+              </div>
+
+              {/* Date Filter Dropdown */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar size={15} color="rgba(255,255,255,0.7)" />
+                <select
+                  value={timeFilter}
+                  onChange={(e) => setTimeFilter(e.target.value)}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="all" style={{ background: '#1e1b4b', color: 'white' }}>📅 All Time</option>
+                  <option value="30days" style={{ background: '#1e1b4b', color: 'white' }}>Past 30 Days</option>
+                  <option value="3months" style={{ background: '#1e1b4b', color: 'white' }}>Past 3 Months</option>
+                  <option value="6months" style={{ background: '#1e1b4b', color: 'white' }}>Past 6 Months</option>
+                  <option value="2026" style={{ background: '#1e1b4b', color: 'white' }}>Year 2026</option>
+                  <option value="2025" style={{ background: '#1e1b4b', color: 'white' }}>Year 2025</option>
+                  <option value="custom" style={{ background: '#1e1b4b', color: 'white' }}>Custom Date Range 🔍</option>
+                </select>
+              </div>
             </div>
-          </>
+
+            {/* Custom Date Range Picker (Rendered when timeFilter === 'custom') */}
+            {timeFilter === 'custom' && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap',
+                background: 'rgba(255,255,255,0.06)', padding: '12px 16px', borderRadius: '14px',
+                border: '1px solid rgba(255,255,255,0.12)', marginTop: '4px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'rgba(255,255,255,0.8)' }}>
+                  <span>From:</span>
+                  <input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    style={{
+                      padding: '5px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)',
+                      border: '1px solid rgba(255,255,255,0.25)', color: '#ffffff', fontSize: '12px', outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'rgba(255,255,255,0.8)' }}>
+                  <span>To:</span>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    style={{
+                      padding: '5px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)',
+                      border: '1px solid rgba(255,255,255,0.25)', color: '#ffffff', fontSize: '12px', outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {(customStartDate || customEndDate) && (
+                  <button
+                    onClick={() => { setCustomStartDate(''); setCustomEndDate(''); }}
+                    style={{ background: 'none', border: 'none', color: '#f87171', fontSize: '11.5px', fontWeight: '800', cursor: 'pointer' }}
+                  >
+                    Reset Dates
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -463,7 +617,7 @@ const Orders = ({ onNavigate }) => {
           <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
           <div style={{ color: '#64748b', fontWeight: '600' }}>Fetching latest orders...</div>
         </div>
-      ) : orders.length === 0 ? (
+      ) : filteredOrders.length === 0 ? (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           padding: '40px 20px 120px 20px', textAlign: 'center',
@@ -478,15 +632,15 @@ const Orders = ({ onNavigate }) => {
             <ShoppingBag size={48} color="#ffffff" strokeWidth={1.5} />
           </div>
           <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#090d16', fontFamily: "'Outfit', sans-serif", marginBottom: '8px' }}>
-            {searchQuery || statusFilter !== 'all' ? 'No Matching Orders' : 'No Orders Placed Yet'}
+            {searchQuery || statusFilter !== 'all' || timeFilter !== 'all' ? 'No Matching Orders' : 'No Orders Placed Yet'}
           </h2>
           <p style={{ color: '#64748b', fontSize: '13.5px', maxWidth: '320px', lineHeight: '1.5', marginBottom: '24px' }}>
-            {searchQuery || statusFilter !== 'all'
-              ? "Try clearing filters or search terms to see past purchases."
+            {searchQuery || statusFilter !== 'all' || timeFilter !== 'all'
+              ? "Try clearing filters or date ranges to see your past purchases."
               : "Experience authentic brand inventory, cash protection, and instant cashback on AbKharido.com."}
           </p>
           <button
-            onClick={() => navigateTo('home')}
+            onClick={() => { setSearchQuery(''); setStatusFilter('all'); setTimeFilter('all'); navigateTo('home'); }}
             style={{
               padding: '14px 32px',
               background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
@@ -501,84 +655,213 @@ const Orders = ({ onNavigate }) => {
         </div>
       ) : (
       <>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-        {orders.map(order => {
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {filteredOrders.map(order => {
+          const isExpanded = expandedOrderId === order._id;
           const pin = order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4) || '8492' : '8492');
           const isCancelled = order.status === 'Cancelled' || order.status === 'CANCELLED';
           const isDelivered = order.status === 'Delivered';
+          const firstItem = order.orderItems?.[0];
+          const totalItems = order.orderItems?.length || 1;
 
           return (
-          <div key={order._id} className="order-card" style={{ border: '1.5px solid #e2e8f0', borderRadius: '20px', padding: '24px', background: '#ffffff', boxShadow: '0 8px 30px rgba(0,0,0,0.04)', transition: 'all 0.2s ease' }}>
+          <div 
+            key={order._id} 
+            className="order-card" 
+            style={{ 
+              border: isExpanded ? '2px solid #4f46e5' : '1.5px solid #e2e8f0', 
+              borderRadius: '20px', 
+              background: '#ffffff', 
+              boxShadow: isExpanded ? '0 12px 36px rgba(79, 70, 229, 0.12)' : '0 4px 20px rgba(0,0,0,0.03)', 
+              transition: 'all 0.25s ease',
+              overflow: 'hidden'
+            }}
+          >
             
-            {/* Executive Header: Order Meta, Date, Total, Ship To, and Action Controls */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px 20px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap', alignItems: 'center' }}>
-                <div>
-                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Order Placed</span>
-                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginTop: '3px' }}>
-                    {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </div>
+            {/* 🌟 Summary Row (Always Visible - Collapsed by Default, Clicking Expands) */}
+            <div 
+              onClick={() => setExpandedOrderId(isExpanded ? null : order._id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '18px 20px',
+                cursor: 'pointer',
+                background: isExpanded ? '#f8fafc' : '#ffffff',
+                borderBottom: isExpanded ? '1px solid #e2e8f0' : 'none',
+                gap: '16px',
+                flexWrap: 'wrap',
+                transition: 'background 0.2s ease'
+              }}
+            >
+              {/* Left: Product Thumbnail & Stack Count */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '260px', flex: 1 }}>
+                <div style={{ position: 'relative', width: '68px', height: '68px', borderRadius: '12px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, padding: '4px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {firstItem?.image ? (
+                    <img src={firstItem.image} alt={firstItem.name || 'Product'} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  ) : (
+                    <ShoppingBag size={24} color="#94a3b8" />
+                  )}
+                  {totalItems > 1 && (
+                    <span style={{ position: 'absolute', bottom: '2px', right: '2px', background: '#1e1b4b', color: '#ffffff', fontSize: '9.5px', fontWeight: '800', padding: '2px 5px', borderRadius: '6px' }}>
+                      +{totalItems - 1}
+                    </span>
+                  )}
                 </div>
 
-                <div>
-                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Amount</span>
-                  <div style={{ fontSize: '15px', fontWeight: '900', color: '#059669', marginTop: '2px' }}>
-                    ₹{(order.totalPrice || 0).toLocaleString('en-IN')}
+                {/* Middle Content: Status Badge, Title, Order ID & Price */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{
+                      padding: '3px 9px',
+                      borderRadius: '100px',
+                      fontSize: '11px',
+                      fontWeight: '800',
+                      letterSpacing: '0.3px',
+                      textTransform: 'uppercase',
+                      background: isCancelled ? '#fef2f2' : isDelivered ? '#ecfdf5' : '#eff6ff',
+                      color: isCancelled ? '#ef4444' : isDelivered ? '#059669' : '#2563eb',
+                      border: `1px solid ${isCancelled ? '#fecaca' : isDelivered ? '#a7f3d0' : '#bfdbfe'}`
+                    }}>
+                      {isDelivered ? '✅ Delivered' : isCancelled ? '❌ Cancelled' : `🚚 ${order.status || 'Processing'}`}
+                    </span>
+                    <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700', fontFamily: 'monospace' }}>
+                      #{order._id.slice(-8).toUpperCase()}
+                    </span>
                   </div>
-                </div>
 
-                <div>
-                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ship To</span>
-                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span>{order.shippingAddress?.fullName || order.shippingAddress?.name || 'Customer'}</span>
-                    {(!isCancelled && !isDelivered) && (
-                      <button
-                        onClick={() => handleOpenEditAddress(order)}
-                        style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', padding: 0, fontSize: '11px', fontWeight: '800', textDecoration: 'underline' }}
-                        title="Edit delivery address"
-                      >
-                        Edit
-                      </button>
-                    )}
+                  <div style={{ fontSize: '14.5px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '340px' }}>
+                    {firstItem?.name || 'Ordered Items'}
                   </div>
-                </div>
 
-                <div>
-                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment Mode</span>
-                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#334155', marginTop: '3px' }}>
-                    {order.paymentMethod || 'Online'} {order.isPaid ? '• PAID ✓' : '• Cash on Delivery'}
+                  <div style={{ fontSize: '12.5px', color: '#475569', fontWeight: '600' }}>
+                    <strong style={{ color: '#059669', fontWeight: '900' }}>₹{(order.totalPrice || 0).toLocaleString('en-IN')}</strong> • {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} • {order.paymentMethod || 'Online'}
                   </div>
                 </div>
               </div>
 
-              {/* Order ID & Top Invoice Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '700' }}>
-                  ORDER #<strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{order._id.slice(-8).toUpperCase()}</strong>
-                </div>
+              {/* Right: Quick Action Buttons & Expand Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
+                {/* 1-Click Tax Invoice */}
                 <button
                   onClick={() => handleDownloadInvoice(order._id)}
                   disabled={downloadingOrderId === order._id}
                   style={{
-                    padding: '7px 14px',
+                    padding: '7px 12px',
                     borderRadius: '10px',
                     border: '1px solid #cbd5e1',
                     background: '#ffffff',
                     color: '#334155',
+                    fontSize: '11.5px',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+                  }}
+                  title="Download Tax Invoice"
+                >
+                  <Download size={13} /> {downloadingOrderId === order._id ? 'Generating...' : 'Invoice'}
+                </button>
+
+                {/* 1-Click Reorder */}
+                <button
+                  onClick={() => {
+                    if (order.orderItems) {
+                      order.orderItems.forEach(item => {
+                        addToCart({ id: item.product, name: item.name, price: item.price, image: item.image, originalPrice: item.price }, item.qty || 1);
+                      });
+                      showToast('Items added back to cart! 🛍️', 'success');
+                      navigateTo('cart');
+                    }
+                  }}
+                  style={{
+                    padding: '7px 12px',
+                    borderRadius: '10px',
+                    border: '1px solid #bfdbfe',
+                    background: '#eff6ff',
+                    color: '#2563eb',
+                    fontSize: '11.5px',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="Buy items again"
+                >
+                  🔄 Buy Again
+                </button>
+
+                {/* Expand / Collapse Details Button */}
+                <button
+                  onClick={() => setExpandedOrderId(isExpanded ? null : order._id)}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: isExpanded ? '1px solid #4f46e5' : '1px solid #e2e8f0',
+                    background: isExpanded ? '#4f46e5' : '#f8fafc',
+                    color: isExpanded ? '#ffffff' : '#334155',
                     fontSize: '12px',
                     fontWeight: '800',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                    transition: 'all 0.2s'
+                    gap: '5px',
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  <Download size={14} /> {downloadingOrderId === order._id ? 'Generating...' : 'Tax Invoice'}
+                  {isExpanded ? 'Hide Details' : 'View Details & Track'} {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </button>
               </div>
             </div>
+
+            {/* 🌟 Expanded Order Details (Unfolds when isExpanded === true) */}
+            {isExpanded && (
+            <div style={{ padding: '24px', background: '#ffffff', borderTop: '1px solid #f1f5f9' }}>
+              
+              {/* Executive Header: Order Meta, Date, Total, Ship To, and Action Controls */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px 20px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Order Placed</span>
+                    <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginTop: '3px' }}>
+                      {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Amount</span>
+                    <div style={{ fontSize: '15px', fontWeight: '900', color: '#059669', marginTop: '2px' }}>
+                      ₹{(order.totalPrice || 0).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ship To</span>
+                    <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>{order.shippingAddress?.fullName || order.shippingAddress?.name || 'Customer'}</span>
+                      {(!isCancelled && !isDelivered) && (
+                        <button
+                          onClick={() => handleOpenEditAddress(order)}
+                          style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', padding: 0, fontSize: '11px', fontWeight: '800', textDecoration: 'underline' }}
+                          title="Edit delivery address"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment Mode</span>
+                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#334155', marginTop: '3px' }}>
+                      {order.paymentMethod || 'Online'} {order.isPaid ? '• PAID ✓' : '• Cash on Delivery'}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
 
             {/* 🛡️ Doorstep Security Verification PIN with 1-Click Copy & Show QR */}
@@ -1046,12 +1329,15 @@ const Orders = ({ onNavigate }) => {
                   {downloadingOrderId === order._id ? 'Generating...' : 'Tax Invoice'}
                 </button>
               </div>
-
-              {/* Hidden Invoice PDF Generator */}
-              <WorldClassInvoice ref={el => invoiceRefs.current[order._id] = el} order={order} />
             </div>
+            </div>
+            )}
+
+            {/* Hidden Invoice PDF Generator (accessible always) */}
+            <WorldClassInvoice ref={el => invoiceRefs.current[order._id] = el} order={order} />
           </div>
-        )})}
+          );
+        })}
       </div>
       
       {hasMoreOrders && (
