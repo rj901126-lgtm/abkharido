@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Star, Award, ShoppingCart, Heart, Zap, ShieldCheck } from 'lucide-react';
+import { Star, Award, ShoppingCart, Heart, Zap, ShieldCheck, Check } from 'lucide-react';
 import LazyImage from './LazyImage';
 import CountdownTimer from './CountdownTimer';
 
@@ -14,9 +14,10 @@ function stableHash(str, min, max) {
 }
 
 const ProductCard = ({ product, onNavigateProduct }) => {
-  const { addToCart, currentUser, wishlist, toggleWishlist } = useApp();
+  const { addToCart, currentUser, wishlist, toggleWishlist, showToast } = useApp();
   const [isHovered, setIsHovered] = useState(false);
   const [isBtnHovered, setIsBtnHovered] = useState(false);
+  const [isJustAdded, setIsJustAdded] = useState(false);
 
   if (!product) return null;
 
@@ -33,8 +34,12 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   const influencerEarningsCash = Math.round(price * (product.influencerCommissionRate || 0.08));
 
   const handleAddToCart = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     addToCart(product);
+    setIsJustAdded(true);
+    if (showToast) showToast(`🛍️ ${product.name} added to bag!`, 'success');
+    setTimeout(() => setIsJustAdded(false), 2000);
   };
 
   const handleWishlistToggle = (e) => {
@@ -160,20 +165,29 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            boxShadow: isBtnHovered ? '0 8px 20px rgba(79, 70, 229, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.12)',
+            background: isJustAdded 
+              ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
+              : (isBtnHovered ? 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'),
+            boxShadow: isJustAdded 
+              ? '0 8px 20px rgba(16, 185, 129, 0.4)'
+              : (isBtnHovered ? '0 8px 20px rgba(79, 70, 229, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.12)'),
             transform: isBtnHovered ? 'translateY(-2px)' : 'none',
           }} 
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            addToCart(product);
-          }}
+          onClick={handleAddToCart}
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={15} style={{ color: '#ffffff' }} />
-          <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.3px' }}>Add to Bag</span>
+          {isJustAdded ? (
+            <>
+              <Check size={16} style={{ color: '#ffffff' }} />
+              <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.3px', color: '#ffffff' }}>Added ✓</span>
+            </>
+          ) : (
+            <>
+              <ShoppingCart size={15} style={{ color: '#ffffff' }} />
+              <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.3px' }}>Add to Bag</span>
+            </>
+          )}
         </button>
       </div>
     </div>
