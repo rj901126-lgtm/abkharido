@@ -83,18 +83,7 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
           </button>
         </div>
 
-        {/* Free Shipping Progress */}
-        {cartCount > 0 && (
-          <div style={{ padding: '16px 20px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: itemsPrice >= 500 ? '#10b981' : '#475569' }}>
-              <span>{itemsPrice >= 500 ? 'You have free shipping!' : `Add ₹${(500 - itemsPrice).toLocaleString('en-IN')} more for free shipping`}</span>
-              {itemsPrice >= 500 && <span style={{ fontWeight: '800' }}>UNLOCKED</span>}
-            </div>
-            <div style={{ width: '100%', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#10b981', transition: 'width 0.3s ease' }} />
-            </div>
-          </div>
-        )}
+
 
         {/* Cart Items List */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f8fafc' }}>

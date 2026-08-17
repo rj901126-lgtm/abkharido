@@ -501,137 +501,85 @@ const Orders = ({ onNavigate }) => {
         </div>
       ) : (
       <>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
         {orders.map(order => {
-          const isExpanded = expandedOrderId === order._id;
           const pin = order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4) || '8492' : '8492');
-          
-          if (!isExpanded) {
-            return (
-              <div key={order._id} style={{ cursor: 'pointer', display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.03)', transition: 'all 0.2s', position: 'relative' }} onClick={() => setExpandedOrderId(order._id)}>
-                {order?.orderItems && order.orderItems.length > 0 && order.orderItems[0] ? (
-                  <div style={{ width: '74px', height: '74px', borderRadius: '12px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', padding: '4px' }}>
-                    <img src={order.orderItems[0]?.image || ''} alt={order.orderItems[0]?.name || 'Product'} style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
-                  </div>
-                ) : (
-                  <div style={{ width: '74px', height: '74px', borderRadius: '12px', background: '#f8fafc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
-                    <ShoppingBag size={26} color="#94a3b8" />
-                  </div>
-                )}
-                
-                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ 
-                      padding: '4px 10px', 
-                      borderRadius: '100px', 
-                      fontSize: '11px', 
-                      fontWeight: '800',
-                      letterSpacing: '0.4px',
-                      textTransform: 'uppercase',
-                      background: order.status === 'Cancelled' ? '#fef2f2' : order.status === 'Delivered' ? '#ecfdf5' : '#fffbeb',
-                      color: order.status === 'Cancelled' ? '#ef4444' : order.status === 'Delivered' ? '#059669' : '#d97706',
-                      border: `1px solid ${order.status === 'Cancelled' ? '#fecaca' : order.status === 'Delivered' ? '#a7f3d0' : '#fde68a'}`
-                    }}>
-                      {order.status === 'Delivered' ? '✅ Delivered' : order.status === 'Cancelled' ? '❌ Cancelled' : `🚚 ${order.status || 'Processing'}`}
-                    </span>
-                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
-                      ₹{(order.totalPrice || 0).toLocaleString('en-IN')} • {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                    </span>
-                  </div>
-                  
-                  {order?.orderItems && order.orderItems.length > 0 && order.orderItems[0] && (
-                    <div style={{ fontSize: '14.5px', color: '#0f172a', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '2px' }}>
-                      {order.orderItems[0]?.name || 'Purchased Item'}
-                    </div>
-                  )}
-                  
-                  {order.orderItems && order.orderItems.length > 1 && (
-                    <div style={{ fontSize: '12px', color: '#4f46e5', fontWeight: '700' }}>
-                      +{order.orderItems.length - 1} more item{order.orderItems.length - 1 > 1 ? 's' : ''} in this delivery
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (order.orderItems) {
-                        order.orderItems.forEach(item => {
-                          const reorderProduct = {
-                            id: item.product,
-                            name: item.name,
-                            price: item.price,
-                            image: item.image,
-                            originalPrice: item.price,
-                          };
-                          addToCart(reorderProduct, item.qty || 1);
-                        });
-                        showToast('Items added back to cart! 🛍️', 'success');
-                      }
-                    }}
-                    style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    title="Repeat order"
-                  >
-                    🔄 Reorder
-                  </button>
-                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', display: 'flex', alignItems: 'center' }}>
-                    Details <ChevronRight size={14} />
-                  </span>
-                </div>
-              </div>
-            );
-          }
+          const isCancelled = order.status === 'Cancelled' || order.status === 'CANCELLED';
+          const isDelivered = order.status === 'Delivered';
 
           return (
-          <div key={order._id} className="order-card" style={{ border: '2px solid #4f46e5', borderRadius: '20px', padding: '20px', background: '#ffffff', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
+          <div key={order._id} className="order-card" style={{ border: '1.5px solid #e2e8f0', borderRadius: '20px', padding: '24px', background: '#ffffff', boxShadow: '0 8px 30px rgba(0,0,0,0.04)', transition: 'all 0.2s ease' }}>
             
-            {/* Header: Title & Collapse Button */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px' }}>
-               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'Outfit', sans-serif" }}>
-                 <ShoppingBag size={20} color="#4f46e5" /> Order #{order._id.slice(-8).toUpperCase()}
-               </h3>
-               <button onClick={() => setExpandedOrderId(null)} style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '12.5px', backgroundColor: '#f1f5f9', border: 'none', color: '#475569', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
-                 Collapse <ChevronUp size={16} />
-               </button>
+            {/* Executive Header: Order Meta, Date, Total, Ship To, and Action Controls */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px 20px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Order Placed</span>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginTop: '3px' }}>
+                    {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Amount</span>
+                  <div style={{ fontSize: '15px', fontWeight: '900', color: '#059669', marginTop: '2px' }}>
+                    ₹{(order.totalPrice || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ship To</span>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>{order.shippingAddress?.fullName || order.shippingAddress?.name || 'Customer'}</span>
+                    {(!isCancelled && !isDelivered) && (
+                      <button
+                        onClick={() => handleOpenEditAddress(order)}
+                        style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', padding: 0, fontSize: '11px', fontWeight: '800', textDecoration: 'underline' }}
+                        title="Edit delivery address"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment Mode</span>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#334155', marginTop: '3px' }}>
+                    {order.paymentMethod || 'Online'} {order.isPaid ? '• PAID ✓' : '• Cash on Delivery'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Order ID & Top Invoice Buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '700' }}>
+                  ORDER #<strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{order._id.slice(-8).toUpperCase()}</strong>
+                </div>
+                <button
+                  onClick={() => handleDownloadInvoice(order._id)}
+                  disabled={downloadingOrderId === order._id}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#334155',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Download size={14} /> {downloadingOrderId === order._id ? 'Generating...' : 'Tax Invoice'}
+                </button>
+              </div>
             </div>
 
-            {/* Order Meta Bar */}
-            <div className="order-card-header" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '14px', alignItems: 'center', background: '#f8fafc', padding: '14px 16px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-              <div>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>Placed On</span>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', marginTop: '2px' }}>
-                  {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>Total Paid</span>
-                <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669', marginTop: '2px' }}>
-                  ₹{(order.totalPrice || 0).toLocaleString('en-IN')}
-                </div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>Ship To</span>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>{(order.shippingAddress?.fullName || order.shippingAddress?.name || 'Customer')}</span>
-                  {(order.status === 'Placed' || order.status === 'Processing' || order.status === 'Pending') && (
-                    <button
-                      onClick={() => handleOpenEditAddress(order)}
-                      style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', padding: 0, fontSize: '11px', fontWeight: '800', textDecoration: 'underline' }}
-                      title="Edit address before dispatch"
-                    >
-                      Edit
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>Payment Mode</span>
-                <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#334155', marginTop: '2px' }}>
-                  {order.paymentMethod || 'Online'} {order.isPaid ? '• PAID' : '• COD'}
-                </div>
-              </div>
-            </div>
 
             {/* 🛡️ Doorstep Security Verification PIN with 1-Click Copy & Show QR */}
             {order.status !== 'Cancelled' && order.status !== 'CANCELLED' && order.status !== 'Delivered' && (
