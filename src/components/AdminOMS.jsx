@@ -5,13 +5,33 @@ import { useApp } from '../context/AppContext';
 import WorldClassInvoice from './WorldClassInvoice';
 import { exportToCSV } from '../utils/csvExport';
 
-const AdminOMS = () => {
+const AdminOMS = ({ statusFilter }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [bulkStatus, setBulkStatus] = useState('');
-  const [activeTab, setActiveTab] = useState('ALL');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (statusFilter) {
+      const sf = statusFilter.toUpperCase();
+      if (sf === 'PENDING' || sf === 'PROCESSING') return 'PROCESSING';
+      if (sf === 'SHIPPED') return 'SHIPPED';
+      if (sf === 'DELIVERED') return 'DELIVERED';
+      if (sf === 'CANCELLED' || sf === 'RETURNS' || sf === 'CANCELLED_RETURNS') return 'CANCELLED';
+    }
+    return 'ALL';
+  });
   const [searchQuery, setSearchQuery] = useState('');
+  
+  useEffect(() => {
+    if (statusFilter) {
+      const sf = statusFilter.toUpperCase();
+      if (sf === 'PENDING' || sf === 'PROCESSING') setActiveTab('PROCESSING');
+      else if (sf === 'SHIPPED') setActiveTab('SHIPPED');
+      else if (sf === 'DELIVERED') setActiveTab('DELIVERED');
+      else if (sf === 'CANCELLED' || sf === 'RETURNS' || sf === 'CANCELLED_RETURNS') setActiveTab('CANCELLED');
+      else if (sf === 'ALL') setActiveTab('ALL');
+    }
+  }, [statusFilter]);
   
   // Modals state
   const [viewingOrder, setViewingOrder] = useState(null);

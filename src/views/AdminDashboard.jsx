@@ -24,7 +24,10 @@ import {
   HeadphonesIcon,
   User,
   Search,
-  MinusCircle
+  MinusCircle,
+  ChevronDown,
+  ChevronRight,
+  Smartphone
 } from 'lucide-react';
 import '../assets/styles/admin.css';
 import AdminDataGrid from '../components/AdminDataGrid';
@@ -41,6 +44,7 @@ import AdminStaff from '../components/AdminStaff';
 import AdminPromotions from '../components/AdminPromotions';
 import AdminUsers from '../components/AdminUsers';
 import AdminProductStudio from '../components/AdminProductStudio';
+import AdminSettings from '../components/AdminSettings';
 
 // eslint-disable-next-line
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
@@ -131,6 +135,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   }, [activeTab]);
 
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [ordersExpanded, setOrdersExpanded] = useState(true);
+  const [financeExpanded, setFinanceExpanded] = useState(true);
+  const [orderStatusFilter, setOrderStatusFilter] = useState('ALL');
+  const [financeSubTab, setFinanceSubTab] = useState('cod');
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminSellers, setAdminSellers] = useState([]);
@@ -1243,113 +1251,205 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         </div>
         
         <nav className="admin-sidebar-nav">
-          {/* Group: Overview */}
-          <div className="admin-nav-group-label">Overview</div>
+          {/* 1. 📊 Dashboard */}
           <div
             className={`admin-nav-item ${activeTab === 'analytics' ? 'active' : ''}`}
             onClick={() => { setActiveTab('analytics'); setMobileMenuOpen(false); }}
           >
-            <TrendingUp size={18} /> Dashboard
+            <TrendingUp size={18} />
+            <span>Dashboard</span>
           </div>
 
-          {canManageCatalog && (
-            <>
-              {/* Group: Store */}
-              <div className="admin-nav-group-label">Store</div>
-              <div
-                className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('inventory'); setMobileMenuOpen(false); }}
-              >
-                <Package size={18} /> Inventory
-              </div>
-              <div
-                className={`admin-nav-item ${activeTab === 'add_product' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('add_product'); setEditMode(false); resetForm(); setMobileMenuOpen(false); }}
-              >
-                <PlusCircle size={18} /> Add Product
-              </div>
-              <div
-                className={`admin-nav-item ${activeTab === 'cms' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('cms'); setMobileMenuOpen(false); }}
-              >
-                <LayoutTemplate size={18} /> CMS &amp; Layout
-              </div>
-              <div
-                className={`admin-nav-item ${activeTab === 'promotions' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('promotions'); setMobileMenuOpen(false); }}
-              >
-                <Image size={18} /> Banners
-              </div>
-            </>
-          )}
-
+          {/* 2. 📦 Orders (Expandable Tree) */}
           {(canManageCatalog || canManageSupport) && (
-            <>
-              {/* Group: Operations */}
-              <div className="admin-nav-group-label">Operations</div>
+            <div>
               <div
                 className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('orders'); setMobileMenuOpen(false); }}
+                style={{ justifyContent: 'space-between' }}
+                onClick={() => { 
+                  setActiveTab('orders'); 
+                  setOrderStatusFilter('ALL');
+                  setOrdersExpanded(true);
+                  setMobileMenuOpen(false); 
+                }}
               >
-                <FileText size={18} /> Orders
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <Package size={18} />
+                  <span>Orders</span>
+                </div>
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOrdersExpanded(!ordersExpanded);
+                  }}
+                  style={{ padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                >
+                  {ordersExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </div>
               </div>
-            </>
+
+              {ordersExpanded && (
+                <div className="admin-nav-sub-tree">
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'orders' && orderStatusFilter === 'ALL' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('orders'); setOrderStatusFilter('ALL'); setMobileMenuOpen(false); }}
+                  >
+                    <span>All Orders</span>
+                    <span className="admin-nav-badge">View</span>
+                  </div>
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'orders' && orderStatusFilter === 'PENDING' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('orders'); setOrderStatusFilter('PENDING'); setMobileMenuOpen(false); }}
+                  >
+                    <span>Pending</span>
+                    <span className="admin-nav-badge" style={{ background: '#fef3c7', color: '#b45309' }}>New</span>
+                  </div>
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'orders' && orderStatusFilter === 'PROCESSING' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('orders'); setOrderStatusFilter('PROCESSING'); setMobileMenuOpen(false); }}
+                  >
+                    <span>Processing</span>
+                  </div>
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'orders' && orderStatusFilter === 'SHIPPED' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('orders'); setOrderStatusFilter('SHIPPED'); setMobileMenuOpen(false); }}
+                  >
+                    <span>Shipped</span>
+                  </div>
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'orders' && orderStatusFilter === 'DELIVERED' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('orders'); setOrderStatusFilter('DELIVERED'); setMobileMenuOpen(false); }}
+                  >
+                    <span>Delivered</span>
+                  </div>
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'orders' && orderStatusFilter === 'CANCELLED' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('orders'); setOrderStatusFilter('CANCELLED'); setMobileMenuOpen(false); }}
+                  >
+                    <span>Cancelled / Returns</span>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
-          {canManageSupport && (
-            <>
-              <div
-                className={`admin-nav-item ${activeTab === 'helpdesk' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('helpdesk'); setMobileMenuOpen(false); }}
-              >
-                <HeadphonesIcon size={18} /> Helpdesk
-              </div>
-              <div
-                className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
-              >
-                <Users size={18} /> Users
-              </div>
-            </>
-          )}
-
-          {isSuperAdmin && (
-            <>
-              {/* Group: Advanced */}
-              <div className="admin-nav-group-label">Advanced</div>
-              <div
-                className={`admin-nav-item ${activeTab === 'coupons' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('coupons'); setMobileMenuOpen(false); }}
-              >
-                <Tag size={18} /> Marketing
-              </div>
-              <div
-                className={`admin-nav-item ${activeTab === 'crm' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('crm'); setMobileMenuOpen(false); }}
-              >
-                <Settings size={18} /> CRM Settings
-              </div>
-              <div
-                className={`admin-nav-item ${activeTab === 'audit' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('audit'); setMobileMenuOpen(false); }}
-              >
-                <ShieldAlert size={18} /> Audit Logs
-              </div>
-              <div
-                className={`admin-nav-item ${activeTab === 'staff' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('staff'); setMobileMenuOpen(false); }}
-              >
-                <User size={18} /> Team &amp; Staff
-              </div>
-            </>
-          )}
-
-          {canManageFinance && (
+          {/* 3. 📱 Products & Inventory */}
+          {canManageCatalog && (
             <div
-              className={`admin-nav-item ${activeTab === 'finance' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('finance'); setMobileMenuOpen(false); }}
+              className={`admin-nav-item ${activeTab === 'inventory' || activeTab === 'add_product' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('inventory'); setMobileMenuOpen(false); }}
             >
-              <Banknote size={18} /> Finance &amp; Payouts
+              <Smartphone size={18} />
+              <span>Products &amp; Inventory</span>
+            </div>
+          )}
+
+          {/* 4. 👥 Users & Sellers */}
+          {canManageSupport && (
+            <div
+              className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
+            >
+              <Users size={18} />
+              <span>Users &amp; Sellers</span>
+            </div>
+          )}
+
+          {/* 5. 🏷 Coupons & Promotions */}
+          {canManageCatalog && (
+            <div
+              className={`admin-nav-item ${activeTab === 'coupons' || activeTab === 'promotions' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('coupons'); setMobileMenuOpen(false); }}
+            >
+              <Tag size={18} />
+              <span>Coupons &amp; Promotions</span>
+            </div>
+          )}
+
+          {/* 6. 🖼 CMS / Homepage */}
+          {canManageCatalog && (
+            <div
+              className={`admin-nav-item ${activeTab === 'cms' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('cms'); setMobileMenuOpen(false); }}
+            >
+              <LayoutTemplate size={18} />
+              <span>CMS / Homepage</span>
+            </div>
+          )}
+
+          {/* 7. 💰 Finance (Expandable Tree) */}
+          {canManageFinance && (
+            <div>
+              <div
+                className={`admin-nav-item ${activeTab === 'finance' ? 'active' : ''}`}
+                style={{ justifyContent: 'space-between' }}
+                onClick={() => { 
+                  setActiveTab('finance'); 
+                  setFinanceSubTab('cod');
+                  setFinanceExpanded(true);
+                  setMobileMenuOpen(false); 
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <Banknote size={18} />
+                  <span>Finance</span>
+                </div>
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFinanceExpanded(!financeExpanded);
+                  }}
+                  style={{ padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                >
+                  {financeExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </div>
+              </div>
+
+              {financeExpanded && (
+                <div className="admin-nav-sub-tree">
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'finance' && financeSubTab === 'cod' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('finance'); setFinanceSubTab('cod'); setMobileMenuOpen(false); }}
+                  >
+                    <span>COD Collection</span>
+                    <span className="admin-nav-badge">Live</span>
+                  </div>
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'finance' && financeSubTab === 'payouts' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('finance'); setFinanceSubTab('payouts'); setMobileMenuOpen(false); }}
+                  >
+                    <span>Payouts</span>
+                  </div>
+                  <div 
+                    className={`admin-nav-sub-item ${activeTab === 'finance' && financeSubTab === 'wallet' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('finance'); setFinanceSubTab('wallet'); setMobileMenuOpen(false); }}
+                  >
+                    <span>Wallet</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 8. 📋 Activity Logs */}
+          {isSuperAdmin && (
+            <div
+              className={`admin-nav-item ${activeTab === 'audit' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('audit'); setMobileMenuOpen(false); }}
+            >
+              <FileText size={18} />
+              <span>Activity Logs</span>
+            </div>
+          )}
+
+          {/* 9. ⚙️ Settings */}
+          {isSuperAdmin && (
+            <div
+              className={`admin-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
+            >
+              <Settings size={18} />
+              <span>Settings</span>
             </div>
           )}
         </nav>
@@ -1440,391 +1540,39 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
         <div className="admin-content-inner">
 
-        {/* CONDITIONAL RENDER: HELPDESK TAB */}
+        {/* 1. 📊 DASHBOARD */}
+        {activeTab === 'analytics' && <AdminAnalytics />}
+
+        {/* 2. 📦 ORDERS (WITH LIVE STATUS SUB-FILTER) */}
+        {activeTab === 'orders' && <AdminOMS statusFilter={orderStatusFilter} />}
+
+        {/* 3. 📱 PRODUCTS & INVENTORY */}
+        {activeTab === 'inventory' && <AdminDataGrid onAddProduct={() => setActiveTab('add_product')} />}
+        {activeTab === 'add_product' && <AdminProductStudio onFinish={() => setActiveTab('inventory')} />}
+
+        {/* 4. 👥 USERS & SELLERS */}
+        {activeTab === 'users' && <AdminUsers />}
+
+        {/* 5. 🏷 COUPONS & PROMOTIONS */}
+        {activeTab === 'coupons' && <AdminCoupons />}
+        {activeTab === 'promotions' && <AdminPromotions />}
+
+        {/* 6. 🖼 CMS / HOMEPAGE BUILDER */}
+        {activeTab === 'cms' && <AdminCMSBuilder />}
+
+        {/* 7. 💰 FINANCE (COD COLLECTION, PAYOUTS, WALLET) */}
+        {activeTab === 'finance' && <AdminFinance subTab={financeSubTab} />}
+
+        {/* 8. 📋 ACTIVITY LOGS */}
+        {activeTab === 'audit' && <AdminAuditLogs />}
+
+        {/* 9. ⚙️ SETTINGS & RBAC */}
+        {activeTab === 'settings' && <AdminSettings />}
+
+        {/* ADDITIONAL MODULES */}
         {activeTab === 'helpdesk' && <AdminHelpdesk />}
-
-        {/* CONDITIONAL RENDER: FINANCE TAB */}
-        {activeTab === 'finance' && <AdminFinance />}
-
-        {/* CONDITIONAL RENDER: STAFF TAB */}
         {activeTab === 'staff' && <AdminStaff />}
-
-      {/* CONDITIONAL RENDER: ANALYTICS TAB */}
-      {activeTab === 'analytics' && (
-        <AdminAnalytics />
-      )}
-
-      {/* CONDITIONAL RENDER: CMS TAB */}
-      {activeTab === 'cms' && (
-        <AdminCMSBuilder />
-      )}
-
-      {/* CONDITIONAL RENDER: COUPONS TAB */}
-      {activeTab === 'coupons' && (
-        <AdminCoupons />
-      )}
-
-      {/* CONDITIONAL RENDER: CRM TAB */}
-      {activeTab === 'crm' && (
-        <AdminCRM />
-      )}
-
-      {/* CONDITIONAL RENDER: AUDIT LOGS TAB */}
-      {activeTab === 'audit' && (
-        <AdminAuditLogs />
-      )}
-
-      {/* CONDITIONAL RENDER: ORDERS TAB */}
-      {activeTab === 'orders' && (
-        <AdminOMS />
-      )}
-
-      {/* CONDITIONAL RENDER: REFERRAL & USERS TAB */}
-      {activeTab === 'users' && <AdminUsers />}
-      {activeTab === 'users_old_legacy_unused' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          
-          {/* Inner Tab Switcher */}
-          <div style={{ display: 'flex', gap: '12px', padding: '4px', background: '#f1f5f9', borderRadius: '12px', width: 'fit-content' }}>
-            <button 
-              onClick={() => setUserInnerTab('customers')}
-              style={{ padding: '10px 20px', background: userInnerTab === 'customers' ? '#fff' : 'transparent', color: userInnerTab === 'customers' ? '#0f172a' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', boxShadow: userInnerTab === 'customers' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}
-            >
-              <Users size={16} /> Customers
-            </button>
-            <button 
-              onClick={() => setUserInnerTab('merchants')}
-              style={{ padding: '10px 20px', background: userInnerTab === 'merchants' ? '#fff' : 'transparent', color: userInnerTab === 'merchants' ? '#0f172a' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', boxShadow: userInnerTab === 'merchants' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}
-            >
-              <Store size={16} /> Merchants
-            </button>
-          </div>
-
-          {/* Regular Users / Customer Accounts */}
-          {userInnerTab === 'customers' && (
-          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-              <h3 className="admin-form-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '8px', color: '#4f46e5' }}><Users size={20} /></div>
-                Platform Customer Accounts & Referral Data
-              </h3>
-              
-              {/* Search & Actions */}
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', height: '40px', width: '300px', background: '#f8fafc', alignItems: 'center', padding: '0 12px', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}>
-                  <Users size={16} color="#94a3b8" />
-                  <input 
-                    type="text" 
-                    placeholder="Search mobile number or name..." 
-                    value={userSearchQuery}
-                    onChange={(e) => setUserSearchQuery(e.target.value)}
-                    style={{ border: 'none', padding: '0 10px', fontSize: '14px', outline: 'none', width: '100%', background: 'transparent', color: '#334155' }}
-                  />
-                </div>
-                <button 
-                  onClick={exportCustomersCSV}
-                  className="btn btn-outline" 
-                  style={{ height: '40px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px', fontWeight: '600', color: '#0f172a', borderColor: '#e2e8f0' }}
-                >
-                  <FileText size={16} /> Export CSV
-                </button>
-              </div>
-            </div>
-
-            <div className="admin-table-wrapper">
-              <table className="admin-table" style={{ minWidth: '1150px' }}>
-                <thead>
-                  <tr>
-                    <th style={{ whiteSpace: 'nowrap' }}>Customer ID / Phone</th>
-                    <th style={{ whiteSpace: 'nowrap' }}>Full Name</th>
-                    <th style={{ whiteSpace: 'nowrap' }}>Email Address</th>
-                    <th style={{ whiteSpace: 'nowrap' }}>Verification</th>
-                    <th style={{ whiteSpace: 'nowrap' }}>Role & VIP Tier</th>
-                    <th style={{ whiteSpace: 'nowrap' }}>Referral Tag</th>
-                    <th style={{ whiteSpace: 'nowrap' }}>Wallet Balances</th>
-                    <th style={{ whiteSpace: 'nowrap' }}>Referred Sales</th>
-                    <th style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>Action Controls</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {adminUsers
-                    .filter(u => u.role !== 'admin' && u.role !== 'super_admin' && u.username !== 'admin')
-                    .filter(u => 
-                      u.username.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
-                      (u.fullName && u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()))
-                    )
-                    .map(u => {
-                      const rawUsername = String(u.username || '');
-                      const isNumeric = /^\d+$/.test(rawUsername);
-                      const cleanPhone = isNumeric && rawUsername.length >= 10 ? rawUsername.slice(0, 10) : (u.phone ? String(u.phone).replace(/\D/g, '').slice(-10) : rawUsername);
-                      // Derive a 100% unique customer ID tag from their immutable database primary key (_id/id) to prevent prefix collisions across crores of users
-                      const custTag = `#CUST_${String(u._id || u.id || rawUsername).slice(-6).toUpperCase()}`;
-
-                      const userCode = u.isInfluencer ? u.creatorCode : u.referralCode;
-                      const influencerId = u.isInfluencer ? u.influencerId : null;
-                      
-                      const referredOrdersList = adminOrders.filter(o => 
-                        o.referralApplied && o.referralApplied.referrerId &&
-                        ((userCode && o.referralApplied.referrerId === userCode) || 
-                         (influencerId && o.referralApplied.referrerId === influencerId))
-                      );
-                      
-                      const salesCount = referredOrdersList.length;
-                      const totalSalesVolume = referredOrdersList.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
-
-                      // Calculate customer spending & orders for VIP Tier determination
-                      const customerOrders = adminOrders.filter(o => 
-                        (o.customerDetails?.email && u.email && o.customerDetails.email === u.email) ||
-                        (o.customerDetails?.phone && (o.customerDetails.phone.includes(cleanPhone) || (u.phone && o.customerDetails.phone === u.phone))) ||
-                        (o.userId && (o.userId === u._id || o.userId === u.id))
-                      );
-                      const totalSpend = customerOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
-                      const ordersCount = customerOrders.length;
-
-                      let vipTier = { label: '🥉 Bronze Member', color: '#9a3412', bg: '#ffedd5', border: '#fed7aa', desc: 'Starter Account' };
-                      if (totalSpend >= 20000 || ordersCount >= 5) {
-                        vipTier = { label: '👑 Gold Exclusive Club', color: '#b45309', bg: '#fef3c7', border: '#fde68a', desc: 'Top VIP Customer' };
-                      } else if (totalSpend >= 5000 || ordersCount >= 2) {
-                        vipTier = { label: '🥈 Silver VIP Shopper', color: '#4338ca', bg: '#e0e7ff', border: '#c7d2fe', desc: 'Loyal Buyer' };
-                      }
-
-                      return (
-                        <tr key={u.username} style={{ transition: 'background-color 0.2s', borderBottom: '1px solid #f1f5f9' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                          <td style={{ padding: '16px 14px', whiteSpace: 'nowrap' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '15px', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
-                                {isNumeric ? `📱 +91 ${cleanPhone}` : rawUsername}
-                              </span>
-                              <span style={{ fontSize: '11px', background: '#e0e7ff', color: '#4338ca', fontWeight: '800', padding: '3px 8px', borderRadius: '100px', border: '1px solid #c7d2fe', whiteSpace: 'nowrap' }}>
-                                {custTag}
-                              </span>
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px', fontWeight: '600' }}>
-                              {u.createdAt ? `📅 Joined ${new Date(u.createdAt).toLocaleDateString('en-IN')}` : 'Verified Platform Account'}
-                            </div>
-                          </td>
-                          <td style={{ color: '#1e293b', fontWeight: '700', fontSize: '14px', whiteSpace: 'nowrap' }}>{u.fullName || 'Guest User'}</td>
-                          <td style={{ color: '#475569', fontSize: '13px', whiteSpace: 'nowrap' }}>{u.email || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>Not provided</span>}</td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                              <span style={{ fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px', background: u.isEmailVerified ? '#dcfce7' : '#fee2e2', color: u.isEmailVerified ? '#16a34a' : '#ef4444', border: `1px solid ${u.isEmailVerified ? '#86efac' : '#fecaca'}`, whiteSpace: 'nowrap' }}>
-                                {u.isEmailVerified ? 'Verified ✓' : 'Pending ✕'}
-                              </span>
-                              <button 
-                                onClick={() => handleToggleEmailVerify(u)} 
-                                style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', cursor: 'pointer', color: '#475569', fontWeight: '700', transition: 'all 0.2s' }}
-                                title="Toggle Email Verification Status"
-                              >
-                                Toggle
-                              </button>
-                            </div>
-                          </td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
-                              <span style={{ fontSize: '12px', fontWeight: '800', padding: '5px 12px', borderRadius: '100px', backgroundColor: vipTier.bg, color: vipTier.color, border: `1px solid ${vipTier.border}`, display: 'inline-block', whiteSpace: 'nowrap', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
-                                {vipTier.label}
-                              </span>
-                              <span style={{ fontSize: '12px', color: '#475569', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                🛍️ {ordersCount} Order(s) <span style={{ color: '#cbd5e1' }}>•</span> <strong style={{ color: '#0f172a' }}>₹{totalSpend.toLocaleString('en-IN')}</strong>
-                              </span>
-                            </div>
-                          </td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            <div style={{ fontSize: '13px' }}>
-                              {userCode ? (
-                                <div style={{ background: '#f0fdf4', border: '1px solid #86efac', padding: '6px 10px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ fontWeight: '800', color: '#15803d', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>{userCode}</span>
-                                  <button onClick={() => { navigator.clipboard?.writeText(userCode); showToast(`Copied ${userCode} to clipboard!`, 'success'); }} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#15803d', fontSize: '14px', padding: 0 }} title="Copy Referral Code">📋</button>
-                                </div>
-                              ) : (
-                                <button 
-                                  onClick={() => {
-                                    const genCode = `VIP-${(u.fullName || 'BUY').split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '') || 'CUST'}-${Math.floor(100 + Math.random()*900)}`;
-                                    u.referralCode = genCode;
-                                    showToast(`✨ Generated VIP Referral Tag: ${genCode} for ${u.fullName || cleanPhone}`, 'success');
-                                    if (typeof setUsers === 'function') {
-                                      setUsers([...adminUsers]);
-                                    }
-                                  }}
-                                  style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', color: '#b45309', border: '1px solid #fbbf24', padding: '7px 14px', borderRadius: '100px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)' }}
-                                >
-                                  <span>⚡ Generate VIP Tag</span>
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            <div style={{ fontSize: '13px', lineHeight: '1.6', background: '#f8fafc', padding: '8px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                              <div style={{ color: '#ca8a04', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>🪙 {u.walletCoins || 0} Coins</div>
-                              <div style={{ color: '#16a34a', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginTop: '3px' }}>💵 ₹{(u.walletCash || 0).toFixed(2)} Cash</div>
-                            </div>
-                          </td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            <div style={{ fontSize: '13px', lineHeight: '1.6', whiteSpace: 'nowrap' }}>
-                              <div style={{ fontWeight: '800', color: salesCount > 0 ? '#16a34a' : '#64748b', fontSize: '13px' }}>
-                                📈 {salesCount} referred sales
-                              </div>
-                              {salesCount > 0 && (
-                                <div style={{ fontSize: '12px', color: '#0f172a', fontWeight: '700', marginTop: '2px' }}>
-                                  Vol: ₹{totalSalesVolume.toLocaleString('en-IN')}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '155px', margin: '0 auto' }}>
-                              <button
-                                onClick={() => {
-                                  const text = `Hi ${u.fullName || 'Valued Customer'}! ✨ We missed you at AbKharido! Here is an exclusive gift: Get special instant discounts on our luxury electronics & gadgets today. ORDER NOW & Claim your reward!`;
-                                  window.open(`https://a.me/91${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
-                                  showToast(`Opening WhatsApp offer chat for +91 ${cleanPhone}...`, 'success');
-                                }}
-                                style={{ width: '100%', fontSize: '12px', padding: '8px 10px', borderRadius: '8px', fontWeight: '800', background: '#22c55e', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.3)', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
-                              >
-                                <span>💬 WhatsApp Offer</span>
-                              </button>
-
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', width: '100%' }}>
-                                <button
-                                  style={{ fontSize: '11px', padding: '7px 4px', borderRadius: '8px', fontWeight: '800', background: '#e0e7ff', color: '#4338ca', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                                  onClick={() => setActiveOrderHistoryModal(u)}
-                                  title="View Customer 360° Profile & Order Records"
-                                >
-                                  <span>👁️ 360°</span>
-                                </button>
-                                <button
-                                  style={{ fontSize: '11px', padding: '7px 4px', borderRadius: '8px', fontWeight: '800', background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                                  onClick={() => handleOpenWalletModal(u)}
-                                  title="Manage Coins & Cash Balance"
-                                >
-                                  <span>💳 Wallet</span>
-                                </button>
-                              </div>
-
-                              <button
-                                style={{ width: '100%', fontSize: '11px', padding: '6px 10px', borderRadius: '8px', fontWeight: '700', background: u.status === 'Suspended' ? '#f0fdf4' : '#f8fafc', borderColor: u.status === 'Suspended' ? '#86efac' : '#cbd5e1', color: u.status === 'Suspended' ? '#16a34a' : '#64748b', border: '1px solid', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
-                                onClick={() => handleSuspendUser(u)}
-                              >
-                                {u.status === 'Suspended' ? '🔓 Unblock Account' : '🚫 Restrict Access'}
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          )}
-
-          {/* Decoupled Merchant Accounts Section */}
-          {userInnerTab === 'merchants' && (
-          <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 className="admin-form-title" style={{ margin: 0 }}><Store size={18} color="var(--primary-color)" /> Marketplace Merchant Shops (Decoupled Registry)</h3>
-              {/* Search & Export */}
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '34px', width: '260px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Search shop name or email..." 
-                    value={sellerSearchQuery}
-                    onChange={(e) => setSellerSearchQuery(e.target.value)}
-                    style={{ border: 'none', padding: '0 10px', fontSize: '13px', outline: 'none', width: '100%' }}
-                  />
-                </div>
-                <button 
-                  onClick={exportMerchantsCSV}
-                  className="btn btn-outline" 
-                  style={{ height: '34px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 12px', fontSize: '13px', color: '#0f172a', borderColor: '#e2e8f0' }}
-                >
-                  <FileText size={14} /> Export CSV
-                </button>
-              </div>
-            </div>
-
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Shop Details</th>
-                    <th>Registered Email</th>
-                    <th>Warehouse Address</th>
-                    <th>Payout Destination</th>
-                    <th>Withdrawable Cash</th>
-                    <th>Status</th>
-                    <th>Action Controls</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {adminSellers.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', color: '#999', padding: '24px' }}>No merchants registered yet.</td>
-                    </tr>
-                  ) : (
-                    adminSellers
-                      .filter(s => 
-                        s.shopName.toLowerCase().includes(sellerSearchQuery.toLowerCase()) || 
-                        s.email.toLowerCase().includes(sellerSearchQuery.toLowerCase())
-                      )
-                      .map(s => (
-                        <tr key={s.email}>
-                          <td><strong>{s.shopName}</strong></td>
-                          <td><code>{s.email}</code></td>
-                          <td style={{ fontSize: '12px', color: '#666' }}>{s.sellerAddress}</td>
-                          <td style={{ fontSize: '12px' }}>
-                            <div>UPI: <code>{s.payoutDetails?.upi || 'N/A'}</code></div>
-                            {s.payoutDetails?.bankAccount && <div style={{ fontSize: '10px', color: '#888' }}>Bank: {s.payoutDetails.bankAccount}</div>}
-                          </td>
-                          <td style={{ fontWeight: 'bold', color: 'var(--success)' }}>₹{(s.walletCash || 0).toFixed(2)}</td>
-                          <td>
-                            <span className={`badge ${s.sellerStatus === 'Approved' ? 'badge-success' : s.sellerStatus === 'Rejected' ? 'badge-error' : 'badge-warning'}`} style={{ fontSize: '11px', background: s.sellerStatus === 'Approved' ? '#dcfce7' : s.sellerStatus === 'Rejected' ? '#fee2e2' : '#fef3c7', color: s.sellerStatus === 'Approved' ? '#16a34a' : s.sellerStatus === 'Rejected' ? '#ef4444' : '#d97706', padding: '4px 8px', borderRadius: '4px' }}>
-                              {s.sellerStatus === 'Approved' ? 'Approved Merchant' : s.sellerStatus === 'Rejected' ? 'Rejected' : 'Awaiting Audit'}
-                            </span>
-                          </td>
-                          <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              <button
-                                className="btn btn-sm btn-outline"
-                                style={{
-                                  fontSize: '11px',
-                                  padding: '4px 8px',
-                                  borderColor: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
-                                  color: s.sellerStatus === 'Approved' ? 'var(--error)' : 'var(--primary-color)',
-                                  height: '28px'
-                                }}
-                                onClick={() => handleToggleSellerRole(s)}
-                              >
-                                {s.sellerStatus === 'Approved' ? 'Reject Merchant' : 'Approve Merchant'}
-                              </button>
-                              
-                              <button
-                                className="btn btn-sm btn-outline"
-                                style={{
-                                  fontSize: '11px',
-                                  padding: '4px 8px',
-                                  borderRadius: '6px',
-                                  fontWeight: '600',
-                                  borderColor: '#e0e7ff',
-                                  color: '#4f46e5'
-                                }}
-                                onClick={() => setActiveCatalogModal(s)}
-                              >
-                                📦 View Catalog
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          )}
-        </div>
-      )}
+        {activeTab === 'crm' && <AdminCRM />}
 
       {/* CONDITIONAL RENDER: INVENTORY TAB */}
       {activeTab === 'inventory' && (
