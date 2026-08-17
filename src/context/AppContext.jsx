@@ -43,6 +43,16 @@ export const AppProvider = ({ children }) => {
   const [toast, setToast] = useState(null);
   const [wishlist, setWishlist] = useState([]);
   const [savedCards, setSavedCards] = useState([]);
+  const [deliveryLocation, setDeliveryLocation] = useState({
+    pincode: '110001',
+    city: 'New Delhi',
+    state: 'Delhi',
+    slaDays: 1,
+    deliveryDateStr: 'Tomorrow, 5 PM',
+    isExpress: true,
+    isCodAvailable: true,
+    displayText: 'New Delhi 110001'
+  });
 
   // Hydrate client-only storage states after initial SSR mount
   useEffect(() => {
@@ -70,6 +80,9 @@ export const AppProvider = ({ children }) => {
 
       const savedReferral = localStorage.getItem('abkharido_active_referral');
       if (savedReferral) setActiveReferral(JSON.parse(savedReferral));
+
+      const savedPin = localStorage.getItem('abkharido_delivery_pincode');
+      if (savedPin) setDeliveryLocation(JSON.parse(savedPin));
     } catch (err) {
       console.warn('[AppContext] Hydration from localStorage encountered non-fatal error:', err);
     }
@@ -1038,6 +1051,9 @@ export const AppProvider = ({ children }) => {
         savedCards,
         fetchUserSavedCards,
         removeSavedCard,
+        deliveryLocation,
+        setDeliveryLocation,
+        currentPincode: deliveryLocation?.pincode || '110001',
         isAuthLoading: status === 'loading'
       }}
     >

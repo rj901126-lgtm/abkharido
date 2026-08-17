@@ -23,6 +23,7 @@ import {
 import '../assets/styles/navbar.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
 import LanguageToggle from './LanguageToggle';
+import PincodeModal from './PincodeModal';
 
 const SEARCH_PLACEHOLDERS = [
   "Search for 'iPhone 16 Pro'...",
@@ -84,7 +85,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const searchParams = useSearchParams();
   const activeCat = searchParams ? (searchParams.get('category') || currentCategory || 'all') : (currentCategory || 'all');
   // eslint-disable-next-line
-  const { currentUser, cart, logout, resetDatabase, products } = useApp();
+  const { currentUser, cart, logout, resetDatabase, products, deliveryLocation } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,13 +94,8 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const searchInputRef = useRef(null);
 
-  // Delivery Pincode State
-  const [deliveryPincode, setDeliveryPincode] = useState('110001');
-  const [deliveryCity, setDeliveryCity] = useState('New Delhi');
+  // Delivery Pincode Modal State
   const [isPincodeModalOpen, setIsPincodeModalOpen] = useState(false);
-  const [tempPincode, setTempPincode] = useState('');
-  const [pincodeLoading, setPincodeLoading] = useState(false);
-  const [pincodeMessage, setPincodeMessage] = useState('');
 
   // Load saved delivery pincode
   useEffect(() => {
@@ -248,7 +244,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             {/* 📍 Pincode / Delivery Location Selector */}
             <div 
               className="delivery-pincode-badge"
-              onClick={() => { setTempPincode(deliveryPincode); setIsPincodeModalOpen(true); }}
+              onClick={() => setIsPincodeModalOpen(true)}
               title="Click to change your delivery pincode"
               style={{
                 display: 'flex',
@@ -266,7 +262,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
                 <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600' }}>Deliver to</div>
                 <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>
-                  {deliveryCity} {deliveryPincode}
+                  {deliveryLocation?.displayText || 'New Delhi 110001'}
                 </div>
               </div>
             </div>
@@ -705,116 +701,11 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
         </div>
       </header>
 
-      {/* 📍 Interactive Delivery Pincode Modal */}
-      {isPincodeModalOpen && (
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
-          onClick={() => setIsPincodeModalOpen(false)}
-        >
-          <div 
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '20px',
-              padding: '24px',
-              maxWidth: '400px',
-              width: '100%',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              position: 'relative'
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MapPin size={20} color="#4f46e5" />
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>Choose Delivery Location</h3>
-              </div>
-              <button 
-                onClick={() => setIsPincodeModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0', lineHeight: 1.5 }}>
-              Enter your 6-digit Indian PIN code to see precise delivery speeds and COD availability for your doorstep.
-            </p>
-
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={tempPincode}
-                  onChange={(e) => handlePincodeLookup(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Enter 6-digit PIN (e.g. 110001)"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    fontSize: '15px',
-                    fontWeight: '700',
-                    borderRadius: '12px',
-                    border: '1.5px solid #4f46e5',
-                    outline: 'none',
-                    letterSpacing: '1px'
-                  }}
-                  autoFocus
-                />
-                {pincodeLoading && (
-                  <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px', color: '#4f46e5', fontWeight: '700' }}>
-                    Checking...
-                  </span>
-                )}
-              </div>
-              {pincodeMessage && (
-                <div style={{ marginTop: '8px', fontSize: '12px', fontWeight: '700', color: pincodeMessage.includes('✅') ? '#059669' : '#d97706' }}>
-                  {pincodeMessage}
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Popular Metro Areas</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {[
-                  { name: "New Delhi", pin: "110001" },
-                  { name: "Mumbai", pin: "400001" },
-                  { name: "Bengaluru", pin: "560001" },
-                  { name: "Hyderabad", pin: "500001" },
-                  { name: "Kolkata", pin: "700001" }
-                ].map((metro, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handlePincodeLookup(metro.pin)}
-                    style={{
-                      background: '#f1f5f9',
-                      border: '1px solid #e2e8f0',
-                      padding: '6px 10px',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: '700',
-                      color: '#334155',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {metro.name} ({metro.pin})
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 📍 Pincode Serviceability & Delivery Modal */}
+      <PincodeModal 
+        isOpen={isPincodeModalOpen} 
+        onClose={() => setIsPincodeModalOpen(false)} 
+      />
     </>
   );
 };

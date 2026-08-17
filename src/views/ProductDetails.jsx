@@ -27,27 +27,26 @@ import ProductCard from '../components/ProductCard';
 
 // eslint-disable-next-line
 const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialProduct }) => {
-  const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts } = useApp();
+  const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts, deliveryLocation } = useApp();
   const [copied, setCopied] = useState(false);
-  const [pincode, setPincode] = useState(currentUser?.pincode || '400001');
+  const [pincode, setPincode] = useState(deliveryLocation?.pincode || currentUser?.pincode || '110001');
+  
   // Dynamic delivery estimate
-  const getTomorrowDay = () => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
-  };
   const [deliveryEstimate, setDeliveryEstimate] = useState(
-    currentUser?.pincode 
-      ? `⚡ Fast Express Delivery to ${currentUser?.city || currentUser?.pincode} by ${getTomorrowDay()}` 
-      : `Delivery by ${getTomorrowDay()} | Free Express Shipping`
+    deliveryLocation?.displayText
+      ? `⚡ Express Delivery to ${deliveryLocation.displayText} by ${deliveryLocation.deliveryDateStr || 'Tomorrow, 5 PM'}`
+      : `⚡ Free Express Delivery by Tomorrow, 5 PM`
   );
 
   React.useEffect(() => {
-    if (currentUser?.pincode) {
+    if (deliveryLocation) {
+      setPincode(deliveryLocation.pincode);
+      setDeliveryEstimate(`⚡ Express Delivery to ${deliveryLocation.displayText || deliveryLocation.city} by ${deliveryLocation.deliveryDateStr || 'Tomorrow, 5 PM'}`);
+    } else if (currentUser?.pincode) {
       setPincode(currentUser.pincode);
-      setDeliveryEstimate(`⚡ Fast Express Delivery to ${currentUser?.city || currentUser?.pincode} by ${getTomorrowDay()}`);
+      setDeliveryEstimate(`⚡ Fast Express Delivery to ${currentUser?.city || currentUser?.pincode}`);
     }
-  }, [currentUser]);
+  }, [deliveryLocation, currentUser]);
 
   React.useEffect(() => {
     document.body.classList.add('product-details-active');
