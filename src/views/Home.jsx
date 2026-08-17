@@ -125,15 +125,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           margin: 0,
         }}
       >
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          overflowX: 'auto',
-          paddingLeft: '14px',
-          paddingRight: '14px',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}>
+        <div className="home-category-pills-row">
           {activeVipCategories.map((cat) => {
             const isSelected = selectedCatPill === cat.id;
             return (

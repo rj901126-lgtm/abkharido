@@ -231,7 +231,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header className="navbar-header" style={{ position: 'sticky', top: 0, zIndex: 1000, ...style }}>
+      <header className="navbar-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
         <div className="navbar-container">
           
           <div className="navbar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

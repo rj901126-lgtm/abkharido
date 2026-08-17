@@ -460,6 +460,27 @@
 }
 
 /* ── Home Page Utility Classes ── */
+.home-category-pills-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  overflow-x: auto;
+  padding: 0 16px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.home-category-pills-row::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .home-category-pills-row {
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 0 12px !important;
+  }
+}
+
 .home-trust-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
