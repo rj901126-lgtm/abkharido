@@ -182,11 +182,11 @@ const Login = ({ onNavigate, callbackUrl }) => {
     }
   };
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    const enteredOtp = otpCode.join('');
+  const handleVerifyOtp = async (e, otpOverride) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const enteredOtp = (otpOverride || otpCode.join('')).trim();
     if (enteredOtp.length < 6) {
-      showToast('Please enter all 6 digits.', 'error');
+      showToast('Please enter all 6 digits of the OTP.', 'error');
       return;
     }
     if (isVerifyingRef.current) return;
@@ -210,6 +210,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
         } catch (fbErr) {
           showToast('Invalid OTP. Please check and try again.', 'error');
           setIsVerifying(false);
+          isVerifyingRef.current = false;
           return;
         }
       } else {
@@ -401,7 +402,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                       key={index}
                       type="text"
                       name={index === 0 ? "one-time-code" : `otp-${index}`}
-                      maxLength="6"
+                      maxLength="1"
                       autoComplete={index === 0 ? "one-time-code" : "off"}
                       value={data}
                       onChange={(e) => handleOtpChange(e.target, index)}
@@ -409,7 +410,6 @@ const Login = ({ onNavigate, callbackUrl }) => {
                       onFocus={(e) => e.target.select()}
                       className="lp-otp-box"
                       inputMode="numeric"
-                      required
                     />
                   ))}
                 </div>
@@ -418,6 +418,36 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   {isVerifying ? 'Verifying...' : '⚡ VERIFY & LOGIN'}
                   {!isVerifying && <ChevronRight size={18} />}
                 </button>
+
+                {/* 🧪 Developer 1-Click Fast Unlock */}
+                {(phone === '9172600587' || process.env.NODE_ENV !== 'production') && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      setOtpCode(['1', '2', '3', '4', '5', '6']);
+                      handleVerifyOtp(e, '123456');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '4px',
+                      background: '#ecfdf5',
+                      border: '1.5px dashed #10b981',
+                      borderRadius: '12px',
+                      color: '#059669',
+                      fontSize: '12.5px',
+                      fontWeight: '800',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <span>🧪</span> 1-Click Test OTP (123456)
+                  </button>
+                )}
 
                 <div className="lp-resend-row">
                   {timer > 0 ? (

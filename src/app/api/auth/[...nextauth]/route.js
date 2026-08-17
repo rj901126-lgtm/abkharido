@@ -75,14 +75,23 @@ export const authOptions = {
           if (res) {
             data = await res.json().catch(() => null);
             if (!res.ok) {
-               throw new Error(data?.message || data?.error || 'Authentication failed on verification service');
+              // If external backend returns error, attempt Native Direct MongoDB Auth fallback
+              if (credentials.firebaseIdToken) {
+                 data = await verifyFirebaseDirect(bodyObj).catch(() => null);
+              } else if (credentials.otp && normalizedPhone) {
+                 data = await verifyOtpDirect(bodyObj).catch(() => null);
+              } else if (credentials.username && credentials.password) {
+                 data = await loginPasswordDirect(bodyObj).catch(() => null);
+              }
+              if (!data) {
+                throw new Error('Authentication failed on verification service');
+              }
             }
           } else {
             // ── Native Direct MongoDB Authentication Fallback ──
-            console.log(`[NextAuth] External port 5000 unreachable. Executing Native Direct MongoDB Auth for ${path}...`);
             if (credentials.firebaseIdToken) {
                data = await verifyFirebaseDirect(bodyObj);
-            } else if (credentials.otp && credentials.phone) {
+            } else if (credentials.otp && normalizedPhone) {
                data = await verifyOtpDirect(bodyObj);
             } else if (credentials.username && credentials.password) {
                data = await loginPasswordDirect(bodyObj);

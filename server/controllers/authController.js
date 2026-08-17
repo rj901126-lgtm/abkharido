@@ -199,8 +199,8 @@ export const verifyOtp = async (req, res, next) => {
     const escapedRecipient = normalizedRecipient.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // create or find user
     let user = await User.findOne({ $or: [
-      { email: recipient }, 
-      { phone: recipient },
+      { email: normalizedRecipient }, 
+      { phone: rawRecipient },
       { phone: normalizedRecipient },
       { phone: '+91' + normalizedRecipient },
       { phone: '91' + normalizedRecipient },
@@ -211,8 +211,7 @@ export const verifyOtp = async (req, res, next) => {
     ] });
     
     if (!user) {
-      const isEmail = recipient.includes('@');
-      let username = isEmail ? recipient.split('@')[0] : normalizedRecipient;
+      let username = isEmail ? normalizedRecipient.split('@')[0] : normalizedRecipient;
       const existing = await User.findOne({ username });
       if (existing) {
         username = username + '_' + Math.floor(100 + Math.random() * 900);
@@ -220,7 +219,7 @@ export const verifyOtp = async (req, res, next) => {
       try {
         user = await User.create({ 
           username, 
-          email: isEmail ? recipient : (fullName ? undefined : undefined),
+          email: isEmail ? normalizedRecipient : undefined,
           phone: !isEmail ? normalizedRecipient : undefined, 
           fullName: fullName || 'AbKharido User',
           password: 'abkharido_otp_user_' + Date.now()
@@ -233,7 +232,7 @@ export const verifyOtp = async (req, res, next) => {
              const fallbackUsername = username + '_otp_' + Date.now();
              user = await User.create({ 
                username: fallbackUsername, 
-               email: isEmail ? recipient : (fullName ? undefined : undefined),
+               email: isEmail ? normalizedRecipient : undefined,
                phone: !isEmail ? normalizedRecipient : undefined, 
                fullName: fullName || 'AbKharido User',
                password: 'abkharido_otp_user_' + Date.now()
@@ -243,7 +242,7 @@ export const verifyOtp = async (req, res, next) => {
           throw err;
         }
       }
-    } else if (!recipient.includes('@') && user.phone !== normalizedRecipient) {
+    } else if (!isEmail && user.phone !== normalizedRecipient) {
        // Fix phone format in DB
        user.phone = normalizedRecipient;
        await User.updateOne({ _id: user._id }, { $set: { phone: user.phone } });
