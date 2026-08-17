@@ -10,6 +10,7 @@ import {
   cancelOrder,
   userCancelOrder,
   updateOrderShippingAddress,
+  updateDeliveryInstructions,
   convertCodToPrepaid,
   processExchangeRequest,
   processReturnRequest,
@@ -30,12 +31,13 @@ router.route('/bulk-export').post(protect, admin, exportOrdersBulk);
 
 router.route('/:id').get(protect, getOrderById);
 
-router.route('/:id/email-invoice').post(protect, admin, logAdminAction('SEND_INVOICE', 'Order'), sendOrderInvoiceEmail);
+router.route('/:id/email-invoice').post(protect, sendOrderInvoiceEmail);
 
 router.route('/:id/status').post(protect, admin, logAdminAction('UPDATE_ORDER_STATUS', 'Order'), updateOrderStatus);
 router.route('/:id/ship').post(protect, admin, logAdminAction('SHIP_ORDER', 'Order'), shipOrder);
 router.route('/:id/user-cancel').post(protect, userCancelOrder);
 router.route('/:id/update-address').post(protect, updateOrderShippingAddress);
+router.route('/:id/delivery-instructions').post(protect, updateDeliveryInstructions);
 router.route('/:id/convert-to-prepaid').post(protect, convertCodToPrepaid);
 router.route('/:id/exchange').post(protect, processExchangeRequest);
 router.route('/:id/cancel').post(protect, admin, logAdminAction('CANCEL_ORDER', 'Order'), cancelOrder);

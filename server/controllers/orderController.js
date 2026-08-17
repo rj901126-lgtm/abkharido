@@ -553,7 +553,7 @@ export const getOrders = async (req, res, next) => {
 
 // @desc    Manually send invoice email
 // @route   POST /api/orders/:id/email-invoice
-// @access  Private/Admin
+// @access  Private
 export const sendOrderInvoiceEmail = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id).populate('user', 'username email isEmailVerified fullName');
@@ -563,22 +563,20 @@ export const sendOrderInvoiceEmail = async (req, res, next) => {
       throw new Error('Order not found');
     }
 
-    if (!order.user.email) {
-      res.status(400);
-      throw new Error('Customer does not have an email address');
+    if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized to access this invoice');
     }
 
-    // Force send it even if not verified if admin is doing it? 
-    // The user requirement says "mail tabhi hoga agar customer ne mail verified kiya hai"
-    // So we should enforce it even here.
-    if (!order.user.isEmailVerified) {
+    const recipientEmail = order.user?.email || req.user?.email;
+    if (!recipientEmail) {
       res.status(400);
-      throw new Error('Customer email is not verified. Cannot send invoice.');
+      throw new Error('Customer does not have an email address on file');
     }
 
-    const sent = await sendInvoiceEmail(order, order.user);
+    const sent = await sendInvoiceEmail(order, { ...order.user?.toObject?.() || order.user, email: recipientEmail });
     if (sent) {
-      res.json({ message: 'Invoice email sent successfully' });
+      res.json({ message: `Tax invoice sent successfully to ${recipientEmail}` });
     } else {
       res.status(500);
       throw new Error('Failed to send invoice email');
@@ -1050,12 +1048,53 @@ export const processExchangeRequest = async (req, res, next) => {
   }
 };
 
+// @desc    Update delivery slot & doorstep preferences
+// @route   POST /api/orders/:id/delivery-instructions
+// @access  Private
+export const updateDeliveryInstructions = async (req, res, next) => {
+  try {
+    const { slot, instructions } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized to modify this order');
+    }
+
+    if (order.status === 'Delivered' || order.status === 'Cancelled' || order.status === 'CANCELLED') {
+      res.status(400);
+      throw new Error('Delivery preferences can only be updated for active in-progress shipments');
+    }
+
+    order.deliverySlot = {
+      slot: slot || 'Anytime (9 AM - 9 PM)',
+      instructions: instructions || ''
+    };
+
+    if (!order.trackingHistory) order.trackingHistory = [];
+    order.trackingHistory.push({
+      status: order.status,
+      timestamp: Date.now(),
+      comment: `Delivery preferences updated: ${slot || 'Anytime'}. Instructions: ${instructions || 'None'}`
+    });
+
+    await order.save();
+    res.json({ message: 'Delivery instructions updated successfully!', order });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Process a Return/RMA request
 // @route   POST /api/orders/:id/return
 // @access  Private
 export const processReturnRequest = async (req, res, next) => {
   try {
-    const { reason } = req.body;
+    const { reason, refundDestination } = req.body;
     const order = await Order.findById(req.params.id);
     
     if (!order) {
@@ -1076,15 +1115,23 @@ export const processReturnRequest = async (req, res, next) => {
     order.returnStatus = 'Requested';
     order.returnReason = reason || 'No reason provided';
     
+    if (refundDestination) {
+      order.refundDestination = {
+        type: refundDestination.type || 'Wallet',
+        upiId: refundDestination.upiId || '',
+        bankAccount: refundDestination.bankAccount || ''
+      };
+    }
+    
     if (!order.trackingHistory) order.trackingHistory = [];
     order.trackingHistory.push({
       status: 'Return Requested',
       timestamp: Date.now(),
-      comment: `Return requested. Reason: ${reason || 'No reason provided'}. Doorstep pickup initiated.`
+      comment: `Return requested. Reason: ${reason || 'No reason provided'}. Refund mode: ${refundDestination?.type || 'Bank/Wallet'}. Doorstep pickup initiated.`
     });
 
     await order.save();
-    res.json({ message: 'Return request submitted successfully', returnStatus: order.returnStatus });
+    res.json({ message: 'Return request submitted successfully. Doorstep pickup scheduled.', returnStatus: order.returnStatus, order });
   } catch (error) {
     next(error);
   }

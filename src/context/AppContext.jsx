@@ -451,7 +451,17 @@ export const AppProvider = ({ children }) => {
         const fetchedOrders = Array.isArray(data.orders) ? data.orders : (Array.isArray(data) ? data : []);
         
         if (page === 1) {
-          setOrders(fetchedOrders);
+          if (fetchedOrders.length > 0) {
+            setOrders(fetchedOrders);
+            safeSetItem('abkharido_cached_orders', JSON.stringify(fetchedOrders));
+          } else {
+            const cached = localStorage.getItem('abkharido_cached_orders');
+            if (cached) {
+              try { setOrders(JSON.parse(cached)); } catch(e) { setOrders([]); }
+            } else {
+              setOrders([]);
+            }
+          }
         } else {
           setOrders(prev => [...prev, ...fetchedOrders]);
         }
@@ -461,9 +471,18 @@ export const AppProvider = ({ children }) => {
         } else {
           setHasMoreOrders(false);
         }
+      } else {
+        const cached = localStorage.getItem('abkharido_cached_orders');
+        if (cached && page === 1) {
+          try { setOrders(JSON.parse(cached)); } catch(e) {}
+        }
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to sync orders:', err);
+      const cached = localStorage.getItem('abkharido_cached_orders');
+      if (cached && page === 1) {
+        try { setOrders(JSON.parse(cached)); } catch(e) {}
+      }
     }
   };
 

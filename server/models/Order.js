@@ -75,6 +75,15 @@ const orderSchema = new mongoose.Schema({
   
   // Doorstep Security PIN & Refund Tracking
   deliveryPin: { type: String },
+  deliverySlot: {
+    slot: { type: String, default: 'Anytime (9 AM - 9 PM)' },
+    instructions: { type: String, default: '' }
+  },
+  refundDestination: {
+    type: { type: String, enum: ['None', 'Wallet', 'UPI', 'Bank', 'Original'], default: 'None' },
+    upiId: { type: String },
+    bankAccount: { type: String }
+  },
   refundDetails: {
     refundArn: { type: String },
     refundStatus: { type: String, enum: ['None', 'Initiated', 'Processing', 'Credited'], default: 'None' },
