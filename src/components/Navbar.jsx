@@ -7,28 +7,78 @@ import {
   ShoppingCart, 
   User, 
   ChevronDown, 
-  // eslint-disable-next-line
   Layers, 
-  // eslint-disable-next-line
-  TrendingUp, 
   LogOut, 
   Award,
   CircleDollarSign,
-  Coins,
-  History,
-  // eslint-disable-next-line
-  RotateCcw,
-  // eslint-disable-next-line
-  Settings,
   Heart,
   Store,
-  ArrowLeft,
   Mic,
-  Package
+  Package,
+  MapPin,
+  Sparkles,
+  CheckCircle2,
+  X
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
 import LanguageToggle from './LanguageToggle';
+
+const SEARCH_PLACEHOLDERS = [
+  "Search for 'iPhone 16 Pro'...",
+  "Search for 'Nike Running Shoes'...",
+  "Search for 'Sony Spatial Headphones'...",
+  "Search for 'Designer Silk Saree'...",
+  "Search for 'Smart Air Conditioner'...",
+  "Search for 'Fast Wireless Chargers'..."
+];
+
+const MEGA_MENU_CATEGORIES = [
+  {
+    title: "📱 Mobiles & Tablets",
+    cat: "mobiles",
+    items: [
+      { name: "5G Flagship Smartphones", query: "5G Mobile" },
+      { name: "Budget & Mid-Range Phones", query: "Smartphone" },
+      { name: "Fast Chargers & Adapters", query: "Charger" },
+      { name: "Powerbanks & Cables", query: "Powerbank" },
+      { name: "Protective Cases & Glass", query: "Case" }
+    ]
+  },
+  {
+    title: "🎧 Electronics & Audio",
+    cat: "electronics",
+    items: [
+      { name: "True Wireless Earbuds", query: "Earbuds" },
+      { name: "Noise Cancelling Headphones", query: "Headphones" },
+      { name: "Bluetooth Soundbars", query: "Speaker" },
+      { name: "Smart Fitness Watches", query: "Smartwatch" },
+      { name: "Laptops & Hubs", query: "Laptop" }
+    ]
+  },
+  {
+    title: "👗 Fashion & Lifestyle",
+    cat: "fashion",
+    items: [
+      { name: "Men's Luxury T-Shirts & Shirts", query: "Shirt" },
+      { name: "Women's Ethnic & Western Wear", query: "Dress" },
+      { name: "Athletic & Running Shoes", query: "Shoes" },
+      { name: "Designer Sunglasses & Belts", query: "Accessories" },
+      { name: "Titanium Chronograph Watches", query: "Watch" }
+    ]
+  },
+  {
+    title: "🏠 Home Appliances",
+    cat: "home",
+    items: [
+      { name: "Smart 4K Ultra HD TVs", query: "TV" },
+      { name: "Kitchen Air Fryers & Mixers", query: "Kitchen" },
+      { name: "Robotic & Hand Vacuums", query: "Vacuum" },
+      { name: "Smart Lighting & Lamps", query: "Lighting" },
+      { name: "Air Purifiers & Coolers", query: "Air Purifier" }
+    ]
+  }
+];
 
 const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, onCartClick, style }) => {
   const searchParams = useSearchParams();
@@ -36,10 +86,73 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   // eslint-disable-next-line
   const { currentUser, cart, logout, resetDatabase, products } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const searchInputRef = useRef(null);
+
+  // Delivery Pincode State
+  const [deliveryPincode, setDeliveryPincode] = useState('110001');
+  const [deliveryCity, setDeliveryCity] = useState('New Delhi');
+  const [isPincodeModalOpen, setIsPincodeModalOpen] = useState(false);
+  const [tempPincode, setTempPincode] = useState('');
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeMessage, setPincodeMessage] = useState('');
+
+  // Load saved delivery pincode
+  useEffect(() => {
+    try {
+      const savedPin = localStorage.getItem('abkharido_delivery_pincode');
+      const savedCity = localStorage.getItem('abkharido_delivery_city');
+      if (savedPin) setDeliveryPincode(savedPin);
+      if (savedCity) setDeliveryCity(savedCity);
+    } catch (e) {}
+  }, []);
+
+  // Rotating search placeholder timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPlaceholderIndex(prev => (prev + 1) % SEARCH_PLACEHOLDERS.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handlePincodeLookup = async (pin) => {
+    setTempPincode(pin);
+    setPincodeMessage('');
+    if (pin.length === 6 && /^\d+$/.test(pin)) {
+      setPincodeLoading(true);
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+        const data = await res.json();
+        if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+          const po = data[0].PostOffice[0];
+          const city = po.District || po.Block || po.Circle || 'India';
+          setDeliveryPincode(pin);
+          setDeliveryCity(city);
+          localStorage.setItem('abkharido_delivery_pincode', pin);
+          localStorage.setItem('abkharido_delivery_city', city);
+          setPincodeMessage(`✅ Deliverable to ${city} via Express (24-48 hrs)!`);
+          setTimeout(() => {
+            setIsPincodeModalOpen(false);
+            setPincodeMessage('');
+          }, 1200);
+        } else {
+          setPincodeMessage('⚠️ Pincode not found. Saved as standard delivery area.');
+          setDeliveryPincode(pin);
+          localStorage.setItem('abkharido_delivery_pincode', pin);
+        }
+      } catch (e) {
+        setDeliveryPincode(pin);
+        localStorage.setItem('abkharido_delivery_pincode', pin);
+        setIsPincodeModalOpen(false);
+      } finally {
+        setPincodeLoading(false);
+      }
+    }
+  };
 
   const playBeep = (freq = 800, duration = 0.15) => {
     try {
@@ -67,14 +180,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-IN'; // Indian English / Hinglish so names like iPhone, Samsung, Mobile transcribe directly in English!
+    recognition.lang = 'en-IN';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     setIsListening(true);
-    playBeep(880, 0.15); // Pleasant chime on activation
+    playBeep(880, 0.15);
     recognition.start();
     recognition.onresult = (event) => {
-      playBeep(1200, 0.2); // Pleasant success chime
+      playBeep(1200, 0.2);
       const transcript = event.results[0][0].transcript;
       const normalized = normalizeSearchQuery(transcript);
       setSearchQuery(normalized);
@@ -87,7 +200,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   useEffect(() => {
     const handleFocusSearch = () => {
-      // Focus element after small delay to allow Home page rendering
       setTimeout(() => {
         if (searchInputRef.current) {
           searchInputRef.current.focus();
@@ -112,7 +224,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   const handleCategoryClick = (catId) => {
     onSelectCategory(catId);
-    // Automatically navigate to home/catalog page when selecting category
     if (activePage !== 'home' && activePage !== 'catalog') {
       onNavigate('');
     }
@@ -120,19 +231,125 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header className="navbar-header" style={style}>
+      <header className="navbar-header" style={{ ...style, position: 'sticky', top: 0, zIndex: 1000 }}>
         <div className="navbar-container">
           
-          <div className="navbar-left">
-              {/* Logo */}
-              <a href="#" className="logo-container" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
-                <span className="logo-text">
-                  AbKharido<span className="logo-plus">.com</span>
-                </span>
-                <span className="logo-sub">
-                  Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
-                </span>
-              </a>
+          <div className="navbar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Logo */}
+            <a href="#" className="logo-container" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
+              <span className="logo-text">
+                AbKharido<span className="logo-plus">.com</span>
+              </span>
+              <span className="logo-sub">
+                Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
+              </span>
+            </a>
+
+            {/* 📍 Pincode / Delivery Location Selector */}
+            <div 
+              className="delivery-pincode-badge"
+              onClick={() => { setTempPincode(deliveryPincode); setIsPincodeModalOpen(true); }}
+              title="Click to change your delivery pincode"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 10px',
+                borderRadius: '10px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              <MapPin size={15} color="#4f46e5" />
+              <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
+                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600' }}>Deliver to</div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>
+                  {deliveryCity} {deliveryPincode}
+                </div>
+              </div>
+            </div>
+
+            {/* 🗂️ Category Mega-Menu Trigger */}
+            <div 
+              className="category-mega-menu-wrapper"
+              onMouseEnter={() => setMegaMenuOpen(true)}
+              onMouseLeave={() => setMegaMenuOpen(false)}
+              style={{ position: 'relative' }}
+            >
+              <button
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: megaMenuOpen ? '#eff6ff' : 'none',
+                  border: '1px solid',
+                  borderColor: megaMenuOpen ? '#bfdbfe' : 'transparent',
+                  color: megaMenuOpen ? '#2563eb' : '#334155',
+                  padding: '6px 10px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <Layers size={15} color={megaMenuOpen ? '#2563eb' : '#64748b'} />
+                <span>Categories</span>
+                <ChevronDown size={13} style={{ transform: megaMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              </button>
+
+              {/* Mega-Menu Dropdown Panel */}
+              {megaMenuOpen && (
+                <div 
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    width: '680px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '20px',
+                    boxShadow: '0 20px 40px rgba(9, 13, 22, 0.15)',
+                    border: '1.5px solid #e2e8f0',
+                    padding: '20px',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '20px',
+                    zIndex: 1200,
+                    marginTop: '8px'
+                  }}
+                >
+                  {MEGA_MENU_CATEGORIES.map((section, sIdx) => (
+                    <div key={sIdx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div 
+                        onClick={() => { setMegaMenuOpen(false); onSelectCategory(section.cat); }}
+                        style={{ fontSize: '13.5px', fontWeight: '900', color: '#0f172a', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                      >
+                        <span>{section.title}</span>
+                        <span style={{ fontSize: '11px', color: '#4f46e5', fontWeight: '800' }}>View All →</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {section.items.map((item, iIdx) => (
+                          <span
+                            key={iIdx}
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                              onSearch(item.query);
+                            }}
+                            style={{ fontSize: '12.5px', color: '#475569', fontWeight: '500', cursor: 'pointer', padding: '3px 6px', borderRadius: '6px', transition: 'all 0.15s' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = '#4f46e5'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#475569'; }}
+                          >
+                            • {item.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Search form */}
@@ -142,7 +359,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 ref={searchInputRef}
                 type="text"
                 className="search-input"
-                placeholder={isListening ? "🎙️ Listening... Speak your product name now..." : "Search for products, brands and more..."}
+                placeholder={isListening ? "🎙️ Listening... Speak product name now..." : SEARCH_PLACEHOLDERS[placeholderIndex]}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setShowSuggestions(true)}
@@ -488,6 +705,116 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
         </div>
       </header>
 
+      {/* 📍 Interactive Delivery Pincode Modal */}
+      {isPincodeModalOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+            padding: '20px'
+          }}
+          onClick={() => setIsPincodeModalOpen(false)}
+        >
+          <div 
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '20px',
+              padding: '24px',
+              maxWidth: '400px',
+              width: '100%',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              position: 'relative'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MapPin size={20} color="#4f46e5" />
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>Choose Delivery Location</h3>
+              </div>
+              <button 
+                onClick={() => setIsPincodeModalOpen(false)}
+                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0', lineHeight: 1.5 }}>
+              Enter your 6-digit Indian PIN code to see precise delivery speeds and COD availability for your doorstep.
+            </p>
+
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={tempPincode}
+                  onChange={(e) => handlePincodeLookup(e.target.value.replace(/\D/g, ''))}
+                  placeholder="Enter 6-digit PIN (e.g. 110001)"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    fontSize: '15px',
+                    fontWeight: '700',
+                    borderRadius: '12px',
+                    border: '1.5px solid #4f46e5',
+                    outline: 'none',
+                    letterSpacing: '1px'
+                  }}
+                  autoFocus
+                />
+                {pincodeLoading && (
+                  <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px', color: '#4f46e5', fontWeight: '700' }}>
+                    Checking...
+                  </span>
+                )}
+              </div>
+              {pincodeMessage && (
+                <div style={{ marginTop: '8px', fontSize: '12px', fontWeight: '700', color: pincodeMessage.includes('✅') ? '#059669' : '#d97706' }}>
+                  {pincodeMessage}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Popular Metro Areas</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {[
+                  { name: "New Delhi", pin: "110001" },
+                  { name: "Mumbai", pin: "400001" },
+                  { name: "Bengaluru", pin: "560001" },
+                  { name: "Hyderabad", pin: "500001" },
+                  { name: "Kolkata", pin: "700001" }
+                ].map((metro, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handlePincodeLookup(metro.pin)}
+                    style={{
+                      background: '#f1f5f9',
+                      border: '1px solid #e2e8f0',
+                      padding: '6px 10px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      color: '#334155',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {metro.name} ({metro.pin})
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

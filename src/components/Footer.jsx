@@ -136,13 +136,14 @@ const Footer = ({ onNavigate }) => {
       {/* Payment Security & Copyright Footer Strip */}
       <div style={{ backgroundColor: '#05080e', padding: '28px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="navbar-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '600' }}>
-            © 2026 AbKharido.com Megastore. All rights reserved. Self-Operated Direct Indian Retailer.
+          <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '500', lineHeight: 1.6 }}>
+            <strong style={{ color: '#ffffff', fontWeight: '800' }}>AbKharido Retail Private Limited</strong> • CIN: U52100DL2024PTC394821 • Registered in New Delhi, India.
+            <div style={{ fontSize: '12px', color: '#64748b' }}>© 2026 AbKharido.com. 100% Genuine Direct Buy & Earn Destination. All rights reserved.</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: '800' }}>SECURE PAYMENTS VIA:</span>
-            {["UPI QR", "RuPay VIP", "Visa", "MasterCard", "NetBanking", "Cashfree Escrow"].map((pay, idx) => (
-              <span key={idx} style={{ background: '#1e293b', color: '#ffffff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', border: '1px solid rgba(255,255,255,0.15)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: '800' }}>100% SECURE CHECKOUT:</span>
+            {["UPI (GPay / PhonePe / Paytm)", "RuPay", "Visa", "MasterCard", "NetBanking", "Cash on Delivery", "Cashfree Escrow"].map((pay, idx) => (
+              <span key={idx} style={{ background: '#1e293b', color: '#ffffff', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', border: '1px solid rgba(255,255,255,0.15)' }}>
                 🔒 {pay}
               </span>
             ))}
