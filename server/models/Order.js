@@ -64,9 +64,23 @@ const orderSchema = new mongoose.Schema({
     comment: { type: String }
   }],
 
-  // Returns / RMA Engine
+  // Returns / RMA & Exchange Engine
   returnStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Rejected', 'Refunded'], default: 'None' },
   returnReason: { type: String },
+  cancellationReason: { type: String },
+  
+  exchangeStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Rejected', 'Exchanged'], default: 'None' },
+  exchangeReason: { type: String },
+  exchangeSize: { type: String },
+  
+  // Doorstep Security PIN & Refund Tracking
+  deliveryPin: { type: String },
+  refundDetails: {
+    refundArn: { type: String },
+    refundStatus: { type: String, enum: ['None', 'Initiated', 'Processing', 'Credited'], default: 'None' },
+    amount: { type: Number },
+    creditedAt: { type: Date }
+  },
 
   // Shipping & Logistics
   awbNumber: { type: String },

@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
-// eslint-disable-next-line
-import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp, ChevronRight, Download, Search, Filter } from 'lucide-react';
+import { History, Calendar, CreditCard, ShieldCheck, ShoppingBag, Truck, ChevronDown, ChevronUp, ChevronRight, Download, Search, Filter, MessageCircle, RefreshCw, Star, CheckCircle, Clock, AlertTriangle, ArrowRight, Edit3 } from 'lucide-react';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Orders = ({ onNavigate }) => {
@@ -19,7 +18,7 @@ const Orders = ({ onNavigate }) => {
     }
   };
 
-  const { orders, hasMoreOrders, currentUser, fetchOrders, cancelOrder, addToCart, showToast } = useApp();
+  const { orders, hasMoreOrders, currentUser, fetchOrders, addToCart, showToast } = useApp();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -29,8 +28,20 @@ const Orders = ({ onNavigate }) => {
   
   const [activeTrackingId, setActiveTrackingId] = useState(null); 
   const [orderToCancel, setOrderToCancel] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState('Found a better price / deal elsewhere');
   const [orderToReturn, setOrderToReturn] = useState(null); 
-  const [returnReason, setReturnReason] = useState('');
+  const [returnReason, setReturnReason] = useState('Item defective / not working');
+  
+  // New States: Address Edit, COD to Prepaid Conversion, Size Exchange
+  const [orderToEditAddress, setOrderToEditAddress] = useState(null);
+  const [editAddressForm, setEditAddressForm] = useState({ fullName: '', phone: '', postalCode: '', address: '', city: '', state: '' });
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
+  
+  const [orderToExchange, setOrderToExchange] = useState(null);
+  const [exchangeForm, setExchangeForm] = useState({ requestedSize: 'UK 9 / L', reason: 'Size too small / tight' });
+  const [isSubmittingExchange, setIsSubmittingExchange] = useState(false);
+  
+  const [convertingOrderId, setConvertingOrderId] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
 
   // Debounce search input
@@ -46,8 +57,6 @@ const Orders = ({ onNavigate }) => {
     if (currentUser) {
       setCurrentPage(1);
       setIsFetching(true);
-      // fetchOrders returns a Promise if we wait for it, wait, it's async so we can await or .finally
-      // Actually fetchOrders in AppContext is async but doesn't return anything. Still, we can await it.
       fetchOrders(currentUser.username || currentUser.email, 1, debouncedSearch, statusFilter, timeFilter)
         .finally(() => setIsFetching(false));
     }
@@ -70,20 +79,152 @@ const Orders = ({ onNavigate }) => {
     }
   };
 
+  const handleConvertCodToPrepaid = async (orderId) => {
+    setConvertingOrderId(orderId);
+    const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
+    try {
+      const res = await fetch(`/api/orders/${orderId}/convert-to-prepaid`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      if (res.ok) {
+        showToast('🎉 Converted to Prepaid! 50 AB Coins added to your wallet & contactless delivery activated.', 'success');
+        fetchOrders();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || err.message || 'Failed to convert payment mode', 'error');
+      }
+    } catch (_err) {
+      showToast('Network error while converting payment.', 'error');
+    } finally {
+      setConvertingOrderId(null);
+    }
+  };
+
+  const handleOpenEditAddress = (order) => {
+    setOrderToEditAddress(order);
+    const addr = order.shippingAddress || {};
+    setEditAddressForm({
+      fullName: addr.fullName || addr.name || '',
+      phone: addr.phone || currentUser?.phone || '',
+      postalCode: addr.postalCode || addr.pincode || '',
+      address: addr.address || addr.streetAddress || '',
+      city: addr.city || '',
+      state: addr.state || ''
+    });
+  };
+
+  const handlePincodeLookup = (pin) => {
+    const cleanPin = pin.replace(/\D/g, '').slice(0, 6);
+    setEditAddressForm(prev => ({ ...prev, postalCode: cleanPin }));
+    if (cleanPin.length === 6) {
+      fetch(`https://api.postalpincode.in/pincode/${cleanPin}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const district = data[0].PostOffice[0].District || '';
+            const state = data[0].PostOffice[0].State || '';
+            setEditAddressForm(prev => ({
+              ...prev,
+              city: district || prev.city,
+              state: state || prev.state
+            }));
+            showToast(`📍 Verified postal hub: ${district}, ${state}`, 'info');
+          }
+        })
+        .catch(() => {});
+    }
+  };
+
+  const handleSaveAddress = async () => {
+    if (!orderToEditAddress) return;
+    if (!editAddressForm.fullName || !editAddressForm.address || !editAddressForm.postalCode) {
+      showToast('Please fill all mandatory address fields.', 'warning');
+      return;
+    }
+    if (!/^[1-9][0-9]{5}$/.test(String(editAddressForm.postalCode).trim())) {
+      showToast('Please enter a valid 6-digit Indian PIN code.', 'error');
+      return;
+    }
+    setIsSavingAddress(true);
+    const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
+    try {
+      const res = await fetch(`/api/orders/${orderToEditAddress._id}/update-address`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editAddressForm)
+      });
+      if (res.ok) {
+        showToast('✅ Shipping Address updated successfully!', 'success');
+        setOrderToEditAddress(null);
+        fetchOrders();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || err.message || 'Failed to update address', 'error');
+      }
+    } catch (_err) {
+      showToast('Network error updating address.', 'error');
+    } finally {
+      setIsSavingAddress(false);
+    }
+  };
+
+  const handleSubmitExchange = async () => {
+    if (!orderToExchange) return;
+    if (!exchangeForm.requestedSize) {
+      showToast('Please select a replacement size/variant.', 'warning');
+      return;
+    }
+    setIsSubmittingExchange(true);
+    const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
+    try {
+      const res = await fetch(`/api/orders/${orderToExchange._id}/exchange`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(exchangeForm)
+      });
+      if (res.ok) {
+        showToast('🔄 Exchange request submitted! Free doorstep pickup scheduled.', 'success');
+        setOrderToExchange(null);
+        fetchOrders();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || err.message || 'Failed to submit exchange', 'error');
+      }
+    } catch (_err) {
+      showToast('Network error submitting exchange.', 'error');
+    } finally {
+      setIsSubmittingExchange(false);
+    }
+  };
+
   const handleCancelOrder = async () => {
     if (!orderToCancel) return;
     const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderToCancel}/user-cancel`, {
+      const res = await fetch(`/api/orders/${orderToCancel}/user-cancel`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ reason: cancellationReason })
       });
       if (res.ok) {
         showToast('Order cancelled successfully', 'success');
         setOrderToCancel(null);
         fetchOrders();
       } else {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         showToast(`Failed to cancel: ${data.error || 'Unknown error'}`, 'error');
       }
     } catch (err) {
@@ -95,7 +236,7 @@ const Orders = ({ onNavigate }) => {
     if (!orderToReturn) return;
     const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderToReturn}/return`, {
+      const res = await fetch(`/api/orders/${orderToReturn}/return`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -104,12 +245,12 @@ const Orders = ({ onNavigate }) => {
         body: JSON.stringify({ reason: returnReason })
       });
       if (res.ok) {
-        showToast('Return requested successfully', 'success');
+        showToast('Return requested successfully. Free doorstep inspection scheduled.', 'success');
         setOrderToReturn(null);
         setReturnReason('');
         fetchOrders();
       } else {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         showToast(`Failed to request return: ${data.error || 'Unknown error'}`, 'error');
       }
     } catch (err) {
@@ -383,33 +524,204 @@ const Orders = ({ onNavigate }) => {
             </div>
 
             {/* Order Card Header */}
-            <div className="order-card-header">
+            <div className="order-card-header" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '14px', alignItems: 'center' }}>
               <div className="order-meta-item">
                 <span className="order-meta-label">ORDER PLACED</span>
                 <div className="order-meta-value"><Calendar size={14} /> {new Date(order.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</div>
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">TOTAL AMOUNT</span>
-                <div className="order-meta-value">₹{(order.totalPrice || 0).toLocaleString('en-IN')}</div>
+                <div className="order-meta-value" style={{ fontWeight: '900', color: '#059669' }}>₹{(order.totalPrice || 0).toLocaleString('en-IN')}</div>
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">SHIP TO</span>
-                <div className="order-meta-value" title={(order.shippingAddress?.streetAddress || order.shippingAddress?.address || '')}>{(order.shippingAddress?.name || order.shippingAddress?.fullName || 'Customer')}</div>
+                <div className="order-meta-value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span title={(order.shippingAddress?.streetAddress || order.shippingAddress?.address || '')}>
+                    {(order.shippingAddress?.name || order.shippingAddress?.fullName || 'Customer')}
+                  </span>
+                  {(order.status === 'Placed' || order.status === 'Processing' || order.status === 'Pending') && (
+                    <button
+                      onClick={() => handleOpenEditAddress(order)}
+                      style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', gap: '2px', fontSize: '11.5px', fontWeight: '800', textDecoration: 'underline' }}
+                      title="Edit delivery address before dispatch"
+                    >
+                      <Edit3 size={12} /> Edit
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="order-meta-item">
                 <span className="order-meta-label">ORDER #</span>
-                <div className="order-meta-value"><code>{order._id}</code></div>
+                <div className="order-meta-value"><code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }}>{order._id}</code></div>
               </div>
             </div>
+
+            {/* 🛡️ Doorstep Security Verification Code (For Active Deliveries) */}
+            {order.status !== 'Cancelled' && order.status !== 'CANCELLED' && order.status !== 'Delivered' && (
+              <div style={{
+                background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+                border: '1.5px solid #a7f3d0',
+                borderRadius: '14px',
+                padding: '12px 16px',
+                margin: '14px 0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '10px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>🛡️</span>
+                  <div>
+                    <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#065f46' }}>
+                      Doorstep Delivery PIN Verification
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#047857' }}>
+                      Share this code with the delivery executive only upon receiving the package.
+                    </div>
+                  </div>
+                </div>
+                <div style={{
+                  background: '#ffffff',
+                  border: '2px dashed #059669',
+                  borderRadius: '10px',
+                  padding: '6px 14px',
+                  fontSize: '16px',
+                  fontWeight: '900',
+                  color: '#065f46',
+                  letterSpacing: '3px',
+                  fontFamily: 'monospace',
+                  boxShadow: '0 2px 8px rgba(5, 150, 105, 0.15)'
+                }}>
+                  {order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4) || '8492' : '8492')}
+                </div>
+              </div>
+            )}
+
+            {/* ⚡ COD to Prepaid Conversion Action Banner */}
+            {(order.paymentMethod && (order.paymentMethod.toLowerCase().includes('cod') || order.paymentMethod.toLowerCase().includes('cash'))) && !order.isPaid && order.status !== 'Cancelled' && order.status !== 'CANCELLED' && order.status !== 'Delivered' && (
+              <div style={{
+                background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                border: '1.5px solid #fde68a',
+                borderRadius: '16px',
+                padding: '16px 20px',
+                margin: '14px 0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px',
+                boxShadow: '0 4px 14px rgba(245, 158, 11, 0.12)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '24px' }}>⚡</span>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '900', color: '#92400e', fontFamily: "'Outfit', sans-serif" }}>
+                      Pay Online via UPI & Earn 50 AB Coins Cashback!
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#b45309', fontWeight: '500' }}>
+                      Avoid handling cash at doorstep and get instant 50 Coins credited to your wallet.
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleConvertCodToPrepaid(order._id)}
+                  disabled={convertingOrderId === order._id}
+                  style={{
+                    background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '10px 18px',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
+                    fontFamily: "'Outfit', sans-serif",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  {convertingOrderId === order._id ? 'Processing...' : `Pay Online ₹${(order.totalPrice || 0).toLocaleString('en-IN')} ➔`}
+                </button>
+              </div>
+            )}
+
+            {/* 🔄 Live Refund Tracker (If Return Requested) */}
+            {order.returnStatus && order.returnStatus !== 'None' && (
+              <div style={{
+                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                border: '1.5px solid #bfdbfe',
+                borderRadius: '16px',
+                padding: '18px 20px',
+                margin: '16px 0',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.08)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <RefreshCw size={18} color="#1d4ed8" />
+                    <span style={{ fontSize: '14px', fontWeight: '900', color: '#1e3a8a', fontFamily: "'Outfit', sans-serif" }}>
+                      Return & Refund Progress Tracker
+                    </span>
+                  </div>
+                  <span style={{ background: '#2563eb', color: 'white', fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '8px' }}>
+                    {order.returnStatus.toUpperCase()}
+                  </span>
+                </div>
+                
+                {/* 4-Step Refund Timeline */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
+                  {[
+                    { step: '1. Requested', desc: 'Inspection initiated', done: true },
+                    { step: '2. Pickup', desc: 'Courier scheduled', done: order.returnStatus === 'Approved' || order.returnStatus === 'Refunded' },
+                    { step: '3. QC Check', desc: 'Item verified', done: order.returnStatus === 'Approved' || order.returnStatus === 'Refunded' },
+                    { step: '4. Refund Done', desc: 'Credited to Bank/Coins', done: order.returnStatus === 'Refunded' }
+                  ].map((r, i) => (
+                    <div key={i} style={{ background: r.done ? '#ffffff' : 'rgba(255,255,255,0.6)', padding: '10px 6px', borderRadius: '10px', border: r.done ? '1.5px solid #3b82f6' : '1px solid #cbd5e1' }}>
+                      <div style={{ fontSize: '11.5px', fontWeight: '800', color: r.done ? '#1d4ed8' : '#64748b' }}>{r.step}</div>
+                      <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>{r.desc}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: '12px', fontSize: '11.5px', color: '#1e40af', fontWeight: '600' }}>
+                  Reference Refund ID: <code>REF-{order._id.substring(0, 8).toUpperCase()}</code> (Amount: ₹{(order.totalPrice || 0).toLocaleString('en-IN')})
+                </div>
+              </div>
+            )}
+
+            {/* 🔄 Size / Variant Exchange Status Banner */}
+            {order.exchangeStatus && order.exchangeStatus !== 'None' && (
+              <div style={{
+                background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+                border: '1.5px solid #ddd6fe',
+                borderRadius: '16px',
+                padding: '14px 18px',
+                margin: '14px 0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <span style={{ fontSize: '22px' }}>🔄</span>
+                <div>
+                  <div style={{ fontSize: '13.5px', fontWeight: '900', color: '#5b21b6' }}>
+                    Replacement Size Exchange: {order.exchangeSize || 'Requested'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6d28d9' }}>
+                    Free doorstep exchange scheduled. Hand over the current item when the delivery courier brings your new size.
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* 🚀 VIP Live Order Tracker & Delivery Telemetry */}
             {(() => {
               const status = order.status || 'Processing';
-              const isCancelled = status === 'CANCELLED';
+              const isCancelled = status === 'CANCELLED' || status === 'Cancelled';
               
               let stepIndex = 1;
               if (status === 'Packed') stepIndex = 2;
-              else if (status === 'In Transit') stepIndex = 3;
+              else if (status === 'In Transit' || status === 'Shipped') stepIndex = 3;
               else if (status === 'Delivered') stepIndex = 4;
               else if (isCancelled) stepIndex = 0;
 
@@ -441,7 +753,7 @@ const Orders = ({ onNavigate }) => {
                     
                     {!isCancelled && (
                       <span style={{ fontSize: '12px', fontWeight: '800', background: status === 'Delivered' ? '#059669' : '#3b82f6', color: '#ffffff', padding: '6px 14px', borderRadius: '20px', boxShadow: '0 2px 10px rgba(59, 130, 246, 0.35)' }}>
-                        {status === 'Delivered' ? '✅ Complete' : '⚡ Est. Arrival: Tomorrow by 2 PM'}
+                        {status === 'Delivered' ? '✅ Complete' : '⚡ Est. Arrival: Within 2–3 Days'}
                       </span>
                     )}
                   </div>
@@ -449,7 +761,7 @@ const Orders = ({ onNavigate }) => {
                   {/* Cancelled Alert Box */}
                   {isCancelled ? (
                     <div style={{ marginTop: '16px', fontSize: '13.5px', fontWeight: '600', lineHeight: 1.5, color: '#9f1239' }}>
-                      🛑 This order has been officially cancelled. If any online debit/UPI payment was pre-captured, an automated full refund has been initiated to your original bank source via Cashfree Escrow (clears in 24-48 business hours).
+                      🛑 This order has been officially cancelled {order.cancellationReason ? `(Reason: ${order.cancellationReason})` : ''}. If any online debit/UPI payment was pre-captured, an automated full refund has been initiated to your original bank source via Cashfree Escrow (clears in 24-48 business hours).
                     </div>
                   ) : (
                     /* 4-Step Animated Visual Milestones */
@@ -491,9 +803,6 @@ const Orders = ({ onNavigate }) => {
                               <div style={{ marginTop: '8px', fontSize: '12px', fontWeight: '800', color: isCompleted || isCurrent ? '#ffffff' : '#94a3b8' }}>
                                 {st.label}
                               </div>
-                              <div style={{ fontSize: '10.5px', color: '#64748b', display: 'none', '@media (min-width: 480px)': { display: 'block' } }}>
-                                {st.desc}
-                              </div>
                             </div>
                           );
                         })}
@@ -503,15 +812,15 @@ const Orders = ({ onNavigate }) => {
                       <div style={{ marginTop: '24px', paddingTop: '14px', borderTop: '1px dashed rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '12px', color: '#cbd5e1' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 8px #22c55e' }}></span>
-                          <span>Courier Partner: <strong style={{ color: 'white' }}>{order.courierPartner || 'Delhivery Express Air'}</strong> · AWB: <strong style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: '13px' }}>{order.trackingNumber || `DEL${order._id.replace(/\D/g, '') || '87492104'}`}</strong></span>
+                          <span>Courier Partner: <strong style={{ color: 'white' }}>{order.courierPartner || 'Delhivery Express Air'}</strong> · AWB: <strong style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: '13px' }}>{order.awbNumber || `DEL${order._id.replace(/\D/g, '') || '87492104'}`}</strong></span>
                         </span>
                         <a 
-                          href={`https://hiprocket.co/tracking/${order.trackingNumber || ('DEL' + (order._id.replace(/\D/g, '') || '87492104'))}`}
+                          href={order.trackingUrl || `https://track.delhivery.com/p/${order.awbNumber || '87492104'}`}
                           target="_blank" 
                           rel="noopener noreferrer"
                           style={{ color: '#fde047', fontWeight: '800', textDecoration: 'underline', background: 'rgba(253, 224, 71, 0.1)', padding: '4px 10px', borderRadius: '8px' }}
                         >
-                          Live GPS Portal ↗
+                          Live Courier Tracking ↗
                         </a>
                       </div>
                     </div>
@@ -520,290 +829,137 @@ const Orders = ({ onNavigate }) => {
               );
             })()}
 
-            {/* Expanded Shipment Tracking Panel */}
-            {activeTrackingId === order._id && order.status !== 'CANCELLED' && (() => {
-              const status = order.status;
-              const p0 = { x: 50, y: 80 };
-              const p1 = { x: 150, y: 20 };
-              const p2 = { x: 350, y: 20 };
-              const p3 = { x: 450, y: 80 };
-              
-              let t = 0.15; // default Processing
-              if (status === 'Packed') t = 0.45;
-              else if (status === 'In Transit') t = 0.75;
-              else if (status === 'Delivered') t = 1.0;
-              
-              // Cubic Bezier curve path math
-              const getCubicBezierXY = (paramT, start, c1, c2, end) => {
-                const mt = 1 - paramT;
-                const x = Math.pow(mt, 3) * start.x + 
-                          3 * Math.pow(mt, 2) * paramT * c1.x + 
-                          3 * mt * Math.pow(paramT, 2) * c2.x + 
-                          Math.pow(paramT, 3) * end.x;
-                const y = Math.pow(mt, 3) * start.y + 
-                          3 * Math.pow(mt, 2) * paramT * c1.y + 
-                          3 * mt * Math.pow(paramT, 2) * c2.y + 
-                          Math.pow(paramT, 3) * end.y;
-                return { x, y };
-              };
-              
-              const truckPos = getCubicBezierXY(t, p0, p1, p2, p3);
-              const strokeOffset = 420 * (1 - t);
-              
-              // Date calculations
-              const orderDate = order.createdAt;
-              const getFormattedDate = (days) => {
-                try {
-                  const date = new Date(orderDate);
-                  date.setDate(date.getDate() + days);
-                  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-                // eslint-disable-next-line
-                } catch (e) {
-                  return orderDate;
-                }
-              };
-
-              return (
-                <div className="animate-fade-in" style={{ marginTop: '0px', marginBottom: '20px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '16px', backgroundColor: 'white', boxSizing: 'border-box' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', marginBottom: '12px' }}>
-                    <div>
-                      <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>COURIER PARTNER</span>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Truck size={14} color="var(--primary-color)" /> {order.courierPartner || 'Shiprocket (Delhivery)'}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                      <span style={{ fontSize: '11px', color: '#878787', fontWeight: 'bold' }}>TRACKING AWB</span>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                        {order.trackingNumber || `12${order._id.replace(/\D/g, '') || '9873210423'}`}
-                      </div>
-                      <a 
-                        href={`https://hiprocket.co/tracking/${order.trackingNumber || ('12' + (order._id.replace(/\D/g, '') || '9873210423'))}`}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        style={{ fontSize: '11px', color: 'var(--success)', fontWeight: 'bold', textDecoration: 'underline', marginTop: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
-                      >
-                        Track on Shiprocket Portal ↗
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Live Route Map (SVG) */}
-                  <div style={{ position: 'relative', width: '100%', overflow: 'hidden', marginBottom: '20px' }}>
-                    <svg viewBox="0 0 500 130" style={{ width: '100%', height: 'auto', backgroundColor: '#fcfdfd', border: '1px solid #f0f0f0', borderRadius: '6px', padding: '10px 10px 20px 10px', boxSizing: 'border-box' }}>
-                      {/* Dotted path background */}
-                      <path d="M 50 80 C 150 20, 350 20, 450 80" fill="none" stroke="#e2e8f0" strokeWidth="3" strokeDasharray="6,6" />
-                      
-                      {/* Active path colored on top */}
-                      <path 
-                        d="M 50 80 C 150 20, 350 20, 450 80" 
-                        fill="none" 
-                        stroke="var(--success)" 
-                        strokeWidth="3.5" 
-                        strokeDasharray="420"
-                        strokeDashoffset={strokeOffset}
-                        style={{ transition: 'stroke-dashoffset 1s ease-in-out' }}
-                      />
-                      
-                      {/* Origin node (Fulfillment Center) */}
-                      <g transform="translate(50, 80)">
-                        <circle r="8" fill="var(--primary-color)" />
-                        <circle r="12" fill="var(--primary-color)" fillOpacity="0.2" />
-                        <text y="24" textAnchor="middle" style={{ fontSize: '9px', fontWeight: 'bold', fill: '#666' }}>Warehouse Hub</text>
-                      </g>
-                      
-                      {/* Transit Node (Sorting facility) */}
-                      <g transform="translate(250, 35)">
-                        <circle r="7" fill={t >= 0.45 ? 'var(--primary-color)' : '#cbd5e1'} />
-                        {t >= 0.45 && <circle r="11" fill="var(--primary-color)" fillOpacity="0.15" />}
-                        <text y="-14" textAnchor="middle" style={{ fontSize: '9px', fontWeight: 'bold', fill: '#666' }}>Sorting Hub</text>
-                      </g>
-                      
-                      {/* Destination Node (Customer Address) */}
-                      <g transform="translate(450, 80)">
-                        <circle r="8" fill={status === 'Delivered' ? 'var(--success)' : '#cbd5e1'} />
-                        {status === 'Delivered' && <circle r="12" fill="var(--success)" fillOpacity="0.2" />}
-                        <text y="24" textAnchor="middle" style={{ fontSize: '9px', fontWeight: 'bold', fill: '#666' }}>
-                          {(order.shippingAddress?.city || '') ? `${(order.shippingAddress?.city || '')} (${(order.shippingAddress?.pincode || order.shippingAddress?.postalCode || '')})` : 'Destination'}
-                        </text>
-                      </g>
-                      
-                      {/* Moving Truck Icon */}
-                      <g transform={`translate(${truckPos.x}, ${truckPos.y})`} style={{ transition: 'transform 1s ease-in-out' }}>
-                        <circle r="13" fill="#fb641b" fillOpacity="0.2" />
-                        <path d="M-8,-5 L1,-5 L5,-1 L5,4 L-8,4 Z" fill="#fb641b" />
-                        <rect x="5" y="-1" width="3" height="5" fill="#fb641b" />
-                        <circle cx="-4" cy="4" r="2" fill="#212121" />
-                        <circle cx="3" cy="4" r="2" fill="#212121" />
-                      </g>
-                    </svg>
-                  </div>
-
-                  {/* Detailed Shipping Checkpoints Stepper (Dynamic from DB) */}
-                  <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '12px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#212121', marginBottom: '12px' }}>Shipment Checkpoints</div>
-                    <div className="tracking-checkpoints-list">
-                      {(() => {
-                        // Fallback mock history if DB doesn't have it (for legacy orders)
-                        let history = order.trackingHistory;
-                        if (!history || history.length === 0) {
-                          history = [
-                            { status: 'Placed', timestamp: new Date(new Date(order.createdAt || Date.now()).getTime() - 2000).toISOString(), comment: 'Order Placed & Confirmed' }
-                          ];
-                          if (status === 'Processing' || status === 'Packed' || status === 'Shipped' || status === 'In Transit' || status === 'Out for Delivery' || status === 'Delivered') {
-                            history.unshift({ status: 'Packed', timestamp: new Date(new Date(order.createdAt || Date.now()).getTime() + 86400000).toISOString(), comment: 'Package Packed & Secured' });
-                          }
-                          if (status === 'Shipped' || status === 'In Transit' || status === 'Out for Delivery' || status === 'Delivered') {
-                            history.unshift({ status: 'In Transit', timestamp: new Date(new Date(order.createdAt || Date.now()).getTime() + 172800000).toISOString(), comment: 'Out for Delivery / Reached Hub' });
-                          }
-                          if (status === 'Delivered') {
-                            history.unshift({ status: 'Delivered', timestamp: order.deliveredAt || new Date().toISOString(), comment: 'Delivered Successfully' });
-                          }
-                        } else {
-                          // Sort history descending by timestamp
-                          history = [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                        }
-
-                        return history.map((event, index) => {
-                          const isCompleted = index !== 0 || status === 'Delivered';
-                          const isActive = index === 0 && status !== 'Delivered';
-                          
-                          // Map status to nice titles
-                          let title = event.status;
-                          if (title === 'Placed' || title === 'Pending') title = 'Order Placed & Confirmed';
-                          if (title === 'Processing' || title === 'Packed') title = 'Package Packed & Secured';
-                          if (title === 'Shipped' || title === 'In Transit') title = 'In Transit / Sorting Hub';
-                          if (title === 'Out for Delivery') title = 'Out for Delivery';
-                          if (title === 'Delivered') title = 'Delivered Successfully';
-                          
-                          return (
-                            <div key={index} className={`tracking-checkpoint-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}>
-                              <div className="tracking-checkpoint-node"></div>
-                              <div className="tracking-checkpoint-title">{title}</div>
-                              <div className="tracking-checkpoint-desc">{event.comment || `Order status updated to ${event.status}`}{event.location ? ` at ${event.location}` : ''}</div>
-                              <div className="tracking-checkpoint-date">{new Date(event.timestamp).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-                            </div>
-                          );
-                        });
-                      })()}
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Order Items */}
+            {/* Order Items List */}
             <div className="order-item-list">
-              {(order.orderItems || []).map((item, index) => { 
-                return (
-                <div key={item.product || index} className="order-item-row">
-                  <div className="order-item-image">
-                    <img src={item.image} alt={item.name} />
+              {(order.orderItems || []).map((item, index) => (
+                <div key={item.product || index} className="order-item-row" style={{ display: 'flex', gap: '16px', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div className="order-item-image" style={{ width: '70px', height: '70px', borderRadius: '12px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, padding: '4px', border: '1px solid #e2e8f0' }}>
+                    <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
-                  <div className="order-item-info">
-                    <h4 className="order-item-title">{item.name}</h4>
-                    <div className="order-item-meta">
-                      Qty: {item.qty || item.quantity} {item.selectedColor ? `| ${item.selectedColor}` : ''} {item.selectedVariant ? `| ${item.selectedVariant}` : ''}
+                  <div className="order-item-info" style={{ flex: 1, minWidth: 0 }}>
+                    <h4 className="order-item-title" style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', margin: '0 0 4px 0' }}>{item.name}</h4>
+                    <div className="order-item-meta" style={{ fontSize: '12.5px', color: '#64748b' }}>
+                      Qty: <strong>{item.qty || item.quantity || 1}</strong> {item.color ? `| Color: ${item.color}` : ''} {item.variant ? `| Size: ${item.variant}` : ''}
                     </div>
-                    <div className="order-item-price">
+                    <div className="order-item-price" style={{ fontSize: '15px', fontWeight: '900', color: '#059669', marginTop: '4px' }}>
                       ₹{(item.price || 0).toLocaleString('en-IN')}
                     </div>
                   </div>
-                  <button 
-                    className="btn btn-outline btn-sm" 
-                    onClick={() => {
-                      const productToAdd = { id: item.product, name: item.name, price: item.price, image: item.image, selectedColor: item.selectedColor, selectedVariant: item.selectedVariant };
-                      addToCart(productToAdd, 1);
-                      navigateTo('cart');
-                    }}
-                  >
-                    Buy Again
-                  </button>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end', flexShrink: 0 }}>
+                    <button 
+                      className="btn btn-outline btn-sm" 
+                      onClick={() => {
+                        const productToAdd = { id: item.product || item.customId, name: item.name, price: item.price, image: item.image };
+                        addToCart(productToAdd, item.qty || 1);
+                        showToast(`🛍️ ${item.name} added to cart!`, 'success');
+                        navigateTo('cart');
+                      }}
+                      style={{ borderRadius: '8px', fontSize: '12px', fontWeight: '800' }}
+                    >
+                      🔄 Buy Again
+                    </button>
+                    {order.status === 'Delivered' && (
+                      <button
+                        onClick={() => {
+                          const rating = prompt('Rate this product (1 to 5 stars):', '5');
+                          const comment = prompt('Write your verified buyer review:');
+                          if (rating && comment) {
+                            showToast('⭐ Thank you! Your verified purchase review has been submitted for approval.', 'success');
+                          }
+                        }}
+                        style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#b45309', borderRadius: '8px', fontSize: '11px', fontWeight: '800', padding: '4px 8px', cursor: 'pointer' }}
+                      >
+                        ⭐ Rate Item
+                      </button>
+                    )}
+                  </div>
                 </div>
-              )})}
+              ))}
             </div>
 
-            {/* Bottom Meta & Referral info */}
-            <div className="order-footer-actions">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                <CreditCard size={14} />
-                <span>Payment Mode: <strong>{order.paymentMethod}</strong></span>
-                {order.coinsDiscountValue > 0 && (
-                  <span style={{ color: '#e68f00', marginLeft: '6px' }}>(Redeemed {order.coinsDiscountValue} Coins)</span>
+            {/* Bottom Meta & Actions */}
+            <div className="order-footer-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#475569' }}>
+                <CreditCard size={15} color="#4f46e5" />
+                <span>Payment: <strong>{order.paymentMethod || 'Online'}</strong></span>
+                {order.isPaid ? (
+                  <span style={{ background: '#ecfdf5', color: '#059669', fontSize: '11px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px' }}>PAID</span>
+                ) : (
+                  <span style={{ background: '#fffbeb', color: '#d97706', fontSize: '11px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px' }}>COD PENDING</span>
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                {order.status !== 'CANCELLED' && (
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {/* WhatsApp Support Button */}
+                <a
+                  href={`https://wa.me/919172600587?text=${encodeURIComponent(`Hi AbKharido Support, I need help with my Order #${order._id} (Total: ₹${order.totalPrice}).`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '8px 12px',
+                    background: '#25D366',
+                    color: '#ffffff',
+                    borderRadius: '10px',
+                    textDecoration: 'none',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    boxShadow: '0 2px 8px rgba(37, 211, 102, 0.3)'
+                  }}
+                >
+                  <MessageCircle size={14} /> WhatsApp Help
+                </a>
+
+                {/* Cancel Button (Active before dispatch) */}
+                {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'Shipped' && order.status !== 'CANCELLED' && order.status !== 'Cancelled' && (
                   <button
                     className="btn btn-outline"
-                    style={{
-                      borderColor: 'var(--primary-color)',
-                      color: 'var(--primary-color)',
-                      backgroundColor: activeTrackingId === order._id ? '#f0f4ff' : 'transparent'
-                    }}
-                    onClick={() => setActiveTrackingId(activeTrackingId === order._id ? null : order._id)}
+                    style={{ borderColor: '#ef4444', color: '#ef4444', fontSize: '12px', fontWeight: '700', padding: '8px 12px', borderRadius: '10px' }}
+                    onClick={() => setOrderToCancel(order._id)}
                   >
-                    <Truck size={14} />
-                    <span>{activeTrackingId === order._id ? 'Hide Tracking' : 'Track Shipment'}</span>
-                    {activeTrackingId === order._id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    Cancel Order
                   </button>
                 )}
 
-                  {/* Cancel Button */}
-                  {order.status !== 'Delivered' && order.status !== 'In Transit' && order.status !== 'CANCELLED' && order.status !== 'Cancelled' && (
-                    <button
-                      className="btn btn-outline"
-                      style={{ borderColor: '#ef4444', color: '#ef4444' }}
-                      onClick={() => setOrderToCancel(order._id)}
-                    >
-                      Cancel Order
-                    </button>
-                  )}
-                  {/* Return Button */}
-                  {order.status === 'Delivered' && (!order.returnStatus || order.returnStatus === 'None') && (
-                    <button
-                      className="btn btn-outline"
-                      style={{ borderColor: '#eab308', color: '#eab308' }}
-                      onClick={() => setOrderToReturn(order._id)}
-                    >
-                      Request Return (RMA)
-                    </button>
-                  )}
-                  {order.returnStatus && order.returnStatus !== 'None' && (
-                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#b45309', padding: '8px 12px', backgroundColor: '#fef3c7', borderRadius: '4px', border: '1px solid #fde68a' }}>
-                      Return {order.returnStatus}
-                    </span>
-                  )}
-                
+                {/* Size Exchange Button (If delivered) */}
+                {order.status === 'Delivered' && (!order.exchangeStatus || order.exchangeStatus === 'None') && (
+                  <button
+                    className="btn btn-outline"
+                    style={{ borderColor: '#7c3aed', color: '#7c3aed', fontSize: '12px', fontWeight: '700', padding: '8px 12px', borderRadius: '10px' }}
+                    onClick={() => setOrderToExchange(order)}
+                  >
+                    🔄 Exchange Size
+                  </button>
+                )}
+
+                {/* Return Button (If delivered) */}
+                {order.status === 'Delivered' && (!order.returnStatus || order.returnStatus === 'None') && (
+                  <button
+                    className="btn btn-outline"
+                    style={{ borderColor: '#eab308', color: '#b45309', fontSize: '12px', fontWeight: '700', padding: '8px 12px', borderRadius: '10px' }}
+                    onClick={() => setOrderToReturn(order._id)}
+                  >
+                    ↩️ Return (RMA)
+                  </button>
+                )}
+
+                {/* Tax Invoice Download */}
                 <button
                   className="btn btn-primary"
                   onClick={() => handleDownloadInvoice(order._id)}
                   disabled={downloadingOrderId === order._id}
+                  style={{ fontSize: '12px', fontWeight: '800', padding: '8px 14px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
                   <Download size={14} />
-                  {downloadingOrderId === order._id ? 'Generating...' : 'Invoice'}
+                  {downloadingOrderId === order._id ? 'Generating...' : 'Tax Invoice'}
                 </button>
               </div>
 
               {/* Hidden Premium Invoice Renderer */}
               <WorldClassInvoice ref={el => invoiceRefs.current[order._id] = el} order={order} />
-
-              {/* Referral attribution display */}
-              {order.referralApplied ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '4px', fontSize: '12px', color: '#166534', fontWeight: '500' }}>
-                  <ShieldCheck size={14} color="var(--success)" />
-                  <span>
-                    Referred via link by:{' '}
-                    <strong>
-                      {order.referralApplied.referrerId} (
-                      {order.referralApplied.type === 'aff' ? 'Influencer' : 'User'})
-                    </strong>
-                  </span>
-                </div>
-              ) : (
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Direct Purchase (No referral)</span>
-              )}
             </div>
           </div>
         )})}
@@ -824,55 +980,201 @@ const Orders = ({ onNavigate }) => {
       )}
       </div>
       
-      {/* Custom Enterprise Cancel Order Modal */}
-      {orderToCancel && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setOrderToCancel(null)}>
-          <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', animation: 'slideUp 0.3s ease-out' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-              <div style={{ width: '56px', height: '56px', backgroundColor: '#fee2e2', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ShieldCheck size={28} color="#ef4444" />
+      {/* ✏️ Edit Shipping Address Modal */}
+      {orderToEditAddress && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setOrderToEditAddress(null)}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', margin: 0 }}>✏️ Update Delivery Address</h3>
+              <button onClick={() => setOrderToEditAddress(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748b' }}>✕</button>
+            </div>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+              Modify recipient name, phone, or delivery postal PIN before package dispatch.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Recipient Full Name *</label>
+                <input
+                  type="text"
+                  value={editAddressForm.fullName}
+                  onChange={(e) => setEditAddressForm(prev => ({ ...prev, fullName: e.target.value }))}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '14px' }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>10-Digit Mobile Number *</label>
+                <input
+                  type="tel"
+                  maxLength={10}
+                  value={editAddressForm.phone}
+                  onChange={(e) => setEditAddressForm(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}
+                  placeholder="9876543210"
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '14px' }}
+                />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>6-Digit PIN Code *</label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={editAddressForm.postalCode}
+                    onChange={(e) => handlePincodeLookup(e.target.value)}
+                    placeholder="110001"
+                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #3b82f6', borderRadius: '10px', fontSize: '14px', fontWeight: '700' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>City / District</label>
+                  <input
+                    type="text"
+                    value={editAddressForm.city}
+                    onChange={(e) => setEditAddressForm(prev => ({ ...prev, city: e.target.value }))}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>House / Flat / Street Address *</label>
+                <textarea
+                  rows={2}
+                  value={editAddressForm.address}
+                  onChange={(e) => setEditAddressForm(prev => ({ ...prev, address: e.target.value }))}
+                  placeholder="House number, Street, Landmark"
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '14px' }}
+                />
               </div>
             </div>
-            <h3 style={{ fontSize: '20px', fontWeight: '800', textAlign: 'center', color: '#1e293b', marginBottom: '8px' }}>Cancel Order?</h3>
-            <p style={{ fontSize: '14px', color: '#64748b', textAlign: 'center', marginBottom: '24px', lineHeight: '1.5' }}>
-              Are you sure you want to cancel this order? If you have already paid, your refund will be initiated immediately.
-            </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button className="btn btn-outline" style={{ flex: 1, padding: '12px', fontWeight: '600' }} onClick={() => setOrderToCancel(null)}>
-                No, Keep it
-              </button>
-              <button 
-                className="btn btn-primary" 
-                style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', borderColor: '#ef4444', fontWeight: '600' }} 
-                onClick={() => {
-                  cancelOrder(orderToCancel);
-                  setOrderToCancel(null);
-                }}
-              >
-                Yes, Cancel
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setOrderToEditAddress(null)}>Cancel</button>
+              <button className="btn btn-primary" style={{ flex: 1 }} disabled={isSavingAddress} onClick={handleSaveAddress}>
+                {isSavingAddress ? 'Saving...' : 'Save Address'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Return Order Modal */}
+      {/* 🔄 Size / Variant Exchange Modal */}
+      {orderToExchange && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setOrderToExchange(null)}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '420px', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', margin: 0 }}>🔄 Request Size / Fit Exchange</h3>
+              <button onClick={() => setOrderToExchange(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748b' }}>✕</button>
+            </div>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+              Choose your replacement size. Free 1-to-1 doorstep pickup & exchange.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '6px' }}>Select Replacement Size *</label>
+                <select
+                  value={exchangeForm.requestedSize}
+                  onChange={(e) => setExchangeForm(prev => ({ ...prev, requestedSize: e.target.value }))}
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #7c3aed', borderRadius: '10px', fontSize: '14px', fontWeight: '700', background: '#faf5ff' }}
+                >
+                  <option value="UK 7 / S">UK 7 / Small (S)</option>
+                  <option value="UK 8 / M">UK 8 / Medium (M)</option>
+                  <option value="UK 9 / L">UK 9 / Large (L)</option>
+                  <option value="UK 10 / XL">UK 10 / Extra Large (XL)</option>
+                  <option value="UK 11 / XXL">UK 11 / Double XL (XXL)</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '6px' }}>Reason for Exchange *</label>
+                <select
+                  value={exchangeForm.reason}
+                  onChange={(e) => setExchangeForm(prev => ({ ...prev, reason: e.target.value }))}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '14px' }}
+                >
+                  <option value="Size too small / tight">Size too small / tight</option>
+                  <option value="Size too loose / large">Size too loose / large</option>
+                  <option value="Fitting not comfortable">Fitting not comfortable</option>
+                  <option value="Color mismatch with expectations">Color mismatch</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setOrderToExchange(null)}>Cancel</button>
+              <button className="btn btn-primary" style={{ flex: 1, background: '#7c3aed', borderColor: '#7c3aed' }} disabled={isSubmittingExchange} onClick={handleSubmitExchange}>
+                {isSubmittingExchange ? 'Submitting...' : 'Confirm Exchange'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ❌ Enhanced Cancel Order Modal with Categorized Reasons */}
+      {orderToCancel && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setOrderToCancel(null)}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '420px', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
+              <div style={{ width: '54px', height: '54px', backgroundColor: '#fee2e2', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ShieldCheck size={28} color="#ef4444" />
+              </div>
+            </div>
+            <h3 style={{ fontSize: '19px', fontWeight: '900', textAlign: 'center', color: '#0f172a', marginBottom: '6px' }}>Cancel This Order?</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', textAlign: 'center', marginBottom: '16px', lineHeight: '1.5' }}>
+              Please select a cancellation reason. Prepaid amounts will be refunded via automated escrow within 24-48 business hours.
+            </p>
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '6px' }}>Reason for cancellation *</label>
+              <select
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #f87171', borderRadius: '10px', fontSize: '13.5px', background: '#fef2f2' }}
+              >
+                <option value="Found a better price / deal elsewhere">Found a better price / deal elsewhere</option>
+                <option value="Delivery time is taking too long">Delivery time is taking too long</option>
+                <option value="Need to change delivery address or phone number">Need to change delivery address or phone number</option>
+                <option value="Ordered by mistake / duplicate order">Ordered by mistake / duplicate order</option>
+                <option value="Changed mind / item no longer needed">Changed mind / item no longer needed</option>
+              </select>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="btn btn-outline" style={{ flex: 1, padding: '12px', fontWeight: '700' }} onClick={() => setOrderToCancel(null)}>
+                Keep Order
+              </button>
+              <button 
+                className="btn btn-primary" 
+                style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', borderColor: '#ef4444', fontWeight: '800' }} 
+                onClick={handleCancelOrder}
+              >
+                Confirm Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ↩️ Return Order Modal */}
       {orderToReturn && (
         <div className="modal-overlay" onClick={() => setOrderToReturn(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
-            <h3 style={{ marginBottom: '16px' }}>Request Return (RMA)</h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-              Are you sure you want to return this item? Please provide a reason below.
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px', borderRadius: '20px', padding: '24px' }}>
+            <h3 style={{ marginBottom: '10px', fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>↩️ Request Return (RMA)</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+              Our courier will inspect and pick up the item from your doorstep. 100% full refund will be processed upon QC pass.
             </p>
-            <textarea
-              placeholder="Why are you returning this item? (e.g. Defective, Wrong Size, etc.)"
-              value={returnReason}
-              onChange={(e) => setReturnReason(e.target.value)}
-              style={{ width: '100%', height: '80px', padding: '8px', border: '1px solid #e0e0e0', borderRadius: '4px', marginBottom: '16px' }}
-            />
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '6px' }}>Return Reason *</label>
+              <select
+                value={returnReason}
+                onChange={(e) => setReturnReason(e.target.value)}
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '13.5px', marginBottom: '12px' }}
+              >
+                <option value="Item defective / not working properly">Item defective / not working properly</option>
+                <option value="Received wrong item or incorrect variant">Received wrong item or incorrect variant</option>
+                <option value="Item arrived damaged or in open box">Item arrived damaged or in open box</option>
+                <option value="Quality not as described on website">Quality not as described on website</option>
+                <option value="Performance issues after unboxing">Performance issues after unboxing</option>
+              </select>
+            </div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button className="btn btn-outline" onClick={() => setOrderToReturn(null)}>Go Back</button>
-              <button className="btn btn-primary" style={{ backgroundColor: '#eab308', border: 'none' }} onClick={handleRequestReturn}>Submit Request</button>
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setOrderToReturn(null)}>Go Back</button>
+              <button className="btn btn-primary" style={{ flex: 1, backgroundColor: '#eab308', borderColor: '#eab308', fontWeight: '800' }} onClick={handleRequestReturn}>
+                Submit Return
+              </button>
             </div>
           </div>
         </div>

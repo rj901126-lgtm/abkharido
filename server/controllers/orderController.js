@@ -807,6 +807,7 @@ export const cancelOrder = async (req, res, next) => {
 // @access  Private
 export const userCancelOrder = async (req, res, next) => {
   try {
+    const { reason } = req.body || {};
     // Atomically cancel order ONLY if it belongs to the user and isn't already shipped/cancelled
     const order = await Order.findOneAndUpdate(
       { 
@@ -814,7 +815,10 @@ export const userCancelOrder = async (req, res, next) => {
         user: req.user._id,
         status: { $nin: ['Cancelled', 'Shipped', 'Delivered', 'In Transit', 'Out for Delivery'] } 
       },
-      { status: 'Cancelled' },
+      { 
+        status: 'Cancelled',
+        cancellationReason: reason || 'Cancelled by customer'
+      },
       { new: true }
     );
 
@@ -886,8 +890,161 @@ export const userCancelOrder = async (req, res, next) => {
        await User.updateOne({ _id: order.user }, { $inc: incObj });
     }
 
+    if (!order.trackingHistory) order.trackingHistory = [];
+    order.trackingHistory.push({
+      status: 'Cancelled',
+      timestamp: Date.now(),
+      comment: `Order cancelled by customer. Reason: ${reason || 'Not specified'}`
+    });
+
     await order.save();
     res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update shipping address before dispatch
+// @route   POST /api/orders/:id/update-address
+// @access  Private
+export const updateOrderShippingAddress = async (req, res, next) => {
+  try {
+    const { fullName, address, city, postalCode, country, phone } = req.body;
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized to update this order');
+    }
+
+    const nonEditableStatuses = ['Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Cancelled'];
+    if (nonEditableStatuses.includes(order.status)) {
+      res.status(400);
+      throw new Error(`Shipping address cannot be changed because the order is already '${order.status}'`);
+    }
+
+    if (postalCode && !/^[1-9][0-9]{5}$/.test(String(postalCode).trim())) {
+      res.status(400);
+      throw new Error('Please enter a valid 6-digit Indian postal PIN code');
+    }
+
+    order.shippingAddress = {
+      fullName: fullName || order.shippingAddress.fullName,
+      address: address || order.shippingAddress.address,
+      city: city || order.shippingAddress.city,
+      postalCode: postalCode || order.shippingAddress.postalCode,
+      country: country || order.shippingAddress.country || 'India',
+      ...(phone ? { phone } : {})
+    };
+
+    if (!order.trackingHistory) order.trackingHistory = [];
+    order.trackingHistory.push({
+      status: order.status,
+      timestamp: Date.now(),
+      comment: `Delivery Address updated to PIN ${order.shippingAddress.postalCode}, ${order.shippingAddress.city}`
+    });
+
+    await order.save();
+    res.json({ message: 'Shipping address updated successfully', order });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Convert COD order to Prepaid with ₹50 discount / AB Coins cashback
+// @route   POST /api/orders/:id/convert-to-prepaid
+// @access  Private
+export const convertCodToPrepaid = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized');
+    }
+
+    if (order.status === 'Cancelled' || order.status === 'Delivered') {
+      res.status(400);
+      throw new Error('Cannot convert status of a cancelled or delivered order');
+    }
+
+    if (order.isPaid) {
+      res.status(400);
+      throw new Error('This order is already marked as prepaid/paid');
+    }
+
+    // Convert paymentMethod, mark paid, and credit 50 AB Coins reward
+    order.paymentMethod = 'Online (UPI Converted)';
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    
+    // Credit 50 AB Coins cashback to buyer
+    await User.updateOne({ _id: order.user }, { $inc: { walletCoins: 50 } });
+
+    if (!order.trackingHistory) order.trackingHistory = [];
+    order.trackingHistory.push({
+      status: order.status,
+      timestamp: Date.now(),
+      comment: 'Payment converted to Instant UPI Prepaid. 50 AB Coins credited to wallet!'
+    });
+
+    await order.save();
+    res.json({ message: 'Converted to Prepaid successfully! 50 AB Coins added to your wallet.', order });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Process Size/Variant Exchange Request
+// @route   POST /api/orders/:id/exchange
+// @access  Private
+export const processExchangeRequest = async (req, res, next) => {
+  try {
+    const { requestedSize, reason } = req.body;
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized');
+    }
+
+    if (order.status !== 'Delivered') {
+      res.status(400);
+      throw new Error('Exchange requests can only be placed for delivered orders');
+    }
+
+    if (!requestedSize) {
+      res.status(400);
+      throw new Error('Please specify the requested replacement size/variant');
+    }
+
+    order.exchangeStatus = 'Requested';
+    order.exchangeSize = requestedSize;
+    order.exchangeReason = reason || 'Size mismatch';
+    
+    if (!order.trackingHistory) order.trackingHistory = [];
+    order.trackingHistory.push({
+      status: 'Exchange Requested',
+      timestamp: Date.now(),
+      comment: `Replacement size '${requestedSize}' requested. Pickup will be scheduled within 24-48 hrs.`
+    });
+
+    await order.save();
+    res.json({ message: `Exchange request for size ${requestedSize} submitted successfully!`, order });
   } catch (error) {
     next(error);
   }
@@ -919,6 +1076,13 @@ export const processReturnRequest = async (req, res, next) => {
     order.returnStatus = 'Requested';
     order.returnReason = reason || 'No reason provided';
     
+    if (!order.trackingHistory) order.trackingHistory = [];
+    order.trackingHistory.push({
+      status: 'Return Requested',
+      timestamp: Date.now(),
+      comment: `Return requested. Reason: ${reason || 'No reason provided'}. Doorstep pickup initiated.`
+    });
+
     await order.save();
     res.json({ message: 'Return request submitted successfully', returnStatus: order.returnStatus });
   } catch (error) {
