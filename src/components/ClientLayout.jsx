@@ -178,40 +178,6 @@ export default function ClientLayout({ children }) {
 
   return (
     <div className="app-container">
-      {/* Dynamic Announcement Ticker Ribbon */}
-      {showAnnouncement && (
-        <div 
-          className="promo-announcement-ticker" 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '32px',
-            background: 'linear-gradient(90deg, #1e1b4b 0%, #4f46e5 50%, #312e81 100%)',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '13px',
-            fontWeight: '800',
-            zIndex: 1100,
-            padding: '0 16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            letterSpacing: '0.3px',
-            gap: '8px'
-          }}
-        >
-          <Sparkles size={14} style={{ color: '#fde047', flexShrink: 0 }} />
-          <span 
-            style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: promoAnnouncement?.link ? 'pointer' : 'default' }} 
-            onClick={() => promoAnnouncement?.link && router.push(promoAnnouncement.link)}
-          >
-            {activeAnnouncementText}
-          </span>
-        </div>
-      )}
-
       {/* Navbar Header */}
       {!isPortalPage && (
         <Navbar 
@@ -222,14 +188,13 @@ export default function ClientLayout({ children }) {
           currentCategory={categoryParam}
           onSelectCategory={handleSelectCategory}
           onCartClick={() => setIsCartDrawerOpen(true)}
-          style={{ top: showAnnouncement ? '32px' : '0' }}
+          style={{ top: 0 }}
         />
       )}
 
       <main 
         className={`main-content`}
-        data-announcement={showAnnouncement ? 'true' : 'false'}
-        style={{ marginTop: isPortalPage ? (showAnnouncement ? '32px' : '0') : (showAnnouncement ? '96px' : '64px') }}
+        style={{ marginTop: isPortalPage ? '0' : '64px' }}
       >
         {children}
       </main>

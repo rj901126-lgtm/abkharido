@@ -106,31 +106,38 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar is 112px tall */
+  /* Mobile navbar is exactly 96px tall — flush with category strip */
   .main-content {
-    margin-top: 112px !important;
+    margin-top: 96px !important;
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 112px);
+    min-height: calc(100vh - 96px);
   }
 
-  /* When announcement bar (32px) is showing: 112px navbar + 32px announcement = 144px */
-  .main-content[data-announcement="true"] {
-    margin-top: 144px !important;
-  }
-
-  /* Category pill strip sticky position on mobile */
+  /* Category pill strip sits directly below mobile navbar with 0 extra gap */
   .home-category-strip {
-    top: 112px !important;
+    top: 96px !important;
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
+  }
+
+  /* Remove any top gap inside home container on mobile */
+  .home-page-layout-container {
+    padding: 0 0 16px 0 !important;
+    gap: 10px !important;
+  }
+
+  .home-page-layout-container > section:first-child {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* When announcement bar (32px) is showing: 96px navbar + 32px announcement = 128px */
+  .main-content[data-announcement="true"] {
+    margin-top: 128px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip {
-    top: 144px !important;
-  }
-
-  /* Remove gap below category strip on mobile */
-  .home-page-layout-container > section:first-child {
-    margin-bottom: 0 !important;
+    top: 128px !important;
   }
 }
 

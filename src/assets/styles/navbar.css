@@ -352,21 +352,21 @@
 
 @media (max-width: 768px) {
   .navbar-header {
-    height: calc(112px + env(safe-area-inset-top)) !important;
+    height: calc(96px + env(safe-area-inset-top)) !important;
     padding-top: env(safe-area-inset-top) !important;
     align-items: flex-start !important;
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
   }
 
   .navbar-container {
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 6px !important;
     align-items: stretch !important;
-    padding: 8px 12px !important;
+    padding: 6px 12px !important;
     position: relative !important;
   }
 
