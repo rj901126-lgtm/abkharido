@@ -116,29 +116,31 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           {product.name}
         </h4>
 
-        {/* Merged Rating & Coins Stamp - Prevents text collisions on mobile */}
-        <div className="product-card-rating-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', flexWrap: 'wrap', marginTop: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {/* Rating & Reward Coins Row */}
+        <div className="product-card-rating-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginTop: '2px', minHeight: '22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
             <span style={styles.ratingTag}>
               <span style={{ fontSize: '11px', fontWeight: '800' }}>{product.rating || '4.5'}</span>
-              <span style={{ color: '#fde047', fontSize: '10px', marginLeft: '1px' }}>★</span>
+              <span style={{ color: '#fde047', fontSize: '10px' }}>★</span>
             </span>
-            <span style={styles.reviewsCount}>({product.reviewsCount || stableHash(String(product.id || product.name || 'p'), 50, 490)})</span>
+            <span style={styles.reviewsCount}>
+              ({(product.reviewsCount && product.reviewsCount > 999) ? `${(product.reviewsCount/1000).toFixed(1)}k` : (product.reviewsCount || stableHash(String(product.id || product.name || 'p'), 50, 490))})
+            </span>
           </div>
           {!(currentUser && currentUser.isInfluencer) && (
-            <span style={{ fontSize: '11px', color: '#334155', fontWeight: '700', background: '#fffbeb', border: '1px solid #fde68a', padding: '1px 6px', borderRadius: '6px' }}>
-              🪙 <strong style={{ color: '#d97706' }}>+{userEarningsCoins}</strong>
+            <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '800', background: '#fffbeb', border: '1px solid #fde68a', padding: '2px 6px', borderRadius: '6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              🪙 +{userEarningsCoins}
             </span>
           )}
         </div>
 
-        {/* Pricing Row - Clean Single Line Alignment */}
+        {/* Pricing Row */}
         <div className="product-card-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
           <span style={styles.price}>₹{(price).toLocaleString('en-IN')}</span>
           {discountPercent > 0 && (
             <>
               <span style={styles.originalPrice}>₹{(originalPrice).toLocaleString('en-IN')}</span>
-              <span style={{ ...styles.discount, fontSize: '11px', fontWeight: '800', padding: '2px 5px' }}>{discountPercent}% OFF</span>
+              <span style={styles.discount}>{discountPercent}% OFF</span>
             </>
           )}
         </div>
@@ -158,14 +160,9 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           className="product-add-to-cart-btn" 
           style={{
             ...styles.addBtn,
-            background: isBtnHovered ? 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)' : 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)',
-            color: '#ffffff',
-            border: 'none',
-            boxShadow: isBtnHovered ? '0 8px 16px rgba(79, 70, 229, 0.3)' : '0 4px 10px rgba(15, 23, 42, 0.15)',
+            background: isBtnHovered ? 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            boxShadow: isBtnHovered ? '0 8px 20px rgba(79, 70, 229, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.12)',
             transform: isBtnHovered ? 'translateY(-2px)' : 'none',
-            marginTop: 'auto',
-            width: '100%',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
           }} 
           onClick={(e) => {
             e.preventDefault();
@@ -175,7 +172,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           onMouseEnter={() => setIsBtnHovered(true)}
           onMouseLeave={() => setIsBtnHovered(false)}
         >
-          <ShoppingCart size={16} style={{ color: '#ffffff' }} /> <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.5px' }}>Add to Bag</span>
+          <ShoppingCart size={15} style={{ color: '#ffffff' }} />
+          <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.3px' }}>Add to Bag</span>
         </button>
       </div>
     </div>

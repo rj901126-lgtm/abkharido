@@ -9,6 +9,7 @@ export default function LanguageToggle({ style = {} }) {
 
   return (
     <div 
+      className="language-toggle-wrapper"
       style={{
         display: 'inline-flex',
         alignItems: 'center',

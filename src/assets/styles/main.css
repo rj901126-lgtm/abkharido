@@ -102,32 +102,30 @@ img {
 
 @media (max-width: 768px) {
   .container {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 14px;
+    padding-right: 14px;
   }
 
-  /* Mobile navbar is 104px tall — override the inline 64/96px marginTop */
+  /* Mobile navbar is 112px tall */
   .main-content {
-    margin-top: 104px !important;
+    margin-top: 112px !important;
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 104px);
+    min-height: calc(100vh - 112px);
   }
 
-  /* When announcement bar (32px) is showing, add it to the offset */
+  /* When announcement bar (32px) is showing: 112px navbar + 32px announcement = 144px */
   .main-content[data-announcement="true"] {
-    margin-top: 136px !important; /* 104px navbar + 32px announcement */
+    margin-top: 144px !important;
   }
 
-  /* Category pill strip must sit below the taller 104px mobile navbar */
+  /* Category pill strip sticky position on mobile */
   .home-category-strip {
-    top: 104px !important;
+    top: 112px !important;
     margin-bottom: 0 !important;
   }
 
-  /* When announcement bar active, push category strip down further */
-  .promo-announcement-ticker ~ * .home-category-strip,
-  .home-category-strip {
-    top: 104px !important;
+  .main-content[data-announcement="true"] .home-category-strip {
+    top: 144px !important;
   }
 
   /* Remove gap below category strip on mobile */
