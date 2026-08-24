@@ -3,9 +3,10 @@ import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 // eslint-disable-next-line
-import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown, Tag, Sparkles, Check } from 'lucide-react';
 import '../assets/styles/product.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
+import { CATEGORY_DETAILS, ALL_POPULAR_BRANDS, getCategoryData } from '../utils/categoryData';
 
 /* ─── Auto-rotating Category Banner Carousel ─── */
 const CatBannerCarousel = ({ slides }) => {
@@ -270,11 +271,19 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
   const [sortBy, setSortBy] = useState('popularity'); // popularity, priceLow, priceHigh
   const [showSortModal, setShowSortModal] = useState(false);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
 
-  // Scroll to top when category changes
+  // Scroll to top and reset sub-filters when category changes
   useEffect(() => {
     window.scrollTo(0, 0);
+    setSelectedSubCategory(null);
+    setSelectedBrand(null);
   }, [currentCategory]);
+
+  const activeCategoryInfo = getCategoryData(currentCategory);
+  const activeSubCategories = activeCategoryInfo ? activeCategoryInfo.subCategories : [];
+  const activePopularBrands = activeCategoryInfo ? activeCategoryInfo.popularBrands : ALL_POPULAR_BRANDS;
 
   // Enterprise Scale: Fetch from Backend Search API instead of client-side filtering
   useEffect(() => {
@@ -314,12 +323,11 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     return () => clearTimeout(timeoutId);
   }, [searchQuery, currentCategory, initialProducts]);
 
-  // Apply secondary filters (Price, Rating, Sort)
+  // Apply secondary filters (Price, Rating, Sort, Sub-Category, Brand)
   const getFilteredProducts = () => {
     // Base products: either from Search Engine or Initial/Context Cache
     const fallbackProducts = (initialProducts && initialProducts.length > 0) ? initialProducts : contextProducts;
     let filtered = serverProducts !== null ? [...serverProducts] : [...fallbackProducts];
-
 
     // ── Guaranteed Category Filter (prevent cross-category leakage on fallback) ──
     if (currentCategory && currentCategory !== 'all') {
@@ -328,6 +336,34 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
         const prodCat = p.category ? p.category.toLowerCase().trim() : '';
         return prodCat === cat || prodCat.includes(cat) || cat.includes(prodCat);
       });
+    }
+
+    // ── Sub-Category Filter ──
+    if (selectedSubCategory) {
+      const subQ = (selectedSubCategory.query || selectedSubCategory.name || '').toLowerCase().trim();
+      const subFiltered = filtered.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const cat = (p.category || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        return name.includes(subQ) || cat.includes(subQ) || desc.includes(subQ);
+      });
+      if (subFiltered.length > 0) {
+        filtered = subFiltered;
+      }
+    }
+
+    // ── Category-Specific Brand Filter ──
+    if (selectedBrand) {
+      const brandQ = selectedBrand.toLowerCase().trim();
+      const brandFiltered = filtered.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const brand = (p.brand || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        return name.includes(brandQ) || brand.includes(brandQ) || desc.includes(brandQ);
+      });
+      if (brandFiltered.length > 0) {
+        filtered = brandFiltered;
+      }
     }
 
     // Client-side smart query overrides for promo tags
@@ -372,8 +408,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
 
     // 5. Sorting
     if (sortBy === 'popularity') {
-      // Sort by reviews count as proxy for popularity
-      filtered.sort((a, b) => b.reviewsCount - a.reviewsCount);
+      filtered.sort((a, b) => (b.reviewsCount || 0) - (a.reviewsCount || 0));
     } else if (sortBy === 'priceLow') {
       filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
     } else if (sortBy === 'priceHigh') {
@@ -398,6 +433,8 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
     setMaxPrice(150000);
     setSelectedRating(null);
     setSortBy('popularity');
+    setSelectedSubCategory(null);
+    setSelectedBrand(null);
     onSelectCategory('all');
   };
 
@@ -616,10 +653,196 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           return <CatBannerCarousel slides={slides} />;
         })()}
 
+        {/* ── 🏷️ Sub-Categories Quick-Filter Navigation Strip ── */}
+        {activeSubCategories && activeSubCategories.length > 0 && (
+          <div style={{
+            margin: '14px 0 18px 0',
+            background: '#ffffff',
+            borderRadius: '18px',
+            padding: '12px 14px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', padding: '0 4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Tag size={14} color="#4f46e5" />
+                <span style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.4px', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
+                  Explore Sub-Categories
+                </span>
+              </div>
+              {selectedSubCategory && (
+                <button
+                  onClick={() => setSelectedSubCategory(null)}
+                  style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}
+                >
+                  ✕ Clear Sub-Category
+                </button>
+              )}
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              paddingBottom: '4px'
+            }}>
+              {/* All Sub-Category Pill */}
+              <button
+                onClick={() => setSelectedSubCategory(null)}
+                style={{
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '7px 14px',
+                  borderRadius: '24px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  border: !selectedSubCategory ? '1px solid #4f46e5' : '1px solid #e2e8f0',
+                  background: !selectedSubCategory ? 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)' : '#f8fafc',
+                  color: !selectedSubCategory ? '#ffffff' : '#334155',
+                  cursor: 'pointer',
+                  boxShadow: !selectedSubCategory ? '0 4px 12px rgba(79, 70, 229, 0.25)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span>✨</span>
+                <span>All {activeCategoryInfo ? activeCategoryInfo.name.split(' ')[0] : 'Items'}</span>
+              </button>
+
+              {activeSubCategories.map((sub) => {
+                const isSelected = selectedSubCategory?.id === sub.id;
+                return (
+                  <button
+                    key={sub.id}
+                    onClick={() => setSelectedSubCategory(isSelected ? null : sub)}
+                    style={{
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '7px 14px',
+                      borderRadius: '24px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      border: isSelected ? '1px solid #4f46e5' : '1px solid #e2e8f0',
+                      background: isSelected ? 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)' : '#ffffff',
+                      color: isSelected ? '#ffffff' : '#334155',
+                      cursor: 'pointer',
+                      boxShadow: isSelected ? '0 4px 12px rgba(79, 70, 229, 0.25)' : '0 1px 3px rgba(0,0,0,0.02)',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <span>{sub.icon}</span>
+                    <span>{sub.name}</span>
+                    {sub.badge && (
+                      <span style={{
+                        fontSize: '9px',
+                        fontWeight: '800',
+                        padding: '2px 5px',
+                        borderRadius: '4px',
+                        background: isSelected ? 'rgba(255,255,255,0.25)' : '#eff6ff',
+                        color: isSelected ? '#ffffff' : '#2563eb'
+                      }}>
+                        {sub.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── 🏛️ Official Category Brand Partners Section (Home Page Style) ── */}
+        <div style={{
+          margin: '0 0 20px 0',
+          background: '#ffffff',
+          borderRadius: '20px',
+          padding: '18px 20px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.02)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+            <div>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                <span>🏛️</span> Popular Brands in {activeCategoryInfo ? activeCategoryInfo.name : 'AbKharido'}
+              </h3>
+              <p style={{ margin: '2px 0 0 0', fontSize: '11.5px', color: '#64748b', fontWeight: '600' }}>Direct authorized brand inventory & certified warranty</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {selectedBrand && (
+                <button
+                  onClick={() => setSelectedBrand(null)}
+                  style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', fontSize: '11px', fontWeight: '800', padding: '3px 8px', borderRadius: '6px', cursor: 'pointer' }}
+                >
+                  ✕ Clear Brand ({selectedBrand})
+                </button>
+              )}
+              <span style={{ fontSize: '11px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '3px 8px', borderRadius: '14px', border: '1px solid #a7f3d0' }}>
+                ✓ 100% Genuine
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
+            {activePopularBrands.map((brand, bIdx) => {
+              const isSelected = selectedBrand === brand.name;
+              return (
+                <div
+                  key={bIdx}
+                  onClick={() => setSelectedBrand(isSelected ? null : brand.name)}
+                  style={{
+                    background: isSelected ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)' : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                    border: isSelected ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
+                    borderRadius: '14px',
+                    padding: '14px 10px',
+                    color: isSelected ? '#ffffff' : '#0f172a',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    textAlign: 'center',
+                    boxShadow: isSelected ? '0 6px 16px rgba(79, 70, 229, 0.2)' : '0 1px 3px rgba(0,0,0,0.02)',
+                    position: 'relative'
+                  }}
+                >
+                  {brand.offer && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '6px',
+                      right: '6px',
+                      fontSize: '8.5px',
+                      fontWeight: '900',
+                      padding: '2px 5px',
+                      borderRadius: '4px',
+                      background: isSelected ? '#fde047' : '#ecfdf5',
+                      color: isSelected ? '#0f172a' : '#059669',
+                      border: isSelected ? 'none' : '1px solid #a7f3d0'
+                    }}>
+                      {brand.offer}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '24px', margin: '4px 0 6px 0' }}>{brand.icon}</div>
+                  <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13.5px', fontWeight: '900', margin: '0 0 2px 0', color: isSelected ? '#ffffff' : '#0f172a' }}>
+                    {brand.name}
+                  </h4>
+                  <p style={{ fontSize: '10.5px', color: isSelected ? 'rgba(255,255,255,0.8)' : '#64748b', margin: 0, fontWeight: '600' }}>
+                    {brand.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Results Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', padding: '0 4px' }}>
           <span className="results-count" style={{ fontSize: '14px', fontWeight: '700', color: '#090d16', fontFamily: "'Outfit', sans-serif" }}>
-            {searchQuery ? (
+            {selectedBrand ? (
+              <span>Showing products from <strong>{selectedBrand}</strong> ({filteredProducts.length} items)</span>
+            ) : selectedSubCategory ? (
+              <span>Showing <strong>{selectedSubCategory.name}</strong> ({filteredProducts.length} items)</span>
+            ) : searchQuery ? (
               <span>Search results for "<strong>{searchQuery}</strong>" ({filteredProducts.length} items)</span>
             ) : (
               <span>Showing <strong>{filteredProducts.length} products</strong> in <strong>{currentCategory === 'all' ? 'All Categories' : currentCategory.toUpperCase()}</strong></span>

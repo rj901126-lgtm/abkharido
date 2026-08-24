@@ -16,9 +16,12 @@ import {
   Shirt,
   Home as HomeIcon,
   Tv,
-  Plus
+  Plus,
+  Tag,
+  Sparkles
 } from 'lucide-react';
 import '../assets/styles/categories.css';
+import { CATEGORY_DETAILS, ALL_POPULAR_BRANDS, getCategoryData } from '../utils/categoryData';
 
 /* ─── Auto-rotating Category Banner Carousel (reused in CategoriesPage) ─── */
 const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
@@ -233,25 +236,118 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             return <CatBannerCarousel slides={slides} onClick={handleViewAllClick} maxHeight="110px" />;
           })()}
 
-          {/* Section 1: Popular Store Cards */}
-          <div className="panel-section">
-            <h3 className="panel-section-title">Popular Stores</h3>
-            <div className="popular-stores-row">
-              {activeStores.map((store, idx) => (
-                <div key={idx} className="popular-store-item" onClick={() => handleStoreClick(store)}>
-                  <div
-                    className="popular-store-circle"
-                    style={{ backgroundImage: `url(${store.img})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                  >
-                    <div className="store-badge-pill">{store.badge}</div>
-                  </div>
-                  <span className="popular-store-label">{store.name}</span>
+          {/* ── 1. Sub-Categories Exploration Grid ── */}
+          {(() => {
+            const catInfo = getCategoryData(selectedCatId);
+            const subCats = catInfo ? catInfo.subCategories : [];
+            if (!subCats || subCats.length === 0) return null;
+            return (
+              <div className="panel-section" style={{ marginBottom: '22px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <h3 className="panel-section-title" style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                    <Tag size={15} color="#4f46e5" /> Sub-Categories
+                  </h3>
+                  <span style={{ fontSize: '11px', color: '#4f46e5', fontWeight: '800', cursor: 'pointer' }} onClick={handleViewAllClick}>
+                    All {catInfo.name.split(' ')[0]} →
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: '8px' }}>
+                  {subCats.map(sub => (
+                    <div
+                      key={sub.id}
+                      onClick={() => {
+                        onSelectCategory(selectedCatId);
+                        if (onSearch) onSearch(sub.query);
+                        else onNavigate(`catalog?category=${selectedCatId}&search=${encodeURIComponent(sub.query)}`);
+                      }}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '10px 12px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '6px',
+                        transition: 'all 0.15s ease',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.background = '#f8fafc'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '18px' }}>{sub.icon}</span>
+                        <span style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', lineHeight: 1.2 }}>{sub.name}</span>
+                      </div>
+                      {sub.badge && (
+                        <span style={{ fontSize: '8.5px', fontWeight: '900', padding: '2px 4px', borderRadius: '4px', background: '#eff6ff', color: '#2563eb' }}>
+                          {sub.badge}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
-          {/* Section 2: Products Grid */}
+          {/* ── 2. Official Brand Partners Section (Home Page Style) ── */}
+          {(() => {
+            const catInfo = getCategoryData(selectedCatId);
+            const brands = catInfo ? catInfo.popularBrands : ALL_POPULAR_BRANDS;
+            return (
+              <div className="panel-section" style={{ marginBottom: '22px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <h3 className="panel-section-title" style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                      <span>🏛️</span> Popular Brands in {catInfo ? catInfo.name : 'Store'}
+                    </h3>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#64748b', fontWeight: '600' }}>Direct authorized brand distribution & warranty</p>
+                  </div>
+                  <span style={{ fontSize: '10.5px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '2px 8px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
+                    ✓ 100% Genuine
+                  </span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(115px, 1fr))', gap: '8px' }}>
+                  {brands.map((brand, bIdx) => (
+                    <div
+                      key={bIdx}
+                      onClick={() => {
+                        onSelectCategory(selectedCatId);
+                        if (onSearch) onSearch(brand.query);
+                        else onNavigate(`catalog?category=${selectedCatId}&search=${encodeURIComponent(brand.query)}`);
+                      }}
+                      style={{
+                        background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '10px 8px',
+                        color: '#0f172a',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        textAlign: 'center',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; }}
+                    >
+                      {brand.offer && (
+                        <div style={{ position: 'absolute', top: '4px', right: '4px', fontSize: '7.5px', fontWeight: '900', padding: '1px 4px', borderRadius: '3px', background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0' }}>
+                          {brand.offer}
+                        </div>
+                      )}
+                      <div style={{ fontSize: '20px', margin: '2px 0 4px 0' }}>{brand.icon}</div>
+                      <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12.5px', fontWeight: '900', margin: '0 0 2px 0', color: '#0f172a' }}>{brand.name}</h4>
+                      <p style={{ fontSize: '9.5px', color: '#64748b', margin: 0, fontWeight: '600' }}>{brand.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Section 3: Products Grid */}
           <div className="panel-section">
             <h3 className="panel-section-title">New & Upcoming Launches</h3>
             <div className="category-products-grid">
