@@ -251,7 +251,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                     All {catInfo.name.split(' ')[0]} →
                   </span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
                   {subCats.map(sub => (
                     <div
                       key={sub.id}
@@ -263,28 +263,31 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                       style={{
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
-                        borderRadius: '12px',
-                        padding: '10px 12px',
+                        borderRadius: '14px',
+                        padding: '12px 10px',
                         cursor: 'pointer',
                         display: 'flex',
+                        flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '6px',
+                        textAlign: 'center',
                         transition: 'all 0.15s ease',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+                        position: 'relative'
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.background = '#f8fafc'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.15)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.02)'; }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '18px' }}>{sub.icon}</span>
-                        <span style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', lineHeight: 1.2 }}>{sub.name}</span>
-                      </div>
                       {sub.badge && (
-                        <span style={{ fontSize: '8.5px', fontWeight: '900', padding: '2px 4px', borderRadius: '4px', background: '#eff6ff', color: '#2563eb' }}>
+                        <div style={{ position: 'absolute', top: '6px', right: '6px', fontSize: '8px', fontWeight: '900', padding: '1px 5px', borderRadius: '4px', background: '#eff6ff', color: '#2563eb' }}>
                           {sub.badge}
-                        </span>
+                        </div>
                       )}
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', overflow: 'hidden', marginBottom: '6px', border: '1px solid #e2e8f0', background: '#f1f5f9' }}>
+                        <img src={sub.img} alt={sub.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <span style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', lineHeight: 1.2, marginBottom: '2px' }}>{sub.name}</span>
+                      <span style={{ fontSize: '10.5px', fontWeight: '900', color: '#059669' }}>{sub.startingPrice}</span>
+                      <span style={{ fontSize: '9.5px', color: '#64748b', fontWeight: '600' }}>{sub.discount}</span>
                     </div>
                   ))}
                 </div>
