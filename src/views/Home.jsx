@@ -83,6 +83,16 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
   const handleCategoryClick = (catId) => {
     setSelectedCatPill(catId);
+    if (catId === 'all') {
+      if (onSelectCategory) onSelectCategory('all');
+      else if (onNavigate) onNavigate('catalog');
+    } else {
+      if (onSelectCategory) {
+        onSelectCategory(catId);
+      } else if (onNavigate) {
+        onNavigate(`catalog?category=${catId}`);
+      }
+    }
   };
 
   // Filter products based on selected Category Pill

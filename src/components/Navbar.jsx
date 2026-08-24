@@ -275,6 +275,8 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               style={{ position: 'relative' }}
             >
               <button
+                type="button"
+                onClick={() => setMegaMenuOpen(prev => !prev)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
