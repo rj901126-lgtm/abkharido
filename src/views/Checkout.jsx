@@ -17,7 +17,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Form states
   const [address, setAddress] = useState({
     name: currentUser ? (currentUser.fullName || '') : '',
-    phone: currentUser ? (currentUser.phone || '') : '',
+    phone: currentUser ? (currentUser.phone || currentUser.username || '') : '',
     pincode: currentUser ? (currentUser.pincode || '') : '',
     locality: '',
     streetAddress: currentUser ? (currentUser.address || '') : '',
@@ -25,10 +25,11 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     state: currentUser ? (currentUser.state || '') : ''
   });
 
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [shippingServiceability, setShippingServiceability] = useState(null);
   const [isCheckingShipping, setIsCheckingShipping] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState('cod'); // cod, online
+  const [paymentMethod, setPaymentMethod] = useState('online'); // default to online for smooth checkout
   const [whatsAppUpdates, setWhatsAppUpdates] = useState(true);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,9 +44,26 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
-  // Synchronize currentUser fields
+  // Synchronize currentUser fields & auto-select default address
   useEffect(() => {
     if (currentUser) {
+      if (Array.isArray(currentUser.addresses) && currentUser.addresses.length > 0) {
+        const defaultAddr = currentUser.addresses.find(a => a?.isDefault) || currentUser.addresses[0];
+        if (defaultAddr) {
+          setAddress({
+            name: defaultAddr.name || currentUser.fullName || '',
+            phone: defaultAddr.phone || currentUser.phone || currentUser.username || '',
+            pincode: defaultAddr.pincode || '',
+            locality: defaultAddr.streetArea || '',
+            streetAddress: defaultAddr.houseNo 
+              ? `${defaultAddr.houseNo}, ${defaultAddr.streetArea || defaultAddr.streetAddress || ''}`.trim()
+              : (defaultAddr.streetArea || defaultAddr.streetAddress || defaultAddr.address || ''),
+            city: defaultAddr.city || '',
+            state: defaultAddr.state || ''
+          });
+          return;
+        }
+      }
       setAddress(prev => ({
         ...prev,
         name: currentUser.fullName || prev.name,
@@ -184,23 +202,24 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   // Handle Address Submit
   const handleAddressSubmit = (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!address.name || !address.phone || !address.pincode || !address.streetAddress) {
       showToast('Please fill out all required shipping fields.', 'error');
       return;
     }
+    const cleanPhone = String(address.phone || '').replace(/[^0-9]/g, '').slice(-10);
     const phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(address.phone)) {
+    if (!phoneRegex.test(cleanPhone)) {
       showToast('Please enter a valid 10-digit Indian mobile number.', 'error');
       return;
     }
-    if (shippingServiceability && !shippingServiceability.serviceable) {
+    if (shippingServiceability && shippingServiceability.serviceable === false) {
       showToast('We cannot deliver to this pincode. Please try a different address.', 'error');
       return;
     }
 
     // Persist address to profile
-    if (updateUserProfile && currentUser) {
+    if (updateUserProfile && currentUser && isAddingNewAddress) {
       updateUserProfile({
         fullName: address.name,
         phone: address.phone,
@@ -590,142 +609,192 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       {/* STEP 1: Address Details */}
       {step === 1 ? (
         <div className="card checkout-card">
-          <h2 className="checkout-step-header"><MapPin size={20} /> Select Delivery Address</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px' }}>
+            <h2 className="checkout-step-header" style={{ margin: 0, border: 'none', padding: 0 }}>
+              <MapPin size={20} /> Select Delivery Address
+            </h2>
+            {currentUser?.addresses && currentUser.addresses.length > 0 && isAddingNewAddress && (
+              <button 
+                type="button" 
+                onClick={() => setIsAddingNewAddress(false)}
+                style={{ background: '#f1f5f9', border: 'none', color: '#4f46e5', fontWeight: '800', fontSize: '12.5px', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                ← Saved Addresses
+              </button>
+            )}
+          </div>
           
-          {currentUser?.addresses && currentUser.addresses.length > 0 && (
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'grid', gap: '12px' }}>
-                {currentUser.addresses.map((addr) => {
-                  const isSelected = address.streetAddress === (addr.streetAddress || addr.streetArea) && address.pincode === addr.pincode;
+          {/* Saved Addresses View */}
+          {currentUser?.addresses && currentUser.addresses.length > 0 && !isAddingNewAddress ? (
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {currentUser.addresses.map((addr, idx) => {
+                  const addrStreet = addr.houseNo 
+                    ? `${addr.houseNo}, ${addr.streetArea || addr.streetAddress || ''}`.trim()
+                    : (addr.streetArea || addr.streetAddress || addr.address || '');
+                  const isSelected = (address.pincode === addr.pincode && address.streetAddress === addrStreet) || (!address.pincode && (addr.isDefault || idx === 0));
+                  
                   return (
                     <div 
-                      key={addr.id}
+                      key={addr.id || `checkout-addr-${idx}`}
                       onClick={() => {
                         setAddress({
-                          name: addr.name || currentUser.fullName,
-                          phone: addr.phone || currentUser.phone,
-                          pincode: addr.pincode,
+                          name: addr.name || currentUser.fullName || '',
+                          phone: addr.phone || currentUser.phone || currentUser.username || '',
+                          pincode: addr.pincode || '',
                           locality: addr.streetArea || '',
-                          streetAddress: addr.houseNo ? addr.houseNo + ', ' + (addr.streetArea || addr.streetAddress) : (addr.streetArea || addr.streetAddress),
-                          city: addr.city,
-                          state: addr.state
+                          streetAddress: addrStreet,
+                          city: addr.city || '',
+                          state: addr.state || ''
                         });
                       }}
                       style={{
                         padding: '16px',
                         border: isSelected ? '2px solid #4f46e5' : '1px solid #e2e8f0',
-                        borderRadius: '12px',
-                        background: isSelected ? '#eff6ff' : '#fff',
+                        borderRadius: '14px',
+                        background: isSelected ? '#f8faff' : '#ffffff',
                         cursor: 'pointer',
                         display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px'
+                        gap: '12px',
+                        alignItems: 'flex-start',
+                        boxShadow: isSelected ? '0 4px 14px rgba(79, 70, 229, 0.08)' : '0 2px 6px rgba(0,0,0,0.02)',
+                        transition: 'all 0.2s ease'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontWeight: '700', fontSize: '15px' }}>
-                          {addr?.addressType === 'Home' ? '🏠 ' : addr?.addressType === 'Work' ? '🏢 ' : '📍 '} 
-                          {addr?.addressType || 'Address'} {addr?.isDefault && <span style={{fontSize: '11px', background: '#4f46e5', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px'}}>DEFAULT</span>}
+                      {/* Radio Circle */}
+                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: isSelected ? '6px solid #4f46e5' : '2px solid #cbd5e1', background: '#ffffff', flexShrink: 0, marginTop: '2px', transition: 'all 0.2s' }} />
+
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <div style={{ fontWeight: '800', fontSize: '14.5px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>{addr?.addressType === 'Home' ? '🏠' : addr?.addressType === 'Work' ? '🏢' : '📍'}</span>
+                            <span>{addr?.addressType || 'Home'}</span>
+                            {addr?.isDefault && (
+                              <span style={{ fontSize: '9.5px', background: '#4f46e5', color: 'white', padding: '2px 8px', borderRadius: '100px', fontWeight: '900', letterSpacing: '0.3px' }}>
+                                DEFAULT
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        {isSelected && <CheckCircle2 size={18} color="#4f46e5" />}
-                      </div>
-                      <div style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.4' }}>
-                        {addr?.name || currentUser?.fullName || 'Customer'}<br/>
-                        {addr?.houseNo ? addr.houseNo + ', ' : ''}{addr?.streetArea || addr?.streetAddress || ''}<br/>
-                        {addr?.city || ''}, {addr?.state || ''} {addr?.pincode ? `- ${addr.pincode}` : ''}<br/>
-                        {addr?.phone ? `Phone: ${addr.phone}` : ''}
+                        <div style={{ fontSize: '13.5px', color: '#0f172a', fontWeight: '700', marginBottom: '2px' }}>
+                          {addr?.name || currentUser?.fullName || 'Customer'} • <span style={{ color: '#64748b', fontWeight: '600' }}>{addr?.phone || currentUser?.phone}</span>
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: '1.4' }}>
+                          {addrStreet}<br/>
+                          {addr?.city || ''}{addr?.city && addr?.state ? ', ' : ''}{addr?.state || ''} {addr?.pincode ? `- ${addr.pincode}` : ''}
+                        </div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
-              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+
+              {/* Add New Address Button */}
+              <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center' }}>
                 <button 
-                  onClick={() => setAddress({ name: currentUser?.fullName||'', phone: currentUser?.phone||'', pincode: '', locality: '', streetAddress: '', city: '', state: '' })}
+                  type="button"
+                  onClick={() => {
+                    setAddress({ name: currentUser?.fullName || '', phone: currentUser?.phone || currentUser?.username || '', pincode: '', locality: '', streetAddress: '', city: '', state: '' });
+                    setIsAddingNewAddress(true);
+                  }}
                   style={{ 
-                    background: '#eef2ff', 
-                    border: '1px solid #c7d2fe', 
+                    background: '#f8fafc', 
+                    border: '1.5px dashed #cbd5e1', 
                     color: '#4f46e5', 
-                    padding: '12px 24px', 
+                    padding: '12px 20px', 
                     borderRadius: '12px', 
                     cursor: 'pointer', 
-                    fontWeight: '700',
+                    fontWeight: '800',
+                    fontSize: '13.5px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
+                    width: '100%',
+                    justifyContent: 'center',
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#e0e7ff'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = '#eef2ff'; }}
                 >
-                  <span style={{ fontSize: '18px', lineHeight: 1 }}>+</span> Enter New Address
+                  <span style={{ fontSize: '18px', lineHeight: 1 }}>+</span> Add New Delivery Address
                 </button>
               </div>
-            </div>
-          )}
 
-          {(!currentUser?.addresses || currentUser.addresses.length === 0 || !address.pincode) && (
+              {/* WhatsApp Opt-in */}
+              <div style={{ marginTop: '16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input 
+                  type="checkbox" 
+                  id="whatsapp-optin-saved"
+                  checked={whatsAppUpdates} 
+                  onChange={(e) => setWhatsAppUpdates(e.target.checked)}
+                  style={{ width: '16px', height: '16px', accentColor: '#16a34a', cursor: 'pointer', flexShrink: 0 }}
+                />
+                <label htmlFor="whatsapp-optin-saved" style={{ fontSize: '12px', color: '#166534', fontWeight: '700', cursor: 'pointer', margin: 0, lineHeight: '1.4' }}>
+                  💬 Send courier tracking &amp; live dispatch updates via <strong>WhatsApp</strong> to {address.phone || currentUser.phone || 'my number'}.
+                </label>
+              </div>
+            </div>
+          ) : (
+            /* Manual Address Input Form */
             <form onSubmit={handleAddressSubmit} className="checkout-form">
               <div className="checkout-form-row">
                 <div style={{ flex: 1 }}>
-                  <label className="checkout-label">Full Name*</label>
-                  <input type="text" value={address.name} onChange={(e) => setAddress({...address, name: e.target.value})} className="checkout-input" required />
+                  <label className="checkout-label">Full Name *</label>
+                  <input type="text" value={address.name} onChange={(e) => setAddress({...address, name: e.target.value})} className="checkout-input" placeholder="e.g. Raj Chauhan" required />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label className="checkout-label">Mobile Number*</label>
-                  <input type="tel" value={address.phone} onChange={(e) => setAddress({...address, phone: e.target.value})} className="checkout-input" required />
+                  <label className="checkout-label">Mobile Number *</label>
+                  <input type="tel" value={address.phone} onChange={(e) => setAddress({...address, phone: e.target.value})} className="checkout-input" placeholder="10-digit mobile number" required />
                 </div>
               </div>
 
               <div className="checkout-form-row">
                 <div style={{ flex: 1 }}>
-                  <label className="checkout-label">Pincode*</label>
+                  <label className="checkout-label">Pincode *</label>
                   <input type="text" value={address.pincode} onChange={(e) => setAddress({...address, pincode: e.target.value})} className="checkout-input" maxLength="6" inputMode="numeric" pattern="[0-9]{6}" placeholder="6-digit pincode" required />
                   
                   {isCheckingShipping && <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Checking shipping serviceability...</div>}
                   {shippingServiceability && !isCheckingShipping && (
-                    <div style={{ fontSize: '11px', marginTop: '4px', fontWeight: '500' }}>
+                    <div style={{ fontSize: '11px', marginTop: '4px', fontWeight: '600' }}>
                       {shippingServiceability.serviceable ? (
-                        <span style={{ color: '#2e7d32' }}>✓ Deliverable by {shippingServiceability.courier || 'Express Air'} in {shippingServiceability.estimatedDays || '3-4'} days.</span>
+                        <span style={{ color: '#059669' }}>✓ Deliverable by {shippingServiceability.courier || 'Express Air'} in {shippingServiceability.estimatedDays || '3-4'} days.</span>
                       ) : (
-                        <span style={{ color: '#c62828' }}>✗ Delivery unavailable for this pin code.</span>
+                        <span style={{ color: '#dc2626' }}>✗ Delivery unavailable for this pin code.</span>
                       )}
                     </div>
                   )}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label className="checkout-label">Locality/Area*</label>
-                  <input type="text" value={address.locality} onChange={(e) => setAddress({...address, locality: e.target.value})} className="checkout-input" required />
+                  <label className="checkout-label">Locality / Area *</label>
+                  <input type="text" value={address.locality} onChange={(e) => setAddress({...address, locality: e.target.value})} className="checkout-input" placeholder="e.g. Indiranagar" required />
                 </div>
               </div>
 
               <div>
-                <label className="checkout-label">Street Address/Flat No.*</label>
-                <textarea value={address.streetAddress} onChange={(e) => setAddress({...address, streetAddress: e.target.value})} className="checkout-input" required />
+                <label className="checkout-label">Flat No. / Building / Street Address *</label>
+                <textarea value={address.streetAddress} onChange={(e) => setAddress({...address, streetAddress: e.target.value})} className="checkout-input" placeholder="e.g. Flat 402, 100 Ft Road" required />
               </div>
 
               <div className="checkout-form-row">
                 <div style={{ flex: 1 }}>
-                  <label className="checkout-label">City*</label>
-                  <input type="text" value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} className="checkout-input" required />
+                  <label className="checkout-label">City *</label>
+                  <input type="text" value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} className="checkout-input" placeholder="e.g. Bengaluru" required />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label className="checkout-label">State*</label>
-                  <input type="text" value={address.state} onChange={(e) => setAddress({...address, state: e.target.value})} className="checkout-input" required />
+                  <label className="checkout-label">State *</label>
+                  <input type="text" value={address.state} onChange={(e) => setAddress({...address, state: e.target.value})} className="checkout-input" placeholder="e.g. Karnataka" required />
                 </div>
               </div>
 
               {/* WhatsApp Tracking Updates Opt-in */}
-              <div style={{ marginTop: '16px', background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ marginTop: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input 
                   type="checkbox" 
-                  id="whatsapp-optin"
+                  id="whatsapp-optin-form"
                   checked={whatsAppUpdates} 
                   onChange={(e) => setWhatsAppUpdates(e.target.checked)}
-                  style={{ width: '18px', height: '18px', accentColor: '#16a34a', cursor: 'pointer', flexShrink: 0 }}
+                  style={{ width: '16px', height: '16px', accentColor: '#16a34a', cursor: 'pointer', flexShrink: 0 }}
                 />
-                <label htmlFor="whatsapp-optin" style={{ fontSize: '13px', color: '#166534', fontWeight: '700', cursor: 'pointer', margin: 0, lineHeight: '1.4' }}>
-                  💬 Send real-time courier tracking &amp; live dispatch updates via <strong>WhatsApp</strong> to {address.phone || 'my phone'}.
+                <label htmlFor="whatsapp-optin-form" style={{ fontSize: '12px', color: '#166534', fontWeight: '700', cursor: 'pointer', margin: 0, lineHeight: '1.4' }}>
+                  💬 Send courier tracking &amp; live dispatch updates via <strong>WhatsApp</strong> to {address.phone || 'my phone'}.
                 </label>
               </div>
             </form>
@@ -739,7 +808,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               className="btn btn-primary checkout-btn"
               style={{ width: '100%' }}
             >
-              DELIVER HERE <ArrowRight size={18} />
+              Deliver to this Address →
             </button>
           </div>
         </div>
@@ -750,88 +819,113 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         <div className="card checkout-card">
           <h2 className="checkout-step-header"><ShoppingBag size={20} /> Review Order Items</h2>
           
-          <div style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '12px', marginBottom: '16px' }}>
-            <div style={{ fontSize: '14px', fontWeight: 'bold' }}>Delivery Address:</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              {address.name} | {address.phone}<br />
-              {address.streetAddress}, {address.locality}, {address.city}, {address.state} - {address.pincode}
+          {/* Delivery Address Recap */}
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '14px 16px', marginBottom: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+            <div>
+              <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>📍 Delivering To</div>
+              <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginTop: '2px' }}>
+                {address.name} • <span style={{ color: '#64748b', fontWeight: '600' }}>{address.phone}</span>
+              </div>
+              <div style={{ fontSize: '12.5px', color: '#475569', marginTop: '2px', lineHeight: '1.4' }}>
+                {address.streetAddress}{address.locality ? `, ${address.locality}` : ''}, {address.city}, {address.state} - {address.pincode}
+              </div>
             </div>
+            <button 
+              type="button" 
+              onClick={() => setStep(1)} 
+              style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#4f46e5', fontWeight: '800', fontSize: '11.5px', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', flexShrink: 0 }}
+            >
+              Change
+            </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
-            {cart.map(item => (
-              <div key={item.product.id} style={{ display: 'flex', gap: '16px', alignItems: 'center', borderBottom: '1px solid #f9f9f9', paddingBottom: '8px' }}>
-                <img src={item?.product?.image || ''} alt={item?.product?.name || 'Product'} style={{ width: '50px', height: '50px', objectFit: 'contain', border: '1px solid #f0f0f0', padding: '2px', borderRadius: '4px' }} />
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item?.product?.name || 'Product'}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Qty: {item?.quantity || 1} {item?.selectedColor ? `| ${item.selectedColor}` : ''} {item?.selectedVariant ? `| ${item.selectedVariant}` : ''}</div>
+          {/* Product Items List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+            {cart.map((item, i) => (
+              <div key={item.product?.id || `summary-item-${i}`} style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#ffffff', border: '1px solid #f1f5f9', padding: '10px 12px', borderRadius: '12px' }}>
+                <div style={{ width: '54px', height: '54px', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: '4px' }}>
+                  <img src={item?.product?.image || ''} alt={item?.product?.name || 'Product'} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {item?.product?.name || 'Product'}
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+                    Qty: <strong style={{ color: '#0f172a' }}>{item?.quantity || 1}</strong>
+                    {item?.selectedColor ? ` • ${item.selectedColor}` : ''}
+                    {item?.selectedVariant ? ` • ${item.selectedVariant}` : ''}
+                  </div>
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '900', color: '#0f172a', textAlign: 'right' }}>
+                  ₹{((item?.product?.price || 0) * (item?.quantity || 1)).toLocaleString('en-IN')}
                 </div>
               </div>
             ))}
           </div>
 
           {/* Coupon Code Section */}
-          <div style={{ backgroundColor: '#fff', border: '1px dashed #ccc', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
-            <h4 style={{ margin: '0 0 10px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Tag size={16} color="var(--primary-color)" /> Have a Coupon Code?
+          <div style={{ backgroundColor: '#ffffff', border: '1px dashed #cbd5e1', padding: '14px', borderRadius: '14px', marginBottom: '18px' }}>
+            <h4 style={{ margin: '0 0 8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: '800' }}>
+              <Tag size={15} color="#4f46e5" /> Have a Coupon Code?
             </h4>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <input 
                 type="text" 
-                placeholder="Enter Code (e.g. DIWALI50)" 
+                placeholder="ENTER COUPON CODE" 
                 className="checkout-input"
-                style={{ flex: 1, textTransform: 'uppercase' }}
+                style={{ flex: 1, textTransform: 'uppercase', height: '42px', fontSize: '13px', fontWeight: '700' }}
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                 disabled={!!appliedCoupon}
               />
               {appliedCoupon ? (
-                <button className="btn btn-outline checkout-btn" onClick={() => { setAppliedCoupon(null); setCouponCode(''); }} style={{ color: '#d32f2f', borderColor: '#d32f2f' }}>
-                  REMOVE
+                <button className="btn btn-outline checkout-btn" onClick={() => { setAppliedCoupon(null); setCouponCode(''); }} style={{ color: '#dc2626', borderColor: '#fca5a5', height: '42px', padding: '0 16px', fontSize: '12px' }}>
+                  Remove
                 </button>
               ) : (
-                <button className="btn btn-primary checkout-btn" onClick={handleApplyCoupon} disabled={applyingCoupon || !couponCode}>
-                  {applyingCoupon ? 'APPLYING...' : 'APPLY'}
+                <button className="btn btn-primary checkout-btn" onClick={handleApplyCoupon} disabled={applyingCoupon || !couponCode} style={{ height: '42px', padding: '0 20px', fontSize: '12px' }}>
+                  {applyingCoupon ? 'Applying...' : 'Apply'}
                 </button>
               )}
             </div>
             {appliedCoupon && (
-              <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#2e7d32', fontWeight: 'bold' }}>
-                ✓ Coupon '{appliedCoupon.code}' applied successfully.
+              <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#059669', fontWeight: '800' }}>
+                🎉 Coupon '{appliedCoupon.code}' applied! You saved ₹{appliedCoupon.discountAmount}.
               </p>
             )}
           </div>
 
-          <div style={{ backgroundColor: '#fafafa', border: '1px solid #e0e0e0', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
+          {/* Price Breakdown */}
+          <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '14px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13.5px', color: '#475569', fontWeight: '600' }}>
               <span>Items Total Price:</span>
-              <span>₹{itemsPrice.toLocaleString('en-IN')}</span>
+              <span style={{ color: '#0f172a', fontWeight: '700' }}>₹{itemsPrice.toLocaleString('en-IN')}</span>
             </div>
             {useCoinsDiscount && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: '#b45309', fontWeight: '600' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13.5px', color: '#b45309', fontWeight: '700' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Coins size={14} /> AB Coins Redeemed:</span>
-                <span style={{ fontWeight: '700' }}>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
+                <span>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
               </div>
             )}
             {appliedCoupon && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: '#2e7d32' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13.5px', color: '#059669', fontWeight: '700' }}>
                 <span>Coupon Discount ({appliedCoupon.code}):</span>
                 <span>- ₹{appliedCoupon.discountAmount.toLocaleString('en-IN')}</span>
               </div>
             )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13.5px', color: '#475569', fontWeight: '600' }}>
               <span>Delivery Charges:</span>
-              <span>{deliveryCharge > 0 ? `₹${deliveryCharge}` : 'FREE'}</span>
+              <span style={{ color: '#059669', fontWeight: '800' }}>{deliveryCharge > 0 ? `₹${deliveryCharge}` : 'FREE'}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', borderTop: '1px solid #e0e0e0', paddingTop: '8px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '900', fontSize: '17px', borderTop: '1.5px dashed #cbd5e1', paddingTop: '10px', marginTop: '6px', color: '#0f172a' }}>
               <span>Total Payable Amount:</span>
               <span>₹{finalAmount.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
-          <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(1)}>BACK</button>
-            <button className="btn btn-accent checkout-btn" style={{ flex: 2 }} onClick={() => setStep(3)}>PROCEED TO PAYMENT</button>
+          <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(1)}>Back</button>
+            <button className="btn btn-accent checkout-btn" style={{ flex: 2 }} onClick={() => setStep(3)}>Proceed to Payment →</button>
           </div>
         </div>
       ) : step > 2 ? (
@@ -840,7 +934,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <CheckCircle2 size={18} color="#10b981" /> Order Summary
           </div>
           <div className="collapsed-step-content">
-            {cart.length} Items | Total: ₹{finalAmount.toLocaleString('en-IN')}
+            {cart.reduce((a, b) => a + b.quantity, 0)} {cart.length === 1 ? 'Item' : 'Items'} | Total: ₹{finalAmount.toLocaleString('en-IN')}
           </div>
         </div>
       ) : null}
@@ -855,7 +949,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               {/* Saved Cards Section */}
               {savedCards && savedCards.length > 0 && (
                 <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', marginLeft: '4px' }}>Saved Cards</div>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px', marginLeft: '2px' }}>Saved Cards</div>
                   {savedCards.map(card => (
                     <div 
                       key={card.instrument_id}
@@ -864,28 +958,28 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                         setPaymentMethod('Online Payment');
                         setSelectedSavedCard(card.instrument_id);
                       }}
-                      style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '12px' }}
+                      style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '8px', borderRadius: '14px', border: '1.5px solid #e2e8f0' }}
                     >
-                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid', borderColor: paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--primary-color)' : '#cbd5e1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        {paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary-color)' }} />}
+                      <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid', borderColor: paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? '#4f46e5' : '#cbd5e1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        {paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4f46e5' }} />}
                       </div>
-                      <CreditCard size={20} color={paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--primary-color)' : '#64748b'} />
+                      <CreditCard size={20} color={paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? '#4f46e5' : '#64748b'} />
                       <div>
-                        <div style={{ fontWeight: '600', color: paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--primary-color)' : '#334155', textTransform: 'capitalize' }}>
+                        <div style={{ fontWeight: '700', color: '#0f172a', textTransform: 'capitalize', fontSize: '13.5px' }}>
                           {card.card_bank_name ? `${card.card_bank_name} ` : ''}{card.card_network} •••• {card.last4}
                         </div>
-                        <div style={{ fontSize: '13px', color: '#64748b' }}>Saved securely via Cashfree Token Vault</div>
+                        <div style={{ fontSize: '11.5px', color: '#64748b' }}>Saved via Cashfree Token Vault</div>
                       </div>
                     </div>
                   ))}
-                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', marginLeft: '4px', marginTop: '16px' }}>Other Methods</div>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px', marginLeft: '2px', marginTop: '12px' }}>Payment Options</div>
                 </div>
               )}
 
               {/* Online Payment Option */}
               <label 
                 className={`checkout-payment-option ${paymentMethod === 'online' ? 'active' : ''}`}
-                style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', marginBottom: '12px', borderRadius: '16px', border: paymentMethod === 'online' ? '2px solid var(--primary-color)' : '1.5px solid #e2e8f0', background: paymentMethod === 'online' ? '#f5f3ff' : '#ffffff', transition: 'all 0.2s ease' }}
+                style={{ padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', marginBottom: '10px', borderRadius: '16px', border: paymentMethod === 'online' ? '2px solid #4f46e5' : '1.5px solid #e2e8f0', background: paymentMethod === 'online' ? '#f8faff' : '#ffffff', transition: 'all 0.2s ease', boxShadow: paymentMethod === 'online' ? '0 4px 14px rgba(79, 70, 229, 0.08)' : 'none' }}
               >
                 <input 
                   type="radio" 
@@ -893,14 +987,21 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   value="online" 
                   checked={paymentMethod === 'online'}
                   onChange={() => { setPaymentMethod('online'); setSelectedSavedCard(null); }}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#4f46e5', marginTop: '2px' }}
                 />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '800', fontSize: '15px', color: paymentMethod === 'online' ? 'var(--primary-color)' : '#0f172a' }}>
+                  <div style={{ fontWeight: '800', fontSize: '14.5px', color: '#0f172a' }}>
                     ⚡ Instant Online Payment (UPI, Cards, Netbanking)
                   </div>
-                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
-                    Pay securely via UPI (Google Pay, PhonePe, Paytm), Cards &amp; Netbanking via Cashfree PG.
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>
+                    Pay securely via UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards &amp; Netbanking via Cashfree.
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
+                    {['Google Pay', 'PhonePe', 'Paytm', 'Cards', 'NetBanking'].map((badge, bIdx) => (
+                      <span key={bIdx} style={{ fontSize: '10px', fontWeight: '800', background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                        {badge}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </label>
@@ -911,14 +1012,14 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 style={{ 
                   padding: '16px', 
                   display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '14px', 
+                  alignItems: 'flex-start', 
+                  gap: '12px', 
                   cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', 
-                  marginBottom: '12px', 
+                  marginBottom: '10px', 
                   borderRadius: '16px', 
-                  border: paymentMethod === 'cod' ? '2px solid var(--primary-color)' : '1.5px solid #e2e8f0', 
-                  background: finalAmount > 15000 ? '#f8fafc' : (paymentMethod === 'cod' ? '#f5f3ff' : '#ffffff'), 
-                  opacity: finalAmount > 15000 ? 0.6 : 1,
+                  border: paymentMethod === 'cod' ? '2px solid #4f46e5' : '1.5px solid #e2e8f0', 
+                  background: finalAmount > 15000 ? '#f8fafc' : (paymentMethod === 'cod' ? '#f8faff' : '#ffffff'), 
+                  opacity: finalAmount > 15000 ? 0.65 : 1,
                   transition: 'all 0.2s ease' 
                 }}
               >
@@ -929,18 +1030,18 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   disabled={finalAmount > 15000}
                   checked={paymentMethod === 'cod' && finalAmount <= 15000}
                   onChange={() => { if (finalAmount <= 15000) { setPaymentMethod('cod'); setSelectedSavedCard(null); } }}
-                  style={{ width: '18px', height: '18px', cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', accentColor: 'var(--primary-color)' }}
+                  style={{ width: '18px', height: '18px', cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', accentColor: '#4f46e5', marginTop: '2px' }}
                 />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '800', fontSize: '15px', color: paymentMethod === 'cod' ? 'var(--primary-color)' : '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <div style={{ fontWeight: '800', fontSize: '14.5px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <span>💵 Cash On Delivery (COD)</span>
                     {finalAmount > 15000 && (
-                      <span style={{ fontSize: '11px', background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: '6px', fontWeight: '800' }}>
+                      <span style={{ fontSize: '10.5px', background: '#fee2e2', color: '#dc2626', padding: '1px 8px', borderRadius: '6px', fontWeight: '800' }}>
                         Max ₹15,000 Cap
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>
                     {finalAmount > 15000 
                       ? 'Unavailable for orders above ₹15,000. Please use Instant Online Payment for bank-grade escrow protection.' 
                       : 'Pay with cash or UPI QR scan at doorstep upon delivery.'}
@@ -949,10 +1050,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               </label>
             </div>
 
-            <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '12px' }}>
-              <button type="button" className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(2)} disabled={isSubmitting}>BACK</button>
+            <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '10px' }}>
+              <button type="button" className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(2)} disabled={isSubmitting}>Back</button>
               <button type="submit" className="btn btn-accent checkout-btn" style={{ flex: 2 }} disabled={isSubmitting}>
-                {isSubmitting ? 'PROCESSING...' : `PLACE ORDER (₹${finalAmount.toLocaleString('en-IN')})`}
+                {isSubmitting ? 'Processing...' : `Place Order (₹${finalAmount.toLocaleString('en-IN')})`}
               </button>
             </div>
           </form>
