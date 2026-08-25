@@ -603,108 +603,35 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </div>
           )}
 
-          <div style={{ padding: '12px 16px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #e2e8f0', textAlign: 'center', fontSize: '12px', color: '#64748b', fontWeight: '700', marginTop: '4px' }}>
-            ✨ Tip: Touch or click thumbnails to inspect real studio angles & packaging
-          </div>
-
-          {/* 🔥 1-CLICK VIP ENTERPRISE ACTION HUB IN LEFT COLUMN (FLIPKART/APPLE STUDIO STYLE) */}
-          <div className="action-buttons-container" style={{ marginTop: '16px', background: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '24px', padding: '20px', boxShadow: '0 12px 32px rgba(9, 13, 22, 0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+          {/* Left Column 4-Pillar Trust Grid */}
+          <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>🛡️</span>
               <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Total Payable Amount:</span>
-                <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '13px', color: '#059669', fontWeight: '700' }}>(Taxes Included)</span></div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>100% Genuine</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>Brand Warranty</div>
               </div>
-              <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
-                ✓ Express Dispatch Ready
-              </span>
             </div>
-            
-            <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', position: 'relative' }}>
-              <style>{`
-                @keyframes pulse-glow {
-                  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
-                  70% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); }
-                  100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-                }
-                .buy-now-pulse-btn {
-                  animation: pulse-glow 2s infinite;
-                  background-size: 200% auto;
-                  transition: 0.5s;
-                }
-                .buy-now-pulse-btn:hover {
-                  background-position: right center; /* change the direction of the change here */
-                  transform: translateY(-2px);
-                }
-                .add-cart-outline-btn {
-                  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                .add-cart-outline-btn:hover {
-                  background: #4f46e5 !important;
-                  color: #ffffff !important;
-                  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
-                  transform: translateY(-2px);
-                }
-              `}</style>
-              <button
-                className="add-cart-outline-btn"
-                disabled={isOutOfStock}
-                onClick={() => {
-                  if (isOutOfStock) return;
-                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                  addToCart(customProduct);
-                }}
-                style={{
-                  flex: '1 1 180px',
-                  height: '54px',
-                  border: isOutOfStock ? '2px solid #cbd5e1' : '2px solid #4f46e5',
-                  borderRadius: '16px',
-                  background: isOutOfStock ? '#f1f5f9' : '#ffffff',
-                  color: isOutOfStock ? '#94a3b8' : '#4f46e5',
-                  fontWeight: '900',
-                  fontSize: '15.5px',
-                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  boxShadow: isOutOfStock ? 'none' : '0 4px 12px rgba(79, 70, 229, 0.05)',
-                  opacity: isOutOfStock ? 0.7 : 1
-                }}
-              >
-                <ShoppingCart size={20} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-              </button>
-              <button
-                className={isOutOfStock ? '' : 'buy-now-pulse-btn'}
-                disabled={isOutOfStock}
-                onClick={() => {
-                  if (isOutOfStock) return;
-                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                  addToCart(customProduct, 1);
-                  onBuyNow(customProduct);
-                }}
-                style={{
-                  flex: '1 1 180px',
-                  height: '54px',
-                  border: 'none',
-                  borderRadius: '16px',
-                  backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(to right, #4f46e5 0%, #7c3aed 51%, #4f46e5 100%)',
-                  backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
-                  color: isOutOfStock ? '#64748b' : '#ffffff',
-                  fontWeight: '900',
-                  fontSize: '15.5px',
-                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  boxShadow: isOutOfStock ? 'none' : '0 10px 25px rgba(79, 70, 229, 0.4)',
-                  opacity: isOutOfStock ? 0.7 : 1
-                }}
-              >
-                <Zap size={20} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now'}
-              </button>
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>🔄</span>
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>7-Day Returns</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>Easy Replacement</div>
+              </div>
+            </div>
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>⚡</span>
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>Free Express</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>Air Dispatch</div>
+              </div>
+            </div>
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>💵</span>
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>Pay on Delivery</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>Cash & UPI at Door</div>
+              </div>
             </div>
           </div>
         </div>
@@ -954,39 +881,116 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </div>
           )}
 
-          {/* Trust Badges & VIP Assurance Citadel (M5 COD Prominently Surfaced) */}
-          <div className="desktop-premium-trust-container" style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#15803d', background: '#f0fdf4', padding: '8px 14px', borderRadius: '12px', border: '1px solid #bbf7d0' }}>
-              <ShieldCheck size={16} color="#15803d" /> 💵 Cash on Delivery Available
+          {/* 🔥 PRIMARY PURCHASE ACTION HUB IN RIGHT COLUMN */}
+          <div className="action-buttons-container" style={{ marginTop: '24px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '20px', padding: '18px 20px', boxShadow: '0 8px 25px rgba(9, 13, 22, 0.04)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+              <div>
+                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Total Payable Amount:</span>
+                <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '12.5px', color: '#059669', fontWeight: '700' }}>(Taxes Included)</span></div>
+              </div>
+              <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '8px', fontSize: '11.5px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
+                ✓ Express Dispatch Ready
+              </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#059669', background: '#ecfdf5', padding: '8px 14px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
-              <Check size={16} color="#059669" /> 100% Genuine Stock
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#0284c7', background: '#f0f9ff', padding: '8px 14px', borderRadius: '12px', border: '1px solid #bae6fd' }}>
-              <Zap size={16} color="#0284c7" /> Priority Express Shipping
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '800', color: '#7c3aed', background: '#f5f3ff', padding: '8px 14px', borderRadius: '12px', border: '1px solid #ddd6fe' }}>
-              <Check size={16} color="#7c3aed" /> 7-Day Hassle-Free Returns
+            
+            <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', position: 'relative' }}>
+              <button
+                className="add-cart-outline-btn"
+                disabled={isOutOfStock}
+                onClick={() => {
+                  if (isOutOfStock) return;
+                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                  addToCart(customProduct);
+                }}
+                style={{
+                  flex: '1 1 180px',
+                  height: '52px',
+                  border: isOutOfStock ? '2px solid #cbd5e1' : '2px solid #4f46e5',
+                  borderRadius: '14px',
+                  background: isOutOfStock ? '#f1f5f9' : '#ffffff',
+                  color: isOutOfStock ? '#94a3b8' : '#4f46e5',
+                  fontWeight: '900',
+                  fontSize: '15px',
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontFamily: "'Outfit', sans-serif",
+                  boxShadow: isOutOfStock ? 'none' : '0 4px 12px rgba(79, 70, 229, 0.05)',
+                  opacity: isOutOfStock ? 0.7 : 1
+                }}
+              >
+                <ShoppingCart size={20} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+              </button>
+              <button
+                className={isOutOfStock ? '' : 'buy-now-pulse-btn'}
+                disabled={isOutOfStock}
+                onClick={() => {
+                  if (isOutOfStock) return;
+                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                  addToCart(customProduct, 1);
+                  onBuyNow(customProduct);
+                }}
+                style={{
+                  flex: '1 1 180px',
+                  height: '52px',
+                  border: 'none',
+                  borderRadius: '14px',
+                  backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
+                  color: isOutOfStock ? '#64748b' : '#ffffff',
+                  fontWeight: '900',
+                  fontSize: '15px',
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontFamily: "'Outfit', sans-serif",
+                  boxShadow: isOutOfStock ? 'none' : '0 8px 24px rgba(79, 70, 229, 0.35)',
+                  opacity: isOutOfStock ? 0.7 : 1
+                }}
+              >
+                <Zap size={20} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now'}
+              </button>
             </div>
           </div>
 
           {/* AbKharido Platinum Member Offers */}
-          <div style={{ marginTop: '24px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '18px', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
-            <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: '900', color: '#090d16', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>💥</span> Available Platinum Bank & VIP Offers
+          <div style={{ marginTop: '20px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '20px', padding: '18px', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
+            <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '900', color: '#090d16', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>💥</span> Available Bank &amp; VIP Offers
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
-                <span style={{ color: '#d97706', fontSize: '16px' }}>👑</span>
-                <span><strong>AB Coins Reward:</strong> Earn <strong style={{ color: '#d97706', fontWeight: '900' }}>+{calculateCoinReward(currentDisplayPrice)} AB Coins (Worth ₹{calculateCoinReward(currentDisplayPrice)})</strong> on this purchase!</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '12px', padding: '10px 14px', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '18px' }}>🎟️</span>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>Flat 20% OFF on Orders</div>
+                    <div style={{ fontSize: '11.5px', color: '#64748b' }}>Use coupon code <strong style={{ color: '#4f46e5' }}>FESTIVE20</strong></div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText('FESTIVE20');
+                    showToast('✅ Coupon FESTIVE20 copied to clipboard!', 'success');
+                  }}
+                  style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: '800', cursor: 'pointer' }}
+                >
+                  COPY CODE
+                </button>
               </div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
-                <span style={{ color: '#059669', fontSize: '16px' }}>⚡</span>
-                <span><strong>Festive Discount:</strong> Use code <strong style={{ color: '#4338ca', fontWeight: '900' }}>FESTIVE20</strong> for an instant 20% savings on eligible carts!</span>
-              </div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
-                <span style={{ color: '#3b82f6', fontSize: '16px' }}>🚀</span>
-                <span><strong>Free Express Air-Dispatch:</strong> Complimentary safe doorstep delivery across India on orders above ₹499.</span>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fefce8', border: '1px dashed #fef08a', borderRadius: '12px', padding: '10px 14px', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '18px' }}>👑</span>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#854d0e' }}>VIP Member Cashback Reward</div>
+                    <div style={{ fontSize: '11.5px', color: '#a16207' }}>Earn <strong style={{ fontWeight: '900' }}>+{calculateCoinReward(currentDisplayPrice)} AB Coins (₹{calculateCoinReward(currentDisplayPrice)})</strong> directly to wallet</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1581,49 +1585,27 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
       </div>
     </div>
 
-        {/* 🚀 GLOBAL FIXED VIP ENTERPRISE PURCHASE RIBBON (STICKY BUY BAR FOR INSTANT 1-CLICK BUY) */}
-        <div className="vip-fixed-bottom-purchase-bar" style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: 'rgba(255, 255, 255, 0.97)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderTop: '2px solid #e2e8f0',
-          boxShadow: '0 -10px 40px rgba(9, 13, 22, 0.14)',
-          zIndex: 1400,
-          padding: '12px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '20px',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}>
+        {/* 🚀 FIXED PURCHASE RIBBON FOR MOBILE DEVICES (STRICTLY HIDDEN ON DESKTOP) */}
+        <div className="vip-fixed-bottom-purchase-bar">
           {/* Left Side: Product Micro-Preview */}
-          <div className="vip-fixed-bar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0, flex: '1 1 auto' }}>
+          <div className="vip-fixed-bar-left" style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: '1 1 auto' }}>
             <img 
               src={product.image || (product.images && product.images[0]) || ''} 
               alt={product.name} 
-              style={{ width: '52px', height: '52px', objectFit: 'contain', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '2px', flexShrink: 0 }}
+              style={{ width: '46px', height: '46px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '2px', flexShrink: 0 }}
             />
             <div style={{ minWidth: 0, overflow: 'hidden' }}>
-              <div style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>
                 {product.name}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '2px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '20px', fontWeight: '900', color: '#059669', fontFamily: "'Outfit', sans-serif" }}>
-                  ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}
-                </span>
-                <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#047857', padding: '2px 8px', borderRadius: '6px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
-                  ✓ Express Dispatch Ready
-                </span>
+              <div style={{ fontSize: '16px', fontWeight: '900', color: '#059669', fontFamily: "'Outfit', sans-serif" }}>
+                ₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}
               </div>
             </div>
           </div>
 
-          {/* Right Side: Instant Action Purchase Buttons (Fixed & Easily Accessible on ALL Devices) */}
-          <div className="vip-fixed-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
+          {/* Right Side: Instant Action Purchase Buttons */}
+          <div className="vip-fixed-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             <button
               className="add-cart-outline-btn"
               disabled={isOutOfStock}
@@ -1633,26 +1615,23 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 addToCart(customProduct);
               }}
               style={{
-                height: '52px',
-                padding: '0 26px',
-                border: isOutOfStock ? '2px solid #cbd5e1' : '2px solid #4f46e5',
-                borderRadius: '16px',
+                height: '46px',
+                padding: '0 16px',
+                border: isOutOfStock ? '1.5px solid #cbd5e1' : '1.5px solid #4f46e5',
+                borderRadius: '12px',
                 background: isOutOfStock ? '#f1f5f9' : '#ffffff',
                 color: isOutOfStock ? '#94a3b8' : '#4f46e5',
-                fontWeight: '900',
-                fontSize: '16px',
+                fontWeight: '800',
+                fontSize: '13.5px',
                 cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px',
-                fontFamily: "'Outfit', sans-serif",
-                boxShadow: isOutOfStock ? 'none' : '0 2px 8px rgba(79, 70, 229, 0.1)',
-                whiteSpace: 'nowrap',
-                opacity: isOutOfStock ? 0.7 : 1
+                gap: '6px',
+                fontFamily: "'Outfit', sans-serif"
               }}
             >
-              <ShoppingCart size={20} /> <span className="buy-bar-btn-text">{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
+              <ShoppingCart size={17} /> <span className="buy-bar-btn-text">{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
             </button>
             <button
               className={isOutOfStock ? '' : 'buy-now-pulse-btn'}
@@ -1664,27 +1643,25 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 onBuyNow(customProduct);
               }}
               style={{
-                height: '52px',
-                padding: '0 32px',
+                height: '46px',
+                padding: '0 20px',
                 border: 'none',
-                borderRadius: '16px',
-                backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(to right, #4f46e5 0%, #7c3aed 51%, #4f46e5 100%)',
+                borderRadius: '12px',
+                backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
                 backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
                 color: isOutOfStock ? '#64748b' : '#ffffff',
                 fontWeight: '900',
-                fontSize: '16px',
+                fontSize: '14px',
                 cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px',
+                gap: '6px',
                 fontFamily: "'Outfit', sans-serif",
-                boxShadow: isOutOfStock ? 'none' : '0 8px 25px rgba(79, 70, 229, 0.4)',
-                whiteSpace: 'nowrap',
-                opacity: isOutOfStock ? 0.7 : 1
+                boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(79, 70, 229, 0.35)'
               }}
             >
-              <Zap size={20} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now'}
+              <Zap size={17} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now'}
             </button>
           </div>
         </div>

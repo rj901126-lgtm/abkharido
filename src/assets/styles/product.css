@@ -216,38 +216,39 @@
 }
 
 .mobile-price-preview {
-  display: none; /* Hidden on desktop — price already shown in right column */
+  display: none;
   flex-direction: column;
   margin-bottom: 10px;
 }
 
-@media (max-width: 768px) {
-  /* HIDE inline Action Hub on mobile so there are NO DUPLICATE buttons! The sticky footer bar handles all purchases on mobile! */
-  .action-buttons-container {
-    display: none !important;
-  }
-  .action-buttons-row {
-    display: none !important;
-  }
-  .mobile-price-preview {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center;
-    margin-bottom: 8px !important;
-  }
-  .details-info-column {
-    padding: 16px 16px 140px 16px !important;
+/* VIP Enterprise Fixed Bottom Purchase Ribbon — Strictly Mobile Only (Hidden on Desktop) */
+.vip-fixed-bottom-purchase-bar {
+  display: none !important;
+}
+
+@media (max-width: 991px) {
+  .details-image-column {
+    position: static !important;
   }
 
-  /* VIP Enterprise Fixed Bottom Purchase Ribbon on Mobile */
   .vip-fixed-bottom-purchase-bar {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12) !important;
+    z-index: 2500 !important;
     padding: 10px 16px !important;
     padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
     gap: 8px !important;
-    z-index: 2500 !important;
   }
   .vip-fixed-bar-left {
-    display: none !important; /* Hide preview on mobile to give 100% width to instant action buttons */
+    display: none !important;
   }
   .vip-fixed-bar-right {
     width: 100% !important;
