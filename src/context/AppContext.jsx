@@ -207,15 +207,51 @@ export const AppProvider = ({ children }) => {
   };
 
   const currentUser = React.useMemo(() => {
-    return (session && session.user) ? { 
-      ...session.user, 
-      _id: session.user.id || session.user._id || session.id || 'vip_user',
-      token: session.accessToken, 
-      username: session.user.name,
-      phone: session.user.phone || session.user.name,
-      email: session.user.email || undefined,
-      ...(dbUser || {}) 
-    } : (localSession ? { _id: localSession._id || localSession.id || 'vip_user', ...localSession, ...(dbUser || {}) } : null);
+    if (session && session.user) {
+      const sessPhone = session.user.phone || (session.user.name && session.user.name.match(/\d{10}/) ? session.user.name.match(/\d{10}/)[0] : session.user.name);
+      const sessId = session.user.id || session.user._id || session.id;
+
+      // Only merge dbUser if it belongs to THIS exact user session
+      const isMatchingDbUser = dbUser && (
+        (dbUser._id && sessId && String(dbUser._id) === String(sessId)) ||
+        (dbUser.phone && sessPhone && String(dbUser.phone).replace(/\D/g, '').slice(-10) === String(sessPhone).replace(/\D/g, '').slice(-10)) ||
+        (dbUser.username && session.user.name && dbUser.username === session.user.name)
+      );
+
+      const safeDb = isMatchingDbUser ? dbUser : {};
+
+      return {
+        ...session.user,
+        ...safeDb,
+        _id: sessId || safeDb._id || 'user_' + Date.now(),
+        token: session.accessToken || safeDb.token,
+        username: session.user.name || safeDb.username || sessPhone,
+        phone: sessPhone || safeDb.phone || '',
+        email: session.user.email || safeDb.email || undefined,
+      };
+    }
+
+    if (localSession) {
+      const locPhone = localSession.phone || (localSession.username && localSession.username.match(/\d{10}/) ? localSession.username.match(/\d{10}/)[0] : localSession.username);
+      const locId = localSession._id || localSession.id;
+
+      const isMatchingDbUser = dbUser && (
+        (dbUser._id && locId && String(dbUser._id) === String(locId)) ||
+        (dbUser.phone && locPhone && String(dbUser.phone).replace(/\D/g, '').slice(-10) === String(locPhone).replace(/\D/g, '').slice(-10)) ||
+        (dbUser.username && localSession.username && dbUser.username === localSession.username)
+      );
+
+      const safeDb = isMatchingDbUser ? dbUser : {};
+
+      return {
+        _id: locId || safeDb._id || 'user_' + Date.now(),
+        ...localSession,
+        ...safeDb,
+        phone: locPhone || safeDb.phone || '',
+      };
+    }
+
+    return null;
   }, [session, localSession, dbUser]);
 
 
@@ -852,11 +888,13 @@ export const AppProvider = ({ children }) => {
     initializedForUser.current = null;
     wishlistInitializedForUser.current = null;
     localStorage.removeItem('abkharido_user_session');
+    localStorage.removeItem('abkharido_cached_profile');
     localStorage.removeItem('abkharido_cart');
     localStorage.removeItem('abkharido_cached_cart');
     localStorage.removeItem('abkharido_wishlist');
     localStorage.removeItem('abkharido_cached_wishlist');
     setLocalSession(null);
+    setDbUser(null);
     setOrders([]);
     setCart([]);
     setWishlist([]);

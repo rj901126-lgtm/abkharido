@@ -86,31 +86,37 @@ export async function GET(req, { params }) {
       return NextResponse.json(users);
     }
 
+    const phoneDigits = (username && username.match(/\d{10}/)) ? username.match(/\d{10}/)[0] : '';
+
     let user = await User.findOne({ 
       $or: [
         { username }, 
-        { phone: username }, 
+        phoneDigits ? { username: new RegExp('^' + phoneDigits + '(_|$)') } : null,
+        phoneDigits ? { phone: phoneDigits } : null,
+        phoneDigits ? { phone: '+91' + phoneDigits } : null,
         { email: username }, 
         { _id: (username && username.length === 24 && /^[0-9a-fA-F]{24}$/.test(username)) ? username : undefined }
       ].filter(Boolean) 
     }).select('-password');
     
-    // Auto-upsert user on first login if token is verified but document is not in DB yet
-    if (!user && decodedToken && (decodedToken.phone || decodedToken.username || decodedToken.email)) {
+    // Auto-upsert user on first login if token is verified or phone is present but document is not in DB yet
+    if (!user && (phoneDigits || (decodedToken && (decodedToken.phone || decodedToken.username || decodedToken.email)))) {
       try {
-        const phoneToUse = decodedToken.phone || (username.match(/^\d{10}$/) ? username : '9172600587');
-        const nameToUse = decodedToken.fullName || decodedToken.name || (phoneToUse === '9172600587' ? 'Raj Chauhan' : 'VIP Member');
-        user = await User.create({
-          username: decodedToken.username || phoneToUse,
-          phone: phoneToUse,
-          email: decodedToken.email || `${phoneToUse}@abkharido.com`,
-          fullName: nameToUse,
-          walletCoins: 100,
-          password: 'abkharido_otp_user_' + Date.now()
-        });
+        const phoneToUse = decodedToken?.phone || phoneDigits || (username.match(/^\d{10}$/) ? username : '');
+        const nameToUse = decodedToken?.fullName || decodedToken?.name || 'VIP Member';
+        if (phoneToUse) {
+          user = await User.create({
+            username: decodedToken?.username || phoneToUse,
+            phone: phoneToUse,
+            email: decodedToken?.email || `${phoneToUse}@abkharido.com`,
+            fullName: nameToUse,
+            walletCoins: 100,
+            password: 'abkharido_otp_user_' + Date.now()
+          });
+        }
       } catch (upsertErr) {
         if (upsertErr.code === 11000) {
-          user = await User.findOne({ $or: [{ phone: decodedToken.phone }, { username: decodedToken.username }] });
+          user = await User.findOne({ $or: [{ phone: decodedToken?.phone || phoneDigits }, { username: decodedToken?.username || phoneDigits }] });
         }
       }
     }
@@ -118,9 +124,18 @@ export async function GET(req, { params }) {
     if (user) {
       let userObj = user.toObject();
       
+      // Sanitize encrypted ciphertext if present
+      if (userObj.phone && userObj.phone.includes(':')) {
+        const cleanDigits = phoneDigits || (userObj.username && userObj.username.match(/\d{10}/) ? userObj.username.match(/\d{10}/)[0] : '') || decodedToken?.phone || '';
+        if (cleanDigits) userObj.phone = cleanDigits;
+      }
+      if (userObj.email && userObj.email.includes(':')) {
+        userObj.email = decodedToken?.email || (userObj.phone ? `${userObj.phone}@abkharido.com` : undefined);
+      }
+      
       let isOwnerOrAdmin = false;
       if (decodedToken) {
-        if (decodedToken.id === user._id.toString() || decodedToken.phone === user.phone || ['admin', 'super_admin'].includes(decodedToken.role)) {
+        if (decodedToken.id === user._id.toString() || decodedToken.phone === userObj.phone || ['admin', 'super_admin'].includes(decodedToken.role)) {
           isOwnerOrAdmin = true;
         }
       }
@@ -158,34 +173,6 @@ export async function GET(req, { params }) {
         walletCoins: userObj.walletCoins !== undefined ? userObj.walletCoins : 100,
         withdrawableCoins: userObj.walletCoins || 100, 
         lockedCoins: 0 
-      });
-    }
-
-    // Default fallback mock profile for test account 9172600587 if DB is resetting
-    if (username === '9172600587' || username.includes('9172600587') || username === '6a734698c85becad0dc09d0c') {
-      return NextResponse.json({
-        _id: '6a734698c85becad0dc09d0c',
-        username: '9172600587',
-        phone: '9172600587',
-        fullName: 'Raj Chauhan',
-        email: 'raj@abkharido.com',
-        role: 'user',
-        walletCoins: 100,
-        withdrawableCoins: 100,
-        lockedCoins: 0,
-        addresses: [{
-          id: 'addr-1',
-          name: 'Raj Chauhan',
-          phone: '9172600587',
-          houseNo: 'Flat 402',
-          streetArea: 'Indiranagar 100ft Road',
-          streetAddress: 'Flat 402, Indiranagar 100ft Road',
-          city: 'Bengaluru',
-          state: 'Karnataka',
-          pincode: '560038',
-          addressType: 'Home',
-          isDefault: true
-        }]
       });
     }
 
@@ -285,29 +272,35 @@ export async function POST(req, { params }) {
     // ── Native Direct Mongoose Fallback when port 5000 is offline ──
     await connectDB();
     const username = routeParams[0];
+    const phoneDigits = (username && username.match(/\d{10}/)) ? username.match(/\d{10}/)[0] : '';
+    
     let user = await User.findOne({ 
       $or: [
         { username }, 
-        { phone: username }, 
+        phoneDigits ? { username: new RegExp('^' + phoneDigits + '(_|$)') } : null,
+        phoneDigits ? { phone: phoneDigits } : null,
+        phoneDigits ? { phone: '+91' + phoneDigits } : null,
         { email: username }, 
         { _id: (username && username.length === 24 && /^[0-9a-fA-F]{24}$/.test(username)) ? username : undefined }
       ].filter(Boolean) 
     });
 
     if (!user) {
-      const phoneToUse = body.phone || (username && username.match(/^\d{10}$/) ? username : '9172600587');
+      const phoneToUse = body.phone || phoneDigits || (username && username.match(/^\d{10}$/) ? username : '');
       const nameToUse = body.fullName || (body.firstName ? `${body.firstName} ${body.lastName || ''}`.trim() : 'Customer');
       try {
-        user = await User.create({
-          _id: (username && username.length === 24 && /^[0-9a-fA-F]{24}$/.test(username)) ? username : undefined,
-          username: body.username || phoneToUse,
-          phone: phoneToUse,
-          email: body.email || `${phoneToUse}@abkharido.com`,
-          fullName: nameToUse,
-          walletCoins: 100,
-          password: 'abkharido_user_' + Date.now(),
-          addresses: body.addresses || []
-        });
+        if (phoneToUse || body.email) {
+          user = await User.create({
+            _id: (username && username.length === 24 && /^[0-9a-fA-F]{24}$/.test(username)) ? username : undefined,
+            username: body.username || phoneToUse || `user_${Date.now()}`,
+            phone: phoneToUse,
+            email: body.email || (phoneToUse ? `${phoneToUse}@abkharido.com` : undefined),
+            fullName: nameToUse,
+            walletCoins: 100,
+            password: 'abkharido_user_' + Date.now(),
+            addresses: body.addresses || []
+          });
+        }
       } catch (upsertErr) {
         user = await User.findOne({ $or: [{ phone: phoneToUse }, { username: body.username || phoneToUse }] });
       }

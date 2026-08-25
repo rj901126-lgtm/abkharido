@@ -24,9 +24,14 @@ otpSchema.pre('save', async function() {
   this.otp = await bcrypt.hash(this.otp, salt);
 });
 
-// Match OTP method
+// Match OTP method (supports both bcrypt hash and direct string match)
 otpSchema.methods.matchOtp = async function(enteredOtp) {
-  return await bcrypt.compare(enteredOtp, this.otp);
+  if (String(this.otp) === String(enteredOtp)) return true;
+  try {
+    return await bcrypt.compare(String(enteredOtp), this.otp);
+  } catch (e) {
+    return false;
+  }
 };
 
 const Otp = mongoose.models.Otp || mongoose.model('Otp', otpSchema);

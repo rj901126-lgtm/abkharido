@@ -155,7 +155,9 @@ const Login = ({ onNavigate, callbackUrl }) => {
           }
           
           if (window.recaptchaVerifier) {
-            const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
+            const fbPromise = signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase SMS timeout')), 4500));
+            const result = await Promise.race([fbPromise, timeoutPromise]);
             setFirebaseConfirmation(result);
             firebaseSent = true;
             setShowOtpScreen(true);
@@ -168,10 +170,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
           if (fbErr?.code === 'auth/invalid-phone-number') {
             showToast('Invalid phone number format. Please check and try again.', 'error');
             return;
-          } else if (fbErr?.code === 'auth/too-many-requests') {
-            showToast('Too many SMS requests. Please wait a few minutes before requesting again.', 'error');
-            return;
           }
+          // On Firebase limit or network error, silently fall through to backend OTP gateway
         }
       }
 
@@ -263,6 +263,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
         showToast('Welcome back! 👋', 'success');
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('abkharido_was_on_otp');
+          localStorage.removeItem('abkharido_cached_profile');
+          localStorage.removeItem('abkharido_user_session');
           const params = new URLSearchParams(window.location.search);
           const target = params.get('callbackUrl') || callbackUrl || '/profile';
           window.location.href = target.startsWith('/') ? target : '/' + target;

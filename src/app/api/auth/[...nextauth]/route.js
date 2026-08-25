@@ -6,8 +6,7 @@ async function fetchBackend(path, body) {
   const hosts = [
     process.env.BACKEND_API_URL,
     'http://127.0.0.1:5000',
-    'http://localhost:5000',
-    'http://16.16.195.180:5000'
+    'http://localhost:5000'
   ].filter(Boolean);
 
   const uniqueHosts = [...new Set(hosts.map(h => h.replace(/\/$/, '')))];
@@ -101,13 +100,13 @@ export const authOptions = {
           const userObj = data?.user || data;
           
           if (userObj && (userObj.token || data?.token || userObj._id)) {
-            // Use username (not email) as NextAuth `name` to avoid email displaying in profile header
-            // Store phone separately so AppContext can show correct mobile number
+            const cleanPhone = (userObj.phone && !userObj.phone.includes(':')) ? userObj.phone : normalizedPhone;
+            const cleanEmail = (userObj.email && !userObj.email.includes(':')) ? userObj.email : null;
             return {
               id: userObj._id?.toString() || userObj.id,
-              name: userObj.username || userObj.name || normalizedPhone,
-              email: userObj.email || null,  // only set if user actually has an email
-              phone: userObj.phone || normalizedPhone,
+              name: userObj.username || userObj.name || cleanPhone,
+              email: cleanEmail,
+              phone: cleanPhone,
               role: userObj.role || 'user',
               accessToken: userObj.token || data?.token,
             };

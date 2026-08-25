@@ -51,13 +51,15 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
     await user.save();
   }
 
+  const cleanPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedPhone;
   return {
     success: true,
     user: {
       _id: user._id.toString(),
       username: user.username,
       email: user.email,
-      phone: user.phone,
+      phone: cleanPhone,
+      fullName: user.fullName || 'VIP Member',
       role: user.role,
       token: generateToken(user._id),
     }
@@ -145,13 +147,15 @@ export async function verifyOtpDirect(params = {}) {
     await user.save();
   }
 
+  const cleanRecipientPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedRecipient;
   return {
     success: true,
     user: {
       _id: user._id.toString(),
       username: user.username,
       email: user.email,
-      phone: user.phone,
+      phone: cleanRecipientPhone,
+      fullName: user.fullName || 'VIP Member',
       role: user.role,
       token: generateToken(user._id),
     }
@@ -168,6 +172,8 @@ export async function loginPasswordDirect({ username, password }) {
         _id: user._id.toString(),
         username: user.username,
         email: user.email,
+        phone: user.phone,
+        fullName: user.fullName || 'VIP Member',
         role: user.role,
         token: generateToken(user._id),
       }
