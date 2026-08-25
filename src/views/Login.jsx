@@ -134,12 +134,9 @@ const Login = ({ onNavigate, callbackUrl }) => {
     setSmsNotice(null);
     let firebaseSent = false;
     
-    // ── Developer test number: always skip Firebase, use backend OTP with 123456 ──
-    const isTestNumber = phone === '9172600587';
-    
     try {
-      if (!isTestNumber && firebaseAuth) {
-        // ── Try Firebase Phone Auth first (real SMS, fastest delivery) ──
+      if (firebaseAuth) {
+        // ── Primary: Firebase Phone Authentication (Real SMS Delivery) ──
         try {
           if (!window.recaptchaVerifier) {
             try {
@@ -154,36 +151,38 @@ const Login = ({ onNavigate, callbackUrl }) => {
               await window.recaptchaVerifier.render();
             } catch (recaptchaErr) {
               console.warn('[reCAPTCHA Render]', recaptchaErr?.message || recaptchaErr);
-              cleanupRecaptcha();
             }
           }
           
           if (window.recaptchaVerifier) {
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase SMS timeout')), 3500));
-            const result = await Promise.race([
-              signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier),
-              timeoutPromise
-            ]);
+            const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
             setFirebaseConfirmation(result);
             firebaseSent = true;
             setShowOtpScreen(true);
             setTimer(60);
-            showToast('✅ OTP sent to your mobile!', 'success');
+            showToast('✅ Firebase SMS OTP sent to +91 ' + phone, 'success');
           }
         } catch (fbErr) {
           cleanupRecaptcha();
-          console.warn('[Firebase SMS]', fbErr?.code || fbErr?.message || fbErr, '→ switching to backend OTP delivery');
+          console.warn('[Firebase SMS Error]', fbErr?.code || fbErr?.message || fbErr);
+          if (fbErr?.code === 'auth/invalid-phone-number') {
+            showToast('Invalid phone number format. Please check and try again.', 'error');
+            return;
+          } else if (fbErr?.code === 'auth/too-many-requests') {
+            showToast('Too many SMS requests. Please wait a few minutes before requesting again.', 'error');
+            return;
+          }
         }
       }
 
-      // ── If Firebase didn't send (or test number / local dev / timeout), use backend DB-stored OTP ──
+      // ── Fallback to direct backend OTP if Firebase client is unavailable or local dev sandbox ──
       if (!firebaseSent) {
         cleanupRecaptcha();
         await triggerBackendOtp();
       }
     } catch (err) {
       cleanupRecaptcha();
-      showToast('Unable to initiate OTP verification. Please check network.', 'error');
+      showToast('Unable to initiate OTP verification. Please check your network connection.', 'error');
     } finally {
       setIsSending(false);
     }
@@ -228,10 +227,9 @@ const Login = ({ onNavigate, callbackUrl }) => {
     isVerifyingRef.current = true;
     setIsVerifying(true);
     try {
-      // NextAuth Integration
       let result;
-      // ── Path 1: Firebase SMS OTP (real SMS was sent, NOT test number) ──
-      if (firebaseConfirmation && phone !== '9172600587') {
+      // ── Path 1: Firebase SMS Confirmation ──
+      if (firebaseConfirmation) {
         try {
           const confirmationResult = await firebaseConfirmation.confirm(enteredOtp);
           const firebaseIdToken = await confirmationResult.user.getIdToken();
@@ -241,15 +239,15 @@ const Login = ({ onNavigate, callbackUrl }) => {
              phone,
              firebaseIdToken
           });
-        // eslint-disable-next-line
         } catch (fbErr) {
-          showToast('Invalid OTP. Please check and try again.', 'error');
+          console.error('[Firebase Verify Error]:', fbErr);
+          showToast('Invalid OTP code. Please check SMS and try again.', 'error');
           setIsVerifying(false);
           isVerifyingRef.current = false;
           return;
         }
       } else {
-        // ── Path 2: Backend authentic OTP verification (also for test number 9172600587) ──
+        // ── Path 2: Backend authentic OTP verification ──
         try {
           result = await signIn('credentials', {
              redirect: false,
@@ -257,7 +255,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
              otp: enteredOtp
           });
         } catch (authErr) {
-          result = { error: 'Backend authentication server unreachable' };
+          result = { error: 'Authentication server unreachable' };
         }
       }
 
