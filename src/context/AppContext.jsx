@@ -741,11 +741,30 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(details)
       });
       if (res.ok) {
+        const updatedData = await res.json().catch(() => null);
+        if (updatedData && !updatedData.error) {
+          setDbUser(prev => ({
+            ...(prev || {}),
+            ...updatedData
+          }));
+          try {
+            const currentCache = JSON.parse(localStorage.getItem('abkharido_cached_profile') || '{}');
+            localStorage.setItem('abkharido_cached_profile', JSON.stringify({
+              ...currentCache,
+              ...updatedData,
+              _cachedAt: Date.now()
+            }));
+          } catch (e) {}
+        } else if (details) {
+          setDbUser(prev => ({
+            ...(prev || {}),
+            ...details
+          }));
+        }
         fetchUser(currentUser.username || currentUser.name, currentUser.phone, currentUser._id);
-        showToast('Profile updated successfully!', 'success');
         return true;
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         showToast(err.error || 'Failed to update profile.', 'error');
       }
     // eslint-disable-next-line

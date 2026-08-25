@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 // eslint-disable-next-line
-import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight, CreditCard, ShieldCheck } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, ArrowLeft, LogOut, Edit2, Heart, Trash2, ShoppingBag, ArrowRight, CreditCard, ShieldCheck, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
 import { auth } from '../firebase';
@@ -55,8 +55,23 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Address Book Modal State (Dedicated)
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
+  const [addressModalData, setAddressModalData] = useState({
+    name: '',
+    phone: '',
+    houseNo: '',
+    streetArea: '',
+    pincode: '',
+    city: '',
+    state: '',
+    addressType: 'Home',
+    isDefault: false
+  });
+  const [isModalPincodeLoading, setIsModalPincodeLoading] = useState(false);
+
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
 
   // Sync Firebase email verification status to backend DB
@@ -198,83 +213,177 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                      lastName !== initialLastName || 
                      emailInput !== (currentUser?.email || '');
 
-  const handleSaveAddress = async (e) => {
-    e.preventDefault();
-    if (!pincodeInput || !streetAreaInput) return;
-    
-    const addresses = Array.isArray(currentUser?.addresses) ? [...currentUser.addresses] : [];
-    const newAddress = {
-      id: editingAddressId || 'addr_' + Date.now(),
-      name: currentUser?.fullName || (currentUser?.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : 'User'),
-      phone: currentUser?.phone || '',
-      houseNo: houseFlatInput,
-      streetArea: streetAreaInput,
-      streetAddress: streetAreaInput,
-      city: cityInput,
-      pincode: pincodeInput,
-      state: stateInput,
-      addressType: addressType || 'Home',
-      isDefault: editingAddressId ? undefined : (addresses.length === 0)
-    };
+  // Auto-detect city & state when pincode changes in modal
+  const handleModalPincodeChange = async (pin) => {
+    setAddressModalData(prev => ({ ...prev, pincode: pin }));
+    const pinClean = pin.trim();
+    if (pinClean.length === 6 && !isNaN(pinClean)) {
+      setIsModalPincodeLoading(true);
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${pinClean}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data[0]?.Status === 'Success' && data[0].PostOffice?.[0]) {
+            const po = data[0].PostOffice[0];
+            setAddressModalData(prev => ({
+              ...prev,
+              city: po.District || po.Block || po.Name || prev.city,
+              state: po.State || prev.state
+            }));
+            showToast(`Resolved: ${po.District || po.Name}, ${po.State}`, 'success');
+          }
+        }
+      } catch (e) {
+        // network fallback
+      } finally {
+        setIsModalPincodeLoading(false);
+      }
+    }
+  };
+
+  const openAddAddressModal = () => {
+    setEditingAddressId(null);
+    setAddressModalData({
+      name: currentUser?.fullName || (currentUser?.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : ''),
+      phone: currentUser?.phone || currentUser?.username || '',
+      houseNo: '',
+      streetArea: '',
+      pincode: '',
+      city: '',
+      state: '',
+      addressType: 'Home',
+      isDefault: !(currentUser?.addresses && currentUser.addresses.length > 0)
+    });
+    setIsAddressModalOpen(true);
+  };
+
+  const openEditAddressModal = (addr) => {
+    if (!addr) return;
+    setEditingAddressId(addr.id || addr._id);
+    setAddressModalData({
+      name: addr.name || currentUser?.fullName || '',
+      phone: addr.phone || currentUser?.phone || currentUser?.username || '',
+      houseNo: addr.houseNo || '',
+      streetArea: addr.streetArea || addr.streetAddress || addr.address || '',
+      pincode: addr.pincode || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      addressType: addr.addressType || 'Home',
+      isDefault: !!addr.isDefault
+    });
+    setIsAddressModalOpen(true);
+  };
+
+  const handleSaveAddressModal = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const { name, phone, houseNo, streetArea, pincode, city, state, addressType: modalAddrType, isDefault } = addressModalData;
+
+    if (!name?.trim()) {
+      showToast('Please enter full name.', 'error');
+      return;
+    }
+    const cleanPhone = String(phone || '').replace(/[^0-9]/g, '').slice(-10);
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      showToast('Please enter a valid 10-digit Indian mobile number.', 'error');
+      return;
+    }
+    if (!pincode?.trim() || pincode.trim().length !== 6 || isNaN(pincode.trim())) {
+      showToast('Please enter a valid 6-digit Pincode.', 'error');
+      return;
+    }
+    if (!streetArea?.trim()) {
+      showToast('Please enter street address / area.', 'error');
+      return;
+    }
+    if (!city?.trim() || !state?.trim()) {
+      showToast('City and state are required.', 'error');
+      return;
+    }
+
+    const fullStreetAddress = houseNo?.trim() ? `${houseNo.trim()}, ${streetArea.trim()}` : streetArea.trim();
+    const currentAddresses = Array.isArray(currentUser?.addresses) ? [...currentUser.addresses] : [];
+
+    const isTargetDefault = isDefault || currentAddresses.length === 0;
+    let updatedAddresses = [];
 
     if (editingAddressId) {
-      const idx = addresses.findIndex(a => a?.id === editingAddressId);
-      if (idx !== -1) {
-        if (newAddress.isDefault === undefined) newAddress.isDefault = addresses[idx]?.isDefault;
-        addresses[idx] = { ...(addresses[idx] || {}), ...newAddress };
-      }
+      updatedAddresses = currentAddresses.map(addr => {
+        const matches = (addr?.id && addr.id === editingAddressId) || (addr?._id && addr._id === editingAddressId);
+        if (matches) {
+          return {
+            ...addr,
+            id: editingAddressId,
+            name: name.trim(),
+            phone: cleanPhone,
+            houseNo: houseNo.trim(),
+            streetArea: streetArea.trim(),
+            streetAddress: fullStreetAddress,
+            pincode: pincode.trim(),
+            city: city.trim(),
+            state: state.trim(),
+            addressType: modalAddrType || 'Home',
+            isDefault: isTargetDefault
+          };
+        }
+        return isTargetDefault ? { ...addr, isDefault: false } : addr;
+      });
     } else {
-      addresses.push(newAddress);
+      const newAddr = {
+        id: 'addr_' + Date.now(),
+        name: name.trim(),
+        phone: cleanPhone,
+        houseNo: houseNo.trim(),
+        streetArea: streetArea.trim(),
+        streetAddress: fullStreetAddress,
+        pincode: pincode.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        addressType: modalAddrType || 'Home',
+        isDefault: isTargetDefault
+      };
+      const cleanedExisting = isTargetDefault ? currentAddresses.map(a => ({ ...a, isDefault: false })) : currentAddresses;
+      updatedAddresses = [...cleanedExisting, newAddr];
     }
 
     setIsUpdating(true);
     const success = await updateUserProfile({
-      addresses,
-      firstName,
-      lastName,
-      email: emailInput
+      addresses: updatedAddresses
     });
-    if (success) setIsAddressModalOpen(false);
     setIsUpdating(false);
+
+    if (success) {
+      setIsAddressModalOpen(false);
+      showToast(editingAddressId ? 'Address updated successfully! 🎉' : 'New address saved! 🎉', 'success');
+    }
   };
 
   const handleDeleteAddress = async (id) => {
-    if (!window.confirm('Delete this address?')) return;
-    const addresses = (currentUser?.addresses || []).filter(a => a && a.id !== id);
-    if (addresses.length > 0 && !addresses.find(a => a?.isDefault)) {
-      if (addresses[0]) addresses[0].isDefault = true;
+    if (!window.confirm('Are you sure you want to delete this address?')) return;
+    const currentAddresses = Array.isArray(currentUser?.addresses) ? [...currentUser.addresses] : [];
+    let remaining = currentAddresses.filter(a => a && a.id !== id && a._id !== id);
+    if (remaining.length > 0 && !remaining.some(a => a?.isDefault)) {
+      remaining[0].isDefault = true;
     }
-    await updateUserProfile({ addresses });
+    setIsUpdating(true);
+    const success = await updateUserProfile({ addresses: remaining });
+    setIsUpdating(false);
+    if (success) {
+      showToast('Address removed.', 'info');
+    }
   };
 
   const handleSetDefaultAddress = async (id) => {
-    const addresses = (currentUser?.addresses || []).filter(Boolean).map(a => ({
+    const currentAddresses = Array.isArray(currentUser?.addresses) ? [...currentUser.addresses] : [];
+    const updated = currentAddresses.map(a => ({
       ...a,
-      isDefault: a?.id === id
+      isDefault: (a?.id === id || a?._id === id)
     }));
-    await updateUserProfile({ addresses });
-  };
-  
-  const openAddAddressModal = () => {
-    setEditingAddressId(null);
-    setPincodeInput('');
-    setHouseFlatInput('');
-    setStreetAreaInput('');
-    setCityInput('');
-    setStateInput('');
-    setAddressType('Home');
-    setIsAddressModalOpen(true);
-  };
-  
-  const openEditAddressModal = (addr) => {
-    setEditingAddressId(addr.id);
-    setPincodeInput(addr.pincode || '');
-    setHouseFlatInput(addr.houseNo || '');
-    setStreetAreaInput(addr.streetArea || addr.streetAddress || addr.address || '');
-    setCityInput(addr.city || '');
-    setStateInput(addr.state || '');
-    setAddressType(addr.addressType || 'Home');
-    setIsAddressModalOpen(true);
+    setIsUpdating(true);
+    const success = await updateUserProfile({ addresses: updated });
+    setIsUpdating(false);
+    if (success) {
+      showToast('Default delivery address updated! 🏠', 'success');
+    }
   };
 
   const handleUpdateProfile = async (e) => {
@@ -1073,6 +1182,247 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
         )}
 
       </div>
+
+      {/* ── 5. Add / Edit Address Modal ── */}
+      {isAddressModalOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            overflowY: 'auto',
+            padding: '20px 16px 100px 16px'
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsAddressModalOpen(false);
+          }}
+        >
+          <div 
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '20px',
+              width: '100%',
+              maxWidth: '500px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              padding: '22px',
+              position: 'relative',
+              margin: 'auto',
+              animation: 'modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+          >
+            <style>{`
+              @keyframes modalSlideUp {
+                from { opacity: 0; transform: translateY(16px) scale(0.98); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+              }
+            `}</style>
+
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>📍</span> {editingAddressId ? 'Edit Delivery Address' : 'Add New Delivery Address'}
+                </h3>
+                <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
+                  Enter delivery details for fast, accurate shipping.
+                </p>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setIsAddressModalOpen(false)}
+                style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer', flexShrink: 0 }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveAddressModal} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              
+              {/* Full Name & Phone */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 200px' }}>
+                  <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '6px', display: 'block' }}>Full Name *</label>
+                  <input 
+                    type="text" 
+                    value={addressModalData.name} 
+                    onChange={(e) => setAddressModalData({ ...addressModalData, name: e.target.value })}
+                    className="profile-input"
+                    placeholder="e.g. Raj Chauhan"
+                    required
+                    style={{ height: '44px', fontSize: '13.5px' }}
+                  />
+                </div>
+                <div style={{ flex: '1 1 200px' }}>
+                  <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '6px', display: 'block' }}>Mobile Number *</label>
+                  <input 
+                    type="tel" 
+                    value={addressModalData.phone} 
+                    onChange={(e) => setAddressModalData({ ...addressModalData, phone: e.target.value })}
+                    className="profile-input"
+                    placeholder="10-digit mobile"
+                    maxLength={10}
+                    required
+                    style={{ height: '44px', fontSize: '13.5px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Pincode & Locality */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 140px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', margin: 0 }}>Pincode *</label>
+                    {isModalPincodeLoading && <span style={{ fontSize: '10.5px', color: '#4f46e5', fontWeight: '700' }}>Resolving...</span>}
+                  </div>
+                  <input 
+                    type="text" 
+                    value={addressModalData.pincode} 
+                    onChange={(e) => handleModalPincodeChange(e.target.value)}
+                    className="profile-input"
+                    placeholder="6 digits"
+                    maxLength={6}
+                    inputMode="numeric"
+                    required
+                    style={{ height: '44px', fontSize: '13.5px' }}
+                  />
+                </div>
+                <div style={{ flex: '1 1 200px' }}>
+                  <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '6px', display: 'block' }}>Locality / Area *</label>
+                  <input 
+                    type="text" 
+                    value={addressModalData.streetArea} 
+                    onChange={(e) => setAddressModalData({ ...addressModalData, streetArea: e.target.value })}
+                    className="profile-input"
+                    placeholder="e.g. Indiranagar 100ft Road"
+                    required
+                    style={{ height: '44px', fontSize: '13.5px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Flat No / House */}
+              <div>
+                <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '6px', display: 'block' }}>Flat / House No. / Building (Optional)</label>
+                <input 
+                  type="text" 
+                  value={addressModalData.houseNo} 
+                  onChange={(e) => setAddressModalData({ ...addressModalData, houseNo: e.target.value })}
+                  className="profile-input"
+                  placeholder="e.g. Flat 402, Sai Residency"
+                  style={{ height: '44px', fontSize: '13.5px' }}
+                />
+              </div>
+
+              {/* City & State */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 180px' }}>
+                  <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '6px', display: 'block' }}>City *</label>
+                  <input 
+                    type="text" 
+                    value={addressModalData.city} 
+                    onChange={(e) => setAddressModalData({ ...addressModalData, city: e.target.value })}
+                    className="profile-input"
+                    placeholder="e.g. Bengaluru"
+                    required
+                    style={{ height: '44px', fontSize: '13.5px' }}
+                  />
+                </div>
+                <div style={{ flex: '1 1 180px' }}>
+                  <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '6px', display: 'block' }}>State *</label>
+                  <input 
+                    type="text" 
+                    value={addressModalData.state} 
+                    onChange={(e) => setAddressModalData({ ...addressModalData, state: e.target.value })}
+                    className="profile-input"
+                    placeholder="e.g. Karnataka"
+                    required
+                    style={{ height: '44px', fontSize: '13.5px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Address Type Buttons */}
+              <div>
+                <label className="profile-label" style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '8px', display: 'block' }}>Address Type</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[
+                    { type: 'Home', icon: '🏠', label: 'Home' },
+                    { type: 'Work', icon: '🏢', label: 'Work' },
+                    { type: 'Other', icon: '📍', label: 'Other' }
+                  ].map(({ type, icon, label }) => {
+                    const isSelected = addressModalData.addressType === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setAddressModalData({ ...addressModalData, addressType: type })}
+                        style={{
+                          flex: 1,
+                          height: '38px',
+                          borderRadius: '10px',
+                          border: isSelected ? '2px solid #4f46e5' : '1px solid #cbd5e1',
+                          background: isSelected ? '#f5f3ff' : '#ffffff',
+                          color: isSelected ? '#4f46e5' : '#475569',
+                          fontWeight: '800',
+                          fontSize: '12.5px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <span>{icon}</span> {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Make Default Checkbox */}
+              <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '10px', background: '#f8fafc', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <input 
+                  type="checkbox"
+                  id="modal-default-address"
+                  checked={addressModalData.isDefault}
+                  onChange={(e) => setAddressModalData({ ...addressModalData, isDefault: e.target.checked })}
+                  style={{ width: '16px', height: '16px', accentColor: '#4f46e5', cursor: 'pointer' }}
+                />
+                <label htmlFor="modal-default-address" style={{ fontSize: '12.5px', fontWeight: '700', color: '#0f172a', cursor: 'pointer', margin: 0 }}>
+                  Make this my default delivery address
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setIsAddressModalOpen(false)}
+                  style={{ flex: 1, height: '44px', background: '#f1f5f9', border: 'none', color: '#475569', fontWeight: '800', fontSize: '13px', borderRadius: '10px', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isUpdating}
+                  style={{ flex: 2, height: '44px', background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', border: 'none', color: '#ffffff', fontWeight: '800', fontSize: '13.5px', borderRadius: '10px', cursor: isUpdating ? 'not-allowed' : 'pointer', boxShadow: '0 4px 14px rgba(79, 70, 229, 0.3)' }}
+                >
+                  {isUpdating ? 'Saving Address...' : editingAddressId ? 'Update Address' : 'Save Address'}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

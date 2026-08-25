@@ -218,16 +218,27 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       return;
     }
 
-    // Persist address to profile
+    // Persist new address to profile address book
     if (updateUserProfile && currentUser && isAddingNewAddress) {
-      updateUserProfile({
-        fullName: address.name,
-        phone: address.phone,
-        pincode: address.pincode,
-        address: address.streetAddress,
+      const existingAddresses = Array.isArray(currentUser.addresses) ? [...currentUser.addresses] : [];
+      const newAddrObj = {
+        id: 'addr_' + Date.now(),
+        name: address.name,
+        phone: cleanPhone,
+        houseNo: '',
+        streetArea: address.locality || '',
+        streetAddress: address.streetAddress,
         city: address.city,
-        state: address.state
+        state: address.state,
+        pincode: address.pincode,
+        addressType: 'Home',
+        isDefault: existingAddresses.length === 0
+      };
+      const updatedAddresses = [...existingAddresses, newAddrObj];
+      updateUserProfile({
+        addresses: updatedAddresses
       });
+      setIsAddingNewAddress(false);
     }
 
     setStep(2);
