@@ -34,14 +34,33 @@ const AdminUsers = () => {
         const data = await res.json();
         const rawList = Array.isArray(data) ? data : (data.users || []);
         if (rawList.length > 0) {
-          const enhanced = rawList.map(u => ({
-            ...u,
-            fullName: u.fullName || u.name || u.username || 'Customer',
-            email: u.email || `${u.phone || 'customer'}@abkharido.com`,
-            totalSpent: u.totalSpent || 0,
-            tier: (u.walletCoins > 500 || u.isInfluencer) ? 'VIP Platinum' : 'Active Buyer',
-            status: u.isFrozen ? 'Frozen' : 'Verified OTP'
-          }));
+          const enhanced = rawList.map(u => {
+            // Clean phone: ensure 10-digit format
+            let cleanPhone = u.phone || '';
+            if (cleanPhone.includes(':') || cleanPhone.length > 15) {
+              const match = (u.username || '').match(/\d{10}/);
+              cleanPhone = match ? match[0] : '';
+            }
+
+            // Clean email: never generate fake email or display ciphertext
+            let cleanEmail = u.email || '';
+            if (
+              cleanEmail.includes(':') || 
+              (cleanEmail.endsWith('@abkharido.com') && !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com', 'wholesale@abkharido.com'].includes(cleanEmail.toLowerCase()))
+            ) {
+              cleanEmail = '';
+            }
+
+            return {
+              ...u,
+              fullName: u.fullName || u.name || u.username || 'Customer',
+              email: cleanEmail,
+              phone: cleanPhone,
+              totalSpent: u.totalSpent || 0,
+              tier: (u.walletCoins > 500 || u.isInfluencer) ? 'VIP Platinum' : 'Active Buyer',
+              status: u.isFrozen ? 'Frozen' : 'Verified OTP'
+            };
+          });
           setUsers(enhanced);
           setLoading(false);
           return;
@@ -69,7 +88,7 @@ const AdminUsers = () => {
   };
 
   const handleForceOtpReset = (user) => {
-    showToastMsg(`🔐 Security OTP reset triggered for ${user.email}`, 'success');
+    showToastMsg(`🔐 Security OTP reset triggered for ${user.email || user.phone || 'customer'}`, 'success');
   };
 
   const filteredUsers = users.filter(u => {
@@ -207,9 +226,25 @@ const AdminUsers = () => {
                       </div>
                       <div>
                         <div style={{ fontWeight: '900', color: '#0f172a', fontSize: '15px' }}>{user.fullName || user.name || user.username}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '3px' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={11} /> {user.email || '—'}</span>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={11} /> {user.phone || '—'}</span>
+                        <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '12px', marginTop: '3px', flexWrap: 'wrap' }}>
+                          {user.email ? (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#4338ca', fontWeight: '600' }}>
+                              <Mail size={12} color="#6366f1" /> {user.email}
+                            </span>
+                          ) : (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94a3b8', fontStyle: 'italic' }}>
+                              <Mail size={12} color="#cbd5e1" /> No email linked
+                            </span>
+                          )}
+                          {user.phone ? (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#047857', fontWeight: '600' }}>
+                              <Phone size={12} color="#10b981" /> +91 {user.phone}
+                            </span>
+                          ) : (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94a3b8' }}>
+                              <Phone size={12} color="#cbd5e1" /> —
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

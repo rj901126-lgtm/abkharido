@@ -89,19 +89,17 @@ async function captureAdminOMS() {
   await page.screenshot({ path: mainImg, fullPage: false });
   console.log('✓ Saved admin_oms_modernized_view.png');
 
-  // Click Inspect button on first order to capture Inspect Modal
-  const inspectBtn = page.locator('button:has-text("Inspect")').first();
-  if (await inspectBtn.count() > 0) {
-    console.log('Opening Inspect Order modal...');
-    await inspectBtn.click();
-    await page.waitForTimeout(1500);
-    const modalImg = path.join(artifactsDir, 'admin_oms_inspect_modal.png');
-    await page.screenshot({ path: modalImg, fullPage: false });
-    console.log('✓ Saved admin_oms_inspect_modal.png');
-  }
+  // Navigate to Users & Sellers tab
+  console.log('Navigating to Users & Sellers directory...');
+  const usersNav = page.locator('.admin-nav-item:has-text("Users & Sellers")').first();
+  await usersNav.click();
+  await page.waitForTimeout(3000);
+  const usersImg = path.join(artifactsDir, 'admin_users_cleaned_view.png');
+  await page.screenshot({ path: usersImg, fullPage: false });
+  console.log('✓ Saved admin_users_cleaned_view.png');
 
   await browser.close();
-  console.log('--- ADMIN OMS CAPTURE COMPLETED SUCCESSFULLY ---');
+  console.log('--- ADMIN OMS & USERS CAPTURE COMPLETED SUCCESSFULLY ---');
 }
 
 captureAdminOMS().catch(e => console.error(e));

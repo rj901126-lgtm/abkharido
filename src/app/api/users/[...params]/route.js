@@ -108,7 +108,7 @@ export async function GET(req, { params }) {
           user = await User.create({
             username: decodedToken?.username || phoneToUse,
             phone: phoneToUse,
-            email: decodedToken?.email || `${phoneToUse}@abkharido.com`,
+            email: decodedToken?.email || undefined,
             fullName: nameToUse,
             walletCoins: 100,
             password: 'abkharido_otp_user_' + Date.now()
@@ -125,12 +125,12 @@ export async function GET(req, { params }) {
       let userObj = user.toObject();
       
       // Sanitize encrypted ciphertext if present
-      if (userObj.phone && userObj.phone.includes(':')) {
+      if (userObj.phone && (userObj.phone.includes(':') || userObj.phone.length > 15)) {
         const cleanDigits = phoneDigits || (userObj.username && userObj.username.match(/\d{10}/) ? userObj.username.match(/\d{10}/)[0] : '') || decodedToken?.phone || '';
         if (cleanDigits) userObj.phone = cleanDigits;
       }
-      if (userObj.email && userObj.email.includes(':')) {
-        userObj.email = decodedToken?.email || (userObj.phone ? `${userObj.phone}@abkharido.com` : undefined);
+      if (userObj.email && (userObj.email.includes(':') || (userObj.email.endsWith('@abkharido.com') && !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com'].includes(userObj.email.toLowerCase())))) {
+        userObj.email = decodedToken?.email || undefined;
       }
       
       let isOwnerOrAdmin = false;
@@ -294,7 +294,7 @@ export async function POST(req, { params }) {
             _id: (username && username.length === 24 && /^[0-9a-fA-F]{24}$/.test(username)) ? username : undefined,
             username: body.username || phoneToUse || `user_${Date.now()}`,
             phone: phoneToUse,
-            email: body.email || (phoneToUse ? `${phoneToUse}@abkharido.com` : undefined),
+            email: body.email || undefined,
             fullName: nameToUse,
             walletCoins: 100,
             password: 'abkharido_user_' + Date.now(),

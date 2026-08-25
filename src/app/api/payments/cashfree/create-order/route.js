@@ -143,8 +143,7 @@ export async function POST(req) {
           { phone: guestPhone },
           { phone: `+91${guestPhone}` },
           { username: guestPhone },
-          { username: `+91${guestPhone}` },
-          { email: `${guestPhone}@abkharido.com` }
+          { username: `+91${guestPhone}` }
         ]
       });
 
@@ -152,7 +151,7 @@ export async function POST(req) {
         guestUser = await User.create({
           username: guestPhone || `guest_${randomSuffix}`,
           phone: guestPhone || '9999999999',
-          email: `${guestPhone || randomSuffix}@abkharido.com`,
+          email: shippingAddress.email || undefined,
           fullName: shippingAddress.fullName || 'Customer',
           walletCoins: 0,
           password: 'guest_checkout_' + Date.now()
