@@ -170,18 +170,35 @@ const CartPage = ({ onNavigate, onCheckout }) => {
     );
   };
 
+  const totalItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
     <div className="container cart-layout-grid animate-fade-in desktop-premium-cart">
       
       {/* Left side: Cart Items list */}
       <div className="cart-items-section">
-        <div className="cart-card-header cart-card-header-flex" style={{ borderBottom: 'none', paddingBottom: '0' }}>
-          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#090d16' }}>
-            🛍️ My VIP Shopping Bag ({cart.reduce((acc, item) => acc + item.quantity, 0)} Items)
-          </span>
+        <div className="cart-header-title-row">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '38px', height: '38px', background: 'linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
+              <ShoppingBag size={20} color="#ffffff" />
+            </div>
+            <div>
+              <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '900', color: '#090d16', margin: 0, lineHeight: 1.2 }}>
+                Shopping Bag
+              </h1>
+              <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
+                {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'} in your cart
+              </span>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => onNavigate('categories')}
+            style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer' }}
+          >
+            + Add More Items
+          </button>
         </div>
-
-
 
         {/* Active Referral Confirmation Banner */}
         {activeReferral && (
@@ -208,15 +225,20 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
               <div className="cart-item-details">
                 <h3 className="cart-item-title">{prod.name || 'Product'}</h3>
-                <span className="cart-item-category">
-                  Category: {prod.category || 'General'}
-                  {prod.selectedColor && ` | Color: ${prod.selectedColor}`}
-                  {prod.selectedVariant && ` | Variant: ${prod.selectedVariant}`}
-                </span>
+                
+                {(prod.selectedColor || prod.selectedVariant) && (
+                  <span className="cart-item-category">
+                    {prod.selectedColor && `Color: ${prod.selectedColor}`}
+                    {prod.selectedColor && prod.selectedVariant && ' • '}
+                    {prod.selectedVariant && `Variant: ${prod.selectedVariant}`}
+                  </span>
+                )}
                 
                 <div className="cart-item-prices">
                   <span className="cart-item-price">₹{(prod.price || 0).toLocaleString('en-IN')}</span>
-                  <span className="cart-item-original">₹{(prod.originalPrice || 0).toLocaleString('en-IN')}</span>
+                  {(prod.originalPrice || 0) > (prod.price || 0) && (
+                    <span className="cart-item-original">₹{(prod.originalPrice || 0).toLocaleString('en-IN')}</span>
+                  )}
                   {discountPercent > 0 && (
                     <span className="cart-item-discount">{discountPercent}% OFF</span>
                   )}
@@ -250,13 +272,13 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                       onClick={() => handleMoveToWishlist(item.product.id)}
                       title="Save for Later"
                     >
-                      <Heart size={16} /> Save
+                      <Heart size={14} /> Save
                     </button>
                     <button 
                       className="item-action-btn"
                       onClick={() => removeFromCart(item.product.id)}
                     >
-                      <Trash2 size={16} /> Remove
+                      <Trash2 size={14} /> Remove
                     </button>
                   </div>
                 </div>
@@ -266,49 +288,46 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         })}
       </div>
 
-      {/* Right side: Summary Details */}
-      <div className="price-details-card" style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%)', color: '#ffffff', borderRadius: '24px', padding: '24px', boxShadow: '0 12px 40px rgba(30, 27, 75, 0.3)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="price-card-title" style={{ color: '#ffffff', fontSize: '20px', fontWeight: '900', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px', marginBottom: '16px' }}>Price Summary</div>
-        
-        {/* Urgency Trigger */}
-        <div className="cart-urgent-banner" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '12px', padding: '12px' }}>
-          <span className="cart-urgent-icon">🔥</span>
-          <div className="cart-urgent-text" style={{ color: '#e2e8f0' }}>
-            <span className="cart-urgent-bold" style={{ color: '#ffffff' }}>High Demand!</span> Checkout now to avoid stockouts.
-          </div>
+      {/* Right side: Clean White Summary Details */}
+      <div className="price-details-card">
+        <div className="price-card-title">
+          <span>🧾 Price Summary</span>
+          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700' }}>({totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'})</span>
         </div>
 
+        {/* AB Coin Wallet Redemption */}
         {currentUser && userCoins > 0 && (
-          <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(234, 88, 12, 0.15))', border: '1px solid rgba(253, 230, 138, 0.2)', borderRadius: '16px', padding: '16px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: 'white', padding: '10px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(245, 158, 11, 0.3)' }}>
-                <Coins size={24} />
+          <div className="cart-coin-box">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: 'white', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(245, 158, 11, 0.3)', flexShrink: 0 }}>
+                <Coins size={18} />
               </div>
               <div>
-                <div style={{ fontSize: '15px', fontWeight: '800', color: '#fde68a', marginBottom: '2px' }}>AB Coin Wallet</div>
-                <div style={{ fontSize: '13px', color: '#fcd34d', fontWeight: '500' }}>Save ₹{maxCoinsToRedeem.toLocaleString('en-IN')} instantly</div>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#92400e', marginBottom: '1px' }}>AB Coin Wallet</div>
+                <div style={{ fontSize: '11.5px', color: '#b45309', fontWeight: '600' }}>Use {maxCoinsToRedeem} coins to save ₹{maxCoinsToRedeem.toLocaleString('en-IN')}</div>
               </div>
             </div>
             
-            {/* Custom Premium Toggle Switch */}
+            {/* Premium Toggle Switch */}
             <div 
               onClick={() => setUseCoinsDiscount(!useCoinsDiscount)}
               style={{
-                width: '50px',
-                height: '28px',
+                width: '46px',
+                height: '26px',
                 borderRadius: '50px',
-                background: useCoinsDiscount ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : 'rgba(255,255,255,0.2)',
+                background: useCoinsDiscount ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : '#cbd5e1',
                 position: 'relative',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
+                flexShrink: 0
               }}
             >
               <div style={{
                 position: 'absolute',
                 top: '2px',
-                left: useCoinsDiscount ? '24px' : '2px',
-                width: '24px',
-                height: '24px',
+                left: useCoinsDiscount ? '22px' : '2px',
+                width: '22px',
+                height: '22px',
                 borderRadius: '50%',
                 background: 'white',
                 boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
@@ -318,81 +337,58 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           </div>
         )}
 
-        <div className="cart-price-summary-list" style={{ color: '#e2e8f0', fontSize: '15px' }}>
-          <div className="price-row-item" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <span>Price ({cart.length} items)</span>
-            <span style={{ fontWeight: '600', color: '#ffffff' }}>₹{originalItemsPrice.toLocaleString('en-IN')}</span>
+        {/* Breakdown List */}
+        <div className="cart-price-summary-list">
+          <div className="price-row-item">
+            <span>Total MRP</span>
+            <span style={{ fontWeight: '700', color: '#0f172a' }}>₹{originalItemsPrice.toLocaleString('en-IN')}</span>
           </div>
           
           {discountValue > 0 && (
-            <div className="price-row-item" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span>Discount</span>
-              <span className="cart-discount-value" style={{ color: '#34d399', fontWeight: '700' }}>- ₹{discountValue.toLocaleString('en-IN')}</span>
+            <div className="price-row-item">
+              <span>Special Discount</span>
+              <span className="cart-discount-value">- ₹{discountValue.toLocaleString('en-IN')}</span>
             </div>
           )}
 
           {coinsDiscount > 0 && (
-            <div className="price-row-item" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fcd34d', fontWeight: '600' }}><Coins size={14} /> AB Coins</span>
-              <span style={{ color: '#fcd34d', fontWeight: '700' }}>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
+            <div className="price-row-item">
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#b45309', fontWeight: '700' }}><Coins size={13} /> AB Coins</span>
+              <span style={{ color: '#b45309', fontWeight: '800' }}>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
             </div>
           )}
 
-          <div className="price-row-item" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', borderBottom: '1px dashed rgba(255,255,255,0.15)', paddingBottom: '16px' }}>
-            <span>Delivery Charges</span>
-            <span>{deliveryCharge > 0 ? `₹${deliveryCharge}` : <span className="cart-delivery-free" style={{ color: '#34d399', fontWeight: '800' }}>FREE</span>}</span>
+          <div className="price-row-item">
+            <span>Delivery Fee</span>
+            <span>{deliveryCharge > 0 ? `₹${deliveryCharge}` : <span className="cart-delivery-free">FREE</span>}</span>
           </div>
         </div>
 
-        <div className="price-total-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '20px', fontWeight: '900', color: '#ffffff', marginBottom: '16px', fontFamily: "'Outfit', sans-serif" }}>
+        {/* Total Amount Row */}
+        <div className="price-total-row">
           <span>Total Amount</span>
-          <span>₹{finalAmount.toLocaleString('en-IN')}</span>
+          <span style={{ color: '#0f172a' }}>₹{finalAmount.toLocaleString('en-IN')}</span>
         </div>
 
+        {/* Savings Badge */}
         {discountValue + coinsDiscount > 0 && (
-          <div className="price-savings-notice" style={{ color: '#34d399', fontSize: '14px', fontWeight: '800', marginBottom: '24px', background: 'rgba(52, 211, 153, 0.1)', padding: '10px 14px', borderRadius: '10px' }}>
-            You will save ₹{(discountValue + coinsDiscount).toLocaleString('en-IN')} on this order
+          <div className="price-savings-notice">
+            🎉 You will save ₹{(discountValue + coinsDiscount).toLocaleString('en-IN')} on this order
           </div>
         )}
 
-        {/* Desktop Checkout Button */}
-        <style>{`
-          .premium-checkout-btn {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
-            color: #ffffff;
-            border: none;
-            width: 100%;
-            padding: 16px;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 900;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Outfit', sans-serif;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            animation: pulse-glow 2s infinite;
-          }
-          .premium-checkout-btn:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-          }
-        `}</style>
+        {/* Desktop Checkout Button (Hidden on Mobile) */}
         <button 
           className="premium-checkout-btn cart-checkout-btn-desktop" 
           onClick={() => onCheckout(useCoinsDiscount)}
         >
-          {/* eslint-disable-next-line */}
-          <Lock size={18} /> PLACE ORDER
+          <Lock size={16} /> Proceed to Checkout
         </button>
 
         {/* Trust Badges */}
-        <div className="cart-safe-footer" style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
-          <ShieldCheck size={16} color="#34d399" className="cart-safe-icon" />
-          <span>Safe and Secure Payments. 100% Authentic products.</span>
+        <div className="cart-safe-footer">
+          <ShieldCheck size={16} color="#059669" className="cart-safe-icon" />
+          <span>100% Secure Checkout • Cashfree Protected</span>
         </div>
       </div>
 
@@ -400,15 +396,15 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       <div className="mobile-cart-sticky-bar">
         <div className="mobile-cart-price-info">
           <div className="mobile-cart-amount">₹{finalAmount.toLocaleString('en-IN')}</div>
-          <div className="mobile-cart-saving">
-            Save ₹{(discountValue + coinsDiscount).toLocaleString('en-IN')}
+          <div className="mobile-cart-meta">
+            🚚 Free Express Delivery
           </div>
         </div>
         <button 
           className="mobile-cart-checkout-btn"
           onClick={() => onCheckout(useCoinsDiscount)}
         >
-          Place Order
+          Place Order →
         </button>
       </div>
 
