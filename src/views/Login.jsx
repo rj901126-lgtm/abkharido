@@ -419,8 +419,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   {!isVerifying && <ChevronRight size={18} />}
                 </button>
 
-                {/* 🧪 Developer 1-Click Fast Unlock - strictly hidden in production */}
-                {process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_ENABLE_TEST_OTP === 'true' && (
+                {/* 🧪 Developer 1-Click Fast Unlock for authorized test phone */}
+                {(phone === '9172600587' || process.env.NEXT_PUBLIC_ENABLE_TEST_OTP === 'true') && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -430,7 +430,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                     style={{
                       width: '100%',
                       padding: '10px',
-                      marginTop: '4px',
+                      marginTop: '6px',
                       background: '#ecfdf5',
                       border: '1.5px dashed #10b981',
                       borderRadius: '12px',
@@ -445,7 +445,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <span>🧪</span> Dev Test OTP (123456)
+                    <span>🧪</span> 1-Click Test OTP (123456)
                   </button>
                 )}
 
