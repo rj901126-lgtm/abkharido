@@ -1,6 +1,90 @@
 // Comprehensive Category Taxonomy with Sub-Categories, Visual Thumbnails, Starting Prices, Quick Filter Chips & Popular Brands
 
 export const CATEGORY_DETAILS = {
+  all: {
+    id: 'all',
+    name: 'All Categories',
+    icon: '🛍️',
+    tagline: 'Direct Brand Authorization with Official 1-Year Pan-India Warranty',
+    promoTicker: '⚡ All-India Megastore Carnival: Instant Extra 15% Off with AB Coins on 10,000+ Verified Products',
+    subCategories: [
+      { 
+        id: '5g-mobiles', 
+        name: '5G Smartphones', 
+        icon: '📱', 
+        query: '5G', 
+        badge: 'HOT', 
+        startingPrice: 'From ₹12,999', 
+        discount: 'Min 25% Off',
+        img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80',
+        quickChips: ['Apple iPhone', 'Samsung Galaxy', 'OnePlus 5G', 'Under ₹15,000']
+      },
+      { 
+        id: 'laptops', 
+        name: 'Laptops & MacBooks', 
+        icon: '💻', 
+        query: 'Laptop', 
+        badge: 'M3 / i7', 
+        startingPrice: 'From ₹28,990', 
+        discount: 'Flat ₹8,000 Off',
+        img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&q=80',
+        quickChips: ['MacBook Air', 'Gaming RTX', 'Intel Core i7']
+      },
+      { 
+        id: 'mens-fashion', 
+        name: "Men & Women Wear", 
+        icon: '👗', 
+        query: 'Fashion', 
+        badge: 'TRENDING', 
+        startingPrice: 'From ₹699', 
+        discount: 'Min 40% Off',
+        img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200&q=80',
+        quickChips: ['Pure Cotton Shirts', 'Ethnic Sarees', 'Casual Wear']
+      },
+      { 
+        id: 'smartwatches-audio', 
+        name: 'Audio & Wearables', 
+        icon: '🎧', 
+        query: 'Headphones', 
+        badge: 'STUDIO', 
+        startingPrice: 'From ₹999', 
+        discount: 'Min 50% Off',
+        img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80',
+        quickChips: ['boAt Airdopes', 'Sony ANC', 'Noise Watch']
+      },
+      { 
+        id: 'home-kitchen', 
+        name: 'Home & Kitchen', 
+        icon: '🏠', 
+        query: 'Kitchen', 
+        badge: 'BESTSELLER', 
+        startingPrice: 'From ₹499', 
+        discount: 'Buy 1 Get 1',
+        img: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=200&q=80',
+        quickChips: ['Air Fryers', 'Bedding Linen', 'Smart Purifiers']
+      },
+      { 
+        id: 'beauty-wellness', 
+        name: 'Beauty & Fitness', 
+        icon: '✨', 
+        query: 'Beauty', 
+        badge: '100% PURE', 
+        startingPrice: 'From ₹299', 
+        discount: 'Flat 30% Off',
+        img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=200&q=80',
+        quickChips: ['Glow Serums', 'Whey Protein', 'Dumbbells Set']
+      }
+    ],
+    popularBrands: [
+      { name: 'Apple', desc: 'iPhone 16 & MacBook', icon: '🍏', query: 'Apple', offer: 'Flat ₹5,000 Off' },
+      { name: 'Samsung', desc: 'Galaxy AI & Ultra 5G', icon: '🌌', query: 'Samsung', offer: 'No Cost EMI' },
+      { name: 'Sony', desc: 'WH-1000XM5 Studio', icon: '🎧', query: 'Sony', offer: 'Spatial Audio' },
+      { name: 'Nike', desc: 'Air Jordan & Running', icon: '👟', query: 'Nike', offer: 'Flat 30% Off' },
+      { name: 'boAt', desc: 'Airdopes & Speakers', icon: '⛵', query: 'boAt', offer: 'Up to 70% Off' },
+      { name: 'Philips', desc: 'Smart Living & Care', icon: '💡', query: 'Philips', offer: 'Top Rated' }
+    ]
+  },
+
   mobiles: {
     id: 'mobiles',
     name: 'Mobiles & Smartphones',
@@ -16,7 +100,7 @@ export const CATEGORY_DETAILS = {
         badge: 'HOT', 
         startingPrice: 'From ₹12,999', 
         discount: 'Min 25% Off',
-        img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=120&q=80',
+        img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80',
         quickChips: ['Under ₹15,000', '₹15K - ₹30K', 'Flagship > ₹50K', '120Hz AMOLED', '5000mAh Battery']
       },
       { 
@@ -27,7 +111,7 @@ export const CATEGORY_DETAILS = {
         badge: 'UNDER ₹15K', 
         startingPrice: 'From ₹6,999', 
         discount: 'Up to 40% Off',
-        img: 'https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=120&q=80',
+        img: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=200&q=80',
         quickChips: ['Under ₹8,000', 'Under ₹12,000', '6GB RAM', 'Dual Camera']
       },
       { 
@@ -38,7 +122,7 @@ export const CATEGORY_DETAILS = {
         badge: 'HIGH FPS', 
         startingPrice: 'From ₹19,999', 
         discount: 'Liquid Cooling',
-        img: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=120&q=80',
+        img: 'https://images.unsplash.com/photo-1567581935884-3349723552ca?w=200&q=80',
         quickChips: ['Snapdragon 8 Gen', '144Hz Refresh', 'Fast 120W Charge']
       },
       { 
@@ -49,7 +133,7 @@ export const CATEGORY_DETAILS = {
         badge: 'AMOLED', 
         startingPrice: 'From ₹1,499', 
         discount: 'Min 50% Off',
-        img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=120&q=80',
+        img: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=200&q=80',
         quickChips: ['Bluetooth Calling', 'AMOLED Display', 'Waterproof IP68']
       },
       { 
@@ -60,7 +144,7 @@ export const CATEGORY_DETAILS = {
         badge: '65W-120W', 
         startingPrice: 'From ₹399', 
         discount: 'Flat ₹200 Off',
-        img: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=120&q=80',
+        img: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=200&q=80',
         quickChips: ['65W GaN', 'Type-C Braided', 'Wireless Pad']
       },
       { 
@@ -71,7 +155,7 @@ export const CATEGORY_DETAILS = {
         badge: 'PROTECT', 
         startingPrice: 'From ₹199', 
         discount: 'Buy 2 Get 1',
-        img: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=120&q=80',
+        img: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=200&q=80',
         quickChips: ['Military Drop Test', 'MagSafe Clear', '9H Tempered']
       }
     ],
@@ -517,7 +601,7 @@ export const ALL_POPULAR_BRANDS = [
 ];
 
 export const getCategoryData = (catId) => {
-  if (!catId || catId === 'all') return null;
+  if (!catId) return CATEGORY_DETAILS.all;
   const key = catId.toLowerCase().trim();
-  return CATEGORY_DETAILS[key] || null;
+  return CATEGORY_DETAILS[key] || CATEGORY_DETAILS.all;
 };

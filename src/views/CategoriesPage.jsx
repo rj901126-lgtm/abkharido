@@ -24,47 +24,60 @@ import '../assets/styles/categories.css';
 import { CATEGORY_DETAILS, ALL_POPULAR_BRANDS, getCategoryData } from '../utils/categoryData';
 
 /* ─── Auto-rotating Category Banner Carousel (reused in CategoriesPage) ─── */
-const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
+const CatBannerCarousel = ({ slides, onClick, maxHeight = '120px' }) => {
   const [idx, setIdx] = useState(0);
   const timerRef = useRef(null);
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (!slides || slides.length <= 1) return;
     timerRef.current = setInterval(() => setIdx(prev => (prev + 1) % slides.length), 4500);
     return () => clearInterval(timerRef.current);
-  }, [slides.length]);
+  }, [slides]);
   if (!slides || slides.length === 0) return null;
-  const slide = slides[idx];
-  const hasImage = !!slide.image;
+  const slide = slides[idx] || slides[0];
+  const imgUrl = slide.imageUrl || slide.image || slide.img;
+  const hasImage = !!imgUrl;
   const isImageOnly = slide.imageOnly;
   return (
-    <div style={{ position: 'relative', width: '100%', marginBottom: '14px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.09)', cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
+    <div style={{ position: 'relative', width: '100%', marginBottom: '16px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
       <div
         className="animate-fade-in"
         style={{
-          width: '100%', height: maxHeight,
-          background: hasImage 
-            ? `url(${slide.image}) no-repeat center center / cover, ${slide.bg || 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)'}` 
+          width: '100%', minHeight: maxHeight,
+          backgroundImage: hasImage 
+            ? `linear-gradient(90deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 27, 75, 0.6) 60%, rgba(0, 0, 0, 0.25) 100%), url(${imgUrl})` 
             : (slide.bg || 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)'),
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           position: 'relative', display: 'flex', alignItems: 'center',
-          padding: hasImage && isImageOnly ? '0' : '12px 16px'
+          padding: '16px 18px',
+          boxSizing: 'border-box'
         }}
       >
-        {hasImage && !isImageOnly && (
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 100%)' }} />
-        )}
         {!isImageOnly && (
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '75%' }}>
-            {slide.tag && <span style={{ fontSize: '8px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', color: '#fff', background: 'rgba(255,255,255,0.2)', borderRadius: '3px', padding: '1px 6px', width: 'fit-content' }}>{slide.tag}</span>}
-            {slide.title && <span style={{ fontSize: '13px', fontWeight: '800', color: '#fff', lineHeight: 1.2, textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>{slide.title}</span>}
-            {slide.desc && <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>{slide.desc}</span>}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '85%' }}>
+            {(slide.badge || slide.tag) && (
+              <span style={{ fontSize: '9px', fontWeight: '900', letterSpacing: '0.5px', textTransform: 'uppercase', color: '#fde047', background: 'rgba(253, 224, 71, 0.15)', border: '1px solid rgba(253, 224, 71, 0.3)', borderRadius: '6px', padding: '2px 8px', width: 'fit-content' }}>
+                {slide.badge || slide.tag}
+              </span>
+            )}
+            {slide.title && (
+              <span style={{ fontSize: '14px', fontWeight: '900', color: '#ffffff', lineHeight: 1.25, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                {slide.title}
+              </span>
+            )}
+            {slide.desc && (
+              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
+                {slide.desc}
+              </span>
+            )}
           </div>
         )}
       </div>
       {slides.length > 1 && (
-        <div style={{ position: 'absolute', bottom: '6px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px' }}>
+        <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px' }}>
           {slides.map((_, i) => (
             <div key={i} onClick={e => { e.stopPropagation(); setIdx(i); clearInterval(timerRef.current); }}
-              style={{ width: i === idx ? '16px' : '5px', height: '5px', borderRadius: '3px', background: i === idx ? '#fff' : 'rgba(255,255,255,0.5)', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
+              style={{ width: i === idx ? '18px' : '6px', height: '5px', borderRadius: '3px', background: i === idx ? '#ffffff' : 'rgba(255,255,255,0.4)', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
             />
           ))}
         </div>
@@ -76,8 +89,7 @@ const CatBannerCarousel = ({ slides, onClick, maxHeight = '110px' }) => {
 const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promotions, onSearch, initialProducts }) => {
   const { products: contextProducts, cart } = useApp();
   const products = (initialProducts && initialProducts.length > 0) ? initialProducts : contextProducts;
-  const [selectedCatId, setSelectedCatId] = useState('mobiles'); // default start on mobiles category
-
+  const [selectedCatId, setSelectedCatId] = useState('all'); // default start on all category
 
   // eslint-disable-next-line
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -119,65 +131,57 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
     switch (catId) {
       case 'mobiles':
         return [
-          { name: 'Big Bachat Days', badge: 'SALE LIVE', img: 'https://mages.unsplash.com/photo-1610945415295-d9bbf067e59c?w=150&q=80' },
-          { name: 'Apple Authorized', badge: 'NEW S24', img: 'https://mages.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=150&q=80' },
-          { name: 'Refurbished Hub', badge: 'MIN 40% OFF', img: 'https://mages.unsplash.com/photo-1598327105666-5b89351cb31b?w=150&q=80' }
+          { name: 'Big Bachat Days', badge: 'SALE LIVE', img: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=150&q=80' },
+          { name: 'Apple Authorized', badge: 'NEW S24', img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=150&q=80' },
+          { name: 'Refurbished Hub', badge: 'MIN 40% OFF', img: 'https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=150&q=80' }
         ];
       case 'electronics':
         return [
-          { name: 'Intel Zone', badge: 'GEN 14', img: 'https://mages.unsplash.com/photo-1531297172867-4f444c66657c?w=150&q=80' },
-          { name: 'Audio Fest', badge: 'UP TO 50%', img: 'https://mages.unsplash.com/photo-1546435770-a3e426bf472b?w=150&q=80' },
-          { name: 'Gaming Hub', badge: 'RTX 4090', img: 'https://mages.unsplash.com/photo-1600861194942-f88481e1d071?w=150&q=80' }
+          { name: 'Intel Zone', badge: 'GEN 14', img: 'https://images.unsplash.com/photo-1531297172867-4f444c66657c?w=150&q=80' },
+          { name: 'Audio Fest', badge: 'UP TO 50%', img: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=150&q=80' },
+          { name: 'Gaming Hub', badge: 'RTX 4090', img: 'https://images.unsplash.com/photo-1600861194942-f88481e1d071?w=150&q=80' }
         ];
       case 'fashion':
         return [
-          { name: 'Trending Styles', badge: '70% OFF', img: 'https://mages.unsplash.com/photo-1515886657613-9f3515b0c78f?w=150&q=80' },
-          { name: 'Shoes & Clogs', badge: 'FLAT ₹500', img: 'https://mages.unsplash.com/photo-1542291026-7eec264c27ff?w=150&q=80' },
-          { name: 'Premium Brands', badge: 'NEW IN', img: 'https://mages.unsplash.com/photo-1490481651871-ab68de25d43d?w=150&q=80' }
+          { name: 'Trending Styles', badge: '70% OFF', img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=150&q=80' },
+          { name: 'Shoes & Clogs', badge: 'FLAT ₹500', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&q=80' },
+          { name: 'Premium Brands', badge: 'NEW IN', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=150&q=80' }
         ];
       case 'home':
         return [
-          { name: 'Bedsheets Club', badge: 'BUY 1 GET 1', img: 'https://mages.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=150&q=80' },
-          { name: 'Kitchen Tools', badge: 'MIN 30% OFF', img: 'https://mages.unsplash.com/photo-1556911220-e15b29be8c8f?w=150&q=80' },
-          { name: 'Home Decor', badge: 'UNDER ₹499', img: 'https://mages.unsplash.com/photo-1513694203232-719a280e022f?w=150&q=80' }
+          { name: 'Bedsheets Club', badge: 'BUY 1 GET 1', img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=150&q=80' },
+          { name: 'Kitchen Tools', badge: 'MIN 30% OFF', img: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=150&q=80' },
+          { name: 'Home Decor', badge: 'UNDER ₹499', img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=150&q=80' }
         ];
       case 'appliances':
         return [
-          { name: 'Smart TVs', badge: '₹8,990 ONWARDS', img: 'https://mages.unsplash.com/photo-1593359677879-a4bb92f829d1?w=150&q=80' },
-          { name: 'Cooling Fest', badge: 'AC OFFERS', img: 'https://mages.unsplash.com/photo-1585338107529-13afc5f02586?w=150&q=80' },
-          { name: 'Direct Cooling', badge: 'MIN 20% OFF', img: 'https://mages.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=150&q=80' }
+          { name: 'Smart TVs', badge: '₹8,990 ONWARDS', img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=150&q=80' },
+          { name: 'Cooling Fest', badge: 'AC OFFERS', img: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150&q=80' },
+          { name: 'Direct Cooling', badge: 'MIN 20% OFF', img: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=150&q=80' }
         ];
       default:
         return [
-          { name: 'Best Offers', badge: 'SALE LIVE', img: 'https://mages.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=150&q=80' },
-          { name: 'New Launches', badge: 'JUST IN', img: 'https://mages.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&q=80' },
-          { name: 'Hot Sellers', badge: 'HOT', img: 'https://mages.unsplash.com/photo-1523275335684-37898b6baf30?w=150&q=80' }
+          { name: 'Super Deals', badge: 'HOT', img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=150&q=80' },
+          { name: 'Trending Now', badge: 'NEW', img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150&q=80' },
+          { name: 'Direct Wholesale', badge: 'UP TO 60%', img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=150&q=80' }
         ];
     }
   };
-
-  const activeStores = getMockStoresForCat(selectedCatId);
 
   const handleCategorySidebarClick = (catId) => {
     setSelectedCatId(catId);
   };
 
   const handleViewAllClick = () => {
-    onSelectCategory(selectedCatId);
-    if (onSearch) onSearch('');
-    else onNavigate('catalog'); // correctly go to catalog page, not home
-  };
-
-  const handleStoreClick = (store) => {
-    onSelectCategory(selectedCatId);
-    if (onSearch) {
-      // Find a searchable keyword from badge or name
-      const q = store.badge.toLowerCase();
-      onSearch(q);
+    if (selectedCatId === 'all') {
+      onNavigate('catalog');
     } else {
+      onSelectCategory(selectedCatId);
       onNavigate('catalog');
     }
   };
+
+  const catInfo = getCategoryData(selectedCatId);
 
   return (
     <div className="categories-page animate-fade-in">
@@ -204,27 +208,32 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
         {/* Right Details Panel */}
         <div className="categories-content-panel" key={selectedCatId}>
           {/* Dynamic Category Header */}
-          <div className="dynamic-category-header">
-            <h2 className="dynamic-category-title">
-              {CATEGORIES.find(c => c.id === selectedCatId)?.name || 'All'}
-            </h2>
+          <div className="dynamic-category-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '12px', borderBottom: '1px solid #e2e8f0', marginBottom: '14px' }}>
+            <div>
+              <h2 className="dynamic-category-title" style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>{catInfo?.icon || '🛍️'}</span> {catInfo?.name || 'All Categories'}
+              </h2>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>
+                {catInfo?.tagline || 'Direct Brand Authorization with Official 1-Year Pan-India Warranty'}
+              </span>
+            </div>
           </div>
 
           {/* VIP Vault Exclusives Membership Banner */}
-          <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)', borderRadius: '24px', padding: '20px', marginBottom: '20px', color: 'white', border: '1px solid rgba(253, 224, 71, 0.25)', boxShadow: '0 12px 32px rgba(30, 27, 75, 0.2)', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: '900', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: '#ffffff', padding: '4px 12px', borderRadius: '100px', letterSpacing: '0.4px', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)' }}>
+          <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)', borderRadius: '18px', padding: '16px', marginBottom: '16px', color: 'white', border: '1px solid rgba(253, 224, 71, 0.25)', boxShadow: '0 10px 28px rgba(30, 27, 75, 0.18)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '6px' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: '900', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: '#ffffff', padding: '3px 10px', borderRadius: '100px', letterSpacing: '0.4px', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)' }}>
                 👑 VIP VAULT UNLOCKED
               </span>
-              <span style={{ fontSize: '11.5px', color: '#fde047', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '11px', color: '#fde047', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 ⚡ MEMBER EXCLUSIVE
               </span>
             </div>
-            <div style={{ fontSize: '15.5px', fontWeight: '900', letterSpacing: '-0.2px', marginBottom: '5px', lineHeight: '1.3' }}>
+            <div style={{ fontSize: '15px', fontWeight: '900', letterSpacing: '-0.2px', marginBottom: '4px', lineHeight: '1.3' }}>
               Instant Extra 15% Savings with AB Coins!
             </div>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', margin: 0, lineHeight: '1.45', fontWeight: '500' }}>
-              Unlock wholesale direct factory prices across all {CATEGORIES.find(c => c.id === selectedCatId)?.name || 'All'} items. Zero hidden charges or processing fees.
+            <p style={{ fontSize: '11.5px', color: '#cbd5e1', margin: 0, lineHeight: '1.4', fontWeight: '500' }}>
+              Unlock wholesale direct factory prices across {selectedCatId === 'all' ? 'all catalog products' : `${catInfo?.name || 'this category'} items`}. Zero hidden charges or processing fees.
             </p>
           </div>
 
@@ -233,25 +242,24 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             const catPromo = promotions && promotions.categoryBanners && promotions.categoryBanners[selectedCatId];
             const slides = catPromo && catPromo.show && Array.isArray(catPromo.slides) ? catPromo.slides : [];
             if (slides.length === 0) return null;
-            return <CatBannerCarousel slides={slides} onClick={handleViewAllClick} maxHeight="110px" />;
+            return <CatBannerCarousel slides={slides} onClick={handleViewAllClick} maxHeight="120px" />;
           })()}
 
           {/* ── 1. Sub-Categories Exploration Grid ── */}
           {(() => {
-            const catInfo = getCategoryData(selectedCatId);
             const subCats = catInfo ? catInfo.subCategories : [];
             if (!subCats || subCats.length === 0) return null;
             return (
               <div className="panel-section" style={{ marginBottom: '22px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 className="panel-section-title" style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                  <h3 className="panel-section-title" style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: 0, fontSize: '14px', fontWeight: '900', color: '#0f172a' }}>
                     <Tag size={15} color="#4f46e5" /> Sub-Categories
                   </h3>
-                  <span style={{ fontSize: '11px', color: '#4f46e5', fontWeight: '800', cursor: 'pointer' }} onClick={handleViewAllClick}>
-                    All {catInfo.name.split(' ')[0]} →
+                  <span style={{ fontSize: '11.5px', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px' }} onClick={handleViewAllClick}>
+                    {selectedCatId === 'all' ? 'Explore All' : `All ${catInfo.name.split(' ')[0]}`} →
                   </span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                   {subCats.map(sub => (
                     <div
                       key={sub.id}
@@ -264,30 +272,36 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         borderRadius: '14px',
-                        padding: '12px 10px',
+                        padding: '10px 6px',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         textAlign: 'center',
                         transition: 'all 0.15s ease',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
                         position: 'relative'
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.15)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.02)'; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 14px rgba(79, 70, 229, 0.12)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.03)'; }}
                     >
                       {sub.badge && (
-                        <div style={{ position: 'absolute', top: '6px', right: '6px', fontSize: '8px', fontWeight: '900', padding: '1px 5px', borderRadius: '4px', background: '#eff6ff', color: '#2563eb' }}>
+                        <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '7.5px', fontWeight: '900', padding: '1px 5px', borderRadius: '4px', background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>
                           {sub.badge}
                         </div>
                       )}
-                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', overflow: 'hidden', marginBottom: '6px', border: '1px solid #e2e8f0', background: '#f1f5f9' }}>
-                        <img src={sub.img} alt={sub.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', overflow: 'hidden', marginBottom: '6px', border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img 
+                          src={sub.img} 
+                          alt={sub.name} 
+                          onError={(e) => { e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'block'; }} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                        <span style={{ display: 'none', fontSize: '20px' }}>{sub.icon || '🛍️'}</span>
                       </div>
-                      <span style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', lineHeight: 1.2, marginBottom: '2px' }}>{sub.name}</span>
-                      <span style={{ fontSize: '10.5px', fontWeight: '900', color: '#059669' }}>{sub.startingPrice}</span>
-                      <span style={{ fontSize: '9.5px', color: '#64748b', fontWeight: '600' }}>{sub.discount}</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a', lineHeight: 1.2, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{sub.name}</span>
+                      <span style={{ fontSize: '10.5px', fontWeight: '900', color: '#059669', marginBottom: '1px' }}>{sub.startingPrice}</span>
+                      <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>{sub.discount}</span>
                     </div>
                   ))}
                 </div>
