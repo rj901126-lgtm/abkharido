@@ -4,129 +4,105 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const artifactsDir = path.join(__dirname, '..', '..', 'brain', '62f504a8-ace7-4f31-95a6-b3ac9666baaa', '.user_uploaded');
+const artifactsDir = path.join(__dirname, '..', '..', 'brain', '62f504a8-ace7-4f31-95a6-b3ac9666baaa');
 
-async function runAuthenticatedCheckout() {
-  console.log('--- STARTING COMPLETE BUY TO CHECKOUT STEP CAPTURE ---');
-  
-  // 1. Authenticate via backend API directly to get a valid user token
-  await fetch('http://localhost:5000/api/auth/send-otp', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ recipient: '9172600587' })
-  });
-
-  const authRes = await fetch('http://localhost:5000/api/auth/verify-otp', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ recipient: '9172600587', otp: '123456' })
-  });
-  const authData = await authRes.json();
-  const userData = authData.user;
-  console.log('✓ Got user session from backend:', userData._id);
-
+async function captureAdminOMS() {
+  console.log('--- CAPTURING MODERN ADMIN OMS DASHBOARD ---');
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   
-  // Set localStorage session in browser context
-  await context.addInitScript((user) => {
-    localStorage.setItem('abkharido_user_session', JSON.stringify(user));
-    localStorage.setItem('abkharido_login_phone', user.phone);
-  }, userData);
+  await context.addInitScript(() => {
+    sessionStorage.setItem('abkharido_admin_token', 'admin_jwt_enterprise_mock_2026');
+    sessionStorage.setItem('adminToken', 'admin_jwt_enterprise_mock_2026');
+    sessionStorage.setItem('adminActiveTab', 'orders');
+    localStorage.setItem('adminToken', 'admin_jwt_enterprise_mock_2026');
+    localStorage.setItem('abkharido_user_session', JSON.stringify({
+      _id: 'admin_64b7f8902',
+      id: 'admin_64b7f8902',
+      fullName: 'Chief Operations Officer',
+      role: 'super_admin',
+      isAdmin: true,
+      email: 'admin@abkharido.com'
+    }));
+  });
 
   const page = await context.newPage();
 
-  // 1. Product Details
-  console.log('Navigating to Product Details...');
-  await page.goto('http://localhost:3000/product/iphone-15-pro', { waitUntil: 'domcontentloaded' });
+  await page.route('**/api/orders**', async (route) => {
+    const mockOrders = [
+      {
+        _id: '65e9f821a47291048b012391',
+        id: '65e9f821a47291048b012391',
+        createdAt: new Date().toISOString(),
+        user: { fullName: 'Rohit Sharma', phone: '9820098765', isEmailVerified: true },
+        shippingAddress: { fullName: 'Rohit Sharma', phone: '9820098765', address: 'Flat 402, Sea Green Heights, Worli', city: 'Mumbai', state: 'Maharashtra', postalCode: '400018' },
+        finalAmount: 14999,
+        totalPrice: 14999,
+        status: 'Processing',
+        paymentMethod: 'Prepaid',
+        paymentStatus: 'SUCCESS',
+        isPaid: true,
+        orderItems: [
+          { name: 'Ultra HD 4K Smart Android LED TV 43 Inch', quantity: 1, price: 14999, image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=200' }
+        ]
+      },
+      {
+        _id: '65e9f821a47291048b012392',
+        id: '65e9f821a47291048b012392',
+        createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+        user: { fullName: 'Priya Patel', phone: '9876543210', isEmailVerified: false },
+        shippingAddress: { fullName: 'Priya Patel', phone: '9876543210', address: 'B-12, Navkar Residency, Palghar West', city: 'Palghar', state: 'Maharashtra', postalCode: '401404' },
+        finalAmount: 2499,
+        totalPrice: 2499,
+        status: 'Shipped',
+        awbNumber: 'DLV9928371948',
+        trackingUrl: 'https://www.delhivery.com/track/package/DLV9928371948',
+        paymentMethod: 'Cash on Delivery',
+        paymentStatus: 'PENDING',
+        isPaid: false,
+        orderItems: [
+          { name: 'Wireless Noise Cancelling Earbuds Pro', quantity: 1, price: 2499, image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200' }
+        ]
+      }
+    ];
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(mockOrders)
+    });
+  });
+
+  // Go to admin page
+  await page.goto('http://localhost:3000/admin', { waitUntil: 'networkidle' });
+  await page.waitForSelector('text=Orders Control, text=Analytics Control, text=Enterprise Fulfillment Hub', { timeout: 15000 }).catch(() => null);
   await page.waitForTimeout(2000);
-  await page.screenshot({ path: path.join(artifactsDir, 'step2_product_details.png'), fullPage: false });
-  console.log('✓ Saved step2_product_details.png');
 
-  // 2. Add to Cart
-  console.log('Adding product to cart...');
-  const addToCartBtn = page.locator('button:has-text("Add to Cart"), button:has-text("ADD TO CART")').first();
-  await addToCartBtn.click();
-  await page.waitForTimeout(1500);
-
-  // 3. Cart Page
-  console.log('Navigating to Cart page...');
-  await page.goto('http://localhost:3000/cart', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
-  await page.screenshot({ path: path.join(artifactsDir, 'step4_cart_page.png'), fullPage: false });
-  console.log('✓ Saved step4_cart_page.png');
-
-  // 4. Checkout Step 1: Address
-  console.log('Step 5: Checkout Step 1 (Address Selection & Form)...');
-  await page.goto('http://localhost:3000/checkout', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
-  
-  // Fill in all required address inputs
-  const inputs = await page.$$('input.checkout-input, textarea.checkout-input');
-  // Name, Phone, Pincode, Locality, Street, City, State
-  console.log(`Found ${inputs.length} address form inputs`);
-  
-  const pinInput = page.locator('input[placeholder*="pincode"], input[maxLength="6"]').first();
-  await pinInput.fill('400001');
-  await page.waitForTimeout(1000);
-
-  const allInputs = await page.$$('input.checkout-input');
-  if (allInputs.length >= 6) {
-    // allInputs[0] is Name
-    // allInputs[1] is Phone
-    // allInputs[2] is Pincode
-    // allInputs[3] is Locality
-    // allInputs[4] is City
-    // allInputs[5] is State
-    await allInputs[3].fill('Nariman Point');
-    await allInputs[4].fill('Mumbai');
-    await allInputs[5].fill('Maharashtra');
-  }
-
-  const streetArea = page.locator('textarea.checkout-input').first();
-  if (await streetArea.count() > 0) {
-    await streetArea.fill('Flat 402, Sunshine Heights, MG Road');
-  }
-
-  await page.waitForTimeout(1000);
-  await page.screenshot({ path: path.join(artifactsDir, 'step5_checkout_address.png'), fullPage: false });
-  console.log('✓ Saved step5_checkout_address.png');
-
-  // 5. Checkout Step 2: Summary
-  console.log('Step 6: Checkout Step 2 (Order Summary)...');
-  const deliverHereBtn = page.locator('button:has-text("DELIVER HERE"), button:has-text("Deliver Here"), button.checkout-btn').first();
-  await deliverHereBtn.click();
-  await page.waitForTimeout(2000);
-  await page.screenshot({ path: path.join(artifactsDir, 'step6_checkout_summary.png'), fullPage: false });
-  console.log('✓ Saved step6_checkout_summary.png');
-
-  // 6. Checkout Step 3: Payment
-  console.log('Step 7: Checkout Step 3 (Payment Options)...');
-  const continuePayBtn = page.locator('button:has-text("Proceed to Payment"), button:has-text("Continue to Payment")').first();
-  if (await continuePayBtn.count() > 0) {
-    await continuePayBtn.click();
+  // Click on "All Orders" subnav if visible
+  const allOrdersNav = page.locator('div:has-text("All Orders"), span:has-text("All Orders"), button:has-text("All Orders")').first();
+  if (await allOrdersNav.count() > 0) {
+    await allOrdersNav.click();
     await page.waitForTimeout(2000);
-    await page.screenshot({ path: path.join(artifactsDir, 'step7_checkout_payment.png'), fullPage: false });
-    console.log('✓ Saved step7_checkout_payment.png');
   }
 
-  // 7. Checkout Step 4: Place COD Order & Success Screen
-  console.log('Step 8: Placing Order via Cash on Delivery...');
-  const codRadio = page.locator('input[value="cod"], label:has-text("Cash on Delivery"), div:has-text("Cash on Delivery")').first();
-  if (await codRadio.count() > 0) {
-    await codRadio.click();
-    await page.waitForTimeout(500);
-  }
-  const placeOrderBtn = page.locator('button:has-text("Place Order (COD)"), button:has-text("Confirm Order"), button:has-text("Place Order")').first();
-  if (await placeOrderBtn.count() > 0) {
-    await placeOrderBtn.click();
-    await page.waitForTimeout(4000);
-    await page.screenshot({ path: path.join(artifactsDir, 'step8_order_success.png'), fullPage: false });
-    console.log('✓ Saved step8_order_success.png');
+  // Capture Main Orders Hub
+  const mainImg = path.join(artifactsDir, 'admin_oms_modernized_view.png');
+  await page.screenshot({ path: mainImg, fullPage: false });
+  console.log('✓ Saved admin_oms_modernized_view.png');
+
+  // Click Inspect button on first order to capture Inspect Modal
+  const inspectBtn = page.locator('button:has-text("Inspect")').first();
+  if (await inspectBtn.count() > 0) {
+    console.log('Opening Inspect Order modal...');
+    await inspectBtn.click();
+    await page.waitForTimeout(1500);
+    const modalImg = path.join(artifactsDir, 'admin_oms_inspect_modal.png');
+    await page.screenshot({ path: modalImg, fullPage: false });
+    console.log('✓ Saved admin_oms_inspect_modal.png');
   }
 
   await browser.close();
-  console.log('--- ALL 8 STEPS FROM BUY TO CHECKOUT CAPTURED SUCCESSFULLY ---');
+  console.log('--- ADMIN OMS CAPTURE COMPLETED SUCCESSFULLY ---');
 }
 
-runAuthenticatedCheckout().catch(e => console.error(e));
+captureAdminOMS().catch(e => console.error(e));
+
