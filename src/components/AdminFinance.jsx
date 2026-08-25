@@ -28,6 +28,8 @@ const AdminFinance = () => {
     tdsWithholding: true
   });
 
+  const [realOrders, setRealOrders] = useState([]);
+
   const showToastMsg = (text, type = 'success') => {
     setNotification({ show: true, text, type });
     if (showToast) showToast(text, type);
@@ -46,10 +48,20 @@ const AdminFinance = () => {
         try { setSafeguards(JSON.parse(savedSafeguards)); } catch (e) {}
       }
 
-      const savedVendors = localStorage.getItem('abkharido_vendor_ledgers');
-      // Removed localStorage caching to force authentic API fetch
-
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
+      
+      // Fetch real orders to drive GMV and revenue
+      try {
+        const ordersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders?limit=1000`, { 
+          headers: { 'x-admin-token': token } 
+        });
+        if (ordersRes.ok) {
+          const oData = await ordersRes.json();
+          const list = Array.isArray(oData) ? oData : (oData.orders || []);
+          setRealOrders(list);
+        }
+      } catch (err) {}
+
       const vendorsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/finance/vendors-balance`, { headers: { 'x-admin-token': token } });
       
       if (vendorsRes.ok) {
@@ -63,7 +75,6 @@ const AdminFinance = () => {
 
       // Use real backend data only
       setVendors([]);
-      localStorage.setItem('abkharido_vendor_ledgers', JSON.stringify([]));
     } catch (err) {
       showToastMsg('Notice: Offline inspection mode active', 'info');
     } finally {
@@ -100,8 +111,7 @@ const AdminFinance = () => {
     });
 
     setVendors(updated);
-    localStorage.setItem('abkharido_vendor_ledgers', JSON.stringify(updated));
-    showToastMsg(`🚀 Cashfree Escrow Payout Executed! Settled ₹${vendor.pendingBalance.toLocaleString()} directly to account ending ${String(vendor.accountNumber).slice(-4)} (UTR: ${transactionId}).`, 'success');
+    showToastMsg(`Settlement of ₹${vendor.pendingBalance.toLocaleString('en-IN')} initiated via Cashfree API!`, 'success');
   };
 
   const handleAddVendor = (e) => {
@@ -183,10 +193,11 @@ const AdminFinance = () => {
     showToastMsg('📥 Global Vendor Settlement Ledger downloaded successfully!', 'success');
   };
 
-  // Financial Calculations & KPIs
-  const totalEarnedVol = vendors.reduce((acc, v) => acc + (v.totalEarned || 0), 0) + 1845000;
+  // Authoritative Calculations from Real Orders
+  const nonCancelledOrders = realOrders.filter(o => o.status !== 'Cancelled');
+  const totalEarnedVol = nonCancelledOrders.reduce((acc, o) => acc + (o.totalPrice || 0), 0);
   const totalPlatformRev = Math.round(totalEarnedVol * 0.10); // 10% Platform Commission
-  const totalSettledVol = vendors.reduce((acc, v) => acc + (v.totalSettled || 0), 0) + 1420000;
+  const totalSettledVol = vendors.reduce((acc, v) => acc + (v.totalSettled || 0), 0);
   const totalPendingVol = vendors.reduce((acc, v) => acc + (v.pendingBalance || 0), 0);
   const totalGstCollected = Math.round(totalPlatformRev * 0.18);
 
@@ -195,7 +206,7 @@ const AdminFinance = () => {
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '450px', flexDirection: 'column', gap: '16px' }}>
         <div style={{ width: '45px', height: '45px', border: '4px solid #e0e7ff', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-        <div style={{ color: '#3b82f6', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>⚡ Synchronizing Cashfree Escrow & Treasury Ledgers 2.0...</div>
+        <div style={{ color: '#3b82f6', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>Loading Financial &amp; Treasury Ledger...</div>
       </div>
     );
   }

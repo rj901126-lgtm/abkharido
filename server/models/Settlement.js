@@ -29,5 +29,5 @@ const settlementSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Settlement = mongoose.model('Settlement', settlementSchema);
+const Settlement = mongoose.models.Settlement || mongoose.model('Settlement', settlementSchema);
 export default Settlement;

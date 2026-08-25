@@ -16,7 +16,10 @@ import {
   FileText,
   BadgePercent,
   Lock,
-  Sparkles
+  Sparkles,
+  Zap,
+  Check,
+  AlertCircle
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import AdminStaff from './AdminStaff';
@@ -25,12 +28,14 @@ const AdminSettings = () => {
   const { showToast } = useApp();
   const [activeSubTab, setActiveSubTab] = useState('store'); // 'store' | 'shipping' | 'payments' | 'security' | 'staff'
   const [isSaving, setIsSaving] = useState(false);
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(null);
 
   // 1. Store Identity State
   const [storeInfo, setStoreInfo] = useState({
     storeName: 'AbKharido.com',
     tagline: 'Direct Buy & Earn Destination',
-    supportPhone: '1800-888-9999',
+    supportPhone: '+91 9172600587',
     supportEmail: 'support@abkharido.com',
     whatsappSupport: '+919172600587',
     registeredCIN: 'U52100DL2024PTC394821',
@@ -41,8 +46,8 @@ const AdminSettings = () => {
 
   // 2. Shipping & Fulfillment State
   const [shippingRules, setShippingRules] = useState({
-    freeShippingMin: 999,
-    standardShippingFee: 49,
+    freeShippingMin: 499,
+    standardShippingFee: 40,
     expressShippingFee: 99,
     codHandlingFee: 0,
     estimatedDeliveryDays: '2-4 Business Days',
@@ -51,26 +56,33 @@ const AdminSettings = () => {
     enablePincodeServiceabilityCheck: true
   });
 
-  // 3. Payment Gateway Config
+  // 3. Payment Gateway Config (Cashfree PG)
   const [paymentConfig, setPaymentConfig] = useState({
+    environment: 'sandbox', // 'sandbox' | 'production'
+    appId: '',
+    secretKey: '',
+    secretKeyMasked: '',
+    webhookSecret: '',
+    webhookSecretMasked: '',
+    apiVersion: '2023-08-01',
     enableCashfree: true,
     enableUpi: true,
     enableCards: true,
     enableNetBanking: true,
     enableCod: true,
     enableCoinsRedemption: true,
-    maxCoinsDiscountPercent: 20, // Max 20% order discount via coins
-    codMaxOrderLimit: 25000 // COD allowed up to ₹25,000
+    maxCoinsDiscountPercent: 20,
+    codMaxOrderLimit: 15000,
+    coinRateRule: '1 AB Coin = ₹1'
   });
 
-  // 4. Security & Access PIN
+  // 4. Security & Access PIN (Never expose live PIN in UI)
   const [securityConfig, setSecurityConfig] = useState({
-    masterPin: '2026',
+    currentPin: '',
     newPin: '',
     confirmNewPin: '',
     sessionTimeoutMinutes: 60,
-    enforceDualStepOtp: true,
-    restrictAdminIpRange: false
+    enforceDualStepOtp: true
   });
 
   useEffect(() => {
@@ -83,10 +95,23 @@ const AdminSettings = () => {
     if (savedShipping) {
       try { setShippingRules(JSON.parse(savedShipping)); } catch (e) {}
     }
-    const savedPayments = localStorage.getItem('abkharido_payment_settings');
-    if (savedPayments) {
-      try { setPaymentConfig(JSON.parse(savedPayments)); } catch (e) {}
-    }
+    
+    // Fetch server payment configuration
+    fetch('/api/payments/cashfree/config')
+      .then(res => res.json())
+      .then(data => {
+        if (data && !data.error) {
+          setPaymentConfig(prev => ({
+            ...prev,
+            environment: data.environment || 'sandbox',
+            appId: data.appId || '',
+            secretKeyMasked: data.secretKeyMasked || '',
+            webhookSecretMasked: data.webhookSecretMasked || '',
+            codMaxOrderLimit: data.codMaxOrderLimit || 15000
+          }));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleSaveStore = (e) => {
@@ -115,14 +140,37 @@ const AdminSettings = () => {
     localStorage.setItem('abkharido_payment_settings', JSON.stringify(paymentConfig));
     setTimeout(() => {
       setIsSaving(false);
-      showToast('Payment gateways and checkout rules updated successfully!', 'success');
+      showToast('Cashfree PG rules & checkout controls updated successfully!', 'success');
     }, 600);
   };
 
-  const handleUpdatePin = (e) => {
+  const handleTestCashfreeConnection = async () => {
+    setIsTestingConnection(true);
+    setConnectionStatus(null);
+    try {
+      const res = await fetch('/api/payments/cashfree/test-connection', {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setConnectionStatus({ success: true, message: data.message });
+        showToast(data.message, 'success');
+      } else {
+        setConnectionStatus({ success: false, message: data.message || 'Connection test failed.' });
+        showToast(data.message || 'Connection test failed', 'error');
+      }
+    } catch (err) {
+      setConnectionStatus({ success: false, message: 'Network error connecting to Cashfree API.' });
+      showToast('Network error pinging Cashfree API.', 'error');
+    } finally {
+      setIsTestingConnection(false);
+    }
+  };
+
+  const handleUpdatePin = async (e) => {
     e.preventDefault();
     if (!securityConfig.newPin || securityConfig.newPin.length < 4) {
-      showToast('Master PIN must be at least 4 digits.', 'error');
+      showToast('New PIN must be at least 4 digits.', 'error');
       return;
     }
     if (securityConfig.newPin !== securityConfig.confirmNewPin) {
@@ -130,51 +178,47 @@ const AdminSettings = () => {
       return;
     }
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: securityConfig.newPin })
+      });
+      if (res.ok) {
+        showToast('Admin Security PIN updated successfully.', 'success');
+        setSecurityConfig({ currentPin: '', newPin: '', confirmNewPin: '', sessionTimeoutMinutes: 60, enforceDualStepOtp: true });
+      } else {
+        const data = await res.json();
+        showToast(data.message || 'Failed to update PIN', 'error');
+      }
+    } catch (err) {
+      showToast('Error updating PIN', 'error');
+    } finally {
       setIsSaving(false);
-      setSecurityConfig({ ...securityConfig, masterPin: securityConfig.newPin, newPin: '', confirmNewPin: '' });
-      showToast(`Master Admin PIN updated to '${securityConfig.newPin}' successfully!`, 'success');
-    }, 600);
+    }
   };
 
   return (
-    <div className="admin-settings-container animate-fade-in" style={{ padding: '24px', maxWidth: '1280px', margin: '0 auto' }}>
+    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', fontFamily: "'Outfit', sans-serif" }}>
       
-      {/* Header Banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)',
-        borderRadius: '24px',
-        padding: '32px',
-        color: '#ffffff',
-        marginBottom: '24px',
-        boxShadow: '0 12px 32px -8px rgba(30, 27, 75, 0.25)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '20px'
-      }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.15)', padding: '6px 14px', borderRadius: '100px', fontSize: '12px', fontWeight: '800', marginBottom: '12px', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
-            <Settings size={14} /> SYSTEM PREFERENCES
-          </div>
-          <h1 style={{ margin: '0 0 6px 0', fontSize: '28px', fontWeight: '900', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.5px' }}>
-            Store Configuration &amp; Governance
-          </h1>
-          <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px', maxWidth: '600px' }}>
-            Manage legal store identity, delivery SLAs, payment gateways, RBAC staff members, and master security credentials.
-          </p>
-        </div>
+      {/* Settings Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Settings size={26} color="#4f46e5" /> System Configuration &amp; Payment Gateway Settings
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
+          Manage store policies, Cashfree Escrow Payment Gateway, shipping thresholds, and access control.
+        </p>
       </div>
 
-      {/* Sub-Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+      {/* Settings Navigation Subtabs */}
+      <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '24px', borderBottom: '1px solid #e2e8f0' }}>
         {[
           { id: 'store', label: 'Store Identity & Legal', icon: Store },
-          { id: 'shipping', label: 'Shipping & Delivery Rules', icon: Truck },
-          { id: 'payments', label: 'Payment Gateways & COD', icon: CreditCard },
-          { id: 'security', label: 'Master Security PIN', icon: KeyRound },
-          { id: 'staff', label: 'Staff & RBAC Team', icon: Users }
+          { id: 'shipping', label: 'Shipping & Logistics', icon: Truck },
+          { id: 'payments', label: 'Cashfree PG & Wallet', icon: CreditCard },
+          { id: 'security', label: 'Security & PIN', icon: KeyRound },
+          { id: 'staff', label: 'Staff Management', icon: Users },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -183,20 +227,19 @@ const AdminSettings = () => {
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
               style={{
-                display: 'inline-flex',
+                display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 padding: '10px 18px',
                 borderRadius: '12px',
-                border: '1px solid',
-                borderColor: isActive ? '#4f46e5' : '#e2e8f0',
-                background: isActive ? '#4f46e5' : '#ffffff',
+                border: 'none',
+                background: isActive ? '#4f46e5' : '#f1f5f9',
                 color: isActive ? '#ffffff' : '#475569',
-                fontSize: '13.5px',
                 fontWeight: '700',
+                fontSize: '13px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: isActive ? '0 4px 12px rgba(79, 70, 229, 0.2)' : 'none'
+                whiteSpace: 'nowrap'
               }}
             >
               <Icon size={16} />
@@ -210,12 +253,12 @@ const AdminSettings = () => {
       {activeSubTab === 'store' && (
         <form onSubmit={handleSaveStore} className="admin-panel-card" style={{ background: '#ffffff', borderRadius: '20px', padding: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
           <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Building2 size={20} color="#4f46e5" /> Corporate Legal Profile &amp; Branding
+            <Building2 size={20} color="#4f46e5" /> Corporate Legal Entity &amp; Support Contact
           </h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '24px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Store Name</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Store Display Name</label>
               <input 
                 type="text" 
                 value={storeInfo.storeName} 
@@ -226,22 +269,13 @@ const AdminSettings = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Tagline / Subtitle</label>
-              <input 
-                type="text" 
-                value={storeInfo.tagline} 
-                onChange={(e) => setStoreInfo({ ...storeInfo, tagline: e.target.value })}
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Support Toll-Free Phone</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Support Hotline</label>
               <input 
                 type="text" 
                 value={storeInfo.supportPhone} 
                 onChange={(e) => setStoreInfo({ ...storeInfo, supportPhone: e.target.value })}
                 style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' }}
+                required 
               />
             </div>
 
@@ -252,6 +286,7 @@ const AdminSettings = () => {
                 value={storeInfo.supportEmail} 
                 onChange={(e) => setStoreInfo({ ...storeInfo, supportEmail: e.target.value })}
                 style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' }}
+                required
               />
             </div>
 
@@ -365,28 +400,6 @@ const AdminSettings = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>
-              <input 
-                type="checkbox" 
-                checked={shippingRules.autoAssignCourier} 
-                onChange={(e) => setShippingRules({ ...shippingRules, autoAssignCourier: e.target.checked })}
-                style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }}
-              />
-              <span>Auto-generate AWB tracking code on order confirmation</span>
-            </label>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>
-              <input 
-                type="checkbox" 
-                checked={shippingRules.enablePincodeServiceabilityCheck} 
-                onChange={(e) => setShippingRules({ ...shippingRules, enablePincodeServiceabilityCheck: e.target.checked })}
-                style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }}
-              />
-              <span>Strict 27,000+ Indian Pincode database verification on checkout</span>
-            </label>
-          </div>
-
           <button 
             type="submit" 
             disabled={isSaving}
@@ -411,13 +424,108 @@ const AdminSettings = () => {
         </form>
       )}
 
-      {/* Tab 3: Payment Gateways & COD */}
+      {/* Tab 3: Cashfree PG & Wallet Rules */}
       {activeSubTab === 'payments' && (
         <form onSubmit={handleSavePayments} className="admin-panel-card" style={{ background: '#ffffff', borderRadius: '20px', padding: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <CreditCard size={20} color="#4f46e5" /> Checkout Methods &amp; Wallet Coin Controls
-          </h3>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <CreditCard size={20} color="#4f46e5" /> Cashfree Payment Gateway &amp; Wallet Engine
+            </h3>
 
+            <button
+              type="button"
+              onClick={handleTestCashfreeConnection}
+              disabled={isTestingConnection}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: connectionStatus?.success ? '#ecfdf5' : '#f8fafc',
+                color: connectionStatus?.success ? '#059669' : '#1e293b',
+                border: connectionStatus?.success ? '1.5px solid #a7f3d0' : '1px solid #cbd5e1',
+                padding: '8px 16px',
+                borderRadius: '10px',
+                fontWeight: '800',
+                fontSize: '13px',
+                cursor: 'pointer'
+              }}
+            >
+              <Zap size={15} color={connectionStatus?.success ? '#059669' : '#4f46e5'} />
+              <span>{isTestingConnection ? 'Testing...' : connectionStatus?.success ? 'Gateway Verified ✓' : 'Test Cashfree Connection'}</span>
+            </button>
+          </div>
+
+          {connectionStatus && (
+            <div style={{ padding: '12px 16px', borderRadius: '12px', marginBottom: '20px', background: connectionStatus.success ? '#ecfdf5' : '#fef2f2', border: connectionStatus.success ? '1px solid #a7f3d0' : '1px solid #fecaca', color: connectionStatus.success ? '#065f46' : '#991b1b', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {connectionStatus.success ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+              <span>{connectionStatus.message}</span>
+            </div>
+          )}
+
+          {/* Gateway Environment & Secrets */}
+          <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '800', color: '#1e293b' }}>
+              ⚙️ Gateway Credentials &amp; Environment
+            </h4>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Gateway Environment</label>
+                <select 
+                  value={paymentConfig.environment} 
+                  onChange={(e) => setPaymentConfig({ ...paymentConfig, environment: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', background: '#fff', fontWeight: '700' }}
+                >
+                  <option value="sandbox">Sandbox (Testing / Pre-Prod)</option>
+                  <option value="production">Production (Live Payments)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Cashfree App ID</label>
+                <input 
+                  type="text" 
+                  value={paymentConfig.appId} 
+                  placeholder="e.g. CF123456TEST..."
+                  onChange={(e) => setPaymentConfig({ ...paymentConfig, appId: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                  Secret Key {paymentConfig.secretKeyMasked && <span style={{ color: '#059669', fontSize: '12px' }}>({paymentConfig.secretKeyMasked})</span>}
+                </label>
+                <input 
+                  type="password" 
+                  value={paymentConfig.secretKey} 
+                  placeholder={paymentConfig.secretKeyMasked ? 'Enter new secret to update' : 'Enter Secret Key'}
+                  onChange={(e) => setPaymentConfig({ ...paymentConfig, secretKey: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                  Webhook Secret {paymentConfig.webhookSecretMasked && <span style={{ color: '#059669', fontSize: '12px' }}>({paymentConfig.webhookSecretMasked})</span>}
+                </label>
+                <input 
+                  type="password" 
+                  value={paymentConfig.webhookSecret} 
+                  placeholder={paymentConfig.webhookSecretMasked ? 'Enter new webhook secret to update' : 'Enter Webhook Secret'}
+                  onChange={(e) => setPaymentConfig({ ...paymentConfig, webhookSecret: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+              🔒 <strong>Webhook URL:</strong> <code style={{ background: '#e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>https://www.abkharido.com/api/payments/cashfree/webhook</code>
+            </div>
+          </div>
+
+          {/* Payment Method Switches */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
             {[
               { key: 'enableCashfree', title: 'Cashfree Escrow Gateway', desc: 'Auto escrow refund protection & instant settlements' },
@@ -425,7 +533,7 @@ const AdminSettings = () => {
               { key: 'enableCards', title: 'Credit & Debit Cards', desc: 'Visa, MasterCard, RuPay with 3D Secure OTP' },
               { key: 'enableNetBanking', title: 'NetBanking Portal', desc: 'Direct bank debit across 50+ Indian banks' },
               { key: 'enableCod', title: 'Cash on Delivery (COD)', desc: 'Pay cash or dynamic QR at doorstep' },
-              { key: 'enableCoinsRedemption', title: 'AB Coins Rewards Engine', desc: '10 Coins = ₹10 direct checkout discount' }
+              { key: 'enableCoinsRedemption', title: 'AB Coins Rewards Engine', desc: '1 AB Coin = ₹1 direct checkout discount' }
             ].map((method) => (
               <div 
                 key={method.key}
@@ -446,7 +554,7 @@ const AdminSettings = () => {
                 <input 
                   type="checkbox" 
                   checked={paymentConfig[method.key]} 
-                  onChange={() => {}} // Handled by container
+                  onChange={() => {}} 
                   style={{ width: '18px', height: '18px', accentColor: '#4f46e5', marginTop: '2px' }}
                 />
                 <div>
@@ -466,16 +574,18 @@ const AdminSettings = () => {
                 onChange={(e) => setPaymentConfig({ ...paymentConfig, codMaxOrderLimit: Number(e.target.value) })}
                 style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' }}
               />
+              <span style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', display: 'block' }}>Default: ₹15,000 to prevent COD risk on high-ticket flagships.</span>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Max AB Coins Discount (% of Cart Total)</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>AB Coins Valuation Rule</label>
               <input 
-                type="number" 
-                value={paymentConfig.maxCoinsDiscountPercent} 
-                onChange={(e) => setPaymentConfig({ ...paymentConfig, maxCoinsDiscountPercent: Number(e.target.value) })}
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' }}
+                type="text" 
+                value="1 AB Coin = ₹1 Instant Discount" 
+                disabled
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', background: '#f1f5f9', fontWeight: '700', color: '#0f172a' }}
               />
+              <span style={{ fontSize: '12px', color: '#059669', marginTop: '4px', display: 'block' }}>🔒 Locked platform-wide for consistent customer trust.</span>
             </div>
           </div>
 
@@ -507,18 +617,11 @@ const AdminSettings = () => {
       {activeSubTab === 'security' && (
         <form onSubmit={handleUpdatePin} className="admin-panel-card" style={{ background: '#ffffff', borderRadius: '20px', padding: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', maxWidth: '600px' }}>
           <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <KeyRound size={20} color="#4f46e5" /> Master Admin Security PIN
+            <KeyRound size={20} color="#4f46e5" /> Super Admin Security PIN
           </h3>
           <p style={{ margin: '0 0 20px 0', color: '#64748b', fontSize: '13px' }}>
-            Current Master PIN is active for Super Admin authorization across all management modules.
+            Super Admin second-factor authorization PIN is required for privileged operations.
           </p>
-
-          <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '13px', fontWeight: '600', color: '#475569' }}>Active System PIN:</span>
-            <span style={{ fontFamily: 'monospace', fontWeight: '900', fontSize: '18px', letterSpacing: '3px', color: '#0f172a', background: '#e0e7ff', padding: '4px 12px', borderRadius: '8px' }}>
-              {securityConfig.masterPin}
-            </span>
-          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
             <div>

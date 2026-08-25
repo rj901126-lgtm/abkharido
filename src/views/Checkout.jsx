@@ -274,62 +274,64 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
     // Cashfree PG integration
     try {
-      showToast('Initializing Cashfree gateway...', 'info');
-      const res = await fetch(`/api/payment/session`, {
+      showToast('Connecting to Cashfree Escrow Gateway...', 'info');
+      const res = await fetch(`/api/payments/cashfree/create-order`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentUser?.token}`
+          ...(currentUser?.token ? { 'Authorization': `Bearer ${currentUser.token}` } : {})
         },
         body: JSON.stringify({
-          amount: finalAmount,
-          customerId: currentUser.username,
-          customerPhone: address.phone,
-          customerEmail: currentUser.email
+          cartItems: cart,
+          shippingAddress: {
+            fullName: address.name,
+            phone: address.phone,
+            streetAddress: address.streetAddress,
+            city: address.city,
+            postalCode: address.pincode,
+            state: address.state,
+            country: 'India'
+          },
+          paymentMethod: 'Online Payment',
+          useCoinsDiscount,
+          couponCode: appliedCoupon?.code
         })
       });
 
       if (!res.ok) {
-        showToast('Payment gateway initialization failed.', 'error');
+        const errData = await res.json().catch(() => ({}));
+        showToast(errData.error || errData.message || 'Payment gateway initialization failed.', 'error');
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
         return;
       }
 
       const data = await res.json();
       
-      // Pre-create order in database as PENDING before starting payment
-      const orderDetails = await placeOrder(
-        address,
-        'Online Payment',
-        useCoinsDiscount,
-        data.orderId,
-        appliedCoupon?.code
-      );
-
-      if (!orderDetails) {
-        showToast('Failed to register order transaction.', 'error');
-        isSubmittingRef.current = false;
-        setIsSubmitting(false);
-        return;
-      }
-      
       if (data.simulated) {
         // Developer simulated successful checkout (Verify instantly)
         showToast('Verifying simulated payment...', 'info');
-        const isVerified = await verifyPayment(orderDetails._id || data.orderId);
+        const verifyRes = await fetch('/api/payments/cashfree/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: data.orderId })
+        });
+        const verifyData = await verifyRes.json().catch(() => ({}));
         
-        if (isVerified) {
+        if (verifyRes.ok && verifyData.success) {
           showToast('Payment Verified Successfully!', 'success');
-          // Fetch updated order details
           setCreatedOrder({
-            ...orderDetails,
+            _id: data.dbOrderId || data.orderId,
+            orderId: data.orderId,
+            totalPrice: data.amount || finalAmount,
             paymentStatus: 'SUCCESS',
-            status: 'Packed'
+            status: 'Placed',
+            shippingAddress: address
           });
           setStep(4);
           triggerConfetti();
           
-          // Auto-save address to profile
-          if (updateUserProfile) {
+          if (updateUserProfile && currentUser) {
             updateUserProfile({
               fullName: address.name,
               phone: address.phone,
@@ -350,9 +352,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         // Real Cashfree integration
         showToast('Launching Cashfree Gateway...', 'success');
         if (window.Cashfree) {
-          const isProd = process.env.VITE_CASHFREE_PROD === 'true';
+          const env = process.env.NEXT_PUBLIC_CASHFREE_ENV || (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox');
           const cashfree = window.Cashfree({
-            mode: isProd ? "production" : "sandbox"
+            mode: env === 'production' ? 'production' : 'sandbox'
           });
           
           cashfree.checkout({
@@ -363,7 +365,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             setIsSubmitting(false);
           });
         } else {
-          showToast('Cashfree SDK script failed to load.', 'error');
+          showToast('Cashfree SDK script failed to load. Redirecting to payment...', 'error');
+          window.location.href = `/checkout/return?order_id=${data.orderId}`;
           isSubmittingRef.current = false;
           setIsSubmitting(false);
         }

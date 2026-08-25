@@ -10,7 +10,7 @@ const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
 
       const opt = {
         margin:       [10, 10, 10, 10], // top, left, bottom, right
-        filename:     `Invoice_${order.id}.pdf`,
+        filename:     `Invoice_${order.cfOrderId || order.orderId || order.id || order._id || 'AK-2026'}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }

@@ -1110,7 +1110,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             ];
 
             return (
-              <details className="pdp-vip-accordion" style={{ marginTop: '28px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
+              <details open className="pdp-vip-accordion" style={{ marginTop: '28px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
                 <summary style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)', padding: '18px 24px', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', listStyle: 'none', cursor: 'pointer' }}>
                   <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <ShieldCheck size={20} color="#fde047" /> {packageTitle}
@@ -1143,17 +1143,48 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#090d16', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Detailed Product Specifications</h4>
                   <table className="specs-table" style={{ width: '100%', borderCollapse: 'collapse', borderRadius: '12px', overflow: 'hidden' }}>
                     <tbody>
-                      {(product.specifications && product.specifications.length > 0 ? product.specifications : [
-                        { key: "Authenticity", value: "100% Genuine Direct Warehouse Inventory" },
-                        { key: "Replacement Guarantee", value: "7-Day Easy Hassle-Free Replacement Policy" },
-                        { key: "Shipping Speed", value: "Priority Express Dispatch across India" },
-                        { key: "Customer Support", value: "24/7 Dedicated Assistance & Live WhatsApp Chat" }
-                      ]).map((spec, index) => (
-                        <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8fafc' : '#ffffff', borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '12px 16px', fontWeight: '700', color: '#64748b', width: '35%', fontSize: '13px' }}>{spec.key}</td>
-                          <td style={{ padding: '12px 16px', fontWeight: '800', color: '#0f172a', fontSize: '13px' }}>{spec.value}</td>
-                        </tr>
-                      ))}
+                      {(() => {
+                        const baseSpecs = Array.isArray(product.specifications) && product.specifications.length > 0 
+                          ? [...product.specifications] 
+                          : [];
+                        
+                        const defaults = isFashion ? [
+                          { key: "Material / Fabric", value: "Premium Breathable Cotton Blend / Performance Knit" },
+                          { key: "Fit Type", value: "Regular Tailored Fit with Comfort Seams" },
+                          { key: "Care Instructions", value: "Machine Wash Cold / Do Not Bleach" },
+                          { key: "Authenticity", value: "100% Genuine Direct Brand Warehouse Stock" },
+                          { key: "Replacement Policy", value: "7-Day Easy Size Replacement Guarantee" },
+                          { key: "Shipping & Delivery", value: "Priority Doorstep Dispatch (2-4 Days)" }
+                        ] : isHome ? [
+                          { key: "Material & Build", value: "Engineered Solid High-Density Structure" },
+                          { key: "Assembly Type", value: "Pre-assembled / Tool-Free Quick Assembly" },
+                          { key: "Durability Rating", value: "Tested for Long-Term Indian Home Usage" },
+                          { key: "Authenticity", value: "100% Genuine Certified Inventory" },
+                          { key: "Replacement Guarantee", value: "7-Day Doorstep Replacement Guarantee" },
+                          { key: "Warranty Coverage", value: "1 Year Official Brand Assurance" }
+                        ] : [
+                          { key: "Build & Model", value: product.name || "Official Certified Model" },
+                          { key: "Operating Standard", value: "Standard 230V Indian Voltage Compatible" },
+                          { key: "Connectivity / Interface", value: "High-Speed Universal Connectivity Standard" },
+                          { key: "Warranty Coverage", value: "1 Year Comprehensive Official Brand Warranty" },
+                          { key: "Authenticity Guarantee", value: "100% Original Sealed Brand Warehouse Stock" },
+                          { key: "Replacement Shield", value: "7-Day Easy Doorstep Replacement Policy" }
+                        ];
+
+                        const finalSpecs = [...baseSpecs];
+                        defaults.forEach(d => {
+                          if (finalSpecs.length < 6 && !finalSpecs.some(s => s.key === d.key)) {
+                            finalSpecs.push(d);
+                          }
+                        });
+
+                        return finalSpecs.map((spec, index) => (
+                          <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8fafc' : '#ffffff', borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '12px 16px', fontWeight: '700', color: '#64748b', width: '35%', fontSize: '13px' }}>{spec.key}</td>
+                            <td style={{ padding: '12px 16px', fontWeight: '800', color: '#0f172a', fontSize: '13px' }}>{spec.value}</td>
+                          </tr>
+                        ));
+                      })()}
                     </tbody>
                   </table>
                 </div>

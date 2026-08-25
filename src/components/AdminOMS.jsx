@@ -18,7 +18,7 @@ const AdminOMS = ({ statusFilter }) => {
       if (sf === 'DELIVERED') return 'DELIVERED';
       if (sf === 'CANCELLED' || sf === 'RETURNS' || sf === 'CANCELLED_RETURNS') return 'CANCELLED';
     }
-    return 'ALL';
+    return 'LIVE'; // Hide cancelled orders by default
   });
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -30,6 +30,7 @@ const AdminOMS = ({ statusFilter }) => {
       else if (sf === 'DELIVERED') setActiveTab('DELIVERED');
       else if (sf === 'CANCELLED' || sf === 'RETURNS' || sf === 'CANCELLED_RETURNS') setActiveTab('CANCELLED');
       else if (sf === 'ALL') setActiveTab('ALL');
+      else if (sf === 'LIVE') setActiveTab('LIVE');
     }
   }, [statusFilter]);
   

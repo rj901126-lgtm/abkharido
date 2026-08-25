@@ -83,14 +83,21 @@ export async function GET(req, context) {
     // ── Native Mongoose / MongoDB Fallback ──
     try {
       await connectDB();
-      const product = await Product.findOne({ $or: [{ id: cleanId }, { _id: cleanId.length === 24 ? cleanId : undefined }].filter(Boolean) }).lean();
+      const product = await Product.findOne({ 
+        $or: [
+          { id: cleanId }, 
+          { slug: cleanId }, 
+          { _id: cleanId.length === 24 ? cleanId : undefined }
+        ].filter(Boolean) 
+      }).lean();
       if (product) return NextResponse.json(toPublicProductDTO(product));
     } catch (dbErr) {
       console.warn('[Product Detail DB Fallback Warning]:', dbErr.message);
     }
 
     // Fallback to local catalog if not found in database
-    const localProd = PRODUCTS.find(p => p.id === cleanId || p._id === cleanId);
+    const localProd = PRODUCTS.find(p => p.id === cleanId || p.slug === cleanId || p._id === cleanId)
+      || PRODUCTS.find(p => (p.name && p.name.toLowerCase().replace(/[^a-z0-9]/g, '-').includes(cleanId.toLowerCase())));
     if (localProd) return NextResponse.json(toPublicProductDTO(localProd));
 
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });

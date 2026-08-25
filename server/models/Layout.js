@@ -23,5 +23,5 @@ const layoutSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Layout = mongoose.model('Layout', layoutSchema);
+const Layout = mongoose.models.Layout || mongoose.model('Layout', layoutSchema);
 export default Layout;

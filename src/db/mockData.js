@@ -510,9 +510,12 @@ export const PRODUCTS = [
     description: 'Immerse yourself in cinematic 4K resolution. Equipped with Dolby Vision, HDR10+, and 30W Dolby Atmos sound, powered by Android TV for access to all popular streaming platforms.',
     specifications: [
       { key: 'Resolution', value: '4K Ultra HD (3840 x 2160)' },
-      { key: 'Sound', value: '30 Watts Speakers with Dolby Atmos' },
-      { key: 'Operating System', value: 'Android TV 11 with built-in Chromecast' },
-      { key: 'Ports', value: '3 HDMI, 2 USB, Bluetooth 5.0, WiFi' }
+      { key: 'Refresh Rate', value: '60 Hz Native Motion Enhancement' },
+      { key: 'Sound Output', value: '30 Watts Dolby Atmos & DTS Virtual:X' },
+      { key: 'Operating System', value: 'Android TV 11 with Google Play & Chromecast' },
+      { key: 'Connectivity', value: '3 HDMI Ports, 2 USB, Dual-band WiFi, Bluetooth 5.0' },
+      { key: 'Warranty', value: '1 Year Comprehensive Brand Warranty + 2 Years on Panel' },
+      { key: 'In-The-Box', value: '1 TV Unit, Remote Control, Wall Mount Bracket, Power Cable, Manual' }
     ],
     colorModels: [
       {
@@ -523,8 +526,8 @@ export const PRODUCTS = [
           'https://images.unsplash.com/photo-1552975084-6e027cd345c2?w=600&auto=format&fit=crop&q=80'
         ],
         variants: [
-          { name: '43-inch 4K', price: 24999, originalPrice: 34999, stock: 7, sku: 'TV-4K-43' },
           { name: '55-inch 4K', price: 34999, originalPrice: 49999, stock: 12, sku: 'TV-4K-55' },
+          { name: '43-inch 4K', price: 24999, originalPrice: 34999, stock: 7, sku: 'TV-4K-43' },
           { name: '65-inch 4K', price: 54999, originalPrice: 74999, stock: 2, sku: 'TV-4K-65' }
         ]
       }

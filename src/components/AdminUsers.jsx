@@ -32,23 +32,23 @@ const AdminUsers = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          const enhanced = data.map(u => ({
+        const rawList = Array.isArray(data) ? data : (data.users || []);
+        if (rawList.length > 0) {
+          const enhanced = rawList.map(u => ({
             ...u,
-            totalSpent: u.totalSpent || Math.floor(15000 + Math.random() * 85000),
-            tier: (u.totalSpent > 50000 || Math.random() > 0.5) ? 'VIP Platinum' : 'Active Buyer',
-            status: u.isFrozen ? 'Frozen' : 'Verified KYC'
+            fullName: u.fullName || u.name || u.username || 'Customer',
+            email: u.email || `${u.phone || 'customer'}@abkharido.com`,
+            totalSpent: u.totalSpent || 0,
+            tier: (u.walletCoins > 500 || u.isInfluencer) ? 'VIP Platinum' : 'Active Buyer',
+            status: u.isFrozen ? 'Frozen' : 'Verified OTP'
           }));
           setUsers(enhanced);
-          localStorage.setItem('abkharido_customer_vault', JSON.stringify(enhanced));
           setLoading(false);
           return;
         }
       }
 
-      // No dummy data; use real data only
       setUsers([]);
-      localStorage.setItem('abkharido_customer_vault', JSON.stringify([]));
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -60,17 +60,16 @@ const AdminUsers = () => {
     const updated = users.map(u => {
       if (u._id === userId) {
         const frozenState = !u.isFrozen;
-        return { ...u, isFrozen: frozenState, status: frozenState ? 'Frozen by Admin' : 'Verified KYC' };
+        return { ...u, isFrozen: frozenState, status: frozenState ? 'Frozen by Admin' : 'Verified OTP' };
       }
       return u;
     });
     setUsers(updated);
-    localStorage.setItem('abkharido_customer_vault', JSON.stringify(updated));
-    showToastMsg('User Account Security Shield & KYC status updated successfully!', 'success');
+    showToastMsg('User account status updated successfully!', 'success');
   };
 
   const handleForceOtpReset = (user) => {
-    showToastMsg(`🔐 Automated OTP security verification forced for ${user.email}`, 'success');
+    showToastMsg(`🔐 Security OTP reset triggered for ${user.email}`, 'success');
   };
 
   const filteredUsers = users.filter(u => {
@@ -81,9 +80,9 @@ const AdminUsers = () => {
                           userEmail.includes(searchQuery.toLowerCase()) ||
                           userPhone.includes(searchQuery);
     if (!matchesSearch) return false;
-    if (filterTier === 'VIP') return u.tier === 'VIP Platinum' || u.totalSpent >= 50000;
-    if (filterTier === 'ACTIVE') return !u.isFrozen && u.tier !== 'Flagged Risk';
-    if (filterTier === 'FLAGGED') return u.isFrozen || u.tier === 'Flagged Risk';
+    if (filterTier === 'VIP') return u.tier === 'VIP Platinum';
+    if (filterTier === 'ACTIVE') return !u.isFrozen;
+    if (filterTier === 'FLAGGED') return u.isFrozen;
     return true;
   });
 
@@ -91,7 +90,7 @@ const AdminUsers = () => {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column', gap: '16px' }}>
         <div style={{ width: '44px', height: '44px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <div style={{ color: '#4f46e5', fontWeight: '800' }}>⚡ Unlocking Customer Security & KYC Vault 2.0...</div>
+        <div style={{ color: '#4f46e5', fontWeight: '800' }}>Loading Registered Customers...</div>
       </div>
     );
   }
@@ -111,21 +110,21 @@ const AdminUsers = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '11px', fontWeight: '900', background: '#6366f1', color: '#ffffff', padding: '4px 12px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <ShieldCheck size={13} /> ZERO-TRUST ENCRYPTION SHIELD
+              <ShieldCheck size={13} /> VERIFIED USERS DIRECTORY
             </span>
           </div>
           <h2 style={{ margin: 0, fontSize: '28px', fontWeight: '900', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.5px' }}>
-            Customer Security & KYC Vault 2.0
+            Customer Directory &amp; Accounts
           </h2>
           <p style={{ margin: 0, color: '#94a3b8', fontSize: '14px' }}>
-            Manage verified customer identities, VIP loyalty tiers, and enforce instant fraud defense shields.
+            Manage registered OTP customers, VIP loyalty tiers, and wallet balances.
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           <div style={{ background: 'rgba(255,255,255,0.06)', padding: '14px 22px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
-            <span style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>Total Verified</span>
-            <span style={{ fontSize: '24px', fontWeight: '900', color: '#38bdf8' }}>1,842</span>
+            <span style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>Total Users</span>
+            <span style={{ fontSize: '24px', fontWeight: '900', color: '#38bdf8' }}>{users.length}</span>
           </div>
           <div style={{ background: 'rgba(255,255,255,0.06)', padding: '14px 22px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
             <span style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>VIP Loyalty Rate</span>

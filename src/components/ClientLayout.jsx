@@ -207,9 +207,6 @@ export default function ClientLayout({ children }) {
       {/* VIP Corporate E-Commerce Footer (Home page only) */}
       {isHomePage && <Footer onNavigate={handleNavigate} />}
 
-      {/* Real-Time Live Social Proof Buyer Toast */}
-      {!isPortalPage && <LivePurchasePopup />}
-
       {/* Floating WhatsApp Live Customer Support Widget */}
       {!isPortalPage && globalConfig.enableWhatsAppFloat && (
         <a
@@ -244,8 +241,8 @@ export default function ClientLayout({ children }) {
         </a>
       )}
 
-      {/* Mobile Sticky Bottom Tab Bar */}
-      {!pathname?.startsWith('/product') && !pathname?.startsWith('/cart') && !pathname?.startsWith('/checkout') && (
+      {/* Mobile Sticky Bottom Tab Bar - Strictly hidden on portal pages */}
+      {!isPortalPage && !pathname?.startsWith('/product') && !pathname?.startsWith('/cart') && !pathname?.startsWith('/checkout') && (
         <BottomNavigation activePage={pathname?.replace('/', '') || 'home'} onNavigate={handleNavigate} />
       )}
 
@@ -257,12 +254,14 @@ export default function ClientLayout({ children }) {
         />
       )}
 
-      {/* Global Slide-Out Cart Drawer */}
-      <CartDrawer 
-        isOpen={isCartDrawerOpen} 
-        onClose={() => setIsCartDrawerOpen(false)} 
-        onNavigate={handleNavigate}
-      />
+      {/* Global Slide-Out Cart Drawer - Never rendered on admin/portal */}
+      {!isPortalPage && (
+        <CartDrawer 
+          isOpen={isCartDrawerOpen} 
+          onClose={() => setIsCartDrawerOpen(false)} 
+          onNavigate={handleNavigate}
+        />
+      )}
     </div>
   );
 }
