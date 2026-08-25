@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 
+import { lookupPincode, lookupPincodeAsync } from '../utils/pincodeData';
+
 const AppContext = createContext();
 
 // eslint-disable-next-line
@@ -43,15 +45,18 @@ export const AppProvider = ({ children }) => {
   const [toast, setToast] = useState(null);
   const [wishlist, setWishlist] = useState([]);
   const [savedCards, setSavedCards] = useState([]);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+
+  // Default initial location: Palghar / Maharashtra (or user's saved location)
   const [deliveryLocation, setDeliveryLocation] = useState({
-    pincode: '110001',
-    city: 'New Delhi',
-    state: 'Delhi',
-    slaDays: 1,
-    deliveryDateStr: 'Tomorrow, 5 PM',
+    pincode: '401404',
+    city: 'Palghar',
+    state: 'Maharashtra',
+    slaDays: 2,
+    deliveryDateStr: '2-3 Days',
     isExpress: true,
     isCodAvailable: true,
-    displayText: 'New Delhi 110001'
+    displayText: 'Palghar 401404'
   });
 
   // Hydrate client-only storage states after initial SSR mount
@@ -82,11 +87,124 @@ export const AppProvider = ({ children }) => {
       if (savedReferral) setActiveReferral(JSON.parse(savedReferral));
 
       const savedPin = localStorage.getItem('abkharido_delivery_pincode');
-      if (savedPin) setDeliveryLocation(JSON.parse(savedPin));
+      if (savedPin) {
+        try {
+          const parsedPin = JSON.parse(savedPin);
+          if (parsedPin && parsedPin.pincode) setDeliveryLocation(parsedPin);
+        } catch(e) {}
+      } else {
+        // Auto-detect user's real location on first visit
+        detectUserLocation(false);
+      }
     } catch (err) {
       console.warn('[AppContext] Hydration from localStorage encountered non-fatal error:', err);
     }
   }, []);
+
+  // Auto-detect user location via GPS or IP (Palghar / real Indian city)
+  const detectUserLocation = async (manualTrigger = false) => {
+    setIsDetectingLocation(true);
+    try {
+      // 1. If user has a default address in profile, use that
+      if (currentUser?.addresses && currentUser.addresses.length > 0) {
+        const def = currentUser.addresses.find(a => a?.isDefault) || currentUser.addresses[0];
+        if (def && def.pincode) {
+          const info = await lookupPincodeAsync(def.pincode);
+          if (info) {
+            setDeliveryLocation(info);
+            safeSetItem('abkharido_delivery_pincode', JSON.stringify(info));
+            if (manualTrigger) showToast(`📍 Delivery location set: ${info.displayText}`, 'success');
+            setIsDetectingLocation(false);
+            return info;
+          }
+        }
+      }
+
+      // 2. Try browser GPS Geolocation if available
+      if (typeof window !== 'undefined' && navigator.geolocation) {
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000, enableHighAccuracy: true });
+          });
+          const { latitude, longitude } = pos.coords;
+          const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&countrycodes=in`);
+          if (geoRes.ok) {
+            const geoData = await geoRes.json();
+            const postal = geoData.address?.postcode || '';
+            const detectedCity = geoData.address?.city || geoData.address?.state_district || geoData.address?.county || geoData.address?.town || 'Palghar';
+            const detectedState = geoData.address?.state || 'Maharashtra';
+            
+            if (postal && postal.length === 6) {
+              const info = await lookupPincodeAsync(postal);
+              const finalInfo = info || {
+                pincode: postal,
+                city: detectedCity,
+                state: detectedState,
+                slaDays: 2,
+                deliveryDateStr: '2-3 Days',
+                isExpress: true,
+                isCodAvailable: true,
+                displayText: `${detectedCity} ${postal}`
+              };
+              setDeliveryLocation(finalInfo);
+              safeSetItem('abkharido_delivery_pincode', JSON.stringify(finalInfo));
+              if (manualTrigger) showToast(`📍 Location auto-detected: ${finalInfo.displayText}`, 'success');
+              setIsDetectingLocation(false);
+              return finalInfo;
+            }
+          }
+        } catch (geoErr) {
+          // GPS denied or timed out — fallback to fast IP geolocation
+        }
+      }
+
+      // 3. Fast IP Location Auto-Detection
+      const ipRes = await fetch('https://ipapi.co/json/').catch(() => null);
+      if (ipRes && ipRes.ok) {
+        const ipData = await ipRes.json();
+        const postal = ipData.postal || '';
+        const city = ipData.city || ipData.region || 'Palghar';
+        const state = ipData.region || 'Maharashtra';
+        
+        if (postal && postal.length === 6) {
+          const info = await lookupPincodeAsync(postal);
+          const finalInfo = info || {
+            pincode: postal,
+            city,
+            state,
+            slaDays: 2,
+            deliveryDateStr: '2-3 Days',
+            isExpress: true,
+            isCodAvailable: true,
+            displayText: `${city} ${postal}`
+          };
+          setDeliveryLocation(finalInfo);
+          safeSetItem('abkharido_delivery_pincode', JSON.stringify(finalInfo));
+          if (manualTrigger) showToast(`📍 Location auto-detected: ${finalInfo.displayText}`, 'success');
+          setIsDetectingLocation(false);
+          return finalInfo;
+        } else if (city) {
+          const fallbackPin = city.toLowerCase().includes('palghar') ? '401404' : (city.toLowerCase().includes('mumbai') || city.toLowerCase().includes('thane') ? '400001' : '401404');
+          const info = lookupPincode(fallbackPin);
+          const finalInfo = {
+            ...info,
+            city: city || 'Palghar',
+            displayText: `${city || 'Palghar'} ${fallbackPin}`
+          };
+          setDeliveryLocation(finalInfo);
+          safeSetItem('abkharido_delivery_pincode', JSON.stringify(finalInfo));
+          if (manualTrigger) showToast(`📍 Location set: ${finalInfo.displayText}`, 'success');
+          setIsDetectingLocation(false);
+          return finalInfo;
+        }
+      }
+    } catch (e) {
+      console.warn('[AppContext] Location detection error:', e);
+    } finally {
+      setIsDetectingLocation(false);
+    }
+    return null;
+  };
 
   const currentUser = React.useMemo(() => {
     return (session && session.user) ? { 
@@ -1075,7 +1193,9 @@ export const AppProvider = ({ children }) => {
         removeSavedCard,
         deliveryLocation,
         setDeliveryLocation,
-        currentPincode: deliveryLocation?.pincode || '110001',
+        detectUserLocation,
+        isDetectingLocation,
+        currentPincode: deliveryLocation?.pincode || '401404',
         isAuthLoading: status === 'loading'
       }}
     >

@@ -264,7 +264,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
                 <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600' }}>Deliver to</div>
                 <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>
-                  {deliveryLocation?.displayText || 'New Delhi 110001'}
+                  {deliveryLocation?.displayText || 'Palghar 401404'}
                 </div>
               </div>
             </div>
