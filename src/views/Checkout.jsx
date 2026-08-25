@@ -573,7 +573,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     );
   }
 
-  if (step < 4 && (!cart || cart.length === 0)) {
+  if (step < 4 && !createdOrder && !isSubmitting && (!cart || cart.length === 0)) {
     return (
       <div className="container animate-fade-in" style={{ padding: '100px 20px', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: '#fff1f2', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>

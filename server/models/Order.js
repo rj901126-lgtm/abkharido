@@ -54,7 +54,7 @@ const orderSchema = new mongoose.Schema({
   isDelivered: { type: Boolean, required: true, default: false },
   deliveredAt: { type: Date },
   
-  status: { type: String, enum: ['Pending', 'Processing', 'Packed', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Cancelled'], default: 'Pending' },
+  status: { type: String, enum: ['Placed', 'Pending', 'Processing', 'Packed', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Cancelled', 'Returned'], default: 'Processing' },
 
   // Visual Order Tracking History
   trackingHistory: [{

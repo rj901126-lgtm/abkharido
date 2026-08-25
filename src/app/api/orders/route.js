@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import Order from '../../../../server/models/Order.js';
+import Product from '../../../../server/models/Product.js';
+import User from '../../../../server/models/User.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +12,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit')) || 200;
     const status = searchParams.get('status') || '';
+    const search = searchParams.get('search') || '';
 
     let query = {};
     if (status && status !== 'all' && status !== 'ALL') {
@@ -20,11 +23,162 @@ export async function GET(req) {
       }
     }
 
-    const orders = await Order.find(query).populate('user', 'fullName username email phone').sort({ createdAt: -1 }).limit(limit).lean();
+    if (search && search.trim()) {
+      const s = search.trim();
+      query.$or = [
+        { cfOrderId: { $regex: s, $options: 'i' } },
+        { 'orderItems.name': { $regex: s, $options: 'i' } },
+        { 'shippingAddress.fullName': { $regex: s, $options: 'i' } },
+        { 'shippingAddress.phone': { $regex: s, $options: 'i' } }
+      ];
+    }
+
+    const orders = await Order.find(query)
+      .populate('user', 'fullName username email phone')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
 
     return NextResponse.json(orders || []);
   } catch (error) {
     console.error('Error fetching admin orders:', error);
     return NextResponse.json([]);
+  }
+}
+
+export async function POST(req) {
+  try {
+    await connectDB();
+    const body = await req.json();
+    const {
+      cart,
+      username,
+      shippingAddress,
+      paymentMethod = 'Cash on Delivery',
+      useCoinsDiscount = false,
+      cfOrderId,
+      couponCode
+    } = body;
+
+    const rawCart = Array.isArray(cart) ? cart : [];
+    if (rawCart.length === 0) {
+      return NextResponse.json({ error: 'Cart is empty. Please add items.' }, { status: 400 });
+    }
+
+    if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone) {
+      return NextResponse.json({ error: 'Shipping address with recipient name and phone is required.' }, { status: 400 });
+    }
+
+    // 1. Resolve or Create User
+    const phoneDigits = (shippingAddress.phone || username || '').replace(/\D/g, '').slice(-10);
+    let user = null;
+
+    // Check token from headers
+    const authHeader = req.headers.get('authorization') || '';
+    if (authHeader.startsWith('Bearer ')) {
+      try {
+        const jwt = (await import('jsonwebtoken')).default;
+        const decoded = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026');
+        if (decoded && decoded.id) {
+          user = await User.findById(decoded.id);
+        }
+      } catch (_) {}
+    }
+
+    if (!user && (username || phoneDigits)) {
+      user = await User.findOne({
+        $or: [
+          { username: username || undefined },
+          { phone: phoneDigits || undefined },
+          { phone: `+91${phoneDigits}` }
+        ].filter(Boolean)
+      });
+    }
+
+    if (!user) {
+      // Create lightweight buyer profile
+      const newUsername = phoneDigits ? `${phoneDigits}_buyer` : `guest_${Date.now()}`;
+      user = await User.create({
+        username: newUsername,
+        phone: phoneDigits || '9999999999',
+        fullName: shippingAddress.fullName || shippingAddress.name || 'Valued Customer',
+        password: 'GuestUserOrderPass2026!',
+        role: 'user'
+      });
+    }
+
+    // 2. Map items & resolve Product references
+    const orderItems = await Promise.all(rawCart.map(async (item) => {
+      const prod = item.product || item;
+      const prodId = prod._id || prod.id;
+      let dbProduct = null;
+
+      if (prodId && /^[0-9a-fA-F]{24}$/.test(String(prodId))) {
+        dbProduct = await Product.findById(prodId).lean();
+      }
+      if (!dbProduct && prod.id) {
+        dbProduct = await Product.findOne({ id: prod.id }).lean();
+      }
+
+      const qty = Math.max(1, parseInt(item.quantity || item.qty, 10) || 1);
+      const price = Number(item.price || prod.price || (dbProduct ? dbProduct.price : 999));
+      const name = item.name || prod.name || (dbProduct ? dbProduct.name : 'AbKharido Verified Product');
+      const image = item.image || prod.image || (dbProduct ? (dbProduct.image || dbProduct.images?.[0]) : 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600');
+
+      return {
+        product: dbProduct ? dbProduct._id : user._id, // fallback to user ObjectId if mock
+        name,
+        qty,
+        price,
+        image,
+        color: item.selectedColor || item.color || '',
+        variant: item.selectedVariant || item.variant || ''
+      };
+    }));
+
+    const itemsPrice = Math.round(orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0));
+    const shippingPrice = itemsPrice > 500 ? 0 : 40;
+    const taxPrice = 0;
+    let totalPrice = itemsPrice + shippingPrice + taxPrice;
+
+    // Delivery PIN (4 digits)
+    const deliveryPin = String(Math.floor(1000 + Math.random() * 9000));
+    const generatedCfOrderId = cfOrderId || `ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const isPaid = paymentMethod.toLowerCase().includes('online') || paymentMethod.toLowerCase().includes('upi') || paymentMethod.toLowerCase().includes('card');
+
+    const newOrder = await Order.create({
+      user: user._id,
+      orderItems,
+      shippingAddress: {
+        fullName: shippingAddress.fullName || shippingAddress.name,
+        address: shippingAddress.streetAddress || shippingAddress.address || 'Street address',
+        city: shippingAddress.city || 'Palghar',
+        postalCode: shippingAddress.pincode || shippingAddress.postalCode || '401404',
+        country: 'India'
+      },
+      paymentMethod,
+      itemsPrice,
+      shippingPrice,
+      taxPrice,
+      totalPrice,
+      isPaid,
+      paidAt: isPaid ? new Date() : undefined,
+      status: 'Processing',
+      deliveryPin,
+      cfOrderId: generatedCfOrderId,
+      appliedCoupon: couponCode || undefined,
+      trackingHistory: [{
+        status: 'Processing',
+        timestamp: new Date(),
+        location: shippingAddress.city || 'Warehouse Direct',
+        comment: 'Order placed & scheduled for express air-dispatch'
+      }]
+    });
+
+    return NextResponse.json(newOrder, { status: 201 });
+  } catch (error) {
+    console.error('Error in POST /api/orders:', error);
+    return NextResponse.json({ error: error.message || 'Failed to place order.' }, { status: 500 });
   }
 }

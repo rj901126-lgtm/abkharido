@@ -22,11 +22,11 @@ export async function GET(req) {
       const token = authHeader.slice(7);
       try {
         const jwt = (await import('jsonwebtoken')).default;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'abkharido_jwt_secret_dev');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026');
         if (decoded && decoded.id) {
           user = await User.findById(decoded.id).lean();
         }
-      } catch {}
+      } catch (_) {}
     }
 
     if (!user && (username || email || phone)) {
@@ -40,25 +40,36 @@ export async function GET(req) {
       }).lean();
     }
 
-    let query = {};
+    let userIds = [];
     if (user) {
-      query.user = user._id;
-    } else if (phone || username) {
-      const targetPhone = (phone || username).replace(/\D/g, '').slice(-10);
-      const matchedUser = await User.findOne({
+      userIds.push(user._id);
+    }
+    const targetPhone = (phone || username || (user?.phone) || '').replace(/\D/g, '').slice(-10);
+    if (targetPhone) {
+      const allMatchedUsers = await User.find({
         $or: [{ phone: targetPhone }, { username: targetPhone }, { phone: `+91${targetPhone}` }]
-      }).lean();
-      if (matchedUser) {
-        query.user = matchedUser._id;
-      } else {
-        query['shippingAddress.phone'] = { $regex: targetPhone || '.*' };
-      }
+      }).select('_id').lean();
+      allMatchedUsers.forEach(u => {
+        if (!userIds.some(id => String(id) === String(u._id))) {
+          userIds.push(u._id);
+        }
+      });
+    }
+
+    let query = {};
+    if (userIds.length > 0) {
+      query.$or = [
+        { user: { $in: userIds } },
+        ...(targetPhone ? [{ 'shippingAddress.phone': { $regex: targetPhone } }] : [])
+      ];
+    } else if (targetPhone) {
+      query['shippingAddress.phone'] = { $regex: targetPhone };
     }
 
     // Status filter
     if (status && status !== 'all') {
       if (status === 'processing') {
-        query.status = { $in: ['Processing', 'Placed', 'Shipped', 'In Transit', 'Packed'] };
+        query.status = { $in: ['Processing', 'Placed', 'Shipped', 'In Transit', 'Packed', 'Pending'] };
       } else if (status === 'delivered') {
         query.status = 'Delivered';
       } else if (status === 'cancelled') {
@@ -69,11 +80,17 @@ export async function GET(req) {
     // Search filter
     if (search && search.trim()) {
       const s = search.trim();
-      query.$or = [
+      const searchCondition = [
         { cfOrderId: { $regex: s, $options: 'i' } },
         { 'orderItems.name': { $regex: s, $options: 'i' } },
         { courierPartner: { $regex: s, $options: 'i' } }
       ];
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, { $or: searchCondition }];
+        delete query.$or;
+      } else {
+        query.$or = searchCondition;
+      }
     }
 
     const orders = await Order.find(query).sort({ createdAt: -1 }).limit(100).lean();
@@ -81,7 +98,7 @@ export async function GET(req) {
     return NextResponse.json({
       success: true,
       orders: orders || [],
-      total: orders.length,
+      total: (orders || []).length,
       page: 1,
       pages: 1
     });

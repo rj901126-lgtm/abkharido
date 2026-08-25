@@ -563,15 +563,17 @@ export const AppProvider = ({ children }) => {
   const fetchOrders = async (emailOrUsername, page = 1, search = '', status = 'all', time = 'all') => {
     try {
       const user = currentUser;
-      const username = user ? (user.username || user.name) : '';
-      const emailVal = emailOrUsername || (user ? user.email : '');
+      const username = user ? (user.username || user.name || user.phone) : (emailOrUsername || '');
+      const emailVal = user?.email || (emailOrUsername?.includes('@') ? emailOrUsername : '');
+      const phoneVal = user?.phone || (emailOrUsername && !emailOrUsername.includes('@') ? emailOrUsername : '');
       const token = user?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
       
       const queryParams = new URLSearchParams({
-        username,
+        username: username || '',
         email: emailVal || '',
+        phone: phoneVal || '',
         page,
-        limit: 20,
+        limit: 50,
         search,
         status,
         time
