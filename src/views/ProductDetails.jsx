@@ -29,7 +29,7 @@ import { PRODUCTS } from '../db/mockData';
 
 // eslint-disable-next-line
 const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialProduct }) => {
-  const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts, deliveryLocation } = useApp();
+  const { addToCart, updateCartQty, cart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts, deliveryLocation } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState(deliveryLocation?.pincode || currentUser?.pincode || '401404');
   
@@ -340,6 +340,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   const currentDisplayDiscount = currentDisplayOriginalPrice > 0 ? Math.round(((currentDisplayOriginalPrice - currentDisplayPrice) / currentDisplayOriginalPrice) * 100) : 0;
 
   const isOutOfStock = activeVariant ? (activeVariant.stock !== undefined && activeVariant.stock <= 0) : (product && product.inStock === false);
+
+  const cartItem = (cart || []).find(item => {
+    const itemPId = String(item.product?._id || item.product?.id || '');
+    const itemSlug = String(item.product?.id || '');
+    const targetPId = String(product?._id || product?.id || '');
+    const targetSlug = String(product?.id || '');
+    const idMatches = (itemPId && targetPId && itemPId === targetPId) || (itemSlug && targetSlug && itemSlug === targetSlug);
+    if (!idMatches) return false;
+    const itemVar = item.product?.selectedVariant || item.product?.variant || '';
+    const targetVar = activeVariant ? activeVariant.name : '';
+    const itemCol = item.product?.selectedColor || item.product?.color || '';
+    const targetCol = activeColor ? activeColor.name : '';
+    return itemVar === targetVar && itemCol === targetCol;
+  });
+  const quantityInCart = cartItem?.quantity || 0;
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -894,42 +909,80 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </div>
             
             <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', position: 'relative' }}>
-              <button
-                className="add-cart-outline-btn"
-                disabled={isOutOfStock}
-                onClick={() => {
-                  if (isOutOfStock) return;
-                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                  addToCart(customProduct);
-                }}
-                style={{
-                  flex: '1 1 180px',
-                  height: '52px',
-                  border: isOutOfStock ? '2px solid #cbd5e1' : '2px solid #4f46e5',
-                  borderRadius: '14px',
-                  background: isOutOfStock ? '#f1f5f9' : '#ffffff',
-                  color: isOutOfStock ? '#94a3b8' : '#4f46e5',
-                  fontWeight: '900',
-                  fontSize: '15px',
-                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  boxShadow: isOutOfStock ? 'none' : '0 4px 12px rgba(79, 70, 229, 0.05)',
-                  opacity: isOutOfStock ? 0.7 : 1
-                }}
-              >
-                <ShoppingCart size={20} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-              </button>
+              {quantityInCart > 0 ? (
+                <div style={{ flex: '1 1 180px', display: 'flex', alignItems: 'center', height: '52px', border: '2px solid #16a34a', borderRadius: '14px', background: '#f0fdf4', padding: '4px', gap: '8px', boxSizing: 'border-box' }}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart - 1);
+                    }}
+                    style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ffffff', border: '1.5px solid #bbf7d0', color: '#15803d', fontSize: '20px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    -
+                  </button>
+                  <div 
+                    onClick={() => onNavigate('cart')}
+                    style={{ flex: 1, textAlign: 'center', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#15803d', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Check size={14} /> {quantityInCart} in Cart
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#166534', fontWeight: '700', textDecoration: 'underline' }}>Go to Cart ➔</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart + 1);
+                    }}
+                    style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ffffff', border: '1.5px solid #bbf7d0', color: '#15803d', fontSize: '20px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    +
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="add-cart-outline-btn"
+                  disabled={isOutOfStock}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isOutOfStock) return;
+                    const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                    addToCart(customProduct, 1);
+                  }}
+                  style={{
+                    flex: '1 1 180px',
+                    height: '52px',
+                    border: isOutOfStock ? '2px solid #cbd5e1' : '2px solid #4f46e5',
+                    borderRadius: '14px',
+                    background: isOutOfStock ? '#f1f5f9' : '#ffffff',
+                    color: isOutOfStock ? '#94a3b8' : '#4f46e5',
+                    fontWeight: '900',
+                    fontSize: '15px',
+                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    fontFamily: "'Outfit', sans-serif",
+                    boxShadow: isOutOfStock ? 'none' : '0 4px 12px rgba(79, 70, 229, 0.05)',
+                    opacity: isOutOfStock ? 0.7 : 1
+                  }}
+                >
+                  <ShoppingCart size={20} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                </button>
+              )}
               <button
                 className={isOutOfStock ? '' : 'buy-now-pulse-btn'}
                 disabled={isOutOfStock}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (isOutOfStock) return;
                   const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                  addToCart(customProduct, 1);
+                  if (quantityInCart === 0) {
+                    addToCart(customProduct, 1);
+                  }
                   onBuyNow(customProduct);
                 }}
                 style={{
@@ -1205,35 +1258,6 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             );
           })()}
 
-          {/* Frequently Bought Together section */}
-          {recommendations && recommendations.length > 0 && (
-            <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#1f2937' }}>
-                Frequently Bought Together
-              </h3>
-              <div style={{
-                display: 'flex',
-                overflowX: 'auto',
-                gap: '16px',
-                paddingBottom: '16px',
-                scrollbarWidth: 'thin'
-              }}>
-                {recommendations.map(rec => (
-                  <div key={rec.id} style={{ minWidth: '180px', flex: '0 0 auto', backgroundColor: 'white', borderRadius: '8px', padding: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                    <img src={rec.image || (rec.images && rec.images[0])} alt={rec.name} style={{ width: '100%', height: '140px', objectFit: 'contain', marginBottom: '8px' }} />
-                    <div style={{ fontSize: '14px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{rec.name}</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#059669', marginTop: '4px' }}>₹{rec.price}</div>
-                    <button 
-                      onClick={() => onNavigate(rec.id)}
-                      style={{ width: '100%', padding: '6px', marginTop: '8px', border: '1px solid #4f46e5', backgroundColor: 'white', color: '#4f46e5', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Ratings & Reviews section (M1 Real Calculation Fix) */}
 
@@ -1605,46 +1629,78 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
           </div>
 
           {/* Right Side: Instant Action Purchase Buttons */}
-          <div className="vip-fixed-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-            <button
-              className="add-cart-outline-btn"
-              disabled={isOutOfStock}
-              onClick={() => {
-                if (isOutOfStock) return;
-                const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                addToCart(customProduct);
-              }}
-              style={{
-                height: '46px',
-                padding: '0 16px',
-                border: isOutOfStock ? '1.5px solid #cbd5e1' : '1.5px solid #4f46e5',
-                borderRadius: '12px',
-                background: isOutOfStock ? '#f1f5f9' : '#ffffff',
-                color: isOutOfStock ? '#94a3b8' : '#4f46e5',
-                fontWeight: '800',
-                fontSize: '13.5px',
-                cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                fontFamily: "'Outfit', sans-serif"
-              }}
-            >
-              <ShoppingCart size={17} /> <span className="buy-bar-btn-text">{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
-            </button>
+          <div className="vip-fixed-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            {quantityInCart > 0 ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigate('cart');
+                }}
+                style={{
+                  height: '46px',
+                  padding: '0 14px',
+                  border: '1.5px solid #16a34a',
+                  borderRadius: '12px',
+                  background: '#f0fdf4',
+                  color: '#15803d',
+                  fontWeight: '800',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  fontFamily: "'Outfit', sans-serif"
+                }}
+              >
+                <Check size={16} /> <span className="buy-bar-btn-text">Cart ({quantityInCart}) ➔</span>
+              </button>
+            ) : (
+              <button
+                className="add-cart-outline-btn"
+                disabled={isOutOfStock}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isOutOfStock) return;
+                  const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                  addToCart(customProduct, 1);
+                }}
+                style={{
+                  height: '46px',
+                  padding: '0 14px',
+                  border: isOutOfStock ? '1.5px solid #cbd5e1' : '1.5px solid #4f46e5',
+                  borderRadius: '12px',
+                  background: isOutOfStock ? '#f1f5f9' : '#ffffff',
+                  color: isOutOfStock ? '#94a3b8' : '#4f46e5',
+                  fontWeight: '800',
+                  fontSize: '13px',
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  fontFamily: "'Outfit', sans-serif"
+                }}
+              >
+                <ShoppingCart size={17} /> <span className="buy-bar-btn-text">{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
+              </button>
+            )}
             <button
               className={isOutOfStock ? '' : 'buy-now-pulse-btn'}
               disabled={isOutOfStock}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (isOutOfStock) return;
                 const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
-                addToCart(customProduct, 1);
+                if (quantityInCart === 0) {
+                  addToCart(customProduct, 1);
+                }
                 onBuyNow(customProduct);
               }}
               style={{
                 height: '46px',
-                padding: '0 20px',
+                padding: '0 18px',
                 border: 'none',
                 borderRadius: '12px',
                 backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',

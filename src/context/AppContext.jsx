@@ -751,37 +751,59 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const lastAddToCartTimestamp = useRef({});
+
   // --- Cart Actions ---
   const addToCart = (product, qty = 1) => {
     if (!product) return;
-    const pId = product.id || product._id;
+    const pId = String(product.id || product._id || '');
     if (!pId) {
       showToast('Error: Product ID is missing', 'error');
       return;
     }
 
+    const selectedVar = product.selectedVariant || product.variant || '';
+    const selectedCol = product.selectedColor || product.color || '';
+    const dedupeKey = `${pId}_${selectedVar}_${selectedCol}`;
+    const now = Date.now();
+    if (lastAddToCartTimestamp.current[dedupeKey] && now - lastAddToCartTimestamp.current[dedupeKey] < 450) {
+      return; // Prevent duplicate rapid touch/click events within 450ms
+    }
+    lastAddToCartTimestamp.current[dedupeKey] = now;
+
     setCart(prev => {
-      const existing = prev.find(item => {
-        const itemId = item.product?.id || item.product?._id;
-        return itemId === pId;
+      const existingIndex = prev.findIndex(item => {
+        const itemPId = String(item.product?.id || item.product?._id || '');
+        const itemSlug = String(item.product?.id || '');
+        const targetSlug = String(product?.id || '');
+        
+        const idMatches = (itemPId && pId && itemPId === pId) || (itemSlug && targetSlug && itemSlug === targetSlug);
+        if (!idMatches) return false;
+
+        const itemVar = item.product?.selectedVariant || item.product?.variant || '';
+        const itemCol = item.product?.selectedColor || item.product?.color || '';
+
+        return itemVar === selectedVar && itemCol === selectedCol;
       });
+
       const stock = (product.stock !== undefined && product.stock !== null && product.stock > 0) 
         ? product.stock 
         : (product.inStock !== false ? 99 : 0);
       
-      if (existing) {
+      if (existingIndex > -1) {
+        const existing = prev[existingIndex];
         const newQty = existing.quantity + qty;
         if (newQty > stock && stock > 0) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
           return prev;
         }
-        showToast(`${product.name?.substring(0, 20)}... quantity updated!`);
-        return prev.map(item => {
-          const itemId = item.product?.id || item.product?._id;
-          return itemId === pId ? { ...item, quantity: newQty } : item;
-        });
+        showToast(`Cart updated (${newQty} in cart)!`, 'info');
+        const updated = [...prev];
+        updated[existingIndex] = { ...existing, quantity: newQty };
+        return updated;
       }
-      showToast(`${product.name?.substring(0, 20)}... added to cart!`);
+
+      showToast(`${product.name?.substring(0, 24)}... added to cart!`, 'success');
       return [...prev, { product, quantity: qty }];
     });
     
