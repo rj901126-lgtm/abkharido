@@ -474,11 +474,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
         {/* 3. Always Visible Settings Form */}
         {activeTab === 'overview' && (
         <>
-        <form onSubmit={handleUpdateProfile} className="profile-form-card animate-fade-in" style={{ marginTop: '20px', background: '#ffffff', padding: '28px 24px', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', margin: 0 }}>Profile &amp; Personal Details</h3>
-            <span style={{ background: '#ecfdf5', color: '#059669', fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <ShieldCheck size={14} /> 256-bit Encrypted
+        <form onSubmit={handleUpdateProfile} className="profile-form-card animate-fade-in">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '900', color: '#0f172a', margin: 0 }}>Profile &amp; Personal Details</h3>
+            <span style={{ background: '#ecfdf5', color: '#059669', fontSize: '11px', fontWeight: '800', padding: '3px 10px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <ShieldCheck size={13} /> 256-bit Encrypted
             </span>
           </div>
 
@@ -491,7 +491,6 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 onChange={(e) => setFirstName(e.target.value)} 
                 placeholder="Enter first name"
                 className="profile-input"
-                style={{ fontSize: '15px', fontWeight: '600' }}
                 required
               />
             </div>
@@ -503,7 +502,6 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 onChange={(e) => setLastName(e.target.value)} 
                 placeholder="Enter last name"
                 className="profile-input"
-                style={{ fontSize: '15px', fontWeight: '600' }}
                 required
               />
             </div>
@@ -512,33 +510,33 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
           <div>
             <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span>MOBILE NUMBER</span>
-              <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>✔ VERIFIED BY OTP</span>
+              <span style={{ color: '#059669', background: '#d1fae5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>✔ OTP VERIFIED</span>
             </label>
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '16px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
-                <span style={{ fontSize: '15px', fontWeight: '700', color: '#64748b' }}>+91</span>
+              <div style={{ position: 'absolute', left: '14px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+                <span style={{ fontSize: '14px', fontWeight: '700', color: '#64748b' }}>+91</span>
               </div>
               <input 
                 type="text" 
                 value={currentUser.phone || currentUser.username} 
                 readOnly
                 className="profile-input"
-                style={{ paddingLeft: '54px', backgroundColor: '#f8fafc', fontWeight: '700', color: '#0f172a', border: '1px solid #cbd5e1' }}
+                style={{ paddingLeft: '48px', backgroundColor: '#f8fafc', fontWeight: '700', color: '#0f172a' }}
                 disabled
               />
-              <div style={{ position: 'absolute', right: '16px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
-                <CheckCircle size={20} color="#10b981" />
+              <div style={{ position: 'absolute', right: '14px', top: '0', bottom: '0', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+                <CheckCircle size={18} color="#10b981" />
               </div>
             </div>
           </div>
 
-          {/* Email Settings Section - Integrated Seamless Bar */}
-          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '20px', marginTop: '4px' }}>
-            <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          {/* Email Settings Section */}
+          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '16px', marginTop: '2px' }}>
+            <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <span>EMAIL ADDRESS</span>
               {currentUser.isEmailVerified ? 
-                <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>✔ VERIFIED</span> : 
-                <span style={{ color: '#ea580c', background: '#ffedd5', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>⚠️ PENDING</span>
+                <span style={{ color: '#059669', background: '#d1fae5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>✔ VERIFIED</span> : 
+                <span style={{ color: '#ea580c', background: '#ffedd5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>⚠️ PENDING</span>
               }
             </label>
             <div style={{ position: 'relative', width: '100%', display: 'flex' }}>
@@ -549,166 +547,132 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 placeholder="Enter valid email address..."
                 disabled={currentUser.isEmailVerified}
                 className="profile-input"
-                style={{ width: '100%', fontSize: '15px', fontWeight: '600', paddingRight: !currentUser.isEmailVerified ? '135px' : '40px', background: currentUser.isEmailVerified ? '#f8fafc' : 'white', border: '1.5px solid #cbd5e1', margin: 0 }}
+                style={{ paddingRight: !currentUser.isEmailVerified ? '115px' : '14px' }}
               />
               {!currentUser.isEmailVerified && (
                 <button 
                   type="button" 
                   onClick={handleVerifyEmail}
                   disabled={isVerifyingEmail || !emailInput}
-                  style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', opacity: (isVerifyingEmail || !emailInput) ? 0.7 : 1, padding: '8px 14px', background: 'linear-gradient(135deg, #f97316, #ea580c)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(234,88,12,0.25)', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+                  style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', opacity: (isVerifyingEmail || !emailInput) ? 0.7 : 1, padding: '6px 12px', background: 'linear-gradient(135deg, #f97316, #ea580c)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '800', fontSize: '11.5px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(234,88,12,0.25)', whiteSpace: 'nowrap' }}
                 >
-                  {isVerifyingEmail ? 'Sending...' : 'Verify Now ✨'}
+                  {isVerifyingEmail ? 'Sending...' : 'Verify Now ⚡'}
                 </button>
               )}
             </div>
             {!currentUser.isEmailVerified && (
-              <span style={{ fontSize: '12.5px', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontWeight: '600' }}>
-                <ShieldAlert size={15} /> Verify email to receive invoice PDFs, shipping updates, and reward badges.
-              </span>
+              <div style={{ fontSize: '11.5px', color: '#b45309', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontWeight: '600' }}>
+                <span>ℹ️</span>
+                <span>Verify email to receive invoice PDFs, tracking alerts &amp; coins.</span>
+              </div>
             )}
           </div>
 
           {/* Address Book Section */}
-          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '24px', marginTop: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '18px', marginTop: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
               <div>
-                <h4 style={{ fontSize: '17px', fontWeight: '900', color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: '900', color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span>📍 Address Book</span>
                 </h4>
-                <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0, fontWeight: '500' }}>
-                  Manage your delivery addresses for seamless checkout.
+                <p style={{ fontSize: '11.5px', color: '#64748b', margin: '2px 0 0', fontWeight: '500' }}>
+                  Saved delivery addresses for seamless 1-click checkout.
                 </p>
               </div>
               <button 
                 type="button" 
                 onClick={openAddAddressModal}
-                style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
-                + Add New Address
+                + Add Address
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {Array.isArray(currentUser?.addresses) && currentUser.addresses.length > 0 ? currentUser.addresses.filter(Boolean).map((addr, addrIdx) => (
-                <div key={addr?.id || `addr-${addrIdx}`} style={{ border: addr?.isDefault ? '2px solid #4f46e5' : '1.5px solid #cbd5e1', borderRadius: '16px', padding: '16px', background: addr?.isDefault ? '#f8fafc' : 'white', position: 'relative' }}>
+                <div key={addr?.id || `addr-${addrIdx}`} style={{ border: addr?.isDefault ? '1.5px solid #4f46e5' : '1px solid #e2e8f0', borderRadius: '14px', padding: '14px', background: addr?.isDefault ? '#f8faff' : '#ffffff', position: 'relative' }}>
                   {addr?.isDefault && (
-                    <span style={{ position: 'absolute', top: '-10px', right: '16px', background: '#4f46e5', color: 'white', fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px' }}>
+                    <span style={{ position: 'absolute', top: '10px', right: '12px', background: '#4f46e5', color: 'white', fontSize: '9.5px', fontWeight: '900', padding: '2px 8px', borderRadius: '100px', letterSpacing: '0.3px' }}>
                       DEFAULT
                     </span>
                   )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '16px' }}>{addr?.addressType === 'Home' ? '🏠' : addr?.addressType === 'Work' ? '🏢' : '📍'}</span>
-                    <strong style={{ fontSize: '15px', color: '#0f172a' }}>{addr?.addressType || 'Address'}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '14px' }}>{addr?.addressType === 'Home' ? '🏠' : addr?.addressType === 'Work' ? '🏢' : '📍'}</span>
+                    <strong style={{ fontSize: '14px', color: '#0f172a' }}>{addr?.addressType || 'Address'}</strong>
                   </div>
-                  <div style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.5', marginBottom: '16px' }}>
-                    <strong>{addr?.name || currentUser?.fullName || 'User'}</strong><br/>
+                  <div style={{ fontSize: '13px', color: '#475569', lineHeight: '1.4', marginBottom: '12px' }}>
+                    <strong style={{ color: '#0f172a' }}>{addr?.name || currentUser?.fullName || 'User'}</strong><br/>
                     {addr?.houseNo ? addr.houseNo + ', ' : ''}{addr?.streetArea || addr?.streetAddress || addr?.address || ''}<br/>
-                    {addr?.city || ''}, {addr?.state || ''} {addr?.pincode ? `- ${addr.pincode}` : ''}<br/>
-                    {addr?.phone ? `Phone: ${addr.phone}` : ''}
+                    {addr?.city || ''}{addr?.city && addr?.state ? ', ' : ''}{addr?.state || ''} {addr?.pincode ? `- ${addr.pincode}` : ''}<br/>
+                    {addr?.phone ? <span style={{ color: '#64748b', fontSize: '12px' }}>Phone: {addr.phone}</span> : ''}
                   </div>
                   
-                  <div style={{ display: 'flex', gap: '12px', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
-                    <button type="button" onClick={() => openEditAddressModal(addr)} style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0 }}>Edit</button>
-                    <button type="button" onClick={() => handleDeleteAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0 }}>Delete</button>
+                  <div style={{ display: 'flex', gap: '14px', borderTop: '1px solid #f1f5f9', paddingTop: '10px', alignItems: 'center' }}>
+                    <button type="button" onClick={() => openEditAddressModal(addr)} style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', padding: 0 }}>Edit</button>
+                    <button type="button" onClick={() => handleDeleteAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', padding: 0 }}>Delete</button>
                     {!addr?.isDefault && (
-                      <button type="button" onClick={() => handleSetDefaultAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#10b981', fontSize: '13px', fontWeight: '700', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}>Set Default</button>
+                      <button type="button" onClick={() => handleSetDefaultAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#059669', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}>Set Default</button>
                     )}
                   </div>
                 </div>
               )) : (
-                <div style={{ gridColumn: '1 / -1', padding: '30px', textAlign: 'center', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
-                  <p style={{ color: '#64748b', fontSize: '14px', fontWeight: '600' }}>No addresses saved yet.</p>
+                <div style={{ padding: '20px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                  <p style={{ color: '#64748b', fontSize: '13px', fontWeight: '600', margin: 0 }}>No addresses saved yet.</p>
                 </div>
               )}
             </div>
           </div>
-          <div style={{ marginTop: '24px' }}>
-            {hasChanges ? (
+
+          {hasChanges && (
+            <div style={{ marginTop: '12px' }}>
               <button 
                 type="submit" 
                 className="profile-submit-btn"
-                style={{ 
-                  width: '100%',
-                  padding: '16px 20px',
-                  borderRadius: '16px',
-                  background: '#0f172a',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  fontWeight: '800',
-                  letterSpacing: '0.3px',
-                  border: 'none',
-                  boxShadow: '0 6px 16px rgba(15, 23, 42, 0.15)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px'
-                }}
                 disabled={isUpdating}
               >
-                <span style={{ fontSize: '20px' }}>💾</span>
-                {isUpdating ? 'Saving Securely to Server...' : 'Save All Changes Now'}
+                <span>💾</span>
+                {isUpdating ? 'Saving to Server...' : 'Save Profile Changes'}
               </button>
-            ) : (
-              <div style={{ 
-                width: '100%',
-                background: '#f0fdf4',
-                border: '1.5px solid #bbf7d0',
-                color: '#16a34a',
-                padding: '16px',
-                borderRadius: '16px',
-                fontSize: '15px',
-                fontWeight: '800',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 2px 8px rgba(22, 163, 74, 0.05)'
-              }}>
-                ✔ All Profile Details &amp; Addresses Saved
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </form>
 
-        {/* 4. Upgraded Account Quick Nav Links - clean without duplicates! */}
-        <div className="profile-menu-list" style={{ marginTop: '20px', background: 'white', borderRadius: '24px', border: '1px solid #f1f5f9', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-          <div className="profile-menu-item" onClick={() => setActiveTab('savedcards')} style={{ padding: '18px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
-                <CreditCard size={20} />
+        {/* 4. Account Quick Nav Links */}
+        <div className="profile-menu-list">
+          <div className="profile-menu-item" onClick={() => setActiveTab('savedcards')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
+                <CreditCard size={18} />
               </div>
               <div>
-                <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>Saved Wallets &amp; Cards</div>
-                <div style={{ fontSize: '12px', color: '#64748b' }}>Manage faster payment checkout methods</div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>Saved Wallets &amp; Cards</div>
+                <div style={{ fontSize: '11.5px', color: '#64748b' }}>Manage faster payment checkout methods</div>
               </div>
             </div>
-            <ArrowRight size={18} color="#94a3b8" />
+            <ArrowRight size={16} color="#94a3b8" />
           </div>
 
-          <div className="profile-menu-item" onClick={() => onNavigate('partner')} style={{ padding: '18px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706' }}>
-                <Award size={20} />
+          <div className="profile-menu-item" onClick={() => onNavigate('partner')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706' }}>
+                <Award size={18} />
               </div>
               <div>
-                <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>Creator &amp; Partner Program</div>
-                <div style={{ fontSize: '12px', color: '#64748b' }}>Earn commission by recommending products</div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>Creator &amp; Partner Program</div>
+                <div style={{ fontSize: '11.5px', color: '#64748b' }}>Earn commission by recommending products</div>
               </div>
             </div>
-            <ArrowRight size={18} color="#94a3b8" />
+            <ArrowRight size={16} color="#94a3b8" />
           </div>
 
-          <div className="profile-menu-item logout-item" onClick={logout} style={{ padding: '18px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff1f2', transition: 'all 0.2s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fecdd3', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#e11d48' }}>
-                <LogOut size={20} />
+          <div className="profile-menu-item logout-item" onClick={logout}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }}>
+                <LogOut size={18} />
               </div>
               <div>
-                <div style={{ fontSize: '15px', fontWeight: '800', color: '#e11d48' }}>Log Out from all devices</div>
-                <div style={{ fontSize: '12px', color: '#f43f5e' }}>Securely conclude your active session</div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#dc2626' }}>Log Out from all devices</div>
+                <div style={{ fontSize: '11.5px', color: '#ef4444' }}>Securely conclude your active session</div>
               </div>
             </div>
           </div>
