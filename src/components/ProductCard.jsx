@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Star, Award, ShoppingCart, Heart, Zap, ShieldCheck, Check } from 'lucide-react';
 import LazyImage from './LazyImage';
 import CountdownTimer from './CountdownTimer';
+import { calculateCoinReward } from '../utils/coinUtils';
 
 // Stable hash from a string — same string always yields same number
 function stableHash(str, min, max) {
@@ -29,8 +30,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   const originalPrice = product.originalPrice || (isFlashSale ? product.price : price);
   const discountPercent = originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
-  // Dynamic earnings display
-  const userEarningsCoins = Math.round(price * (product.userCommissionRate || 0.05));
+  // Standardized dynamic earnings display
+  const userEarningsCoins = calculateCoinReward(price);
   const influencerEarningsCash = Math.round(price * (product.influencerCommissionRate || 0.08));
 
   const handleAddToCart = (e) => {

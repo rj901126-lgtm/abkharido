@@ -24,6 +24,7 @@ import '../assets/styles/navbar.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
 import LanguageToggle from './LanguageToggle';
 import PincodeModal from './PincodeModal';
+import { useLanguage } from '../context/LanguageContext';
 
 const SEARCH_PLACEHOLDERS = [
   "Search for 'iPhone 16 Pro'...",
@@ -83,6 +84,7 @@ const MEGA_MENU_CATEGORIES = [
 
 const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCategory, onSelectCategory, onCartClick, style }) => {
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const activeCat = searchParams ? (searchParams.get('category') || currentCategory || 'all') : (currentCategory || 'all');
   // eslint-disable-next-line
   const { currentUser, cart, logout, resetDatabase, products, deliveryLocation } = useApp();
@@ -675,7 +677,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 onClick={(e) => { e.preventDefault(); onNavigate('login'); }}
                 style={{ padding: '6px 20px', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}
               >
-                Login
+                {t('login', 'Login')}
               </a>
             )}
 
@@ -696,7 +698,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 <ShoppingCart size={20} />
                 {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
               </div>
-              <span className="nav-text">Cart</span>
+              <span className="nav-text">{t('cart', 'Cart')}</span>
             </a>
 
           </div>

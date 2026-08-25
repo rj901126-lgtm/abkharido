@@ -63,9 +63,11 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'google-site-verification-placeholder',
-  },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? {
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    }
+  } : {})
 };
 
 // Fix WCAG 1.4.4 & Lighthouse Accessibility: Allow user-scaling & pinch-to-zoom

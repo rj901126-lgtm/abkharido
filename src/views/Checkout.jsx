@@ -198,6 +198,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       showToast('We cannot deliver to this pincode. Please try a different address.', 'error');
       return;
     }
+
+    // Persist address to profile
+    if (updateUserProfile && currentUser) {
+      updateUserProfile({
+        fullName: address.name,
+        phone: address.phone,
+        pincode: address.pincode,
+        address: address.streetAddress,
+        city: address.city,
+        state: address.state
+      });
+    }
+
     setStep(2);
   };
 
@@ -211,6 +224,13 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     setIsSubmitting(true);
 
     if (paymentMethod === 'cod') {
+      if (finalAmount > 15000) {
+        showToast('Cash on Delivery is limited to orders up to ₹15,000 for delivery security. Please choose Instant Online Payment.', 'error');
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+        return;
+      }
+
       try {
         // Direct Cash on Delivery placement
         const orderDetails = await placeOrder(
@@ -885,22 +905,42 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               {/* Cash on Delivery Option */}
               <label 
                 className={`checkout-payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}
-                style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', marginBottom: '12px', borderRadius: '16px', border: paymentMethod === 'cod' ? '2px solid var(--primary-color)' : '1.5px solid #e2e8f0', background: paymentMethod === 'cod' ? '#f5f3ff' : '#ffffff', transition: 'all 0.2s ease' }}
+                style={{ 
+                  padding: '16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '14px', 
+                  cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', 
+                  marginBottom: '12px', 
+                  borderRadius: '16px', 
+                  border: paymentMethod === 'cod' ? '2px solid var(--primary-color)' : '1.5px solid #e2e8f0', 
+                  background: finalAmount > 15000 ? '#f8fafc' : (paymentMethod === 'cod' ? '#f5f3ff' : '#ffffff'), 
+                  opacity: finalAmount > 15000 ? 0.6 : 1,
+                  transition: 'all 0.2s ease' 
+                }}
               >
                 <input 
                   type="radio" 
                   name="payment" 
                   value="cod" 
-                  checked={paymentMethod === 'cod'}
-                  onChange={() => { setPaymentMethod('cod'); setSelectedSavedCard(null); }}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+                  disabled={finalAmount > 15000}
+                  checked={paymentMethod === 'cod' && finalAmount <= 15000}
+                  onChange={() => { if (finalAmount <= 15000) { setPaymentMethod('cod'); setSelectedSavedCard(null); } }}
+                  style={{ width: '18px', height: '18px', cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', accentColor: 'var(--primary-color)' }}
                 />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '800', fontSize: '15px', color: paymentMethod === 'cod' ? 'var(--primary-color)' : '#0f172a' }}>
-                    💵 Cash On Delivery (COD)
+                  <div style={{ fontWeight: '800', fontSize: '15px', color: paymentMethod === 'cod' ? 'var(--primary-color)' : '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span>💵 Cash On Delivery (COD)</span>
+                    {finalAmount > 15000 && (
+                      <span style={{ fontSize: '11px', background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: '6px', fontWeight: '800' }}>
+                        Max ₹15,000 Cap
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
-                    Pay with cash or UPI QR scan at doorstep upon delivery.
+                    {finalAmount > 15000 
+                      ? 'Unavailable for orders above ₹15,000. Please use Instant Online Payment for bank-grade escrow protection.' 
+                      : 'Pay with cash or UPI QR scan at doorstep upon delivery.'}
                   </div>
                 </div>
               </label>

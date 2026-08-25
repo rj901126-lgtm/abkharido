@@ -31,7 +31,7 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted || !isOpen) return null;
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);

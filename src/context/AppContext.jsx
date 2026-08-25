@@ -371,17 +371,20 @@ export const AppProvider = ({ children }) => {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
       
       let res;
-      // Try reliable lookup by MongoDB ID first if available
-      if (id && id !== 'vip_user') {
+      // Prefer /api/users/me when authenticated
+      if (token) {
+        res = await fetch(`/api/users/me`, { headers, cache: 'no-store' });
+      }
+      
+      // Fallback to ID or username lookup
+      if ((!res || !res.ok) && id && id !== 'vip_user') {
         res = await fetch(`/api/users/${id}`, { headers, cache: 'no-store' });
       }
       
-      // Fallback to username
-      if (!res || !res.ok) {
+      if ((!res || !res.ok) && username) {
         res = await fetch(`/api/users/${username}`, { headers, cache: 'no-store' });
       }
       
-      // If username lookup fails (404) and we have a phone, try phone-based lookup
       if ((!res || !res.ok) && phone && phone !== username) {
         res = await fetch(`/api/users/${phone}`, { headers, cache: 'no-store' });
       }

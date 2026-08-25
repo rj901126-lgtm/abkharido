@@ -4,8 +4,8 @@ import jwt from 'jsonwebtoken';
 // In-memory rate limiting map for admin verify attempts
 const failedAttemptsMap = new Map();
 
-const MAX_FAILED_ATTEMPTS = 10;
-const LOCKOUT_WINDOW_MS = 2 * 60 * 1000; // 2 minutes
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
 function checkRateLimit(ip) {
   const now = Date.now();
@@ -55,13 +55,15 @@ export async function POST(req) {
 
     const body = await req.json().catch(() => ({}));
     const { password } = body;
-    const validPin = (process.env.ADMIN_SECURE_PIN || '2026').trim();
+    const validPin = process.env.ADMIN_SECURE_PIN 
+      ? process.env.ADMIN_SECURE_PIN.trim() 
+      : (process.env.NODE_ENV !== 'production' ? '2026' : '');
     const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'abkharido_enterprise_secret_2026';
 
     const cleanInput = typeof password === 'string' ? password.trim() : String(password || '').trim();
 
-    // Verify PIN with master 2026 or configured pin
-    const isMatch = Boolean(cleanInput && (cleanInput === validPin || cleanInput === '2026'));
+    // Verify PIN strictly
+    const isMatch = Boolean(validPin && cleanInput && cleanInput === validPin);
 
     if (isMatch) {
       clearFailedAttempts(ip);

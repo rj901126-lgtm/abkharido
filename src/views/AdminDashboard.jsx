@@ -483,8 +483,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
   const handleVerifyPin = async (e, directPin) => {
     if (e && e.preventDefault) e.preventDefault();
-    const pinToTest = (directPin || adminPin || '2026').trim();
-    if (!pinToTest) return;
+    const pinToTest = (directPin || adminPin || '').trim();
+    if (!pinToTest) {
+      setLoginError('Please enter your administrator PIN.');
+      return;
+    }
     setVerifying(true);
     setLoginError('');
     try {
@@ -1218,15 +1221,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
             <button type="submit" disabled={verifying} className="btn btn-primary" style={{ height: '42px', fontWeight: 'bold' }}>
               {verifying ? 'Verifying Authorization...' : 'UNLOCK INVENTORY CONTROL'}
-            </button>
-            
-            <button 
-              type="button" 
-              onClick={(e) => { setAdminPin('2026'); handleVerifyPin(e, '2026'); }}
-              className="btn" 
-              style={{ height: '36px', background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', fontSize: '13px', fontWeight: '700' }}
-            >
-              🔑 1-Click Unlock with Master PIN (2026)
             </button>
 
             <button type="button" onClick={() => onNavigate('home')} className="btn btn-outline" style={{ height: '38px' }}>

@@ -156,44 +156,102 @@ const SellerDashboard = ({ onNavigate }) => {
     showToast('Merchant session logged out successfully.', 'info');
   };
 
-  // Simulated OTP helpers
-  const handleSendMobileOtp = () => {
+  // Real OTP handlers for Merchant Verification
+  const handleSendMobileOtp = async () => {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone)) {
       showToast('Please enter a valid 10-digit mobile number.', 'error');
       return;
     }
-    setMobileOtpSent(true);
-    showToast('Simulated SMS OTP sent! Enter "123456" to verify.', 'success');
-  };
-
-  const handleVerifyMobileOtp = () => {
-    if (mobileOtpInput === '123456') {
-      setMobileVerified(true);
-      setMobileOtpSent(false);
-      showToast('Mobile number verified successfully! ✓', 'success');
-    } else {
-      showToast('Incorrect OTP. Please enter 123456.', 'error');
+    try {
+      showToast('Sending OTP to mobile...', 'info');
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: phone, phone: phone })
+      });
+      if (res.ok) {
+        setMobileOtpSent(true);
+        showToast('Verification OTP sent via SMS! Please enter the 6-digit code.', 'success');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Failed to send OTP. Please try again.', 'error');
+      }
+    } catch {
+      showToast('Network error sending OTP. Please try again.', 'error');
     }
   };
 
-  const handleSendEmailOtp = () => {
+  const handleVerifyMobileOtp = async () => {
+    if (!mobileOtpInput || mobileOtpInput.length < 6) {
+      showToast('Please enter the full 6-digit OTP.', 'error');
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: phone, otp: mobileOtpInput })
+      });
+      if (res.ok) {
+        setMobileVerified(true);
+        setMobileOtpSent(false);
+        showToast('Mobile number verified successfully! ✓', 'success');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Incorrect OTP code. Please check and try again.', 'error');
+      }
+    } catch {
+      showToast('Network error verifying OTP.', 'error');
+    }
+  };
+
+  const handleSendEmailOtp = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       showToast('Please enter a valid email address.', 'error');
       return;
     }
-    setEmailOtpSent(true);
-    showToast('Simulated Email OTP sent! Enter "123456" to verify.', 'success');
+    try {
+      showToast('Sending OTP to email...', 'info');
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: email, email: email })
+      });
+      if (res.ok) {
+        setEmailOtpSent(true);
+        showToast('Verification OTP sent to your email! Please enter the 6-digit code.', 'success');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Failed to send email OTP.', 'error');
+      }
+    } catch {
+      showToast('Network error sending email OTP.', 'error');
+    }
   };
 
-  const handleVerifyEmailOtp = () => {
-    if (emailOtpInput === '123456') {
-      setEmailVerified(true);
-      setEmailOtpSent(false);
-      showToast('Email verified successfully! ✓', 'success');
-    } else {
-      showToast('Incorrect OTP. Please enter 123456.', 'error');
+  const handleVerifyEmailOtp = async () => {
+    if (!emailOtpInput || emailOtpInput.length < 6) {
+      showToast('Please enter the full 6-digit OTP.', 'error');
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: email, otp: emailOtpInput })
+      });
+      if (res.ok) {
+        setEmailVerified(true);
+        setEmailOtpSent(false);
+        showToast('Email verified successfully! ✓', 'success');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Incorrect OTP code. Please check and try again.', 'error');
+      }
+    } catch {
+      showToast('Network error verifying OTP.', 'error');
     }
   };
 
@@ -563,12 +621,12 @@ const SellerDashboard = ({ onNavigate }) => {
                         </button>
                       )}
                     </div>
-                    {/* Simulated mobile OTP input */}
+                    {/* Mobile OTP input */}
                     {mobileOtpSent && !mobileVerified && (
                       <div style={{ display: 'flex', gap: '8px', marginTop: '8px', alignItems: 'center', animation: 'fadeIn 0.2s' }}>
                         <input 
                           type="text" 
-                          placeholder="Enter 6-digit OTP (123456)" 
+                          placeholder="Enter 6-digit SMS OTP" 
                           value={mobileOtpInput}
                           onChange={(e) => setMobileOtpInput(e.target.value)}
                           className="form-input-field"
@@ -586,8 +644,8 @@ const SellerDashboard = ({ onNavigate }) => {
                     <label className="form-label-txt">Email ID *</label>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <input 
-                        type="email"
-                        placeholder="business@example.com"
+                        type="email" 
+                        placeholder="business@example.com" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="form-input-field"
@@ -605,12 +663,12 @@ const SellerDashboard = ({ onNavigate }) => {
                         </button>
                       )}
                     </div>
-                    {/* Simulated email OTP input */}
+                    {/* Email OTP input */}
                     {emailOtpSent && !emailVerified && (
                       <div style={{ display: 'flex', gap: '8px', marginTop: '8px', alignItems: 'center', animation: 'fadeIn 0.2s' }}>
                         <input 
                           type="text" 
-                          placeholder="Enter 6-digit OTP (123456)" 
+                          placeholder="Enter 6-digit Email OTP" 
                           value={emailOtpInput}
                           onChange={(e) => setEmailOtpInput(e.target.value)}
                           className="form-input-field"

@@ -111,10 +111,31 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
   const displayList = filteredProducts.length > 0 ? filteredProducts : products;
 
-  // Slices formatted for clean 4-column desktop grids
-  const flashDeals = displayList.filter(p => p.originalPrice > p.price).slice(0, 4);
-  const bestSellers = displayList.filter(p => (p.rating || 4.5) >= 4.4).slice(0, 4);
-  const newArrivals = displayList.slice(0, 4);
+  // Distinct SKUs partitioned across rails so each rail is unique
+  const flashDeals = React.useMemo(() => {
+    return [...displayList]
+      .filter(p => p && p.originalPrice > p.price)
+      .sort((a, b) => ((b.originalPrice - b.price) / b.originalPrice) - ((a.originalPrice - a.price) / a.originalPrice))
+      .slice(0, 4);
+  }, [displayList]);
+
+  const flashDealIds = new Set(flashDeals.map(p => p.id));
+
+  const bestSellers = React.useMemo(() => {
+    const candidates = displayList.filter(p => p && !flashDealIds.has(p.id));
+    return [...candidates]
+      .sort((a, b) => (b.reviewsCount || 0) - (a.reviewsCount || 0) || (b.rating || 0) - (a.rating || 0))
+      .slice(0, 4);
+  }, [displayList, flashDealIds]);
+
+  const bestSellerIds = new Set(bestSellers.map(p => p.id));
+
+  const newArrivals = React.useMemo(() => {
+    const candidates = displayList.filter(p => p && !flashDealIds.has(p.id) && !bestSellerIds.has(p.id));
+    return candidates.length >= 4 
+      ? candidates.slice(0, 4) 
+      : [...candidates, ...displayList.filter(p => !candidates.some(c => c.id === p.id))].slice(0, 4);
+  }, [displayList, flashDealIds, bestSellerIds]);
 
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto' }}>
@@ -436,7 +457,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             { name: "SONY", desc: "Studio Audio", icon: "🎧", query: "Sony" },
             { name: "NIKE", desc: "Athletic & Air", icon: "👟", query: "Nike" },
             { name: "BOSE", desc: "QuietComfort", icon: "🔊", query: "Bose" },
-            { name: "ROLEX", desc: "Swiss Couture", icon: "⌚", query: "Rolex" }
+            { name: "TITAN", desc: "Smart & Analog", icon: "⌚", query: "Titan" }
           ].map((brand, bIdx) => (
             <div 
               key={bIdx}

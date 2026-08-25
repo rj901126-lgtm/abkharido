@@ -316,7 +316,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
             {showOtpScreen ? 'Two-Step\nOTP Security 🔐' : 'Buy Direct.\nSave Big.\nEarn Rewards. 🚀'}
           </h1>
           <p className="lp-left-sub" style={{ fontSize: '14.5px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '36px' }}>
-            {showOtpScreen ? `We sent an authentic 6-digit SMS code to +91 ${phone}. No backup bypasses allowed for your absolute account security.` : 'India’s premier direct-from-warehouse E-Commerce platform with zero middleman commissions.'}
+            {showOtpScreen ? `We texted a 6-digit verification code to +91 ${phone}.` : 'India’s trusted direct-from-warehouse shopping platform with official brand warranty.'}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -419,8 +419,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   {!isVerifying && <ChevronRight size={18} />}
                 </button>
 
-                {/* 🧪 Developer 1-Click Fast Unlock */}
-                {(phone === '9172600587' || process.env.NODE_ENV !== 'production') && (
+                {/* 🧪 Developer 1-Click Fast Unlock - strictly hidden in production */}
+                {process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_ENABLE_TEST_OTP === 'true' && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -445,7 +445,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <span>🧪</span> 1-Click Test OTP (123456)
+                    <span>🧪</span> Dev Test OTP (123456)
                   </button>
                 )}
 

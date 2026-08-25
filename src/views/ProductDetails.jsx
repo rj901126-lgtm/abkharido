@@ -23,6 +23,7 @@ import {
 import '../assets/styles/product.css';
 import CountdownTimer from '../components/CountdownTimer';
 import ProductCard from '../components/ProductCard';
+import { calculateCoinReward } from '../utils/coinUtils';
 
 
 // eslint-disable-next-line
@@ -968,7 +969,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
                 <span style={{ color: '#d97706', fontSize: '16px' }}>👑</span>
-                <span><strong>VIP Partner Link Reward:</strong> Earn up to <strong style={{ color: '#d97706', fontWeight: '900' }}>{userCoins} Spendable Coins</strong> back on referral orders.</span>
+                <span><strong>AB Coins Reward:</strong> Earn <strong style={{ color: '#d97706', fontWeight: '900' }}>+{calculateCoinReward(currentDisplayPrice)} AB Coins (Worth ₹{calculateCoinReward(currentDisplayPrice)})</strong> on this purchase!</span>
               </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px', color: '#1e293b' }}>
                 <span style={{ color: '#059669', fontSize: '16px' }}>⚡</span>

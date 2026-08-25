@@ -20,14 +20,19 @@ export default function ClientLayout({ children }) {
   const categoryParam = searchParams.get('category') || 'all';
   
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+
+  // Auto-close cart drawer on navigation/route change
+  useEffect(() => {
+    setIsCartDrawerOpen(false);
+  }, [pathname]);
   
   // Global Store Configuration State
   const [globalConfig, setGlobalConfig] = useState({
     themeColor: '#2874f0',
     supportEmail: 'support@abkharido.com',
-    supportPhone: '+91 1800 123 4567',
-    announcementBar: '🎉 FREE Shipping on all orders above ₹999 + Extra 20% OFF using code FESTIVE20!',
-    freeShippingThreshold: '999',
+    supportPhone: '+91 9172600587',
+    announcementBar: '🎉 FREE Express Delivery on all orders + 100% Genuine Brand Warranty!',
+    freeShippingThreshold: '499',
     enableWhatsAppFloat: true,
     maintenanceMode: false
   });
@@ -172,7 +177,7 @@ export default function ClientLayout({ children }) {
   }
 
   // 2. REGULAR STOREFRONT VIEW WITH DYNAMIC BANNER & WHATSAPP SUPPORT
-  const cleanPhone = (globalConfig.supportPhone || '9118001234567').replace(/[^0-9]/g, '');
+  const cleanPhone = (globalConfig.supportPhone || '919172600587').replace(/[^0-9]/g, '');
   const isProductPage = pathname?.startsWith('/product');
   const isHomePage = pathname === '/' || pathname === '';
 

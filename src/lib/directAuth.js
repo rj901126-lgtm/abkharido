@@ -87,12 +87,13 @@ export async function verifyOtpDirect(params = {}) {
     storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
   }
 
-  // Developer verification test number 9172600587 with test OTP 123456
-  const isTestNumber = normalizedRecipient === '9172600587' || rawRecipient.includes('9172600587');
+  // Test OTP is strictly gated behind non-production and explicit ENABLE_TEST_OTP flag
+  const isTestAllowed = process.env.NODE_ENV !== 'production' && process.env.ENABLE_TEST_OTP === 'true';
+  const isTestNumber = isTestAllowed && (normalizedRecipient === '9172600587' || rawRecipient.includes('9172600587'));
   const isTestOtp = isTestNumber && otp === '123456';
 
   if (!storedOtpDoc && !isTestOtp) {
-    throw new Error('OTP expired or not found in secure escrow. Please request a new OTP.');
+    throw new Error('OTP expired or not found. Please request a new OTP.');
   }
 
   if (storedOtpDoc) {

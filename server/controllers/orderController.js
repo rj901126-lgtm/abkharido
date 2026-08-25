@@ -268,6 +268,10 @@ export const addOrderItems = async (req, res, next) => {
       
       // ── COD Fraud Protection: Check for repeat cancellations ──
       if (isCOD) {
+        if (totalPrice > 15000) {
+          res.status(400);
+          throw new Error('Cash on Delivery is limited to orders up to ₹15,000 for verified delivery security. Please choose Instant Online Payment (UPI / Cards).');
+        }
         const cancelledCodCount = await Order.countDocuments({
           user: req.user._id,
           paymentMethod: { $regex: /cod|cash/i },

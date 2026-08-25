@@ -11,14 +11,23 @@ export default async function sitemap() {
     '/catalog',
     '/categories',
     '/partner',
+    '/seller',
     '/login',
     '/compare',
-    '/cart'
+    '/cart',
+    '/about',
+    '/terms',
+    '/privacy',
+    '/shipping',
+    '/returns',
+    '/contact',
+    '/faq',
+    '/vip'
   ].map(route => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
     changeFrequency: 'daily',
-    priority: route === '' ? 1.0 : 0.8,
+    priority: route === '' ? 1.0 : (['/about', '/terms', '/privacy', '/shipping', '/returns', '/contact', '/faq'].includes(route) ? 0.6 : 0.8),
   }));
 
   const categoryUrls = CATEGORIES.filter(c => c.id !== 'all').map(c => ({

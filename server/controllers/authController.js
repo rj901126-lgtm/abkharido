@@ -176,10 +176,10 @@ export const verifyOtp = async (req, res, next) => {
       storedOtpDoc = await Otp.findOne({ phone: rawRecipient }).sort({ createdAt: -1 });
     }
     
-    // Allow test OTP 123456 ONLY for the developer test number 9172600587 in dev/sandbox environments
-    const isSandboxOrDev = process.env.NODE_ENV !== 'production' || process.env.ALLOW_TEST_OTP === 'true' || (!process.env.FAST2SMS_API_KEY && !process.env.MSG91_API_KEY);
-    const isTestNumber = normalizedRecipient === '9172600587' || rawRecipient === '9172600587';
-    const isTestOtp = isSandboxOrDev && isTestNumber && otp === '123456';
+    // Test OTP is strictly gated behind non-production and explicit ENABLE_TEST_OTP flag
+    const isTestAllowed = process.env.NODE_ENV !== 'production' && process.env.ENABLE_TEST_OTP === 'true';
+    const isTestNumber = isTestAllowed && (normalizedRecipient === '9172600587' || rawRecipient === '9172600587');
+    const isTestOtp = isTestNumber && otp === '123456';
 
     if (!storedOtpDoc && !isTestOtp) {
       return res.status(400).json({ error: 'OTP expired or not found. Please request a new OTP.' });

@@ -1,7 +1,15 @@
 import React from 'react';
-import { ShoppingBag, Award, ShieldCheck, PhoneCall, Mail, MessageSquare, Heart, ChevronRight, Lock, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { Award, ShieldCheck, PhoneCall, Mail, MessageSquare, ChevronRight, Lock, Zap } from 'lucide-react';
 
 const Footer = ({ onNavigate }) => {
+  const handleNav = (e, path) => {
+    if (onNavigate) {
+      e.preventDefault();
+      onNavigate(path);
+    }
+  };
+
   return (
     <footer style={{ backgroundColor: '#090d16', color: '#94a3b8', borderTop: '1px solid rgba(255,255,255,0.1)', fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif", marginTop: '60px' }}>
       {/* Top Value Assurance Ribbon */}
@@ -22,7 +30,7 @@ const Footer = ({ onNavigate }) => {
             </div>
             <div>
               <div style={{ fontWeight: '800', fontSize: '15px' }}>Priority Express Dispatch</div>
-              <div style={{ color: '#cbd5e1', fontSize: '12px', fontWeight: '500' }}>Free & fast delivery across India</div>
+              <div style={{ color: '#cbd5e1', fontSize: '12px', fontWeight: '500' }}>Fast and safe doorstep delivery across India</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', color: 'white' }}>
@@ -30,8 +38,8 @@ const Footer = ({ onNavigate }) => {
               <Award size={26} color="#fde047" />
             </div>
             <div>
-              <div style={{ fontWeight: '800', fontSize: '15px' }}>Up to 12% Reward Coins</div>
-              <div style={{ color: '#cbd5e1', fontSize: '12px', fontWeight: '500' }}>Earn real spendable money on orders</div>
+              <div style={{ fontWeight: '800', fontSize: '15px' }}>Instant AB Coins Cashback</div>
+              <div style={{ color: '#cbd5e1', fontSize: '12px', fontWeight: '500' }}>1 Coin = ₹1 spendable discount</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', color: 'white' }}>
@@ -40,7 +48,7 @@ const Footer = ({ onNavigate }) => {
             </div>
             <div>
               <div style={{ fontWeight: '800', fontSize: '15px' }}>Easy 7-Day Replacement</div>
-              <div style={{ color: '#cbd5e1', fontSize: '12px', fontWeight: '500' }}>Hassle-free verified returns</div>
+              <div style={{ color: '#cbd5e1', fontSize: '12px', fontWeight: '500' }}>Hassle-free doorstep returns</div>
             </div>
           </div>
         </div>
@@ -51,36 +59,45 @@ const Footer = ({ onNavigate }) => {
         
         {/* Brand & Corporate Pillar */}
         <div>
-          <div style={{ fontSize: '26px', fontWeight: '900', color: 'white', letterSpacing: '-0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span>AbKharido</span>
-            <span style={{ color: '#38bdf8', fontSize: '20px' }}>.com</span>
-          </div>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <div style={{ fontSize: '26px', fontWeight: '900', color: 'white', letterSpacing: '-0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>AbKharido</span>
+              <span style={{ color: '#38bdf8', fontSize: '20px' }}>.com</span>
+            </div>
+          </Link>
           <p style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.6', marginBottom: '20px', fontWeight: '500' }}>
-            India's premiere ultra-luxury megastore combining genuine direct inventory with an empowered creator affiliate reward ecosystem.
+            India’s trusted direct shopping destination with 100% genuine inventory and instant AB Coins reward points.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#e2e8f0', fontWeight: '700' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <PhoneCall size={16} color="#38bdf8" /> <span>1800-888-9999 (Toll Free India)</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <MessageSquare size={16} color="#34d399" /> <span>WhatsApp VIP Support 24/7</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <a href="tel:+919172600587" style={{ color: '#e2e8f0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <PhoneCall size={16} color="#38bdf8" /> <span>+91 9172600587 (Mon-Sat 9AM-8PM)</span>
+            </a>
+            <a href="https://wa.me/919172600587?text=Hi%20AbKharido%20Support" target="_blank" rel="noopener noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <MessageSquare size={16} color="#34d399" /> <span>WhatsApp Support 24/7</span>
+            </a>
+            <a href="mailto:support@abkharido.com" style={{ color: '#e2e8f0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Mail size={16} color="#fde047" /> <span>support@abkharido.com</span>
-            </div>
+            </a>
           </div>
         </div>
 
-        {/* Shopping Vaults */}
+        {/* Shopping Categories */}
         <div>
           <h4 style={{ color: 'white', fontSize: '16px', fontWeight: '900', marginBottom: '20px', letterSpacing: '0.5px', textTransform: 'uppercase', borderLeft: '3px solid #6366f1', paddingLeft: '10px' }}>
-            VIP Shopping Vaults
+            Popular Categories
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', fontWeight: '600' }}>
-            {["AI Smartphones & Flagships", "Audiophile Wireless & Tech", "Luxe Designer Couture", "Smart Home Automation", "Sports & Titanium Watches", "Festive Grand Combo Boxes"].map((item, i) => (
-              <a key={i} href="#" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('catalog'); }} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }}>
-                <ChevronRight size={14} color="#6366f1" /> {item}
-              </a>
+            {[
+              { label: "Smartphones & 5G Devices", path: "catalog?category=mobiles" },
+              { label: "Electronics & Audio", path: "catalog?category=electronics" },
+              { label: "Fashion & Lifestyle", path: "catalog?category=fashion" },
+              { label: "Home & Kitchen", path: "catalog?category=home" },
+              { label: "Appliances & Living", path: "catalog?category=appliances" },
+              { label: "VIP Vault Offers", path: "catalog?tag=vip" }
+            ].map((item, i) => (
+              <Link key={i} href={`/${item.path}`} onClick={(e) => handleNav(e, item.path)} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }}>
+                <ChevronRight size={14} color="#6366f1" /> {item.label}
+              </Link>
             ))}
           </div>
         </div>
@@ -91,43 +108,42 @@ const Footer = ({ onNavigate }) => {
             Customer Protection
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', fontWeight: '600' }}>
-            <a href="#" onClick={(e) => { e.preventDefault(); if(onNavigate) onNavigate('orders'); }} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ChevronRight size={14} color="#34d399" /> Track Your Order Live
-            </a>
-            <a href="#" onClick={(e) => { e.preventDefault(); if(onNavigate) onNavigate('profile'); }} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ChevronRight size={14} color="#34d399" /> Easy 7-Day Replacement Guarantee
-            </a>
-            <a href="#" onClick={(e) => { e.preventDefault(); if(onNavigate) onNavigate('profile'); }} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ChevronRight size={14} color="#34d399" /> Priority Express Shipping Policy
-            </a>
-            <a href="#" onClick={(e) => { e.preventDefault(); if(onNavigate) onNavigate('profile'); }} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ChevronRight size={14} color="#34d399" /> Cashfree Escrow Refund Protection
-            </a>
-            <a href="#" onClick={(e) => { e.preventDefault(); if(onNavigate) onNavigate('profile'); }} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ChevronRight size={14} color="#34d399" /> Customer Care Support Helpdesk
-            </a>
+            {[
+              { label: "Track Your Order Live", path: "orders" },
+              { label: "Easy 7-Day Replacement", path: "returns" },
+              { label: "Shipping & Delivery Policy", path: "shipping" },
+              { label: "Terms of Service", path: "terms" },
+              { label: "Privacy Policy", path: "privacy" },
+              { label: "About AbKharido", path: "about" },
+              { label: "Customer Help & FAQ", path: "faq" },
+              { label: "Contact Support Team", path: "contact" }
+            ].map((item, idx) => (
+              <Link key={idx} href={`/${item.path}`} onClick={(e) => handleNav(e, item.path)} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ChevronRight size={14} color="#34d399" /> {item.label}
+              </Link>
+            ))}
           </div>
         </div>
 
-        {/* Creator Economy & Mobile App Banner */}
+        {/* Creator Economy & Support */}
         <div>
           <h4 style={{ color: 'white', fontSize: '16px', fontWeight: '900', marginBottom: '20px', letterSpacing: '0.5px', textTransform: 'uppercase', borderLeft: '3px solid #fde047', paddingLeft: '10px' }}>
-            Earn With Us
+            Earn & Partner
           </h4>
           <div style={{ background: 'rgba(255,255,255,0.04)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '16px' }}>
             <div style={{ fontSize: '14px', fontWeight: '800', color: '#fde047', marginBottom: '6px' }}>👑 Creator Commission Program</div>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: '1.5', marginBottom: '12px' }}>Share verified store product links on Instagram/WhatsApp & earn instant 12% cash rewards.</p>
-            <button onClick={() => onNavigate && onNavigate('partner')} style={{ background: '#fde047', color: '#090d16', fontWeight: '900', border: 'none', padding: '8px 16px', borderRadius: '10px', fontSize: '12px', cursor: 'pointer', width: '100%' }}>
+            <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: '1.5', marginBottom: '12px' }}>Share verified store product links and earn real withdrawable cash commissions.</p>
+            <Link href="/partner" onClick={(e) => handleNav(e, 'partner')} style={{ display: 'block', textAlign: 'center', background: '#fde047', color: '#090d16', fontWeight: '900', textDecoration: 'none', padding: '8px 16px', borderRadius: '10px', fontSize: '12px', cursor: 'pointer', width: '100%' }}>
               Launch Creator Portal
-            </button>
+            </Link>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <div style={{ flex: 1, background: '#1e293b', color: 'white', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)', fontSize: '12px', fontWeight: '800', cursor: 'pointer' }}>
-              📱 iOS App Store
-            </div>
-            <div style={{ flex: 1, background: '#1e293b', color: 'white', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)', fontSize: '12px', fontWeight: '800', cursor: 'pointer' }}>
-              🤖 Google Play
-            </div>
+            <Link href="/seller" onClick={(e) => handleNav(e, 'seller')} style={{ flex: 1, background: '#1e293b', color: 'white', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)', fontSize: '12px', fontWeight: '800', textDecoration: 'none' }}>
+              🏬 Sell on AbKharido
+            </Link>
+            <Link href="/faq" onClick={(e) => handleNav(e, 'faq')} style={{ flex: 1, background: '#1e293b', color: 'white', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)', fontSize: '12px', fontWeight: '800', textDecoration: 'none' }}>
+              ❓ Help &amp; FAQs
+            </Link>
           </div>
         </div>
 
