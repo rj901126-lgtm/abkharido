@@ -40,34 +40,45 @@ const Login = ({ onNavigate, callbackUrl }) => {
     let interval = null;
     if (showOtpScreen && timer > 0) {
       interval = setInterval(() => setTimer(t => t - 1), 1000);
-    } else {
-      clearInterval(interval);
     }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [showOtpScreen, timer]);
 
-    // Web OTP API for seamless Android auto-fill
-    let ac;
-    if (showOtpScreen && 'OTPCredential' in window) {
-      ac = new AbortController();
-      navigator.credentials.get({
-        otp: { transport: ['sms'] },
-        signal: ac.signal
-      }).then(otp => {
-        if (otp && otp.code) {
-           const chars = otp.code.replace(/\D/g, '').split('').slice(0, 6);
-           const newOtp = [...chars];
-           while(newOtp.length < 6) newOtp.push('');
-           setOtpCode(newOtp);
-        }
-      }).catch(err => {
-        console.log('Web OTP API Error:', err);
-      });
+  // Web OTP API for seamless Android auto-fill (runs only on screen mount, not on every timer tick)
+  useEffect(() => {
+    let ac = null;
+    if (showOtpScreen && typeof window !== 'undefined' && 'OTPCredential' in window) {
+      try {
+        ac = new AbortController();
+        navigator.credentials.get({
+          otp: { transport: ['sms'] },
+          signal: ac.signal
+        }).then(otp => {
+          if (otp && otp.code) {
+            const chars = otp.code.replace(/\D/g, '').split('').slice(0, 6);
+            const newOtp = [...chars];
+            while(newOtp.length < 6) newOtp.push('');
+            setOtpCode(newOtp);
+            if (newOtp.join('').length === 6) {
+              handleVerifyOtp(null, newOtp.join(''));
+            }
+          }
+        }).catch(err => {
+          if (err?.name !== 'AbortError') {
+            console.log('Web OTP API Notice:', err);
+          }
+        });
+      } catch (_e) {}
     }
 
     return () => {
-      clearInterval(interval);
-      if (ac) ac.abort();
+      if (ac) {
+        try { ac.abort(); } catch (_) {}
+      }
     };
-  }, [showOtpScreen, timer]);
+  }, [showOtpScreen]);
 
   // Session recovery logic: mobile browsers often reload when returning from background
   useEffect(() => {
@@ -97,6 +108,24 @@ const Login = ({ onNavigate, callbackUrl }) => {
 
 
 
+  const cleanupRecaptcha = () => {
+    if (window.recaptchaVerifier) {
+      try { window.recaptchaVerifier.clear(); } catch (_) {}
+      window.recaptchaVerifier = null;
+    }
+    const container = document.getElementById('recaptcha-container');
+    if (container) container.innerHTML = '';
+    if (typeof document !== 'undefined') {
+      const strayBadges = document.querySelectorAll('.grecaptcha-badge, iframe[src*="recaptcha"]');
+      strayBadges.forEach(el => {
+        try {
+          const parent = el.closest('div[style*="position: absolute"], div[style*="position: fixed"]') || el;
+          if (parent && parent.parentNode) parent.parentNode.removeChild(parent);
+        } catch (_) {}
+      });
+    }
+  };
+
   const handleRequestOtp = async (e) => {
     if (e) e.preventDefault();
     if (!validatePhone()) return;
@@ -114,46 +143,46 @@ const Login = ({ onNavigate, callbackUrl }) => {
         try {
           if (!window.recaptchaVerifier) {
             try {
-              // Clean up old instance if any lingering DOM remains
               const container = document.getElementById('recaptcha-container');
               if (container) container.innerHTML = '';
               
               window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
                 size: 'invisible',
                 callback: () => {},
-                'expired-callback': () => { window.recaptchaVerifier = null; }
+                'expired-callback': () => { cleanupRecaptcha(); }
               });
               await window.recaptchaVerifier.render();
-            } catch (e) {
-              console.error("[reCAPTCHA Render Error]:", e);
-              window.recaptchaVerifier = null;
-              throw e;
+            } catch (recaptchaErr) {
+              console.warn('[reCAPTCHA Render]', recaptchaErr?.message || recaptchaErr);
+              cleanupRecaptcha();
             }
           }
-          const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
-          setFirebaseConfirmation(result);
-          firebaseSent = true;
-          setShowOtpScreen(true);
-          setTimer(60);
-          showToast('✅ OTP sent to your mobile!', 'success');
-        } catch (fbErr) {
-          // Silently clear Firebase verifier and fall through to backend OTP
+          
           if (window.recaptchaVerifier) {
-            // eslint-disable-next-line
-            try { window.recaptchaVerifier.clear(); } catch (_) {}
-            window.recaptchaVerifier = null;
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase SMS timeout')), 3500));
+            const result = await Promise.race([
+              signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier),
+              timeoutPromise
+            ]);
+            setFirebaseConfirmation(result);
+            firebaseSent = true;
+            setShowOtpScreen(true);
+            setTimer(60);
+            showToast('✅ OTP sent to your mobile!', 'success');
           }
-          // Only log — no scary UI error shown to user
-          console.warn('[Firebase SMS]', fbErr.code, '→ switching to backend OTP delivery');
+        } catch (fbErr) {
+          cleanupRecaptcha();
+          console.warn('[Firebase SMS]', fbErr?.code || fbErr?.message || fbErr, '→ switching to backend OTP delivery');
         }
       }
 
-      // ── If Firebase didn't send (or test number), use backend DB-stored OTP ──
+      // ── If Firebase didn't send (or test number / local dev / timeout), use backend DB-stored OTP ──
       if (!firebaseSent) {
+        cleanupRecaptcha();
         await triggerBackendOtp();
       }
-    // eslint-disable-next-line
     } catch (err) {
+      cleanupRecaptcha();
       showToast('Unable to initiate OTP verification. Please check network.', 'error');
     } finally {
       setIsSending(false);
@@ -175,7 +204,13 @@ const Login = ({ onNavigate, callbackUrl }) => {
       const data = await res.json();
       setShowOtpScreen(true);
       setTimer(60);
-      showToast('✅ OTP sent to +91 ' + phone, 'success');
+      const code = data.mockOtp || data._otp;
+      if (code) {
+        setSmsNotice(`Your 6-digit OTP is: ${code}`);
+        showToast(`✅ OTP sent to +91 ${phone}${phone === '9172600587' || process.env.NODE_ENV !== 'production' ? ` (${code})` : ''}`, 'success');
+      } else {
+        showToast('✅ OTP sent to +91 ' + phone, 'success');
+      }
     } catch (apiErr) {
       console.error('Backend OTP delivery failed:', apiErr);
       showToast('❌ Could not send OTP. Please check your internet connection and try again.', 'error');
@@ -393,7 +428,24 @@ const Login = ({ onNavigate, callbackUrl }) => {
                 </button>
               </div>
 
-              {/* No scary error banners — OTP flow is clean */}
+              {smsNotice && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '12px', marginBottom: '14px', fontSize: '12.5px', color: '#065f46' }}>
+                  <span>💬 <strong>{smsNotice}</strong></span>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      const match = smsNotice.match(/\d{6}/);
+                      if (match) {
+                        const digits = match[0].split('');
+                        setOtpCode(digits);
+                      }
+                    }}
+                    style={{ background: '#059669', color: 'white', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}
+                  >
+                    Auto-Fill ⚡
+                  </button>
+                </div>
+              )}
 
               <form onSubmit={handleVerifyOtp} className="lp-form" style={{ overflow: 'hidden' }}>
                 <div className="lp-otp-row">

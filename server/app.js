@@ -153,14 +153,14 @@ const authLimiter = rateLimit({
   }) : undefined,
 });
 
-// Ultra-strict Rate Limiting for OTP / SMS Routes (Cost protection)
+// Rate Limiting for OTP / SMS Routes
 const otpLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour window
-  max: 5, // Limit each IP to 5 OTP requests per hour to prevent SMS cost drain
+  windowMs: 15 * 60 * 1000, // 15 mins window
+  max: 30, // Limit each IP to 30 OTP requests per 15 min
   standardHeaders: true,
   legacyHeaders: false,
   passOnStoreError: true,
-  message: { error: 'Too many OTP requests. Please try again after an hour.' },
+  message: { error: 'Too many OTP requests. Please try again after 15 minutes.' },
   store: isRedisReady() ? new RedisStore({
     sendCommand: (...args) => redisClient.call(...args),
   }) : undefined,
