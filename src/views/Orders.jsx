@@ -145,10 +145,11 @@ const Orders = ({ onNavigate }) => {
   }, [orders, debouncedSearch, statusFilter, timeFilter, customStartDate, customEndDate]);
 
   // Order summary metrics
-  const totalOrdersCount = orders?.length || 0;
+  const totalOrdersCount = orders ? orders.length : 0;
   const activeInTransitCount = (orders || []).filter(o => o?.status !== 'Delivered' && o?.status !== 'Cancelled' && o?.status !== 'CANCELLED' && o?.status !== 'Returned').length;
   const totalDeliveredCount = (orders || []).filter(o => o?.status === 'Delivered').length;
-  const totalSpentAmount = (orders || []).reduce((acc, o) => o?.status !== 'Cancelled' && o?.status !== 'CANCELLED' ? acc + (o?.totalPrice || 0) : acc, 0);
+  const totalCancelledCount = (orders || []).filter(o => o?.status === 'Cancelled' || o?.status === 'CANCELLED' || o?.status === 'Returned').length;
+  const totalSpentAmount = (orders || []).reduce((acc, o) => o?.status !== 'Cancelled' && o?.status !== 'CANCELLED' ? acc + (o?.totalPrice || o?.finalAmount || o?.totalAmount || o?.amount || 0) : acc, 0);
 
   const loadMoreOrders = () => {
     const next = currentPage + 1;
@@ -572,8 +573,13 @@ const Orders = ({ onNavigate }) => {
           const pin = order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4) || '8492' : '8492');
           const isCancelled = order.status === 'Cancelled' || order.status === 'CANCELLED';
           const isDelivered = order.status === 'Delivered';
-          const firstItem = order.orderItems?.[0];
-          const totalItems = order.orderItems?.length || 1;
+          const itemsList = order.orderItems || order.items || [];
+          const firstItem = itemsList[0] || {};
+          const totalItems = itemsList.length || 1;
+          const firstItemName = firstItem.name || firstItem.title || (typeof firstItem.product === 'object' ? firstItem.product?.name : '') || 'Ordered Items';
+          const firstItemImage = firstItem.image || (Array.isArray(firstItem.images) ? firstItem.images[0] : '') || (typeof firstItem.product === 'object' ? firstItem.product?.image : '') || '';
+          const orderPrice = order.totalPrice || order.finalAmount || order.totalAmount || order.amount || (itemsList.reduce((acc, i) => acc + (i.price || 0) * (i.qty || i.quantity || 1), 0)) || 0;
+          const orderQty = firstItem.qty || firstItem.quantity || 1;
 
           return (
           <div 
@@ -602,8 +608,8 @@ const Orders = ({ onNavigate }) => {
               onClick={() => setExpandedOrderId(isExpanded ? null : order._id)}
             >
               <div className="ak-card-thumb">
-                {firstItem?.image ? (
-                  <img src={firstItem.image} alt={firstItem.name || 'Product'} />
+                {firstItemImage ? (
+                  <img src={firstItemImage} alt={firstItemName} />
                 ) : (
                   <ShoppingBag size={24} color="#94a3b8" />
                 )}
@@ -616,14 +622,14 @@ const Orders = ({ onNavigate }) => {
 
               <div className="ak-card-info">
                 <div className="ak-item-title">
-                  {firstItem?.name || 'Ordered Items'}
+                  {firstItemName}
                 </div>
 
                 <div className="ak-item-meta">
                   <span className="ak-item-price">
-                    ₹{(order.totalPrice || 0).toLocaleString('en-IN')}
+                    ₹{orderPrice.toLocaleString('en-IN')}
                   </span>
-                  <span>• Qty: {firstItem?.qty || 1}</span>
+                  <span>• Qty: {orderQty}</span>
                   <span>• {order.paymentMethod || 'Online'}</span>
                 </div>
 
@@ -651,9 +657,14 @@ const Orders = ({ onNavigate }) => {
               <button
                 className="ak-btn-action ak-btn-primary"
                 onClick={() => {
-                  if (order.orderItems) {
-                    order.orderItems.forEach(item => {
-                      addToCart({ id: item.product, name: item.name, price: item.price, image: item.image, originalPrice: item.price }, item.qty || 1);
+                  const itemsToReorder = order.orderItems || order.items || [];
+                  if (itemsToReorder.length > 0) {
+                    itemsToReorder.forEach(item => {
+                      const prodId = typeof item.product === 'object' ? (item.product?._id || item.product?.id) : (item.product || item.id || item._id);
+                      const prodName = item.name || item.title || (typeof item.product === 'object' ? item.product?.name : 'Product');
+                      const prodPrice = item.price || (typeof item.product === 'object' ? item.product?.price : 0) || 0;
+                      const prodImage = item.image || (Array.isArray(item.images) ? item.images[0] : '') || (typeof item.product === 'object' ? item.product?.image : '');
+                      addToCart({ id: prodId, name: prodName, price: prodPrice, image: prodImage, originalPrice: prodPrice }, item.qty || item.quantity || 1);
                     });
                     showToast('Items added back to cart! 🛍️', 'success');
                     navigateTo('cart');
@@ -837,29 +848,41 @@ const Orders = ({ onNavigate }) => {
                   {/* Items List */}
                   <div style={{ background: '#ffffff', borderRadius: '12px', padding: '12px 14px', border: '1px solid #e2e8f0' }}>
                     <div style={{ fontSize: '11.5px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>
-                      Items ({order.orderItems?.length || 0})
+                      Items ({(order.orderItems || order.items || []).length})
                     </div>
-                    {(order.orderItems || []).map((item, index) => (
-                      <div key={item.product || index} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '6px 0', borderBottom: index < (order.orderItems.length - 1) ? '1px solid #f1f5f9' : 'none' }}>
-                        <div style={{ width: '42px', height: '42px', borderRadius: '8px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, padding: '2px', border: '1px solid #e2e8f0' }}>
-                          <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '12.5px', fontWeight: '700', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
-                          <div style={{ fontSize: '11px', color: '#64748b' }}>
-                            Qty: <strong>{item.qty || 1}</strong> • <strong style={{ color: '#059669' }}>₹{(item.price || 0).toLocaleString('en-IN')}</strong>
+                    {(order.orderItems || order.items || []).map((item, index) => {
+                      const itemTitle = item?.name || item?.title || (typeof item?.product === 'object' ? item?.product?.name : '') || 'Item';
+                      const itemImg = item?.image || (Array.isArray(item?.images) ? item.images[0] : '') || (typeof item?.product === 'object' ? item?.product?.image : '') || '';
+                      const itemUnitPrice = item?.price || (typeof item?.product === 'object' ? item?.product?.price : 0) || 0;
+                      const itemQuantity = item?.qty || item?.quantity || 1;
+                      const allItems = order.orderItems || order.items || [];
+
+                      return (
+                        <div key={item.product || item.id || index} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '6px 0', borderBottom: index < (allItems.length - 1) ? '1px solid #f1f5f9' : 'none' }}>
+                          <div style={{ width: '42px', height: '42px', borderRadius: '8px', overflow: 'hidden', background: '#f8fafc', flexShrink: 0, padding: '2px', border: '1px solid #e2e8f0' }}>
+                            {itemImg ? (
+                              <img src={itemImg} alt={itemTitle} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            ) : (
+                              <ShoppingBag size={20} color="#94a3b8" style={{ margin: 'auto' }} />
+                            )}
                           </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '12.5px', fontWeight: '700', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{itemTitle}</div>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              Qty: <strong>{itemQuantity}</strong> • <strong style={{ color: '#059669' }}>₹{itemUnitPrice.toLocaleString('en-IN')}</strong>
+                            </div>
+                          </div>
+                          {isDelivered && (
+                            <button
+                              onClick={() => { setItemToReview(item); setReviewRating(5); setReviewComment(''); }}
+                              style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#b45309', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800', padding: '3px 6px', cursor: 'pointer', flexShrink: 0 }}
+                            >
+                              ⭐ Rate
+                            </button>
+                          )}
                         </div>
-                        {isDelivered && (
-                          <button
-                            onClick={() => { setItemToReview(item); setReviewRating(5); setReviewComment(''); }}
-                            style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#b45309', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800', padding: '3px 6px', cursor: 'pointer', flexShrink: 0 }}
-                          >
-                            ⭐ Rate
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Payment Breakdown */}

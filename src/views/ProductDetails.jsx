@@ -24,13 +24,14 @@ import '../assets/styles/product.css';
 import CountdownTimer from '../components/CountdownTimer';
 import ProductCard from '../components/ProductCard';
 import { calculateCoinReward } from '../utils/coinUtils';
+import { PRODUCTS } from '../db/mockData';
 
 
 // eslint-disable-next-line
 const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialProduct }) => {
   const { addToCart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts, deliveryLocation } = useApp();
   const [copied, setCopied] = useState(false);
-  const [pincode, setPincode] = useState(deliveryLocation?.pincode || currentUser?.pincode || '110001');
+  const [pincode, setPincode] = useState(deliveryLocation?.pincode || currentUser?.pincode || '401404');
   
   // Dynamic delivery estimate
   const [deliveryEstimate, setDeliveryEstimate] = useState(
@@ -71,8 +72,16 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
   const [showStickyCTA, setShowStickyCTA] = useState(false);
 
-  // Find product in list
-  const productFromContext = products.find(p => p.id === productId);
+  // Find product in list or mock dataset
+  const productFromContext = (Array.isArray(products) && products.find(p => 
+    p?.id === productId || 
+    p?._id === productId || 
+    String(p?.id || '').toLowerCase() === String(productId || '').toLowerCase()
+  )) || (Array.isArray(PRODUCTS) && PRODUCTS.find(p => 
+    p?.id === productId || 
+    p?._id === productId || 
+    String(p?.id || '').toLowerCase() === String(productId || '').toLowerCase()
+  ));
   const [fetchedProduct, setFetchedProduct] = useState(initialProduct || null);
   const [isFetchingLocal, setIsFetchingLocal] = useState(false);
   const [fetchError, setFetchError] = useState(false);

@@ -729,3 +729,25 @@
   }
 }
 
+/* ── 4-Pillar Trust Signals USP Grid ── */
+.home-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .home-trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-trust-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+

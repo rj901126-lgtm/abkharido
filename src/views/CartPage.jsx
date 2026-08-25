@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-// eslint-disable-next-line
 import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck, Lock, Heart } from 'lucide-react';
 import '../assets/styles/cart.css';
 
 const CartPage = ({ onNavigate, onCheckout }) => {
   const { cart, updateCartQty, removeFromCart, activeReferral, currentUser, wishlist, toggleWishlist, showToast } = useApp();
   const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
+
+  // Safe item access helpers
+  const getItemId = (item) => item?.product?.id || item?.product?._id || item?.id || item?._id;
+  const getItemPrice = (item) => Number(item?.product?.price ?? item?.price ?? 0);
+  const getItemOriginalPrice = (item) => {
+    const orig = Number(item?.product?.originalPrice ?? item?.originalPrice);
+    const price = getItemPrice(item);
+    return orig > 0 ? orig : price;
+  };
+  const getItemQty = (item) => Math.max(1, Number(item?.quantity ?? 1));
 
   const handleMoveToWishlist = (productId) => {
     if (!wishlist.includes(productId)) {
@@ -17,7 +26,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
     removeFromCart(productId);
   };
 
-  if (cart.length === 0) {
+  if (!cart || cart.length === 0) {
     return (
       <div style={{
         minHeight: 'calc(100vh - 180px)',
@@ -139,18 +148,18 @@ const CartPage = ({ onNavigate, onCheckout }) => {
     );
   }
 
-  // Price calculations
-  const itemsPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  const originalItemsPrice = cart.reduce((acc, item) => acc + item.product.originalPrice * item.quantity, 0);
+  // Price calculations with ultra-safe fallbacks
+  const itemsPrice = cart.reduce((acc, item) => acc + getItemPrice(item) * getItemQty(item), 0);
+  const originalItemsPrice = cart.reduce((acc, item) => acc + getItemOriginalPrice(item) * getItemQty(item), 0);
   
-  const discountValue = originalItemsPrice - itemsPrice;
+  const discountValue = Math.max(0, originalItemsPrice - itemsPrice);
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
   
   // Coin redemption calculation
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
   const maxCoinsToRedeem = Math.min(userCoins, itemsPrice);
   const coinsDiscount = useCoinsDiscount ? maxCoinsToRedeem : 0;
-  const finalAmount = itemsPrice - coinsDiscount + deliveryCharge;
+  const finalAmount = Math.max(0, itemsPrice - coinsDiscount + deliveryCharge);
 
   // Calculate simulated referrer rewards to display in cart for visual feedback
   const getReferrerRewardText = () => {
@@ -158,8 +167,9 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
     let rewardSum = 0;
     cart.forEach(item => {
-      const rate = item.product.userCommissionRate || 0.02;
-      rewardSum += item.product.price * item.quantity * rate;
+      const prod = item?.product || item || {};
+      const rate = prod.userCommissionRate || 0.02;
+      rewardSum += getItemPrice(item) * getItemQty(item) * rate;
     });
 
     return (
@@ -170,7 +180,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
     );
   };
 
-  const totalItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItemsCount = cart.reduce((acc, item) => acc + getItemQty(item), 0);
 
   return (
     <div className="container cart-layout-grid animate-fade-in desktop-premium-cart">
@@ -213,18 +223,23 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
         {/* List of Products in Cart */}
         {cart.map((item, idx) => {
-          const prod = item?.product || {};
-          const discountPercent = (prod.originalPrice || 0) > 0
-            ? Math.round((((prod.originalPrice || 0) - (prod.price || 0)) / prod.originalPrice) * 100)
-            : 0;
+          const prod = item?.product || item || {};
+          const prodId = getItemId(item) || `cart-item-${idx}`;
+          const price = getItemPrice(item);
+          const origPrice = getItemOriginalPrice(item);
+          const qty = getItemQty(item);
+          const discountPercent = origPrice > price ? Math.round(((origPrice - price) / origPrice) * 100) : 0;
+          const prodImage = prod.image || (Array.isArray(prod.images) ? prod.images[0] : '') || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80';
+          const prodTitle = prod.name || prod.title || 'Product';
+
           return (
-            <div key={prod.id || prod._id || idx} className="cart-item-card">
+            <div key={prodId} className="cart-item-card">
               <div className="cart-item-image">
-                <img src={prod.image || ''} alt={prod.name || 'Product'} />
+                <img src={prodImage} alt={prodTitle} />
               </div>
 
               <div className="cart-item-details">
-                <h3 className="cart-item-title">{prod.name || 'Product'}</h3>
+                <h3 className="cart-item-title">{prodTitle}</h3>
                 
                 {(prod.selectedColor || prod.selectedVariant) && (
                   <span className="cart-item-category">
@@ -235,9 +250,9 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                 )}
                 
                 <div className="cart-item-prices">
-                  <span className="cart-item-price">₹{(prod.price || 0).toLocaleString('en-IN')}</span>
-                  {(prod.originalPrice || 0) > (prod.price || 0) && (
-                    <span className="cart-item-original">₹{(prod.originalPrice || 0).toLocaleString('en-IN')}</span>
+                  <span className="cart-item-price">₹{(price || 0).toLocaleString('en-IN')}</span>
+                  {origPrice > price && (
+                    <span className="cart-item-original">₹{(origPrice || 0).toLocaleString('en-IN')}</span>
                   )}
                   {discountPercent > 0 && (
                     <span className="cart-item-discount">{discountPercent}% OFF</span>
@@ -248,19 +263,19 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                   <div className="qty-counter">
                     <button 
                       className="qty-btn" 
-                      onClick={() => updateCartQty(item.product.id, item.quantity - 1)}
+                      onClick={() => updateCartQty(prodId, qty - 1)}
                     >
                       -
                     </button>
                     <input 
                       type="text" 
                       className="qty-input" 
-                      value={item.quantity} 
+                      value={qty} 
                       readOnly 
                     />
                     <button 
                       className="qty-btn" 
-                      onClick={() => updateCartQty(item.product.id, item.quantity + 1)}
+                      onClick={() => updateCartQty(prodId, qty + 1)}
                     >
                       +
                     </button>
@@ -269,14 +284,14 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
                       className="item-action-btn item-wishlist-btn"
-                      onClick={() => handleMoveToWishlist(item.product.id)}
+                      onClick={() => handleMoveToWishlist(prodId)}
                       title="Save for Later"
                     >
                       <Heart size={14} /> Save
                     </button>
                     <button 
                       className="item-action-btn"
-                      onClick={() => removeFromCart(item.product.id)}
+                      onClick={() => removeFromCart(prodId)}
                     >
                       <Trash2 size={14} /> Remove
                     </button>

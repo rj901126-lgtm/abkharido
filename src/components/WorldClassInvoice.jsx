@@ -30,7 +30,8 @@ const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
 
   if (!order) return null;
 
-  const itemsPrice = order.itemsPrice || (order.items || []).reduce((acc, item) => acc + (item.product?.price || item.price || 0) * (item.quantity || item.qty || 1), 0);
+  const itemsList = order.items || order.orderItems || [];
+  const itemsPrice = order.itemsPrice || itemsList.reduce((acc, item) => acc + (item.product?.price || item.price || 0) * (item.quantity || item.qty || 1), 0);
   const coinsDiscount = order.coinsDiscountValue || order.coinsDiscount || 0;
   const couponDiscountAmount = order.couponDiscountAmount || 0;
   const deliveryCharge = order.deliveryCharge || order.shippingPrice || (itemsPrice > 500 ? 0 : 40);
@@ -121,8 +122,8 @@ const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
             </tr>
           </thead>
           <tbody>
-            {(order.items || []).map((item, idx) => {
-              const name = item.product?.name || item.name || 'Unknown Product';
+            {itemsList.map((item, idx) => {
+              const name = item.product?.name || item.name || item.title || 'Product';
               const sku = item.product?.id || item.product || item.id || 'N/A';
               const qty = item.quantity || item.qty || 1;
               const price = item.product?.price || item.price || 0;

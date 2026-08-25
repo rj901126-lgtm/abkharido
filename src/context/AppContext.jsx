@@ -359,7 +359,7 @@ export const AppProvider = ({ children }) => {
         } catch (err) {
           console.error('Failed to fetch backend cart:', err);
         } finally {
-          initializedForUser.current = currentUser.token;
+          initializedForUser.current = token;
         }
       } else {
         initializedForUser.current = null;
