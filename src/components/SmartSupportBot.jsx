@@ -32,10 +32,23 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [copiedCoupon, setCopiedCoupon] = useState('');
+  const [customRules, setCustomRules] = useState([]);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
   const cleanPhone = String(supportPhone).replace(/[^0-9]/g, '');
+
+  // Load custom admin-trained rules
+  useEffect(() => {
+    fetch('/api/admin/bot-config')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.config?.customRules) {
+          setCustomRules(data.config.customRules);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const defaultGreeting = {
     id: 'msg_welcome',
@@ -82,6 +95,25 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
 
   const getBotResponse = (query) => {
     const q = query.toLowerCase().trim();
+
+    // 0. Check Operator/Admin Trained Custom Knowledge Rules First
+    if (Array.isArray(customRules) && customRules.length > 0) {
+      for (const rule of customRules) {
+        if (rule.isActive && Array.isArray(rule.triggerKeywords)) {
+          const isMatch = rule.triggerKeywords.some(kw => q.includes(kw.toLowerCase().trim()));
+          if (isMatch) {
+            return {
+              text: rule.response,
+              chips: [
+                { id: 'track_order', label: '📦 Track My Order', action: 'track_order' },
+                { id: 'coupons', label: '🏷️ Today\'s Offers', action: 'coupons' },
+                { id: 'human', label: '💬 Talk to Agent', action: 'human' }
+              ]
+            };
+          }
+        }
+      }
+    }
 
     // 1. Order Tracking & Delivery PIN
     if (q.includes('track') || q.includes('order') || q.includes('kahan') || q.includes('status') || q.includes('delivery') || q.includes('pin') || q.includes('dispatch')) {
