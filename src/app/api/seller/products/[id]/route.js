@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Product from '../../../../../../server/models/Product.js';
 
+import mongoose from 'mongoose';
+
 export const dynamic = 'force-dynamic';
 
 export async function PUT(req, { params }) {
@@ -11,7 +13,14 @@ export async function PUT(req, { params }) {
     const body = await req.json().catch(() => ({}));
     const { price, originalPrice, countInStock, name } = body;
 
-    const product = await Product.findOne({ $or: [{ _id: id }, { id }] });
+    let product = null;
+    if (id && mongoose.Types.ObjectId.isValid(id)) {
+      product = await Product.findById(id);
+    }
+    if (!product && id) {
+      product = await Product.findOne({ id: id });
+    }
+
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
