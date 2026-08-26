@@ -134,28 +134,28 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar total height with search bar is 74px — 0 gap */
+  /* Mobile navbar total height with search bar is 66px — 0 gap */
   .main-content {
-    margin-top: 74px !important;
+    margin-top: 66px !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 74px);
+    min-height: calc(100vh - 66px);
   }
 
   /* Category pill strip sits flush directly below mobile navbar with EXACTLY 0 gap */
   .home-category-strip {
     position: sticky !important;
-    top: 74px !important;
+    top: 66px !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding: 2px 0 4px 0 !important;
+    padding: 0 0 2px 0 !important;
     z-index: 900 !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   .home-category-strip.compressed {
-    top: 74px !important;
+    top: 66px !important;
     margin-top: 0 !important;
-    padding: 4px 0 !important;
+    padding: 3px 0 !important;
     background: rgba(255, 255, 255, 0.98) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
@@ -167,7 +167,7 @@ img {
   .home-page-layout-container {
     padding: 0 0 16px 0 !important;
     margin-top: 0 !important;
-    gap: 14px !important;
+    gap: 12px !important;
   }
 
   .home-category-strip-wrapper {
@@ -183,19 +183,20 @@ img {
     padding-top: 0 !important;
   }
 
-  /* When announcement bar (32px) is showing: 74px navbar + 32px announcement = 106px */
+  /* When announcement bar (32px) is showing: 66px navbar + 32px announcement = 98px */
   .main-content[data-announcement="true"] {
-    margin-top: 106px !important;
+    margin-top: 98px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip {
-    top: 106px !important;
+    top: 98px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip.compressed {
-    top: 106px !important;
+    top: 98px !important;
   }
 }
+
 
 
 

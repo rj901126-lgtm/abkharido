@@ -290,21 +290,18 @@
     grid-template-columns: 1fr auto !important;
     grid-template-rows: auto auto !important;
     row-gap: 2px !important;
-    column-gap: 12px !important;
-    padding: 4px 12px 0px 12px !important;
+    column-gap: 10px !important;
+    padding: 2px 12px 0px 12px !important;
     width: 100% !important;
     align-items: center !important;
   }
-
-
-
 
   .navbar-left {
     grid-column: 1 / 2 !important;
     grid-row: 1 / 2 !important;
     display: flex !important;
     align-items: center !important;
-    height: 32px !important;
+    height: 30px !important;
     gap: 0 !important;
   }
 
@@ -315,7 +312,7 @@
   }
 
   .logo-text {
-    font-size: 20px !important;
+    font-size: 19px !important;
     font-weight: 900 !important;
     background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%) !important;
     -webkit-background-clip: text !important;
@@ -338,20 +335,20 @@
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 8px !important;
-    height: 32px !important;
+    gap: 6px !important;
+    height: 30px !important;
   }
 
   .user-profile-pill {
-    height: 30px !important;
+    height: 28px !important;
     max-width: 120px !important;
     white-space: nowrap !important;
   }
 
   .nav-item-btn {
-    height: 30px !important;
-    padding: 0 14px !important;
-    font-size: 12.5px !important;
+    height: 28px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
     font-weight: 800 !important;
     border-radius: 99px !important;
     background: #f1f5f9 !important;
@@ -359,10 +356,9 @@
     color: #0f172a !important;
   }
 
-
   .cart-item {
-    height: 30px !important;
-    padding: 0 8px !important;
+    height: 28px !important;
+    padding: 0 6px !important;
     background: transparent !important;
     color: #0f172a !important;
   }
@@ -382,11 +378,11 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    height: 36px !important;
+    height: 34px !important;
   }
 
   .search-input-wrapper {
-    height: 36px !important;
+    height: 34px !important;
     border-radius: 99px !important;
     background: #f1f5f9 !important;
     border: 1px solid #e2e8f0 !important;
@@ -400,8 +396,8 @@
   }
 
   .search-input {
-    padding: 0 12px !important;
-    font-size: 13px !important;
+    padding: 0 10px !important;
+    font-size: 12.5px !important;
     color: #0f172a !important;
   }
 
@@ -410,7 +406,8 @@
   }
 
   .search-button {
-    padding: 0 12px !important;
+    padding: 0 10px !important;
     color: #4f46e5 !important;
   }
+
 }
