@@ -180,7 +180,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           {isJustAdded ? (
             <>
               <Check size={16} style={{ color: '#ffffff' }} />
-              <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.3px', color: '#ffffff' }}>Added ✓</span>
+              <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.3px', color: '#ffffff' }}>Added to Bag</span>
             </>
           ) : (
             <>

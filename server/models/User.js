@@ -62,8 +62,7 @@ const userSchema = new mongoose.Schema({
   // Cross-device synced cart
   cart: [{
     product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+      type: mongoose.Schema.Types.Mixed,
       required: true
     },
     quantity: {
@@ -77,8 +76,7 @@ const userSchema = new mongoose.Schema({
   
   // Cross-device synced wishlist
   wishlist: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product'
+    type: mongoose.Schema.Types.Mixed
   }]
 }, {
   timestamps: true

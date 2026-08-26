@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import User from '../../../../server/models/User.js';
+import Product from '../../../../server/models/Product.js';
+import productsData from '../../../../server/data/productsData.js';
+import { PRODUCTS } from '../../../db/mockData.js';
 import jwt from 'jsonwebtoken';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +23,36 @@ function getUserIdFromReq(req) {
   }
 }
 
+async function resolveProduct(pRef) {
+  if (!pRef) return null;
+  if (typeof pRef === 'object' && (pRef.name || pRef.title) && pRef.price) {
+    return pRef;
+  }
+  const pId = typeof pRef === 'object' ? (pRef.id || pRef._id || pRef) : pRef;
+
+  // 1. Try Mongo Product DB
+  try {
+    const dbProd = await Product.findOne({
+      $or: [
+        { id: pId },
+        { slug: pId },
+        { _id: pId && pId.length === 24 ? pId : undefined }
+      ].filter(Boolean)
+    }).lean();
+    if (dbProd) return dbProd;
+  } catch (e) {}
+
+  // 2. Try productsData
+  const inProductsData = (productsData || []).find(p => p.id === pId || p.slug === pId);
+  if (inProductsData) return inProductsData;
+
+  // 3. Try mockData
+  const inMock = (PRODUCTS || []).find(p => p.id === pId || p.slug === pId);
+  if (inMock) return inMock;
+
+  return typeof pRef === 'object' ? pRef : { id: pId, name: 'Product Item', price: 999 };
+}
+
 export async function GET(req) {
   try {
     const userId = getUserIdFromReq(req);
@@ -28,17 +61,22 @@ export async function GET(req) {
     }
 
     await connectDB();
-    const user = await User.findById(userId).populate('cart.product');
-    if (!user || !user.cart) {
+    const user = await User.findById(userId).lean();
+    if (!user || !Array.isArray(user.cart)) {
       return NextResponse.json([]);
     }
 
-    const formattedCart = user.cart
-      .filter(item => item && item.product)
-      .map(item => ({
-        product: typeof item.product.toObject === 'function' ? item.product.toObject() : item.product,
-        quantity: item.quantity || 1
-      }));
+    const formattedCart = [];
+    for (const item of user.cart) {
+      if (!item || !item.product) continue;
+      const resolved = await resolveProduct(item.product);
+      if (resolved) {
+        formattedCart.push({
+          product: resolved,
+          quantity: Math.max(1, Number(item.quantity || 1))
+        });
+      }
+    }
 
     return NextResponse.json(formattedCart);
   } catch (error) {
@@ -59,8 +97,9 @@ export async function POST(req) {
       if (user) {
         user.cart = cartItems
           .map(item => {
-            const pId = item.product?.id || item.product?._id || item.product;
-            return pId ? { product: pId, quantity: item.quantity || 1 } : null;
+            const prod = item.product || item;
+            const pId = prod.id || prod._id || prod;
+            return pId ? { product: prod, quantity: Math.max(1, Number(item.quantity || 1)) } : null;
           })
           .filter(Boolean);
         user.cartUpdatedAt = new Date();

@@ -32,7 +32,21 @@ export const AppProvider = ({ children }) => {
   const { data: session, status } = useSession();
   const [dbUser, setDbUser] = useState(null);
   const [localSession, setLocalSession] = useState(null);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const isLogged = !!localStorage.getItem('abkharido_user_session');
+        const saved = localStorage.getItem(isLogged ? 'abkharido_cached_cart' : 'abkharido_cart') 
+          || localStorage.getItem('abkharido_cached_cart') 
+          || localStorage.getItem('abkharido_cart');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch(e) {}
+    }
+    return [];
+  });
   const [orders, setOrders] = useState([]);
   const [hasMoreOrders, setHasMoreOrders] = useState(false);
   const [partnerStats, setPartnerStats] = useState({
@@ -341,12 +355,20 @@ export const AppProvider = ({ children }) => {
     // eslint-disable-next-line
   }, [currentUser?.token]);
 
+  const hasHydratedCartRef = useRef(false);
+
   // --- Sync Temporary Cart details ---
   useEffect(() => {
-    if (!currentUser?.token) {
+    if (!hasHydratedCartRef.current) {
+      hasHydratedCartRef.current = true;
+      return;
+    }
+    const isLogged = !!(currentUser?.token || (typeof window !== 'undefined' && localStorage.getItem('abkharido_user_session')));
+    if (!isLogged) {
       safeSetItem('abkharido_cart', JSON.stringify(cart));
     } else {
       safeSetItem('abkharido_cached_cart', JSON.stringify(cart));
+      safeSetItem('abkharido_cart', JSON.stringify(cart));
     }
   }, [cart, currentUser?.token]);
 
@@ -359,9 +381,9 @@ export const AppProvider = ({ children }) => {
           // If user had a local (guest) cart before logging in, merge it into their DB cart first
           let guestCart = null;
           try {
-            const saved = localStorage.getItem('abkharido_cart');
+            const saved = localStorage.getItem('abkharido_cart') || localStorage.getItem('abkharido_cached_cart');
             if (saved) guestCart = JSON.parse(saved);
-          } catch(e) {}
+          } catch (e) {}
           
           if (guestCart && guestCart.length > 0) {
             await fetch(`/api/cart/sync`, {
@@ -371,15 +393,12 @@ export const AppProvider = ({ children }) => {
                 'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({ cart: guestCart, merge: true })
-            }).then(() => {
-              localStorage.removeItem('abkharido_cart');
             }).catch(err => console.error('Guest cart sync failed', err));
           }
 
           // Then fetch the final merged cart from DB as the source of truth
           const res = await fetch(`/api/cart`, {
             headers: { 'Authorization': `Bearer ${token}` },
-
             cache: 'no-store'
           });
           if (res.status === 401) {
@@ -389,8 +408,22 @@ export const AppProvider = ({ children }) => {
           }
           if (res.ok) {
             const backendCart = await res.json();
-            setCart(backendCart);
-            safeSetItem('abkharido_cached_cart', JSON.stringify(backendCart));
+            if (Array.isArray(backendCart) && backendCart.length > 0) {
+              setCart(backendCart);
+              safeSetItem('abkharido_cached_cart', JSON.stringify(backendCart));
+              safeSetItem('abkharido_cart', JSON.stringify(backendCart));
+            } else if (guestCart && guestCart.length > 0) {
+              // Preserve local cart if DB returned empty
+              setCart(guestCart);
+              safeSetItem('abkharido_cached_cart', JSON.stringify(guestCart));
+              safeSetItem('abkharido_cart', JSON.stringify(guestCart));
+              // Sync up to DB
+              fetch('/api/cart/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ cart: guestCart })
+              }).catch(() => {});
+            }
           }
         } catch (err) {
           console.error('Failed to fetch backend cart:', err);

@@ -34,8 +34,9 @@ export async function POST(req) {
         } else if (Array.isArray(body.cart)) {
           user.cart = body.cart
             .map(item => {
-              const pId = item.product?.id || item.product?._id || item.product;
-              return pId ? { product: pId, quantity: item.quantity || 1 } : null;
+              const prod = item.product || item;
+              const pId = prod.id || prod._id || prod;
+              return pId ? { product: prod, quantity: Math.max(1, Number(item.quantity || 1)) } : null;
             })
             .filter(Boolean);
         }
