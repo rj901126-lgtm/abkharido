@@ -23,6 +23,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   const [activeSlide, setActiveSlide] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const [selectedCatPill, setSelectedCatPill] = useState('all');
+  const targetDate = useRef(new Date(Date.now() + 14 * 3600 * 1000 + 42 * 60 * 1000)).current;
+
 
   const activeVipCategories = (promotions && promotions.vipCategories && Array.isArray(promotions.vipCategories) && promotions.vipCategories.length > 0)
     ? promotions.vipCategories
@@ -892,12 +894,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 const DealsCountdown = ({ targetDate }) => {
   const [timer, setTimer] = useState({ hrs: '14', mins: '42', secs: '00' });
   const [mounted, setMounted] = useState(false);
+  const fallbackDateRef = useRef(new Date(Date.now() + 14 * 3600 * 1000 + 42 * 60 * 1000));
+  const effectiveTarget = targetDate || fallbackDateRef.current;
 
   useEffect(() => {
     setMounted(true);
     const updateTimer = () => {
       const now = new Date();
-      const diff = targetDate ? targetDate.getTime() - now.getTime() : 0;
+      const diff = effectiveTarget ? effectiveTarget.getTime() - now.getTime() : 0;
       if (diff <= 0) { setTimer({ hrs: '00', mins: '00', secs: '00' }); return; }
       const hrs = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
       const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
@@ -907,7 +911,8 @@ const DealsCountdown = ({ targetDate }) => {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [targetDate]);
+  }, [effectiveTarget]);
+
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} suppressHydrationWarning>
