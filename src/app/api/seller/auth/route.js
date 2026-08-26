@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import connectDB from '../../../../../lib/connectDB.js';
-import User from '../../../../../../server/models/User.js';
+import connectDB from '../../../../lib/connectDB.js';
+import User from '../../../../../server/models/User.js';
 
 export const dynamic = 'force-dynamic';
 
