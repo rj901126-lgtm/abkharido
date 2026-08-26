@@ -24,6 +24,7 @@ import '../assets/styles/product.css';
 import CountdownTimer from '../components/CountdownTimer';
 import ProductCard from '../components/ProductCard';
 import FrequentlyBoughtTogether from '../components/FrequentlyBoughtTogether';
+import ProductImageZoomViewer from '../components/ProductImageZoomViewer';
 import { calculateCoinReward } from '../utils/coinUtils';
 import { PRODUCTS } from '../db/mockData';
 
@@ -496,68 +497,35 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
       <div className="details-page-grid">
         {/* Left Column: Image and Purchase Actions */}
         <div className="image-showcase-column">
-          <div style={{ position: 'relative', width: '100%' }}>
-            <div 
-              className="main-image-frame" 
-              ref={scrollRef}
-              onScroll={handleScroll}
-              style={{ 
-                display: 'flex', 
-                overflowX: 'auto', 
-                overflowY: 'hidden',
-                scrollSnapType: 'x mandatory',
-                scrollBehavior: 'smooth',
-                WebkitOverflowScrolling: 'touch',
-                scrollbarWidth: 'none', // Firefox
-                msOverflowStyle: 'none' /* IE */
-              }}
-            >
-              {/* Hide scrollbar for Chrome/Safari */}
-              <style>{`.main-image-frame::-webkit-scrollbar { display: none; }`}</style>
-              
-              {/* Image Slides */}
-              {imagesList.map((imgUrl, index) => {
-                const isVideo = imgUrl.startsWith('data:video/') || imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
-                return (
-                  <div key={index} className="slider-item">
-                    {isVideo ? (
-                      <video className="slider-media" src={imgUrl} autoPlay loop muted playsInline />
-                    ) : (
-                      <img
-                        className="slider-media"
-                        src={imgUrl}
-                        alt={`${product.name} View ${index + 1}`}
-                        loading={index === 0 ? "eager" : "lazy"}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Wishlist Heart & Share Panel (Top-Right) */}
-            <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 5, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button 
-                onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
-                style={{ border: '1px solid rgba(255,255,255,0.4)', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.7)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
-              >
-                {wishlist && wishlist.includes(product.id) ? (
-                  <Heart size={20} fill="#ef4444" color="#ef4444" />
-                ) : (
-                  <Heart size={20} color="#475569" />
-                )}
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleShareWhatsApp(); }}
-                className="btn-icon"
-                style={{ border: '1px solid rgba(255,255,255,0.4)', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.7)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
-              >
-                <Share2 size={20} color="#475569" />
-              </button>
-            </div>
-
-            {/* Removed redundant rating pill */}
-          </div>
+          <ProductImageZoomViewer 
+            images={imagesList}
+            activeIndex={activeImageIndex}
+            onSelectImage={setActiveImageIndex}
+            productName={product.name}
+            extraTopRightButtons={
+              <>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
+                  style={{ border: '1px solid rgba(255,255,255,0.4)', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.75)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+                  title={wishlist && wishlist.includes(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                >
+                  {wishlist && wishlist.includes(product.id) ? (
+                    <Heart size={20} fill="#ef4444" color="#ef4444" />
+                  ) : (
+                    <Heart size={20} color="#475569" />
+                  )}
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleShareWhatsApp(); }}
+                  className="btn-icon"
+                  style={{ border: '1px solid rgba(255,255,255,0.4)', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.75)', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+                  title="Share on WhatsApp"
+                >
+                  <Share2 size={20} color="#475569" />
+                </button>
+              </>
+            }
+          />
 
           {/* Centered Indicator Dots below image slider */}
           {imagesList.length > 1 && (
