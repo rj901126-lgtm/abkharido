@@ -342,6 +342,12 @@
     height: 32px !important;
   }
 
+  .user-profile-pill {
+    height: 30px !important;
+    max-width: 120px !important;
+    white-space: nowrap !important;
+  }
+
   .nav-item-btn {
     height: 30px !important;
     padding: 0 14px !important;
@@ -352,6 +358,7 @@
     border: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
   }
+
 
   .cart-item {
     height: 30px !important;

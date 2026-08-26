@@ -584,19 +584,67 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
           <div className="navbar-right">
             <LanguageToggle style={{ marginRight: '6px' }} />
             {currentUser ? (
-              /* Profile Dropdown */
+              /* Steve Jobs Grade Luxury Profile Pill */
               <div 
-                className="nav-item" 
+                className="nav-item user-profile-pill" 
                 onMouseEnter={() => setDropdownOpen(true)}
                 onMouseLeave={() => setDropdownOpen(false)}
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                style={{ position: 'relative' }}
+                style={{ 
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  height: '32px',
+                  padding: '0 8px 0 4px',
+                  borderRadius: '99px',
+                  background: dropdownOpen ? '#eff6ff' : '#f8fafc',
+                  border: dropdownOpen ? '1px solid #93c5fd' : '1px solid #e2e8f0',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                }}
               >
-                <User size={18} />
-                <span className="nav-text">{currentUser.fullName}</span>
-                <ChevronDown size={14} />
+                {/* Minimalist Monogram Avatar Circle */}
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: '900',
+                  textTransform: 'uppercase',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 4px rgba(79, 70, 229, 0.25)',
+                }}>
+                  {currentUser.fullName ? currentUser.fullName.trim().charAt(0).toUpperCase() : 'U'}
+                </div>
+
+                {/* Single-Line Clean Name */}
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#0f172a',
+                  maxWidth: '75px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1,
+                  display: 'inline-block',
+                }}>
+                  {currentUser.fullName ? currentUser.fullName.trim().split(' ')[0] : 'User'}
+                </span>
+
+                <ChevronDown size={11} color="#64748b" style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
 
                 {dropdownOpen && (
+
                   <div className="dropdown-menu">
                     <div className="dropdown-header-banner" style={{
                       background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)',
