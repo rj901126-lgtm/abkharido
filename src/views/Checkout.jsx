@@ -14,6 +14,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     fetchUserSavedCards();
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
+
   // Form states
   const [address, setAddress] = useState({
     name: currentUser ? (currentUser.fullName || '') : '',
