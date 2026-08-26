@@ -106,24 +106,24 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar is exactly 88px tall — flush with category strip */
+  /* Mobile navbar is 80px tall — flush with category strip */
   .main-content {
-    margin-top: 88px !important;
+    margin-top: 80px !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 88px);
+    min-height: calc(100vh - 80px);
   }
 
   /* Category pill strip sits directly below mobile navbar with 0 extra gap */
   .home-category-strip {
-    top: 88px !important;
+    top: 80px !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
 
-  /* Remove any top gap inside home container on mobile */
+  /* Remove any top gap inside home container on mobile while keeping card gap */
   .home-page-layout-container {
     padding: 0 0 16px 0 !important;
-    gap: 12px !important;
+    gap: 16px !important;
   }
 
   .home-page-layout-container > section:first-child {

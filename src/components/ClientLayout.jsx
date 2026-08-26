@@ -200,10 +200,11 @@ export default function ClientLayout({ children }) {
 
       <main 
         className={`main-content`}
-        style={{ marginTop: isPortalPage ? '0' : '64px' }}
+        style={isPortalPage ? { marginTop: 0 } : undefined}
       >
         {children}
       </main>
+
 
       {/* VIP Corporate E-Commerce Footer (Home page only) */}
       {isHomePage && <Footer onNavigate={handleNavigate} />}
