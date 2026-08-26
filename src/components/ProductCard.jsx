@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { Star, Award, ShoppingCart, Heart, Zap, ShieldCheck, Check } from 'lucide-react';
 import LazyImage from './LazyImage';
 import CountdownTimer from './CountdownTimer';
+import ProductQuickPreviewModal from './ProductQuickPreviewModal';
 import { calculateCoinReward } from '../utils/coinUtils';
 
 // Stable hash from a string — same string always yields same number
@@ -19,6 +20,12 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isBtnHovered, setIsBtnHovered] = useState(false);
   const [isJustAdded, setIsJustAdded] = useState(false);
+
+  // Long Press Peek & Share Preview State
+  const [showQuickPreview, setShowQuickPreview] = useState(false);
+  const longPressTimerRef = useRef(null);
+  const touchStartPosRef = useRef({ x: 0, y: 0 });
+  const isLongPressTriggeredRef = useRef(false);
 
   if (!product) return null;
 
@@ -47,19 +54,70 @@ const ProductCard = ({ product, onNavigateProduct }) => {
     if (toggleWishlist) toggleWishlist(product.id);
   };
 
+  // Long press touch handlers
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      touchStartPosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    isLongPressTriggeredRef.current = false;
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressTriggeredRef.current = true;
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(35); } catch (_) {}
+      }
+      setShowQuickPreview(true);
+    }, 420);
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      const dx = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
+      const dy = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
+      if (dx > 10 || dy > 10) {
+        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+  };
+
+  const handleCardClick = (e) => {
+    if (isLongPressTriggeredRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      isLongPressTriggeredRef.current = false;
+      return;
+    }
+    if (onNavigateProduct) {
+      onNavigateProduct(product.id || product._id);
+    }
+  };
+
   return (
-    <div 
-      className="card product-card" 
-      style={{
-        ...styles.card,
-        transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
-        boxShadow: isHovered ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' : '0 4px 16px rgba(9, 13, 22, 0.05)',
-        borderColor: isHovered ? '#cbd5e1' : '#e2e8f0'
-      }} 
-      onClick={() => onNavigateProduct(product.id)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <>
+      <div 
+        className="card product-card" 
+        style={{
+          ...styles.card,
+          transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
+          boxShadow: isHovered ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' : '0 4px 16px rgba(9, 13, 22, 0.05)',
+          borderColor: isHovered ? '#cbd5e1' : '#e2e8f0',
+          WebkitTouchCallout: 'none',
+          userSelect: 'none'
+        }} 
+        onClick={handleCardClick}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+        onContextMenu={(e) => { if (isLongPressTriggeredRef.current) e.preventDefault(); }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+
       {/* Product Image Stage (Unobstructed & Clean) */}
       <div className="product-card-image-wrapper" style={styles.imageWrapper}>
         {/* Top Left Discrete VIP Badge */}
@@ -191,6 +249,17 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         </button>
       </div>
     </div>
+
+      {/* 🚀 Blinkit-Style Long Press Quick Peek & Share Modal */}
+      {showQuickPreview && (
+        <ProductQuickPreviewModal
+          product={product}
+          isOpen={showQuickPreview}
+          onClose={() => setShowQuickPreview(false)}
+          onNavigateProduct={onNavigateProduct}
+        />
+      )}
+    </>
   );
 };
 
