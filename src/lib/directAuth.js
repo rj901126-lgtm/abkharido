@@ -60,7 +60,7 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
   let user = await findExistingUser({ phone: normalizedPhone, email });
 
   if (!user) {
-    const defaultName = fullName || `Customer ${normalizedPhone.slice(-4)}`;
+    const defaultName = fullName || `Customer (+91 ${normalizedPhone})`;
     try {
       user = await User.create({
         username: normalizedPhone,
@@ -167,7 +167,7 @@ export async function verifyOtpDirect(params = {}) {
       throw new Error('Mobile number is mandatory. Please sign in with your mobile phone number and OTP.');
     }
     let username = normalizedRecipient;
-    const defaultName = fullName || `Customer ${normalizedRecipient.slice(-4)}`;
+    const defaultName = fullName || `Customer (+91 ${normalizedRecipient})`;
     try {
       user = await User.create({
         username,

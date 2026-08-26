@@ -80,9 +80,12 @@ const AdminUsers = () => {
               continue;
             }
 
+            const hasRealName = u.fullName && !['Customer', 'VIP Member', 'New User', 'Valued Customer'].includes(u.fullName) && !u.fullName.startsWith('Customer ');
+            const displayName = hasRealName ? u.fullName : (cleanPhone ? `Customer (+91 ${cleanPhone})` : 'Customer');
+
             const userItem = {
               ...u,
-              fullName: u.fullName || u.name || (cleanPhone ? `Customer (${cleanPhone})` : 'Customer'),
+              fullName: displayName,
               email: cleanEmail,
               phone: cleanPhone,
               totalSpent: u.totalSpent || 0,

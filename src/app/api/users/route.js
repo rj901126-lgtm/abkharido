@@ -63,11 +63,14 @@ export async function GET(req) {
         continue;
       }
 
+      const hasRealName = u.fullName && !['Customer', 'VIP Member', 'New User', 'Valued Customer'].includes(u.fullName) && !u.fullName.startsWith('Customer ');
+      const displayName = hasRealName ? u.fullName : (cleanPhone ? `Customer (+91 ${cleanPhone})` : 'Customer');
+
       const userRecord = {
         _id: u._id,
         id: u._id,
         username: u.username,
-        fullName: u.fullName || u.name || (cleanPhone ? `Customer (${cleanPhone})` : 'Customer'),
+        fullName: displayName,
         email: cleanEmail || '',
         phone: cleanPhone || '',
         role: u.role || 'user',
