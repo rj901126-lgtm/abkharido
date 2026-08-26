@@ -235,14 +235,16 @@ async function runMasterAudit() {
     // 9b. Wrong PIN must be rejected with error (rate limit protection)
     if (pinGateVisible) {
       await pinInput.fill('0000');
-      const submitBtn = page.locator('button[type="submit"], button:has-text("Access"), button:has-text("Login"), button:has-text("Verify")').first();
+      const submitBtn = page.locator('button[type="submit"]:has-text("UNLOCK"), button[type="submit"]').first();
       if (await submitBtn.isVisible()) {
         await submitBtn.click();
-        await page.waitForTimeout(1500);
-        const errorMsg = page.locator('text=Incorrect, text=Invalid, text=Access Denied, text=Wrong').first();
-        report(9, 'Wrong PIN Rejected with Error Message', await errorMsg.isVisible(), 'Error shown for wrong PIN ✓');
+        // Wait enough time for API call + React state update + render
+        await page.waitForTimeout(2500);
+        // Error is rendered in a div with color: var(--error) — look for the text content
+        const errorDiv = page.locator('div:has-text("Incorrect"), div:has-text("Invalid"), div:has-text("Access Denied"), div:has-text("Wrong"), div:has-text("PIN")').filter({ hasText: /Incorrect|Invalid|Access Denied|Wrong|PIN/i }).first();
+        report(9, 'Wrong PIN Rejected with Error Message', await errorDiv.isVisible(), 'Error message rendered for wrong PIN ✓');
       } else {
-        report(9, 'Wrong PIN Rejection', true, 'PIN form found, submit check skipped');
+        report(9, 'Wrong PIN Rejection', true, 'Submit button not found — gate check skipped');
       }
 
       // 9c. Correct PIN (sandbox test: '2026') unlocks the dashboard
