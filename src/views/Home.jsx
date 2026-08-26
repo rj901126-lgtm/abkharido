@@ -6,14 +6,15 @@ import '../assets/styles/home.css';
 
 
 const defaultVipCategories = [
-  { id: 'mobiles', label: 'Mobiles', icon: '📱', bg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', activeBg: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)', color: '#0369a1' },
-  { id: 'electronics', label: 'Audio & Tech', icon: '🎧', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)', activeBg: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)', color: '#6d28d9' },
-  { id: 'fashion', label: 'Fashion', icon: '👗', bg: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)', activeBg: 'linear-gradient(135deg, #e11d48 0%, #fb7185 100%)', color: '#be123c' },
-  { id: 'home', label: 'Home', icon: '🏠', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', activeBg: 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)', color: '#b45309' },
-  { id: 'beauty', label: 'Beauty', icon: '💄', bg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', activeBg: 'linear-gradient(135deg, #db2777 0%, #f472b6 100%)', color: '#be185d' },
-  { id: 'sports', label: 'Fitness', icon: '🏋️', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', activeBg: 'linear-gradient(135deg, #059669 0%, #34d399 100%)', color: '#15803d' },
-  { id: 'appliances', label: 'Appliances', icon: '🍳', bg: 'linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%)', activeBg: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)', color: '#0e7490' },
+  { id: 'mobiles', label: '5G Mobiles', icon: '📱', bg: '#f0f9ff', color: '#0369a1' },
+  { id: 'electronics', label: 'Audio & Tech', icon: '🎧', bg: '#faf5ff', color: '#6d28d9' },
+  { id: 'fashion', label: 'Fashion Wear', icon: '👗', bg: '#fff1f2', color: '#be123c' },
+  { id: 'home', label: 'Home Living', icon: '🏠', bg: '#fffbeb', color: '#b45309' },
+  { id: 'beauty', label: 'Beauty & Care', icon: '💄', bg: '#fdf2f8', color: '#be185d' },
+  { id: 'sports', label: 'Fitness & Gym', icon: '🏋️', bg: '#f0fdf4', color: '#15803d' },
+  { id: 'appliances', label: 'Appliances', icon: '🍳', bg: '#f0fdfa', color: '#0e7490' },
 ];
+
 
 
 
@@ -185,33 +186,32 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '5px',
+                gap: '6px',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '3px 6px',
-                minWidth: '56px',
+                padding: '4px 6px',
+                minWidth: '60px',
                 outline: 'none',
                 transition: 'transform 0.15s ease',
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
             >
-              {/* Category Circle Avatar */}
+              {/* Category Soft Tile Stage */}
               <div style={{
-
-
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: cat.bg || '#f1f5f9',
-                border: '1px solid rgba(0,0,0,0.06)',
+                width: '48px',
+                height: '48px',
+                borderRadius: '16px',
+                background: cat.bg || '#f8fafc',
+                border: '1px solid rgba(226, 232, 240, 0.9)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '19px',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
-                transition: 'transform 0.15s ease',
+                fontSize: '22px',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                transition: 'all 0.2s ease',
               }}>
-
                 <span>{cat.icon}</span>
               </div>
               {/* Category Name */}
@@ -222,11 +222,13 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 whiteSpace: 'nowrap',
                 lineHeight: 1.2,
                 letterSpacing: '-0.2px',
+                fontFamily: "'Outfit', sans-serif"
               }}>
                 {cat.label}
               </span>
             </button>
           ))}
+
         </div>
       </section>
 

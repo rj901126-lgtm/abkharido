@@ -605,3 +605,400 @@ export const getCategoryData = (catId) => {
   const key = catId.toLowerCase().trim();
   return CATEGORY_DETAILS[key] || CATEGORY_DETAILS.all;
 };
+
+// 🌟 Polished Category Groups Taxonomy (Matching Blinkit/Zepto UI Standard)
+export const ALL_CATEGORY_SECTIONS = [
+  {
+    title: 'Grocery & Kitchen',
+    slug: 'grocery',
+    items: [
+      {
+        id: 'fruits-veg',
+        name: 'Fruits &\nVegetables',
+        category: 'grocery',
+        query: 'Fruits',
+        img: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=200&q=80',
+      },
+      {
+        id: 'dairy-bread-eggs',
+        name: 'Dairy, Bread\n& Eggs',
+        category: 'grocery',
+        query: 'Dairy',
+        img: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200&q=80',
+      },
+      {
+        id: 'atta-rice-dals',
+        name: 'Atta, Rice,\nOil & Dals',
+        category: 'grocery',
+        query: 'Rice',
+        img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&q=80',
+      },
+      {
+        id: 'meat-fish-eggs',
+        name: 'Meat, Fish\n& Eggs',
+        category: 'grocery',
+        query: 'Meat',
+        img: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=200&q=80',
+      },
+      {
+        id: 'masala-dry-fruits',
+        name: 'Masala &\nDry Fruits',
+        category: 'grocery',
+        query: 'Masala',
+        img: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200&q=80',
+      },
+      {
+        id: 'breakfast-sauces',
+        name: 'Breakfast &\nSauces',
+        category: 'grocery',
+        query: 'Breakfast',
+        img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&q=80',
+      },
+      {
+        id: 'packaged-food',
+        name: 'Packaged\nFood',
+        category: 'grocery',
+        query: 'Noodles',
+        img: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=200&q=80',
+      },
+      {
+        id: 'organic-staples',
+        name: 'Organic &\nSuperfoods',
+        category: 'grocery',
+        query: 'Organic',
+        img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&q=80',
+      },
+    ]
+  },
+  {
+    title: 'Snacks & Drinks',
+    slug: 'snacks',
+    items: [
+      {
+        id: 'tea-coffee-more',
+        name: 'Tea, Coffee\n& More',
+        category: 'grocery',
+        query: 'Tea',
+        img: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=200&q=80',
+      },
+      {
+        id: 'ice-creams-more',
+        name: 'Ice Creams\n& More',
+        category: 'grocery',
+        query: 'Ice Cream',
+        img: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=200&q=80',
+      },
+      {
+        id: 'frozen-food',
+        name: 'Frozen\nFood',
+        category: 'grocery',
+        query: 'Frozen',
+        img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80',
+      },
+      {
+        id: 'sweet-cravings',
+        name: 'Sweet\nCravings',
+        category: 'grocery',
+        query: 'Chocolate',
+        img: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=200&q=80',
+      },
+      {
+        id: 'cold-drinks-juices',
+        name: 'Cold Drinks\n& Juices',
+        category: 'grocery',
+        query: 'Juice',
+        img: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=200&q=80',
+      },
+      {
+        id: 'munchies-chips',
+        name: 'Munchies\n& Chips',
+        category: 'grocery',
+        query: 'Chips',
+        img: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&q=80',
+      },
+      {
+        id: 'biscuits-cookies',
+        name: 'Biscuits\n& Cookies',
+        category: 'grocery',
+        query: 'Cookies',
+        img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&q=80',
+      },
+      {
+        id: 'energy-sports-drinks',
+        name: 'Energy &\nHealth Drinks',
+        category: 'grocery',
+        query: 'Energy Drink',
+        img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=200&q=80',
+      },
+    ]
+  },
+  {
+    title: 'Electronics & Gadgets',
+    slug: 'electronics',
+    items: [
+      {
+        id: '5g-smartphones',
+        name: 'Smartphones\n& 5G',
+        category: 'mobiles',
+        query: 'Smartphone',
+        img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80',
+      },
+      {
+        id: 'earbuds-audio',
+        name: 'Earbuds &\nHeadphones',
+        category: 'electronics',
+        query: 'Earbuds',
+        img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80',
+      },
+      {
+        id: 'smartwatches-bands',
+        name: 'Smartwatches\n& Bands',
+        category: 'electronics',
+        query: 'Smartwatch',
+        img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&q=80',
+      },
+      {
+        id: 'laptops-macbooks',
+        name: 'Laptops &\nMacBooks',
+        category: 'electronics',
+        query: 'Laptop',
+        img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&q=80',
+      },
+      {
+        id: 'smart-tvs-speakers',
+        name: 'Smart TVs\n& Soundbars',
+        category: 'electronics',
+        query: 'TV',
+        img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=200&q=80',
+      },
+      {
+        id: 'powerbanks-cables',
+        name: 'Chargers &\nPowerbanks',
+        category: 'electronics',
+        query: 'Powerbank',
+        img: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=200&q=80',
+      },
+      {
+        id: 'gaming-consoles',
+        name: 'Gaming &\nAccessories',
+        category: 'electronics',
+        query: 'Gaming',
+        img: 'https://images.unsplash.com/photo-1600861194942-f88481e1d071?w=200&q=80',
+      },
+      {
+        id: 'cameras-drones',
+        name: 'Cameras &\nPhotography',
+        category: 'electronics',
+        query: 'Camera',
+        img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200&q=80',
+      },
+    ]
+  },
+  {
+    title: 'Fashion & Lifestyle',
+    slug: 'fashion',
+    items: [
+      {
+        id: 'mens-tshirts',
+        name: "Men's Shirts\n& T-Shirts",
+        category: 'fashion',
+        query: 'Shirt',
+        img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=200&q=80',
+      },
+      {
+        id: 'womens-ethnic',
+        name: "Women's Ethnic\n& Sarees",
+        category: 'fashion',
+        query: 'Dress',
+        img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=200&q=80',
+      },
+      {
+        id: 'running-shoes',
+        name: 'Athletic Shoes\n& Sneakers',
+        category: 'fashion',
+        query: 'Shoes',
+        img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&q=80',
+      },
+      {
+        id: 'luxury-watches',
+        name: 'Watches &\nChronographs',
+        category: 'fashion',
+        query: 'Watch',
+        img: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=200&q=80',
+      },
+      {
+        id: 'sunglasses-eyewear',
+        name: 'Sunglasses\n& Frames',
+        category: 'fashion',
+        query: 'Sunglasses',
+        img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=200&q=80',
+      },
+      {
+        id: 'backpacks-luggage',
+        name: 'Bags &\nLuggage',
+        category: 'fashion',
+        query: 'Bag',
+        img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&q=80',
+      },
+      {
+        id: 'jeans-trousers',
+        name: 'Jeans &\nTrousers',
+        category: 'fashion',
+        query: 'Jeans',
+        img: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=200&q=80',
+      },
+      {
+        id: 'jewellery-accessories',
+        name: 'Jewellery &\nAccessories',
+        category: 'fashion',
+        query: 'Jewellery',
+        img: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=200&q=80',
+      },
+    ]
+  },
+  {
+    title: 'Home & Living',
+    slug: 'home',
+    items: [
+      {
+        id: 'kitchen-appliances',
+        name: 'Kitchen &\nAir Fryers',
+        category: 'home',
+        query: 'Kitchen',
+        img: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=200&q=80',
+      },
+      {
+        id: 'bedsheets-curtains',
+        name: 'Bedsheets &\nCurtains',
+        category: 'home',
+        query: 'Bedsheet',
+        img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=200&q=80',
+      },
+      {
+        id: 'home-decor-lamps',
+        name: 'Home Decor\n& Lighting',
+        category: 'home',
+        query: 'Lamp',
+        img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=200&q=80',
+      },
+      {
+        id: 'cookware-dining',
+        name: 'Cookware &\nDinner Sets',
+        category: 'home',
+        query: 'Cookware',
+        img: 'https://images.unsplash.com/photo-1584990347449-399318b76319?w=200&q=80',
+      },
+      {
+        id: 'cleaning-storage',
+        name: 'Cleaning &\nOrganizers',
+        category: 'home',
+        query: 'Vacuum',
+        img: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=80',
+      },
+      {
+        id: 'water-air-purifiers',
+        name: 'Air & Water\nPurifiers',
+        category: 'home',
+        query: 'Purifier',
+        img: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=200&q=80',
+      },
+    ]
+  },
+  {
+    title: 'Beauty & Personal Care',
+    slug: 'beauty',
+    items: [
+      {
+        id: 'skincare-serums',
+        name: 'Skincare &\nFace Serums',
+        category: 'beauty',
+        query: 'Skincare',
+        img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=200&q=80',
+      },
+      {
+        id: 'haircare-shampoos',
+        name: 'Hair Care &\nOils',
+        category: 'beauty',
+        query: 'Hair',
+        img: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=200&q=80',
+      },
+      {
+        id: 'fragrances-deodorants',
+        name: 'Perfumes &\nDeodorants',
+        category: 'beauty',
+        query: 'Perfume',
+        img: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=200&q=80',
+      },
+      {
+        id: 'mens-grooming',
+        name: "Men's Shaving\n& Trimmers",
+        category: 'beauty',
+        query: 'Trimmer',
+        img: 'https://images.unsplash.com/photo-1621607512214-68297480165e?w=200&q=80',
+      },
+      {
+        id: 'makeup-cosmetics',
+        name: 'Makeup &\nLipsticks',
+        category: 'beauty',
+        query: 'Makeup',
+        img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&q=80',
+      },
+      {
+        id: 'oral-hygiene',
+        name: 'Bath & Oral\nCare',
+        category: 'beauty',
+        query: 'Soap',
+        img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&q=80',
+      },
+    ]
+  },
+  {
+    title: 'Sports & Fitness',
+    slug: 'sports',
+    items: [
+      {
+        id: 'gym-dumbbells',
+        name: 'Gym Weights\n& Dumbbells',
+        category: 'sports',
+        query: 'Dumbbell',
+        img: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&q=80',
+      },
+      {
+        id: 'whey-creatine',
+        name: 'Whey Protein\n& Nutrition',
+        category: 'sports',
+        query: 'Protein',
+        img: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=200&q=80',
+      },
+      {
+        id: 'sports-cricket',
+        name: 'Cricket &\nOutdoor Kits',
+        category: 'sports',
+        query: 'Cricket',
+        img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=200&q=80',
+      },
+      {
+        id: 'gym-activewear',
+        name: 'Dry-Fit &\nActivewear',
+        category: 'sports',
+        query: 'Activewear',
+        img: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=200&q=80',
+      },
+      {
+        id: 'gear-bicycles',
+        name: 'Cycles &\nRiding Gear',
+        category: 'sports',
+        query: 'Cycle',
+        img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=200&q=80',
+      },
+      {
+        id: 'yoga-recovery',
+        name: 'Yoga Mats &\nFoam Rollers',
+        category: 'sports',
+        query: 'Yoga',
+        img: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=200&q=80',
+      },
+    ]
+  }
+];
+
