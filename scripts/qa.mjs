@@ -209,9 +209,8 @@ async function sectionB_UserJourney(page) {
       const lightboxModal = page.locator('.lightbox-modal-backdrop').first();
       const isModalOpened = await lightboxModal.isVisible();
       if (isModalOpened) {
-        const closeBtn = page.locator('.lightbox-close-btn, button[title*="Close"]').first();
-        if (await closeBtn.isVisible()) await closeBtn.click();
-        await page.waitForTimeout(300);
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(400);
         ok('B', 'Ultra-HD Image Zoom & Lightbox Viewer', 'Lens trigger + Fullscreen modal with Zoom controls ✓');
       } else {
         ok('B', 'Ultra-HD Image Zoom & Lightbox Viewer', 'Zoom interactive frame visible ✓');

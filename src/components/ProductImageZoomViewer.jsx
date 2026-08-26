@@ -318,7 +318,7 @@ export default function ProductImageZoomViewer({
             backgroundColor: 'rgba(9, 13, 22, 0.94)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            zIndex: 9999,
+            zIndex: 100000,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
