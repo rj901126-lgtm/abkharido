@@ -130,32 +130,32 @@ img {
 
 @media (max-width: 768px) {
   .container {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
-  /* Mobile navbar total height with search bar is 60px — COMPLETELY 0 gap with categories */
+  /* Mobile navbar total height with search bar is ~50px — 0 gap with categories */
   .main-content {
-    margin-top: 60px !important;
+    margin-top: 50px !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - 50px);
   }
 
-  /* Category pill strip sits flush directly below mobile navbar with COMPLETELY 0 gap */
+  /* Category pill strip sits flush directly below mobile navbar with 0 gap */
   .home-category-strip {
     position: sticky !important;
-    top: 60px !important;
-    margin-top: -2px !important;
+    top: 50px !important;
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding: 0 0 2px 0 !important;
+    padding: 0 !important;
     z-index: 900 !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   .home-category-strip.compressed {
-    top: 60px !important;
+    top: 50px !important;
     margin-top: 0 !important;
-    padding: 3px 0 !important;
+    padding: 2px 0 !important;
     background: rgba(255, 255, 255, 0.98) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
@@ -163,11 +163,11 @@ img {
     border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
   }
 
-  /* Remove any top gap inside home container on mobile */
+  /* Compact spacing inside home container on mobile — no huge gaps */
   .home-page-layout-container {
     padding: 0 0 16px 0 !important;
     margin-top: 0 !important;
-    gap: 12px !important;
+    gap: 6px !important;
   }
 
   .home-category-strip-wrapper {
@@ -183,19 +183,20 @@ img {
     padding-top: 0 !important;
   }
 
-  /* When announcement bar (32px) is showing: 60px navbar + 32px announcement = 92px */
+  /* When announcement bar (32px) is showing: 50px navbar + 32px announcement = 82px */
   .main-content[data-announcement="true"] {
-    margin-top: 92px !important;
+    margin-top: 82px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip {
-    top: 92px !important;
+    top: 82px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip.compressed {
-    top: 92px !important;
+    top: 82px !important;
   }
 }
+
 
 
 

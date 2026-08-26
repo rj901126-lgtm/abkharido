@@ -180,7 +180,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
       {/* ── 1. Flipkart-Style Sticky Category Strip (Full circles at top -> Compresses to sleek sticky named tabs on scroll) ── */}
-      <div className="home-category-strip-wrapper" style={{ minHeight: isCategoryCompressed ? '34px' : '54px', width: '100%', margin: 0, padding: 0 }}>
+      <div className="home-category-strip-wrapper" style={{ minHeight: isCategoryCompressed ? '32px' : '48px', width: '100%', margin: 0, padding: 0 }}>
         <section
           className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
         >
@@ -190,9 +190,9 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: isCategoryCompressed ? '5px' : '2px',
+              gap: isCategoryCompressed ? '4px' : '2px',
               overflowX: 'auto',
-              padding: isCategoryCompressed ? '0 8px' : '0 6px',
+              padding: isCategoryCompressed ? '0 6px' : '0 4px',
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
               transition: 'all 0.2s ease'
@@ -210,7 +210,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   background: cat.bg || '#f1f5f9',
                   border: '1px solid rgba(0,0,0,0.06)',
                   borderRadius: '99px',
-                  padding: '3px 9px',
+                  padding: '3px 8px',
                   cursor: 'pointer',
                   outline: 'none',
                   transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -220,45 +220,45 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '2px',
+                  gap: '1px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  padding: '0 4px',
-                  minWidth: '50px',
+                  padding: '0 2px',
+                  minWidth: '46px',
                   outline: 'none',
                   transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >
                 {/* Icon */}
                 <div style={isCategoryCompressed ? {
-                  fontSize: '13px',
+                  fontSize: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   lineHeight: 1
                 } : {
-                  width: '38px',
-                  height: '38px',
+                  width: '36px',
+                  height: '36px',
                   borderRadius: '50%',
                   background: cat.bg || '#f1f5f9',
                   border: '1px solid rgba(0,0,0,0.06)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '17px',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                  fontSize: '16px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                   transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}>
                   <span>{cat.icon}</span>
                 </div>
                 {/* Category Name */}
                 <span style={{
-                  fontSize: isCategoryCompressed ? '11px' : '10.5px',
+                  fontSize: isCategoryCompressed ? '10.5px' : '10px',
                   fontWeight: isCategoryCompressed ? '800' : '700',
                   color: '#1e293b',
                   whiteSpace: 'nowrap',
-                  lineHeight: 1.2,
+                  lineHeight: 1.1,
                   letterSpacing: '-0.2px',
                 }}>
                   {cat.label}
@@ -269,6 +269,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
         </section>
       </div>
+
 
 
 
