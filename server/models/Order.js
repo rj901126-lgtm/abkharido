@@ -95,6 +95,8 @@ const orderSchema = new mongoose.Schema({
   awbNumber: { type: String },
   trackingUrl: { type: String },
   courierPartner: { type: String },
+  nimbusShipmentId: { type: String },
+  nimbusLabelUrl: { type: String },
   
   // Payment Gateway Tracking
   // sparse: true allows multiple null values (for COD orders without a cfOrderId)

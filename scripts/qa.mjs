@@ -412,6 +412,18 @@ async function sectionD_APIHealth() {
   // D17: Cart sync
   const cartSync = await api('POST', '/api/cart/sync', { cart: [] });
   cartSync.status < 500 ? ok('D', 'POST /api/cart/sync', `HTTP ${cartSync.status}`) : no('D', 'POST /api/cart/sync', `HTTP ${cartSync.status}`);
+
+  // D18: NimbusPost 27+ Courier Logistics API
+  const nimbusTest = await api('POST', '/api/shipping/nimbuspost/create-shipment', { orderId: 'test-order-sample' });
+  nimbusTest.status < 500
+    ? ok('D', 'POST /api/shipping/nimbuspost/create-shipment', `HTTP ${nimbusTest.status} (Handled gracefully)`)
+    : no('D', 'POST /api/shipping/nimbuspost/create-shipment', `HTTP ${nimbusTest.status}`);
+
+  // D19: Secure Delivery PIN Verification API
+  const verifyPinTest = await api('POST', '/api/orders/test-order-sample/verify-delivery', { pin: '9999' });
+  verifyPinTest.status < 500
+    ? ok('D', 'POST /api/orders/[id]/verify-delivery (PIN check)', `HTTP ${verifyPinTest.status} (Handled gracefully)`)
+    : no('D', 'POST /api/orders/[id]/verify-delivery (PIN check)', `HTTP ${verifyPinTest.status}`);
 }
 
 /* ─── SECTION E: Security Layer ────────────────────────────── */

@@ -211,6 +211,33 @@ const AdminOMS = ({ statusFilter }) => {
     }
   };
 
+  const dispatchViaNimbusPost = async (orderId) => {
+    try {
+      showToast(`Booking shipment on NimbusPost 27+ Logistics...`, 'info');
+      const token = sessionStorage.getItem('abkharido_admin_token') || '';
+      
+      const res = await fetch(`/api/shipping/nimbuspost/create-shipment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
+        body: JSON.stringify({ orderId })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`🚀 Dispatched via ${data.logistics?.courier}! AWB: ${data.logistics?.awb} | PIN: ${data.logistics?.deliveryPin}`, 'success');
+        fetchOrders();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || 'Failed to dispatch via NimbusPost', 'error');
+      }
+    } catch (err) {
+      showToast('Network error while dispatching via NimbusPost', 'error');
+    }
+  };
+
   const generateAWB = async (orderId) => {
     try {
       showToast(`Generating Shiprocket AWB for ${orderId}...`, 'info');
@@ -721,7 +748,18 @@ const AdminOMS = ({ statusFilter }) => {
                           <Eye size={13} /> Inspect
                         </button>
 
-                        {/* Dispatch Button */}
+                        {/* ⚡ 1-Click NimbusPost Dispatch Button */}
+                        {(!isCancelled && !isDelivered && !isShipped) && (
+                          <button 
+                            onClick={() => dispatchViaNimbusPost(oId)}
+                            style={{ padding: '6px 12px', display: 'inline-flex', gap: '5px', alignItems: 'center', fontSize: '11.5px', borderRadius: '8px', color: '#ffffff', background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', border: 'none', fontWeight: '800', cursor: 'pointer', boxShadow: '0 2px 8px rgba(5, 150, 105, 0.3)' }}
+                            title="1-Click Automated Courier Dispatch via NimbusPost"
+                          >
+                            <Truck size={13} /> ⚡ NimbusPost
+                          </button>
+                        )}
+
+                        {/* Custom Dispatch Button */}
                         {(!isCancelled && !isDelivered && !isShipped) && (
                           <button 
                             onClick={() => { setDispatchOrder(order); setAwbInput(order.awbNumber || ''); }}
