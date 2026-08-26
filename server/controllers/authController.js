@@ -213,11 +213,12 @@ export const verifyOtp = async (req, res, next) => {
         throw new Error('Mobile number is mandatory. Please register and log in with your mobile phone number and OTP.');
       }
       let username = normalizedRecipient;
+      const defaultName = fullName || `Customer ${normalizedRecipient.slice(-4)}`;
       try {
         user = await User.create({ 
           username, 
           phone: normalizedRecipient, 
-          fullName: fullName || 'AbKharido User',
+          fullName: defaultName,
           password: 'abkharido_otp_user_' + Date.now()
         });
       } catch (err) {
@@ -232,9 +233,8 @@ export const verifyOtp = async (req, res, next) => {
              const fallbackUsername = `${username}_${Date.now().toString().slice(-4)}`;
              user = await User.create({ 
                username: fallbackUsername, 
-               email: isEmail ? normalizedRecipient : undefined,
-               phone: !isEmail ? normalizedRecipient : undefined, 
-               fullName: fullName || 'AbKharido User',
+               phone: normalizedRecipient, 
+               fullName: defaultName,
                password: 'abkharido_otp_user_' + Date.now()
              });
           }

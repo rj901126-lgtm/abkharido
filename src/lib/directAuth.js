@@ -60,12 +60,13 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
   let user = await findExistingUser({ phone: normalizedPhone, email });
 
   if (!user) {
+    const defaultName = fullName || `Customer ${normalizedPhone.slice(-4)}`;
     try {
       user = await User.create({
         username: normalizedPhone,
         phone: normalizedPhone,
         email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email : undefined,
-        fullName: fullName || 'VIP Member',
+        fullName: defaultName,
         password: 'FirebaseVerifiedUser123!'
       });
     } catch (err) {
@@ -76,7 +77,7 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
             username: `${normalizedPhone}_${Date.now().toString().slice(-4)}`,
             phone: normalizedPhone,
             email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email : undefined,
-            fullName: fullName || 'VIP Member',
+            fullName: defaultName,
             password: 'FirebaseVerifiedUser123!'
           });
         }
@@ -166,12 +167,13 @@ export async function verifyOtpDirect(params = {}) {
       throw new Error('Mobile number is mandatory. Please sign in with your mobile phone number and OTP.');
     }
     let username = normalizedRecipient;
+    const defaultName = fullName || `Customer ${normalizedRecipient.slice(-4)}`;
     try {
       user = await User.create({
         username,
         phone: normalizedRecipient,
         email: undefined,
-        fullName: fullName || 'VIP Member',
+        fullName: defaultName,
         password: 'abkharido_otp_user_' + Date.now()
       });
     } catch (err) {
@@ -182,7 +184,7 @@ export async function verifyOtpDirect(params = {}) {
             username: `${username}_${Date.now().toString().slice(-4)}`,
             phone: normalizedRecipient,
             email: undefined,
-            fullName: fullName || 'VIP Member',
+            fullName: defaultName,
             password: 'abkharido_otp_user_' + Date.now()
           });
         }
