@@ -768,19 +768,8 @@ export const AppProvider = ({ children }) => {
         console.warn('Background sync returned 401. Session might be expiring.');
         return;
       }
-      if (res.ok && stateSetter) {
-        const data = await res.json();
-        if (data && data[endpoint]) {
-          stateSetter(data[endpoint]); // Updates with merged DB state
-        }
-      } else if (!res.ok) {
-        console.error(`[DeltaSync API Error] ${endpoint} returned ${res.status}`);
-        try {
-          const errData = await res.json();
-          console.error(`Error details:`, errData);
-        } catch (e) {
-          console.error(`Could not parse error response`);
-        }
+      if (res.ok && stateSetter && payload?.action === 'clear') {
+        stateSetter([]);
       }
     } catch (err) {
       console.error(`${endpoint} delta sync failed network-wise`, err);
@@ -802,8 +791,8 @@ export const AppProvider = ({ children }) => {
     const selectedCol = product.selectedColor || product.color || '';
     const dedupeKey = `${pId}_${selectedVar}_${selectedCol}`;
     const now = Date.now();
-    if (lastAddToCartTimestamp.current[dedupeKey] && now - lastAddToCartTimestamp.current[dedupeKey] < 450) {
-      return; // Prevent duplicate rapid touch/click events within 450ms
+    if (lastAddToCartTimestamp.current[dedupeKey] && now - lastAddToCartTimestamp.current[dedupeKey] < 250) {
+      return; // Prevent duplicate rapid touch/click events within 250ms
     }
     lastAddToCartTimestamp.current[dedupeKey] = now;
 
@@ -826,6 +815,7 @@ export const AppProvider = ({ children }) => {
         ? product.stock 
         : (product.inStock !== false ? 99 : 0);
       
+      let updatedCart;
       if (existingIndex > -1) {
         const existing = prev[existingIndex];
         const newQty = existing.quantity + qty;
@@ -834,16 +824,27 @@ export const AppProvider = ({ children }) => {
           return prev;
         }
         showToast(`Cart updated (${newQty} in cart)!`, 'info');
-        const updated = [...prev];
-        updated[existingIndex] = { ...existing, quantity: newQty };
-        return updated;
+        updatedCart = [...prev];
+        updatedCart[existingIndex] = { ...existing, quantity: newQty };
+      } else {
+        showToast(`${product.name?.substring(0, 24)}... added to bag!`, 'success');
+        updatedCart = [...prev, { product, quantity: qty }];
       }
 
-      showToast(`${product.name?.substring(0, 24)}... added to cart!`, 'success');
-      return [...prev, { product, quantity: qty }];
+      // Immediate local cache update
+      try {
+        if (!currentUser?.token) {
+          localStorage.setItem('abkharido_cart', JSON.stringify(updatedCart));
+        } else {
+          localStorage.setItem('abkharido_cached_cart', JSON.stringify(updatedCart));
+        }
+      } catch (e) {}
+
+      // Backend sync
+      dispatchDeltaSync('cart', { cart: updatedCart, action: 'add', item: { product: pId, quantity: qty } });
+
+      return updatedCart;
     });
-    
-    dispatchDeltaSync('cart', { action: 'add', item: { product: pId, quantity: qty } }, setCart);
   };
 
   const updateCartQty = (productId, qty) => {
@@ -851,36 +852,63 @@ export const AppProvider = ({ children }) => {
       removeFromCart(productId);
       return;
     }
-    setCart(prev => prev.map(item => {
-      const itemId = item.product?.id || item.product?._id;
-      if (itemId === productId) {
-        const stock = (item.product.stock !== undefined && item.product.stock !== null && item.product.stock > 0) 
-          ? item.product.stock 
-          : (item.product.inStock !== false ? 99 : 0);
-        if (qty > stock && stock > 0) {
-          showToast(`Only ${stock} units available in stock.`, 'warning');
-          return item; // don't update
+    setCart(prev => {
+      const updatedCart = prev.map(item => {
+        const itemId = item.product?.id || item.product?._id;
+        if (itemId === productId) {
+          const stock = (item.product.stock !== undefined && item.product.stock !== null && item.product.stock > 0) 
+            ? item.product.stock 
+            : (item.product.inStock !== false ? 99 : 0);
+          if (qty > stock && stock > 0) {
+            showToast(`Only ${stock} units available in stock.`, 'warning');
+            return item;
+          }
+          return { ...item, quantity: qty };
         }
-        return { ...item, quantity: qty };
-      }
-      return item;
-    }));
-    
-    dispatchDeltaSync('cart', { action: 'update', item: { product: productId, quantity: qty } }, setCart);
+        return item;
+      });
+
+      try {
+        if (!currentUser?.token) {
+          localStorage.setItem('abkharido_cart', JSON.stringify(updatedCart));
+        } else {
+          localStorage.setItem('abkharido_cached_cart', JSON.stringify(updatedCart));
+        }
+      } catch (e) {}
+
+      dispatchDeltaSync('cart', { cart: updatedCart, action: 'update', item: { product: productId, quantity: qty } });
+      return updatedCart;
+    });
   };
 
   const removeFromCart = (productId) => {
-    setCart(prev => prev.filter(item => {
-      const itemId = item.product?.id || item.product?._id;
-      return itemId !== productId;
-    }));
-    showToast('Item removed from cart.');
-    dispatchDeltaSync('cart', { action: 'remove', productId }, setCart);
+    setCart(prev => {
+      const updatedCart = prev.filter(item => {
+        const itemId = item.product?.id || item.product?._id;
+        return itemId !== productId;
+      });
+
+      try {
+        if (!currentUser?.token) {
+          localStorage.setItem('abkharido_cart', JSON.stringify(updatedCart));
+        } else {
+          localStorage.setItem('abkharido_cached_cart', JSON.stringify(updatedCart));
+        }
+      } catch (e) {}
+
+      dispatchDeltaSync('cart', { cart: updatedCart, action: 'remove', productId });
+      return updatedCart;
+    });
+    showToast('Item removed from cart.', 'info');
   };
 
   const clearCart = () => {
     setCart([]);
-    dispatchDeltaSync('cart', { action: 'clear' }, setCart);
+    try {
+      localStorage.removeItem('abkharido_cart');
+      localStorage.removeItem('abkharido_cached_cart');
+    } catch (e) {}
+    dispatchDeltaSync('cart', { action: 'clear' });
   };
 
   // --- Logout Action ---

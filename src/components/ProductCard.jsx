@@ -39,8 +39,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
     e.stopPropagation();
     addToCart(product);
     setIsJustAdded(true);
-    if (showToast) showToast(`🛍️ ${product.name} added to bag!`, 'success');
-    setTimeout(() => setIsJustAdded(false), 2000);
+    setTimeout(() => setIsJustAdded(false), 1800);
   };
 
   const handleWishlistToggle = (e) => {
