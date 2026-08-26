@@ -10,7 +10,8 @@
     "build": "next build",
     "lint": "npx oxlint@latest",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:master": "node scripts/master_production_qa_suite.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
