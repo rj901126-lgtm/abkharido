@@ -133,29 +133,36 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
   // Distinct SKUs partitioned across rails so each rail is unique
   const flashDeals = React.useMemo(() => {
+    if (!Array.isArray(displayList)) return [];
     return [...displayList]
-      .filter(p => p && p.originalPrice > p.price)
-      .sort((a, b) => ((b.originalPrice - b.price) / b.originalPrice) - ((a.originalPrice - a.price) / a.originalPrice))
+      .filter(p => p && Number(p.originalPrice || 0) > Number(p.price || 0))
+      .sort((a, b) => {
+        const discA = ((Number(a.originalPrice || 0) - Number(a.price || 0)) / (Number(a.originalPrice) || 1));
+        const discB = ((Number(b.originalPrice || 0) - Number(b.price || 0)) / (Number(b.originalPrice) || 1));
+        return discB - discA;
+      })
       .slice(0, 4);
   }, [displayList]);
 
-  const flashDealIds = new Set(flashDeals.map(p => p.id));
-
   const bestSellers = React.useMemo(() => {
-    const candidates = displayList.filter(p => p && !flashDealIds.has(p.id));
+    if (!Array.isArray(displayList)) return [];
+    const flashIds = new Set(flashDeals.map(p => p?.id || p?._id).filter(Boolean));
+    const candidates = displayList.filter(p => p && !flashIds.has(p.id || p._id));
     return [...candidates]
-      .sort((a, b) => (b.reviewsCount || 0) - (a.reviewsCount || 0) || (b.rating || 0) - (a.rating || 0))
+      .sort((a, b) => (Number(b?.reviewsCount || 0) - Number(a?.reviewsCount || 0)) || (Number(b?.rating || 0) - Number(a?.rating || 0)))
       .slice(0, 4);
-  }, [displayList, flashDealIds]);
-
-  const bestSellerIds = new Set(bestSellers.map(p => p.id));
+  }, [displayList, flashDeals]);
 
   const newArrivals = React.useMemo(() => {
-    const candidates = displayList.filter(p => p && !flashDealIds.has(p.id) && !bestSellerIds.has(p.id));
-    return candidates.length >= 4 
-      ? candidates.slice(0, 4) 
-      : [...candidates, ...displayList.filter(p => !candidates.some(c => c.id === p.id))].slice(0, 4);
-  }, [displayList, flashDealIds, bestSellerIds]);
+    if (!Array.isArray(displayList)) return [];
+    const flashIds = new Set(flashDeals.map(p => p?.id || p?._id).filter(Boolean));
+    const bestSellerIds = new Set(bestSellers.map(p => p?.id || p?._id).filter(Boolean));
+    const candidates = displayList.filter(p => p && !flashIds.has(p.id || p._id) && !bestSellerIds.has(p.id || p._id));
+    if (candidates.length >= 4) return candidates.slice(0, 4);
+    const remainder = displayList.filter(p => p && !candidates.some(c => c && (c.id || c._id) === (p.id || p._id)));
+    return [...candidates, ...remainder].slice(0, 4);
+  }, [displayList, flashDeals, bestSellers]);
+
 
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
@@ -553,8 +560,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </div>
         ) : (
           <div className="product-responsive-row">
-            {(flashDeals.length > 0 ? flashDeals : displayList.slice(0, 4)).map(product => (
-              <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
+            {(flashDeals.length > 0 ? flashDeals : displayList.slice(0, 4)).map((product, idx) => (
+              product ? <ProductCard key={product?.id || product?._id || `flash-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
             ))}
           </div>
         )}
@@ -575,8 +582,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
 
         <div className="product-responsive-row">
-          {(bestSellers.length > 0 ? bestSellers : displayList.slice(0, 4)).map(product => (
-            <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
+          {(bestSellers.length > 0 ? bestSellers : displayList.slice(0, 4)).map((product, idx) => (
+            product ? <ProductCard key={product?.id || product?._id || `best-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
           ))}
         </div>
       </section>
@@ -596,11 +603,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
 
         <div className="product-responsive-row">
-          {(newArrivals.length > 0 ? newArrivals : displayList.slice(0, 4)).map(product => (
-            <ProductCard key={product.id} product={product} onNavigateProduct={onNavigateProduct} />
+          {(newArrivals.length > 0 ? newArrivals : displayList.slice(0, 4)).map((product, idx) => (
+            product ? <ProductCard key={product?.id || product?._id || `new-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
           ))}
         </div>
       </section>
+
 
       {/* ── 8. Official Brand Partners ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
