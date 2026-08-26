@@ -124,17 +124,17 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar total height with safe-area + search bar is ~92px */
+  /* Mobile navbar total height with safe-area + search bar is 88px */
   .main-content {
-    margin-top: calc(92px + env(safe-area-inset-top, 0px)) !important;
+    margin-top: calc(88px + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 92px);
+    min-height: calc(100vh - 88px);
   }
 
-  /* Category pill strip on mobile with exact equal top & bottom visual spacing */
+  /* Category pill strip on mobile with exact equal top & bottom visual spacing and 0-line gap */
   .home-category-strip {
     position: sticky !important;
-    top: calc(92px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(88px + env(safe-area-inset-top, 0px)) !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     padding: 12px 0 !important;
@@ -143,6 +143,7 @@ img {
     border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
   }
+
 
 
   /* Balanced natural spacing inside home container on mobile */
