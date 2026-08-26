@@ -63,7 +63,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
 
   // High-Intent Attribute Quick Filter Chips
   const quickFilterChips = [
-    { id: 'free_delivery', label: '⚡ Free Express Delivery' },
+    { id: 'free_delivery', label: '📦 Standard Delivery (2-5 Days)' },
     { id: 'no_cost_emi', label: '💳 No-Cost EMI' },
     { id: 'warranty', label: '🛡️ 1 Year Warranty' },
     { id: 'top_rated', label: '⭐ Top Rated (4.5+)' },
@@ -71,6 +71,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
     { id: 'under_15k', label: '📱 Under ₹15,000' },
     { id: 'min_30_off', label: '🔥 Min 30% Off' }
   ];
+
 
   // Fetch from Backend Search API
   useEffect(() => {

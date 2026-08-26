@@ -46,19 +46,20 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   // Dynamic delivery estimate
   const [deliveryEstimate, setDeliveryEstimate] = useState(
     deliveryLocation?.displayText
-      ? `⚡ Express Delivery to ${deliveryLocation.displayText} by ${deliveryLocation.deliveryDateStr || 'Tomorrow, 5 PM'}`
-      : `⚡ Free Express Delivery by Tomorrow, 5 PM`
+      ? `📦 Standard Delivery to ${deliveryLocation.displayText} (2 to 5 Days)`
+      : `📦 Standard Delivery (2 to 5 Days)`
   );
 
   React.useEffect(() => {
     if (deliveryLocation) {
       setPincode(deliveryLocation.pincode);
-      setDeliveryEstimate(`⚡ Express Delivery to ${deliveryLocation.displayText || deliveryLocation.city} by ${deliveryLocation.deliveryDateStr || 'Tomorrow, 5 PM'}`);
+      setDeliveryEstimate(`📦 Standard Delivery to ${deliveryLocation.displayText || deliveryLocation.city} (2 to 5 Days)`);
     } else if (currentUser?.pincode) {
       setPincode(currentUser.pincode);
-      setDeliveryEstimate(`⚡ Fast Express Delivery to ${currentUser?.city || currentUser?.pincode}`);
+      setDeliveryEstimate(`📦 Standard Delivery to ${currentUser?.city || currentUser?.pincode} (2 to 5 Days)`);
     }
   }, [deliveryLocation, currentUser]);
+
 
   React.useEffect(() => {
     document.body.classList.add('product-details-active');

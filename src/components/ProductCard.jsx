@@ -77,7 +77,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
   // Financial & Logistics calculations
   const emiPerMonth = price >= 1500 ? Math.round(price / 6) : 0;
-  const deliveryETA = price >= 499 ? 'Free Delivery by Tomorrow' : 'Standard Delivery (2-3 Days)';
+  const deliveryETA = 'Standard Delivery (2 to 5 Days)';
+
 
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
