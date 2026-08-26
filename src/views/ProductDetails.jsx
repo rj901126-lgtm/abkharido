@@ -835,16 +835,16 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   {(product.category === 'fashion' || product.category === 'footwear') ? 'Select Size / Fit' : (product.category === 'mobiles' || product.category === 'electronics') ? 'Storage / RAM' : 'Edition / Pack'}: <span style={{ color: '#0f172a', fontWeight: '700' }}>{activeVariant ? activeVariant.name : ''}</span>
                 </div>
                 {(product.category === 'fashion' || product.category === 'footwear') && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => showToast('📏 Standard Indian sizing (True to Size). For shoes, UK size equals Indian standard.', 'info')}
-                    style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12px', fontWeight: '700', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12px', fontWeight: '800', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
                   >
                     Size Guide
                   </button>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: '10px' }}>
                 {variantsList.map((v, i) => {
                   const isVariantOutOfStock = v.stock !== undefined && v.stock <= 0;
                   const isSelected = activeVariant && activeVariant.name === v.name;
@@ -854,38 +854,40 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                       className="desktop-premium-variant-btn"
                       onClick={() => setSelectedVariant(v)}
                       style={{
-                        border: isSelected ? '2px solid var(--primary-color)' : '1px solid #e2e8f0',
-                        borderRadius: '12px',
-                        padding: '12px 16px',
-                        backgroundColor: isSelected ? '#f5f7ff' : isVariantOutOfStock ? '#f8fafc' : 'white',
-                        cursor: 'pointer',
+                        border: isSelected ? '2px solid #4f46e5' : '1.5px solid #e2e8f0',
+                        borderRadius: '14px',
+                        padding: '12px 14px',
+                        backgroundColor: isSelected ? '#eff6ff' : isVariantOutOfStock ? '#f8fafc' : '#ffffff',
+                        cursor: isVariantOutOfStock ? 'not-allowed' : 'pointer',
                         textAlign: 'left',
-                        minWidth: '130px',
-                        flex: '1 1 auto',
                         boxSizing: 'border-box',
-                        boxShadow: isSelected ? '0 4px 12px rgba(79, 70, 229, 0.1)' : '0 2px 4px rgba(0,0,0,0.02)',
+                        boxShadow: isSelected ? '0 6px 16px rgba(79, 70, 229, 0.15)' : '0 2px 5px rgba(0,0,0,0.02)',
                         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         position: 'relative',
-                        opacity: isVariantOutOfStock ? 0.65 : 1
+                        opacity: isVariantOutOfStock ? 0.6 : 1,
+                        transform: isSelected ? 'scale(1.02)' : 'none'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ fontSize: '14px', fontWeight: '700', color: isSelected ? 'var(--primary-color)' : '#0f172a' }}>{v.name}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ fontSize: '13.5px', fontWeight: '800', color: isSelected ? '#1e1b4b' : '#0f172a' }}>{v.name}</div>
+                        {isSelected && (
+                          <span style={{ fontSize: '11px', background: '#4f46e5', color: '#ffffff', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}>✓</span>
+                        )}
                         {isVariantOutOfStock && (
-                          <span style={{ fontSize: '10px', background: '#fee2e2', color: '#dc2626', padding: '2px 6px', borderRadius: '4px', fontWeight: '800' }}>Sold Out</span>
+                          <span style={{ fontSize: '9px', background: '#fee2e2', color: '#dc2626', padding: '2px 5px', borderRadius: '4px', fontWeight: '800' }}>Sold Out</span>
                         )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                         <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>₹{(v.price || 0).toLocaleString('en-IN')}</span>
+                         <span style={{ fontSize: '14px', fontWeight: '900', color: isSelected ? '#4f46e5' : '#0f172a' }}>₹{(v.price || 0).toLocaleString('en-IN')}</span>
                          {v.originalPrice > v.price && (
-                           <span style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
+                           <span style={{ fontSize: '11.5px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
                          )}
                       </div>
                       
                       {/* Low stock tag */}
                       {!isVariantOutOfStock && v.stock !== undefined && v.stock > 0 && v.stock <= 5 && (
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: '#dc2626', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#dc2626' }}></span>
+                        <div style={{ fontSize: '10.5px', fontWeight: '800', color: '#dc2626', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#dc2626', animation: 'pulse 1s infinite' }}></span>
                           Only {v.stock} left
                         </div>
                       )}
@@ -897,27 +899,54 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
           )}
 
           {/* 🔥 PRIMARY PURCHASE ACTION HUB IN RIGHT COLUMN */}
-          <div className="action-buttons-container" style={{ marginTop: '24px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '20px', padding: '18px 20px', boxShadow: '0 8px 25px rgba(9, 13, 22, 0.04)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <div className="action-buttons-container" style={{ marginTop: '24px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '22px', padding: '20px', boxShadow: '0 8px 30px rgba(9, 13, 22, 0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
               <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Total Payable Amount:</span>
-                <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '12.5px', color: '#059669', fontWeight: '700' }}>(Taxes Included)</span></div>
+                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Total Payable Amount:</span>
+                <div style={{ fontSize: '26px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '12.5px', color: '#059669', fontWeight: '800' }}>(Taxes Included)</span></div>
               </div>
-              <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 10px', borderRadius: '8px', fontSize: '11.5px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
-                ✓ Express Dispatch Ready
+              <span style={{ background: '#ecfdf5', color: '#047857', padding: '5px 12px', borderRadius: '100px', fontSize: '11.5px', fontWeight: '800', border: '1px solid #a7f3d0', boxShadow: '0 2px 6px rgba(5, 150, 105, 0.08)' }}>
+                ⚡ Express Dispatch Ready
               </span>
             </div>
             
             <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', position: 'relative' }}>
               {quantityInCart > 0 ? (
-                <div style={{ flex: '1 1 180px', display: 'flex', alignItems: 'center', height: '52px', border: '2px solid #16a34a', borderRadius: '14px', background: '#f0fdf4', padding: '4px', gap: '8px', boxSizing: 'border-box' }}>
+                <div style={{ 
+                  flex: '1 1 180px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  height: '52px', 
+                  border: '2px solid #059669', 
+                  borderRadius: '16px', 
+                  background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', 
+                  padding: '5px', 
+                  gap: '8px', 
+                  boxSizing: 'border-box',
+                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.15)' 
+                }}>
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart - 1);
                     }}
-                    style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ffffff', border: '1.5px solid #bbf7d0', color: '#15803d', fontSize: '20px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    style={{ 
+                      width: '42px', 
+                      height: '42px', 
+                      borderRadius: '12px', 
+                      background: '#ffffff', 
+                      border: '1.5px solid #a7f3d0', 
+                      color: '#047857', 
+                      fontSize: '22px', 
+                      fontWeight: '900', 
+                      cursor: 'pointer', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                      transition: 'all 0.15s ease'
+                    }}
                   >
                     -
                   </button>
@@ -925,10 +954,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     onClick={() => onNavigate('cart')}
                     style={{ flex: 1, textAlign: 'center', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#15803d', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Check size={14} /> {quantityInCart} in Cart
+                    <div style={{ fontSize: '13.5px', fontWeight: '900', color: '#047857', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Check size={15} /> {quantityInCart} in Bag
                     </div>
-                    <div style={{ fontSize: '11px', color: '#166534', fontWeight: '700', textDecoration: 'underline' }}>Go to Cart ➔</div>
+                    <div style={{ fontSize: '11px', color: '#065f46', fontWeight: '800' }}>View Cart ➔</div>
                   </div>
                   <button
                     type="button"
@@ -936,7 +965,22 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                       e.stopPropagation();
                       updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart + 1);
                     }}
-                    style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ffffff', border: '1.5px solid #bbf7d0', color: '#15803d', fontSize: '20px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    style={{ 
+                      width: '42px', 
+                      height: '42px', 
+                      borderRadius: '12px', 
+                      background: '#059669', 
+                      border: 'none', 
+                      color: '#ffffff', 
+                      fontSize: '22px', 
+                      fontWeight: '900', 
+                      cursor: 'pointer', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)',
+                      transition: 'all 0.15s ease'
+                    }}
                   >
                     +
                   </button>
@@ -954,10 +998,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   style={{
                     flex: '1 1 180px',
                     height: '52px',
-                    border: isOutOfStock ? '2px solid #cbd5e1' : '2px solid #4f46e5',
-                    borderRadius: '14px',
-                    background: isOutOfStock ? '#f1f5f9' : '#ffffff',
-                    color: isOutOfStock ? '#94a3b8' : '#4f46e5',
+                    border: isOutOfStock ? '2px solid #cbd5e1' : 'none',
+                    borderRadius: '16px',
+                    background: isOutOfStock ? '#f1f5f9' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                    color: isOutOfStock ? '#94a3b8' : '#ffffff',
                     fontWeight: '900',
                     fontSize: '15px',
                     cursor: isOutOfStock ? 'not-allowed' : 'pointer',
@@ -966,11 +1010,12 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     justifyContent: 'center',
                     gap: '8px',
                     fontFamily: "'Outfit', sans-serif",
-                    boxShadow: isOutOfStock ? 'none' : '0 4px 12px rgba(79, 70, 229, 0.05)',
+                    boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(15, 23, 42, 0.2)',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                     opacity: isOutOfStock ? 0.7 : 1
                   }}
                 >
-                  <ShoppingCart size={20} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  <ShoppingCart size={19} color={isOutOfStock ? '#94a3b8' : '#ffffff'} /> {isOutOfStock ? 'Out of Stock' : 'Add to Bag'}
                 </button>
               )}
               <button
@@ -989,28 +1034,28 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   flex: '1 1 180px',
                   height: '52px',
                   border: 'none',
-                  borderRadius: '14px',
-                  backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  borderRadius: '16px',
+                  backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
                   backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
                   color: isOutOfStock ? '#64748b' : '#ffffff',
                   fontWeight: '900',
-                  fontSize: '15px',
+                  fontSize: '15.5px',
                   cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                   fontFamily: "'Outfit', sans-serif",
-                  boxShadow: isOutOfStock ? 'none' : '0 8px 24px rgba(79, 70, 229, 0.35)',
-                  opacity: isOutOfStock ? 0.7 : 1
+                  boxShadow: isOutOfStock ? 'none' : '0 8px 24px rgba(234, 88, 12, 0.35)',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  opacity: isOutOfStock ? 0.7 : 1,
+                  letterSpacing: '0.2px'
                 }}
               >
-                <Zap size={20} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now'}
+                <Zap size={20} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now ➔'}
               </button>
             </div>
           </div>
-
-          {/* AbKharido Platinum Member Offers */}
           <div style={{ marginTop: '20px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '20px', padding: '18px', boxShadow: '0 4px 16px rgba(9, 13, 22, 0.03)' }}>
             <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '900', color: '#090d16', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>💥</span> Available Bank &amp; VIP Offers
@@ -1639,22 +1684,23 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 }}
                 style={{
                   height: '46px',
-                  padding: '0 14px',
-                  border: '1.5px solid #16a34a',
+                  padding: '0 16px',
+                  border: '1.5px solid #059669',
                   borderRadius: '12px',
-                  background: '#f0fdf4',
-                  color: '#15803d',
-                  fontWeight: '800',
+                  background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                  color: '#047857',
+                  fontWeight: '900',
                   fontSize: '13px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  fontFamily: "'Outfit', sans-serif"
+                  fontFamily: "'Outfit', sans-serif",
+                  boxShadow: '0 2px 8px rgba(5, 150, 105, 0.15)'
                 }}
               >
-                <Check size={16} /> <span className="buy-bar-btn-text">Cart ({quantityInCart}) ➔</span>
+                <Check size={16} /> <span className="buy-bar-btn-text">Bag ({quantityInCart}) ➔</span>
               </button>
             ) : (
               <button
@@ -1669,10 +1715,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 style={{
                   height: '46px',
                   padding: '0 14px',
-                  border: isOutOfStock ? '1.5px solid #cbd5e1' : '1.5px solid #4f46e5',
+                  border: isOutOfStock ? '1.5px solid #cbd5e1' : 'none',
                   borderRadius: '12px',
-                  background: isOutOfStock ? '#f1f5f9' : '#ffffff',
-                  color: isOutOfStock ? '#94a3b8' : '#4f46e5',
+                  background: isOutOfStock ? '#f1f5f9' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                  color: isOutOfStock ? '#94a3b8' : '#ffffff',
                   fontWeight: '800',
                   fontSize: '13px',
                   cursor: isOutOfStock ? 'not-allowed' : 'pointer',
@@ -1680,10 +1726,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  fontFamily: "'Outfit', sans-serif"
+                  fontFamily: "'Outfit', sans-serif",
+                  boxShadow: isOutOfStock ? 'none' : '0 4px 12px rgba(15, 23, 42, 0.2)'
                 }}
               >
-                <ShoppingCart size={17} /> <span className="buy-bar-btn-text">{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
+                <ShoppingCart size={17} color={isOutOfStock ? '#94a3b8' : '#ffffff'} /> <span className="buy-bar-btn-text">{isOutOfStock ? 'Out of Stock' : 'Add to Bag'}</span>
               </button>
             )}
             <button
@@ -1703,7 +1750,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 padding: '0 18px',
                 border: 'none',
                 borderRadius: '12px',
-                backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
                 backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
                 color: isOutOfStock ? '#64748b' : '#ffffff',
                 fontWeight: '900',
@@ -1714,10 +1761,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 justifyContent: 'center',
                 gap: '6px',
                 fontFamily: "'Outfit', sans-serif",
-                boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(79, 70, 229, 0.35)'
+                boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(234, 88, 12, 0.35)'
               }}
             >
-              <Zap size={17} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now'}
+              <Zap size={17} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now ➔'}
             </button>
           </div>
         </div>
