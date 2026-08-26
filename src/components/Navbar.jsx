@@ -208,29 +208,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     return () => window.removeEventListener('focus-main-search', handleFocusSearch);
   }, []);
 
-  const headerRef = useRef(null);
-
-  useEffect(() => {
-    const updateHeaderHeight = () => {
-      if (headerRef.current) {
-        const height = headerRef.current.offsetHeight;
-        if (height > 0) {
-          document.documentElement.style.setProperty('--header-actual-height', `${height}px`);
-        }
-      }
-    };
-    updateHeaderHeight();
-    const observer = new ResizeObserver(updateHeaderHeight);
-    if (headerRef.current) {
-      observer.observe(headerRef.current);
-    }
-    window.addEventListener('resize', updateHeaderHeight);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', updateHeaderHeight);
-    };
-  }, []);
-
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const handleSearchSubmit = (e) => {
@@ -252,7 +229,8 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header ref={headerRef} className="navbar-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
+      <header className="navbar-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
+
 
         <div className="navbar-container">
           

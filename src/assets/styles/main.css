@@ -92,14 +92,14 @@ img {
 
 .main-content {
   flex: 1;
-  margin-top: var(--header-actual-height, 64px) !important;
-  min-height: calc(100vh - var(--header-actual-height, 64px) - 250px);
+  margin-top: 64px !important;
+  min-height: calc(100vh - 64px - 250px);
 }
 
 /* Category Strip Desktop Sticky Base — 0 gap with navbar */
 .home-category-strip {
   position: sticky !important;
-  top: var(--header-actual-height, 64px) !important;
+  top: 64px !important;
   z-index: 900 !important;
   background-color: #ffffff;
   border-bottom: 1px solid rgba(226, 232, 240, 0.85);
@@ -110,7 +110,7 @@ img {
 }
 
 .home-category-strip.compressed {
-  top: var(--header-actual-height, 64px) !important;
+  top: 64px !important;
   padding: 3px 0 !important;
   background: rgba(255, 255, 255, 0.98) !important;
   backdrop-filter: blur(16px);
@@ -134,17 +134,17 @@ img {
     padding-right: 12px;
   }
 
-  /* Mobile navbar dynamic height — exact 0.00px gap with categories on every phone */
+  /* Mobile navbar exact 56px — 0 gap with categories */
   .main-content {
-    margin-top: var(--header-actual-height, 58px) !important;
+    margin-top: 56px !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - var(--header-actual-height, 58px));
+    min-height: calc(100vh - 56px);
   }
 
   /* Category pill strip sits flush directly below mobile navbar with 0 gap */
   .home-category-strip {
     position: sticky !important;
-    top: var(--header-actual-height, 58px) !important;
+    top: 56px !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     padding: 0 !important;
@@ -153,7 +153,7 @@ img {
   }
 
   .home-category-strip.compressed {
-    top: var(--header-actual-height, 58px) !important;
+    top: 56px !important;
     margin-top: 0 !important;
     padding: 2px 0 !important;
     background: rgba(255, 255, 255, 0.98) !important;
@@ -183,6 +183,7 @@ img {
     padding-top: 0 !important;
   }
 }
+
 
 
 
