@@ -74,48 +74,8 @@ export default async function MobilesPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(categorySchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
 
-      {/* SEO Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0284c7 100%)', color: '#fff', padding: '40px 24px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <nav style={{ display: 'flex', justifyContent: 'center', gap: 8, fontSize: 13, opacity: 0.7, marginBottom: 16 }}>
-            <Link href="/" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link>
-            <span>›</span>
-            <span>Mobiles</span>
-          </nav>
-          <h1 style={{ fontSize: 'clamp(24px, 5vw, 42px)', fontWeight: 900, margin: '0 0 12px', lineHeight: 1.2 }}>
-            Mobile Phones Online India 📱
-          </h1>
-          <p style={{ fontSize: 17, opacity: 0.85, margin: '0 0 20px', lineHeight: 1.7 }}>
-            Buy the latest iPhones, Samsung Galaxy, OnePlus, realme & Redmi phones at the <strong>best price in India</strong>. Free express delivery, 7-day returns, Cash on Delivery.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            {['📱 iPhone', '🌟 Samsung', '⚡ OnePlus', '🎯 realme', '🔥 Redmi'].map(tag => (
-              <span key={tag} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 99, padding: '6px 14px', fontSize: 13, fontWeight: 600 }}>{tag}</span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Topical Authority Block */}
-      <div style={{ background: '#f8fafc', padding: '28px 24px', borderBottom: '1px solid #e5e7eb' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#111827', margin: '0 0 12px' }}>
-            Why Buy Smartphones from AbKharido?
-          </h2>
-          <p style={{ fontSize: 15, color: '#4b5563', lineHeight: 1.7, maxWidth: 700, margin: '0 0 20px' }}>
-            Unlike grey-market resellers, AbKharido sources directly from authorized brand distributors.
-            Every smartphone comes with a <strong>full manufacturer warranty</strong>, Indian charger included,
-            BIS certification, and the same genuine sealed box you'd get at an Apple Store or Samsung Galaxy Studio.
-          </p>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            {['✅ IMEI Verified', '📦 Original Sealed Box', '🔋 Indian Charger Included', '🛡️ Full Warranty', '🔄 7-Day Returns'].map(f => (
-              <span key={f} style={{ background: '#e0f2fe', color: '#0369a1', borderRadius: 99, padding: '6px 14px', fontSize: 13, fontWeight: 600 }}>{f}</span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <CatalogClient initialCategory="mobiles" initialSearch="" initialProducts={products} />
     </>
   );
 }
+

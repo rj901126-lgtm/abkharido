@@ -57,46 +57,8 @@ export default async function FashionPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(categorySchema) }} />
 
-      {/* SEO Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #0c0a09 0%, #292524 50%, #44403c 100%)', color: '#fff', padding: '40px 24px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <nav style={{ display: 'flex', justifyContent: 'center', gap: 8, fontSize: 13, opacity: 0.7, marginBottom: 16 }}>
-            <Link href="/" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link>
-            <span>›</span>
-            <span>Fashion</span>
-          </nav>
-          <h1 style={{ fontSize: 'clamp(24px, 5vw, 42px)', fontWeight: 900, margin: '0 0 12px', lineHeight: 1.2 }}>
-            Fashion Store India 👗
-          </h1>
-          <p style={{ fontSize: 17, opacity: 0.85, margin: '0 0 20px', lineHeight: 1.7 }}>
-            Shop premium leather biker jackets, streetwear, sneakers, and apparel — with <strong>Free Express Delivery</strong> and <strong>7-Day Hassle-Free Returns</strong> across India.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            {['🧥 Jackets', '👟 Sneakers', '👕 Streetwear', '👜 Bags', '👒 Accessories'].map(tag => (
-              <span key={tag} style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 99, padding: '6px 14px', fontSize: 13, fontWeight: 600 }}>{tag}</span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Topical Block */}
-      <div style={{ background: '#fafaf9', padding: '28px 24px', borderBottom: '1px solid #e7e5e4' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#111827', margin: '0 0 12px' }}>
-            AbKharido Fashion — Why It's Different
-          </h2>
-          <p style={{ fontSize: 15, color: '#4b5563', lineHeight: 1.7, maxWidth: 700, margin: '0 0 16px' }}>
-            We don't carry fast fashion. Every garment on AbKharido is selected for <strong>material quality, stitching precision, and lasting style</strong>. Our biker jackets are genuine vegetable-tanned leather; our streetwear uses GSM 280+ heavyweight cotton. Size charts are accurate — your returns will be rare.
-          </p>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            {['✅ Premium Materials', '📏 Accurate Size Charts', '🔄 Free 7-Day Returns', '🚀 Same-Day Metro Delivery', '💳 COD Available'].map(f => (
-              <span key={f} style={{ background: '#f5f5f4', color: '#44403c', borderRadius: 99, padding: '6px 14px', fontSize: 13, fontWeight: 600, border: '1px solid #e7e5e4' }}>{f}</span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <CatalogClient initialCategory="fashion" initialSearch="" initialProducts={products} />
     </>
   );
 }
+
