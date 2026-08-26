@@ -21,9 +21,11 @@ import {
   Award,
   RefreshCw,
   Eye,
-  AlertCircle
+  AlertCircle,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import BulkProductUploadModal from '../components/BulkProductUploadModal';
 import '../assets/styles/admin.css';
 
 export default function SellerDashboard({ onNavigate }) {
@@ -53,6 +55,7 @@ export default function SellerDashboard({ onNavigate }) {
   const [copiedLink, setCopiedLink] = useState('');
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
   // Auth Form States
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup'
@@ -604,12 +607,22 @@ export default function SellerDashboard({ onNavigate }) {
           </button>
         ))}
 
-        <button 
-          onClick={() => setIsAddProductModalOpen(true)}
-          style={{ marginLeft: 'auto', padding: '10px 18px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', color: '#ffffff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
-        >
-          <PlusCircle size={15} /> + Add New Product
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={() => setIsBulkModalOpen(true)}
+            style={{ padding: '10px 16px', borderRadius: '12px', border: '1.5px solid #10b981', background: '#ecfdf5', color: '#059669', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            title="Upload Multiple Products via Excel / CSV spreadsheet"
+          >
+            <FileSpreadsheet size={15} /> 📊 Bulk Excel Import
+          </button>
+
+          <button 
+            onClick={() => setIsAddProductModalOpen(true)}
+            style={{ padding: '10px 18px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', color: '#ffffff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
+          >
+            <PlusCircle size={15} /> + Add Product
+          </button>
+        </div>
       </div>
 
       {/* ─── TAB 1: PRODUCT CATALOG & INDIVIDUAL SHARE ─────────────── */}
@@ -958,6 +971,18 @@ export default function SellerDashboard({ onNavigate }) {
           </div>
         </div>
       )}
+
+      {/* 🌟 MODAL: BULK EXCEL / CSV PRODUCT LISTING ───────────────── */}
+      <BulkProductUploadModal 
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        userToken={currentSeller?.token}
+        shopName={currentSeller?.shopName}
+        onImportSuccess={() => {
+          showToast('Batch products successfully imported to your store! 🚀', 'success');
+          fetchSellerProducts();
+        }}
+      />
 
     </div>
   );

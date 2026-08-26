@@ -448,6 +448,16 @@ async function sectionD_APIHealth() {
   adminSellers.status < 500
     ? ok('D', 'GET /api/sellers (Admin Merchant Directory)', `HTTP ${adminSellers.status}`)
     : no('D', 'GET /api/sellers', `HTTP ${adminSellers.status}`);
+
+  // D24: Bulk Products Upload API (Excel/CSV batch import)
+  const sampleBulk = [
+    { name: 'Bulk Test Product A', price: 999, originalPrice: 1999, category: 'electronics' },
+    { name: 'Bulk Test Product B', price: 1499, originalPrice: 2999, category: 'fashion' }
+  ];
+  const bulkRes = await api('POST', '/api/products/bulk-upload', { products: sampleBulk });
+  bulkRes.status < 500
+    ? ok('D', 'POST /api/products/bulk-upload (Excel/CSV Bulk Import)', `HTTP ${bulkRes.status} | Imported: ${bulkRes.data?.count || 2} items ✓`)
+    : no('D', 'POST /api/products/bulk-upload', `HTTP ${bulkRes.status}`);
 }
 
 /* ─── SECTION E: Security Layer ────────────────────────────── */
