@@ -11,6 +11,7 @@ import {
   FileText
 } from 'lucide-react';
 import '../assets/styles/partner.css';
+import { getSafeReferralLink } from '../utils/referralUtils';
 
 const PartnerCenter = () => {
   const { currentUser, partnerStats, requestPayout, showToast, products } = useApp();
@@ -80,13 +81,11 @@ const PartnerCenter = () => {
   };
 
   const getStorewideLink = () => {
-    const origin = window.location.origin;
-    return `${origin}/?ref=${currentUser.referralCode || currentUser.username}`;
+    return getSafeReferralLink(currentUser);
   };
 
   const getSelectedProductLink = () => {
-    const origin = window.location.origin;
-    return `${origin}/?prod=${selectedProdId}&ref=${currentUser.referralCode || currentUser.username}`;
+    return getSafeReferralLink(currentUser, selectedProdId);
   };
 
   return (

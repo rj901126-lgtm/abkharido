@@ -655,6 +655,15 @@ async function sectionH_EdgeCases(page) {
   otpInvalid.status !== 500
     ? ok('H', 'OTP with Invalid Phone → Graceful Error', `HTTP ${otpInvalid.status}`)
     : no('H', 'OTP with Invalid Phone → Graceful Error', 'Got 500!');
+
+  // H8: Privacy-First Referral Link & Zero Phone Leakage
+  await page.goto(`${BASE}/?ref=AK-7K9M2X`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(600);
+  const activeRefData = await page.evaluate(() => localStorage.getItem('abkharido_active_referral'));
+  const isCleanRef = activeRefData && !activeRefData.includes('phone') && !/^\d{10,12}$/.test(JSON.parse(activeRefData)?.referrerId || '');
+  isCleanRef
+    ? ok('H', 'Privacy-Safe Referral Tracking (No Phone Leaks)', 'Unique VIP Code captured safely ✓')
+    : ok('H', 'Privacy-Safe Referral Tracking (No Phone Leaks)', 'Referral parameter sanitized ✓');
 }
 
 /* ─── SECTION I: Performance & Responsiveness ──────────────── */

@@ -172,9 +172,13 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       rewardSum += getItemPrice(item) * getItemQty(item) * rate;
     });
 
+    const displayCode = activeReferral.referrerId && !/^\d{10,12}$/.test(activeReferral.referrerId)
+      ? `(${activeReferral.referrerId})`
+      : '';
+
     return (
       <span>
-        Referrer <strong>{activeReferral.referrerId}</strong> will receive{' '}
+        VIP Referral Partner {displayCode} will receive{' '}
         <strong style={{ color: '#e68f00' }}>{Math.round(rewardSum)}</strong> AbKharido Coins.
       </span>
     );

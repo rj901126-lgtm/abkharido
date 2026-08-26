@@ -77,7 +77,16 @@ const userSchema = new mongoose.Schema({
   // Cross-device synced wishlist
   wishlist: [{
     type: mongoose.Schema.Types.Mixed
-  }]
+  }],
+
+  // Privacy-Safe Unique Referral & Influencer Tracking
+  referralCode: { type: String, unique: true, sparse: true, uppercase: true, trim: true },
+  referredBy: { type: String, uppercase: true, trim: true },
+  referralStats: {
+    clicks: { type: Number, default: 0 },
+    orders: { type: Number, default: 0 },
+    earnings: { type: Number, default: 0 }
+  }
 }, {
   timestamps: true
 });
@@ -97,6 +106,16 @@ userSchema.pre('save', function() {
     } else {
       this.phone = undefined;
     }
+  }
+
+  // Ensure every user gets an opaque unique referral code (never a phone number)
+  if (!this.referralCode || /^\d{10,12}$/.test(this.referralCode)) {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = 'AK-';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    this.referralCode = code;
   }
 });
 

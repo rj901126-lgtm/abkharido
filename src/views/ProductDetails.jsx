@@ -26,6 +26,7 @@ import ProductCard from '../components/ProductCard';
 import FrequentlyBoughtTogether from '../components/FrequentlyBoughtTogether';
 import ProductImageZoomViewer from '../components/ProductImageZoomViewer';
 import { calculateCoinReward } from '../utils/coinUtils';
+import { getSafeReferralLink } from '../utils/referralUtils';
 import { PRODUCTS } from '../db/mockData';
 
 
@@ -451,12 +452,10 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
   const userCoins = Math.round((product.price || 0) * (product.userCommissionRate || 0.02));
 
-  // Generate the unique referral tracking link
+  // Generate the privacy-safe unique referral tracking link (Zero phone leakage)
   const getReferralLink = () => {
     if (!currentUser) return '';
-    const origin = window.location.origin;
-    const trackingParam = `ref=${currentUser.referralCode || currentUser.username}`;
-    return `${origin}/?prod=${product.id}&${trackingParam}`;
+    return getSafeReferralLink(currentUser, product.id);
   };
 
   const handleCopyLink = () => {

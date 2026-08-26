@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { useSession, signOut } from 'next-auth/react';
 
 import { lookupPincode, lookupPincodeAsync } from '../utils/pincodeData';
+import { sanitizeReferralCode, generateSafeReferralCode } from '../utils/referralUtils';
 
 const AppContext = createContext();
 
@@ -503,34 +504,36 @@ export const AppProvider = ({ children }) => {
     }
   }, [activeReferral]);
 
-  // --- URL Referral Tracking ---
+  // --- URL Referral Tracking (Privacy-Safe & Robust Attribution) ---
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    let refUser = params.get('ref');
-    const productIdParam = params.get('prod');
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const rawRef = params.get('ref');
+      const productIdParam = params.get('prod');
+      const sanitizedRef = sanitizeReferralCode(rawRef);
 
-    // Security Fix: Prevent DOS attacks via massive link-sharing payloads
-    if (refUser && refUser.length > 50) {
-      refUser = null;
-    }
-
-    if (refUser) {
-      // eslint-disable-next-line
-      if (currentUser && refUser === (currentUser.username || currentUser.name)) {
-        showToast('Self-referral links do not earn rewards.', 'warning');
-      } else {
-        incrementReferrerClicks();
-        setActiveReferral({
-          type: 'ref',
-          referrerId: refUser,
-          productId: productIdParam || null,
-          timestamp: Date.now()
-        });
-        showToast(`Referral active: Shopping via link shared by ${refUser}!`, 'info');
+      if (sanitizedRef) {
+        // Prevent self-referral
+        const currentRefCode = currentUser ? generateSafeReferralCode(currentUser) : null;
+        if (currentRefCode && sanitizedRef === currentRefCode) {
+          showToast('Self-referral links do not earn rewards.', 'warning');
+        } else {
+          incrementReferrerClicks();
+          setActiveReferral({
+            type: 'ref',
+            referrerId: sanitizedRef,
+            productId: productIdParam || null,
+            timestamp: Date.now()
+          });
+          // Privacy-first toast (never exposes phone numbers or raw sensitive identities)
+          showToast('🎉 Welcome! VIP Referral bonus activated for your shopping.', 'info');
+        }
       }
+    } catch (_err) {
+      // Graceful fallback
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only parse URL params once on mount, not on every user change
+  }, []); // Only parse URL params once on mount
 
   // --- API Fetches ---
   const fetchProducts = async () => {
