@@ -191,6 +191,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 cursor: 'pointer',
                 padding: '2px 6px',
                 minWidth: '56px',
+                marginTop: '1px',
                 outline: 'none',
                 transition: 'transform 0.15s ease',
               }}
@@ -209,6 +210,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
                 transition: 'transform 0.15s ease',
               }}>
+
                 <span>{cat.icon}</span>
               </div>
               {/* Category Name */}
