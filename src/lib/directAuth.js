@@ -10,7 +10,7 @@ const generateToken = (id) => {
 };
 
 // Normalize any phone format (+919172600587, 919172600587, 9172600587) to 10 digits
-function normalizePhone(phone) {
+export function normalizePhone(phone) {
   if (!phone) return phone;
   let p = phone.toString().replace(/\s/g, '').replace(/-/g, '');
   // Remove +91 or 91 prefix if present (Indian numbers)
@@ -19,45 +19,96 @@ function normalizePhone(phone) {
   return p;
 }
 
+// Find existing user across all potential identifiers to prevent duplicate account creation
+export async function findExistingUser({ phone, email, username } = {}) {
+  const orConditions = [];
+  
+  if (phone) {
+    const cleanPhone = normalizePhone(phone);
+    if (cleanPhone) {
+      orConditions.push(
+        { phone: cleanPhone },
+        { phone: '+91' + cleanPhone },
+        { phone: '91' + cleanPhone },
+        { username: cleanPhone },
+        { username: new RegExp('^' + cleanPhone + '(_|$)') }
+      );
+    }
+  }
+
+  if (email) {
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail && !cleanEmail.includes(':') && !cleanEmail.endsWith('@abkharido.com')) {
+      orConditions.push({ email: cleanEmail });
+    }
+  }
+
+  if (username) {
+    orConditions.push({ username: username.trim() });
+  }
+
+  if (orConditions.length === 0) return null;
+
+  return await User.findOne({ $or: orConditions });
+}
+
 export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) {
   await connectDB();
   if (!phone) throw new Error('Phone number is required from Firebase SMS verification');
 
   const normalizedPhone = normalizePhone(phone);
-
-  // Search by normalized 10-digit phone OR with +91 prefix (to find any existing account)
-  // Since 'phone' is encrypted by mongoose-field-encryption, we cannot query it directly.
-  // Instead, we search by username which is always created as `${phone}_${random}` or just `${phone}`.
-  let user = await User.findOne({ $or: [
-    { username: new RegExp('^' + normalizedPhone + '(_|$)') },
-    { username: new RegExp('^\\+91' + normalizedPhone + '(_|$)') },
-    { username: new RegExp('^91' + normalizedPhone + '(_|$)') },
-    // Also try to find by phone just in case it wasn't encrypted (e.g. legacy records)
-    { phone: normalizedPhone },
-    { phone: '+91' + normalizedPhone }
-  ] });
+  let user = await findExistingUser({ phone: normalizedPhone, email });
 
   if (!user) {
-    const username = normalizedPhone + '_' + Math.floor(100 + Math.random() * 900);
-    user = await User.create({
-      username,
-      phone: normalizedPhone,
-      email: email || undefined,
-      fullName: fullName || 'VIP Member',
-      password: 'FirebaseVerifiedUser123!'
-    });
-  } else if (user.phone !== normalizedPhone) {
-    user.phone = normalizedPhone;
-    await user.save();
+    try {
+      user = await User.create({
+        username: normalizedPhone,
+        phone: normalizedPhone,
+        email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email : undefined,
+        fullName: fullName || 'VIP Member',
+        password: 'FirebaseVerifiedUser123!'
+      });
+    } catch (err) {
+      if (err.code === 11000) {
+        user = await findExistingUser({ phone: normalizedPhone, email });
+        if (!user) {
+          user = await User.create({
+            username: `${normalizedPhone}_${Date.now().toString().slice(-4)}`,
+            phone: normalizedPhone,
+            email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email : undefined,
+            fullName: fullName || 'VIP Member',
+            password: 'FirebaseVerifiedUser123!'
+          });
+        }
+      } else {
+        throw err;
+      }
+    }
+  } else {
+    let shouldSave = false;
+    if (!user.phone || user.phone !== normalizedPhone) {
+      user.phone = normalizedPhone;
+      shouldSave = true;
+    }
+    if (fullName && (!user.fullName || user.fullName === 'VIP Member' || user.fullName === 'New User')) {
+      user.fullName = fullName;
+      shouldSave = true;
+    }
+    if (email && !user.email && !email.includes(':') && !email.endsWith('@abkharido.com')) {
+      user.email = email;
+      shouldSave = true;
+    }
+    if (shouldSave) await user.save();
   }
 
   const cleanPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedPhone;
+  const cleanEmail = (user.email && !user.email.includes(':') && !user.email.endsWith('@abkharido.com')) ? user.email : null;
   return {
     success: true,
     user: {
       _id: user._id.toString(),
       username: user.username,
-      email: user.email,
+      email: cleanEmail,
       phone: cleanPhone,
       fullName: user.fullName || 'VIP Member',
       role: user.role,
@@ -85,11 +136,9 @@ export async function verifyOtpDirect(params = {}) {
   // Find OTP stored under any phone format
   let storedOtpDoc = await Otp.findOne({ phone: normalizedRecipient }).sort({ createdAt: -1 });
   if (!storedOtpDoc) {
-    // Try with +91 prefix as fallback
     storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
   }
 
-  // Test OTP is authorized for developer test account (mobile 9172600587) or with ENABLE_TEST_OTP flag
   const isTestNumber = normalizedRecipient === '9172600587' || rawRecipient.includes('9172600587') || process.env.ENABLE_TEST_OTP === 'true';
   const isTestOtp = isTestNumber && otp === '123456';
 
@@ -106,25 +155,14 @@ export async function verifyOtpDirect(params = {}) {
 
   await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
 
-  // Search for existing user by ALL possible phone formats
-  let user;
-  if (isEmail) {
-    user = await User.findOne({ email: normalizedRecipient });
-  } else {
-    user = await User.findOne({ $or: [
-      { phone: normalizedRecipient },
-      { phone: '+91' + normalizedRecipient },
-      { phone: '91' + normalizedRecipient },
-      { username: new RegExp('^' + normalizedRecipient + '(_|$)') },
-      { username: new RegExp('^\\+91' + normalizedRecipient + '(_|$)') },
-      { username: new RegExp('^91' + normalizedRecipient + '(_|$)') }
-    ] });
-  }
+  // Search for existing user to avoid creating duplicate IDs
+  let user = await findExistingUser({
+    phone: !isEmail ? normalizedRecipient : undefined,
+    email: isEmail ? normalizedRecipient : undefined
+  });
 
   if (!user) {
     let username = isEmail ? normalizedRecipient.split('@')[0] : normalizedRecipient;
-    const existing = await User.findOne({ username });
-    if (existing) username = username + '_' + Math.floor(100 + Math.random() * 900);
     try {
       user = await User.create({
         username,
@@ -135,25 +173,44 @@ export async function verifyOtpDirect(params = {}) {
       });
     } catch (err) {
       if (err.code === 11000) {
-        user = await User.findOne({ username });
-        if (!user) throw err;
+        user = await findExistingUser({
+          phone: !isEmail ? normalizedRecipient : undefined,
+          email: isEmail ? normalizedRecipient : undefined
+        });
+        if (!user) {
+          user = await User.create({
+            username: `${username}_${Date.now().toString().slice(-4)}`,
+            email: isEmail ? normalizedRecipient : undefined,
+            phone: !isEmail ? normalizedRecipient : undefined,
+            fullName: fullName || 'VIP Member',
+            password: 'abkharido_otp_user_' + Date.now()
+          });
+        }
       } else {
         throw err;
       }
     }
-  } else if (!isEmail && user.phone !== normalizedRecipient) {
-    // Fix stored phone number format
-    user.phone = normalizedRecipient;
-    await user.save();
+  } else {
+    let shouldSave = false;
+    if (!isEmail && (!user.phone || user.phone !== normalizedRecipient)) {
+      user.phone = normalizedRecipient;
+      shouldSave = true;
+    }
+    if (fullName && (!user.fullName || user.fullName === 'VIP Member' || user.fullName === 'New User')) {
+      user.fullName = fullName;
+      shouldSave = true;
+    }
+    if (shouldSave) await user.save();
   }
 
   const cleanRecipientPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedRecipient;
+  const cleanEmail = (user.email && !user.email.includes(':') && !user.email.endsWith('@abkharido.com')) ? user.email : null;
   return {
     success: true,
     user: {
       _id: user._id.toString(),
       username: user.username,
-      email: user.email,
+      email: cleanEmail,
       phone: cleanRecipientPhone,
       fullName: user.fullName || 'VIP Member',
       role: user.role,

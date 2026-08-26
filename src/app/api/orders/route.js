@@ -85,26 +85,42 @@ export async function POST(req) {
       } catch (_) {}
     }
 
-    if (!user && (username || phoneDigits)) {
-      user = await User.findOne({
-        $or: [
-          { username: username || undefined },
-          { phone: phoneDigits || undefined },
-          { phone: `+91${phoneDigits}` }
-        ].filter(Boolean)
-      });
+    if (!user && (username || phoneDigits || shippingAddress?.email)) {
+      const emailToMatch = shippingAddress?.email ? shippingAddress.email.trim().toLowerCase() : undefined;
+      const conditions = [
+        username ? { username } : null,
+        phoneDigits ? { phone: phoneDigits } : null,
+        phoneDigits ? { phone: `+91${phoneDigits}` } : null,
+        phoneDigits ? { phone: `91${phoneDigits}` } : null,
+        phoneDigits ? { username: phoneDigits } : null,
+        phoneDigits ? { username: new RegExp(`^${phoneDigits}(_|$)`) } : null,
+        (emailToMatch && !emailToMatch.includes(':') && !emailToMatch.endsWith('@abkharido.com')) ? { email: emailToMatch } : null
+      ].filter(Boolean);
+
+      if (conditions.length > 0) {
+        user = await User.findOne({ $or: conditions });
+      }
     }
 
     if (!user) {
-      // Create lightweight buyer profile
-      const newUsername = phoneDigits ? `${phoneDigits}_buyer` : `guest_${Date.now()}`;
-      user = await User.create({
-        username: newUsername,
-        phone: phoneDigits || '9999999999',
-        fullName: shippingAddress.fullName || shippingAddress.name || 'Valued Customer',
-        password: 'GuestUserOrderPass2026!',
-        role: 'user'
-      });
+      // Create single canonical buyer profile with clean phone username
+      const newUsername = phoneDigits ? phoneDigits : `guest_${Date.now()}`;
+      try {
+        user = await User.create({
+          username: newUsername,
+          phone: phoneDigits || undefined,
+          email: (shippingAddress?.email && !shippingAddress.email.includes(':') && !shippingAddress.email.endsWith('@abkharido.com')) ? shippingAddress.email : undefined,
+          fullName: shippingAddress.fullName || shippingAddress.name || 'Valued Customer',
+          password: 'GuestUserOrderPass2026!',
+          role: 'user'
+        });
+      } catch (upsertErr) {
+        user = await User.findOne({ $or: [
+          phoneDigits ? { phone: phoneDigits } : null,
+          phoneDigits ? { username: phoneDigits } : null,
+          { username: newUsername }
+        ].filter(Boolean) });
+      }
     }
 
     // 2. Map items & resolve Product references

@@ -198,23 +198,17 @@ export const verifyOtp = async (req, res, next) => {
     const escapedRecipient = normalizedRecipient.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // create or find user
     let user = await User.findOne({ $or: [
-      { email: normalizedRecipient }, 
-      { phone: rawRecipient },
-      { phone: normalizedRecipient },
-      { phone: '+91' + normalizedRecipient },
-      { phone: '91' + normalizedRecipient },
-      // Search by username since phone might be encrypted
-      { username: new RegExp('^' + escapedRecipient + '(_|$)') },
-      { username: new RegExp('^\\+91' + escapedRecipient + '(_|$)') },
-      { username: new RegExp('^91' + escapedRecipient + '(_|$)') }
-    ] });
+      isEmail ? { email: normalizedRecipient } : null,
+      !isEmail ? { phone: normalizedRecipient } : null,
+      !isEmail ? { phone: '+91' + normalizedRecipient } : null,
+      !isEmail ? { phone: '91' + normalizedRecipient } : null,
+      !isEmail ? { username: normalizedRecipient } : null,
+      !isEmail ? { username: new RegExp('^' + escapedRecipient + '(_|$)') } : null,
+      !isEmail ? { username: new RegExp('^\\+91' + escapedRecipient + '(_|$)') } : null
+    ].filter(Boolean) });
     
     if (!user) {
       let username = isEmail ? normalizedRecipient.split('@')[0] : normalizedRecipient;
-      const existing = await User.findOne({ username });
-      if (existing) {
-        username = username + '_' + Math.floor(100 + Math.random() * 900);
-      }
       try {
         user = await User.create({ 
           username, 
@@ -225,10 +219,14 @@ export const verifyOtp = async (req, res, next) => {
         });
       } catch (err) {
         if (err.code === 11000) {
-          user = await User.findOne({ username });
+          user = await User.findOne({ $or: [
+            !isEmail ? { phone: normalizedRecipient } : null,
+            !isEmail ? { username: normalizedRecipient } : null,
+            { username }
+          ].filter(Boolean) });
+
           if (!user) {
-             // Ultimate fallback to prevent locking user out in case of orphaned index or Mongoose bug
-             const fallbackUsername = username + '_otp_' + Date.now();
+             const fallbackUsername = `${username}_${Date.now().toString().slice(-4)}`;
              user = await User.create({ 
                username: fallbackUsername, 
                email: isEmail ? normalizedRecipient : undefined,
@@ -241,10 +239,19 @@ export const verifyOtp = async (req, res, next) => {
           throw err;
         }
       }
-    } else if (!isEmail && user.phone !== normalizedRecipient) {
-       // Fix phone format in DB
-       user.phone = normalizedRecipient;
-       await User.updateOne({ _id: user._id }, { $set: { phone: user.phone } });
+    } else {
+      let shouldUpdate = false;
+      if (!isEmail && (!user.phone || user.phone !== normalizedRecipient)) {
+        user.phone = normalizedRecipient;
+        shouldUpdate = true;
+      }
+      if (fullName && (!user.fullName || user.fullName === 'AbKharido User' || user.fullName === 'VIP Member')) {
+        user.fullName = fullName;
+        shouldUpdate = true;
+      }
+      if (shouldUpdate) {
+        await user.save();
+      }
     }
     // Update fullName/email if provided during signup
     if (fullName && !user.fullName) {
@@ -282,34 +289,37 @@ export const verifyFirebase = async (req, res, next) => {
       throw new Error('Phone number is required from Firebase payload');
     }
 
+    let cleanPhone = phone.toString().replace(/\s/g, '').replace(/-/g, '');
+    if (cleanPhone.startsWith('+91')) cleanPhone = cleanPhone.slice(3);
+    else if (cleanPhone.startsWith('91') && cleanPhone.length === 12) cleanPhone = cleanPhone.slice(2);
+
     let user = await User.findOne({ $or: [
-      { phone },
-      { phone: phone.replace('+', '').trim() },
-      { username: new RegExp('^' + phone.replace('+', '').trim() + '(_|$)') }
-    ]});
+      { phone: cleanPhone },
+      { phone: '+91' + cleanPhone },
+      { phone: '91' + cleanPhone },
+      { username: cleanPhone },
+      { username: new RegExp('^' + cleanPhone + '(_|$)') },
+      (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? { email: email.trim().toLowerCase() } : null
+    ].filter(Boolean) });
     
     if (!user) {
-      if (!isSignup) {
-        // If not signup, maybe they just haven't set up a profile, let's auto-create
-      }
-      let username = phone.replace('+', '').trim();
+      let username = cleanPhone;
       try {
         user = await User.create({ 
           username, 
-          phone, 
-          email: email || undefined, 
+          phone: cleanPhone, 
+          email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email.trim().toLowerCase() : undefined, 
           fullName: fullName || 'New User',
           password: 'FirebaseVerifiedUser123!' 
         });
       } catch (err) {
         if (err.code === 11000) {
-          user = await User.findOne({ username });
+          user = await User.findOne({ $or: [{ phone: cleanPhone }, { username: cleanPhone }] });
           if (!user) {
-            // Ultimate fallback to prevent locking user out
             user = await User.create({
-              username: username + '_fb_' + Date.now(),
-              phone,
-              email: email || undefined,
+              username: `${cleanPhone}_${Date.now().toString().slice(-4)}`,
+              phone: cleanPhone,
+              email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email.trim().toLowerCase() : undefined,
               fullName: fullName || 'New User',
               password: 'FirebaseVerifiedUser123!'
             });
@@ -318,6 +328,21 @@ export const verifyFirebase = async (req, res, next) => {
           throw err;
         }
       }
+    } else {
+      let shouldUpdate = false;
+      if (!user.phone || user.phone !== cleanPhone) {
+        user.phone = cleanPhone;
+        shouldUpdate = true;
+      }
+      if (fullName && (!user.fullName || user.fullName === 'New User' || user.fullName === 'VIP Member')) {
+        user.fullName = fullName;
+        shouldUpdate = true;
+      }
+      if (email && !user.email && !email.includes(':') && !email.endsWith('@abkharido.com')) {
+        user.email = email.trim().toLowerCase();
+        shouldUpdate = true;
+      }
+      if (shouldUpdate) await user.save();
     }
 
     res.json({ 

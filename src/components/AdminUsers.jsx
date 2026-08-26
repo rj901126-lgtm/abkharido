@@ -34,12 +34,17 @@ const AdminUsers = () => {
         const data = await res.json();
         const rawList = Array.isArray(data) ? data : (data.users || []);
         if (rawList.length > 0) {
-          const enhanced = rawList.map(u => {
+          const seen = new Map();
+          const enhanced = [];
+
+          for (const u of rawList) {
             // Clean phone: ensure 10-digit format
             let cleanPhone = u.phone || '';
             if (cleanPhone.includes(':') || cleanPhone.length > 15) {
               const match = (u.username || '').match(/\d{10}/);
               cleanPhone = match ? match[0] : '';
+            } else {
+              cleanPhone = cleanPhone.replace(/\D/g, '').slice(-10);
             }
 
             // Clean email: never generate fake email or display ciphertext
@@ -49,18 +54,41 @@ const AdminUsers = () => {
               (cleanEmail.endsWith('@abkharido.com') && !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com', 'wholesale@abkharido.com'].includes(cleanEmail.toLowerCase()))
             ) {
               cleanEmail = '';
+            } else {
+              cleanEmail = cleanEmail.trim().toLowerCase();
             }
 
-            return {
+            const key = cleanPhone ? `phone_${cleanPhone}` : (cleanEmail ? `email_${cleanEmail}` : `id_${u._id || u.id}`);
+
+            if (seen.has(key)) {
+              const existing = seen.get(key);
+              if (!existing.email && cleanEmail) existing.email = cleanEmail;
+              if (!existing.phone && cleanPhone) existing.phone = cleanPhone;
+              const isGenericName = !existing.fullName || ['Customer', 'VIP Member', 'New User', 'Valued Customer'].includes(existing.fullName);
+              const hasSpecificName = u.fullName && !['Customer', 'VIP Member', 'New User', 'Valued Customer'].includes(u.fullName);
+              if (isGenericName && hasSpecificName) {
+                existing.fullName = u.fullName;
+              }
+              if (u.totalSpent && u.totalSpent > existing.totalSpent) {
+                existing.totalSpent = u.totalSpent;
+              }
+              continue;
+            }
+
+            const userItem = {
               ...u,
-              fullName: u.fullName || u.name || u.username || 'Customer',
+              fullName: u.fullName || u.name || (cleanPhone ? `Customer (${cleanPhone})` : 'Customer'),
               email: cleanEmail,
               phone: cleanPhone,
               totalSpent: u.totalSpent || 0,
               tier: (u.walletCoins > 500 || u.isInfluencer) ? 'VIP Platinum' : 'Active Buyer',
               status: u.isFrozen ? 'Frozen' : 'Verified OTP'
             };
-          });
+
+            seen.set(key, userItem);
+            enhanced.push(userItem);
+          }
+
           setUsers(enhanced);
           setLoading(false);
           return;

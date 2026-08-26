@@ -22,9 +22,9 @@ const userSchema = new mongoose.Schema({
   fullName: { type: String },
   firstName: { type: String },
   lastName: { type: String },
-  email: { type: String, unique: true, sparse: true, index: true },
+  email: { type: String, unique: true, sparse: true, index: true, lowercase: true, trim: true },
   isEmailVerified: { type: Boolean, default: false },
-  phone: { type: String, index: true },
+  phone: { type: String, index: true, trim: true },
   status: { type: String, enum: ['Active', 'Suspended'], default: 'Active' },
   sellerStatus: { type: String, enum: ['None', 'Pending', 'Approved', 'Rejected'], default: 'None' },
   avatar: { type: String, default: 'https://i.pravatar.cc/150' },
@@ -84,13 +84,21 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Pre-save hook to handle empty strings for sparse unique indexes
+// Pre-save hook to normalize phone & email and handle empty strings for sparse unique indexes
 userSchema.pre('save', function() {
-  if (this.email === '') {
-    this.email = undefined;
+  if (this.email !== undefined) {
+    this.email = this.email ? this.email.trim().toLowerCase() : undefined;
+    if (this.email === '') this.email = undefined;
   }
-  if (this.phone === '') {
-    this.phone = undefined;
+  if (this.phone !== undefined) {
+    if (this.phone) {
+      let p = this.phone.toString().replace(/\s/g, '').replace(/-/g, '');
+      if (p.startsWith('+91')) p = p.slice(3);
+      else if (p.startsWith('91') && p.length === 12) p = p.slice(2);
+      this.phone = p || undefined;
+    } else {
+      this.phone = undefined;
+    }
   }
 });
 
@@ -107,9 +115,9 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Add Field-Level Encryption Plugin
+// Add Field-Level Encryption Plugin for sensitive payout details
 userSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
-  fields: ['phone', 'email', 'address', 'houseNo', 'streetArea', 'city', 'pincode', 'state', 'payoutDetails'],
+  fields: ['payoutDetails'],
   secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
   saltGenerator: function (secret) {
     return "1234567890123456";
