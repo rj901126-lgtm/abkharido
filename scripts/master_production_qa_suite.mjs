@@ -226,7 +226,8 @@ async function runMasterAudit() {
     await page.waitForTimeout(1500);
     const pinInput = page.locator('input[type="password"], input[placeholder*="PIN"], input[placeholder*="pin"], input[placeholder*="Password"]').first();
     const pinGateVisible = await pinInput.isVisible();
-    const dashboardWithoutAuth = await page.locator('.admin-nav-item, text=Executive Admin Control, text=Analytics Dashboard').first().isVisible();
+    // Check if admin dashboard is already shown (if session token exists)
+    const dashboardWithoutAuth = await page.locator('.admin-nav-item').first().isVisible();
     // Admin gate should show PIN input OR if already auth token in session it shows dashboard
     report(9, 'Admin Route Accessible (Page Loads)', !await page.locator('text=404').isVisible(), 'Admin page rendered');
     report(9, 'Admin Security Gate (PIN or Auth Required)', pinGateVisible || dashboardWithoutAuth, pinGateVisible ? 'PIN gate shown to unauthenticated user ✓' : 'Admin token in session — dashboard shown directly');
