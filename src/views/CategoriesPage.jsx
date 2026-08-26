@@ -94,27 +94,41 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
   // eslint-disable-next-line
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Map category id to clear, accurate emoji icons
-  const CAT_EMOJIS = {
-    all:         '🛍️',   // shopping bags = all
-    mobiles:     '📱',   // phone = mobiles ✓
-    electronics: '🎧',   // headphones = electronics (audio/gadgets)
-    fashion:     '👗',   // dress = fashion ✓
-    home:        '🏠',   // house = home & living ✓
-    beauty:      '💄',   // lipstick = beauty & personal care
-    sports:      '🏏',   // cricket bat = sports (India loves cricket)
-    appliances:  '🫧',   // washing = appliances
-    laptop:      '💻',   // laptop ✓
-    grocery:     '🛒',   // cart = grocery
-    toys:        '🧸',   // teddy = toys
-    books:       '📚',   // books ✓
-    jewelry:     '💍',   // ring = jewelry
+  // High-End Modern Dual-Tone Category Themes
+  const CAT_THEMES = {
+    all:         { emoji: '🛍️', bg: '#eff6ff', activeBg: 'linear-gradient(135deg, #4f46e5, #6366f1)', color: '#4f46e5', label: 'All Store' },
+    mobiles:     { emoji: '📱', bg: '#f0f9ff', activeBg: 'linear-gradient(135deg, #0284c7, #38bdf8)', color: '#0284c7', label: 'Mobiles' },
+    electronics: { emoji: '🎧', bg: '#faf5ff', activeBg: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#7c3aed', label: 'Electronics' },
+    fashion:     { emoji: '👗', bg: '#fff1f2', activeBg: 'linear-gradient(135deg, #e11d48, #fb7185)', color: '#e11d48', label: 'Fashion' },
+    home:        { emoji: '🏠', bg: '#fffbeb', activeBg: 'linear-gradient(135deg, #d97706, #fbbf24)', color: '#d97706', label: 'Home Living' },
+    beauty:      { emoji: '💄', bg: '#fdf2f8', activeBg: 'linear-gradient(135deg, #db2777, #f472b6)', color: '#db2777', label: 'Beauty' },
+    sports:      { emoji: '🏏', bg: '#f0fdf4', activeBg: 'linear-gradient(135deg, #059669, #34d399)', color: '#059669', label: 'Sports' },
+    appliances:  { emoji: '🫧', bg: '#f0fdfa', activeBg: 'linear-gradient(135deg, #0d9488, #2dd4bf)', color: '#0d9488', label: 'Appliances' },
+    laptop:      { emoji: '💻', bg: '#f1f5f9', activeBg: 'linear-gradient(135deg, #334155, #64748b)', color: '#334155', label: 'Laptops' },
+    grocery:     { emoji: '🛒', bg: '#ecfdf5', activeBg: 'linear-gradient(135deg, #16a34a, #4ade80)', color: '#16a34a', label: 'Groceries' },
   };
 
-  const renderCatIcon = (cat) => {
-    const emoji = CAT_EMOJIS[cat.id] || '🛒';
+  const renderCatIcon = (cat, isSelected) => {
+    const theme = CAT_THEMES[cat.id] || { emoji: '🛍️', bg: '#f8fafc', activeBg: 'linear-gradient(135deg, #4f46e5, #6366f1)', color: '#4f46e5' };
     return (
-      <span style={{ fontSize: '24px', lineHeight: 1, display: 'block' }}>{emoji}</span>
+      <div 
+        style={{
+          width: '46px',
+          height: '46px',
+          borderRadius: '16px',
+          background: isSelected ? theme.activeBg : theme.bg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '22px',
+          boxShadow: isSelected ? '0 6px 16px rgba(79, 70, 229, 0.3)' : '0 2px 6px rgba(0,0,0,0.04)',
+          border: isSelected ? 'none' : '1px solid rgba(226, 232, 240, 0.8)',
+          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: isSelected ? 'scale(1.08)' : 'scale(1)'
+        }}
+      >
+        <span style={{ filter: isSelected ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}>{theme.emoji}</span>
+      </div>
     );
   };
 
@@ -189,20 +203,23 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
       <div className="categories-split-container">
         {/* Sidebar vertical navigation */}
         <div className="categories-sidebar">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              className={`sidebar-category-btn ${selectedCatId === cat.id ? 'active' : ''}`}
-              onClick={() => handleCategorySidebarClick(cat.id)}
-            >
-              <div className="sidebar-category-icon-wrapper">
-                {renderCatIcon(cat)}
-              </div>
-              <span className="sidebar-category-label">
-                {(cat?.name || 'Category').split(' ')[0]}
-              </span>
-            </button>
-          ))}
+          {CATEGORIES.map(cat => {
+            const isSelected = selectedCatId === cat.id;
+            return (
+              <button
+                key={cat.id}
+                className={`sidebar-category-btn ${isSelected ? 'active' : ''}`}
+                onClick={() => handleCategorySidebarClick(cat.id)}
+              >
+                <div className="sidebar-category-icon-wrapper">
+                  {renderCatIcon(cat, isSelected)}
+                </div>
+                <span className="sidebar-category-label" style={{ fontWeight: isSelected ? '800' : '600', color: isSelected ? '#0f172a' : '#64748b' }}>
+                  {(cat?.name || 'Category').split(' ')[0]}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Right Details Panel */}
@@ -259,7 +276,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                     {selectedCatId === 'all' ? 'Explore All' : `All ${catInfo.name.split(' ')[0]}`} →
                   </span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                   {subCats.map(sub => (
                     <div
                       key={sub.id}
@@ -271,37 +288,142 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                       style={{
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
-                        borderRadius: '14px',
-                        padding: '10px 6px',
+                        borderRadius: '18px',
+                        padding: '10px',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         textAlign: 'center',
-                        transition: 'all 0.15s ease',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
-                        position: 'relative'
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: '0 4px 12px rgba(15, 23, 42, 0.03)',
+                        position: 'relative',
+                        overflow: 'hidden'
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 14px rgba(79, 70, 229, 0.12)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.03)'; }}
+                      onMouseEnter={(e) => { 
+                        e.currentTarget.style.borderColor = '#4f46e5'; 
+                        e.currentTarget.style.transform = 'translateY(-3px)'; 
+                        e.currentTarget.style.boxShadow = '0 10px 24px rgba(79, 70, 229, 0.14)'; 
+                      }}
+                      onMouseLeave={(e) => { 
+                        e.currentTarget.style.borderColor = '#e2e8f0'; 
+                        e.currentTarget.style.transform = 'none'; 
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(15, 23, 42, 0.03)'; 
+                      }}
                     >
                       {sub.badge && (
-                        <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '7.5px', fontWeight: '900', padding: '1px 5px', borderRadius: '4px', background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: '6px', 
+                          right: '6px', 
+                          fontSize: '8px', 
+                          fontWeight: '900', 
+                          padding: '2px 7px', 
+                          borderRadius: '100px', 
+                          background: sub.badge.includes('HOT') ? 'linear-gradient(135deg, #ef4444, #f97316)' : 'linear-gradient(135deg, #4f46e5, #6366f1)', 
+                          color: '#ffffff', 
+                          letterSpacing: '0.4px',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                          zIndex: 2 
+                        }}>
                           {sub.badge}
                         </div>
                       )}
-                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', overflow: 'hidden', marginBottom: '6px', border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      
+                      {/* High-Definition Visual Image Container */}
+                      <div style={{ 
+                        width: '100%', 
+                        height: '76px', 
+                        borderRadius: '14px', 
+                        overflow: 'hidden', 
+                        marginBottom: '8px', 
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        padding: '6px',
+                        position: 'relative'
+                      }}>
                         <img 
                           src={sub.img} 
                           alt={sub.name} 
+                          loading="lazy"
                           onError={(e) => { e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'block'; }} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '100%', 
+                            objectFit: 'contain',
+                            transition: 'transform 0.3s ease',
+                            filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.06))'
+                          }} 
                         />
-                        <span style={{ display: 'none', fontSize: '20px' }}>{sub.icon || '🛍️'}</span>
+                        <span style={{ display: 'none', fontSize: '30px' }}>{sub.icon || '🛍️'}</span>
                       </div>
-                      <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a', lineHeight: 1.2, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{sub.name}</span>
-                      <span style={{ fontSize: '10.5px', fontWeight: '900', color: '#059669', marginBottom: '1px' }}>{sub.startingPrice}</span>
-                      <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>{sub.discount}</span>
+
+                      <span style={{ 
+                        fontSize: '12.5px', 
+                        fontWeight: '800', 
+                        color: '#0f172a', 
+                        lineHeight: 1.25, 
+                        marginBottom: '3px', 
+                        width: '100%', 
+                        whiteSpace: 'nowrap', 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis' 
+                      }}>
+                        {sub.name}
+                      </span>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '6px' }}>
+                        <span style={{ fontSize: '11.5px', fontWeight: '900', color: '#059669' }}>
+                          {sub.startingPrice}
+                        </span>
+                        {sub.discount && (
+                          <span style={{ 
+                            fontSize: '9px', 
+                            color: '#ea580c', 
+                            fontWeight: '800', 
+                            background: '#fff7ed', 
+                            border: '1px solid #ffedd5',
+                            padding: '1px 5px', 
+                            borderRadius: '4px' 
+                          }}>
+                            {sub.discount}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Quick Spec / Brand Filter Chips */}
+                      {sub.quickChips && sub.quickChips.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', justifyContent: 'center', marginTop: '2px', width: '100%' }}>
+                          {sub.quickChips.slice(0, 2).map((chip, cIdx) => (
+                            <span
+                              key={cIdx}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectCategory(selectedCatId);
+                                if (onSearch) onSearch(chip);
+                                else onNavigate(`catalog?category=${selectedCatId}&search=${encodeURIComponent(chip)}`);
+                              }}
+                              style={{
+                                fontSize: '8.5px',
+                                fontWeight: '700',
+                                color: '#475569',
+                                background: '#f1f5f9',
+                                padding: '2px 6px',
+                                borderRadius: '6px',
+                                border: '1px solid #e2e8f0',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.color = '#4f46e5'; e.currentTarget.style.borderColor = '#c7d2fe'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                            >
+                              {chip}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

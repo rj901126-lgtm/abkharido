@@ -5,13 +5,13 @@ import { ChevronLeft, ChevronRight, ArrowRight, Zap, ShieldCheck, Truck, Award, 
 import '../assets/styles/home.css';
 
 const defaultVipCategories = [
-  { id: 'all', label: 'All Deals', icon: '🛍️' },
-  { id: 'mobiles', label: 'Mobiles', icon: '📱' },
-  { id: 'electronics', label: 'Electronics', icon: '🎧' },
-  { id: 'fashion', label: 'Fashion', icon: '👗' },
-  { id: 'home', label: 'Home & Living', icon: '🏠' },
-  { id: 'beauty', label: 'Beauty', icon: '💄' },
-  { id: 'sports', label: 'Sports', icon: '🏋️' },
+  { id: 'all', label: 'All Deals', icon: '🛍️', gradient: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)', badge: 'CARNIVAL' },
+  { id: 'mobiles', label: '5G Mobiles', icon: '📱', gradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)', badge: 'HOT' },
+  { id: 'electronics', label: 'Audio & Tech', icon: '🎧', gradient: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)', badge: 'ANC' },
+  { id: 'fashion', label: 'Designer Fashion', icon: '👗', gradient: 'linear-gradient(135deg, #e11d48 0%, #fb7185 100%)', badge: 'TRENDING' },
+  { id: 'home', label: 'Home Living', icon: '🏠', gradient: 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)', badge: 'SALE' },
+  { id: 'beauty', label: 'Beauty & Glow', icon: '💄', gradient: 'linear-gradient(135deg, #db2777 0%, #f472b6 100%)', badge: 'PURE' },
+  { id: 'sports', label: 'Fitness & Gym', icon: '🏋️', gradient: 'linear-gradient(135deg, #059669 0%, #34d399 100%)', badge: 'PRO' },
 ];
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
@@ -168,18 +168,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: '6px',
-                  background: isSelected ? 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)' : '#ffffff',
-                  border: isSelected ? '1px solid transparent' : '1px solid #e2e8f0',
+                  gap: '7px',
+                  background: isSelected ? (cat.gradient || 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)') : '#ffffff',
+                  border: isSelected ? 'none' : '1px solid #e2e8f0',
                   cursor: 'pointer',
                   padding: '7px 16px',
                   borderRadius: '99px',
-                  boxShadow: isSelected ? '0 4px 14px rgba(79, 70, 229, 0.35)' : '0 2px 4px rgba(0,0,0,0.02)',
-                  transition: 'all 0.2s ease',
+                  boxShadow: isSelected ? '0 6px 18px rgba(79, 70, 229, 0.35)' : '0 2px 5px rgba(0,0,0,0.03)',
+                  transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
                   height: '38px',
+                  transform: isSelected ? 'scale(1.04)' : 'scale(1)'
                 }}
               >
-                <span style={{ fontSize: '15px' }}>{cat.icon}</span>
+                <span style={{ fontSize: '15px', filter: isSelected ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}>{cat.icon}</span>
                 <span style={{
                   fontSize: '12.5px',
                   fontWeight: '800',
@@ -189,6 +190,20 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 }}>
                   {cat.label}
                 </span>
+                {cat.badge && (
+                  <span style={{
+                    fontSize: '8px',
+                    fontWeight: '900',
+                    padding: '2px 6px',
+                    borderRadius: '100px',
+                    background: isSelected ? 'rgba(255,255,255,0.25)' : '#eff6ff',
+                    color: isSelected ? '#ffffff' : '#2563eb',
+                    border: isSelected ? '1px solid rgba(255,255,255,0.3)' : '1px solid #bfdbfe',
+                    letterSpacing: '0.3px'
+                  }}>
+                    {cat.badge}
+                  </span>
+                )}
               </button>
             );
           })}
