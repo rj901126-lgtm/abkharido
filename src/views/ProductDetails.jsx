@@ -1894,43 +1894,38 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               </div>
             </div>
 
-            {/* Contact Input Form */}
-            <div style={{ marginBottom: '18px' }}>
-              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
-                Your WhatsApp Number or Email:
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  placeholder="e.g. 9876543210 or name@gmail.com"
-                  value={alertContact}
-                  onChange={(e) => setAlertContact(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    borderRadius: '12px',
-                    border: '1.5px solid #cbd5e1',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#0f172a',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 0.2s'
-                  }}
-                  onFocus={(e) => { e.target.style.borderColor = '#4f46e5'; }}
-                  onBlur={(e) => { e.target.style.borderColor = '#cbd5e1'; }}
-                />
+            {/* Clean Notification Channel Indicator (No typing required) */}
+            <div style={{
+              background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+              border: '1px solid #86efac',
+              borderRadius: '14px',
+              padding: '12px 14px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: '#22c55e',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)'
+              }}>
+                <Zap size={18} fill="white" />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '11.5px', color: '#64748b' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
-                  ✓ WhatsApp
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff6ff', color: '#2563eb', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
-                  ✓ SMS
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#f5f3ff', color: '#7c3aed', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
-                  ✓ Instant
-                </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#166534' }}>
+                  Instant WhatsApp &amp; SMS Alerts
+                </div>
+                <div style={{ fontSize: '11px', color: '#15803d', fontWeight: '600', marginTop: '1px' }}>
+                  {currentUser?.phone ? `Directly linked to +91 ${currentUser.phone}` : 'Active for your logged-in AbKharido account'}
+                </div>
               </div>
             </div>
 
@@ -1956,13 +1951,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               <button
                 type="button"
                 onClick={() => {
-                  const cleaned = alertContact.trim();
-                  if (!cleaned) {
-                    showToast('Please enter your mobile number or email.', 'warning');
-                    return;
-                  }
                   setIsAlertModalOpen(false);
-                  showToast(`🔔 Price Drop Alert Active for ${cleaned}! We will notify you instantly on WhatsApp & SMS.`, 'success');
+                  const discountLabel = alertTargetType === '5percent' ? '5% or more' : alertTargetType === '10percent' ? '10% or more' : 'any amount';
+                  showToast(`🔔 Price Drop Alert Activated! You will receive instant WhatsApp & SMS alerts when price drops by ${discountLabel}.`, 'success');
                 }}
                 style={{
                   flex: 2,
@@ -1984,6 +1975,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 <Bell size={16} color="#fbbf24" /> Set Instant Alert
               </button>
             </div>
+
 
           </div>
         </div>
