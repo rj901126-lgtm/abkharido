@@ -822,6 +822,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             >
               Join Partner Hub →
             </button>
+          </div>
+        </div>
+      </section>
+
       {/* ── Floating Back to Top Action ── */}
       {showBackToTop && (
         <button
@@ -858,6 +862,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     </div>
   );
 };
+
 
 
 const DealsCountdown = ({ targetDate }) => {
