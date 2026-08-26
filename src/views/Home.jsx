@@ -189,7 +189,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '0 6px',
+                padding: '3px 6px',
                 minWidth: '56px',
                 outline: 'none',
                 transition: 'transform 0.15s ease',
@@ -197,6 +197,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             >
               {/* Category Circle Avatar */}
               <div style={{
+
 
                 width: '44px',
                 height: '44px',
