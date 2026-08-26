@@ -171,30 +171,37 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onSearch }) => {
                     width: '100%',
                     aspectRatio: '1 / 1',
                     maxHeight: '94px',
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid rgba(226, 232, 240, 0.7)',
+                    backgroundColor: '#ffffff',
+                    backgroundImage: 'radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%)',
+                    border: '1px solid rgba(226, 232, 240, 0.85)',
                     borderRadius: '18px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '8px',
+                    padding: '6px',
                     boxSizing: 'border-box',
-                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.02)',
-                    overflow: 'hidden'
+                    boxShadow: '0 3px 10px rgba(15, 23, 42, 0.04)',
+                    overflow: 'hidden',
+                    position: 'relative'
                   }}>
                     <img
                       src={item.img}
                       alt={item.name.replace('\n', ' ')}
                       loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=80';
+                      }}
                       style={{
-                        maxWidth: '86%',
-                        maxHeight: '86%',
+                        width: '100%',
+                        height: '100%',
                         objectFit: 'contain',
-                        filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.07))',
+                        filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.08))',
                         transition: 'transform 0.25s ease'
                       }}
                     />
                   </div>
+
 
                   {/* Multi-Line Centered Label Underneath Tile */}
                   <span style={{
