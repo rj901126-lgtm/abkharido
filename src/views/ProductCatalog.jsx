@@ -20,8 +20,9 @@ import {
   X
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { normalizeSearchQuery } from '../utils/searchNormalizer';
-import { getCategoryData, ALL_POPULAR_BRANDS } from '../data/categoryData';
+import { normalizeSearchQuery } from '../utils/searchHelper';
+import { getCategoryData, ALL_POPULAR_BRANDS } from '../utils/categoryData';
+
 
 const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery = '', sellerShopName = '', onNavigateProduct, promotions, initialProducts }) => {
   const { products: contextProducts } = useApp();
