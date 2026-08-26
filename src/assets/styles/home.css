@@ -462,12 +462,13 @@
 /* ── Home Page Utility Classes ── */
 .home-category-pills-row {
   display: flex;
-  gap: 5px;
+  gap: 8px;
   justify-content: flex-start;
   overflow-x: auto;
-  padding: 0 10px;
+  padding: 0 12px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
 }
 .home-category-pills-row::-webkit-scrollbar {
   display: none;
@@ -475,10 +476,11 @@
 
 @media (max-width: 768px) {
   .home-category-pills-row {
-    gap: 5px !important;
+    gap: 6px !important;
     padding: 0 8px !important;
   }
 }
+
 
 .home-trust-grid {
   display: grid;

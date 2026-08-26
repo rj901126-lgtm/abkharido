@@ -141,19 +141,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto' }}>
       
-      {/* ── 1. VIP Category Quick-Links Strip (Interactive Filtering) ── */}
+      {/* ── 1. Category Quick-Links Strip (Modern App Circle Style) ── */}
       <section
         className="home-category-strip"
         style={{
           position: 'sticky',
           top: '64px',
           zIndex: 90,
-          backgroundColor: 'rgba(255, 255, 255, 0.98)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(226, 232, 240, 0.7)',
-          boxShadow: '0 2px 8px -2px rgba(9, 13, 22, 0.06)',
-          padding: '4px 0',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
+          boxShadow: '0 2px 8px -2px rgba(15, 23, 42, 0.05)',
+          padding: '10px 0 8px',
           margin: 0,
         }}
       >
@@ -167,28 +165,57 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 style={{
                   flexShrink: 0,
                   display: 'flex',
-                  flexDirection: 'row',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '4px',
-                  background: isSelected ? (cat.gradient || 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)') : 'transparent',
-                  border: isSelected ? 'none' : '1px solid #e5e7eb',
+                  gap: '5px',
+                  background: 'transparent',
+                  border: 'none',
                   cursor: 'pointer',
-                  padding: '3px 10px',
-                  borderRadius: '99px',
-                  boxShadow: isSelected ? '0 3px 10px rgba(79, 70, 229, 0.25)' : 'none',
-                  transition: 'all 0.15s ease',
-                  height: '26px',
+                  padding: '0 4px',
+                  minWidth: '58px',
+                  outline: 'none',
                 }}
               >
-                <span style={{ fontSize: '12px', lineHeight: 1 }}>{cat.icon}</span>
+                {/* Icon Circle */}
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: isSelected
+                    ? (cat.gradient || 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)')
+                    : '#f1f5f9',
+                  border: isSelected ? '2px solid #ffffff' : '1px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  boxShadow: isSelected ? '0 4px 14px rgba(79, 70, 229, 0.35)' : '0 1px 3px rgba(0,0,0,0.02)',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                }}>
+                  {cat.icon}
+                </div>
+                {/* Category Name */}
                 <span style={{
                   fontSize: '11px',
-                  fontWeight: isSelected ? '700' : '600',
-                  color: isSelected ? '#ffffff' : '#4b5563',
+                  fontWeight: isSelected ? '800' : '600',
+                  color: isSelected ? '#4f46e5' : '#334155',
                   whiteSpace: 'nowrap',
+                  lineHeight: 1.2,
+                  letterSpacing: '-0.1px',
                 }}>
                   {cat.label}
                 </span>
+                {/* Selected Indicator Pill */}
+                {isSelected && (
+                  <div style={{
+                    width: '16px',
+                    height: '3px',
+                    borderRadius: '99px',
+                    background: '#4f46e5',
+                    marginTop: '-2px',
+                  }} />
+                )}
               </button>
             );
           })}
@@ -196,7 +223,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </section>
 
 
-      {/* ── 2. Personalized VIP Member Bar (When Logged In) ── */}
       {currentUser && (
         <div style={{ width: '100%', padding: '0 12px' }}>
           <div style={{
