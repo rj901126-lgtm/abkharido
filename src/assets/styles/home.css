@@ -22,21 +22,22 @@
 /* Hero Carousel */
 .hero-carousel {
   position: relative;
-  height: 560px; /* Increased for a more immersive feel */
+  height: 320px;
   background: linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #312e81 100%);
   overflow: hidden;
-  border-radius: 32px; /* More rounded, modern look */
-  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-  margin-bottom: 24px;
+  border-radius: 20px;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  margin-bottom: 16px;
 }
 
 @media (max-width: 768px) {
   .hero-carousel {
-    height: 420px;
-    border-radius: 20px;
-    margin-bottom: 24px;
+    height: 220px;
+    border-radius: 16px;
+    margin-bottom: 14px;
   }
 }
+
 
 .carousel-slide {
   position: absolute;
@@ -520,11 +521,12 @@
 
   /* ── Hero Carousel Mobile ── */
   .hero-carousel {
-    height: 380px !important; /* Taller for better aspect ratio */
-    border-radius: 28px !important; /* Premium rounded corners all around */
-    margin: 12px 12px 24px 12px !important;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.12) !important;
+    height: 220px !important;
+    border-radius: 18px !important;
+    margin: 8px 12px 14px 12px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
   }
+
   .carousel-slide {
     padding: 16px 14px !important;
     justify-content: flex-end !important;

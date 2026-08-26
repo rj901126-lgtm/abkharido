@@ -158,6 +158,64 @@ const Footer = ({ onNavigate }) => {
 
       </div>
 
+      {/* ── Programmatic SEO & Popular Shopping Searches Directory ── */}
+      <div className="container" style={{ padding: '0 16px 28px' }}>
+        <details style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '12px 18px', cursor: 'pointer' }}>
+          <summary style={{ fontSize: '13px', fontWeight: '800', color: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', outline: 'none' }}>
+            <span>🔍 Popular Searches &amp; City Delivery Directories (India)</span>
+            <span style={{ fontSize: '11px', color: '#6366f1' }}>Tap to Expand ▾</span>
+          </summary>
+
+          <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', cursor: 'default' }}>
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px' }}>Trending Tech Queries</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '11px' }}>
+                {[
+                  "Best Smartwatch under 5000",
+                  "Wireless Earbuds with ANC",
+                  "5G Smartphones India",
+                  "Fast Charging Power Banks",
+                  "Bluetooth Party Speakers",
+                  "Gaming Mechanical Keyboards"
+                ].map((item, idx) => (
+                  <Link key={idx} href="/catalog" onClick={(e) => handleNav(e, 'catalog')} style={{ color: '#cbd5e1', textDecoration: 'none', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    {item}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px' }}>Fashion &amp; Lifestyle</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '11px' }}>
+                {[
+                  "Men's Oversized T-Shirts",
+                  "Women's Ethnic Kurti Sets",
+                  "Lightweight Running Shoes",
+                  "Polarized UV Sunglasses",
+                  "Titanium Chronograph Watches"
+                ].map((item, idx) => (
+                  <Link key={idx} href="/catalog" onClick={(e) => handleNav(e, 'catalog')} style={{ color: '#cbd5e1', textDecoration: 'none', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    {item}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px' }}>Express Delivery Cities</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
+                {["Mumbai", "Delhi NCR", "Bengaluru", "Hyderabad", "Pune", "Chennai", "Kolkata", "Ahmedabad", "Jaipur", "Lucknow", "Chandigarh", "Surat"].map((city, idx) => (
+                  <span key={idx} style={{ background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px' }}>
+                    ⚡ {city}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
       {/* Payment Security & Copyright Footer Strip */}
       <div style={{ backgroundColor: '#05070d', padding: '20px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -175,6 +233,7 @@ const Footer = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
     </footer>
   );
 };

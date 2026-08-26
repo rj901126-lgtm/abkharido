@@ -361,7 +361,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         <div style={{ position: 'relative', margin: '0 12px' }}>
           <section 
             className="hero-carousel"
-            style={{ margin: 0, height: '440px', borderRadius: '24px' }}
+            style={{ margin: 0, height: '320px', borderRadius: '20px' }}
             onMouseEnter={() => setIsCarouselPaused(true)}
             onMouseLeave={() => setIsCarouselPaused(false)}
             onTouchStart={handleTouchStart}
@@ -383,14 +383,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 >
                   <div className="carousel-slide-overlay"></div>
                   
-                  <div className="slide-content-box" style={{ maxWidth: '580px' }}>
-                    <span className="slide-tag" style={{ background: '#fde047', color: '#0f172a', fontWeight: '900', padding: '4px 12px', borderRadius: '100px', fontSize: '11px', textTransform: 'uppercase', display: 'inline-block', marginBottom: '10px' }}>
+                  <div className="slide-content-box" style={{ maxWidth: '520px' }}>
+                    <span className="slide-tag" style={{ background: '#fde047', color: '#0f172a', fontWeight: '900', padding: '3px 10px', borderRadius: '100px', fontSize: '10px', textTransform: 'uppercase', display: 'inline-block', marginBottom: '8px' }}>
                       {slideTag}
                     </span>
-                    <h1 className="slide-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(22px, 3.5vw, 36px)', fontWeight: '900', lineHeight: '1.2', marginBottom: '10px', letterSpacing: '-0.4px' }}>
+                    <h1 className="slide-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: '900', lineHeight: '1.2', marginBottom: '8px', letterSpacing: '-0.3px' }}>
                       {slideTitle}
                     </h1>
-                    <p className="slide-desc" style={{ fontSize: 'clamp(12.5px, 1.8vw, 14.5px)', color: '#e2e8f0', lineHeight: '1.5', marginBottom: '18px', fontWeight: '500' }}>
+                    <p className="slide-desc" style={{ fontSize: 'clamp(12px, 1.6vw, 13.5px)', color: '#e2e8f0', lineHeight: '1.45', marginBottom: '14px', fontWeight: '500' }}>
                       {slideDesc}
                     </p>
                     
@@ -400,23 +400,23 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                         style={{ 
                           background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)',
                           color: 'white',
-                          borderRadius: '30px', 
-                          padding: '12px 24px', 
+                          borderRadius: '24px', 
+                          padding: '9px 18px', 
                           display: 'inline-flex', 
                           alignItems: 'center', 
-                          gap: '8px', 
+                          gap: '6px', 
                           border: '1px solid rgba(255, 255, 255, 0.4)', 
                           fontFamily: "'Outfit', sans-serif",
-                          fontWeight: '900', 
-                          fontSize: '13.5px',
+                          fontWeight: '800', 
+                          fontSize: '12.5px',
                           textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
+                          letterSpacing: '0.4px',
                           cursor: 'pointer',
-                          boxShadow: '0 8px 20px rgba(79, 70, 229, 0.4)'
+                          boxShadow: '0 6px 16px rgba(79, 70, 229, 0.35)'
                         }}
                         onClick={() => onSelectCategory(slideCat)}
                       >
-                        ⚡ Claim Deal Now <ArrowRight size={15} />
+                        ⚡ Claim Deal Now <ArrowRight size={14} />
                       </button>
                     </div>
                   </div>
@@ -425,22 +425,22 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             })}
 
             <button className="carousel-nav-btn carousel-nav-left" onClick={handlePrevSlide} aria-label="Previous Slide">
-              <ChevronLeft size={22} />
+              <ChevronLeft size={20} />
             </button>
             <button className="carousel-nav-btn carousel-nav-right" onClick={handleNextSlide} aria-label="Next Slide">
-              <ChevronRight size={22} />
+              <ChevronRight size={20} />
             </button>
           </section>
 
           {/* Dots Indicator */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '8px' }}>
             {slides.map((_, dotIdx) => (
               <div 
                 key={dotIdx} 
                 onClick={() => setActiveSlide(dotIdx)}
                 style={{
-                  width: dotIdx === activeSlide ? '24px' : '8px',
-                  height: '8px',
+                  width: dotIdx === activeSlide ? '22px' : '7px',
+                  height: '7px',
                   borderRadius: '4px',
                   backgroundColor: dotIdx === activeSlide ? '#4f46e5' : '#cbd5e1',
                   cursor: 'pointer',
@@ -453,33 +453,79 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       )}
 
       {/* ── 4. 4-Pillar Trust Signals USP Row ── */}
-      <div className="home-trust-grid" style={{ margin: '8px 12px' }}>
+      <div className="home-trust-grid" style={{ margin: '10px 12px 6px' }}>
         {[
-          { icon: <Zap size={20} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
-          { icon: <ShieldCheck size={20} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade payment security", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
-          { icon: <Truck size={20} color="#7c3aed" />, title: "Easy 7-Day Replacement", sub: "Hassle-free doorstep returns", bg: "linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%)", border: "#ede9fe" },
-          { icon: <Award size={20} color="#d97706" />, title: "Cash on Delivery (COD)", sub: "Pay at doorstep at 27K+ PINs", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
+          { icon: <Zap size={18} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
+          { icon: <ShieldCheck size={18} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade payment security", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
+          { icon: <Truck size={18} color="#7c3aed" />, title: "Easy 7-Day Replacement", sub: "Hassle-free doorstep returns", bg: "linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%)", border: "#ede9fe" },
+          { icon: <Award size={18} color="#d97706" />, title: "Cash on Delivery (COD)", sub: "Pay at doorstep at 27K+ PINs", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
         ].map((item, idx) => (
           <div key={idx} style={{
             background: item.bg, 
             border: `1px solid ${item.border}`, 
-            borderRadius: '16px', 
-            padding: '12px 16px', 
+            borderRadius: '14px', 
+            padding: '10px 14px', 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+            gap: '10px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
           }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'white', border: `1px solid ${item.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'white', border: `1px solid ${item.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
               {item.icon}
             </div>
             <div>
-              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13.5px', fontWeight: '800', color: '#090d16', margin: '0 0 1px 0' }}>{item.title}</h4>
-              <p style={{ fontSize: '11px', color: '#64748b', margin: 0, fontWeight: '600' }}>{item.sub}</p>
+              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12.5px', fontWeight: '800', color: '#090d16', margin: '0 0 1px 0' }}>{item.title}</h4>
+              <p style={{ fontSize: '10.5px', color: '#64748b', margin: 0, fontWeight: '600' }}>{item.sub}</p>
             </div>
           </div>
         ))}
       </div>
+
+      {/* ── Segmented Intent-Driven Category Collection Cards ── */}
+      <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
+        {[
+          { title: "Smartphones & Audio", tag: "UP TO 40% OFF", cat: "mobiles", bg: "linear-gradient(135deg, #0c192c 0%, #1e3a8a 100%)", icon: "📱", badgeColor: "#38bdf8" },
+          { title: "Designer Runway Fashion", tag: "NEW SUMMER STYLES", cat: "fashion", bg: "linear-gradient(135deg, #2b091f 0%, #831843 100%)", icon: "👗", badgeColor: "#f472b6" },
+          { title: "Smart Home & Living", tag: "INSTANT COIN REWARDS", cat: "appliances", bg: "linear-gradient(135deg, #062b20 0%, #065f46 100%)", icon: "🏠", badgeColor: "#34d399" },
+          { title: "VIP Flash Clearance", tag: "LIMITED TIME DEALS", cat: "electronics", bg: "linear-gradient(135deg, #2d1804 0%, #7c2d12 100%)", icon: "⚡", badgeColor: "#fbbf24" }
+        ].map((card, idx) => (
+          <div 
+            key={idx}
+            onClick={() => handleCategoryClick(card.cat)}
+            style={{
+              background: card.bg,
+              borderRadius: '14px',
+              padding: '14px 16px',
+              color: '#ffffff',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              transition: 'transform 0.15s ease'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <div>
+              <span style={{ fontSize: '9.5px', fontWeight: '900', color: card.badgeColor, letterSpacing: '0.5px' }}>
+                {card.tag}
+              </span>
+              <h4 style={{ margin: '2px 0 0', fontSize: '14px', fontWeight: '800', fontFamily: "'Outfit', sans-serif" }}>
+                {card.title}
+              </h4>
+              <span style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.7)', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
+                Shop Collection →
+              </span>
+            </div>
+            <div style={{ fontSize: '24px', background: 'rgba(255,255,255,0.12)', width: '42px', height: '42px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {card.icon}
+            </div>
+          </div>
+        ))}
+      </div>
+
 
       {/* ── 5. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
