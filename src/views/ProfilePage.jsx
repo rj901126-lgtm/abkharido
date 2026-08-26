@@ -498,29 +498,67 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   return (
     <div className="profile-page-container animate-fade-in" style={{ padding: '0 0 130px 0', background: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. VIP Luxury Dashboard Header */}
-      <div className="profile-dashboard-header" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)', boxShadow: '0 8px 30px rgba(79, 70, 229, 0.08)', paddingBottom: '54px' }}>
+      {/* 1. VIP Luxury Dashboard Header (Unified Midnight Titanium & Gold Theme) */}
+      <div className="profile-dashboard-header" style={{
+        background: 'linear-gradient(135deg, #090d16 0%, #17153b 50%, #2e236c 100%)',
+        boxShadow: '0 12px 32px -4px rgba(9, 13, 22, 0.35), inset 0 1px 0 rgba(255,255,255,0.1)',
+        borderBottom: '1px solid rgba(251, 191, 36, 0.22)',
+        paddingBottom: '54px'
+      }}>
         <div className="profile-header-user">
-          <div className="profile-header-avatar" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', border: '3px solid #fde68a', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)' }}>
+          <div className="profile-header-avatar" style={{
+            background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+            color: '#ffffff',
+            border: '3px solid #fbbf24',
+            boxShadow: '0 4px 18px rgba(251, 191, 36, 0.45)',
+            fontWeight: '900',
+            fontSize: '22px'
+          }}>
             {getInitials(currentUser)}
           </div>
           <div className="profile-header-info">
-            <h2 className="profile-header-name">
+            <h2 className="profile-header-name" style={{ color: '#ffffff', fontWeight: '900', letterSpacing: '-0.3px' }}>
               {(currentUser.firstName || currentUser.lastName)
                 ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
                 : currentUser.fullName || 'AbKharido Member'}
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(254, 243, 199, 0.2)', border: '1px solid rgba(253, 230, 138, 0.4)', color: '#fef3c7', padding: '3px 10px', borderRadius: '100px', fontSize: '12px', fontWeight: '700', backdropFilter: 'blur(4px)' }}>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.22) 0%, rgba(217, 119, 6, 0.22) 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.45)',
+                color: '#fbbf24',
+                padding: '3px 10px',
+                borderRadius: '100px',
+                fontSize: '12px',
+                fontWeight: '800',
+                backdropFilter: 'blur(6px)'
+              }}>
                 👑 VIP Member
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(255, 255, 255, 0.15)', color: '#ffffff', padding: '3px 10px', borderRadius: '100px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }} onClick={() => setActiveTab('rewards')}>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: '#ffffff',
+                padding: '3px 10px',
+                borderRadius: '100px',
+                fontSize: '12px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                backdropFilter: 'blur(6px)'
+              }} onClick={() => setActiveTab('rewards')}>
                 🪙 {currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} Coins Active &gt;
               </span>
             </div>
           </div>
         </div>
       </div>
+
 
       <div style={{ padding: '0 16px', marginTop: '-34px', position: 'relative', zIndex: 10 }}>
         
