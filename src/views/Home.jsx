@@ -88,30 +88,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   };
 
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [isCategoryCompressed, setIsCategoryCompressed] = useState(false);
-  const isCompressedRef = useRef(false);
 
   useEffect(() => {
-    let ticking = false;
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const scrollY = window.scrollY || document.documentElement.scrollTop;
-          
-          setShowBackToTop(scrollY > 400);
-
-          // Hysteresis buffer: Compress at 80px, Expand only when back near top (< 20px)
-          if (scrollY > 80 && !isCompressedRef.current) {
-            isCompressedRef.current = true;
-            setIsCategoryCompressed(true);
-          } else if (scrollY < 20 && isCompressedRef.current) {
-            isCompressedRef.current = false;
-            setIsCategoryCompressed(false);
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      setShowBackToTop(scrollY > 400);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -179,96 +160,70 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
-      {/* ── 1. Flipkart-Style Sticky Category Strip (Full circles at top -> Compresses to sleek sticky named tabs on scroll) ── */}
-      <div className="home-category-strip-wrapper" style={{ minHeight: isCategoryCompressed ? '32px' : '48px', width: '100%', margin: 0, padding: 0 }}>
-        <section
-          className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
+      {/* ── 1. Sticky Category Strip (Fixed flush attached to Search Bar, Original Circle Avatars) ── */}
+      <section className="home-category-strip">
+        <div 
+          className="home-category-pills-row"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            overflowX: 'auto',
+            padding: '2px 8px',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
         >
+          {activeVipCategories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryClick(cat.id)}
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '2px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0 4px',
+                minWidth: '50px',
+                outline: 'none',
+                transition: 'transform 0.15s ease',
+              }}
+            >
+              {/* Category Circle Avatar */}
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                background: cat.bg || '#f1f5f9',
+                border: '1px solid rgba(0,0,0,0.06)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '17px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              }}>
+                <span>{cat.icon}</span>
+              </div>
+              {/* Category Name */}
+              <span style={{
+                fontSize: '10.5px',
+                fontWeight: '700',
+                color: '#1e293b',
+                whiteSpace: 'nowrap',
+                lineHeight: 1.2,
+                letterSpacing: '-0.2px',
+              }}>
+                {cat.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
 
-          <div 
-            className="home-category-pills-row"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: isCategoryCompressed ? '4px' : '2px',
-              overflowX: 'auto',
-              padding: isCategoryCompressed ? '0 6px' : '0 4px',
-              scrollbarWidth: 'none',
-              WebkitOverflowScrolling: 'touch',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {activeVipCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
-                style={isCategoryCompressed ? {
-                  flexShrink: 0,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: cat.bg || '#f1f5f9',
-                  border: '1px solid rgba(0,0,0,0.06)',
-                  borderRadius: '99px',
-                  padding: '3px 8px',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
-                } : {
-                  flexShrink: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '1px',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '0 2px',
-                  minWidth: '46px',
-                  outline: 'none',
-                  transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {/* Icon */}
-                <div style={isCategoryCompressed ? {
-                  fontSize: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  lineHeight: 1
-                } : {
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  background: cat.bg || '#f1f5f9',
-                  border: '1px solid rgba(0,0,0,0.06)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '16px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-                  transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}>
-                  <span>{cat.icon}</span>
-                </div>
-                {/* Category Name */}
-                <span style={{
-                  fontSize: isCategoryCompressed ? '10.5px' : '10px',
-                  fontWeight: isCategoryCompressed ? '800' : '700',
-                  color: '#1e293b',
-                  whiteSpace: 'nowrap',
-                  lineHeight: 1.1,
-                  letterSpacing: '-0.2px',
-                }}>
-                  {cat.label}
-                </span>
-              </button>
-            ))}
-          </div>
-
-        </section>
-      </div>
 
 
 
