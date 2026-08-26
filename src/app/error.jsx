@@ -109,14 +109,14 @@ export default function GlobalError({ error, reset }) {
         </code>
       </div>
 
-      {(isDev || showDetails) && error?.message && (
+      {error?.message && (
         <div style={{ marginTop: '24px', width: '100%', textAlign: 'left', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '16px' }}>
           <button 
             onClick={() => setShowDetails(!showDetails)}
             style={{ background: 'none', border: 'none', color: '#4f46e5', fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: 0, marginBottom: showDetails ? '12px' : 0 }}
           >
             {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {showDetails ? 'Hide Diagnostics' : 'Show Technical Error Details (Dev)'}
+            {showDetails ? 'Hide Diagnostics' : 'Show Error Details'}
           </button>
           {showDetails && (
             <pre style={{ fontSize: '12px', color: '#dc2626', overflowX: 'auto', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: 'monospace' }}>
@@ -126,6 +126,7 @@ export default function GlobalError({ error, reset }) {
           )}
         </div>
       )}
+
     </div>
   );
 }

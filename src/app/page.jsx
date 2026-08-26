@@ -28,11 +28,19 @@ export const metadata = {
 
 async function getProducts() {
   try {
-    await connectDB();
-    const products = await Product.find({}).limit(100).lean();
-    if (products && products.length > 0) {
-      return JSON.parse(JSON.stringify(products));
-    }
+    const dbPromise = (async () => {
+      await connectDB();
+      const products = await Product.find({}).limit(100).lean();
+      if (products && products.length > 0) {
+        return JSON.parse(JSON.stringify(products));
+      }
+      return null;
+    })();
+
+    // 2.5s fast timeout safeguard so SSR never crashes or times out
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 2500));
+    const result = await Promise.race([dbPromise, timeoutPromise]);
+    if (result) return result;
   } catch (error) {
     logger.error('Failed to fetch products for SSR', error);
   }
@@ -40,7 +48,12 @@ async function getProducts() {
 }
 
 export default async function Page() {
-  const products = await getProducts();
-  return <HomeClientWrapper serverProducts={products} />;
+  try {
+    const products = await getProducts();
+    return <HomeClientWrapper serverProducts={products || PRODUCTS} />;
+  } catch (err) {
+    return <HomeClientWrapper serverProducts={PRODUCTS} />;
+  }
 }
+
 
