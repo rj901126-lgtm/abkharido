@@ -264,10 +264,62 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           : 'All Products & Electronics';
 
   return (
-    <div className="container catalog-page-layout-container" style={{ padding: '16px 12px 60px' }}>
+    <div className="container catalog-page-layout-container">
+      <style>{`
+        .catalog-page-layout-container {
+          display: grid !important;
+          grid-template-columns: 260px minmax(0, 1fr) !important;
+          gap: 24px !important;
+          max-width: 1440px !important;
+          margin: 0 auto !important;
+          padding: 20px 16px 80px !important;
+          align-items: start !important;
+          box-sizing: border-box !important;
+        }
+        .filters-sidebar {
+          width: 260px !important;
+          max-width: 260px !important;
+          position: sticky !important;
+          top: 80px !important;
+          max-height: calc(100vh - 100px) !important;
+          overflow-y: auto !important;
+          box-sizing: border-box !important;
+          background: #ffffff !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 16px !important;
+          padding: 20px !important;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        }
+        .filters-sidebar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .filters-sidebar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .catalog-main {
+          min-width: 0 !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+        @media (max-width: 900px) {
+          .catalog-page-layout-container {
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 12px 10px 80px !important;
+            gap: 12px !important;
+          }
+          .filters-sidebar {
+            display: none !important;
+          }
+          .mobile-filter-trigger-btn {
+            display: inline-flex !important;
+          }
+        }
+      `}</style>
       
       {/* ── 1. DESKTOP FILTERS SIDEBAR ── */}
-      <aside className="filters-sidebar" style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', height: 'fit-content' }}>
+      <aside className="filters-sidebar">
         
         {/* Sidebar Header & Clear All */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', marginBottom: '16px' }}>
@@ -275,6 +327,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             <SlidersHorizontal size={16} color="#4f46e5" />
             <span>Faceted Filters</span>
           </div>
+
           {(selectedSubCategory || selectedBrand || selectedRating || minPrice > 0 || maxPrice < 150000 || isFreeDeliveryOnly || isWarrantyOnly || isEmiOnly || selectedQuickChip) && (
             <button 
               onClick={handleResetFilters}
