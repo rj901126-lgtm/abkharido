@@ -131,25 +131,24 @@ img {
     min-height: calc(100vh - 86px);
   }
 
-  /* Category pill strip on mobile sits smoothly below navbar with perfectly symmetric padding */
+  /* Category pill strip on mobile with exact equal top & bottom visual spacing */
   .home-category-strip {
     position: sticky !important;
     top: 86px !important;
     margin-top: 0 !important;
-    margin-bottom: 12px !important;
-    padding: 10px 0 !important;
+    margin-bottom: 0 !important;
+    padding: 14px 0 10px 0 !important;
     z-index: 900 !important;
     background: #ffffff !important;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
-    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
   }
-
 
   /* Balanced natural spacing inside home container on mobile */
   .home-page-layout-container {
     padding: 0 0 40px 0 !important;
     margin-top: 0 !important;
-    gap: 16px !important;
+    gap: 12px !important;
   }
 
   .home-page-layout-container > section:first-child,
@@ -159,6 +158,7 @@ img {
     padding-top: 0 !important;
   }
 }
+
 
 
 
