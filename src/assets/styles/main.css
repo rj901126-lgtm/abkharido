@@ -87,13 +87,35 @@ img {
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .main-content {
   flex: 1;
   margin-top: 64px; /* Offset for sticky navbar */
   min-height: calc(100vh - 64px - 250px); /* Height minus navbar and footer */
+}
+
+/* Category Strip Desktop Sticky Base */
+.home-category-strip {
+  position: sticky;
+  top: 64px;
+  z-index: 900;
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+  padding: 2px 0 6px 0;
+  margin: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.home-category-strip.compressed {
+  top: 64px;
+  padding: 6px 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 
 /* Core Container Utility */
@@ -112,29 +134,31 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar is compact — flush with category strip */
+  /* Mobile navbar is compact with search bar (76px total) */
   .main-content {
-    margin-top: 58px !important;
+    margin-top: 76px !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 58px);
+    min-height: calc(100vh - 76px);
   }
 
-  /* Category pill strip sits directly below mobile navbar with 0 extra gap */
+  /* Category pill strip sits directly below mobile navbar */
   .home-category-strip {
-    top: 58px !important;
-    margin-top: -6px !important;
+    position: sticky !important;
+    top: 76px !important;
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding-top: 0 !important;
+    padding-top: 2px !important;
+    z-index: 900 !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   .home-category-strip.compressed {
-    top: 58px !important;
+    top: 76px !important;
     margin-top: 0 !important;
     padding: 6px 0 !important;
-    background: rgba(255, 255, 255, 0.96) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08) !important;
     border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
   }
@@ -150,18 +174,20 @@ img {
     margin-bottom: 0 !important;
   }
 
-  /* When announcement bar (32px) is showing: 96px navbar + 32px announcement = 128px */
+  /* When announcement bar (32px) is showing: 76px navbar + 32px announcement = 108px */
   .main-content[data-announcement="true"] {
-    margin-top: 128px !important;
+    margin-top: 108px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip {
-    top: 128px !important;
+    top: 108px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip.compressed {
-    top: 128px !important;
+    top: 108px !important;
   }
+}
+
 
 
 /* Common Layout Components */

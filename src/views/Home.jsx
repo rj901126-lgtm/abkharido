@@ -173,22 +173,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       {/* ── 1. Flipkart-Style Sticky Category Strip (Full circles at top -> Compresses to sleek sticky named tabs on scroll) ── */}
       <section
         className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
-        style={{
-          position: 'sticky',
-          top: '64px',
-          zIndex: 90,
-          backgroundColor: isCategoryCompressed ? 'rgba(255, 255, 255, 0.96)' : '#ffffff',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(226, 232, 240, 0.85)',
-          boxShadow: isCategoryCompressed ? '0 4px 16px rgba(15, 23, 42, 0.08)' : '0 2px 8px -2px rgba(15, 23, 42, 0.04)',
-          padding: isCategoryCompressed ? '5px 0' : '2px 0 6px 0',
-          margin: 0,
-          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
       >
 
         <div 
+
           className="home-category-pills-row"
           style={{
             display: 'flex',
