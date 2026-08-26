@@ -44,10 +44,11 @@ export async function GET(req) {
     if (user) {
       userIds.push(user._id);
     }
-    const targetPhone = (phone || username || (user?.phone) || '').replace(/\D/g, '').slice(-10);
-    if (targetPhone) {
+
+    const cleanPhone = (phone || (user?.phone) || (username && /^\d{10}$/.test(username) ? username : '') || '').replace(/\D/g, '').slice(-10);
+    if (cleanPhone && cleanPhone.length === 10) {
       const allMatchedUsers = await User.find({
-        $or: [{ phone: targetPhone }, { username: targetPhone }, { phone: `+91${targetPhone}` }]
+        $or: [{ phone: cleanPhone }, { username: cleanPhone }, { phone: `+91${cleanPhone}` }, { phone: `91${cleanPhone}` }]
       }).select('_id').lean();
       allMatchedUsers.forEach(u => {
         if (!userIds.some(id => String(id) === String(u._id))) {
@@ -56,41 +57,59 @@ export async function GET(req) {
       });
     }
 
-    let query = {};
-    if (userIds.length > 0) {
-      query.$or = [
-        { user: { $in: userIds } },
-        ...(targetPhone ? [{ 'shippingAddress.phone': { $regex: targetPhone } }] : [])
-      ];
-    } else if (targetPhone) {
-      query['shippingAddress.phone'] = { $regex: targetPhone };
+    // 🔒 STRICT PRIVACY LOCK: Never return orders if no user or 10-digit phone is identified
+    if (userIds.length === 0 && (!cleanPhone || cleanPhone.length !== 10)) {
+      return NextResponse.json({
+        success: true,
+        orders: [],
+        total: 0,
+        page: 1,
+        pages: 0
+      });
     }
+
+    let userConditions = [];
+    if (userIds.length > 0) {
+      userConditions.push({ user: { $in: userIds } });
+    }
+    if (cleanPhone && cleanPhone.length === 10) {
+      userConditions.push({ 'shippingAddress.phone': cleanPhone });
+      userConditions.push({ 'shippingAddress.phone': `+91${cleanPhone}` });
+      userConditions.push({ 'shippingAddress.phone': `91${cleanPhone}` });
+    }
+
+    if (userConditions.length === 0) {
+      return NextResponse.json({ success: true, orders: [], total: 0, page: 1, pages: 0 });
+    }
+
+    let query = { $or: userConditions };
 
     // Status filter
     if (status && status !== 'all') {
+      let statusCondition = null;
       if (status === 'processing') {
-        query.status = { $in: ['Processing', 'Placed', 'Shipped', 'In Transit', 'Packed', 'Pending'] };
+        statusCondition = { status: { $in: ['Processing', 'Placed', 'Shipped', 'In Transit', 'Packed', 'Pending'] } };
       } else if (status === 'delivered') {
-        query.status = 'Delivered';
+        statusCondition = { status: 'Delivered' };
       } else if (status === 'cancelled') {
-        query.status = { $in: ['Cancelled', 'CANCELLED', 'Returned'] };
+        statusCondition = { status: { $in: ['Cancelled', 'CANCELLED', 'Returned'] } };
+      }
+      if (statusCondition) {
+        query = { $and: [query, statusCondition] };
       }
     }
 
     // Search filter
     if (search && search.trim()) {
       const s = search.trim();
-      const searchCondition = [
-        { cfOrderId: { $regex: s, $options: 'i' } },
-        { 'orderItems.name': { $regex: s, $options: 'i' } },
-        { courierPartner: { $regex: s, $options: 'i' } }
-      ];
-      if (query.$or) {
-        query.$and = [{ $or: query.$or }, { $or: searchCondition }];
-        delete query.$or;
-      } else {
-        query.$or = searchCondition;
-      }
+      const searchCondition = {
+        $or: [
+          { cfOrderId: { $regex: s, $options: 'i' } },
+          { 'orderItems.name': { $regex: s, $options: 'i' } },
+          { courierPartner: { $regex: s, $options: 'i' } }
+        ]
+      };
+      query = { $and: [query, searchCondition] };
     }
 
     const orders = await Order.find(query).sort({ createdAt: -1 }).limit(100).lean();
@@ -107,3 +126,4 @@ export async function GET(req) {
     return NextResponse.json({ success: true, orders: [], total: 0 }, { status: 200 });
   }
 }
+

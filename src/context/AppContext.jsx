@@ -635,10 +635,16 @@ export const AppProvider = ({ children }) => {
   const fetchOrders = async (emailOrUsername, page = 1, search = '', status = 'all', time = 'all') => {
     try {
       const user = currentUser;
-      const username = user ? (user.username || user.name || user.phone) : (emailOrUsername || '');
-      const emailVal = user?.email || (emailOrUsername?.includes('@') ? emailOrUsername : '');
-      const phoneVal = user?.phone || (emailOrUsername && !emailOrUsername.includes('@') ? emailOrUsername : '');
-      const token = user?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
+      if (!user) {
+        setOrders([]);
+        return;
+      }
+
+      const username = user.username || user.name || user.phone || '';
+      const emailVal = user.email || (emailOrUsername?.includes('@') ? emailOrUsername : '');
+      const phoneVal = user.phone || (!emailOrUsername?.includes('@') ? emailOrUsername : '');
+      const token = user.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
+      const userKey = user._id || user.id || user.phone || user.username || 'guest';
       
       const queryParams = new URLSearchParams({
         username: username || '',
@@ -659,16 +665,11 @@ export const AppProvider = ({ children }) => {
         const fetchedOrders = Array.isArray(data.orders) ? data.orders : (Array.isArray(data) ? data : []);
         
         if (page === 1) {
+          setOrders(fetchedOrders);
           if (fetchedOrders.length > 0) {
-            setOrders(fetchedOrders);
-            safeSetItem('abkharido_cached_orders', JSON.stringify(fetchedOrders));
+            safeSetItem(`abkharido_cached_orders_${userKey}`, JSON.stringify(fetchedOrders));
           } else {
-            const cached = localStorage.getItem('abkharido_cached_orders');
-            if (cached) {
-              try { setOrders(JSON.parse(cached)); } catch(e) { setOrders([]); }
-            } else {
-              setOrders([]);
-            }
+            localStorage.removeItem(`abkharido_cached_orders_${userKey}`);
           }
         } else {
           setOrders(prev => [...prev, ...fetchedOrders]);
@@ -680,19 +681,29 @@ export const AppProvider = ({ children }) => {
           setHasMoreOrders(false);
         }
       } else {
-        const cached = localStorage.getItem('abkharido_cached_orders');
-        if (cached && page === 1) {
-          try { setOrders(JSON.parse(cached)); } catch(e) {}
+        if (page === 1) {
+          const cached = localStorage.getItem(`abkharido_cached_orders_${userKey}`);
+          if (cached) {
+            try { setOrders(JSON.parse(cached)); } catch(e) { setOrders([]); }
+          } else {
+            setOrders([]);
+          }
         }
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to sync orders:', err);
-      const cached = localStorage.getItem('abkharido_cached_orders');
-      if (cached && page === 1) {
-        try { setOrders(JSON.parse(cached)); } catch(e) {}
+      if (currentUser && page === 1) {
+        const userKey = currentUser._id || currentUser.id || currentUser.phone || currentUser.username || 'guest';
+        const cached = localStorage.getItem(`abkharido_cached_orders_${userKey}`);
+        if (cached) {
+          try { setOrders(JSON.parse(cached)); } catch(e) { setOrders([]); }
+        } else {
+          setOrders([]);
+        }
       }
     }
   };
+
 
   const cancelOrder = async (orderId) => {
     try {
@@ -957,6 +968,15 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('abkharido_cached_cart');
     localStorage.removeItem('abkharido_wishlist');
     localStorage.removeItem('abkharido_cached_wishlist');
+    localStorage.removeItem('abkharido_cached_orders');
+    try {
+      // Clear any user-specific order cache keys
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('abkharido_cached_orders_')) {
+          localStorage.removeItem(k);
+        }
+      });
+    } catch (_) {}
     setLocalSession(null);
     setDbUser(null);
     setOrders([]);
@@ -965,6 +985,7 @@ export const AppProvider = ({ children }) => {
     await signOut({ redirect: false });
     showToast('Logged out successfully.', 'info');
   };
+
 
   // --- Update User Profile Action ---
   const updateUserProfile = async (details) => {
