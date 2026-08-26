@@ -603,11 +603,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 };
 
 const DealsCountdown = ({ targetDate }) => {
-  const [timer, setTimer] = useState({ hrs: '00', mins: '00', secs: '00' });
+  const [timer, setTimer] = useState({ hrs: '14', mins: '42', secs: '00' });
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     const updateTimer = () => {
       const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
+      const diff = targetDate ? targetDate.getTime() - now.getTime() : 0;
       if (diff <= 0) { setTimer({ hrs: '00', mins: '00', secs: '00' }); return; }
       const hrs = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
       const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
@@ -620,7 +623,7 @@ const DealsCountdown = ({ targetDate }) => {
   }, [targetDate]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} suppressHydrationWarning>
       <span style={{ fontSize: '11.5px', fontWeight: '900', color: '#ef4444', letterSpacing: '0.5px', textTransform: 'uppercase', marginRight: '4px' }}>Ends In</span>
       {[
         { val: timer.hrs, label: 'H' },
@@ -628,7 +631,7 @@ const DealsCountdown = ({ targetDate }) => {
         { val: timer.secs, label: 'S' }
       ].map((unit, uIdx) => (
         <React.Fragment key={uIdx}>
-          <div style={{ background: '#090d16', color: '#fde047', borderRadius: '8px', padding: '3px 7px', fontSize: '12px', fontWeight: '900', fontFamily: "'Outfit', monospace", boxShadow: '0 2px 6px rgba(0,0,0,0.15)', border: '1px solid #334155' }}>
+          <div style={{ background: '#090d16', color: '#fde047', borderRadius: '8px', padding: '3px 7px', fontSize: '12px', fontWeight: '900', fontFamily: "'Outfit', monospace", boxShadow: '0 2px 6px rgba(0,0,0,0.15)', border: '1px solid #334155' }} suppressHydrationWarning>
             {unit.val}<span style={{ fontSize: '9px', color: '#94a3b8', marginLeft: '2px' }}>{unit.label}</span>
           </div>
           {uIdx < 2 && <span style={{ fontWeight: '900', color: '#090d16' }}>:</span>}

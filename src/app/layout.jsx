@@ -91,7 +91,7 @@ export default function RootLayout({ children }) {
   };
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo.jpg" />
@@ -101,7 +101,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
         <NextAuthProvider>
           <AppProvider>
