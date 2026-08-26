@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Star, Award, Heart, Zap, ShieldCheck, Check, Plus, Minus } from 'lucide-react';
+import { Heart, ShoppingCart, Check, ShieldCheck, Truck, Star } from 'lucide-react';
 import LazyImage from './LazyImage';
 import ProductQuickPreviewModal from './ProductQuickPreviewModal';
 import { calculateCoinReward } from '../utils/coinUtils';
 
-// Stable hash from a string — same string always yields same number
+// Stable hash for static reviews count fallback
 function stableHash(str, min, max) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -14,9 +14,41 @@ function stableHash(str, min, max) {
   return min + (hash % (max - min + 1));
 }
 
+// Color map for standard swatches
+const COLOR_PALETTE = {
+  black: '#0f172a',
+  space: '#1e293b',
+  midnight: '#0f172a',
+  white: '#f8fafc',
+  silver: '#cbd5e1',
+  grey: '#64748b',
+  gray: '#64748b',
+  titanium: '#94a3b8',
+  natural: '#d1d5db',
+  blue: '#2563eb',
+  navy: '#1e3a8a',
+  gold: '#fbbf24',
+  green: '#16a34a',
+  red: '#dc2626',
+  pink: '#f472b6',
+  purple: '#9333ea',
+  cream: '#fef3c7'
+};
+
+function resolveSwatchColor(colorName) {
+  if (!colorName) return '#0f172a';
+  const lower = colorName.toLowerCase();
+  for (const [key, hex] of Object.entries(COLOR_PALETTE)) {
+    if (lower.includes(key)) return hex;
+  }
+  return '#475569';
+}
+
 const ProductCard = ({ product, onNavigateProduct }) => {
-  const { addToCart, updateCartQty, removeFromCart, cart, currentUser, wishlist, toggleWishlist, showToast } = useApp();
+  const { addToCart, currentUser, wishlist, toggleWishlist, showToast } = useApp();
   const [isHovered, setIsHovered] = useState(false);
+  const [isJustAdded, setIsJustAdded] = useState(false);
+  const [selectedColorIdx, setSelectedColorIdx] = useState(0);
 
   // Long Press Peek & Share Preview State
   const [showQuickPreview, setShowQuickPreview] = useState(false);
@@ -29,10 +61,6 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   const prodId = product.id || product._id;
   const isInWishlist = Array.isArray(wishlist) && wishlist.some(id => id === prodId || id.id === prodId);
 
-  // Cart Quantity Detection for Interactive Stepper
-  const cartItem = Array.isArray(cart) ? cart.find(item => (item.id || item._id) === prodId) : null;
-  const quantityInCart = cartItem ? (cartItem.qty || cartItem.quantity || 1) : 0;
-
   // Flash Sale Engine Check
   const isFlashSale = product.flashSale?.isActive && new Date(product.flashSale.endTime) > new Date();
   const price = isFlashSale ? product.flashSale.price : (product.price || 0);
@@ -41,14 +69,28 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
   // Standardized dynamic earnings display
   const userEarningsCoins = calculateCoinReward(price);
-  const influencerEarningsCash = Math.round(price * (product.influencerCommissionRate || 0.08));
 
-  // Unit/Weight Display fallback
-  const unitDisplay = product.unit || product.weight || product.packSize || product.variant || (product.category === 'mobiles' ? '1 device' : product.category === 'fashion' ? 'Standard fit' : '1 unit');
+  // Dynamic Color Swatches & Swappable Packshot
+  const hasColorModels = Array.isArray(product.colorModels) && product.colorModels.length > 0;
+  const activeColorModel = hasColorModels ? product.colorModels[selectedColorIdx] : null;
+  const displayedImage = activeColorModel?.primaryImage || (activeColorModel?.images && activeColorModel.images[0]) || product.image;
+
+  // Financial & Logistics calculations
+  const emiPerMonth = price >= 1500 ? Math.round(price / 6) : 0;
+  const deliveryETA = price >= 499 ? 'Free Delivery by Tomorrow' : 'Standard Delivery (2-3 Days)';
 
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
     if (toggleWishlist) toggleWishlist(prodId);
+  };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, 1);
+    setIsJustAdded(true);
+    showToast(`${product.name?.substring(0, 22)}... added to Bag! 🛍️`, 'success');
+    setTimeout(() => setIsJustAdded(false), 2000);
   };
 
   // Long press touch handlers
@@ -100,7 +142,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
         style={{
           ...styles.card,
           transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
-          boxShadow: isHovered ? '0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+          boxShadow: isHovered ? '0 14px 28px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.04)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
           borderColor: isHovered ? '#cbd5e1' : '#e5e7eb',
           WebkitTouchCallout: 'none',
           userSelect: 'none'
@@ -116,22 +158,18 @@ const ProductCard = ({ product, onNavigateProduct }) => {
       >
         {/* Standardized 1:1 Image Canvas */}
         <div className="product-card-image-wrapper" style={styles.imageWrapper}>
-          {/* Top Left Value & ETA Trigger Badge */}
+          {/* Top Left Value Micro-Badges */}
           <div style={{ position: 'absolute', top: '8px', left: '8px', display: 'flex', flexDirection: 'column', gap: '4px', zIndex: 2 }}>
             {product.badge === 'bestseller' || (!product.badge && product.rating >= 4.7) ? (
               <span style={styles.badgeBestseller}>BESTSELLER</span>
             ) : product.badge === 'trending' || (!product.badge && product.rating >= 4.4) ? (
-              <span style={styles.badgeTrending}>TRENDING</span>
+              <span style={styles.badgeTrending}>TOP CHOICE</span>
             ) : discountPercent >= 30 ? (
-              <span style={styles.badgeDeal}>⚡ {discountPercent}% OFF</span>
+              <span style={styles.badgeDeal}>{discountPercent}% OFF</span>
             ) : null}
-
-            <span style={styles.badgeETA}>
-              ⚡ 10–15 Mins
-            </span>
           </div>
 
-          {/* Top Right Interactive Wishlist Button */}
+          {/* Top Right Wishlist Button */}
           <button 
             style={styles.wishlistBtn}
             onClick={handleWishlistToggle}
@@ -145,7 +183,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             />
           </button>
           
-          {/* Product Image Normalized */}
+          {/* Packshot Image Normalized with smooth swap */}
           <div style={{ 
             width: '100%', 
             height: '100%', 
@@ -156,31 +194,67 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             transform: isHovered ? 'scale(1.05)' : 'scale(1)'
           }}>
             <LazyImage 
-              src={product.image} 
+              src={displayedImage} 
               alt={product.name} 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
             />
           </div>
         </div>
 
-        {/* Streamlined Information Hierarchy */}
+        {/* Product Information Area */}
         <div className="product-card-info" style={styles.info}>
-          {/* Unit / Weight Subtitle */}
-          <div style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'capitalize' }}>
-            {unitDisplay}
-          </div>
+          
+          {/* Interactive Color Variant Swatches (If Available) */}
+          {hasColorModels && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minHeight: '18px', margin: '2px 0 4px' }} onClick={e => e.stopPropagation()}>
+              {product.colorModels.slice(0, 5).map((cm, idx) => {
+                const swatchBg = resolveSwatchColor(cm.name);
+                const isSelected = selectedColorIdx === idx;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    title={cm.name}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedColorIdx(idx);
+                    }}
+                    onMouseEnter={() => setSelectedColorIdx(idx)}
+                    style={{
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      backgroundColor: swatchBg,
+                      border: isSelected ? '2px solid #4f46e5' : '1.5px solid #cbd5e1',
+                      outline: isSelected ? '1px solid #4f46e5' : 'none',
+                      outlineOffset: '1px',
+                      cursor: 'pointer',
+                      padding: 0,
+                      transition: 'transform 0.15s ease'
+                    }}
+                  />
+                );
+              })}
+              {product.colorModels.length > 5 && (
+                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
+                  +{product.colorModels.length - 5}
+                </span>
+              )}
+            </div>
+          )}
 
-          {/* Product Name (2-Line Clamp) */}
+          {/* Product Title (2-Line Clamp) */}
           <h4 className="product-card-name" style={styles.name} title={product.name}>
             {product.name}
           </h4>
 
-          {/* Rating & Reward Coins Row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginTop: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+          {/* Rating & AB Coins Trust Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginTop: 'auto', paddingTop: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={styles.ratingTag}>
-                <span style={{ fontSize: '10.5px', fontWeight: '800' }}>{product.rating || '4.5'}</span>
-                <span style={{ color: '#fde047', fontSize: '9.5px' }}>★</span>
+                <span style={{ fontSize: '11px', fontWeight: '800' }}>{product.rating || '4.5'}</span>
+                <Star size={10} fill="#ffffff" color="#ffffff" />
               </span>
               <span style={styles.reviewsCount}>
                 ({(product.reviewsCount && product.reviewsCount > 999) ? `${(product.reviewsCount/1000).toFixed(1)}k` : (product.reviewsCount || stableHash(String(prodId || 'p'), 50, 490))})
@@ -194,77 +268,66 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             )}
           </div>
 
-          {/* Pricing Stack & High-Intent CTA Stepper */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '6px', paddingTop: '4px' }}>
-            {/* Price Stack */}
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                <span style={styles.price}>₹{price.toLocaleString('en-IN')}</span>
-                {discountPercent > 0 && (
-                  <span style={styles.originalPrice}>₹{originalPrice.toLocaleString('en-IN')}</span>
-                )}
-              </div>
-              {discountPercent > 0 && (
-                <span style={{ fontSize: '10.5px', fontWeight: '800', color: '#059669' }}>
-                  {discountPercent}% OFF
+          {/* Price Stack & Discount Row */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+            <span style={styles.price}>₹{price.toLocaleString('en-IN')}</span>
+            {discountPercent > 0 && (
+              <>
+                <span style={styles.originalPrice}>₹{originalPrice.toLocaleString('en-IN')}</span>
+                <span style={{ fontSize: '11px', fontWeight: '800', color: '#059669' }}>
+                  ({discountPercent}% off)
                 </span>
-              )}
-            </div>
-
-            {/* High-Intent CTA / Interactive Stepper */}
-            {quantityInCart === 0 ? (
-              <button 
-                className="product-add-to-cart-btn" 
-                style={styles.addBtn}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  addToCart(product, 1);
-                  showToast(`${product.name?.substring(0, 20)}... added! 🛍️`, 'success');
-                }}
-              >
-                <Plus size={13} strokeWidth={2.8} />
-                <span>ADD</span>
-              </button>
-            ) : (
-              <div 
-                style={styles.stepperContainer}
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              >
-                <button
-                  style={styles.stepperBtn}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (quantityInCart <= 1) {
-                      removeFromCart(prodId);
-                    } else {
-                      updateCartQty(prodId, quantityInCart - 1);
-                    }
-                  }}
-                  title="Decrease Quantity"
-                >
-                  <Minus size={13} strokeWidth={2.8} />
-                </button>
-                <span style={styles.stepperQty}>{quantityInCart}</span>
-                <button
-                  style={styles.stepperBtn}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    updateCartQty(prodId, quantityInCart + 1);
-                  }}
-                  title="Increase Quantity"
-                >
-                  <Plus size={13} strokeWidth={2.8} />
-                </button>
-              </div>
+              </>
             )}
           </div>
+
+          {/* Financial & Trust Triggers: No-Cost EMI */}
+          {emiPerMonth > 0 && (
+            <div style={{ fontSize: '11px', color: '#475569', fontWeight: '600', marginTop: '2px' }}>
+              No-Cost EMI from <strong style={{ color: '#0f172a' }}>₹{emiPerMonth.toLocaleString('en-IN')}/mo</strong>
+            </div>
+          )}
+
+          {/* Logistics & Warranty Assurance */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px', borderTop: '1px solid #f1f5f9', paddingTop: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#059669', fontWeight: '700' }}>
+              <Truck size={12} color="#059669" />
+              <span>{deliveryETA}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10.5px', color: '#64748b', fontWeight: '600' }}>
+              <ShieldCheck size={12} color="#6366f1" />
+              <span>1 Year Brand Warranty • 100% Genuine</span>
+            </div>
+          </div>
+
+          {/* Primary Marketplace Add to Cart CTA */}
+          <button 
+            className="product-add-to-cart-btn" 
+            style={{
+              ...styles.addBtn,
+              background: isJustAdded 
+                ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
+                : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+              borderColor: isJustAdded ? '#059669' : '#0f172a'
+            }}
+            onClick={handleAddToCart}
+          >
+            {isJustAdded ? (
+              <>
+                <Check size={14} color="#ffffff" strokeWidth={3} />
+                <span>Added to Bag</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart size={13} color="#ffffff" />
+                <span>Add to Cart</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* 🚀 Blinkit-Style Long Press Quick Peek & Share Modal */}
+      {/* Long Press Quick Peek & Share Modal */}
       {showQuickPreview && (
         <ProductQuickPreviewModal
           product={product}
@@ -318,14 +381,14 @@ const styles = {
     display: 'inline-block'
   },
   badgeTrending: {
-    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', 
+    background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', 
     color: 'white', 
     fontSize: '9px', 
     fontWeight: '900', 
     padding: '2px 6px', 
     borderRadius: '4px', 
     letterSpacing: '0.4px',
-    boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
+    boxShadow: '0 2px 6px rgba(99, 102, 241, 0.25)',
     display: 'inline-block'
   },
   badgeDeal: {
@@ -338,18 +401,6 @@ const styles = {
     letterSpacing: '0.4px',
     boxShadow: '0 2px 6px rgba(244, 63, 94, 0.25)',
     display: 'inline-block'
-  },
-  badgeETA: {
-    background: '#f8fafc',
-    color: '#0f172a',
-    fontSize: '9.5px',
-    fontWeight: '800',
-    padding: '2px 6px',
-    borderRadius: '4px',
-    border: '1px solid #e2e8f0',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '2px'
   },
   wishlistBtn: {
     position: 'absolute',
@@ -373,7 +424,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
-    gap: '4px',
+    gap: '3px',
     boxSizing: 'border-box'
   },
   name: {
@@ -389,18 +440,18 @@ const styles = {
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
     letterSpacing: '-0.1px',
-    margin: 0
+    margin: '2px 0 0 0'
   },
   ratingTag: {
     backgroundColor: '#059669',
     color: 'white',
-    fontSize: '10px',
+    fontSize: '10.5px',
     fontWeight: '800',
-    padding: '1px 5px',
+    padding: '2px 6px',
     borderRadius: '4px',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '2px'
+    gap: '3px'
   },
   reviewsCount: {
     fontSize: '11px',
@@ -409,7 +460,7 @@ const styles = {
   },
   price: {
     fontFamily: "'Outfit', sans-serif",
-    fontSize: '15.5px',
+    fontSize: '16px',
     fontWeight: '900',
     color: '#0f172a',
     letterSpacing: '-0.3px',
@@ -422,50 +473,23 @@ const styles = {
     fontWeight: '600'
   },
   addBtn: {
-    border: '1.5px solid #059669',
-    backgroundColor: '#ecfdf5',
-    color: '#059669',
+    marginTop: '10px',
+    width: '100%',
+    padding: '9px 12px',
     borderRadius: '8px',
-    padding: '6px 14px',
-    fontFamily: "'Outfit', sans-serif",
-    fontSize: '12px',
-    fontWeight: '900',
-    letterSpacing: '0.4px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '3px',
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-    boxShadow: '0 1px 3px rgba(5, 150, 105, 0.15)'
-  },
-  stepperContainer: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    backgroundColor: '#059669',
-    borderRadius: '8px',
-    overflow: 'hidden',
-    boxShadow: '0 2px 8px rgba(5, 150, 105, 0.35)'
-  },
-  stepperBtn: {
-    backgroundColor: 'transparent',
     border: 'none',
     color: '#ffffff',
-    padding: '6px 8px',
-    cursor: 'pointer',
+    fontFamily: "'Outfit', sans-serif",
+    fontSize: '12.5px',
+    fontWeight: '800',
+    letterSpacing: '0.3px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'background-color 0.15s ease'
-  },
-  stepperQty: {
-    color: '#ffffff',
-    fontWeight: '900',
-    fontSize: '12.5px',
-    fontFamily: "'Outfit', sans-serif",
-    padding: '0 6px',
-    minWidth: '16px',
-    textAlign: 'center'
+    gap: '6px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.15)'
   }
 };
 

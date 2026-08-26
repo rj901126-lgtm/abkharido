@@ -457,9 +457,13 @@
 @media (max-width: 900px) {
   .catalog-page-layout-container {
     flex-direction: column;
+    padding: 12px 10px;
   }
   .filters-sidebar {
-    width: 100%;
+    display: none;
+  }
+  .mobile-filter-trigger-btn {
+    display: inline-flex !important;
   }
   .details-page-grid {
     grid-template-columns: 1fr;
@@ -469,6 +473,7 @@
     width: 100%;
   }
 }
+
 
 @media (max-width: 768px) {
   .share-link-generator {

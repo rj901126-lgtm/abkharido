@@ -463,9 +463,11 @@ input:focus, textarea:focus, select:focus {
 
 @media (max-width: 480px) {
   .grid-cols-4 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 }
+
 
 /* Order Delivery Timeline Tracker */
 .timeline-container {

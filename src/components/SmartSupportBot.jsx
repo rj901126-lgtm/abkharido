@@ -300,27 +300,27 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
           aria-label="Open AbKharido AI Customer Support Assistant"
           style={{
             position: 'fixed',
-            bottom: '92px',
-            right: '20px',
-            zIndex: 1050,
+            bottom: '24px',
+            right: '24px',
+            zIndex: 50,
             background: 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #3b82f6 100%)',
             color: '#ffffff',
-            height: '52px',
-            borderRadius: '30px',
-            padding: '0 18px 0 14px',
+            height: '48px',
+            borderRadius: '28px',
+            padding: '0 16px 0 12px',
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
-            boxShadow: '0 8px 25px rgba(67, 56, 202, 0.45)',
-            border: '2px solid rgba(255, 255, 255, 0.3)',
+            gap: '8px',
+            boxShadow: '0 8px 24px rgba(67, 56, 202, 0.35)',
+            border: '1.5px solid rgba(255, 255, 255, 0.3)',
             cursor: 'pointer',
             transition: 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
             fontFamily: "'Outfit', sans-serif"
           }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(67, 56, 202, 0.6)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(67, 56, 202, 0.45)'; }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.boxShadow = '0 12px 28px rgba(67, 56, 202, 0.5)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(67, 56, 202, 0.35)'; }}
         >
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ background: 'rgba(255,255,255,0.2)', padding: '6px', borderRadius: '50%' }}>
