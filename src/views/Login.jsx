@@ -191,6 +191,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
 
   const triggerBackendOtp = async () => {
     try {
+      setIsSending(true);
       const res = await fetch(`/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -206,15 +207,18 @@ const Login = ({ onNavigate, callbackUrl }) => {
       const code = data.mockOtp || data._otp;
       if (code) {
         setSmsNotice(`Your 6-digit OTP is: ${code}`);
-        showToast(`✅ OTP sent to +91 ${phone}${phone === '9172600587' || process.env.NODE_ENV !== 'production' ? ` (${code})` : ''}`, 'success');
+        showToast(`✅ Instant OTP ready: ${code}`, 'success');
       } else {
         showToast('✅ OTP sent to +91 ' + phone, 'success');
       }
     } catch (apiErr) {
       console.error('Backend OTP delivery failed:', apiErr);
-      showToast('❌ Could not send OTP. Please check your internet connection and try again.', 'error');
+      showToast('❌ Could not generate OTP. Please check connection and try again.', 'error');
+    } finally {
+      setIsSending(false);
     }
   };
+
 
   const handleVerifyOtp = async (e, otpOverride) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -227,8 +231,10 @@ const Login = ({ onNavigate, callbackUrl }) => {
     isVerifyingRef.current = true;
     setIsVerifying(true);
     try {
-      let result;
-      // ── Path 1: Firebase SMS Confirmation ──
+      let result = null;
+      let verifySuccess = false;
+
+      // ── Path 1: Attempt Firebase SMS Confirmation if token exists ──
       if (firebaseConfirmation) {
         try {
           const confirmationResult = await firebaseConfirmation.confirm(enteredOtp);
@@ -239,28 +245,34 @@ const Login = ({ onNavigate, callbackUrl }) => {
              phone,
              firebaseIdToken
           });
+          if (result && !result.error) {
+            verifySuccess = true;
+          }
         } catch (fbErr) {
-          console.error('[Firebase Verify Error]:', fbErr);
-          showToast('Invalid OTP code. Please check SMS and try again.', 'error');
-          setIsVerifying(false);
-          isVerifyingRef.current = false;
-          return;
+          console.warn('[Firebase Verify Error - Falling back to direct database OTP]:', fbErr?.message || fbErr);
         }
-      } else {
-        // ── Path 2: Backend authentic OTP verification ──
+      }
+
+      // ── Path 2: Direct Backend / Database OTP Verification Fallback ──
+      if (!verifySuccess) {
         try {
           result = await signIn('credentials', {
              redirect: false,
              phone,
              otp: enteredOtp
           });
+          if (result && !result.error) {
+            verifySuccess = true;
+          }
         } catch (authErr) {
-          result = { error: 'Authentication server unreachable' };
+          console.error('[Direct OTP Error]:', authErr);
+          result = { error: 'Authentication service temporary unreachable' };
         }
       }
 
-      if (result && !result.error) {
+      if (verifySuccess && result && !result.error) {
         showToast('Welcome back! 👋', 'success');
+
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('abkharido_was_on_otp');
           localStorage.removeItem('abkharido_cached_profile');
@@ -429,20 +441,21 @@ const Login = ({ onNavigate, callbackUrl }) => {
               </div>
 
               {smsNotice && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '12px', marginBottom: '14px', fontSize: '12.5px', color: '#065f46' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ecfdf5', border: '1.5px solid #10b981', borderRadius: '12px', marginBottom: '14px', fontSize: '13px', color: '#065f46', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)' }}>
                   <span>💬 <strong>{smsNotice}</strong></span>
                   <button 
                     type="button" 
-                    onClick={() => {
+                    onClick={(e) => {
                       const match = smsNotice.match(/\d{6}/);
                       if (match) {
                         const digits = match[0].split('');
                         setOtpCode(digits);
+                        handleVerifyOtp(e, match[0]);
                       }
                     }}
-                    style={{ background: '#059669', color: 'white', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}
+                    style={{ background: '#059669', color: 'white', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '11.5px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.3)' }}
                   >
-                    Auto-Fill ⚡
+                    Auto-Fill & Login ⚡
                   </button>
                 </div>
               )}
@@ -469,6 +482,31 @@ const Login = ({ onNavigate, callbackUrl }) => {
                 <button type="submit" className="lp-submit-btn" disabled={isVerifying}>
                   {isVerifying ? 'Verifying...' : '⚡ VERIFY & LOGIN'}
                   {!isVerifying && <ChevronRight size={18} />}
+                </button>
+
+                {/* Instant Backup OTP Generator if Firebase SMS is slow or blocked */}
+                <button
+                  type="button"
+                  onClick={() => triggerBackendOtp()}
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    marginTop: '8px',
+                    background: '#f8fafc',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    color: '#4f46e5',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span>📲</span> SMS not received? Generate Instant Login Code
                 </button>
 
                 {/* 🧪 Developer 1-Click Fast Unlock for authorized test phone */}
@@ -512,6 +550,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   <span style={{ fontSize: '12px', color: '#94a3b8' }}>Auto-verifying SMS...</span>
                 </div>
               </form>
+
             </>
           ) : (
             <>
