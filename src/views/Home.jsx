@@ -160,16 +160,18 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
-      {/* ── 1. Sticky Category Strip (Fixed flush attached to Search Bar, Original Circle Avatars) ── */}
+      {/* ── 1. Category Strip (Balanced spacing, premium pastel avatars) ── */}
       <section className="home-category-strip">
         <div 
           className="home-category-pills-row"
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
+            gap: '10px',
             overflowX: 'auto',
-            padding: '2px 8px',
+            padding: '2px 14px',
+            maxWidth: '1360px',
+            margin: '0 auto',
             scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch',
           }}
@@ -183,34 +185,35 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '2px',
+                gap: '5px',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '0 4px',
-                minWidth: '50px',
+                padding: '2px 6px',
+                minWidth: '56px',
                 outline: 'none',
                 transition: 'transform 0.15s ease',
               }}
             >
               {/* Category Circle Avatar */}
               <div style={{
-                width: '38px',
-                height: '38px',
+                width: '44px',
+                height: '44px',
                 borderRadius: '50%',
                 background: cat.bg || '#f1f5f9',
                 border: '1px solid rgba(0,0,0,0.06)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '17px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                fontSize: '19px',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
+                transition: 'transform 0.15s ease',
               }}>
                 <span>{cat.icon}</span>
               </div>
               {/* Category Name */}
               <span style={{
-                fontSize: '10.5px',
+                fontSize: '11.5px',
                 fontWeight: '700',
                 color: '#1e293b',
                 whiteSpace: 'nowrap',
@@ -223,6 +226,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           ))}
         </div>
       </section>
+
 
 
 

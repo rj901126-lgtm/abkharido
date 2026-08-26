@@ -275,23 +275,25 @@
 @media (max-width: 768px) {
   .navbar-header {
     height: auto !important;
-    min-height: unset !important;
+    min-height: 86px !important;
     padding-top: env(safe-area-inset-top) !important;
     padding-bottom: 0 !important;
     display: flex !important;
-    align-items: flex-start !important;
-    background: #ffffff !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
+    align-items: center !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
   }
 
   .navbar-container {
     display: grid !important;
     grid-template-columns: 1fr auto !important;
     grid-template-rows: auto auto !important;
-    row-gap: 2px !important;
-    column-gap: 10px !important;
-    padding: 2px 12px 0px 12px !important;
+    row-gap: 6px !important;
+    column-gap: 12px !important;
+    padding: 6px 14px 8px 14px !important;
     width: 100% !important;
     align-items: center !important;
   }
@@ -301,7 +303,7 @@
     grid-row: 1 / 2 !important;
     display: flex !important;
     align-items: center !important;
-    height: 28px !important;
+    height: 32px !important;
     gap: 0 !important;
   }
 
@@ -312,9 +314,9 @@
   }
 
   .logo-text {
-    font-size: 19px !important;
+    font-size: 20px !important;
     font-weight: 900 !important;
-    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%) !important;
+    background: linear-gradient(135deg, #0f172a 0%, #4338ca 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
   }
@@ -335,20 +337,20 @@
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 6px !important;
-    height: 28px !important;
+    gap: 8px !important;
+    height: 32px !important;
   }
 
   .user-profile-pill {
-    height: 28px !important;
-    max-width: 120px !important;
+    height: 30px !important;
+    max-width: 130px !important;
     white-space: nowrap !important;
   }
 
   .nav-item-btn {
-    height: 28px !important;
-    padding: 0 12px !important;
-    font-size: 12px !important;
+    height: 30px !important;
+    padding: 0 14px !important;
+    font-size: 12.5px !important;
     font-weight: 800 !important;
     border-radius: 99px !important;
     background: #f1f5f9 !important;
@@ -357,8 +359,8 @@
   }
 
   .cart-item {
-    height: 28px !important;
-    padding: 0 6px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
     background: transparent !important;
     color: #0f172a !important;
   }
@@ -378,13 +380,13 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    height: 32px !important;
+    height: 38px !important;
   }
 
   .search-input-wrapper {
-    height: 32px !important;
+    height: 38px !important;
     border-radius: 99px !important;
-    background: #f1f5f9 !important;
+    background: #f8fafc !important;
     border: 1px solid #e2e8f0 !important;
     box-shadow: none !important;
   }
@@ -396,8 +398,8 @@
   }
 
   .search-input {
-    padding: 0 10px !important;
-    font-size: 12.5px !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
     color: #0f172a !important;
   }
 
@@ -406,9 +408,10 @@
   }
 
   .search-button {
-    padding: 0 10px !important;
+    padding: 0 12px !important;
     color: #4f46e5 !important;
   }
 
 }
+
 
