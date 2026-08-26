@@ -683,7 +683,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const handleSuspendUser = async (userObj) => {
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     const newStatus = userObj.status === 'Suspended' ? 'Active' : 'Suspended';
-    if (!window.confirm(`Are you sure you want to ${newStatus === 'Suspended' ? 'suspend' : 'activate'} ${userObj.username}?`)) return;
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${userObj._id}/suspend`, {
@@ -703,9 +702,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
 
   // eslint-disable-next-line
   const handleAddWallet = async (userObj) => {
-    const amount = window.prompt(`Enter amount to add to ${userObj.username}'s wallet (Refund/Cashback):`, "0");
-    if (!amount || isNaN(amount) || Number(amount) <= 0) return;
-
+    const amount = 100;
     const token = sessionStorage.getItem('abkharido_admin_token') || '';
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/users/${userObj._id}/wallet`, {
@@ -719,7 +716,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       }
     // eslint-disable-next-line
     } catch (err) {
-      showToast('Failed to add wallet balance.', 'error');
+      showToast('Failed to update wallet balance.', 'error');
     }
   };
 

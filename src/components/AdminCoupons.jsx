@@ -128,11 +128,10 @@ const AdminCoupons = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('🚨 Are you sure you want to permanently delete this coupon code? It will immediately cease working at checkout!')) return;
-    
     // Optimistic instantaneous removal in UI
     setCoupons(prev => prev.filter(c => c._id !== id));
     showToast('🗑️ Coupon removed and disconnected from checkout successfully.', 'success');
+
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';

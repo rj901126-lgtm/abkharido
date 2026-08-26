@@ -239,7 +239,6 @@ const AdminHelpdesk = () => {
   };
 
   const handleDeleteRule = async (ruleId) => {
-    if (!window.confirm('Are you sure you want to delete this AI rule?')) return;
     try {
       const res = await fetch('/api/admin/bot-config', {
         method: 'POST',
@@ -252,6 +251,7 @@ const AdminHelpdesk = () => {
       }
     } catch (e) {}
   };
+
 
   const handleUpdateBotSettings = async (updates) => {
     try {

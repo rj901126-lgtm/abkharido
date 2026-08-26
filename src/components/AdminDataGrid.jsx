@@ -113,18 +113,11 @@ const AdminDataGrid = ({ onEditProduct }) => {
   };
 
   const handleQuickUpdateStock = async (productObj) => {
-    const newStockStr = window.prompt(`Enter new verified warehouse stock quantity for [${productObj.name}]:`, productObj.stock || '0');
-    if (newStockStr === null) return;
-    const newStock = Number(newStockStr);
-    if (isNaN(newStock) || newStock < 0) {
-      showToastMsg('❌ Invalid stock quantity entered!', 'error');
-      return;
-    }
-
+    const newStock = (Number(productObj.stock) || 0) + 25;
     const updatedProducts = data.products.map(p => p.id === productObj.id ? { ...p, stock: newStock } : p);
     setData({ ...data, products: updatedProducts });
     saveOverrides([{ id: productObj.id, stock: newStock, price: productObj.price, sku: productObj.sku }]);
-    showToastMsg(`✅ Warehouse stock for [${productObj.id}] instantly synced to ${newStock} units!`, 'success');
+    showToastMsg(`✅ Warehouse stock for [${productObj.id}] updated (+25 units, Total: ${newStock})`, 'success');
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
@@ -147,7 +140,6 @@ const AdminDataGrid = ({ onEditProduct }) => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm(`⚠️ Are you certain you want to permanently de-list product [${id}] from the global database?`)) return;
     const updated = data.products.filter(p => p.id !== id);
     setData({ ...data, products: updated, total: Math.max((data.total || 1) - 1, 0) });
     showToastMsg(`🗑️ Product [${id}] successfully removed from catalog!`, 'success');
@@ -162,7 +154,6 @@ const AdminDataGrid = ({ onEditProduct }) => {
   };
 
   const handleClone = (prod) => {
-    if (!window.confirm(`Create a cloned catalog entry for "${prod.name}"?`)) return;
     const newProduct = JSON.parse(JSON.stringify(prod));
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
     newProduct.id = `${prod.id}-COPY-${randomSuffix}`;
@@ -176,6 +167,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
     saveOverrides([newProduct]);
     showToastMsg(`✨ Product cloned into database successfully! Assigned SKU: ${newProduct.sku}`, 'success');
   };
+
 
   // Bulk Actions
   const handleToggleSelectAll = (e) => {

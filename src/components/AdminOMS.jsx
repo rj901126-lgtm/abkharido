@@ -187,8 +187,6 @@ const AdminOMS = ({ statusFilter }) => {
   };
 
   const handleCancelOrder = async (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order? Stock and coupons will be restored.')) return;
-    
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/cancel`, { 
@@ -302,7 +300,6 @@ const AdminOMS = ({ statusFilter }) => {
 
   const handleVerifyCOD = async (order) => {
     const orderId = order.id || order._id;
-    if (!window.confirm('Confirm that CASH ON DELIVERY amount has been collected and verified?')) return;
 
     try {
       const token = sessionStorage.getItem('abkharido_admin_token');

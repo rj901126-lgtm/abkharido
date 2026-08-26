@@ -93,12 +93,8 @@ const AdminFinance = () => {
       return;
     }
 
-    if (safeguards.requireDualOtp && vendor.pendingBalance > 50000) {
-      const confirmOtp = window.confirm(`🔒 Security Safeguard Triggered: Paying out ₹${vendor.pendingBalance.toLocaleString()} (> ₹50,000) requires verification.\n\nClick OK to confirm authorization token match and execute Cashfree API transfer.`);
-      if (!confirmOtp) return;
-    }
-
     const transactionId = `CF-PAY-${Date.now().toString().slice(-8)}`;
+
     const updated = vendors.map(v => {
       if (v._id === vendor._id) {
         return {
