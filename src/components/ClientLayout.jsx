@@ -8,6 +8,7 @@ import CartDrawer from './CartDrawer';
 import Toast from './Toast';
 import Footer from './Footer';
 import LivePurchasePopup from './LivePurchasePopup';
+import SmartSupportBot from './SmartSupportBot';
 import { useApp } from '../context/AppContext';
 import { MessageCircle, Wrench, ShieldAlert, Mail, Phone, Lock, Clock, Sparkles } from 'lucide-react';
 
@@ -207,38 +208,12 @@ export default function ClientLayout({ children }) {
       {/* VIP Corporate E-Commerce Footer (Home page only) */}
       {isHomePage && <Footer onNavigate={handleNavigate} />}
 
-      {/* Floating WhatsApp Live Customer Support Widget */}
-      {!isPortalPage && globalConfig.enableWhatsAppFloat && (
-        <a
-          href={`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent('Hello AbKharido Support! I need some assistance with my shopping.')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="whatsapp-floating-cta"
-          style={{
-            position: 'fixed',
-            bottom: '92px',
-            right: '20px',
-            zIndex: 1050,
-            background: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
-            color: '#ffffff',
-            width: '52px',
-            height: '52px',
-            borderRadius: '50%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            boxShadow: '0 6px 20px rgba(22, 163, 74, 0.45)',
-            transition: 'transform 0.2s, boxShadow 0.2s',
-            textDecoration: 'none',
-            border: '2px solid #86efac'
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(22, 163, 74, 0.6)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(22, 163, 74, 0.45)'; }}
-          title="Chat live with AbKharido WhatsApp Support!"
-        >
-          <MessageCircle size={28} color="#ffffff" />
-          <span style={{ position: 'absolute', top: '2px', right: '2px', width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%', border: '2px solid #ffffff' }}></span>
-        </a>
+      {/* AI Smart Customer Support Assistant Bot */}
+      {!isPortalPage && (
+        <SmartSupportBot 
+          supportPhone={globalConfig.supportPhone} 
+          supportEmail={globalConfig.supportEmail} 
+        />
       )}
 
       {/* Mobile Sticky Bottom Tab Bar - Strictly hidden on portal pages */}
