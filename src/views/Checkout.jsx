@@ -379,24 +379,65 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           setIsSubmitting(false);
         }
       } else {
-        // Real Cashfree integration
+        // Cashfree Payment Gateway integration (SDK v3 with in-page modal)
         showToast('Launching Cashfree Gateway...', 'success');
-        if (window.Cashfree) {
-          const env = process.env.NEXT_PUBLIC_CASHFREE_ENV || (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox');
-          const cashfree = window.Cashfree({
-            mode: env === 'production' ? 'production' : 'sandbox'
+        
+        const loadSdk = () => {
+          return new Promise((resolve) => {
+            if (typeof window !== 'undefined' && window.Cashfree) {
+              return resolve(window.Cashfree);
+            }
+            const existingScript = document.querySelector('script[src*="cashfree.com/js/v3/cashfree.js"]');
+            if (existingScript) {
+              existingScript.addEventListener('load', () => resolve(window.Cashfree));
+              setTimeout(() => resolve(window.Cashfree || null), 2000);
+              return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+            script.async = true;
+            script.onload = () => resolve(window.Cashfree);
+            script.onerror = () => resolve(null);
+            document.body.appendChild(script);
           });
-          
+        };
+
+        const CashfreeConstructor = await loadSdk();
+
+        if (CashfreeConstructor && data.paymentSessionId) {
+          const isProd = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' || process.env.CASHFREE_PROD === 'true';
+          const cashfree = CashfreeConstructor({
+            mode: isProd ? 'production' : 'sandbox'
+          });
+
           cashfree.checkout({
             paymentSessionId: data.paymentSessionId,
-            redirectTarget: "_self" // Redirects to return_url configured in backend
-          }).then(() => {
+            redirectTarget: "_modal"
+          }).then((result) => {
+            if (result && result.error) {
+              console.warn('[Cashfree Checkout Notice]:', result.error);
+              showToast(result.error.message || 'Payment window closed or cancelled.', 'warning');
+            }
+            if (result && (result.redirect || result.paymentDetails)) {
+              window.location.href = `/checkout/return?order_id=${data.orderId}`;
+            }
             isSubmittingRef.current = false;
             setIsSubmitting(false);
+          }).catch((err) => {
+            console.error('[Cashfree Modal Exception]:', err);
+            // Fallback to top-level redirect if modal cannot open
+            cashfree.checkout({
+              paymentSessionId: data.paymentSessionId,
+              redirectTarget: "_self"
+            });
           });
-        } else {
-          showToast('Cashfree SDK script failed to load. Redirecting to payment...', 'error');
+        } else if (data.orderId) {
+          showToast('Redirecting to payment verification...', 'info');
           window.location.href = `/checkout/return?order_id=${data.orderId}`;
+          isSubmittingRef.current = false;
+          setIsSubmitting(false);
+        } else {
+          showToast('Payment session could not be established.', 'error');
           isSubmittingRef.current = false;
           setIsSubmitting(false);
         }
