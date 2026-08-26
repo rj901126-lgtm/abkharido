@@ -18,7 +18,9 @@ import {
   TrendingUp,
   Tag,
   Truck,
-  Plus
+  Plus,
+  Bell,
+  X
 } from 'lucide-react';
 import '../assets/styles/product.css';
 import CountdownTimer from '../components/CountdownTimer';
@@ -35,6 +37,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   const { addToCart, updateCartQty, cart, currentUser, showToast, products, orders, wishlist, toggleWishlist, isLoadingProducts, deliveryLocation } = useApp();
   const [copied, setCopied] = useState(false);
   const [pincode, setPincode] = useState(deliveryLocation?.pincode || currentUser?.pincode || '401404');
+  
+  // Price Drop & Restock Alert Modal State
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [alertContact, setAlertContact] = useState(currentUser?.phone || currentUser?.email || '');
+  const [alertTargetType, setAlertTargetType] = useState('any');
   
   // Dynamic delivery estimate
   const [deliveryEstimate, setDeliveryEstimate] = useState(
@@ -733,10 +740,12 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </button>
             <button
               onClick={() => {
-                const contact = prompt('Enter your 10-digit mobile number or email for instant WhatsApp/SMS price-drop alerts:');
-                if (contact && contact.trim()) {
-                  showToast(`🔔 Alert registered for ${contact.trim()}! We will notify you instantly on price drops & restocks.`, 'success');
+                if (!alertContact && currentUser?.phone) {
+                  setAlertContact(currentUser.phone);
+                } else if (!alertContact && currentUser?.email) {
+                  setAlertContact(currentUser.email);
                 }
+                setIsAlertModalOpen(true);
               }}
               style={{
                 flex: '1 1 140px',
@@ -757,6 +766,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             >
               🔔 Price Drop / Restock Alert
             </button>
+
           </div>
 
           {isFlashSale && (
@@ -1753,8 +1763,235 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
           </div>
         </div>
 
+      {/* 🔔 Luxury Price Drop & Restock Alert Modal / Bottom Sheet */}
+      {isAlertModalOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(9, 13, 22, 0.75)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+          onClick={() => setIsAlertModalOpen(false)}
+        >
+          <div 
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              backgroundColor: '#ffffff',
+              borderRadius: '24px 24px 0 0',
+              padding: '24px 20px 32px',
+              boxShadow: '0 -12px 40px rgba(0, 0, 0, 0.25)',
+              position: 'relative',
+              boxSizing: 'border-box'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sheet Drag Handle */}
+            <div style={{ width: '40px', height: '4px', background: '#cbd5e1', borderRadius: '4px', margin: '0 auto 16px' }} />
+
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  boxShadow: '0 4px 14px rgba(251, 191, 36, 0.2)',
+                  flexShrink: 0
+                }}>
+                  <Bell size={22} color="#fbbf24" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
+                    Price Drop &amp; Restock Alert
+                  </h3>
+                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
+                    Instant notification on price drops &amp; restocks
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAlertModalOpen(false)}
+                style={{
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#64748b'
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Product Snapshot Card */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f8fafc', padding: '10px 14px', borderRadius: '14px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
+              <img 
+                src={product.image || (Array.isArray(product.images) ? product.images[0] : '')} 
+                alt={product.name}
+                style={{ width: '44px', height: '44px', objectFit: 'contain', borderRadius: '8px', background: '#ffffff', padding: '2px', border: '1px solid #e2e8f0' }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {product.name}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '900', color: '#059669' }}>₹{(currentDisplayPrice || product.price || 0).toLocaleString('en-IN')}</span>
+                  {currentDisplayOriginalPrice > currentDisplayPrice && (
+                    <span style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{currentDisplayOriginalPrice.toLocaleString('en-IN')}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Target Drop Selector */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '8px' }}>
+                Notify Me When:
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {[
+                  { id: 'any', label: 'Any Drop ⚡', sub: '₹1 or more' },
+                  { id: '5percent', label: 'Drop 5% 📉', sub: `Below ₹${Math.round((currentDisplayPrice || product.price) * 0.95).toLocaleString('en-IN')}` },
+                  { id: '10percent', label: 'Drop 10% 🔥', sub: `Below ₹${Math.round((currentDisplayPrice || product.price) * 0.90).toLocaleString('en-IN')}` },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setAlertTargetType(opt.id)}
+                    style={{
+                      padding: '10px 6px',
+                      borderRadius: '12px',
+                      border: alertTargetType === opt.id ? '2px solid #4f46e5' : '1px solid #e2e8f0',
+                      background: alertTargetType === opt.id ? '#eef2ff' : '#ffffff',
+                      color: alertTargetType === opt.id ? '#4338ca' : '#475569',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ fontSize: '11.5px', fontWeight: '800' }}>{opt.label}</div>
+                    <div style={{ fontSize: '10px', color: alertTargetType === opt.id ? '#6366f1' : '#94a3b8', marginTop: '2px', fontWeight: '600' }}>{opt.sub}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact Input Form */}
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                Your WhatsApp Number or Email:
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="e.g. 9876543210 or name@gmail.com"
+                  value={alertContact}
+                  onChange={(e) => setAlertContact(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    border: '1.5px solid #cbd5e1',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#0f172a',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => { e.target.style.borderColor = '#4f46e5'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#cbd5e1'; }}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '11.5px', color: '#64748b' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
+                  ✓ WhatsApp
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff6ff', color: '#2563eb', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
+                  ✓ SMS
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#f5f3ff', color: '#7c3aed', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
+                  ✓ Instant
+                </span>
+              </div>
+            </div>
+
+            {/* Submit Action Buttons */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setIsAlertModalOpen(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#475569',
+                  fontWeight: '700',
+                  fontSize: '13.5px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const cleaned = alertContact.trim();
+                  if (!cleaned) {
+                    showToast('Please enter your mobile number or email.', 'warning');
+                    return;
+                  }
+                  setIsAlertModalOpen(false);
+                  showToast(`🔔 Price Drop Alert Active for ${cleaned}! We will notify you instantly on WhatsApp & SMS.`, 'success');
+                }}
+                style={{
+                  flex: 2,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)',
+                  color: '#ffffff',
+                  fontWeight: '800',
+                  fontSize: '13.5px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  boxShadow: '0 4px 16px rgba(15, 23, 42, 0.25)'
+                }}
+              >
+                <Bell size={16} color="#fbbf24" /> Set Instant Alert
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </>
   );
 };
+
 
 export default ProductDetails;
