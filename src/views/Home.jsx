@@ -139,7 +139,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   }, [displayList, flashDealIds, bestSellerIds]);
 
   return (
-    <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto' }}>
+    <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
       {/* ── 1. Category Quick-Links Strip (Modern App Circle Style) ── */}
       <section
@@ -151,10 +151,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           backgroundColor: '#ffffff',
           borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
           boxShadow: '0 2px 8px -2px rgba(15, 23, 42, 0.05)',
-          padding: '10px 0 8px',
+          padding: '2px 0 6px',
           margin: 0,
         }}
       >
+
         <div className="home-category-pills-row">
           {activeVipCategories.map((cat) => {
             const isSelected = selectedCatPill === cat.id;
