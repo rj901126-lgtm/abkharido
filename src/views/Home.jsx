@@ -180,7 +180,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
       {/* ── 1. Flipkart-Style Sticky Category Strip (Full circles at top -> Compresses to sleek sticky named tabs on scroll) ── */}
-      <div className="home-category-strip-wrapper" style={{ minHeight: '68px', width: '100%' }}>
+      <div className="home-category-strip-wrapper" style={{ minHeight: isCategoryCompressed ? '38px' : '62px', width: '100%', margin: 0, padding: 0 }}>
         <section
           className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
         >
@@ -190,12 +190,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: isCategoryCompressed ? '8px' : '4px',
+              gap: isCategoryCompressed ? '6px' : '2px',
               overflowX: 'auto',
-              padding: isCategoryCompressed ? '0 12px' : '0 8px',
+              padding: isCategoryCompressed ? '0 10px' : '0 6px',
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
-              transition: 'all 0.25s ease'
+              transition: 'all 0.2s ease'
             }}
           >
             {activeVipCategories.map((cat) => (
@@ -206,55 +206,55 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   flexShrink: 0,
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '5px',
                   background: cat.bg || '#f1f5f9',
                   border: '1px solid rgba(0,0,0,0.06)',
                   borderRadius: '99px',
-                  padding: '5px 12px',
+                  padding: '4px 10px',
                   cursor: 'pointer',
                   outline: 'none',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                  transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                 } : {
                   flexShrink: 0,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '4px',
+                  gap: '3px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
                   padding: '2px 4px',
-                  minWidth: '56px',
+                  minWidth: '54px',
                   outline: 'none',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                  transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >
                 {/* Icon */}
                 <div style={isCategoryCompressed ? {
-                  fontSize: '14px',
+                  fontSize: '13px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   lineHeight: 1
                 } : {
-                  width: '44px',
-                  height: '44px',
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '50%',
                   background: cat.bg || '#f1f5f9',
                   border: '1px solid rgba(0,0,0,0.06)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-                  transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
+                  fontSize: '18px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                  transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}>
                   <span>{cat.icon}</span>
                 </div>
                 {/* Category Name */}
                 <span style={{
-                  fontSize: isCategoryCompressed ? '12px' : '11px',
+                  fontSize: isCategoryCompressed ? '11.5px' : '11px',
                   fontWeight: isCategoryCompressed ? '800' : '700',
                   color: '#1e293b',
                   whiteSpace: 'nowrap',
@@ -269,6 +269,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
         </section>
       </div>
+
 
 
 
