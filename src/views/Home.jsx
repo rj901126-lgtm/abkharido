@@ -28,31 +28,34 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     ? promotions.vipCategories
     : defaultVipCategories;
 
-  const slides = (promotions && Array.isArray(promotions.banners))
+  const defaultSlides = [
+    {
+      title: 'Titanium AI Sound. Studio Perfected.',
+      desc: 'Experience our flagship spatial noise-cancelling headphones. Up to 60 hours of hyper-battery and quantum acoustics.',
+      bg: 'url(https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
+      tag: '🇮🇳 AUDIO CHAMPION DEAL',
+      cat: 'electronics'
+    },
+    {
+      title: 'The Platinum Standard in Indian Couture',
+      desc: 'Elevate your aesthetic with our direct-from-designer runway collection. Uncompromising luxury at revolutionary member prices.',
+      bg: 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
+      tag: '✨ VIP SUMMER COLLECTION',
+      cat: 'fashion'
+    },
+    {
+      title: 'Next-Gen 5G AI Smartphones',
+      desc: 'Ultra-speed flagships with cinematic camera sensors and hyper-fast wireless charging. 100% Genuine brand warranty.',
+      bg: 'url(https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
+      tag: '📱 5G MEGA LAUNCH',
+      cat: 'mobiles'
+    }
+  ];
+
+  const slides = (promotions && Array.isArray(promotions.banners) && promotions.banners.length > 0)
     ? promotions.banners
-    : [
-        {
-          title: 'Titanium AI Sound. Studio Perfected.',
-          desc: 'Experience our flagship spatial noise-cancelling headphones. Up to 60 hours of hyper-battery and quantum acoustics.',
-          bg: 'url(https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
-          tag: '🇮🇳 AUDIO CHAMPION DEAL',
-          cat: 'electronics'
-        },
-        {
-          title: 'The Platinum Standard in Indian Couture',
-          desc: 'Elevate your aesthetic with our direct-from-designer runway collection. Uncompromising luxury at revolutionary member prices.',
-          bg: 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
-          tag: '✨ VIP SUMMER COLLECTION',
-          cat: 'fashion'
-        },
-        {
-          title: 'Next-Gen 5G AI Smartphones',
-          desc: 'Ultra-speed flagships with cinematic camera sensors and hyper-fast wireless charging. 100% Genuine brand warranty.',
-          bg: 'url(https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
-          tag: '📱 5G MEGA LAUNCH',
-          cat: 'mobiles'
-        }
-      ];
+    : defaultSlides;
+
 
   const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % (slides.length || 1));
   const handlePrevSlide = () => setActiveSlide((prev) => (prev - 1 + slides.length) % (slides.length || 1));
