@@ -63,9 +63,15 @@ export default function ProductImageZoomViewer({
     setIsHovering(false);
   };
 
-  // Lightbox Modal Keyboard Navigation
+  // Lightbox Modal Keyboard Navigation & Android Back Button
   useEffect(() => {
     if (!isModalOpen) return;
+
+    // Push history state so Android / Mobile back button closes modal cleanly
+    try {
+      window.history.pushState({ imageModal: true }, '');
+    } catch {}
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') handleCloseModal();
       else if (e.key === 'ArrowRight') handleNextImage();
@@ -73,8 +79,21 @@ export default function ProductImageZoomViewer({
       else if (e.key === '+' || e.key === '=') handleZoomIn();
       else if (e.key === '-') handleZoomOut();
     };
+
+    const handlePopState = () => {
+      setIsModalOpen(false);
+      setModalZoom(1);
+      setPanOffset({ x: 0, y: 0 });
+      document.body.style.overflow = 'auto';
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, [isModalOpen, activeIdx, images.length]);
 
   const handleOpenModal = () => {
@@ -338,48 +357,50 @@ export default function ProductImageZoomViewer({
               alignItems: 'center',
               justifyContent: 'space-between',
               color: '#ffffff',
-              padding: '10px 0'
+              padding: '6px 0 12px 0',
+              zIndex: 1000001
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '15px', fontWeight: '800', fontFamily: "'Outfit', sans-serif" }}>
+              <span style={{ fontSize: '14px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {productName}
               </span>
-              <span style={{ fontSize: '12px', color: '#94a3b8', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '6px' }}>
+              <span style={{ fontSize: '11.5px', color: '#94a3b8', background: 'rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
                 {activeIdx + 1} / {images.length}
               </span>
             </div>
 
-            {/* Only Clean Modern Close (X) Button */}
+            {/* Prominent, Instant-Exit Close Button */}
             <button 
               type="button" 
-              onClick={handleCloseModal}
+              onClick={(e) => { e.stopPropagation(); handleCloseModal(); }}
+              onTouchEnd={(e) => { e.stopPropagation(); handleCloseModal(); }}
               className="lightbox-close-btn"
               title="Close (Esc)"
               style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
+                background: '#ef4444',
+                border: '1.5px solid rgba(255,255,255,0.9)',
                 color: '#ffffff',
-                borderRadius: '50%',
-                width: '42px',
-                height: '42px',
+                borderRadius: '24px',
+                padding: '6px 14px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                gap: '5px',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+                fontWeight: '900',
+                fontSize: '13px',
+                boxShadow: '0 4px 16px rgba(239, 68, 68, 0.5)',
+                zIndex: 1000002
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.9)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; }}
             >
-              <X size={20} strokeWidth={2.5} />
+              <X size={17} strokeWidth={3} />
+              <span>Close</span>
             </button>
           </div>
 
-          {/* Main Zoomed Stage */}
+          {/* Main Zoomed Stage - Tap outside image closes modal */}
           <div 
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleCloseModal}
             onMouseDown={handleMouseDown}
             onMouseMove={handleModalMouseMove}
             onMouseUp={handleMouseUp}
@@ -422,6 +443,14 @@ export default function ProductImageZoomViewer({
 
             {/* Main Interactive Zoom Image */}
             <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalZoom(prev => {
+                  const next = prev > 1 ? 1 : 2;
+                  if (next === 1) setPanOffset({ x: 0, y: 0 });
+                  return next;
+                });
+              }}
               style={{
                 transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${modalZoom})`,
                 transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)',
@@ -429,7 +458,8 @@ export default function ProductImageZoomViewer({
                 alignItems: 'center',
                 justifyContent: 'center',
                 maxWidth: '90%',
-                maxHeight: '80vh'
+                maxHeight: '80vh',
+                cursor: modalZoom > 1 ? 'zoom-out' : 'zoom-in'
               }}
             >
               <img 
