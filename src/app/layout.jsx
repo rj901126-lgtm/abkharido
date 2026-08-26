@@ -13,14 +13,23 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com'
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "AbKharido | India's Premium E-Commerce Destination",
+    default: "AbKharido | India's #1 Premium E-Commerce & Online Shopping Destination",
     template: "%s | AbKharido"
   },
-  description: "Shop verified electronics, flagship smartphones, designer fashion, and luxury appliances at AbKharido. Fast express delivery across India, 7-day easy returns, and secure payments.",
-  keywords: ["abkharido", "e-commerce india", "online shopping", "smartphones", "electronics", "designer fashion", "buy online india"],
-  authors: [{ name: 'AbKharido India' }],
+  description: "Shop 100% verified genuine electronics, flagship smartphones, luxury designer fashion, audio gear and home appliances at AbKharido. Express 24-48h Delivery across 29,000+ Indian pincodes, 7-day doorstep returns, Cash on Delivery (COD) and 0% EMI.",
+  keywords: [
+    "abkharido", "ab kharido", "online shopping india", "best online shopping site in india",
+    "buy smartphones online", "flagship mobile phones best price", "electronics sale india",
+    "designer fashion buy online", "cash on delivery shopping", "fast delivery ecommerce india",
+    "cheap online shopping with free delivery", "authentic brand warranty india", "biker jackets online",
+    "smartwatches discounts", "wireless earbuds best price"
+  ],
+  authors: [{ name: 'AbKharido India Retail Private Limited', url: SITE_URL }],
   creator: 'AbKharido',
   publisher: 'AbKharido Retail Private Limited',
+  applicationName: 'AbKharido',
+  category: 'ecommerce',
+  classification: 'Online Shopping, Electronics, Fashion, Retail',
   formatDetection: {
     email: false,
     address: false,
@@ -28,29 +37,42 @@ export const metadata = {
   },
   alternates: {
     canonical: '/',
+    languages: {
+      'en-IN': '/',
+      'hi-IN': '/'
+    }
   },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
     url: SITE_URL,
     siteName: 'AbKharido',
-    title: "AbKharido | India's Premium E-Commerce Destination",
-    description: "Shop verified electronics, flagship smartphones, designer fashion, and luxury appliances at AbKharido. Fast express delivery across India, 7-day easy returns, and secure payments.",
+    title: "AbKharido | India's #1 Premium E-Commerce Destination",
+    description: "Shop verified smartphones, designer apparel, premium audio, and lifestyle gear. Lightning-fast express delivery, 7-day returns, Cash on Delivery.",
     images: [
       {
         url: `${SITE_URL}/logo.jpg`,
-        width: 800,
-        height: 800,
-        alt: 'AbKharido - Direct Buy & Earn',
+        width: 1200,
+        height: 630,
+        alt: 'AbKharido - Online Shopping India',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "AbKharido | India's Premium E-Commerce Destination",
-    description: "Shop verified electronics, flagship smartphones, designer fashion, and luxury appliances at AbKharido. Fast express delivery across India, 7-day easy returns, and secure payments.",
+    title: "AbKharido | India's #1 Premium E-Commerce Destination",
+    description: "Shop verified electronics, fashion, and lifestyle. Fast shipping, 7-day returns, secure payments.",
     images: [`${SITE_URL}/logo.jpg`],
     creator: '@abkharido',
+  },
+  other: {
+    'geo.region': 'IN',
+    'geo.placename': 'India',
+    'geo.position': '19.0760;72.8777',
+    'ICBM': '19.0760, 72.8777',
+    'rating': 'general',
+    'distribution': 'global',
+    'revisit-after': '1 days'
   },
   robots: {
     index: true,
@@ -78,17 +100,54 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'AbKharido',
-    url: SITE_URL,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${SITE_URL}/catalog?search={search_term_string}`,
-      'query-input': 'required name=search_term_string',
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'AbKharido',
+      url: SITE_URL,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${SITE_URL}/catalog?search={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
     },
-  };
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'AbKharido',
+      url: SITE_URL,
+      logo: `${SITE_URL}/logo.jpg`,
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: '+91-9172600587',
+        contactType: 'customer service',
+        areaServed: 'IN',
+        availableLanguage: ['en', 'Hindi']
+      },
+      sameAs: [
+        'https://twitter.com/abkharido',
+        'https://www.instagram.com/abkharido'
+      ]
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Store',
+      name: 'AbKharido India',
+      url: SITE_URL,
+      image: `${SITE_URL}/logo.jpg`,
+      priceRange: '₹99 - ₹1,99,999',
+      currenciesAccepted: 'INR',
+      paymentAccepted: 'Cash on Delivery, UPI, Credit Card, Debit Card, Net Banking',
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: 'IN',
+        addressRegion: 'Maharashtra',
+        addressLocality: 'Mumbai',
+        postalCode: '400001'
+      }
+    }
+  ];
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -96,9 +155,12 @@ export default function RootLayout({ children }) {
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo.jpg" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://sdk.cashfree.com" />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
       <body suppressHydrationWarning>

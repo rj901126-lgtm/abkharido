@@ -94,34 +94,116 @@ export default async function Page({ params }) {
   }
 
   // Generate Product JSON-LD structured data for Google Search snippet indexing
+  const productPrice = product.price || 0;
+  const productUrl = `${SITE_URL}/product/${product.id || id}`;
+  const categoryName = product.category || 'General';
+
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    image: product.image || (product.images && product.images[0]),
-    description: product.description,
+    image: [
+      product.image || (product.images && product.images[0]) || `${SITE_URL}/logo.jpg`,
+      ...(product.images || [])
+    ].filter(Boolean),
+    description: product.description || `Buy ${product.name} online in India with Free Express Delivery at AbKharido.`,
+    sku: `AK-${product.id || id}`,
+    mpn: `MPN-${product.id || id}`,
     brand: {
       '@type': 'Brand',
       name: product.brand || 'AbKharido Verified'
     },
     offers: {
       '@type': 'Offer',
-      url: `${SITE_URL}/product/${product.id || id}`,
+      url: productUrl,
       priceCurrency: 'INR',
-      price: product.price,
-      priceValidUntil: '2026-12-31',
+      price: productPrice,
+      priceValidUntil: '2027-12-31',
       itemCondition: 'https://schema.org/NewCondition',
       availability: product.inStock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
-        name: 'AbKharido'
+        name: 'AbKharido Retail Private Limited'
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'INR'
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'IN'
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          businessDays: {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+          },
+          cutoffTime: '17:00:00Z',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 1,
+            unitCode: 'd'
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 3,
+            unitCode: 'd'
+          }
+        }
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'IN',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnAtKiosk',
+        returnFees: 'https://schema.org/FreeReturn'
       }
     },
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: product.rating || 4.7,
-      reviewCount: product.reviewsCount || 120
+      ratingValue: product.rating || 4.8,
+      reviewCount: product.reviewsCount || 148,
+      bestRating: 5,
+      worstRating: 1
     }
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: SITE_URL
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Catalog',
+        item: `${SITE_URL}/catalog`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: categoryName,
+        item: `${SITE_URL}/catalog?category=${encodeURIComponent(categoryName.toLowerCase())}`
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: product.name,
+        item: productUrl
+      }
+    ]
   };
 
   return (
@@ -129,6 +211,10 @@ export default async function Page({ params }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <ProductClient id={id} initialProduct={product} />
     </>

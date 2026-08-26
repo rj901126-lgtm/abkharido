@@ -87,6 +87,35 @@ export default async function Page({ searchParams }) {
   const search = params?.search || '';
   const initialProducts = await getCatalogProducts(category, search);
 
-  return <CatalogClient initialCategory={category} initialSearch={search} initialProducts={initialProducts} />;
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: category !== 'all' ? `${category.toUpperCase()} Collection | AbKharido` : 'All Products | AbKharido',
+    url: `${SITE_URL}/catalog${category !== 'all' ? `?category=${category}` : ''}`,
+    numberOfItems: initialProducts.length,
+    itemListElement: initialProducts.slice(0, 30).map((p, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: p.name,
+      url: `${SITE_URL}/product/${p.id || p._id}`,
+      image: p.image || (p.images && p.images[0]) || `${SITE_URL}/logo.jpg`,
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'INR',
+        price: p.price || 0,
+        availability: 'https://schema.org/InStock'
+      }
+    }))
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
+      <CatalogClient initialCategory={category} initialSearch={search} initialProducts={initialProducts} />
+    </>
+  );
 }
 
