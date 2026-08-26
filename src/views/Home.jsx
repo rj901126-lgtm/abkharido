@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
-import { ChevronLeft, ChevronRight, ArrowRight, Zap, ShieldCheck, Truck, Award, Sparkles, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, Zap, ShieldCheck, Truck, Award, Sparkles, Filter, Store } from 'lucide-react';
 import '../assets/styles/home.css';
 
 const defaultVipCategories = [
@@ -567,6 +567,97 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
               <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a' }}>{review.name} ({review.city})</span>
                 <span style={{ fontSize: '10px', color: '#64748b' }}>{review.item}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 9.5 Verified Merchant Stores Spotlight ── */}
+      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '14px 12px 0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <Store size={20} color="#059669" /> Verified Merchant Stores
+            </h3>
+            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Direct manufacturer & certified brand storefronts</p>
+          </div>
+
+          <button 
+            onClick={() => onNavigate && onNavigate('seller')}
+            style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '6px 14px', borderRadius: '20px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            🏪 Open Your Store on AbKharido &rarr;
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+          {[
+            {
+              name: 'AbKharido Premier Store',
+              slug: 'abkharido-premier-store',
+              category: 'Flagship Electronics & Mobiles',
+              rating: '4.9',
+              sales: '1.2k+ Orders',
+              badge: 'OFFICIAL'
+            },
+            {
+              name: 'Apex Audio Labs',
+              slug: 'apex-audio-labs',
+              category: 'Spatial Headphones & Audio',
+              rating: '4.8',
+              sales: '850+ Orders',
+              badge: 'VERIFIED'
+            },
+            {
+              name: 'AbKharido Couture',
+              slug: 'abkharido-couture',
+              category: 'Designer Apparel & Footwear',
+              rating: '4.9',
+              sales: '2.1k+ Orders',
+              badge: 'TRENDING'
+            },
+            {
+              name: 'Milton Living Official',
+              slug: 'milton-living-official',
+              category: 'Home & Kitchen Essentials',
+              rating: '4.8',
+              sales: '980+ Orders',
+              badge: 'CERTIFIED'
+            }
+          ].map((merchant, mIdx) => (
+            <div 
+              key={mIdx}
+              onClick={() => onNavigate && onNavigate(`catalog?seller=${merchant.slug}`)}
+              style={{
+                background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+                border: '1px solid #e2e8f0',
+                borderRadius: '16px',
+                padding: '16px',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '10px'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 23, 42, 0.08)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '10px', background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: '4px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
+                    ✓ {merchant.badge}
+                  </span>
+                  <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#f59e0b' }}>★ {merchant.rating}</span>
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginBottom: '2px' }}>{merchant.name}</div>
+                <div style={{ fontSize: '11.5px', color: '#64748b' }}>{merchant.category}</div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>{merchant.sales}</span>
+                <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#4f46e5' }}>Visit Store &rarr;</span>
               </div>
             </div>
           ))}
