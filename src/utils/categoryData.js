@@ -587,6 +587,90 @@ export const CATEGORY_DETAILS = {
       { name: 'Nivia', desc: 'FIFA Match Quality Balls', icon: '⚽', query: 'Nivia', offer: 'Tournament Grade' },
       { name: 'Vector X', desc: 'Gloves, Mats & Jump Ropes', icon: '🥊', query: 'Vector', offer: 'Budget Pro' }
     ]
+  },
+
+  appliances: {
+    id: 'appliances',
+    name: 'Home & Kitchen Appliances',
+    icon: '🫧',
+    tagline: 'Smart Inverter Refrigerators, Front-Load Washing Machines & 5-Star ACs',
+    promoTicker: '🫧 Super Appliance Fest: Free Brand Installation + Up to ₹5,000 Instant Bank Off on Large Appliances',
+    subCategories: [
+      {
+        id: 'refrigerators',
+        name: 'Smart Refrigerators',
+        icon: '🧊',
+        query: 'Refrigerator',
+        badge: 'DOUBLE DOOR',
+        startingPrice: 'From ₹14,990',
+        discount: 'Min 25% Off',
+        img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=120&q=80',
+        quickChips: ['Double Door Frost Free', 'Side-by-Side Inverter', 'Convertible 5-in-1', '5-Star Energy Saver']
+      },
+      {
+        id: 'washing-machines',
+        name: 'Washing Machines',
+        icon: '🫧',
+        query: 'Washing Machine',
+        badge: 'FRONT LOAD',
+        startingPrice: 'From ₹12,490',
+        discount: 'Min 30% Off',
+        img: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=120&q=80',
+        quickChips: ['Front Load Inverter', 'Top Load Fully Auto', 'Heater Steam Wash', '10 Year Motor Warranty']
+      },
+      {
+        id: 'air-conditioners',
+        name: 'Split & Inverter ACs',
+        icon: '❄️',
+        query: 'AC',
+        badge: '5-STAR COPPER',
+        startingPrice: 'From ₹24,990',
+        discount: 'Free Standard Install',
+        img: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=120&q=80',
+        quickChips: ['1.5 Ton 5-Star Inverter', '1.0 Ton 3-Star Smart WiFi', 'Dual Inverter Heavy Duty', 'Copper Condenser']
+      },
+      {
+        id: 'microwaves-ovens',
+        name: 'Microwaves & OTGs',
+        icon: '♨️',
+        query: 'Microwave',
+        badge: 'CONVECTION',
+        startingPrice: 'From ₹5,490',
+        discount: 'Flat ₹2,000 Off',
+        img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=120&q=80',
+        quickChips: ['Convection Auto Cook', 'Solo Reheat & Defrost', 'Grill Microwave 28L', 'Tandoor Mode']
+      },
+      {
+        id: 'dishwashers',
+        name: 'Smart Dishwashers',
+        icon: '🍽️',
+        query: 'Dishwasher',
+        badge: 'HYGIENIC',
+        startingPrice: 'From ₹21,990',
+        discount: 'Min 20% Off',
+        img: 'https://images.unsplash.com/photo-1585837575652-267c041d77d4?w=120&q=80',
+        quickChips: ['14 Place Settings', 'Intensive Kadhai 70°C', 'Delay Start Inverter', 'Eco Water Saver']
+      },
+      {
+        id: 'water-heaters',
+        name: 'Geysers & Water Heaters',
+        icon: '🚿',
+        query: 'Geyser',
+        badge: 'INSTANT / STORAGE',
+        startingPrice: 'From ₹2,999',
+        discount: 'Free Safety Valve',
+        img: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=120&q=80',
+        quickChips: ['25L 5-Star Storage', 'Instant 3L Kitchen', 'Glassline Corrosion Free', 'Digital Temperature']
+      }
+    ],
+    popularBrands: [
+      { name: 'LG', desc: 'Direct Drive & Smart Inverter', icon: '🫧', query: 'LG', offer: '10 Yr Warranty' },
+      { name: 'Samsung', desc: 'Curd Maestro & Ecobubble', icon: '🌌', query: 'Samsung', offer: 'No Cost EMI' },
+      { name: 'Whirlpool', desc: '6th Sense DeepFreeze', icon: '🌀', query: 'Whirlpool', offer: 'Min 30% Off' },
+      { name: 'Voltas', desc: 'Beko & Inverter Air ACs', icon: '❄️', query: 'Voltas', offer: '5-Star Saver' },
+      { name: 'IFB', desc: 'Senator Front Load & Wash', icon: '🧼', query: 'IFB', offer: '4 Yr Comprehensive' },
+      { name: 'Havells', desc: 'Digital Kitchen & Geysers', icon: '⚡', query: 'Havells', offer: 'Top Rated' }
+    ]
   }
 };
 
@@ -603,5 +687,29 @@ export const ALL_POPULAR_BRANDS = [
 export const getCategoryData = (catId) => {
   if (!catId) return CATEGORY_DETAILS.all;
   const key = catId.toLowerCase().trim();
+
+  if (key === 'appliances' || key === 'appliance' || key === 'large-appliances' || key === 'home-appliances') {
+    return CATEGORY_DETAILS.appliances;
+  }
+  if (key === 'home' || key === 'home-living' || key === 'kitchen' || key === 'home-kitchen') {
+    return CATEGORY_DETAILS.home;
+  }
+  if (key === 'mobiles' || key === 'mobile' || key === 'phones' || key === 'smartphones') {
+    return CATEGORY_DETAILS.mobiles;
+  }
+  if (key === 'electronics' || key === 'electronic' || key === 'audio' || key === 'gadgets') {
+    return CATEGORY_DETAILS.electronics;
+  }
+  if (key === 'fashion' || key === 'clothing' || key === 'apparel' || key === 'footwear') {
+    return CATEGORY_DETAILS.fashion;
+  }
+  if (key === 'beauty' || key === 'personal-care' || key === 'cosmetics') {
+    return CATEGORY_DETAILS.beauty;
+  }
+  if (key === 'sports' || key === 'fitness' || key === 'gym') {
+    return CATEGORY_DETAILS.sports;
+  }
+
   return CATEGORY_DETAILS[key] || CATEGORY_DETAILS.all;
 };
+

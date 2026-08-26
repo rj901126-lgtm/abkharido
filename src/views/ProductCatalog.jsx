@@ -128,10 +128,14 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
     if (currentCategory && currentCategory !== 'all') {
       const cat = currentCategory.toLowerCase().trim();
       filtered = filtered.filter(p => {
-        const prodCat = p.category ? p.category.toLowerCase().trim() : '';
+        const prodCat = (p.category || '').toLowerCase().trim();
+        if (cat === 'appliances' || cat === 'appliance') {
+          return prodCat === 'appliances' || prodCat === 'appliance' || prodCat.includes('appliance') || prodCat === 'home';
+        }
         return prodCat === cat || prodCat.includes(cat) || cat.includes(prodCat);
       });
     }
+
 
     // 3. Sub-Category Tree Filter
     if (selectedSubCategory) {
