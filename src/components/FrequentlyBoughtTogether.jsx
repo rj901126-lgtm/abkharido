@@ -114,10 +114,9 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
   const [isAdding, setIsAdding] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
 
-  if (!currentProduct) return null;
-
   // Resolve bundle items: 1 Main Product + 2 Complementary items
   const bundleItems = useMemo(() => {
+    if (!currentProduct) return [];
     const main = {
       id: currentProduct.id || currentProduct._id,
       name: currentProduct.name,
@@ -150,11 +149,19 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
   }, [currentProduct, allContextProducts]);
 
   // Selected state for each bundle item (all checked by default)
-  const [selectedMap, setSelectedMap] = useState({
-    [bundleItems[0]?.id]: true,
-    [bundleItems[1]?.id]: true,
-    [bundleItems[2]?.id]: true
-  });
+  const [selectedMap, setSelectedMap] = useState({});
+
+  useEffect(() => {
+    if (bundleItems && bundleItems.length > 0) {
+      setSelectedMap({
+        [bundleItems[0]?.id]: true,
+        [bundleItems[1]?.id]: true,
+        [bundleItems[2]?.id]: true
+      });
+    }
+  }, [bundleItems]);
+
+  if (!currentProduct || bundleItems.length === 0) return null;
 
   const toggleSelect = (id) => {
     setSelectedMap(prev => {
@@ -163,6 +170,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
       return hasAny ? next : prev;
     });
   };
+
 
   // Math Calculations
   const selectedItems = bundleItems.filter(item => selectedMap[item.id]);
