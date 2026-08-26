@@ -869,15 +869,23 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           )}
 
           <div className="checkout-sticky-action-bar">
-            <button 
-              type="button" 
-              onClick={handleAddressSubmit}
-              disabled={!address.name || !address.phone || !address.pincode || !address.streetAddress || isCheckingShipping || (shippingServiceability && !shippingServiceability.serviceable)} 
-              className="btn btn-primary checkout-btn"
-              style={{ width: '100%' }}
-            >
-              Deliver to this Address →
-            </button>
+            <div className="checkout-sticky-price-info">
+              <div className="checkout-sticky-price">₹{finalAmount.toLocaleString('en-IN')}</div>
+              <div className="checkout-sticky-subtext">
+                {itemsPrice > 500 ? '🚚 Free Delivery' : '+₹40 Delivery'}
+              </div>
+            </div>
+            <div className="checkout-sticky-actions">
+              <button 
+                type="button" 
+                onClick={handleAddressSubmit}
+                disabled={!address.name || !address.phone || !address.pincode || !address.streetAddress || isCheckingShipping || (shippingServiceability && !shippingServiceability.serviceable)} 
+                className="btn btn-primary checkout-btn"
+                style={{ width: '100%' }}
+              >
+                Deliver to this Address →
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
@@ -991,9 +999,17 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             </div>
           </div>
 
-          <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '10px' }}>
-            <button className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(1)}>Back</button>
-            <button className="btn btn-accent checkout-btn" style={{ flex: 2 }} onClick={() => setStep(3)}>Proceed to Payment →</button>
+          <div className="checkout-sticky-action-bar">
+            <div className="checkout-sticky-price-info">
+              <div className="checkout-sticky-price">₹{finalAmount.toLocaleString('en-IN')}</div>
+              <div className="checkout-sticky-subtext">
+                {appliedCoupon ? `🎉 Saved ₹${appliedCoupon.discountAmount}` : (itemsPrice > 500 ? '🚚 Free Delivery' : '+₹40 Delivery')}
+              </div>
+            </div>
+            <div className="checkout-sticky-actions">
+              <button className="btn btn-outline checkout-btn" style={{ flex: '0 0 75px' }} onClick={() => setStep(1)}>Back</button>
+              <button className="btn btn-accent checkout-btn" style={{ flex: 1 }} onClick={() => setStep(3)}>Proceed to Payment →</button>
+            </div>
           </div>
         </div>
       ) : step > 2 ? (
@@ -1118,11 +1134,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               </label>
             </div>
 
-            <div className="checkout-sticky-action-bar" style={{ display: 'flex', gap: '10px' }}>
-              <button type="button" className="btn btn-outline checkout-btn" style={{ flex: 1 }} onClick={() => setStep(2)} disabled={isSubmitting}>Back</button>
-              <button type="submit" className="btn btn-accent checkout-btn" style={{ flex: 2 }} disabled={isSubmitting}>
-                {isSubmitting ? 'Processing...' : `Place Order (₹${finalAmount.toLocaleString('en-IN')})`}
-              </button>
+            <div className="checkout-sticky-action-bar">
+              <div className="checkout-sticky-price-info">
+                <div className="checkout-sticky-price">₹{finalAmount.toLocaleString('en-IN')}</div>
+                <div className="checkout-sticky-subtext">
+                  {paymentMethod === 'cod' ? '💵 Cash on Delivery' : '⚡ Instant UPI/Card'}
+                </div>
+              </div>
+              <div className="checkout-sticky-actions">
+                <button type="button" className="btn btn-outline checkout-btn" style={{ flex: '0 0 75px' }} onClick={() => setStep(2)} disabled={isSubmitting}>Back</button>
+                <button type="submit" className="btn btn-accent checkout-btn" style={{ flex: 1 }} disabled={isSubmitting}>
+                  {isSubmitting ? 'Processing...' : (paymentMethod === 'cod' ? 'Place Order ⚡' : 'Pay Now ⚡')}
+                </button>
+              </div>
             </div>
           </form>
         </div>

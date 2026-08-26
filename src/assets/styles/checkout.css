@@ -221,7 +221,19 @@ textarea.checkout-input {
 
 /* ── Action Bar (Desktop vs Mobile Sticky) ── */
 .checkout-sticky-action-bar {
-  margin-top: 20px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.checkout-sticky-price-info {
+  display: none;
+}
+
+.checkout-sticky-actions {
+  flex: 1;
   display: flex;
   gap: 10px;
 }
@@ -242,10 +254,10 @@ textarea.checkout-input {
   
   .desktop-premium-checkout,
   .checkout-card {
-    padding-bottom: 110px !important;
+    padding-bottom: 130px !important;
   }
 
-  /* Fixed Floating Bar on Mobile */
+  /* 📌 Fixed Floating Bottom Action Bar on Mobile */
   .checkout-sticky-action-bar {
     position: fixed;
     bottom: 0;
@@ -253,12 +265,48 @@ textarea.checkout-input {
     right: 0;
     z-index: 1999;
     margin-top: 0;
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid #e2e8f0;
-    box-shadow: 0 -8px 25px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.14);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .checkout-sticky-price-info {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    text-align: left;
+  }
+
+  .checkout-sticky-price {
+    font-size: 19px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.1;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .checkout-sticky-subtext {
+    font-size: 11px;
+    font-weight: 800;
+    color: #16a34a;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .checkout-sticky-actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
   }
 
   .checkout-btn {
@@ -269,5 +317,6 @@ textarea.checkout-input {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    white-space: nowrap !important;
   }
 }
