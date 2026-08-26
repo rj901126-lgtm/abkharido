@@ -623,7 +623,13 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   flexShrink: 0,
                   boxShadow: '0 2px 4px rgba(79, 70, 229, 0.25)',
                 }}>
-                  {currentUser.fullName ? currentUser.fullName.trim().charAt(0).toUpperCase() : 'U'}
+                  {(() => {
+                    const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
+                      || (typeof currentUser?.name === 'string' && currentUser.name.trim())
+                      || (typeof currentUser?.username === 'string' && currentUser.username.trim())
+                      || 'U';
+                    return name.charAt(0).toUpperCase();
+                  })()}
                 </div>
 
                 {/* Single-Line Clean Name */}
@@ -638,10 +644,17 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   lineHeight: 1,
                   display: 'inline-block',
                 }}>
-                  {currentUser.fullName ? currentUser.fullName.trim().split(' ')[0] : 'User'}
+                  {(() => {
+                    const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
+                      || (typeof currentUser?.name === 'string' && currentUser.name.trim())
+                      || (typeof currentUser?.username === 'string' && currentUser.username.trim())
+                      || 'User';
+                    return name.split(' ')[0];
+                  })()}
                 </span>
 
                 <ChevronDown size={11} color="#64748b" style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
+
 
                 {dropdownOpen && (
 

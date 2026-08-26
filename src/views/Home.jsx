@@ -279,12 +279,25 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)',
                 border: '2px solid rgba(255,255,255,0.6)'
               }}>
-                {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+                {(() => {
+                  const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
+                    || (typeof currentUser?.name === 'string' && currentUser.name.trim())
+                    || (typeof currentUser?.username === 'string' && currentUser.username.trim())
+                    || 'U';
+                  return name.charAt(0).toUpperCase();
+                })()}
               </div>
               <div>
                 <div style={{ fontSize: '15px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.2px' }}>
-                  Welcome back, {currentUser.fullName || currentUser.username || 'Member'}! 👋
+                  Welcome back, {(() => {
+                    const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
+                      || (typeof currentUser?.name === 'string' && currentUser.name.trim())
+                      || (typeof currentUser?.username === 'string' && currentUser.username.trim())
+                      || 'Member';
+                    return name;
+                  })()}! 👋
                 </div>
+
                 <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{
                     display: 'inline-flex',
