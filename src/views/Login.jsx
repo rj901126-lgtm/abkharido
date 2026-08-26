@@ -23,8 +23,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [firebaseConfirmation, setFirebaseConfirmation] = useState(null); // Firebase SMS result
-  const [smsNotice, setSmsNotice] = useState(null); // SMS Gateway diagnostics notice
   const isVerifyingRef = useRef(false);
+
 
   // Focus management
   const otpRefs = useRef([]);
@@ -131,12 +131,11 @@ const Login = ({ onNavigate, callbackUrl }) => {
     if (!validatePhone()) return;
     setIsSending(true);
     setFirebaseConfirmation(null);
-    setSmsNotice(null);
     let firebaseSent = false;
     
     try {
       if (firebaseAuth) {
-        // ── Primary: Firebase Phone Authentication (Real SMS Delivery) ──
+        // ── Primary: Firebase Phone Authentication (Authentic Carrier SMS Delivery) ──
         try {
           if (!window.recaptchaVerifier) {
             try {
@@ -156,13 +155,13 @@ const Login = ({ onNavigate, callbackUrl }) => {
           
           if (window.recaptchaVerifier) {
             const fbPromise = signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase SMS timeout')), 4500));
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase SMS timeout')), 20000));
             const result = await Promise.race([fbPromise, timeoutPromise]);
             setFirebaseConfirmation(result);
             firebaseSent = true;
             setShowOtpScreen(true);
             setTimer(60);
-            showToast('✅ Firebase SMS OTP sent to +91 ' + phone, 'success');
+            showToast('✅ 6-digit verification code sent via SMS to +91 ' + phone, 'success');
           }
         } catch (fbErr) {
           cleanupRecaptcha();
@@ -175,14 +174,14 @@ const Login = ({ onNavigate, callbackUrl }) => {
         }
       }
 
-      // ── Fallback to direct backend OTP if Firebase client is unavailable or local dev sandbox ──
+      // ── Fallback to direct backend SMS gateway if Firebase client is unavailable ──
       if (!firebaseSent) {
         cleanupRecaptcha();
         await triggerBackendOtp();
       }
     } catch (err) {
       cleanupRecaptcha();
-      showToast('Unable to initiate OTP verification. Please check your network connection.', 'error');
+      showToast('Unable to send verification SMS. Please check your network connection.', 'error');
     } finally {
       setIsSending(false);
     }
@@ -199,25 +198,19 @@ const Login = ({ onNavigate, callbackUrl }) => {
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'OTP server error');
+        throw new Error(errData.error || 'SMS server error');
       }
-      const data = await res.json();
       setShowOtpScreen(true);
       setTimer(60);
-      const code = data.mockOtp || data._otp;
-      if (code) {
-        setSmsNotice(`Your 6-digit OTP is: ${code}`);
-        showToast(`✅ Instant OTP ready: ${code}`, 'success');
-      } else {
-        showToast('✅ OTP sent to +91 ' + phone, 'success');
-      }
+      showToast('✅ 6-digit verification code sent via SMS to +91 ' + phone, 'success');
     } catch (apiErr) {
-      console.error('Backend OTP delivery failed:', apiErr);
-      showToast('❌ Could not generate OTP. Please check connection and try again.', 'error');
+      console.error('Backend SMS delivery failed:', apiErr);
+      showToast('❌ Could not send SMS code. Please check your network connection.', 'error');
     } finally {
       setIsSending(false);
     }
   };
+
 
 
   const handleVerifyOtp = async (e, otpOverride) => {
@@ -432,33 +425,12 @@ const Login = ({ onNavigate, callbackUrl }) => {
               </div>
               <h2 className="lp-form-title">Enter OTP Code</h2>
               
-              {/* Sent to + CHANGE — fully contained, no overflow */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '10px 12px', borderRadius: '14px', marginBottom: '16px', fontSize: '13px', color: '#334155', overflow: 'hidden', minWidth: 0 }}>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91{phone}</strong></span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '10px 14px', borderRadius: '14px', marginBottom: '18px', fontSize: '13px', color: '#334155', overflow: 'hidden', minWidth: 0 }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>SMS Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91 {phone}</strong></span>
                 <button type="button" onClick={handleGoBack} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', fontSize: '11px', padding: '5px 10px', borderRadius: '8px', flexShrink: 0, whiteSpace: 'nowrap' }}>
                   CHANGE ✏️
                 </button>
               </div>
-
-              {smsNotice && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ecfdf5', border: '1.5px solid #10b981', borderRadius: '12px', marginBottom: '14px', fontSize: '13px', color: '#065f46', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)' }}>
-                  <span>💬 <strong>{smsNotice}</strong></span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => {
-                      const match = smsNotice.match(/\d{6}/);
-                      if (match) {
-                        const digits = match[0].split('');
-                        setOtpCode(digits);
-                        handleVerifyOtp(e, match[0]);
-                      }
-                    }}
-                    style={{ background: '#059669', color: 'white', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '11.5px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.3)' }}
-                  >
-                    Auto-Fill & Login ⚡
-                  </button>
-                </div>
-              )}
 
               <form onSubmit={handleVerifyOtp} className="lp-form" style={{ overflow: 'hidden' }}>
                 <div className="lp-otp-row">
@@ -479,77 +451,23 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   ))}
                 </div>
 
-                <button type="submit" className="lp-submit-btn" disabled={isVerifying}>
-                  {isVerifying ? 'Verifying...' : '⚡ VERIFY & LOGIN'}
+                <button type="submit" className="lp-submit-btn" disabled={isVerifying} style={{ marginTop: '8px' }}>
+                  {isVerifying ? 'Verifying OTP...' : '⚡ VERIFY & LOGIN'}
                   {!isVerifying && <ChevronRight size={18} />}
                 </button>
 
-                {/* Instant Backup OTP Generator if Firebase SMS is slow or blocked */}
-                <button
-                  type="button"
-                  onClick={() => triggerBackendOtp()}
-                  style={{
-                    width: '100%',
-                    padding: '9px 12px',
-                    marginTop: '8px',
-                    background: '#f8fafc',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '10px',
-                    color: '#4f46e5',
-                    fontSize: '12px',
-                    fontWeight: '800',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <span>📲</span> SMS not received? Generate Instant Login Code
-                </button>
-
-                {/* 🧪 Developer 1-Click Fast Unlock for authorized test phone */}
-                {(phone === '9172600587' || process.env.NEXT_PUBLIC_ENABLE_TEST_OTP === 'true') && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      setOtpCode(['1', '2', '3', '4', '5', '6']);
-                      handleVerifyOtp(e, '123456');
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      marginTop: '6px',
-                      background: '#ecfdf5',
-                      border: '1.5px dashed #10b981',
-                      borderRadius: '12px',
-                      color: '#059669',
-                      fontSize: '12.5px',
-                      fontWeight: '800',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <span>🧪</span> 1-Click Test OTP (123456)
-                  </button>
-                )}
-
-                <div className="lp-resend-row">
+                <div className="lp-resend-row" style={{ marginTop: '16px' }}>
                   {timer > 0 ? (
-                    <span className="lp-timer">Resend OTP in <strong>{timer}s</strong></span>
+                    <span className="lp-timer">Resend SMS code in <strong>{timer}s</strong></span>
                   ) : (
                     <button type="button" onClick={() => handleRequestOtp(null)} className="lp-link-btn" style={{ fontSize: '14px', fontWeight: '800', color: '#4f46e5' }}>
-                      🔄 Resend OTP
+                      🔄 Resend OTP via SMS
                     </button>
                   )}
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Auto-verifying SMS...</span>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Verified by Telecom Gateway</span>
                 </div>
               </form>
+
 
             </>
           ) : (

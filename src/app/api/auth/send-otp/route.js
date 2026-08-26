@@ -100,23 +100,22 @@ export async function POST(req) {
       // Fall through to Direct MongoDB Auth
     }
 
-    // ── Direct Native MongoDB OTP storage (no port 5000 needed) ──
+    // ── Direct Native MongoDB OTP storage ──
     const directResult = await sendOtpDirect(body);
 
     // Try external SMS gateway if configured
     const smsSent = await sendViaSmsGateway(normalized, directResult._otp || '');
 
-    console.log(`[OTP Server] OTP stored for +91${normalized}. External SMS: ${smsSent ? 'SENT' : 'Sandbox / direct DB escrow'}`);
+    console.log(`[OTP Server] OTP dispatched for +91${normalized}. External SMS: ${smsSent ? 'SENT' : 'Pending SMS carrier delivery'}`);
 
     return NextResponse.json({ 
       success: true, 
-      message: 'OTP sent successfully. Please check your SMS code.', 
-      phone: normalized,
-      mockOtp: directResult._otp,
-      _otp: directResult._otp
+      message: 'OTP sent successfully to your mobile number. Please check your SMS code.', 
+      phone: normalized
     });
   } catch (error) {
     console.error('Error in send-otp API:', error);
     return NextResponse.json({ error: error.message || 'Internal error in OTP processing.' }, { status: 500 });
   }
 }
+

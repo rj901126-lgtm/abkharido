@@ -140,21 +140,18 @@ export async function verifyOtpDirect(params = {}) {
     storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
   }
 
-  const isTestNumber = normalizedRecipient === '9172600587' || rawRecipient.includes('9172600587') || process.env.ENABLE_TEST_OTP === 'true';
-  const isTestOtp = isTestNumber && otp === '123456';
-
-  if (!storedOtpDoc && !isTestOtp) {
-    throw new Error('OTP expired or not found. Please request a new OTP.');
+  if (!storedOtpDoc) {
+    throw new Error('OTP expired or not found. Please request a new verification code.');
   }
 
-  if (storedOtpDoc) {
-    const isMatch = await storedOtpDoc.matchOtp(otp);
-    if (!isMatch && !isTestOtp) {
-      throw new Error('Incorrect OTP code. Please check the digits and try again.');
-    }
+  const isMatch = await storedOtpDoc.matchOtp(otp);
+  if (!isMatch) {
+    throw new Error('Incorrect OTP code. Please check the digits received via SMS and try again.');
   }
 
   await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }] });
+
+
 
   // Search for existing user to avoid creating duplicate IDs
   let user = await findExistingUser({
