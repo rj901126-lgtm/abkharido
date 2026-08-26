@@ -51,6 +51,12 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active, .btn:active, .home-category-pills-row button:active {
+  transform: scale(0.96);
+  transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 img {

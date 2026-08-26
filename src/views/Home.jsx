@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
-import { ChevronLeft, ChevronRight, ArrowRight, Zap, ShieldCheck, Truck, Award, Sparkles, Filter, Store } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, Zap, ShieldCheck, Truck, Award, Sparkles, Filter, Store, ArrowUp } from 'lucide-react';
 import '../assets/styles/home.css';
+
 
 const defaultVipCategories = [
   { id: 'mobiles', label: 'Mobiles', icon: '📱', bg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', activeBg: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)', color: '#0369a1' },
@@ -81,21 +82,38 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     if (touchStartX.current - touchEndX.current < -50) handlePrevSlide();
   };
 
-  const targetDate = useRef(new Date(Date.now() + 14 * 3600 * 1000 + 42 * 60 * 1000)).current;
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleCategoryClick = (catId) => {
-    setSelectedCatPill(catId);
-    if (catId === 'all') {
-      if (onSelectCategory) onSelectCategory('all');
-      else if (onNavigate) onNavigate('catalog');
+    if (selectedCatPill === catId) {
+      setSelectedCatPill('all');
     } else {
-      if (onSelectCategory) {
-        onSelectCategory(catId);
-      } else if (onNavigate) {
-        onNavigate(`catalog?category=${catId}`);
-      }
+      setSelectedCatPill(catId);
+      setTimeout(() => {
+        const feed = document.getElementById('featured-deals-feed');
+        if (feed) {
+          feed.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 60);
     }
   };
+
 
   // Filter products based on selected Category Pill
   const filteredProducts = selectedCatPill === 'all'
@@ -461,7 +479,47 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </div>
 
       {/* ── 5. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
-      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+      <section id="featured-deals-feed" className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', scrollMarginTop: '80px' }}>
+        
+        {/* Active Category Filter Banner Indicator */}
+        {selectedCatPill !== 'all' && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            border: '1px solid #bfdbfe',
+            padding: '10px 14px',
+            borderRadius: '16px',
+            marginBottom: '18px',
+            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '800', color: '#1e40af' }}>
+              <span>🎯 Filtered by Category:</span>
+              <span style={{ textTransform: 'capitalize', background: '#3b82f6', color: '#ffffff', padding: '3px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: '900', boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)' }}>
+                {selectedCatPill} ({displayList.length} items)
+              </span>
+            </div>
+            <button
+              onClick={() => setSelectedCatPill('all')}
+              style={{
+                fontSize: '12px',
+                fontWeight: '800',
+                color: '#dc2626',
+                background: '#fee2e2',
+                padding: '5px 12px',
+                borderRadius: '99px',
+                cursor: 'pointer',
+                border: '1px solid #fca5a5',
+                transition: 'all 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+              }}
+            >
+              ✕ Reset All
+            </button>
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
             <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
@@ -471,6 +529,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </div>
           <DealsCountdown targetDate={targetDate} />
         </div>
+
 
         {/* Product Grid / Row */}
         {products.length === 0 ? (
@@ -763,13 +822,43 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             >
               Join Partner Hub →
             </button>
-          </div>
-        </div>
-      </section>
+      {/* ── Floating Back to Top Action ── */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+          style={{
+            position: 'fixed',
+            bottom: '92px',
+            left: '20px',
+            zIndex: 1040,
+            background: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            color: '#ffffff',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '99px',
+            padding: '8px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12px',
+            fontWeight: '800',
+            cursor: 'pointer',
+            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)',
+            animation: 'fadeIn 0.2s ease-out',
+            transition: 'transform 0.15s ease',
+          }}
+        >
+          <ArrowUp size={15} color="#38bdf8" />
+          <span>Top</span>
+        </button>
+      )}
 
     </div>
   );
 };
+
 
 const DealsCountdown = ({ targetDate }) => {
   const [timer, setTimer] = useState({ hrs: '14', mins: '42', secs: '00' });
