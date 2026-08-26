@@ -169,7 +169,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             alignItems: 'center',
             gap: '10px',
             overflowX: 'auto',
-            padding: '2px 14px',
+            padding: '0 14px',
             maxWidth: '1360px',
             margin: '0 auto',
             scrollbarWidth: 'none',
@@ -189,15 +189,15 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '2px 6px',
+                padding: '0 6px',
                 minWidth: '56px',
-                marginTop: '1px',
                 outline: 'none',
                 transition: 'transform 0.15s ease',
               }}
             >
               {/* Category Circle Avatar */}
               <div style={{
+
                 width: '44px',
                 height: '44px',
                 borderRadius: '50%',
