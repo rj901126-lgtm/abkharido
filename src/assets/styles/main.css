@@ -124,17 +124,17 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar natural height 86px */
+  /* Mobile navbar total height with safe-area + search bar is ~92px */
   .main-content {
-    margin-top: 86px !important;
+    margin-top: calc(92px + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 86px);
+    min-height: calc(100vh - 92px);
   }
 
   /* Category pill strip on mobile with exact equal top & bottom visual spacing */
   .home-category-strip {
     position: sticky !important;
-    top: 86px !important;
+    top: calc(92px + env(safe-area-inset-top, 0px)) !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     padding: 12px 0 !important;

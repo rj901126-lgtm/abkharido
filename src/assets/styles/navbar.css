@@ -275,9 +275,9 @@
 @media (max-width: 768px) {
   .navbar-header {
     height: auto !important;
-    min-height: 86px !important;
+    min-height: unset !important;
     padding-top: env(safe-area-inset-top) !important;
-    padding-bottom: 0 !important;
+    padding-bottom: 4px !important;
     display: flex !important;
     align-items: center !important;
     background: rgba(255, 255, 255, 0.98) !important;
@@ -293,10 +293,11 @@
     grid-template-rows: auto auto !important;
     row-gap: 6px !important;
     column-gap: 12px !important;
-    padding: 6px 14px 8px 14px !important;
+    padding: 6px 14px 4px 14px !important;
     width: 100% !important;
     align-items: center !important;
   }
+
 
   .navbar-left {
     grid-column: 1 / 2 !important;
