@@ -125,6 +125,18 @@ img {
     margin-top: -6px !important;
     margin-bottom: 0 !important;
     padding-top: 0 !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  .home-category-strip.compressed {
+    top: 58px !important;
+    margin-top: 0 !important;
+    padding: 6px 0 !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
   }
 
   /* Remove any top gap inside home container on mobile while keeping card gap */
@@ -146,7 +158,11 @@ img {
   .main-content[data-announcement="true"] .home-category-strip {
     top: 128px !important;
   }
-}
+
+  .main-content[data-announcement="true"] .home-category-strip.compressed {
+    top: 128px !important;
+  }
+
 
 /* Common Layout Components */
 .card {

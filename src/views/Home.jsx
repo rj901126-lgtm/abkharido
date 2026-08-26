@@ -88,13 +88,21 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   };
 
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isCategoryCompressed, setIsCategoryCompressed] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 400) {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      if (scrollY > 400) {
         setShowBackToTop(true);
       } else {
         setShowBackToTop(false);
+      }
+
+      if (scrollY > 50) {
+        setIsCategoryCompressed(true);
+      } else {
+        setIsCategoryCompressed(false);
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -162,27 +170,55 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
-      {/* ── 1. Category Quick-Links Strip (Modern App Circle Style) ── */}
+      {/* ── 1. Flipkart-Style Sticky Category Strip (Full circles at top -> Compresses to sleek sticky named tabs on scroll) ── */}
       <section
-        className="home-category-strip"
+        className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
         style={{
           position: 'sticky',
           top: '64px',
           zIndex: 90,
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
-          boxShadow: '0 2px 8px -2px rgba(15, 23, 42, 0.05)',
-          padding: '0 0 6px 0',
+          backgroundColor: isCategoryCompressed ? 'rgba(255, 255, 255, 0.96)' : '#ffffff',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(226, 232, 240, 0.85)',
+          boxShadow: isCategoryCompressed ? '0 4px 16px rgba(15, 23, 42, 0.08)' : '0 2px 8px -2px rgba(15, 23, 42, 0.04)',
+          padding: isCategoryCompressed ? '5px 0' : '2px 0 6px 0',
           margin: 0,
+          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
 
-        <div className="home-category-pills-row">
+        <div 
+          className="home-category-pills-row"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: isCategoryCompressed ? '8px' : '4px',
+            overflowX: 'auto',
+            padding: isCategoryCompressed ? '0 12px' : '0 8px',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+            transition: 'all 0.25s ease'
+          }}
+        >
           {activeVipCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => handleCategoryClick(cat.id)}
-              style={{
+              style={isCategoryCompressed ? {
+                flexShrink: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: cat.bg || '#f1f5f9',
+                border: '1px solid rgba(0,0,0,0.06)',
+                borderRadius: '99px',
+                padding: '5px 12px',
+                cursor: 'pointer',
+                outline: 'none',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+              } : {
                 flexShrink: 0,
                 display: 'flex',
                 flexDirection: 'column',
@@ -194,10 +230,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 padding: '2px 4px',
                 minWidth: '56px',
                 outline: 'none',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {/* Luxury Pastel Avatar Circle */}
-              <div style={{
+              {/* Icon */}
+              <div style={isCategoryCompressed ? {
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1
+              } : {
                 width: '44px',
                 height: '44px',
                 borderRadius: '50%',
@@ -214,8 +257,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
               </div>
               {/* Category Name */}
               <span style={{
-                fontSize: '11px',
-                fontWeight: '700',
+                fontSize: isCategoryCompressed ? '12px' : '11px',
+                fontWeight: isCategoryCompressed ? '800' : '700',
                 color: '#1e293b',
                 whiteSpace: 'nowrap',
                 lineHeight: 1.2,
@@ -228,6 +271,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
 
       </section>
+
 
 
       {/* ── 2. VIP Platinum Member Pass (Glassmorphism & Gold Theme) ── */}
