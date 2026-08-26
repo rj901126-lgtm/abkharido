@@ -347,7 +347,39 @@ export default function ProductImageZoomViewer({
             animation: 'fadeIn 0.2s ease-out'
           }}
         >
-          {/* Top Action Bar */}
+          {/* Fixed Floating Top-Right Close Button */}
+          <button 
+            type="button" 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseModal(); }}
+            onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseModal(); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseModal(); }}
+            className="lightbox-close-btn"
+            title="Close (Esc)"
+            style={{
+              position: 'fixed',
+              top: '18px',
+              right: '18px',
+              background: '#ef4444',
+              border: '2px solid #ffffff',
+              color: '#ffffff',
+              borderRadius: '24px',
+              padding: '8px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              fontWeight: '900',
+              fontSize: '13.5px',
+              boxShadow: '0 6px 20px rgba(239, 68, 68, 0.6)',
+              zIndex: 10000010,
+              touchAction: 'manipulation'
+            }}
+          >
+            <X size={18} strokeWidth={3} />
+            <span>Close</span>
+          </button>
+
+          {/* Top Info Bar */}
           <div 
             onClick={(e) => e.stopPropagation()}
             style={{
@@ -355,47 +387,20 @@ export default function ProductImageZoomViewer({
               maxWidth: '1200px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
+              justifyContent: 'flex-start',
               color: '#ffffff',
               padding: '6px 0 12px 0',
               zIndex: 1000001
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span style={{ fontSize: '14px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", maxWidth: '180px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {productName}
               </span>
               <span style={{ fontSize: '11.5px', color: '#94a3b8', background: 'rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
                 {activeIdx + 1} / {images.length}
               </span>
             </div>
-
-            {/* Prominent, Instant-Exit Close Button */}
-            <button 
-              type="button" 
-              onClick={(e) => { e.stopPropagation(); handleCloseModal(); }}
-              onTouchEnd={(e) => { e.stopPropagation(); handleCloseModal(); }}
-              className="lightbox-close-btn"
-              title="Close (Esc)"
-              style={{
-                background: '#ef4444',
-                border: '1.5px solid rgba(255,255,255,0.9)',
-                color: '#ffffff',
-                borderRadius: '24px',
-                padding: '6px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                cursor: 'pointer',
-                fontWeight: '900',
-                fontSize: '13px',
-                boxShadow: '0 4px 16px rgba(239, 68, 68, 0.5)',
-                zIndex: 1000002
-              }}
-            >
-              <X size={17} strokeWidth={3} />
-              <span>Close</span>
-            </button>
           </div>
 
           {/* Main Zoomed Stage - Tap outside image closes modal */}
@@ -545,6 +550,39 @@ export default function ProductImageZoomViewer({
               ))}
             </div>
           )}
+
+          {/* Floating Bottom Exit Pill on Mobile */}
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseModal(); }}
+            onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseModal(); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseModal(); }}
+            style={{
+              position: 'fixed',
+              bottom: 'calc(14px + env(safe-area-inset-bottom))',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'rgba(15, 23, 42, 0.85)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              color: '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              borderRadius: '30px',
+              padding: '6px 18px',
+              fontSize: '12px',
+              fontWeight: '800',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              zIndex: 10000008,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              whiteSpace: 'nowrap',
+              touchAction: 'manipulation'
+            }}
+          >
+            <X size={14} strokeWidth={2.5} /> Tap to Exit Zoom
+          </button>
 
         </div>
       )}
