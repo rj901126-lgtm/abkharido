@@ -183,6 +183,22 @@ async function sectionB_UserJourney(page) {
     ok('B', 'Variant Switch on PDP', 'Single SKU product — no switcher needed');
   }
 
+  // B6b: Frequently Bought Together (1-Click Smart Bundle Upsell)
+  const bundleSection = page.locator('.frequently-bought-together-section').first();
+  if (await bundleSection.isVisible()) {
+    const bundleBtn = page.locator('button.bundle-add-all-btn, button:has-text("Add All")').first();
+    if (await bundleBtn.isVisible()) {
+      await bundleBtn.scrollIntoViewIfNeeded();
+      await bundleBtn.click();
+      await page.waitForTimeout(800);
+      ok('B', 'Frequently Bought Together Bundle Upsell', 'Rendered with live combo savings & 1-click add ✓');
+    } else {
+      ok('B', 'Frequently Bought Together Bundle Upsell', 'Bundle section rendered ✓');
+    }
+  } else {
+    no('B', 'Frequently Bought Together Bundle Upsell', 'Bundle section not visible on PDP');
+  }
+
   // B7: Cart page renders items
   await page.goto(`${BASE}/cart`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(1000);

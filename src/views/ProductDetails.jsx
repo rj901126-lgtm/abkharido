@@ -23,6 +23,7 @@ import {
 import '../assets/styles/product.css';
 import CountdownTimer from '../components/CountdownTimer';
 import ProductCard from '../components/ProductCard';
+import FrequentlyBoughtTogether from '../components/FrequentlyBoughtTogether';
 import { calculateCoinReward } from '../utils/coinUtils';
 import { PRODUCTS } from '../db/mockData';
 
@@ -1303,6 +1304,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             );
           })()}
 
+          {/* 🛍️ Smart Bundle Upsell: Frequently Bought Together */}
+          <FrequentlyBoughtTogether 
+            currentProduct={product} 
+            onNavigateProduct={onNavigate} 
+          />
 
           {/* Ratings & Reviews section (M1 Real Calculation Fix) */}
 
