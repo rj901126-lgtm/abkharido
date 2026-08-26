@@ -108,7 +108,15 @@ img {
   margin: 0 0 20px 0 !important;
 }
 
+@media (min-width: 769px) {
+  .home-category-pills-row {
+    justify-content: center !important;
+    gap: 16px !important;
+  }
+}
+
 /* Core Container Utility */
+
 .container {
   width: 100%;
   max-width: var(--max-width-content);
