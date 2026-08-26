@@ -58,7 +58,9 @@ export const AppProvider = ({ children }) => {
   });
   const [activeReferral, setActiveReferral] = useState(null);
   const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
   const [wishlist, setWishlist] = useState([]);
+
   const [savedCards, setSavedCards] = useState([]);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
@@ -784,11 +786,13 @@ export const AppProvider = ({ children }) => {
 
   // --- Helper: Show Toast ---
   const showToast = (message, type = 'success') => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, type });
-    setTimeout(() => {
+    toastTimeoutRef.current = setTimeout(() => {
       setToast(null);
-    }, 4500);
+    }, 3200);
   };
+
 
   // --- Helper: Increment Referrer Clicks via API ---
   const incrementReferrerClicks = async () => {
@@ -1317,7 +1321,9 @@ export const AppProvider = ({ children }) => {
         activeReferral,
         toast,
         showToast,
+        hideToast: () => setToast(null),
         addToCart,
+
         updateCartQty,
         removeFromCart,
         clearCart,

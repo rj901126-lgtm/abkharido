@@ -16,7 +16,8 @@ export default function ClientLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast, promotions, verifyPayment, showToast } = useApp();
+  const { toast, hideToast, promotions, verifyPayment, showToast } = useApp();
+
   
   const categoryParam = searchParams.get('category') || 'all';
   
@@ -227,8 +228,10 @@ export default function ClientLayout({ children }) {
         <Toast 
           message={toast.message} 
           type={toast.type} 
+          onClose={hideToast}
         />
       )}
+
 
       {/* Global Slide-Out Cart Drawer - Never rendered on admin/portal */}
       {!isPortalPage && (
