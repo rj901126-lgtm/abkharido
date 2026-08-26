@@ -15,27 +15,32 @@
 
 /* --- CATALOG PAGE --- */
 .catalog-page-layout-container {
-  display: flex;
-  gap: 24px;
-  padding: 24px;
+  display: grid !important;
+  grid-template-columns: 260px minmax(0, 1fr) !important;
+  gap: 24px !important;
+  padding: 24px 16px 80px !important;
+  max-width: 1440px !important;
+  margin: 0 auto !important;
+  align-items: start !important;
 }
 
 .filters-sidebar {
-  width: 260px;
-  background-color: white;
-  border: 1px solid transparent;
-  border-radius: 16px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  align-self: flex-start;
-  position: sticky;
-  top: 140px;
-  max-height: calc(100vh - 160px);
-  overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  width: 260px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  position: sticky !important;
+  top: 80px !important;
+  max-height: calc(100vh - 100px) !important;
+  overflow-y: auto !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-sizing: border-box !important;
 }
+
 
 /* Custom scrollbar for sticky filters */
 .filters-sidebar::-webkit-scrollbar {
