@@ -134,18 +134,18 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar total height with search bar is 66px — 0 gap */
+  /* Mobile navbar total height with search bar is 60px — COMPLETELY 0 gap with categories */
   .main-content {
-    margin-top: 66px !important;
+    margin-top: 60px !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 66px);
+    min-height: calc(100vh - 60px);
   }
 
-  /* Category pill strip sits flush directly below mobile navbar with EXACTLY 0 gap */
+  /* Category pill strip sits flush directly below mobile navbar with COMPLETELY 0 gap */
   .home-category-strip {
     position: sticky !important;
-    top: 66px !important;
-    margin-top: 0 !important;
+    top: 60px !important;
+    margin-top: -2px !important;
     margin-bottom: 0 !important;
     padding: 0 0 2px 0 !important;
     z-index: 900 !important;
@@ -153,7 +153,7 @@ img {
   }
 
   .home-category-strip.compressed {
-    top: 66px !important;
+    top: 60px !important;
     margin-top: 0 !important;
     padding: 3px 0 !important;
     background: rgba(255, 255, 255, 0.98) !important;
@@ -183,19 +183,20 @@ img {
     padding-top: 0 !important;
   }
 
-  /* When announcement bar (32px) is showing: 66px navbar + 32px announcement = 98px */
+  /* When announcement bar (32px) is showing: 60px navbar + 32px announcement = 92px */
   .main-content[data-announcement="true"] {
-    margin-top: 98px !important;
+    margin-top: 92px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip {
-    top: 98px !important;
+    top: 92px !important;
   }
 
   .main-content[data-announcement="true"] .home-category-strip.compressed {
-    top: 98px !important;
+    top: 92px !important;
   }
 }
+
 
 
 

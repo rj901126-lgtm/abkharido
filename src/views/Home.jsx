@@ -180,7 +180,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
       {/* ── 1. Flipkart-Style Sticky Category Strip (Full circles at top -> Compresses to sleek sticky named tabs on scroll) ── */}
-      <div className="home-category-strip-wrapper" style={{ minHeight: isCategoryCompressed ? '38px' : '62px', width: '100%', margin: 0, padding: 0 }}>
+      <div className="home-category-strip-wrapper" style={{ minHeight: isCategoryCompressed ? '34px' : '54px', width: '100%', margin: 0, padding: 0 }}>
         <section
           className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
         >
@@ -190,9 +190,9 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: isCategoryCompressed ? '6px' : '2px',
+              gap: isCategoryCompressed ? '5px' : '2px',
               overflowX: 'auto',
-              padding: isCategoryCompressed ? '0 10px' : '0 6px',
+              padding: isCategoryCompressed ? '0 8px' : '0 6px',
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
               transition: 'all 0.2s ease'
@@ -206,11 +206,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   flexShrink: 0,
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '4px',
                   background: cat.bg || '#f1f5f9',
                   border: '1px solid rgba(0,0,0,0.06)',
                   borderRadius: '99px',
-                  padding: '4px 10px',
+                  padding: '3px 9px',
                   cursor: 'pointer',
                   outline: 'none',
                   transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -220,12 +220,12 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '3px',
+                  gap: '2px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  padding: '2px 4px',
-                  minWidth: '54px',
+                  padding: '0 4px',
+                  minWidth: '50px',
                   outline: 'none',
                   transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
@@ -238,15 +238,15 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   justifyContent: 'center',
                   lineHeight: 1
                 } : {
-                  width: '40px',
-                  height: '40px',
+                  width: '38px',
+                  height: '38px',
                   borderRadius: '50%',
                   background: cat.bg || '#f1f5f9',
                   border: '1px solid rgba(0,0,0,0.06)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px',
+                  fontSize: '17px',
                   boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
                   transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}>
@@ -254,7 +254,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 </div>
                 {/* Category Name */}
                 <span style={{
-                  fontSize: isCategoryCompressed ? '11.5px' : '11px',
+                  fontSize: isCategoryCompressed ? '11px' : '10.5px',
                   fontWeight: isCategoryCompressed ? '800' : '700',
                   color: '#1e293b',
                   whiteSpace: 'nowrap',
@@ -269,6 +269,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
         </section>
       </div>
+
 
 
 
