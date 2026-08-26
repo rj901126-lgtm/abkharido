@@ -294,8 +294,8 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, seller
   // Enterprise Scale: Fetch from Backend Search API instead of client-side filtering
   useEffect(() => {
     const fetchSearchResults = async () => {
-      // If there's no search query and category is all, fallback to context/initial products for immediate load
-      if ((!searchQuery || searchQuery.trim() === '') && currentCategory === 'all') {
+      // If there's no search query, no seller, and category is all, fallback to context/initial products for immediate load
+      if ((!searchQuery || searchQuery.trim() === '') && (!sellerShopName || sellerShopName.trim() === '') && currentCategory === 'all') {
         setServerProducts(initialProducts || null);
         return;
       }
@@ -308,6 +308,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, seller
         
         if (searchQuery) queryParams.append('search', normalizeSearchQuery(searchQuery.trim()));
         if (currentCategory && currentCategory !== 'all') queryParams.append('category', currentCategory);
+        if (sellerShopName) queryParams.append('seller', sellerShopName.trim());
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?${queryParams.toString()}`);
         if (res.ok) {
@@ -327,7 +328,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, seller
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, currentCategory, initialProducts]);
+  }, [searchQuery, currentCategory, sellerShopName, initialProducts]);
 
   // Helper to count matching products in context for a subcategory
   const getSubCategoryCount = (sub) => {
@@ -349,6 +350,16 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, seller
     const fallbackProducts = (initialProducts && initialProducts.length > 0) ? initialProducts : contextProducts;
     let filtered = serverProducts !== null ? [...serverProducts] : [...fallbackProducts];
 
+    // ── Strictly Isolate Seller Storefront Products ──
+    if (sellerShopName) {
+      const cleanSellerSlug = sellerShopName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      filtered = filtered.filter(p => {
+        if (!p) return false;
+        const pSeller = (p.sellerShopName || p.sellerName || 'abkharido-official-store').toLowerCase().replace(/[^a-z0-9]/g, '');
+        return pSeller === cleanSellerSlug || pSeller.includes(cleanSellerSlug) || cleanSellerSlug.includes(pSeller);
+      });
+    }
+
     // ── Guaranteed Category Filter (prevent cross-category leakage on fallback) ──
     if (currentCategory && currentCategory !== 'all') {
       const cat = currentCategory.toLowerCase().trim();
@@ -357,6 +368,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, seller
         return prodCat === cat || prodCat.includes(cat) || cat.includes(prodCat);
       });
     }
+
 
     // ── Sub-Category Filter ──
     if (selectedSubCategory) {
@@ -710,7 +722,7 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, seller
         {sellerShopName && (
           <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)', borderRadius: '16px', padding: '16px 20px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px', boxShadow: '0 4px 16px rgba(15, 23, 42, 0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)', flexShrink: 0 }}>
                 <Store size={22} color="#ffffff" />
               </div>
               <div>
@@ -722,13 +734,33 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, seller
                     ✓ VERIFIED SELLER
                   </span>
                 </div>
-                <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>
-                  Direct buy from official seller with brand warranty, Express Dispatch & COD available.
+                <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>
+                  Showing <strong>{filteredProducts.length}</strong> official verified products from this seller • 100% Brand Warranty &amp; COD
                 </div>
               </div>
             </div>
+            {onSelectCategory && (
+              <button
+                onClick={() => {
+                  window.location.href = '/catalog';
+                }}
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#ffffff',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  fontSize: '11.5px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                View All AbKharido Store ➔
+              </button>
+            )}
           </div>
         )}
+
 
         {/* ── 🧭 1. Interactive Visual Breadcrumbs Bar ── */}
         <div style={{

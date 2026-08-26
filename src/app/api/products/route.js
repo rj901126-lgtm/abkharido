@@ -34,6 +34,8 @@ function toPublicProductDTO(product) {
       }))
     })),
     hasProCare: Boolean(product.hasProCare),
+    sellerShopName: product.sellerShopName || product.sellerName || 'AbKharido Official Store',
+    sellerId: product.sellerId || product.seller || '',
     flashSale: product.flashSale?.isActive ? {
       isActive: true,
       price: product.flashSale.price,
@@ -71,6 +73,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const category = (searchParams.get('category') || '').trim();
     const search = (searchParams.get('search') || '').trim();
+    const seller = (searchParams.get('seller') || '').trim();
     const rawLimit = parseInt(searchParams.get('limit') || '20', 10);
     const rawPage = parseInt(searchParams.get('page') || '1', 10);
 
@@ -82,7 +85,8 @@ export async function GET(req) {
       page: String(page),
       limit: String(limit),
       ...(category ? { category } : {}),
-      ...(search ? { search } : {})
+      ...(search ? { search } : {}),
+      ...(seller ? { seller } : {})
     }).toString();
 
     const path = `/api/products?${queryString}`;
@@ -111,6 +115,10 @@ export async function GET(req) {
           { category: { $regex: escapedSearch, $options: 'i' } }
         ];
       }
+      if (seller) {
+        const escapedSeller = seller.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/-/g, '[ -]');
+        filter.sellerShopName = { $regex: new RegExp(escapedSeller, 'i') };
+      }
 
       let total = await Product.countDocuments(filter);
       let query = Product.find(filter).lean();
@@ -128,6 +136,13 @@ export async function GET(req) {
           const s = search.toLowerCase();
           fallback = fallback.filter(p => p.name?.toLowerCase().includes(s) || p.description?.toLowerCase().includes(s));
         }
+        if (seller) {
+          const sClean = seller.toLowerCase().replace(/[^a-z0-9]/g, '');
+          fallback = fallback.filter(p => {
+            const pS = (p.sellerShopName || p.sellerName || 'abkharido-official-store').toLowerCase().replace(/[^a-z0-9]/g, '');
+            return pS === sClean || pS.includes(sClean);
+          });
+        }
         return NextResponse.json({
           products: fallback.slice(0, limit).map(toPublicProductDTO),
           total: fallback.length,
@@ -136,6 +151,7 @@ export async function GET(req) {
           totalPages: Math.ceil(fallback.length / limit) || 1
         });
       }
+
 
       return NextResponse.json({
         products: products.map(toPublicProductDTO),
