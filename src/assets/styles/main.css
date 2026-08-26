@@ -106,16 +106,16 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar is 74px tall — flush with category strip */
+  /* Mobile navbar is 68px tall — flush with category strip */
   .main-content {
-    margin-top: 74px !important;
+    margin-top: 68px !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 74px);
+    min-height: calc(100vh - 68px);
   }
 
   /* Category pill strip sits directly below mobile navbar with 0 extra gap */
   .home-category-strip {
-    top: 74px !important;
+    top: 68px !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
