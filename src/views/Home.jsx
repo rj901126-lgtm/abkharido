@@ -149,11 +149,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           top: '64px',
           zIndex: 90,
           backgroundColor: 'rgba(255, 255, 255, 0.98)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
-          boxShadow: '0 4px 16px -4px rgba(9, 13, 22, 0.05)',
-          padding: '6px 0',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(226, 232, 240, 0.7)',
+          boxShadow: '0 2px 8px -2px rgba(9, 13, 22, 0.06)',
+          padding: '4px 0',
           margin: 0,
         }}
       >
@@ -169,47 +169,32 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: '5px',
-                  background: isSelected ? (cat.gradient || 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)') : '#ffffff',
-                  border: isSelected ? 'none' : '1px solid #e2e8f0',
+                  gap: '4px',
+                  background: isSelected ? (cat.gradient || 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)') : 'transparent',
+                  border: isSelected ? 'none' : '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  padding: '5px 11px',
+                  padding: '3px 10px',
                   borderRadius: '99px',
-                  boxShadow: isSelected ? '0 4px 12px rgba(79, 70, 229, 0.3)' : '0 1px 3px rgba(0,0,0,0.06)',
-                  transition: 'all 0.18s ease',
-                  height: '32px',
-                  transform: isSelected ? 'scale(1.04)' : 'scale(1)'
+                  boxShadow: isSelected ? '0 3px 10px rgba(79, 70, 229, 0.25)' : 'none',
+                  transition: 'all 0.15s ease',
+                  height: '26px',
                 }}
               >
-                <span style={{ fontSize: '13px' }}>{cat.icon}</span>
+                <span style={{ fontSize: '12px', lineHeight: 1 }}>{cat.icon}</span>
                 <span style={{
-                  fontSize: '11.5px',
-                  fontWeight: '700',
-                  color: isSelected ? '#ffffff' : '#334155',
+                  fontSize: '11px',
+                  fontWeight: isSelected ? '700' : '600',
+                  color: isSelected ? '#ffffff' : '#4b5563',
                   whiteSpace: 'nowrap',
                 }}>
                   {cat.label}
                 </span>
-                {cat.badge && (
-                  <span style={{
-                    fontSize: '7.5px',
-                    fontWeight: '800',
-                    padding: '1px 5px',
-                    borderRadius: '100px',
-                    background: isSelected ? 'rgba(255,255,255,0.22)' : '#eff6ff',
-                    color: isSelected ? '#ffffff' : '#2563eb',
-                    border: isSelected ? '1px solid rgba(255,255,255,0.3)' : '1px solid #bfdbfe',
-                    letterSpacing: '0.2px'
-                  }}>
-                    {cat.badge}
-                  </span>
-                )}
               </button>
-
             );
           })}
         </div>
       </section>
+
 
       {/* ── 2. Personalized VIP Member Bar (When Logged In) ── */}
       {currentUser && (
