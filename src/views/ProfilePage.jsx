@@ -359,7 +359,6 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   };
 
   const handleDeleteAddress = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this address?')) return;
     const currentAddresses = Array.isArray(currentUser?.addresses) ? [...currentUser.addresses] : [];
     let remaining = currentAddresses.filter(a => a && a.id !== id && a._id !== id);
     if (remaining.length > 0 && !remaining.some(a => a?.isDefault)) {
@@ -369,9 +368,10 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
     const success = await updateUserProfile({ addresses: remaining });
     setIsUpdating(false);
     if (success) {
-      showToast('Address removed.', 'info');
+      showToast('🗑️ Address removed successfully.', 'info');
     }
   };
+
 
   const handleSetDefaultAddress = async (id) => {
     const currentAddresses = Array.isArray(currentUser?.addresses) ? [...currentUser.addresses] : [];
@@ -1049,17 +1049,15 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                       <div style={{ fontSize: '12px', color: '#cbd5e1', textTransform: 'uppercase' }}>{card.card_bank_name || 'Bank Card'}</div>
                       <button 
                         onClick={async () => {
-                          const conf = window.confirm("Are you sure you want to remove this card?");
-                          if (conf) {
-                            const success = await removeSavedCard(card.instrument_id);
-                            if (success) showToast('Card removed successfully.', 'success');
-                            else showToast('Failed to remove card.', 'error');
-                          }
+                          const success = await removeSavedCard(card.instrument_id);
+                          if (success) showToast('💳 Card removed safely from your account.', 'info');
+                          else showToast('Failed to remove card.', 'error');
                         }}
                         style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }}
                       >
                         Remove
                       </button>
+
                     </div>
                   </div>
                 ))}

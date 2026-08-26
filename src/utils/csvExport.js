@@ -1,8 +1,9 @@
 export const exportToCSV = (data, filename = 'export.csv') => {
   if (!data || !data.length) {
-    alert('No data available to export');
+    console.warn('[csvExport] No data available to export');
     return;
   }
+
 
   // Extract all unique headers from the objects
   const headers = Array.from(

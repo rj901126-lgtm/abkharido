@@ -86,8 +86,8 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const searchParams = useSearchParams();
   const { t } = useLanguage();
   const activeCat = searchParams ? (searchParams.get('category') || currentCategory || 'all') : (currentCategory || 'all');
-  // eslint-disable-next-line
-  const { currentUser, cart, logout, resetDatabase, products, deliveryLocation } = useApp();
+  const { currentUser, cart, logout, resetDatabase, products, deliveryLocation, showToast } = useApp();
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -169,7 +169,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   const handleVoiceSearch = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Voice search is not supported in this browser. Please use Chrome.');
+      showToast('🎤 Voice search is not supported in this browser. Please use Chrome.', 'info');
       return;
     }
     if (isListening) {
