@@ -151,7 +151,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           backgroundColor: '#ffffff',
           borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
           boxShadow: '0 2px 8px -2px rgba(15, 23, 42, 0.05)',
-          padding: '2px 0 6px',
+          padding: '0 0 6px 0',
           margin: 0,
         }}
       >
@@ -168,19 +168,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '3px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  padding: '0 4px',
-                  minWidth: '58px',
+                  padding: '0 3px',
+                  minWidth: '54px',
                   outline: 'none',
                 }}
               >
                 {/* Icon Circle */}
                 <div style={{
-                  width: '44px',
-                  height: '44px',
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '50%',
                   background: isSelected
                     ? (cat.gradient || 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)')
@@ -189,16 +189,16 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px',
+                  fontSize: '18px',
                   boxShadow: isSelected ? '0 4px 14px rgba(79, 70, 229, 0.35)' : '0 1px 3px rgba(0,0,0,0.02)',
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                  transform: isSelected ? 'scale(1.06)' : 'scale(1)',
                 }}>
                   {cat.icon}
                 </div>
                 {/* Category Name */}
                 <span style={{
-                  fontSize: '11px',
+                  fontSize: '10.5px',
                   fontWeight: isSelected ? '800' : '600',
                   color: isSelected ? '#4f46e5' : '#334155',
                   whiteSpace: 'nowrap',
@@ -208,6 +208,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   {cat.label}
                 </span>
                 {/* Selected Indicator Pill */}
+
                 {isSelected && (
                   <div style={{
                     width: '16px',
