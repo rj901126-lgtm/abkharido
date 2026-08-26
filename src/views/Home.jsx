@@ -5,14 +5,15 @@ import { ChevronLeft, ChevronRight, ArrowRight, Zap, ShieldCheck, Truck, Award, 
 import '../assets/styles/home.css';
 
 const defaultVipCategories = [
-  { id: 'mobiles', label: 'Mobiles', icon: '📱', gradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)', badge: 'HOT' },
-  { id: 'electronics', label: 'Audio & Tech', icon: '🎧', gradient: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)', badge: 'ANC' },
-  { id: 'fashion', label: 'Fashion', icon: '👗', gradient: 'linear-gradient(135deg, #e11d48 0%, #fb7185 100%)', badge: 'NEW' },
-  { id: 'home', label: 'Home', icon: '🏠', gradient: 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)', badge: 'SALE' },
-  { id: 'beauty', label: 'Beauty', icon: '💄', gradient: 'linear-gradient(135deg, #db2777 0%, #f472b6 100%)', badge: null },
-  { id: 'sports', label: 'Fitness', icon: '🏋️', gradient: 'linear-gradient(135deg, #059669 0%, #34d399 100%)', badge: null },
-  { id: 'appliances', label: 'Appliances', icon: '🍳', gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)', badge: null },
+  { id: 'mobiles', label: 'Mobiles', icon: '📱', bg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', activeBg: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)', color: '#0369a1' },
+  { id: 'electronics', label: 'Audio & Tech', icon: '🎧', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)', activeBg: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)', color: '#6d28d9' },
+  { id: 'fashion', label: 'Fashion', icon: '👗', bg: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)', activeBg: 'linear-gradient(135deg, #e11d48 0%, #fb7185 100%)', color: '#be123c' },
+  { id: 'home', label: 'Home', icon: '🏠', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', activeBg: 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)', color: '#b45309' },
+  { id: 'beauty', label: 'Beauty', icon: '💄', bg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', activeBg: 'linear-gradient(135deg, #db2777 0%, #f472b6 100%)', color: '#be185d' },
+  { id: 'sports', label: 'Fitness', icon: '🏋️', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', activeBg: 'linear-gradient(135deg, #059669 0%, #34d399 100%)', color: '#15803d' },
+  { id: 'appliances', label: 'Appliances', icon: '🍳', bg: 'linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%)', activeBg: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)', color: '#0e7490' },
 ];
+
 
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
@@ -168,54 +169,58 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '3px',
+                  gap: '4px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  padding: '0 3px',
-                  minWidth: '54px',
+                  padding: '2px 4px',
+                  minWidth: '56px',
                   outline: 'none',
                 }}
               >
-                {/* Icon Circle */}
+                {/* Luxury Pastel Avatar Circle */}
                 <div style={{
-                  width: '40px',
-                  height: '40px',
+                  width: '44px',
+                  height: '44px',
                   borderRadius: '50%',
                   background: isSelected
-                    ? (cat.gradient || 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)')
-                    : '#f1f5f9',
-                  border: isSelected ? '2px solid #ffffff' : '1px solid #e2e8f0',
+                    ? (cat.activeBg || cat.gradient || 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)')
+                    : (cat.bg || '#f1f5f9'),
+                  border: isSelected ? '2px solid #ffffff' : '1px solid rgba(0,0,0,0.06)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px',
-                  boxShadow: isSelected ? '0 4px 14px rgba(79, 70, 229, 0.35)' : '0 1px 3px rgba(0,0,0,0.02)',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  transform: isSelected ? 'scale(1.06)' : 'scale(1)',
+                  fontSize: '20px',
+                  boxShadow: isSelected 
+                    ? '0 6px 16px rgba(79, 70, 229, 0.4), 0 0 0 2px #4f46e5' 
+                    : '0 2px 6px rgba(0,0,0,0.04)',
+                  transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
                 }}>
-                  {cat.icon}
+                  <span style={{ filter: isSelected ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' : 'none' }}>
+                    {cat.icon}
+                  </span>
                 </div>
                 {/* Category Name */}
                 <span style={{
-                  fontSize: '10.5px',
-                  fontWeight: isSelected ? '800' : '600',
-                  color: isSelected ? '#4f46e5' : '#334155',
+                  fontSize: '11px',
+                  fontWeight: isSelected ? '800' : '700',
+                  color: isSelected ? '#4f46e5' : '#1e293b',
                   whiteSpace: 'nowrap',
                   lineHeight: 1.2,
-                  letterSpacing: '-0.1px',
+                  letterSpacing: '-0.2px',
                 }}>
                   {cat.label}
                 </span>
                 {/* Selected Indicator Pill */}
-
                 {isSelected && (
                   <div style={{
-                    width: '16px',
+                    width: '18px',
                     height: '3px',
                     borderRadius: '99px',
                     background: '#4f46e5',
-                    marginTop: '-2px',
+                    marginTop: '-1px',
+                    boxShadow: '0 1px 4px rgba(79,70,229,0.5)'
                   }} />
                 )}
               </button>
@@ -225,44 +230,102 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </section>
 
 
+      {/* ── 2. VIP Platinum Member Pass (Glassmorphism & Gold Theme) ── */}
       {currentUser && (
         <div style={{ width: '100%', padding: '0 12px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
-            borderRadius: '20px',
-            padding: '14px 20px',
+            background: 'linear-gradient(135deg, #090d16 0%, #17153b 50%, #2e236c 100%)',
+            borderRadius: '22px',
+            padding: '16px 20px',
             color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            gap: '12px',
-            border: '1px solid rgba(255,255,255,0.12)',
-            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.15)'
+            gap: '14px',
+            border: '1px solid rgba(251, 191, 36, 0.22)',
+            boxShadow: '0 12px 32px -4px rgba(9, 13, 22, 0.35), inset 0 1px 0 rgba(255,255,255,0.1)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#fbbf24', color: '#1e1b4b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '900' }}>
+              <div style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                color: '#1e1b4b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px',
+                fontWeight: '900',
+                boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)',
+                border: '2px solid rgba(255,255,255,0.6)'
+              }}>
                 {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
               </div>
               <div>
-                <div style={{ fontSize: '15px', fontWeight: '800', fontFamily: "'Outfit', sans-serif" }}>
+                <div style={{ fontSize: '15px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.2px' }}>
                   Welcome back, {currentUser.fullName || currentUser.username || 'Member'}! 👋
                 </div>
-                <div style={{ fontSize: '12px', color: '#e0e7ff', marginTop: '1px' }}>
-                  🪙 <strong style={{ color: '#fde047', fontWeight: '800' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} AB Coins</strong> available for instant discounts
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: 'rgba(251, 191, 36, 0.15)',
+                    border: '1px solid rgba(251, 191, 36, 0.35)',
+                    padding: '2px 8px',
+                    borderRadius: '99px',
+                    fontSize: '11.5px',
+                    fontWeight: '800',
+                    color: '#fde047'
+                  }}>
+                    🪙 {currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} AB Coins
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>• Instant Discounts</span>
                 </div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => onNavigate('orders')}
-                style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.25)', color: '#ffffff', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#ffffff',
+                  padding: '7px 14px',
+                  borderRadius: '99px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                }}
               >
                 📦 Track Orders
               </button>
               <button 
                 onClick={() => onNavigate('wishlist')}
-                style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.25)', color: '#ffffff', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#ffffff',
+                  padding: '7px 14px',
+                  borderRadius: '99px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                }}
               >
                 ❤️ Wishlist
               </button>
@@ -270,6 +333,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </div>
         </div>
       )}
+
 
       {/* ── 3. Hero / Banner Carousel (With Dot Indicators & Auto-Rotate) ── */}
       {slides.length > 0 && (
