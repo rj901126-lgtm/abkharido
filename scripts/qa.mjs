@@ -458,6 +458,24 @@ async function sectionD_APIHealth() {
   bulkRes.status < 500
     ? ok('D', 'POST /api/products/bulk-upload (Excel/CSV Bulk Import)', `HTTP ${bulkRes.status} | Imported: ${bulkRes.data?.count || 2} items ✓`)
     : no('D', 'POST /api/products/bulk-upload', `HTTP ${bulkRes.status}`);
+
+  // D25: Seller Orders API
+  const sellerOrdersRes = await api('GET', '/api/seller/orders');
+  sellerOrdersRes.status < 500
+    ? ok('D', 'GET /api/seller/orders (Seller Order Management)', `HTTP ${sellerOrdersRes.status}`)
+    : no('D', 'GET /api/seller/orders', `HTTP ${sellerOrdersRes.status}`);
+
+  // D26: Seller Payouts & Settlement API
+  const sellerPayoutsRes = await api('GET', '/api/seller/payouts');
+  sellerPayoutsRes.status < 500
+    ? ok('D', 'GET /api/seller/payouts (Bank Settlement Ledger)', `HTTP ${sellerPayoutsRes.status}`)
+    : no('D', 'GET /api/seller/payouts', `HTTP ${sellerPayoutsRes.status}`);
+
+  // D27: Seller Product Quick-Update API
+  const updateProdRes = await api('PUT', '/api/seller/products/test-prod-id', { price: 1299, countInStock: 60 });
+  updateProdRes.status < 500
+    ? ok('D', 'PUT /api/seller/products/[id] (Inline Stock/Price Edit)', `HTTP ${updateProdRes.status}`)
+    : no('D', 'PUT /api/seller/products/[id]', `HTTP ${updateProdRes.status}`);
 }
 
 /* ─── SECTION E: Security Layer ────────────────────────────── */
