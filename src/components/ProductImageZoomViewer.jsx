@@ -171,6 +171,63 @@ export default function ProductImageZoomViewer({
     lastTapRef.current = now;
   };
 
+  // 📱 Touch Swipe Gesture State for both Main Frame and Modal
+  const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
+
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length === 1) {
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        time: Date.now()
+      };
+    }
+  };
+
+  const handleTouchEndMain = (e) => {
+    if (!touchStartRef.current.time) return;
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) return;
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const deltaTime = Date.now() - touchStartRef.current.time;
+
+    // Check if horizontal swipe
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.1) {
+      if (deltaX < 0) {
+        handleNextImage(); // Swipe left ➔ Next image
+      } else {
+        handlePrevImage(); // Swipe right ➔ Previous image
+      }
+    } else if (Math.abs(deltaX) < 12 && Math.abs(deltaY) < 12 && deltaTime < 350) {
+      // Clean tap ➔ open modal
+      handleOpenModal();
+    }
+    touchStartRef.current = { x: 0, y: 0, time: 0 };
+  };
+
+  const handleTouchEndModal = (e) => {
+    if (!touchStartRef.current.time) return;
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) return;
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const deltaTime = Date.now() - touchStartRef.current.time;
+
+    if (modalZoom <= 1) {
+      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.1) {
+        if (deltaX < 0) {
+          handleNextImage(); // Swipe left ➔ Next image
+        } else {
+          handlePrevImage(); // Swipe right ➔ Previous image
+        }
+      } else if (Math.abs(deltaX) < 12 && Math.abs(deltaY) < 12 && deltaTime < 350) {
+        handleDoubleTap();
+      }
+    }
+    touchStartRef.current = { x: 0, y: 0, time: 0 };
+  };
+
   return (
     <div className="product-image-zoom-showcase" style={{ position: 'relative', width: '100%' }}>
       
@@ -182,6 +239,8 @@ export default function ProductImageZoomViewer({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleOpenModal}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEndMain}
         style={{
           position: 'relative',
           width: '100%',
@@ -195,7 +254,8 @@ export default function ProductImageZoomViewer({
           cursor: isVideo ? 'default' : 'crosshair',
           overflow: 'hidden',
           boxShadow: '0 8px 30px rgba(15, 23, 42, 0.06)',
-          transition: 'border-color 0.2s ease'
+          transition: 'border-color 0.2s ease',
+          touchAction: 'pan-y'
         }}
       >
         {isVideo ? (
@@ -215,10 +275,106 @@ export default function ProductImageZoomViewer({
               maxWidth: '88%',
               maxHeight: '88%',
               objectFit: 'contain',
-              transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
               userSelect: 'none'
             }}
           />
+        )}
+
+        {/* ◀ Left Navigation Arrow on Main Frame */}
+        {images.length > 1 && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+            aria-label="Previous image"
+            style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0f172a',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+              cursor: 'pointer',
+              zIndex: 10,
+              backdropFilter: 'blur(8px)'
+            }}
+          >
+            <ChevronLeft size={20} />
+          </button>
+        )}
+
+        {/* ▶ Right Navigation Arrow on Main Frame */}
+        {images.length > 1 && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+            aria-label="Next image"
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0f172a',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+              cursor: 'pointer',
+              zIndex: 10,
+              backdropFilter: 'blur(8px)'
+            }}
+          >
+            <ChevronRight size={20} />
+          </button>
+        )}
+
+        {/* 🔘 Dots Indicator on Main Image */}
+        {images.length > 1 && (
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'absolute',
+              bottom: '14px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              zIndex: 10,
+              background: 'rgba(15, 23, 42, 0.45)',
+              backdropFilter: 'blur(8px)',
+              padding: '4px 10px',
+              borderRadius: '20px'
+            }}
+          >
+            {images.map((_, idx) => (
+              <span 
+                key={idx}
+                onClick={(e) => { e.stopPropagation(); setActiveIdx(idx); if (onSelectImage) onSelectImage(idx); }}
+                style={{
+                  width: activeIdx === idx ? '16px' : '6px',
+                  height: '6px',
+                  borderRadius: '4px',
+                  backgroundColor: activeIdx === idx ? '#ffffff' : 'rgba(255,255,255,0.4)',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
+              />
+            ))}
+          </div>
         )}
 
         {/* 🔍 Desktop Hover Tracking Lens */}
@@ -403,13 +559,14 @@ export default function ProductImageZoomViewer({
             </div>
           </div>
 
-          {/* Main Zoomed Stage - Tap outside image closes modal */}
+          {/* Main Zoomed Stage - Tap outside image closes modal, horizontal swipe switches images */}
           <div 
             onClick={handleCloseModal}
             onMouseDown={handleMouseDown}
             onMouseMove={handleModalMouseMove}
             onMouseUp={handleMouseUp}
-            onTouchEnd={handleDoubleTap}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEndModal}
             style={{
               position: 'relative',
               flex: 1,
@@ -418,7 +575,8 @@ export default function ProductImageZoomViewer({
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
-              cursor: modalZoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+              cursor: modalZoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+              touchAction: modalZoom > 1 ? 'none' : 'pan-y'
             }}
           >
             {/* Left Nav Arrow */}
