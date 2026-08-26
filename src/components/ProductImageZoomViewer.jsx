@@ -315,15 +315,15 @@ export default function ProductImageZoomViewer({
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(9, 13, 22, 0.94)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            zIndex: 100000,
+            backgroundColor: 'rgba(5, 8, 15, 0.98)',
+            backdropFilter: 'blur(25px)',
+            WebkitBackdropFilter: 'blur(25px)',
+            zIndex: 999999,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '20px',
+            padding: '16px 20px calc(16px + env(safe-area-inset-bottom)) 20px',
             boxSizing: 'border-box',
             animation: 'fadeIn 0.2s ease-out'
           }}
@@ -350,93 +350,31 @@ export default function ProductImageZoomViewer({
               </span>
             </div>
 
-            {/* Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button 
-                type="button" 
-                onClick={handleZoomIn}
-                title="Zoom In (+)"
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: 'white',
-                  borderRadius: '10px',
-                  width: '38px',
-                  height: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <ZoomIn size={18} />
-              </button>
-
-              <button 
-                type="button" 
-                onClick={handleZoomOut}
-                title="Zoom Out (-)"
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: 'white',
-                  borderRadius: '10px',
-                  width: '38px',
-                  height: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}
-              >
-                <ZoomOut size={18} />
-              </button>
-
-              <button 
-                type="button" 
-                onClick={handleResetZoom}
-                title="Reset Zoom"
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: 'white',
-                  borderRadius: '10px',
-                  padding: '0 12px',
-                  height: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  fontSize: '12px',
-                  fontWeight: '800',
-                  cursor: 'pointer'
-                }}
-              >
-                <RotateCcw size={14} /> {Math.round(modalZoom * 100)}%
-              </button>
-
-              <button 
-                type="button" 
-                onClick={handleCloseModal}
-                className="lightbox-close-btn"
-                title="Close (Esc)"
-                style={{
-                  background: '#ef4444',
-                  border: 'none',
-                  color: 'white',
-                  borderRadius: '10px',
-                  width: '38px',
-                  height: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  marginLeft: '8px'
-                }}
-              >
-                <X size={20} strokeWidth={2.5} />
-              </button>
-            </div>
+            {/* Only Clean Modern Close (X) Button */}
+            <button 
+              type="button" 
+              onClick={handleCloseModal}
+              className="lightbox-close-btn"
+              title="Close (Esc)"
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                color: '#ffffff',
+                borderRadius: '50%',
+                width: '42px',
+                height: '42px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.9)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; }}
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
           </div>
 
           {/* Main Zoomed Stage */}
