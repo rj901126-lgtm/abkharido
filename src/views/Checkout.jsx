@@ -267,8 +267,22 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
       try {
         // Direct Cash on Delivery placement
+        const normalizedAddress = {
+          fullName: address.name || address.fullName || currentUser?.fullName || 'Valued Customer',
+          name: address.name || address.fullName || currentUser?.fullName || 'Valued Customer',
+          phone: address.phone || currentUser?.phone || currentUser?.username || '',
+          streetAddress: address.streetAddress || address.address || '',
+          address: address.streetAddress || address.address || '',
+          pincode: address.pincode || address.postalCode || '',
+          postalCode: address.pincode || address.postalCode || '',
+          locality: address.locality || '',
+          city: address.city || '',
+          state: address.state || '',
+          country: 'India'
+        };
+
         const orderDetails = await placeOrder(
-          address, 
+          normalizedAddress, 
           'Cash on Delivery',
           useCoinsDiscount,
           null,
@@ -282,19 +296,17 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           // Auto-save address to profile
           if (updateUserProfile) {
             updateUserProfile({
-              fullName: address.name,
-              phone: address.phone,
-              pincode: address.pincode,
-              address: address.streetAddress,
-              city: address.city,
-              state: address.state
+              fullName: normalizedAddress.fullName,
+              phone: normalizedAddress.phone,
+              pincode: normalizedAddress.pincode,
+              address: normalizedAddress.streetAddress,
+              city: normalizedAddress.city,
+              state: normalizedAddress.state
             });
           }
 
           // Auto-generate invoice after a short delay so DOM is ready
           setTimeout(() => triggerInvoiceDownload(), 500);
-        } else {
-          showToast('Failed to place order. Please try again.', 'error');
         }
       } catch (err) {
         showToast('Network error placing order. Please try again.', 'error');

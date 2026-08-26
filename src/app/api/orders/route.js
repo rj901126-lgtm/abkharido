@@ -65,12 +65,15 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Cart is empty. Please add items.' }, { status: 400 });
     }
 
-    if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone) {
+    const recipientName = shippingAddress?.fullName || shippingAddress?.name || (username || 'Valued Customer');
+    const recipientPhone = shippingAddress?.phone || shippingAddress?.phoneNumber || (username || '');
+
+    if (!shippingAddress || !recipientPhone) {
       return NextResponse.json({ error: 'Shipping address with recipient name and phone is required.' }, { status: 400 });
     }
 
     // 1. Resolve or Create User
-    const phoneDigits = (shippingAddress.phone || username || '').replace(/\D/g, '').slice(-10);
+    const phoneDigits = (recipientPhone || '').replace(/\D/g, '').slice(-10);
     let user = null;
 
     // Check token from headers
@@ -167,7 +170,8 @@ export async function POST(req) {
       user: user._id,
       orderItems,
       shippingAddress: {
-        fullName: shippingAddress.fullName || shippingAddress.name,
+        fullName: recipientName,
+        phone: recipientPhone,
         address: shippingAddress.streetAddress || shippingAddress.address || 'Street address',
         city: shippingAddress.city || 'Palghar',
         postalCode: shippingAddress.pincode || shippingAddress.postalCode || '401404',
