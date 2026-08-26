@@ -511,17 +511,12 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   <Phone size={18} style={{ position: 'absolute', right: '16px', color: phone.length === 10 ? '#059669' : '#94a3b8', transition: 'color 0.2s' }} />
                 </div>
 
-                {smsNotice && (
-                  <div style={{ padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', fontSize: '12px', color: '#92400e', lineHeight: 1.4, fontWeight: '600' }}>
-                    <strong>ℹ️ SMS Diagnostics Notice:</strong> {smsNotice}
-                  </div>
-                )}
-
                 <button type="submit" className="lp-submit-btn" disabled={isSending} style={{ height: '52px', borderRadius: '16px', fontSize: '15px', fontWeight: '800', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'transform 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                   {isSending ? 'Sending Authentic OTP...' : 'CONTINUE'}
                   {!isSending && <ChevronRight size={20} />}
                 </button>
               </form>
+
 
               <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '24px', fontSize: '12.5px', color: '#64748b' }}>
                 <CheckCircle size={14} color="#10b981" />
