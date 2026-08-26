@@ -22,8 +22,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
-  const [selectedCatPill, setSelectedCatPill] = useState('all');
   const targetDate = useRef(new Date(Date.now() + 14 * 3600 * 1000 + 42 * 60 * 1000)).current;
+
 
 
   const activeVipCategories = (promotions && promotions.vipCategories && Array.isArray(promotions.vipCategories) && promotions.vipCategories.length > 0)
@@ -106,35 +106,25 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   };
 
   const handleCategoryClick = (catId) => {
-    if (selectedCatPill === catId) {
-      setSelectedCatPill('all');
-    } else {
-      setSelectedCatPill(catId);
-      setTimeout(() => {
-        const feed = document.getElementById('featured-deals-feed');
-        if (feed) {
-          feed.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 60);
+    if (catId === 'mobiles') {
+      if (onNavigate) onNavigate('mobiles');
+      else if (onSelectCategory) onSelectCategory('mobiles');
+    } else if (catId === 'electronics') {
+      if (onNavigate) onNavigate('electronics');
+      else if (onSelectCategory) onSelectCategory('electronics');
+    } else if (catId === 'fashion') {
+      if (onNavigate) onNavigate('fashion');
+      else if (onSelectCategory) onSelectCategory('fashion');
+    } else if (onSelectCategory) {
+      onSelectCategory(catId);
+    } else if (onNavigate) {
+      onNavigate(catId === 'all' ? 'catalog' : `catalog?category=${catId}`);
     }
   };
 
+  const displayList = Array.isArray(products) && products.length > 0 ? products : [];
 
-  // Filter products based on selected Category Pill
-  const filteredProducts = selectedCatPill === 'all'
-    ? products
-    : products.filter(p => {
-        const cat = (p.category || '').toLowerCase();
-        if (selectedCatPill === 'mobiles') return cat.includes('mobile') || cat.includes('phone');
-        if (selectedCatPill === 'electronics') return cat.includes('electronic') || cat.includes('audio') || cat.includes('headphone') || cat.includes('watch');
-        if (selectedCatPill === 'fashion') return cat.includes('fashion') || cat.includes('clothing') || cat.includes('shoe');
-        if (selectedCatPill === 'home') return cat.includes('home') || cat.includes('kitchen') || cat.includes('appliance');
-        if (selectedCatPill === 'beauty') return cat.includes('beauty') || cat.includes('health') || cat.includes('skin');
-        if (selectedCatPill === 'sports') return cat.includes('sport') || cat.includes('fitness');
-        return cat.includes(selectedCatPill);
-      });
 
-  const displayList = filteredProducts.length > 0 ? filteredProducts : products;
 
   // Distinct SKUs partitioned across rails so each rail is unique
   const flashDeals = React.useMemo(() => {
@@ -188,75 +178,55 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       >
 
         <div className="home-category-pills-row">
-          {activeVipCategories.map((cat) => {
-            const isSelected = selectedCatPill === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
-                style={{
-                  flexShrink: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '2px 4px',
-                  minWidth: '56px',
-                  outline: 'none',
-                }}
-              >
-                {/* Luxury Pastel Avatar Circle */}
-                <div style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '50%',
-                  background: isSelected
-                    ? (cat.activeBg || cat.gradient || 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)')
-                    : (cat.bg || '#f1f5f9'),
-                  border: isSelected ? '2px solid #ffffff' : '1px solid rgba(0,0,0,0.06)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '20px',
-                  boxShadow: isSelected 
-                    ? '0 6px 16px rgba(79, 70, 229, 0.4), 0 0 0 2px #4f46e5' 
-                    : '0 2px 6px rgba(0,0,0,0.04)',
-                  transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
-                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
-                }}>
-                  <span style={{ filter: isSelected ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' : 'none' }}>
-                    {cat.icon}
-                  </span>
-                </div>
-                {/* Category Name */}
-                <span style={{
-                  fontSize: '11px',
-                  fontWeight: isSelected ? '800' : '700',
-                  color: isSelected ? '#4f46e5' : '#1e293b',
-                  whiteSpace: 'nowrap',
-                  lineHeight: 1.2,
-                  letterSpacing: '-0.2px',
-                }}>
-                  {cat.label}
-                </span>
-                {/* Selected Indicator Pill */}
-                {isSelected && (
-                  <div style={{
-                    width: '18px',
-                    height: '3px',
-                    borderRadius: '99px',
-                    background: '#4f46e5',
-                    marginTop: '-1px',
-                    boxShadow: '0 1px 4px rgba(79,70,229,0.5)'
-                  }} />
-                )}
-              </button>
-            );
-          })}
+          {activeVipCategories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryClick(cat.id)}
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '2px 4px',
+                minWidth: '56px',
+                outline: 'none',
+              }}
+            >
+              {/* Luxury Pastel Avatar Circle */}
+              <div style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '50%',
+                background: cat.bg || '#f1f5f9',
+                border: '1px solid rgba(0,0,0,0.06)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '20px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}>
+                <span>{cat.icon}</span>
+              </div>
+              {/* Category Name */}
+              <span style={{
+                fontSize: '11px',
+                fontWeight: '700',
+                color: '#1e293b',
+                whiteSpace: 'nowrap',
+                lineHeight: 1.2,
+                letterSpacing: '-0.2px',
+              }}>
+                {cat.label}
+              </span>
+            </button>
+          ))}
         </div>
+
       </section>
 
 
@@ -504,50 +474,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </div>
 
       {/* ── 5. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
-      <section id="featured-deals-feed" className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', scrollMarginTop: '80px' }}>
-        
-        {/* Active Category Filter Banner Indicator */}
-        {selectedCatPill !== 'all' && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-            border: '1px solid #bfdbfe',
-            padding: '10px 14px',
-            borderRadius: '16px',
-            marginBottom: '18px',
-            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '800', color: '#1e40af' }}>
-              <span>🎯 Filtered by Category:</span>
-              <span style={{ textTransform: 'capitalize', background: '#3b82f6', color: '#ffffff', padding: '3px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: '900', boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)' }}>
-                {selectedCatPill} ({displayList.length} items)
-              </span>
-            </div>
-            <button
-              onClick={() => setSelectedCatPill('all')}
-              style={{
-                fontSize: '12px',
-                fontWeight: '800',
-                color: '#dc2626',
-                background: '#fee2e2',
-                padding: '5px 12px',
-                borderRadius: '99px',
-                cursor: 'pointer',
-                border: '1px solid #fca5a5',
-                transition: 'all 0.2s',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-              }}
-            >
-              ✕ Reset All
-            </button>
-          </div>
-        )}
-
+      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
             <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+
               <span>⚡</span> Deal of the Day
             </h3>
             <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Limited lightning deals with extra discount coupons</p>
