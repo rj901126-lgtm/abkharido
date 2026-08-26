@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 // eslint-disable-next-line
-import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown, Tag, Sparkles, Check } from 'lucide-react';
+import { Filter, Star, RefreshCw, SlidersHorizontal, ArrowUpDown, Tag, Sparkles, Check, Store } from 'lucide-react';
 import '../assets/styles/product.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
 import { CATEGORY_DETAILS, ALL_POPULAR_BRANDS, getCategoryData } from '../utils/categoryData';
@@ -259,7 +259,7 @@ const CatBannerCarousel = ({ slides }) => {
   );
 };
 
-const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavigateProduct, promotions, initialProducts }) => {
+const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, sellerShopName, onNavigateProduct, promotions, initialProducts }) => {
   const { products: contextProducts } = useApp();
   const [serverProducts, setServerProducts] = useState(initialProducts || null);
   const [isSearching, setIsSearching] = useState(false);
@@ -705,6 +705,30 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
           if (slides.length === 0) return null;
           return <CatBannerCarousel slides={slides} />;
         })()}
+
+        {/* 🏪 Verified Merchant Storefront Ribbon (When browsing seller store) */}
+        {sellerShopName && (
+          <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)', borderRadius: '16px', padding: '16px 20px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px', boxShadow: '0 4px 16px rgba(15, 23, 42, 0.15)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
+                <Store size={22} color="#ffffff" />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: '900', margin: 0, textTransform: 'capitalize', color: '#ffffff' }}>
+                    {sellerShopName.replace(/-/g, ' ')}
+                  </h2>
+                  <span style={{ background: '#ecfdf5', color: '#059669', fontSize: '10px', fontWeight: '800', padding: '2px 6px', borderRadius: '4px', border: '1px solid #a7f3d0' }}>
+                    ✓ VERIFIED SELLER
+                  </span>
+                </div>
+                <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>
+                  Direct buy from official seller with brand warranty, Express Dispatch & COD available.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── 🧭 1. Interactive Visual Breadcrumbs Bar ── */}
         <div style={{

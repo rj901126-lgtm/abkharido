@@ -10,12 +10,14 @@ function CatalogContent({ initialCategory, initialSearch, initialProducts }) {
   const { promotions } = useApp();
   const category = searchParams.get('category') || initialCategory || 'all';
   const search = searchParams.get('search') || initialSearch || '';
+  const seller = searchParams.get('seller') || '';
   
   return (
     <ProductCatalog 
       currentCategory={category} 
       onSelectCategory={(cat) => router.push('/catalog?category=' + cat)} 
       searchQuery={search} 
+      sellerShopName={seller}
       onNavigateProduct={(id) => router.push('/product/' + id)} 
       promotions={promotions}
       initialProducts={initialProducts}

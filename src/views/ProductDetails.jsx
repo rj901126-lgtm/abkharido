@@ -655,6 +655,17 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             }}>
               A-Assured <span style={{ color: '#ffe500', marginLeft: '3px', fontStyle: 'normal' }}>★</span>
             </div>
+
+            {/* Verified Merchant / Seller Badge */}
+            {product.sellerShopName && (
+              <div 
+                onClick={() => onNavigate && onNavigate(`catalog?seller=${encodeURIComponent(product.sellerShopName.toLowerCase().replace(/\s+/g, '-'))}`)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '700', color: '#059669', background: '#ecfdf5', padding: '3px 8px', borderRadius: '6px', border: '1px solid #a7f3d0', cursor: 'pointer' }}
+                title="Click to browse official seller store"
+              >
+                <Store size={13} /> Sold by: {product.sellerShopName} ✓
+              </div>
+            )}
           </div>
 
           {/* 3. VIP Premium Price Card */}
