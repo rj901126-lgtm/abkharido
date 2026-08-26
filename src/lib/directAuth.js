@@ -162,26 +162,26 @@ export async function verifyOtpDirect(params = {}) {
   });
 
   if (!user) {
-    let username = isEmail ? normalizedRecipient.split('@')[0] : normalizedRecipient;
+    if (isEmail) {
+      throw new Error('Mobile number is mandatory. Please sign in with your mobile phone number and OTP.');
+    }
+    let username = normalizedRecipient;
     try {
       user = await User.create({
         username,
-        email: isEmail ? normalizedRecipient : undefined,
-        phone: !isEmail ? normalizedRecipient : undefined,
+        phone: normalizedRecipient,
+        email: undefined,
         fullName: fullName || 'VIP Member',
         password: 'abkharido_otp_user_' + Date.now()
       });
     } catch (err) {
       if (err.code === 11000) {
-        user = await findExistingUser({
-          phone: !isEmail ? normalizedRecipient : undefined,
-          email: isEmail ? normalizedRecipient : undefined
-        });
+        user = await findExistingUser({ phone: normalizedRecipient });
         if (!user) {
           user = await User.create({
             username: `${username}_${Date.now().toString().slice(-4)}`,
-            email: isEmail ? normalizedRecipient : undefined,
-            phone: !isEmail ? normalizedRecipient : undefined,
+            phone: normalizedRecipient,
+            email: undefined,
             fullName: fullName || 'VIP Member',
             password: 'abkharido_otp_user_' + Date.now()
           });

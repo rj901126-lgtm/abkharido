@@ -55,6 +55,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
 
   // Address Book Modal State (Dedicated)
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
@@ -641,24 +642,36 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
           {/* Email Settings Section */}
           <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '16px', marginTop: '2px' }}>
-            <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <span>EMAIL ADDRESS</span>
-              {currentUser.isEmailVerified ? 
-                <span style={{ color: '#059669', background: '#d1fae5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>✔ VERIFIED</span> : 
-                <span style={{ color: '#ea580c', background: '#ffedd5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>⚠️ PENDING</span>
-              }
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                <span>EMAIL ADDRESS</span>
+                {currentUser.isEmailVerified && !isChangingEmail ? 
+                  <span style={{ color: '#059669', background: '#d1fae5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>✔ VERIFIED</span> : 
+                  <span style={{ color: '#ea580c', background: '#ffedd5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>⚠️ {emailInput ? 'PENDING' : 'NOT LINKED'}</span>
+                }
+              </label>
+              {currentUser.isEmailVerified && !isChangingEmail && (
+                <button 
+                  type="button" 
+                  onClick={() => setIsChangingEmail(true)} 
+                  style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <span>✏️ Change Email</span>
+                </button>
+              )}
+            </div>
+
             <div style={{ position: 'relative', width: '100%', display: 'flex' }}>
               <input 
                 type="email" 
                 value={emailInput} 
                 onChange={(e) => setEmailInput(e.target.value)} 
                 placeholder="Enter valid email address..."
-                disabled={currentUser.isEmailVerified}
+                disabled={currentUser.isEmailVerified && !isChangingEmail}
                 className="profile-input"
-                style={{ paddingRight: !currentUser.isEmailVerified ? '115px' : '14px' }}
+                style={{ paddingRight: (!currentUser.isEmailVerified || isChangingEmail) ? '115px' : '14px' }}
               />
-              {!currentUser.isEmailVerified && (
+              {(!currentUser.isEmailVerified || isChangingEmail) && (
                 <button 
                   type="button" 
                   onClick={handleVerifyEmail}
@@ -669,10 +682,18 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 </button>
               )}
             </div>
-            {!currentUser.isEmailVerified && (
+
+            {isChangingEmail && (
+              <div style={{ fontSize: '11.5px', color: '#4f46e5', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontWeight: '600' }}>
+                <span>🔒</span>
+                <span>Account secured via Mobile OTP (+91 {currentUser.phone || currentUser.username}). You can update your email address anytime.</span>
+              </div>
+            )}
+
+            {!currentUser.isEmailVerified && !isChangingEmail && (
               <div style={{ fontSize: '11.5px', color: '#b45309', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontWeight: '600' }}>
                 <span>ℹ️</span>
-                <span>Verify email to receive invoice PDFs, tracking alerts &amp; coins.</span>
+                <span>Link email to receive invoice PDFs, dispatch tracking alerts &amp; coins.</span>
               </div>
             )}
           </div>

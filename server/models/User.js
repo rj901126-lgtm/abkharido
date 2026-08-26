@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String },
   email: { type: String, unique: true, sparse: true, index: true, lowercase: true, trim: true },
   isEmailVerified: { type: Boolean, default: false },
-  phone: { type: String, index: true, trim: true },
+  phone: { type: String, unique: true, sparse: true, index: true, trim: true },
   status: { type: String, enum: ['Active', 'Suspended'], default: 'Active' },
   sellerStatus: { type: String, enum: ['None', 'Pending', 'Approved', 'Rejected'], default: 'None' },
   avatar: { type: String, default: 'https://i.pravatar.cc/150' },

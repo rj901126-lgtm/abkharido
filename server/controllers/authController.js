@@ -208,12 +208,15 @@ export const verifyOtp = async (req, res, next) => {
     ].filter(Boolean) });
     
     if (!user) {
-      let username = isEmail ? normalizedRecipient.split('@')[0] : normalizedRecipient;
+      if (isEmail) {
+        res.status(400);
+        throw new Error('Mobile number is mandatory. Please register and log in with your mobile phone number and OTP.');
+      }
+      let username = normalizedRecipient;
       try {
         user = await User.create({ 
           username, 
-          email: isEmail ? normalizedRecipient : undefined,
-          phone: !isEmail ? normalizedRecipient : undefined, 
+          phone: normalizedRecipient, 
           fullName: fullName || 'AbKharido User',
           password: 'abkharido_otp_user_' + Date.now()
         });
