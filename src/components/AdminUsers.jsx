@@ -58,6 +58,11 @@ const AdminUsers = () => {
               cleanEmail = cleanEmail.trim().toLowerCase();
             }
 
+            // Skip empty ghost records with no phone or credentials
+            if (!cleanPhone && !['admin', 'super_admin', 'seller'].includes(u.role)) {
+              continue;
+            }
+
             const key = cleanPhone ? `phone_${cleanPhone}` : (cleanEmail ? `email_${cleanEmail}` : `id_${u._id || u.id}`);
 
             if (seen.has(key)) {

@@ -39,6 +39,12 @@ export async function GET(req) {
         cleanEmail = cleanEmail.trim().toLowerCase();
       }
 
+      // A valid customer account MUST have a phone number (unless it is a system admin/seller)
+      if (!cleanPhone && !['admin', 'super_admin', 'seller'].includes(u.role)) {
+        // Ghost record with no credentials: skip and do not display
+        continue;
+      }
+
       const key = cleanPhone ? `phone_${cleanPhone}` : (cleanEmail ? `email_${cleanEmail}` : `id_${u._id}`);
 
       if (seen.has(key)) {
