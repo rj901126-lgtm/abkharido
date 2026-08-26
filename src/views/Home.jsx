@@ -89,25 +89,34 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isCategoryCompressed, setIsCategoryCompressed] = useState(false);
+  const isCompressedRef = useRef(false);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      if (scrollY > 400) {
-        setShowBackToTop(true);
-      } else {
-        setShowBackToTop(false);
-      }
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY || document.documentElement.scrollTop;
+          
+          setShowBackToTop(scrollY > 400);
 
-      if (scrollY > 50) {
-        setIsCategoryCompressed(true);
-      } else {
-        setIsCategoryCompressed(false);
+          // Hysteresis buffer: Compress at 80px, Expand only when back near top (< 20px)
+          if (scrollY > 80 && !isCompressedRef.current) {
+            isCompressedRef.current = true;
+            setIsCategoryCompressed(true);
+          } else if (scrollY < 20 && isCompressedRef.current) {
+            isCompressedRef.current = false;
+            setIsCategoryCompressed(false);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -171,94 +180,96 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
       {/* ── 1. Flipkart-Style Sticky Category Strip (Full circles at top -> Compresses to sleek sticky named tabs on scroll) ── */}
-      <section
-        className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
-      >
-
-        <div 
-
-          className="home-category-pills-row"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: isCategoryCompressed ? '8px' : '4px',
-            overflowX: 'auto',
-            padding: isCategoryCompressed ? '0 12px' : '0 8px',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-            transition: 'all 0.25s ease'
-          }}
+      <div className="home-category-strip-wrapper" style={{ minHeight: '68px', width: '100%' }}>
+        <section
+          className={`home-category-strip ${isCategoryCompressed ? 'compressed' : ''}`}
         >
-          {activeVipCategories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.id)}
-              style={isCategoryCompressed ? {
-                flexShrink: 0,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                background: cat.bg || '#f1f5f9',
-                border: '1px solid rgba(0,0,0,0.06)',
-                borderRadius: '99px',
-                padding: '5px 12px',
-                cursor: 'pointer',
-                outline: 'none',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-              } : {
-                flexShrink: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '2px 4px',
-                minWidth: '56px',
-                outline: 'none',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            >
-              {/* Icon */}
-              <div style={isCategoryCompressed ? {
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: 1
-              } : {
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: cat.bg || '#f1f5f9',
-                border: '1px solid rgba(0,0,0,0.06)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-                transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
-              }}>
-                <span>{cat.icon}</span>
-              </div>
-              {/* Category Name */}
-              <span style={{
-                fontSize: isCategoryCompressed ? '12px' : '11px',
-                fontWeight: isCategoryCompressed ? '800' : '700',
-                color: '#1e293b',
-                whiteSpace: 'nowrap',
-                lineHeight: 1.2,
-                letterSpacing: '-0.2px',
-              }}>
-                {cat.label}
-              </span>
-            </button>
-          ))}
-        </div>
 
-      </section>
+          <div 
+            className="home-category-pills-row"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isCategoryCompressed ? '8px' : '4px',
+              overflowX: 'auto',
+              padding: isCategoryCompressed ? '0 12px' : '0 8px',
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            {activeVipCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                style={isCategoryCompressed ? {
+                  flexShrink: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: cat.bg || '#f1f5f9',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  borderRadius: '99px',
+                  padding: '5px 12px',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                } : {
+                  flexShrink: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '2px 4px',
+                  minWidth: '56px',
+                  outline: 'none',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {/* Icon */}
+                <div style={isCategoryCompressed ? {
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: 1
+                } : {
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: cat.bg || '#f1f5f9',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                  transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}>
+                  <span>{cat.icon}</span>
+                </div>
+                {/* Category Name */}
+                <span style={{
+                  fontSize: isCategoryCompressed ? '12px' : '11px',
+                  fontWeight: isCategoryCompressed ? '800' : '700',
+                  color: '#1e293b',
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1.2,
+                  letterSpacing: '-0.2px',
+                }}>
+                  {cat.label}
+                </span>
+              </button>
+            ))}
+          </div>
+
+        </section>
+      </div>
+
 
 
 
