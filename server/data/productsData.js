@@ -736,9 +736,9 @@ export default
     "originalPrice": 28999,
     "rating": 4.4,
     "reviewsCount": 425,
-    "image": "https://images.unsplash.com/photo-1565630916779-e303be97b6f5?w=600&auto=format&fit=crop&q=80",
+    "image": "https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=600&auto=format&fit=crop&q=80",
     "images": [
-      "https://images.unsplash.com/photo-1565630916779-e303be97b6f5?w=600&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=600&auto=format&fit=crop&q=80"
     ],
     "description": "Featuring a flagship-grade 200MP camera with OIS, 1.5K curved AMOLED display, and turbocharging.",
     "specifications": [

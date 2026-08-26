@@ -862,17 +862,32 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
                     style={{
                       background: isSelected ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)' : '#ffffff',
                       border: isSelected ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
-                      borderRadius: '14px',
+                      borderRadius: '18px',
                       padding: '10px',
                       color: isSelected ? '#ffffff' : '#0f172a',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       position: 'relative',
-                      boxShadow: isSelected ? '0 6px 16px rgba(79, 70, 229, 0.25)' : '0 1px 4px rgba(0,0,0,0.02)',
+                      boxShadow: isSelected ? '0 8px 22px rgba(79, 70, 229, 0.28)' : '0 4px 12px rgba(0,0,0,0.03)',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      textAlign: 'center'
+                      textAlign: 'center',
+                      overflow: 'hidden'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#4f46e5';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(79, 70, 229, 0.12)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.transform = 'none';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
+                      }
                     }}
                   >
                     {/* Badge */}
@@ -883,37 +898,67 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
                         right: '6px',
                         fontSize: '8px',
                         fontWeight: '900',
-                        padding: '1px 5px',
-                        borderRadius: '4px',
-                        background: isSelected ? '#fde047' : '#eff6ff',
-                        color: isSelected ? '#0f172a' : '#2563eb'
+                        padding: '2px 6px',
+                        borderRadius: '100px',
+                        background: isSelected ? '#fde047' : (sub.badge.includes('HOT') ? 'linear-gradient(135deg, #ef4444, #f97316)' : '#eff6ff'),
+                        color: isSelected ? '#0f172a' : (sub.badge.includes('HOT') ? '#ffffff' : '#2563eb'),
+                        letterSpacing: '0.3px',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                        zIndex: 2
                       }}>
                         {sub.badge}
                       </div>
                     )}
 
-                    {/* HD Thumbnail Avatar */}
+                    {/* HD Studio Image Container */}
                     <div style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '50%',
+                      width: '100%',
+                      height: '68px',
+                      borderRadius: '12px',
                       overflow: 'hidden',
-                      marginBottom: '6px',
-                      border: isSelected ? '2px solid #fde047' : '1px solid #e2e8f0',
-                      background: '#f1f5f9'
+                      marginBottom: '8px',
+                      background: isSelected ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '6px',
+                      position: 'relative'
                     }}>
-                      <img src={sub.img} alt={sub.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img 
+                        src={sub.img} 
+                        alt={sub.name} 
+                        loading="lazy"
+                        onError={(e) => { e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'block'; }} 
+                        style={{ 
+                          maxWidth: '100%', 
+                          maxHeight: '100%', 
+                          objectFit: 'contain',
+                          transition: 'transform 0.3s ease',
+                          filter: isSelected ? 'none' : 'drop-shadow(0 3px 6px rgba(0,0,0,0.06))'
+                        }} 
+                      />
+                      <span style={{ display: 'none', fontSize: '28px' }}>{sub.icon || '🛍️'}</span>
                     </div>
 
-                    <div style={{ fontSize: '12px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", lineHeight: 1.2, marginBottom: '2px' }}>
+                    <div style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '800', 
+                      fontFamily: "'Outfit', sans-serif", 
+                      lineHeight: 1.25, 
+                      marginBottom: '3px',
+                      width: '100%',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
                       {sub.name}
                     </div>
 
                     {/* Starting Price & Live Count */}
-                    <div style={{ fontSize: '10.5px', fontWeight: '900', color: isSelected ? '#4ade80' : '#059669', marginTop: '2px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '900', color: isSelected ? '#4ade80' : '#059669' }}>
                       {sub.startingPrice}
                     </div>
-                    <div style={{ fontSize: '9.5px', color: isSelected ? 'rgba(255,255,255,0.7)' : '#94a3b8', fontWeight: '700' }}>
+                    <div style={{ fontSize: '9.5px', color: isSelected ? 'rgba(255,255,255,0.75)' : '#94a3b8', fontWeight: '700', marginTop: '1px' }}>
                       {count} Products
                     </div>
                   </div>
@@ -1001,14 +1046,26 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
                   style={{
                     background: isSelected ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)' : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
                     border: isSelected ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
-                    borderRadius: '14px',
-                    padding: '14px 10px',
+                    borderRadius: '16px',
+                    padding: '12px 10px',
                     color: isSelected ? '#ffffff' : '#0f172a',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                     textAlign: 'center',
-                    boxShadow: isSelected ? '0 6px 16px rgba(79, 70, 229, 0.2)' : '0 1px 3px rgba(0,0,0,0.02)',
+                    boxShadow: isSelected ? '0 8px 20px rgba(79, 70, 229, 0.25)' : '0 2px 6px rgba(0,0,0,0.02)',
                     position: 'relative'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = '#4f46e5';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = '#e2e8f0';
+                      e.currentTarget.style.transform = 'none';
+                    }
                   }}
                 >
                   {brand.offer && (
@@ -1016,10 +1073,10 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
                       position: 'absolute',
                       top: '6px',
                       right: '6px',
-                      fontSize: '8.5px',
+                      fontSize: '8px',
                       fontWeight: '900',
-                      padding: '2px 5px',
-                      borderRadius: '4px',
+                      padding: '2px 6px',
+                      borderRadius: '100px',
                       background: isSelected ? '#fde047' : '#ecfdf5',
                       color: isSelected ? '#0f172a' : '#059669',
                       border: isSelected ? 'none' : '1px solid #a7f3d0'
@@ -1027,11 +1084,25 @@ const ProductCatalog = ({ currentCategory, onSelectCategory, searchQuery, onNavi
                       {brand.offer}
                     </div>
                   )}
-                  <div style={{ fontSize: '24px', margin: '4px 0 6px 0' }}>{brand.icon}</div>
-                  <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13.5px', fontWeight: '900', margin: '0 0 2px 0', color: isSelected ? '#ffffff' : '#0f172a' }}>
+                  <div style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: isSelected ? 'rgba(255,255,255,0.12)' : '#f8fafc',
+                    border: isSelected ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '22px',
+                    margin: '0 auto 8px auto',
+                    boxShadow: isSelected ? 'none' : '0 2px 6px rgba(0,0,0,0.03)'
+                  }}>
+                    {brand.icon}
+                  </div>
+                  <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13px', fontWeight: '900', margin: '0 0 2px 0', color: isSelected ? '#ffffff' : '#0f172a' }}>
                     {brand.name}
                   </h4>
-                  <p style={{ fontSize: '10.5px', color: isSelected ? 'rgba(255,255,255,0.8)' : '#64748b', margin: 0, fontWeight: '600' }}>
+                  <p style={{ fontSize: '10px', color: isSelected ? 'rgba(255,255,255,0.8)' : '#64748b', margin: 0, fontWeight: '600' }}>
                     {brand.desc}
                   </p>
                 </div>
