@@ -74,6 +74,32 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   const [isModalPincodeLoading, setIsModalPincodeLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
+  const [expiringProducts, setExpiringProducts] = useState([]);
+  const [isLoadingExpiring, setIsLoadingExpiring] = useState(false);
+
+  React.useEffect(() => {
+    const fetchExpiring = async () => {
+      const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
+      if (!token) return;
+      try {
+        setIsLoadingExpiring(true);
+        const res = await fetch('/api/user/expiring-products', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.items)) {
+            setExpiringProducts(data.items);
+          }
+        }
+      } catch (_) {} finally {
+        setIsLoadingExpiring(false);
+      }
+    };
+    if (currentUser) {
+      fetchExpiring();
+    }
+  }, [currentUser?.token]);
 
   // Sync Firebase email verification status to backend DB
   React.useEffect(() => {
@@ -93,6 +119,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   // Sync state with currentUser when not editing or when currentUser updates
   React.useEffect(() => {
     if (!isEditing && currentUser) {
+
       setFirstName(currentUser.firstName || (currentUser.fullName ? currentUser.fullName.split(' ')[0] : ''));
       setLastName(currentUser.lastName || (currentUser.fullName ? currentUser.fullName.split(' ').slice(1).join(' ') : ''));
       setEmailInput(currentUser.email || '');
@@ -622,9 +649,117 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
         {/* 3. Always Visible Settings Form */}
         {activeTab === 'overview' && (
         <>
+        {/* ⏰ Smart Pre-Expiry & Replenishment Vault */}
+        {expiringProducts.length > 0 && (
+          <div style={{
+            marginBottom: '20px',
+            background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)',
+            border: '1.5px solid #f59e0b',
+            borderRadius: '20px',
+            padding: '18px 20px',
+            boxShadow: '0 8px 24px rgba(245, 158, 11, 0.15)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '20px', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)' }}>
+                  ⏰
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: '#78350f', fontFamily: "'Outfit', sans-serif" }}>
+                    Smart Expiry &amp; Replenishment Vault ({expiringProducts.length})
+                  </h3>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#92400e', fontWeight: '600' }}>
+                    7-day pre-expiry alerts for your ordered essentials. Reorder in 1-click &amp; earn +25 AB Coins!
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => onNavigate('orders')}
+                style={{ background: '#78350f', color: '#fef3c7', border: 'none', padding: '6px 12px', borderRadius: '100px', fontSize: '11.5px', fontWeight: '800', cursor: 'pointer' }}
+              >
+                View in Orders ➔
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
+              {expiringProducts.map((ep, idx) => {
+                const isUrgent = ep.daysLeft <= 3;
+                const isOverdue = ep.daysLeft <= 0;
+                return (
+                  <div key={idx} style={{
+                    background: '#ffffff',
+                    borderRadius: '14px',
+                    padding: '12px',
+                    border: isOverdue ? '1.5px solid #ef4444' : isUrgent ? '1.5px solid #f97316' : '1.5px solid #fde68a',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                  }}>
+                    <img
+                      src={ep.image || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200'}
+                      alt={ep.name}
+                      style={{ width: '46px', height: '46px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '2px', flexShrink: 0 }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {ep.name}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: '800',
+                          padding: '2px 6px',
+                          borderRadius: '6px',
+                          background: isOverdue ? '#fee2e2' : isUrgent ? '#ffedd5' : '#fef9c3',
+                          color: isOverdue ? '#b91c1c' : isUrgent ? '#c2410c' : '#854d0e'
+                        }}>
+                          {isOverdue ? '⚠️ ' : '⏳ '}{ep.statusText}
+                        </span>
+                        <span style={{ fontSize: '11.5px', fontWeight: '900', color: '#059669' }}>
+                          ₹{(ep.price || 0).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        addToCart({
+                          id: ep.productRef || ep.name,
+                          _id: ep.productRef,
+                          name: ep.name,
+                          price: ep.price,
+                          image: ep.image,
+                          selectedColor: ep.color,
+                          selectedVariant: ep.variant
+                        }, ep.qty || 1);
+                        showToast(`🎉 1-Click Reorder! ${ep.name} added to cart.`, 'success');
+                        onNavigate('cart');
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '7px 10px',
+                        borderRadius: '8px',
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    >
+                      ⚡ Reorder
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleUpdateProfile} className="profile-form-card animate-fade-in">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', marginBottom: '16px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '900', color: '#0f172a', margin: 0 }}>Profile &amp; Personal Details</h3>
+
             <span style={{ background: '#ecfdf5', color: '#059669', fontSize: '11px', fontWeight: '800', padding: '3px 10px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <ShieldCheck size={13} /> 256-bit Encrypted
             </span>

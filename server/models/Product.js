@@ -60,8 +60,13 @@ const productSchema = new mongoose.Schema({
     endTime: { type: Date }
   },
 
-  // Services
+  // Services & Expiry / Replenishment Engine
   hasProCare: { type: Boolean, default: false },
+  hasExpiry: { type: Boolean, default: false },
+  shelfLifeDays: { type: Number, default: 0 },
+  expiryDate: { type: Date },
+  replenishCycleDays: { type: Number, default: 0 },
+
 
   // Imagery
   image: { type: String, required: true },

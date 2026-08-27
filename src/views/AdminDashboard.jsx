@@ -212,6 +212,10 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setFlashSaleEndTime(prod.flashSale?.endTime ? new Date(prod.flashSale.endTime).toISOString().slice(0, 16) : '');
 
     setHasProCare(prod.hasProCare || false);
+    setHasExpiry(prod.hasExpiry || false);
+    setShelfLifeDays(prod.shelfLifeDays ? String(prod.shelfLifeDays) : '0');
+    setReplenishCycleDays(prod.replenishCycleDays ? String(prod.replenishCycleDays) : '0');
+
 
     // Set PIM Fields
     setMetaTitle(prod.seo?.metaTitle || '');
@@ -278,7 +282,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setDescription('');
     setBadge('none');
     setHasProCare(false);
+    setHasExpiry(false);
+    setShelfLifeDays('0');
+    setReplenishCycleDays('0');
     setSpecs([{ key: 'Brand', value: '' }, { key: 'Model', value: '' }]);
+
     setColorModels([]);
     
     setFlashSaleActive(false);
@@ -766,8 +774,12 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [flashSalePrice, setFlashSalePrice] = useState('');
   const [flashSaleEndTime, setFlashSaleEndTime] = useState('');
 
-  // Services
+  // Services & Expiry / Replenish Engine
   const [hasProCare, setHasProCare] = useState(false);
+  const [hasExpiry, setHasExpiry] = useState(false);
+  const [shelfLifeDays, setShelfLifeDays] = useState('0');
+  const [replenishCycleDays, setReplenishCycleDays] = useState('0');
+
 
   // Enterprise PIM State
   const [metaTitle, setMetaTitle] = useState('');
@@ -1084,7 +1096,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       stock: Number(stock),
       badge,
       hasProCare,
+      hasExpiry,
+      shelfLifeDays: Number(shelfLifeDays || 0),
+      replenishCycleDays: Number(replenishCycleDays || 0),
       colorModels: cleanColorModels.length > 0 ? cleanColorModels : undefined,
+
       flashSale: {
         isActive: flashSaleActive,
         price: Number(flashSalePrice || 0),
@@ -2030,7 +2046,61 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                 </div>
               </label>
 
+              {/* ⏰ Product Expiry & Smart Replenishment Controls */}
+              <div style={{ padding: '18px', background: '#fffbeb', borderRadius: '14px', border: '1.5px solid #fde68a', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <label htmlFor="hasExpiry" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    id="hasExpiry"
+                    checked={hasExpiry}
+                    onChange={(e) => setHasExpiry(e.target.checked)}
+                    style={{ width: '20px', height: '20px', accentColor: '#d97706', cursor: 'pointer' }}
+                  />
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '800', color: '#78350f' }}>Enable Product Expiry &amp; 7-Day Pre-Expiry Reorder Reminders</div>
+                    <div style={{ fontSize: '12px', color: '#92400e' }}>Triggers smart pre-expiry alerts to customers 7 days before shelf life ends</div>
+                  </div>
+                </label>
+
+                {hasExpiry && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', paddingTop: '10px', borderTop: '1px dashed #fcd34d' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#78350f', marginBottom: '6px' }}>
+                        SHELF LIFE (DAYS)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="3650"
+                        value={shelfLifeDays}
+                        onChange={(e) => setShelfLifeDays(e.target.value)}
+                        placeholder="e.g. 30, 60, 90, 180, 365"
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#ffffff' }}
+                      />
+                      <small style={{ color: '#92400e', fontSize: '11px' }}>Days after delivery until product expires</small>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#78350f', marginBottom: '6px' }}>
+                        REPLENISH CYCLE (DAYS)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="3650"
+                        value={replenishCycleDays}
+                        onChange={(e) => setReplenishCycleDays(e.target.value)}
+                        placeholder="e.g. 30 (daily consumable), 60, 90"
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#ffffff' }}
+                      />
+                      <small style={{ color: '#92400e', fontSize: '11px' }}>Optimal reorder refill frequency</small>
+                    </div>
+                  </div>
+                )}
+              </div>
+
             </div> {/* End Main Product Details Card */}
+
 
             {/* Card 2A: Volume Discount Rules (Buy More, Save More Engine) */}
             <div className="admin-panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '28px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>

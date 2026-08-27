@@ -146,6 +146,20 @@ export async function POST(req) {
       const name = item.name || prod.name || (dbProduct ? dbProduct.name : 'AbKharido Verified Product');
       const image = item.image || prod.image || (dbProduct ? (dbProduct.image || dbProduct.images?.[0]) : 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600');
 
+      // Calculate Product Expiry Date & Smart Replenishment Cycle
+      let itemExpiryDate = null;
+      const replenishCycleDays = Number(dbProduct?.replenishCycleDays || prod.replenishCycleDays || 0);
+      const shelfLifeDays = Number(dbProduct?.shelfLifeDays || prod.shelfLifeDays || 0);
+      const isReplenishable = Boolean(dbProduct?.hasExpiry || shelfLifeDays > 0 || replenishCycleDays > 0 || prod.hasExpiry);
+
+      if (dbProduct?.expiryDate) {
+        itemExpiryDate = new Date(dbProduct.expiryDate);
+      } else if (shelfLifeDays > 0) {
+        itemExpiryDate = new Date(Date.now() + shelfLifeDays * 24 * 60 * 60 * 1000);
+      } else if (replenishCycleDays > 0) {
+        itemExpiryDate = new Date(Date.now() + replenishCycleDays * 24 * 60 * 60 * 1000);
+      }
+
       return {
         product: dbProduct ? dbProduct._id : user._id, // fallback to user ObjectId if mock
         name,
@@ -153,9 +167,13 @@ export async function POST(req) {
         price,
         image,
         color: item.selectedColor || item.color || '',
-        variant: item.selectedVariant || item.variant || ''
+        variant: item.selectedVariant || item.variant || '',
+        expiryDate: itemExpiryDate,
+        replenishCycleDays,
+        isReplenishable
       };
     }));
+
 
     const itemsPrice = Math.round(orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0));
     const shippingPrice = itemsPrice > 500 ? 0 : 40;

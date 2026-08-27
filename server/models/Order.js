@@ -14,8 +14,12 @@ const orderItemSchema = new mongoose.Schema({
   variant: { type: String },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   vendorAmount: { type: Number, default: 0 },
-  platformFee: { type: Number, default: 0 }
+  platformFee: { type: Number, default: 0 },
+  expiryDate: { type: Date },
+  replenishCycleDays: { type: Number, default: 0 },
+  isReplenishable: { type: Boolean, default: false }
 }, { _id: false });
+
 
 const orderSchema = new mongoose.Schema({
   user: {
