@@ -415,18 +415,14 @@ export const AppProvider = ({ children }) => {
               setCart(backendCart);
               safeSetItem('abkharido_cached_cart', JSON.stringify(backendCart));
               safeSetItem('abkharido_cart', JSON.stringify(backendCart));
-            } else if (guestCart && guestCart.length > 0) {
-              // Preserve local cart if DB returned empty
-              setCart(guestCart);
-              safeSetItem('abkharido_cached_cart', JSON.stringify(guestCart));
-              safeSetItem('abkharido_cart', JSON.stringify(guestCart));
-              // Sync up to DB
-              fetch('/api/cart/sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ cart: guestCart })
-              }).catch(() => {});
+            } else {
+              setCart([]);
+              try {
+                localStorage.removeItem('abkharido_cart');
+                localStorage.removeItem('abkharido_cached_cart');
+              } catch (_) {}
             }
+
           }
         } catch (err) {
           console.error('Failed to fetch backend cart:', err);
@@ -1264,10 +1260,12 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
+          clearCart();
           setDbUser(data.user);
           safeSetItem('abkharido_user_session', JSON.stringify(data.user));
           fetchOrders(currentUser.email);
           fetchStats();
+
           
           const targetUsername = currentUser.username || currentUser.name;
           if (targetUsername) {

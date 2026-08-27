@@ -6,8 +6,9 @@ import WorldClassInvoice from '../components/WorldClassInvoice';
 import ScratchCard from '../components/ScratchCard';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
-  const { cart, currentUser, placeOrder, showToast, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards } = useApp();
+  const { cart, currentUser, placeOrder, showToast, clearCart, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards } = useApp();
   const [step, setStep] = useState(1); // 1: Address, 2: Summary, 3: Payment, 4: Success
+
   const [selectedSavedCard, setSelectedSavedCard] = useState(null);
 
   useEffect(() => {
@@ -366,6 +367,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         
         if (verifyRes.ok && verifyData.success) {
           showToast('Payment Verified Successfully!', 'success');
+          clearCart();
           setCreatedOrder({
             _id: data.dbOrderId || data.orderId,
             orderId: data.orderId,
@@ -376,6 +378,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           });
           setStep(4);
           triggerConfetti();
+
           
           if (updateUserProfile && currentUser) {
             updateUserProfile({

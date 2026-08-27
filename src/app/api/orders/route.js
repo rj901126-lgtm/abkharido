@@ -196,7 +196,18 @@ export async function POST(req) {
       }]
     });
 
+    // Clear user cart in DB upon order placement
+
+    if (user && user._id) {
+      try {
+        await User.updateOne({ _id: user._id }, { $set: { cart: [] } });
+      } catch (cartErr) {
+        console.error('[Order Cart Clear Error]:', cartErr);
+      }
+    }
+
     return NextResponse.json(newOrder, { status: 201 });
+
   } catch (error) {
     console.error('Error in POST /api/orders:', error);
     return NextResponse.json({ error: error.message || 'Failed to place order.' }, { status: 500 });

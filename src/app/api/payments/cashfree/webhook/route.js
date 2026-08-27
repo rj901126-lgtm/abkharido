@@ -104,8 +104,18 @@ export async function POST(req) {
         } catch (e) {}
       }
 
+      // Clear user cart in DB
+      if (order.user) {
+        try {
+          await User.updateOne({ _id: order.user }, { $set: { cart: [] } });
+        } catch (cartErr) {
+          console.error('[Webhook Cart Clear Error]:', cartErr);
+        }
+      }
+
       return NextResponse.json({ status: 'PROCESSED_SUCCESS' }, { status: 200 });
     }
+
 
     // 3. Handle PAYMENT FAILED
     if (eventType.includes('FAILED')) {

@@ -82,17 +82,17 @@ export async function POST(req) {
       }
     }
 
-    // 7. Calculate AB Coins cashback reward on successful order (0.5% base reward)
-    const cashbackCoins = Math.floor(order.totalPrice * 0.005);
-    if (cashbackCoins > 0 && order.user) {
+    // 8. Clear user's active cart in DB
+    if (order.user) {
       try {
-        await User.updateOne({ _id: order.user }, { $inc: { walletCoins: cashbackCoins } });
-      } catch (cashbackErr) {
-        console.error('[Cashback Award Error]:', cashbackErr);
+        await User.updateOne({ _id: order.user }, { $set: { cart: [] } });
+      } catch (cartErr) {
+        console.error('[Cart Clear on Payment Verification Error]:', cartErr);
       }
     }
 
     return NextResponse.json({
+
       success: true,
       message: 'Payment verified and order confirmed!',
       order

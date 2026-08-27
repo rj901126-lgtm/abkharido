@@ -36,8 +36,14 @@ function ReturnContent() {
           setStatus('SUCCESS');
           setOrderDetails(data.order);
           if (clearCart) clearCart();
+          try {
+            localStorage.removeItem('abkharido_cart');
+            localStorage.removeItem('abkharido_cached_cart');
+            sessionStorage.removeItem('abkharido_cart');
+          } catch (_) {}
           if (showToast) showToast('🎉 Payment successful! Your order has been placed.', 'success');
         } else {
+
           setStatus('FAILED');
           setErrorMessage(data.message || data.error || 'Payment verification was not successful.');
         }
