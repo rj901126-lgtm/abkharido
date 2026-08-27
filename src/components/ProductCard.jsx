@@ -45,7 +45,7 @@ function resolveSwatchColor(colorName) {
 }
 
 const ProductCard = ({ product, onNavigateProduct }) => {
-  const { addToCart, currentUser, wishlist, toggleWishlist, showToast } = useApp();
+  const { addToCart, updateCartQty, currentUser, wishlist, toggleWishlist, showToast, cart } = useApp();
   const [isHovered, setIsHovered] = useState(false);
   const [isJustAdded, setIsJustAdded] = useState(false);
   const [selectedColorIdx, setSelectedColorIdx] = useState(0);
@@ -60,6 +60,16 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
   const prodId = product.id || product._id;
   const isInWishlist = Array.isArray(wishlist) && wishlist.some(id => id === prodId || id.id === prodId);
+
+  // Cart Status Calculation
+  const cartItem = (cart || []).find(item => {
+    const itemPId = String(item.product?._id || item.product?.id || item.product || '');
+    const itemSlug = String(item.product?.id || '');
+    const targetPId = String(prodId || '');
+    const targetSlug = String(product.id || '');
+    return (itemPId && targetPId && itemPId === targetPId) || (itemSlug && targetSlug && itemSlug === targetSlug);
+  });
+  const quantityInCart = cartItem?.quantity || 0;
 
   // Flash Sale Engine Check
   const isFlashSale = product.flashSale?.isActive && new Date(product.flashSale.endTime) > new Date();
@@ -79,7 +89,6 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   const emiPerMonth = price >= 1500 ? Math.round(price / 6) : 0;
   const deliveryETA = 'Standard Delivery (2 to 5 Days)';
 
-
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
     if (toggleWishlist) toggleWishlist(prodId);
@@ -93,6 +102,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
     showToast(`${product.name?.substring(0, 22)}... added to Bag! 🛍️`, 'success');
     setTimeout(() => setIsJustAdded(false), 2000);
   };
+
 
   // Long press touch handlers
   const handleTouchStart = (e) => {
@@ -301,30 +311,134 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             </div>
           </div>
 
-          {/* Primary Marketplace Add to Cart CTA */}
-          <button 
-            className="product-add-to-cart-btn" 
-            style={{
-              ...styles.addBtn,
-              background: isJustAdded 
-                ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
-                : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              borderColor: isJustAdded ? '#059669' : '#0f172a'
-            }}
-            onClick={handleAddToCart}
-          >
-            {isJustAdded ? (
-              <>
-                <Check size={14} color="#ffffff" strokeWidth={3} />
-                <span>Added to Bag</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart size={13} color="#ffffff" />
-                <span>Add to Cart</span>
-              </>
-            )}
-          </button>
+          {/* Primary Marketplace Add to Cart / In Bag Stepper */}
+          {quantityInCart > 0 ? (
+            <div 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+                height: '38px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                border: '1.5px solid #059669',
+                padding: '2px 4px',
+                boxSizing: 'border-box',
+                boxShadow: '0 3px 10px rgba(5, 150, 105, 0.25)',
+                color: '#ffffff'
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const targetId = cartItem.product?.id || cartItem.product?._id || prodId;
+                  updateCartQty(targetId, quantityInCart - 1);
+                }}
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '6px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontSize: '18px',
+                  fontWeight: '900',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 0.15s ease'
+                }}
+                title="Decrease quantity"
+              >
+                -
+              </button>
+              
+              <div 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (typeof window !== 'undefined') {
+                    window.location.href = '/cart';
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  textAlign: 'center',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
+                }}
+                title="View in Bag (Click to open Cart)"
+              >
+                <Check size={13} strokeWidth={3} />
+                <span>{quantityInCart} in Bag</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const targetId = cartItem.product?.id || cartItem.product?._id || prodId;
+                  updateCartQty(targetId, quantityInCart + 1);
+                }}
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '6px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontSize: '18px',
+                  fontWeight: '900',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 0.15s ease'
+                }}
+                title="Increase quantity"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button 
+              className="product-add-to-cart-btn" 
+              style={{
+                ...styles.addBtn,
+                background: isJustAdded 
+                  ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
+                  : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                borderColor: isJustAdded ? '#059669' : '#0f172a'
+              }}
+              onClick={handleAddToCart}
+            >
+              {isJustAdded ? (
+                <>
+                  <Check size={14} color="#ffffff" strokeWidth={3} />
+                  <span>Added to Bag</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={13} color="#ffffff" />
+                  <span>Add to Cart</span>
+                </>
+              )}
+            </button>
+          )}
+
         </div>
       </div>
 

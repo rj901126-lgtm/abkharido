@@ -369,19 +369,30 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   const isOutOfStock = activeVariant ? (activeVariant.stock !== undefined && activeVariant.stock <= 0) : (product && product.inStock === false);
 
   const cartItem = (cart || []).find(item => {
-    const itemPId = String(item.product?._id || item.product?.id || '');
+    const itemPId = String(item.product?._id || item.product?.id || item.product || '');
     const itemSlug = String(item.product?.id || '');
     const targetPId = String(product?._id || product?.id || '');
     const targetSlug = String(product?.id || '');
     const idMatches = (itemPId && targetPId && itemPId === targetPId) || (itemSlug && targetSlug && itemSlug === targetSlug);
     if (!idMatches) return false;
-    const itemVar = item.product?.selectedVariant || item.product?.variant || '';
-    const targetVar = activeVariant ? activeVariant.name : '';
-    const itemCol = item.product?.selectedColor || item.product?.color || '';
-    const targetCol = activeColor ? activeColor.name : '';
-    return itemVar === targetVar && itemCol === targetCol;
+
+    const itemVar = (item.product?.selectedVariant || item.product?.variant || '').toLowerCase().trim();
+    const targetVar = (activeVariant ? activeVariant.name : '').toLowerCase().trim();
+    const itemCol = (item.product?.selectedColor || item.product?.color || '').toLowerCase().trim();
+    const targetCol = (activeColor ? activeColor.name : '').toLowerCase().trim();
+
+    const isVarDefault = !itemVar || itemVar === 'default' || itemVar === 'standard';
+    const isTargetVarDefault = !targetVar || targetVar === 'default' || targetVar === 'standard';
+    const varMatches = (isVarDefault && isTargetVarDefault) || (itemVar === targetVar);
+
+    const isColDefault = !itemCol || itemCol === 'default' || itemCol === 'original';
+    const isTargetColDefault = !targetCol || targetCol === 'default' || targetCol === 'original';
+    const colMatches = (isColDefault && isTargetColDefault) || (itemCol === targetCol);
+
+    return varMatches && colMatches;
   });
   const quantityInCart = cartItem?.quantity || 0;
+
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
