@@ -79,34 +79,6 @@ const Orders = ({ onNavigate }) => {
   const [convertingOrderId, setConvertingOrderId] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
 
-  // Smart Pre-Expiry & Replenishment State
-  const [expiringProducts, setExpiringProducts] = useState([]);
-  const [isLoadingExpiring, setIsLoadingExpiring] = useState(false);
-
-  const fetchExpiringProducts = async () => {
-    const token = currentUser?.token || (typeof window !== 'undefined' ? (localStorage.getItem('abkharido_token') || localStorage.getItem('abkharido_user_session')) : null);
-    if (!token) return;
-    try {
-      setIsLoadingExpiring(true);
-      const res = await fetch('/api/user/expiring-products', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && Array.isArray(data.items)) {
-          setExpiringProducts(data.items);
-        }
-      }
-    } catch (_) {} finally {
-      setIsLoadingExpiring(false);
-    }
-  };
-
-  React.useEffect(() => {
-    if (currentUser) {
-      fetchExpiringProducts();
-    }
-  }, [currentUser?.token]);
 
   // Debounce search input
   React.useEffect(() => {
@@ -596,122 +568,9 @@ const Orders = ({ onNavigate }) => {
         </div>
       ) : (
       <>
-      {/* ⏰ Smart Expiry & 1-Click Replenishment Vault Banner */}
-      {expiringProducts.length > 0 && (
-        <div style={{
-          marginBottom: '22px',
-          background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)',
-          border: '1.5px solid #f59e0b',
-          borderRadius: '18px',
-          padding: '16px 18px',
-          boxShadow: '0 8px 24px rgba(245, 158, 11, 0.15)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '20px', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)' }}>
-                ⏰
-              </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '15.5px', fontWeight: '900', color: '#78350f', fontFamily: "'Outfit', sans-serif" }}>
-                  Smart Replenishment &amp; Expiry Vault ({expiringProducts.length})
-                </h3>
-                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#92400e', fontWeight: '600' }}>
-                  Items expiring within 7 days or due for refill. 1-Click reorder with bonus 25 AB Coins!
-                </p>
-              </div>
-            </div>
-            <span style={{ background: '#78350f', color: '#fef3c7', padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ⚡ 7-Day Pre-Expiry Alert
-            </span>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
-            {expiringProducts.map((ep, idx) => {
-              const isUrgent = ep.daysLeft <= 3;
-              const isOverdue = ep.daysLeft <= 0;
-              return (
-                <div key={idx} style={{
-                  background: '#ffffff',
-                  borderRadius: '14px',
-                  padding: '12px',
-                  border: isOverdue ? '1.5px solid #ef4444' : isUrgent ? '1.5px solid #f97316' : '1.5px solid #fde68a',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                }}>
-                  <img
-                    src={ep.image || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200'}
-                    alt={ep.name}
-                    style={{ width: '50px', height: '50px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '2px', flexShrink: 0 }}
-                  />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {ep.name}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px', flexWrap: 'wrap' }}>
-                      <span style={{
-                        fontSize: '10.5px',
-                        fontWeight: '800',
-                        padding: '2px 7px',
-                        borderRadius: '6px',
-                        background: isOverdue ? '#fee2e2' : isUrgent ? '#ffedd5' : '#fef9c3',
-                        color: isOverdue ? '#b91c1c' : isUrgent ? '#c2410c' : '#854d0e',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '3px'
-                      }}>
-                        {isOverdue ? '⚠️ ' : '⏳ '}{ep.statusText}
-                      </span>
-                      <span style={{ fontSize: '12px', fontWeight: '900', color: '#059669' }}>
-                        ₹{(ep.price || 0).toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      addToCart({
-                        id: ep.productRef || ep.name,
-                        _id: ep.productRef,
-                        name: ep.name,
-                        price: ep.price,
-                        image: ep.image,
-                        selectedColor: ep.color,
-                        selectedVariant: ep.variant
-                      }, ep.qty || 1);
-                      showToast(`🎉 Reordered ${ep.name}! Added to bag with +25 AB Coins reward.`, 'success');
-                      navigateTo('cart');
-                    }}
-                    style={{
-                      background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      padding: '8px 12px',
-                      borderRadius: '10px',
-                      fontSize: '11.5px',
-                      fontWeight: '900',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      boxShadow: '0 3px 10px rgba(5, 150, 105, 0.25)',
-                      flexShrink: 0
-                    }}
-                    title="1-Click Reorder & Replenish"
-                  >
-                    <RefreshCw size={12} /> Reorder
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* 🌟 Responsive Clean Orders List */}
       <div>
+
 
         {filteredOrders.map(order => {
           const isExpanded = expandedOrderId === order._id;
@@ -770,36 +629,6 @@ const Orders = ({ onNavigate }) => {
                   {firstItemName}
                 </div>
 
-                {/* ⏰ Pre-Expiry & Replenish Alert Badge on Order Card */}
-                {(() => {
-                  const expiringItem = (order.orderItems || []).find(item => {
-                    if (!item?.expiryDate) return false;
-                    const days = Math.ceil((new Date(item.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-                    return days <= 7 && days >= -30;
-                  });
-                  if (!expiringItem) return null;
-                  const days = Math.ceil((new Date(expiringItem.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-                  const isOverdue = days <= 0;
-                  return (
-                    <div style={{
-                      marginTop: '4px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      background: isOverdue ? '#fee2e2' : '#fef3c7',
-                      border: isOverdue ? '1px solid #fca5a5' : '1px solid #fcd34d',
-                      color: isOverdue ? '#b91c1c' : '#92400e',
-                      padding: '2px 8px',
-                      borderRadius: '6px',
-                      fontSize: '11px',
-                      fontWeight: '800'
-                    }}>
-                      <span>{isOverdue ? '⚠️' : '⏰'}</span>
-                      <span>{isOverdue ? (days === 0 ? 'Expiring Today' : `Expired ${Math.abs(days)}d ago`) : `Expires in ${days} days`} • Due for Replenish</span>
-                    </div>
-                  );
-                })()}
-
                 <div className="ak-item-meta" style={{ marginTop: '4px' }}>
                   <span className="ak-item-price">
                     ₹{orderPrice.toLocaleString('en-IN')}
@@ -807,6 +636,7 @@ const Orders = ({ onNavigate }) => {
                   <span>• Qty: {orderQty}</span>
                   <span>• {order.paymentMethod || 'Online'}</span>
                 </div>
+
 
                 <div className={`ak-delivery-status-note ${isDelivered ? 'delivered' : isCancelled ? 'cancelled' : 'active'}`}>
                   {isDelivered 

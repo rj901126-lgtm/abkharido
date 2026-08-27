@@ -122,9 +122,6 @@ export function parseCsvProducts(csvText) {
       : `High performance ${name} with official manufacturer warranty and fast air dispatch.`;
 
     const brand = rowData.brand ? rowData.brand.trim() : 'AbKharido Verified';
-    const shelfLifeDays = parseInt(String(rowData.shelflifedays || rowData.shelflife || rowData.expiry || '0').replace(/[^0-9]/g, ''), 10) || 0;
-    const replenishCycleDays = parseInt(String(rowData.replenishcycledays || rowData.replenish || '0').replace(/[^0-9]/g, ''), 10) || 0;
-
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + `-${Date.now().toString().slice(-4)}-${i}`;
 
     validProducts.push({
@@ -138,9 +135,6 @@ export function parseCsvProducts(csvText) {
       inStock: countInStock > 0,
       description,
       brand,
-      hasExpiry: shelfLifeDays > 0 || replenishCycleDays > 0,
-      shelfLifeDays,
-      replenishCycleDays,
       rating: 4.8,
       reviewsCount: 1,
       specs: [
@@ -163,7 +157,7 @@ export function parseCsvProducts(csvText) {
  * Returns a ready sample CSV template string that opens cleanly in Excel / Google Sheets
  */
 export function generateSampleCsvTemplate() {
-  const headers = ['Product Name', 'Category', 'Selling Price (₹)', 'Original MRP (₹)', 'Stock Units', 'Image URL', 'Brand', 'Shelf Life (Days)', 'Replenish Cycle (Days)', 'Description'];
+  const headers = ['Product Name', 'Category', 'Selling Price (₹)', 'Original MRP (₹)', 'Stock Units', 'Image URL', 'Brand', 'Description'];
   const sampleRows = [
     [
       'boAt Rockerz 450 Bluetooth On-Ear Headphones',
@@ -173,10 +167,9 @@ export function generateSampleCsvTemplate() {
       '120',
       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800',
       'boAt',
-      '0',
-      '0',
       '15-hour playback with 40mm dynamic drivers and deep bass.'
     ],
+
 
     [
       'Noise ColorFit Pro 4 Smartwatch 1.72" HD Display',

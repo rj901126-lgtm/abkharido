@@ -13,13 +13,9 @@ const orderItemSchema = new mongoose.Schema({
   color: { type: String },
   variant: { type: String },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  vendorAmount: { type: Number, default: 0 },
-  expiryDate: { type: Date },
-  batchNumber: { type: String },
-  manufactureDate: { type: Date },
-  replenishCycleDays: { type: Number, default: 0 },
-  isReplenishable: { type: Boolean, default: false }
+  vendorAmount: { type: Number, default: 0 }
 }, { _id: false });
+
 
 
 
