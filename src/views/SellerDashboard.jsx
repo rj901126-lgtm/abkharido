@@ -38,20 +38,29 @@ export default function SellerDashboard({ onNavigate }) {
   const [currentSeller, setCurrentSeller] = useState(() => {
     try {
       const saved = localStorage.getItem('abkharido_seller_session');
-      return saved ? JSON.parse(saved) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.id === 'demo_seller_101') {
+          localStorage.removeItem('abkharido_seller_session');
+          return null;
+        }
+        return parsed;
+      }
+      return null;
     } catch { return null; }
   });
 
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'orders' | 'payouts' | 'share' | 'fulfillment'
   const [stats, setStats] = useState({
-    totalRevenue: 54900,
-    totalOrders: 18,
-    totalProducts: 8,
-    unitsSold: 34,
-    walletBalance: 16800,
-    pendingPayout: 4200,
-    shopName: 'AbKharido Premier Store'
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalProducts: 0,
+    unitsSold: 0,
+    walletBalance: 0,
+    pendingPayout: 0,
+    shopName: 'Merchant Portal'
   });
+
 
   const [sellerProducts, setSellerProducts] = useState([]);
   const [sellerOrders, setSellerOrders] = useState([]);
@@ -130,16 +139,12 @@ export default function SellerDashboard({ onNavigate }) {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.products && data.products.length > 0) {
+        if (Array.isArray(data.products)) {
           setSellerProducts(data.products);
-        } else if (globalProducts && globalProducts.length > 0) {
-          setSellerProducts(globalProducts.slice(0, 8));
         }
       }
     } catch {
-      if (globalProducts && globalProducts.length > 0) {
-        setSellerProducts(globalProducts.slice(0, 8));
-      }
+      setSellerProducts([]);
     } finally {
       setLoading(false);
     }
@@ -155,7 +160,7 @@ export default function SellerDashboard({ onNavigate }) {
         if (data.orders) setSellerOrders(data.orders);
       }
     } catch {
-      // Fallback
+      setSellerOrders([]);
     }
   };
 
@@ -170,7 +175,7 @@ export default function SellerDashboard({ onNavigate }) {
         if (data.balance) setStats(prev => ({ ...prev, ...data.balance }));
       }
     } catch {
-      // Fallback
+      setPayoutHistory([]);
     }
   };
 
@@ -204,19 +209,6 @@ export default function SellerDashboard({ onNavigate }) {
     }
   };
 
-  const handleDemoLogin = () => {
-    const demoSeller = {
-      id: 'demo_seller_101',
-      email: 'demo@seller.com',
-      shopName: 'AbKharido Premier Electronics',
-      sellerStatus: 'Approved',
-      walletCoins: 16800,
-      token: 'demo_jwt_token'
-    };
-    setCurrentSeller(demoSeller);
-    localStorage.setItem('abkharido_seller_session', JSON.stringify(demoSeller));
-    showToast('Logged in as Verified Demo Merchant! 🏪', 'success');
-  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -500,17 +492,8 @@ export default function SellerDashboard({ onNavigate }) {
               >
                 {loading ? 'Authenticating...' : 'Login to Merchant Portal'} <ArrowRight size={16} />
               </button>
-
-              <div style={{ textAlign: 'center', margin: '10px 0', fontSize: '12px', color: '#94a3b8' }}>or</div>
-
-              <button 
-                type="button"
-                onClick={handleDemoLogin}
-                style={{ width: '100%', height: '42px', background: '#ecfdf5', color: '#059669', border: '1.5px dashed #10b981', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-              >
-                ⚡ 1-Click Fast Demo Login
-              </button>
             </form>
+
           ) : (
             <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>

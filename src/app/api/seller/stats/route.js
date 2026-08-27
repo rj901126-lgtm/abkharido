@@ -24,27 +24,47 @@ export async function GET(req) {
     await connectDB();
     const seller = verifySeller(req);
 
-    // Compute metrics
-    const totalProducts = await Product.countDocuments(
-      seller && seller.id && seller.id !== 'demo_seller_101' ? { vendorId: seller.id } : {}
-    );
+    if (!seller || !seller.id) {
+      return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
+    }
 
-    const totalOrders = await Order.countDocuments({});
-    
-    // Sample calculated GMV
-    const orders = await Order.find({ isPaid: true }).select('totalPrice').lean();
-    const gmv = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+    // Compute real metrics for this authenticated seller
+    const totalProducts = await Product.countDocuments({
+      $or: [{ vendorId: seller.id }, { sellerId: seller.id }]
+    });
+
+    const sellerOrders = await Order.find({
+      $or: [
+        { 'orderItems.vendorId': seller.id },
+        { 'items.vendorId': seller.id },
+        { vendorId: seller.id }
+      ]
+    }).lean();
+
+    const totalOrders = sellerOrders.length;
+    let totalRevenue = 0;
+    let unitsSold = 0;
+
+    sellerOrders.forEach(ord => {
+      const items = ord.orderItems || ord.items || [];
+      items.forEach(it => {
+        if (String(it.vendorId) === String(seller.id) || ord.vendorId === seller.id) {
+          totalRevenue += (Number(it.price) || 0) * (Number(it.qty || it.quantity) || 1);
+          unitsSold += (Number(it.qty || it.quantity) || 1);
+        }
+      });
+    });
 
     return NextResponse.json({
       success: true,
       stats: {
-        totalRevenue: gmv > 0 ? gmv : 48950,
-        totalOrders: totalOrders > 0 ? totalOrders : 14,
-        totalProducts: totalProducts > 0 ? totalProducts : 8,
-        unitsSold: 28,
-        walletBalance: 14200,
-        pendingPayout: 3500,
-        shopName: seller ? (seller.shopName || 'AbKharido Premier Store') : 'AbKharido Merchant'
+        totalRevenue,
+        totalOrders,
+        totalProducts,
+        unitsSold,
+        walletBalance: 0,
+        pendingPayout: 0,
+        shopName: seller.shopName || 'Verified Merchant Store'
       }
     });
 
@@ -53,3 +73,4 @@ export async function GET(req) {
     return NextResponse.json({ error: error.message || 'Failed to fetch seller stats' }, { status: 500 });
   }
 }
+

@@ -23,18 +23,13 @@ export async function GET(req) {
     await connectDB();
     const seller = verifySeller(req);
     
-    // Find products for seller or demo products if unauthenticated/demo
-    let query = {};
-    if (seller && seller.id && seller.id !== 'demo_seller_101') {
-      query = { $or: [{ vendorId: seller.id }, { sellerId: seller.id }] };
+    if (!seller || !seller.id) {
+      return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
     }
 
-    let products = await Product.find(query).limit(50).lean();
-    
-    // Fallback sample catalog if seller has no products yet
-    if (products.length === 0) {
-      products = await Product.find({}).limit(8).lean();
-    }
+    const products = await Product.find({
+      $or: [{ vendorId: seller.id }, { sellerId: seller.id }]
+    }).sort({ createdAt: -1 }).limit(100).lean();
 
     return NextResponse.json({
       success: true,
@@ -47,6 +42,7 @@ export async function GET(req) {
     return NextResponse.json({ error: error.message || 'Failed to fetch products' }, { status: 500 });
   }
 }
+
 
 export async function POST(req) {
   try {

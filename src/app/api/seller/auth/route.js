@@ -109,27 +109,6 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    // Direct sandbox demo login support
-    if (email === 'demo@seller.com' && password === 'seller123') {
-      const demoToken = jwt.sign(
-        { id: 'demo_seller_101', email: 'demo@seller.com', role: 'seller', shopName: 'AbKharido Premier Electronics' },
-        JWT_SECRET,
-        { expiresIn: '30d' }
-      );
-      return NextResponse.json({
-        success: true,
-        message: 'Logged in as Demo Merchant',
-        seller: {
-          id: 'demo_seller_101',
-          email: 'demo@seller.com',
-          shopName: 'AbKharido Premier Electronics',
-          sellerStatus: 'Approved',
-          walletCoins: 12500,
-          token: demoToken
-        }
-      });
-    }
-
     const seller = await User.findOne({
       $or: [
         { email: email.toLowerCase().trim() },
@@ -137,6 +116,7 @@ export async function POST(req) {
         { phone: email.trim() }
       ]
     });
+
 
     if (!seller) {
       return NextResponse.json({ error: 'No merchant account found with these credentials' }, { status: 401 });

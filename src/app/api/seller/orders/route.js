@@ -23,65 +23,21 @@ export async function GET(req) {
     await connectDB();
     const seller = verifySeller(req);
 
-    // Fetch recent orders
-    let orders = await Order.find({})
-      .sort({ createdAt: -1 })
-      .limit(30)
-      .lean();
-
-    // If no orders yet, return structured sample orders for demo merchant
-    if (orders.length === 0) {
-      orders = [
-        {
-          _id: 'AK-ORD-88219',
-          orderId: 'AK-2026-88219',
-          customerName: 'Rahul Sharma',
-          shippingAddress: {
-            fullName: 'Rahul Sharma',
-            phone: '9876543210',
-            address: 'Flat 402, Green Valley Apartments',
-            city: 'Mumbai',
-            postalCode: '400001'
-          },
-          orderItems: [
-            { name: 'AbKharido Leather Biker Jacket', price: 4999, quantity: 1, image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300' }
-          ],
-          totalPrice: 4999,
-          paymentMethod: 'Cash on Delivery',
-          isPaid: false,
-          isDelivered: false,
-          status: 'Processing',
-          deliveryPin: '4829',
-          courier: 'BlueDart Express Air',
-          awb: 'NMB-88219401',
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: 'AK-ORD-77102',
-          orderId: 'AK-2026-77102',
-          customerName: 'Priya Patel',
-          shippingAddress: {
-            fullName: 'Priya Patel',
-            phone: '9811223344',
-            address: 'Plot 12, Sector 18',
-            city: 'Delhi',
-            postalCode: '110001'
-          },
-          orderItems: [
-            { name: 'boAt Rockerz 450 Bluetooth Headphones', price: 1499, quantity: 2, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300' }
-          ],
-          totalPrice: 2998,
-          paymentMethod: 'Online UPI (Cashfree)',
-          isPaid: true,
-          isDelivered: true,
-          status: 'Delivered',
-          deliveryPin: '7102',
-          courier: 'Delhivery Surface',
-          awb: 'NMB-77102559',
-          createdAt: new Date(Date.now() - 86400000).toISOString()
-        }
-      ];
+    if (!seller || !seller.id) {
+      return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
     }
+
+    // Fetch real orders for this authenticated seller
+    const orders = await Order.find({
+      $or: [
+        { 'orderItems.vendorId': seller.id },
+        { 'items.vendorId': seller.id },
+        { vendorId: seller.id }
+      ]
+    })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
 
     return NextResponse.json({
       success: true,
@@ -94,6 +50,7 @@ export async function GET(req) {
     return NextResponse.json({ error: error.message || 'Failed to fetch seller orders' }, { status: 500 });
   }
 }
+
 
 export async function PUT(req) {
   try {

@@ -23,42 +23,22 @@ export async function GET(req) {
     await connectDB();
     const seller = verifySeller(req);
 
-    const history = [
-      {
-        id: 'PAY-882109',
-        amount: 8500,
-        method: 'UPI (brand@okaxis)',
-        utr: 'UTR202608240991823',
-        status: 'Completed',
-        date: '2026-08-24'
-      },
-      {
-        id: 'PAY-771940',
-        amount: 14200,
-        method: 'Bank NEFT (HDFC - *4910)',
-        utr: 'UTR202608170881920',
-        status: 'Completed',
-        date: '2026-08-17'
-      },
-      {
-        id: 'PAY-662901',
-        amount: 4200,
-        method: 'UPI (brand@okaxis)',
-        utr: 'Processing (T+2)',
-        status: 'Processing',
-        date: '2026-08-26'
-      }
-    ];
+    if (!seller || !seller.id) {
+      return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
+    }
+
+    const user = await User.findById(seller.id).lean();
+    const walletBalance = user?.walletCoins || user?.sellerWalletBalance || 0;
 
     return NextResponse.json({
       success: true,
       balance: {
-        availableBalance: 16800,
-        pendingSettlement: 4200,
-        lifetimeEarnings: 43700,
-        nextPayoutDate: 'Tuesday, Express Auto-Transfer'
+        availableBalance: walletBalance,
+        pendingSettlement: 0,
+        lifetimeEarnings: walletBalance,
+        nextPayoutDate: 'Weekly Auto-Transfer (T+2)'
       },
-      history
+      history: []
     });
 
   } catch (error) {
@@ -66,6 +46,7 @@ export async function GET(req) {
     return NextResponse.json({ error: error.message || 'Failed to fetch payout history' }, { status: 500 });
   }
 }
+
 
 export async function POST(req) {
   try {
