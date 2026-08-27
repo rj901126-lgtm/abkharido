@@ -95,13 +95,21 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   };
 
   const handleAddToCart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart(product, 1);
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (quantityInCart > 0) return;
+    const targetProduct = activeColorModel ? {
+      ...product,
+      selectedColor: activeColorModel.name,
+      selectedVariant: activeColorModel.variants?.[0]?.name || ''
+    } : product;
+    addToCart(targetProduct, 1);
     setIsJustAdded(true);
-    showToast(`${product.name?.substring(0, 22)}... added to Bag! 🛍️`, 'success');
     setTimeout(() => setIsJustAdded(false), 2000);
   };
+
 
 
   // Long press touch handlers

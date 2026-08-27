@@ -825,6 +825,35 @@ export const AppProvider = ({ children }) => {
 
   const lastAddToCartTimestamp = useRef({});
 
+  const normalizeVariantKey = (v) => {
+    const s = String(v || '').toLowerCase().trim();
+    if (!s || s === 'default' || s === 'standard' || s === 'none') return '';
+    return s;
+  };
+
+  const normalizeColorKey = (c) => {
+    const s = String(c || '').toLowerCase().trim();
+    if (!s || s === 'default' || s === 'original' || s === 'standard' || s === 'none') return '';
+    return s;
+  };
+
+  const isMatchingCartItem = (item, product) => {
+    const itemPId = String(item.product?.id || item.product?._id || item.product || '');
+    const itemSlug = String(item.product?.id || '');
+    const targetPId = String(product.id || product._id || product || '');
+    const targetSlug = String(product.id || '');
+    
+    const idMatches = (itemPId && targetPId && itemPId === targetPId) || (itemSlug && targetSlug && itemSlug === targetSlug);
+    if (!idMatches) return false;
+
+    const itemVar = normalizeVariantKey(item.product?.selectedVariant || item.product?.variant);
+    const targetVar = normalizeVariantKey(product.selectedVariant || product.variant);
+    const itemCol = normalizeColorKey(item.product?.selectedColor || item.product?.color);
+    const targetCol = normalizeColorKey(product.selectedColor || product.color);
+
+    return itemVar === targetVar && itemCol === targetCol;
+  };
+
   // --- Cart Actions ---
   const addToCart = (product, qty = 1) => {
     if (!product) return;
@@ -834,29 +863,18 @@ export const AppProvider = ({ children }) => {
       return;
     }
 
-    const selectedVar = product.selectedVariant || product.variant || '';
-    const selectedCol = product.selectedColor || product.color || '';
+    const selectedVar = normalizeVariantKey(product.selectedVariant || product.variant);
+    const selectedCol = normalizeColorKey(product.selectedColor || product.color);
     const dedupeKey = `${pId}_${selectedVar}_${selectedCol}`;
+    
     const now = Date.now();
-    if (lastAddToCartTimestamp.current[dedupeKey] && now - lastAddToCartTimestamp.current[dedupeKey] < 250) {
-      return; // Prevent duplicate rapid touch/click events within 250ms
+    if (lastAddToCartTimestamp.current[dedupeKey] && now - lastAddToCartTimestamp.current[dedupeKey] < 500) {
+      return; // Strictly debounce rapid touch/click events within 500ms
     }
     lastAddToCartTimestamp.current[dedupeKey] = now;
 
     setCart(prev => {
-      const existingIndex = prev.findIndex(item => {
-        const itemPId = String(item.product?.id || item.product?._id || '');
-        const itemSlug = String(item.product?.id || '');
-        const targetSlug = String(product?.id || '');
-        
-        const idMatches = (itemPId && pId && itemPId === pId) || (itemSlug && targetSlug && itemSlug === targetSlug);
-        if (!idMatches) return false;
-
-        const itemVar = item.product?.selectedVariant || item.product?.variant || '';
-        const itemCol = item.product?.selectedColor || item.product?.color || '';
-
-        return itemVar === selectedVar && itemCol === selectedCol;
-      });
+      const existingIndex = prev.findIndex(item => isMatchingCartItem(item, product));
 
       const stock = (product.stock !== undefined && product.stock !== null && product.stock > 0) 
         ? product.stock 
@@ -870,11 +888,9 @@ export const AppProvider = ({ children }) => {
           showToast(`Only ${stock} units available in stock.`, 'warning');
           return prev;
         }
-        showToast(`Cart updated (${newQty} in cart)!`, 'info');
         updatedCart = [...prev];
         updatedCart[existingIndex] = { ...existing, quantity: newQty };
       } else {
-        showToast(`${product.name?.substring(0, 24)}... added to bag!`, 'success');
         updatedCart = [...prev, { product, quantity: qty }];
       }
 
@@ -892,7 +908,10 @@ export const AppProvider = ({ children }) => {
 
       return updatedCart;
     });
+
+    showToast(`${product.name?.substring(0, 24) || 'Item'} added to bag! 🛍️`, 'success');
   };
+
 
   const updateCartQty = (productId, qty) => {
     if (qty <= 0) {
