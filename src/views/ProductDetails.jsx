@@ -303,7 +303,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
   const getProductColorModels = (prod) => {
     if (!prod) return [];
-    if (prod.colorModels && prod.colorModels.length > 0) return prod.colorModels;
+    if (Array.isArray(prod.colorModels) && prod.colorModels.length > 0) return prod.colorModels;
     
     // For fashion products without custom colorModels, provide real size options
     if (prod.category === 'fashion') {
@@ -314,7 +314,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
         {
           name: 'Default',
           primaryImage: prod.image,
-          images: prod.images || [prod.image],
+          images: prod.images && prod.images.length > 0 ? prod.images : [prod.image],
           variants: sizeNames.map((sz, idx) => ({
             name: sz,
             price: prod.price,
@@ -326,7 +326,23 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
       ];
     }
 
-    return [];
+    // Default fallback model for electronics/general marketplace products
+    return [
+      {
+        name: 'Default',
+        primaryImage: prod.image,
+        images: prod.images && prod.images.length > 0 ? prod.images : [prod.image],
+        variants: [
+          {
+            name: 'Default',
+            price: prod.price,
+            originalPrice: prod.originalPrice || prod.price,
+            stock: prod.stock !== undefined ? prod.stock : 10,
+            sku: `${prod.id || 'SKU'}-STD`
+          }
+        ]
+      }
+    ];
   };
 
   const colorModels = product ? getProductColorModels(product) : [];
@@ -334,7 +350,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
 
-  const activeColor = selectedColor || colorModels[0];
+  const activeColor = selectedColor || (colorModels.length > 0 ? colorModels[0] : null);
 
   const imagesList = product?.colorModels && activeColor && activeColor.images && activeColor.images.length > 0 
     ? activeColor.images 
@@ -371,7 +387,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
   // Sync state when color selection triggers
   React.useEffect(() => {
-    if (activeColor && activeColor.variants && activeColor.variants.length > 0) {
+    if (activeColor && Array.isArray(activeColor.variants) && activeColor.variants.length > 0) {
       setActiveImageIndex(0);
       const defaultVariant = activeColor.variants.find(v => (v.stock || 0) > 0) || activeColor.variants[0];
       setSelectedVariant(defaultVariant);
@@ -385,8 +401,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   React.useEffect(() => {
     if (product) {
       const models = getProductColorModels(product);
-      setSelectedColor(models[0]);
-      setSelectedVariant(models[0].variants[0]);
+      const firstModel = models && models.length > 0 ? models[0] : null;
+      setSelectedColor(firstModel);
+      setSelectedVariant(firstModel?.variants?.[0] || null);
       setActiveImageIndex(0);
 
       // Fetch AI Recommendations
@@ -398,6 +415,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
         .catch(err => console.error('Failed to load recommendations', err));
     }
   }, [productId, product]);
+
 
   const scrollRef = React.useRef(null);
   const handleScroll = (e) => {

@@ -863,7 +863,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       if (idx === colorIdx) {
         return {
           ...cm,
-          variants: [...cm.variants, { name: '', price: '', originalPrice: '', stock: '10' }]
+          variants: [...(cm.variants || []), { name: '', price: '', originalPrice: '', stock: '10' }]
         };
       }
       return cm;
@@ -875,7 +875,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       if (idx === colorIdx) {
         return {
           ...cm,
-          variants: cm.variants.filter((_, vIdx) => vIdx !== variantIdx)
+          variants: (cm.variants || []).filter((_, vIdx) => vIdx !== variantIdx)
         };
       }
       return cm;
@@ -887,7 +887,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       if (idx === colorIdx) {
         return {
           ...cm,
-          variants: cm.variants.map((v, vIdx) => {
+          variants: (cm.variants || []).map((v, vIdx) => {
             if (vIdx === variantIdx) {
               return { ...v, [field]: value };
             }
@@ -898,6 +898,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
       return cm;
     }));
   };
+
 
   // Dynamic commission rates (pre-filled on category change for helper guidance)
   const [userCommission, setUserCommission] = useState('0.012'); // 1.2%
@@ -1041,8 +1042,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         ? cm.imagesInput.split(',').map(url => url.trim()).filter(url => url !== '')
         : [];
       
-      const cleanVariants = cm.variants
-        .filter(v => v.name.trim() !== '' && v.price !== '')
+      const cleanVariants = (cm.variants || [])
+        .filter(v => v && v.name && v.name.trim() !== '' && v.price !== '')
         .map(v => {
           const orig = Number(v.originalPrice || v.price || 0);
           const prc = Number(v.price || 0);
@@ -1057,12 +1058,13 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
         });
 
       return {
-        name: cm.name.trim(),
-        primaryImage: cm.primaryImage.trim(),
-        images: [cm.primaryImage.trim(), ...extraImages],
+        name: (cm.name || '').trim(),
+        primaryImage: (cm.primaryImage || '').trim(),
+        images: [(cm.primaryImage || '').trim(), ...extraImages],
         variants: cleanVariants
       };
-    }).filter(cm => cm.name !== '' && cm.primaryImage !== '' && cm.variants.length > 0);
+    }).filter(cm => cm.name !== '' && cm.primaryImage !== '' && (cm.variants || []).length > 0);
+
 
     // Construct product object
     const newProduct = {
@@ -2240,7 +2242,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                          {cm.variants.map((v, variantIdx) => (
+                          {(cm.variants || []).map((v, variantIdx) => (
                             <div key={variantIdx} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', background: '#f8fafc', padding: '10px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
                               <div style={{ flex: '2', minWidth: '130px' }}>
                                 <input
@@ -2280,7 +2282,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px', background: '#ffffff', boxSizing: 'border-box', fontWeight: '700' }}
                                 />
                               </div>
-                              {cm.variants.length > 1 && (
+                              {(cm.variants || []).length > 1 && (
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveVariant(colorIdx, variantIdx)}
@@ -2293,6 +2295,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                             </div>
                           ))}
                         </div>
+
                       </div>
 
                     </div>
