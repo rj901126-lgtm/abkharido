@@ -106,3 +106,35 @@ export async function GET(req, context) {
     return NextResponse.json({ error: 'Failed to retrieve product detail' }, { status: 500 });
   }
 }
+
+export async function DELETE(req, context) {
+  try {
+    await connectDB();
+    const params = await context.params;
+    const id = params?.id;
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+    }
+
+    const cleanId = id.trim();
+    const isObjectId = cleanId.length === 24;
+
+    const res = await Product.deleteOne({
+      $or: [
+        { id: cleanId },
+        { slug: cleanId },
+        { _id: isObjectId ? cleanId : undefined }
+      ].filter(Boolean)
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Product ${cleanId} removed from database`,
+      deletedCount: res.deletedCount || 0
+    });
+  } catch (error) {
+    console.error('[Product DELETE Route Error]:', error);
+    return NextResponse.json({ error: error.message || 'Failed to delete product' }, { status: 500 });
+  }
+}
+

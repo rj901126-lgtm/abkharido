@@ -179,3 +179,50 @@ export async function GET(req) {
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
   }
 }
+
+export async function DELETE(req) {
+  try {
+    await connectDB();
+    const body = await req.json().catch(() => ({}));
+    const { ids, id, deleteAll } = body;
+
+    let deletedCount = 0;
+
+    if (deleteAll) {
+      const res = await Product.deleteMany({});
+      deletedCount = res.deletedCount || 0;
+    } else if (Array.isArray(ids) && ids.length > 0) {
+      const validObjectIds = ids.filter(i => typeof i === 'string' && i.length === 24);
+      const res = await Product.deleteMany({
+        $or: [
+          { id: { $in: ids } },
+          { slug: { $in: ids } },
+          { _id: { $in: validObjectIds } }
+        ]
+      });
+      deletedCount = res.deletedCount || 0;
+    } else if (id) {
+      const isObjectId = typeof id === 'string' && id.length === 24;
+      const res = await Product.deleteOne({
+        $or: [
+          { id },
+          { slug: id },
+          { _id: isObjectId ? id : undefined }
+        ].filter(Boolean)
+      });
+      deletedCount = res.deletedCount || 0;
+    } else {
+      return NextResponse.json({ error: 'Please provide product IDs to delete' }, { status: 400 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Successfully deleted ${deletedCount} product(s)`,
+      deletedCount
+    });
+  } catch (error) {
+    console.error('[Products API DELETE Error]:', error);
+    return NextResponse.json({ error: error.message || 'Failed to delete products' }, { status: 500 });
+  }
+}
+

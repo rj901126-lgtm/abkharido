@@ -5,19 +5,22 @@ import { exportToCSV } from '../utils/csvExport';
 
 const AdminDataGrid = ({ onEditProduct }) => {
   const { showToast, addProduct } = useApp();
-  const [data, setData] = useState({ products: [], total: 0, page: 1, limit: 10, totalPages: 1 });
+  const [data, setData] = useState({ products: [], total: 0, page: 1, limit: 15, totalPages: 1 });
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [stockFilter, setStockFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, ids: [], title: '', count: 0, isAllDummy: false });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const showToastMsg = (text, type = 'success') => {
     setNotification({ show: true, text, type });
     if (showToast) showToast(text, type);
     setTimeout(() => setNotification({ show: false, text: '', type: 'success' }), 3600);
   };
+
 
   const synthesizeProduct = (prod) => {
     const cleanId = (prod.id || prod._id || 'PRD001').toString();
@@ -139,19 +142,98 @@ const AdminDataGrid = ({ onEditProduct }) => {
     showToastMsg(`⚡ Quick Replenishment: Added +10 units to ${prod.id} (New total: ${newStock})`, 'success');
   };
 
-  const handleDelete = async (id) => {
-    const updated = data.products.filter(p => p.id !== id);
-    setData({ ...data, products: updated, total: Math.max((data.total || 1) - 1, 0) });
-    showToastMsg(`🗑️ Product [${id}] successfully removed from catalog!`, 'success');
-
-    try {
-      const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products/${id}`, {
-        method: 'DELETE',
-        headers: { 'x-admin-token': token }
-      });
-    } catch (err) {}
+  const triggerDeleteSingle = (prod) => {
+    setDeleteModal({
+      isOpen: true,
+      ids: [prod.id],
+      title: prod.name || prod.id,
+      count: 1,
+      isAllDummy: false
+    });
   };
+
+  const triggerBulkDelete = (idsToDel) => {
+    if (!idsToDel || idsToDel.length === 0) return;
+    setDeleteModal({
+      isOpen: true,
+      ids: idsToDel,
+      title: `${idsToDel.length} Selected Products`,
+      count: idsToDel.length,
+      isAllDummy: false
+    });
+  };
+
+  const triggerDeleteAllDummy = () => {
+    setDeleteModal({
+      isOpen: true,
+      ids: [],
+      title: 'All Products in Database',
+      count: data.total || data.products.length,
+      isAllDummy: true
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
+      
+      const payload = deleteModal.isAllDummy 
+        ? { deleteAll: true } 
+        : { ids: deleteModal.ids };
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (deleteModal.isAllDummy) {
+        setData({ products: [], total: 0, page: 1, limit: 15, totalPages: 1 });
+        localStorage.removeItem('abkharido_inventory_overrides');
+      } else {
+        const deletedSet = new Set(deleteModal.ids);
+        const updated = data.products.filter(p => !deletedSet.has(p.id));
+        setData(prev => ({
+          ...prev,
+          products: updated,
+          total: Math.max((prev.total || updated.length) - deleteModal.ids.length, 0)
+        }));
+        
+        const overridesStr = localStorage.getItem('abkharido_inventory_overrides');
+        if (overridesStr) {
+          try {
+            const overrides = JSON.parse(overridesStr);
+            deleteModal.ids.forEach(id => delete overrides[id]);
+            localStorage.setItem('abkharido_inventory_overrides', JSON.stringify(overrides));
+          } catch(e){}
+        }
+      }
+
+      showToastMsg(`🗑️ Successfully deleted ${deleteModal.count} product(s) from catalog!`, 'success');
+      setSelectedIds([]);
+      setDeleteModal({ isOpen: false, ids: [], title: '', count: 0, isAllDummy: false });
+      
+      fetchPaginatedProducts(1, search, category);
+    } catch (err) {
+      showToastMsg('Failed to delete products. Please check network.', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDelete = (id) => {
+    const prod = data.products.find(p => p.id === id);
+    if (prod) {
+      triggerDeleteSingle(prod);
+    } else {
+      triggerBulkDelete([id]);
+    }
+  };
+
 
   const handleClone = (prod) => {
     const newProduct = JSON.parse(JSON.stringify(prod));
@@ -285,12 +367,35 @@ const AdminDataGrid = ({ onEditProduct }) => {
           </div>
         </div>
 
-        <button 
-          onClick={() => exportToCSV(data.products, 'abkharido_global_inventory.csv')}
-          style={{ padding: '13px 26px', fontSize: '14px', fontWeight: '800', borderRadius: '14px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.3)' }}
-        >
-          <Package size={17} /> <span>Export Complete PIM (CSV)</span>
-        </button>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button 
+            type="button"
+            onClick={triggerDeleteAllDummy}
+            style={{
+              padding: '12px 20px',
+              fontSize: '13.5px',
+              fontWeight: '800',
+              borderRadius: '14px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              color: '#ffffff',
+              border: '1.5px solid #ef4444',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.15s'
+            }}
+          >
+            <Trash2 size={16} /> <span>Clean / Delete All ({data.total || data.products.length})</span>
+          </button>
+
+          <button 
+            onClick={() => exportToCSV(data.products, 'abkharido_global_inventory.csv')}
+            style={{ padding: '13px 22px', fontSize: '13.5px', fontWeight: '800', borderRadius: '14px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.3)' }}
+          >
+            <Package size={17} /> <span>Export PIM (CSV)</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Inventory Card Container */}
@@ -361,47 +466,56 @@ const AdminDataGrid = ({ onEditProduct }) => {
 
         {/* Floating Bulk Action Command Bar */}
         {selectedIds.length > 0 && (
-          <div style={{ padding: '16px 28px', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', animation: 'fadeIn 0.2s', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.25)' }}>
+          <div style={{ padding: '16px 28px', background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', animation: 'fadeIn 0.2s', boxShadow: '0 8px 30px rgba(49, 46, 129, 0.35)', borderBottom: '2px solid #4338ca' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '900', fontSize: '15px' }}>
-              <CheckCircle size={22} style={{ color: '#dcfce7' }} />
-              <span>Selected {selectedIds.length} catalog items for batch operations:</span>
+              <CheckCircle size={22} style={{ color: '#a5b4fc' }} />
+              <span>Selected <span style={{ background: '#4f46e5', padding: '2px 10px', borderRadius: '8px' }}>{selectedIds.length}</span> catalog items:</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button 
+                type="button" 
+                onClick={() => triggerBulkDelete(selectedIds)} 
+                style={{ padding: '10px 20px', borderRadius: '10px', background: '#dc2626', color: '#ffffff', fontWeight: '900', fontSize: '13.5px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(220, 38, 38, 0.4)', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Trash2 size={16} /> 🗑️ Delete Selected ({selectedIds.length})
+              </button>
+
               <button 
                 type="button" 
                 onClick={handleBulkTopUp} 
-                style={{ padding: '8px 16px', borderRadius: '10px', background: '#ffffff', color: '#059669', fontWeight: '900', fontSize: '13px', border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                style={{ padding: '9px 16px', borderRadius: '10px', background: '#10b981', color: '#ffffff', fontWeight: '900', fontSize: '13px', border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
               >
-                ⚡ Bulk Top-Up (+50 Units)
+                ⚡ Top-Up (+50)
               </button>
               
               <button 
                 type="button" 
                 onClick={handleBulkDiscount} 
-                style={{ padding: '8px 16px', borderRadius: '10px', background: '#064e3b', color: '#ecfdf5', fontWeight: '800', fontSize: '13px', border: '1px solid #34d399', cursor: 'pointer' }}
+                style={{ padding: '9px 16px', borderRadius: '10px', background: '#475569', color: '#f8fafc', fontWeight: '800', fontSize: '13px', border: '1px solid #64748b', cursor: 'pointer' }}
               >
-                💸 Apply Discount (-10%)
+                💸 Discount (-10%)
               </button>
 
               <button 
                 type="button" 
                 onClick={handleBulkExport} 
-                style={{ padding: '8px 16px', borderRadius: '10px', background: '#312e81', color: '#ffffff', fontWeight: '800', fontSize: '13px', border: 'none', cursor: 'pointer' }}
+                style={{ padding: '9px 16px', borderRadius: '10px', background: '#0284c7', color: '#ffffff', fontWeight: '800', fontSize: '13px', border: 'none', cursor: 'pointer' }}
               >
-                📥 Export Selected
+                📥 Export CSV
               </button>
 
               <button 
                 type="button" 
                 onClick={() => setSelectedIds([])} 
-                style={{ padding: '8px 12px', borderRadius: '10px', background: 'rgba(255,255,255,0.2)', color: '#ffffff', fontWeight: '800', fontSize: '13px', border: 'none', cursor: 'pointer' }}
+                style={{ padding: '9px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.15)', color: '#ffffff', fontWeight: '800', fontSize: '13px', border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer' }}
               >
-                ✖️ Cancel
+                ✖️ Clear
               </button>
             </div>
           </div>
         )}
+
 
         {/* Inventory Table */}
         <div style={{ overflowX: 'auto', minHeight: '450px' }}>
@@ -624,8 +738,103 @@ const AdminDataGrid = ({ onEditProduct }) => {
           </div>
         )}
       </div>
+
+      {/* 🛑 PRODUCT DELETION CONFIRMATION MODAL */}
+      {deleteModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(6px)',
+          zIndex: 999999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '24px',
+            maxWidth: '500px',
+            width: '100%',
+            padding: '28px',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+            animation: 'slideIn 0.2s ease-out'
+          }}>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '16px',
+              background: '#fee2e2',
+              color: '#dc2626',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              <Trash2 size={28} />
+            </div>
+
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
+              {deleteModal.isAllDummy ? 'Permanently Delete All Products?' : `Delete ${deleteModal.count} Product(s)?`}
+            </h3>
+
+            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#64748b', lineHeight: 1.5 }}>
+              {deleteModal.isAllDummy 
+                ? 'This will delete all products from the catalog database and live storefront. You can start fresh by adding or bulk uploading your real products.'
+                : `Are you sure you want to delete "${deleteModal.title}" from your database? This action will remove the product(s) from your storefront immediately.`}
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setDeleteModal({ isOpen: false, ids: [], title: '', count: 0, isAllDummy: false })}
+                disabled={isDeleting}
+                style={{
+                  padding: '11px 20px',
+                  borderRadius: '12px',
+                  border: '1.5px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#334155',
+                  fontWeight: '800',
+                  fontSize: '13.5px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                style={{
+                  padding: '11px 24px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                  color: '#ffffff',
+                  fontWeight: '900',
+                  fontSize: '13.5px',
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 14px rgba(220, 38, 38, 0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {isDeleting ? 'Deleting...' : `Yes, Delete Now ${deleteModal.count > 1 ? `(${deleteModal.count})` : ''}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default AdminDataGrid;
+
