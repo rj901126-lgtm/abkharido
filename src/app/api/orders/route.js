@@ -3,6 +3,8 @@ import connectDB from '../../../lib/connectDB.js';
 import Order from '../../../../server/models/Order.js';
 import Product from '../../../../server/models/Product.js';
 import User from '../../../../server/models/User.js';
+import Coupon from '../../../../server/models/Coupon.js';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -168,7 +170,6 @@ export async function POST(req) {
 
     let couponDiscount = 0;
     if (couponCode) {
-      const Coupon = (await import('../../../../../server/models/Coupon.js')).default;
       const dbCoupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
       if (dbCoupon && new Date(dbCoupon.expiryDate) > new Date()) {
         couponDiscount = dbCoupon.discountType === 'percentage'
@@ -176,6 +177,7 @@ export async function POST(req) {
           : dbCoupon.discountAmount;
       }
     }
+
 
     let totalPrice = Math.max(0, itemsPrice - coinsUsed - couponDiscount + shippingPrice + taxPrice);
 
