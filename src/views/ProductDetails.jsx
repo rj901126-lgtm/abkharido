@@ -369,11 +369,22 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   const isOutOfStock = activeVariant ? (activeVariant.stock !== undefined && activeVariant.stock <= 0) : (product && product.inStock === false);
 
   const cartItem = (cart || []).find(item => {
-    const itemPId = String(item.product?._id || item.product?.id || item.product || '');
-    const itemSlug = String(item.product?.id || '');
-    const targetPId = String(product?._id || product?.id || '');
-    const targetSlug = String(product?.id || '');
-    const idMatches = (itemPId && targetPId && itemPId === targetPId) || (itemSlug && targetSlug && itemSlug === targetSlug);
+    const itemProd = item.product || item;
+    const itemPId = String(itemProd._id || itemProd.id || itemProd || '').trim();
+    const itemSlug = String(itemProd.slug || itemProd.id || '').trim().toLowerCase();
+    const itemName = String(itemProd.name || itemProd.title || '').trim().toLowerCase();
+
+    const targetPId = String(product?._id || product?.id || '').trim();
+    const targetSlug = String(product?.slug || product?.id || '').trim().toLowerCase();
+    const targetName = String(product?.name || product?.title || '').trim().toLowerCase();
+
+    const idMatches = (
+      (itemPId && targetPId && itemPId === targetPId) ||
+      (itemSlug && targetSlug && itemSlug === targetSlug) ||
+      (itemPId && targetSlug && itemPId.toLowerCase() === targetSlug) ||
+      (itemSlug && targetPId && itemSlug === targetPId.toLowerCase()) ||
+      (itemName && targetName && itemName.length > 2 && itemName === targetName)
+    );
     if (!idMatches) return false;
 
     const itemVar = (item.product?.selectedVariant || item.product?.variant || '').toLowerCase().trim();
@@ -392,6 +403,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
     return varMatches && colMatches;
   });
   const quantityInCart = cartItem?.quantity || 0;
+
 
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);

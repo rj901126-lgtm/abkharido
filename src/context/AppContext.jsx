@@ -8,6 +8,95 @@ import { sanitizeReferralCode, generateSafeReferralCode } from '../utils/referra
 
 const AppContext = createContext();
 
+// Universal cross-matching helper for products across Mongo _id, string ID, slug, and title
+export const isSameProduct = (p1, p2) => {
+  if (!p1 || !p2) return false;
+  
+  if (typeof p1 === 'string' || typeof p1 === 'number') {
+    const targetStr = String(p1).trim();
+    const prod2 = p2.product || p2;
+    const id2 = String(prod2.id || prod2._id || prod2 || '').trim();
+    const slug2 = String(prod2.slug || prod2.id || '').trim().toLowerCase();
+    const mongoId2 = String(prod2._id || '').trim();
+    return targetStr === id2 || targetStr === mongoId2 || targetStr.toLowerCase() === slug2;
+  }
+
+  if (typeof p2 === 'string' || typeof p2 === 'number') {
+    const targetStr = String(p2).trim();
+    const prod1 = p1.product || p1;
+    const id1 = String(prod1.id || prod1._id || prod1 || '').trim();
+    const slug1 = String(prod1.slug || prod1.id || '').trim().toLowerCase();
+    const mongoId1 = String(prod1._id || '').trim();
+    return targetStr === id1 || targetStr === mongoId1 || targetStr.toLowerCase() === slug1;
+  }
+
+  const prod1 = p1.product || p1;
+  const prod2 = p2.product || p2;
+  
+  const id1 = String(prod1.id || prod1._id || prod1 || '').trim();
+  const id2 = String(prod2.id || prod2._id || prod2 || '').trim();
+  const slug1 = String(prod1.slug || prod1.id || '').trim().toLowerCase();
+  const slug2 = String(prod2.slug || prod2.id || '').trim().toLowerCase();
+  const mongoId1 = String(prod1._id || '').trim();
+  const mongoId2 = String(prod2._id || '').trim();
+  const name1 = String(prod1.name || prod1.title || '').trim().toLowerCase();
+  const name2 = String(prod2.name || prod2.title || '').trim().toLowerCase();
+
+  if (id1 && id2 && id1 === id2) return true;
+  if (mongoId1 && mongoId2 && mongoId1 === mongoId2) return true;
+  if (slug1 && slug2 && slug1 === slug2) return true;
+  if (id1 && slug2 && id1.toLowerCase() === slug2) return true;
+  if (slug1 && id2 && slug1 === id2.toLowerCase()) return true;
+  if (name1 && name2 && name1.length > 2 && name1 === name2) return true;
+
+  return false;
+};
+
+export const isSameCartItem = (item1, item2) => {
+  if (!item1 || !item2) return false;
+  if (!isSameProduct(item1, item2)) return false;
+
+  const prod1 = item1.product || item1;
+  const prod2 = item2.product || item2;
+
+  const normalizeVariant = (v) => {
+    const s = String(v || '').toLowerCase().trim();
+    if (!s || s === 'default' || s === 'standard' || s === 'none') return '';
+    return s;
+  };
+
+  const normalizeColor = (c) => {
+    const s = String(c || '').toLowerCase().trim();
+    if (!s || s === 'default' || s === 'original' || s === 'standard' || s === 'none') return '';
+    return s;
+  };
+
+  const var1 = normalizeVariant(prod1.selectedVariant || prod1.variant);
+  const var2 = normalizeVariant(prod2.selectedVariant || prod2.variant);
+  const col1 = normalizeColor(prod1.selectedColor || prod1.color);
+  const col2 = normalizeColor(prod2.selectedColor || prod2.color);
+
+  return var1 === var2 && col1 === col2;
+};
+
+export const sanitizeCart = (rawCart) => {
+  if (!Array.isArray(rawCart)) return [];
+  const merged = [];
+  for (const item of rawCart) {
+    if (!item || !item.product) continue;
+    const existingIdx = merged.findIndex(m => isSameCartItem(m, item));
+    if (existingIdx > -1) {
+      merged[existingIdx].quantity = (merged[existingIdx].quantity || 1) + (item.quantity || 1);
+    } else {
+      merged.push({
+        ...item,
+        quantity: Math.max(1, Number(item.quantity || 1))
+      });
+    }
+  }
+  return merged;
+};
+
 // eslint-disable-next-line
 export const useApp = () => useContext(AppContext);
 
@@ -42,12 +131,13 @@ export const AppProvider = ({ children }) => {
           || localStorage.getItem('abkharido_cart');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) return sanitizeCart(parsed);
         }
       } catch(e) {}
     }
     return [];
   });
+
   const [orders, setOrders] = useState([]);
   const [hasMoreOrders, setHasMoreOrders] = useState(false);
   const [partnerStats, setPartnerStats] = useState({
@@ -825,56 +915,29 @@ export const AppProvider = ({ children }) => {
 
   const lastAddToCartTimestamp = useRef({});
 
-  const normalizeVariantKey = (v) => {
-    const s = String(v || '').toLowerCase().trim();
-    if (!s || s === 'default' || s === 'standard' || s === 'none') return '';
-    return s;
-  };
-
-  const normalizeColorKey = (c) => {
-    const s = String(c || '').toLowerCase().trim();
-    if (!s || s === 'default' || s === 'original' || s === 'standard' || s === 'none') return '';
-    return s;
-  };
-
-  const isMatchingCartItem = (item, product) => {
-    const itemPId = String(item.product?.id || item.product?._id || item.product || '');
-    const itemSlug = String(item.product?.id || '');
-    const targetPId = String(product.id || product._id || product || '');
-    const targetSlug = String(product.id || '');
-    
-    const idMatches = (itemPId && targetPId && itemPId === targetPId) || (itemSlug && targetSlug && itemSlug === targetSlug);
-    if (!idMatches) return false;
-
-    const itemVar = normalizeVariantKey(item.product?.selectedVariant || item.product?.variant);
-    const targetVar = normalizeVariantKey(product.selectedVariant || product.variant);
-    const itemCol = normalizeColorKey(item.product?.selectedColor || item.product?.color);
-    const targetCol = normalizeColorKey(product.selectedColor || product.color);
-
-    return itemVar === targetVar && itemCol === targetCol;
-  };
-
   // --- Cart Actions ---
+
   const addToCart = (product, qty = 1) => {
     if (!product) return;
-    const pId = String(product.id || product._id || '');
+    const pId = String(product.id || product._id || product.slug || product.name || '');
     if (!pId) {
-      showToast('Error: Product ID is missing', 'error');
+      showToast('Error: Product identifier is missing', 'error');
       return;
     }
 
-    const selectedVar = normalizeVariantKey(product.selectedVariant || product.variant);
-    const selectedCol = normalizeColorKey(product.selectedColor || product.color);
-    const dedupeKey = `${pId}_${selectedVar}_${selectedCol}`;
+    const normVar = String(product.selectedVariant || product.variant || '').toLowerCase().trim();
+    const normCol = String(product.selectedColor || product.color || '').toLowerCase().trim();
+    const dedupeKey = `${pId}_${normVar}_${normCol}`;
     
     const now = Date.now();
-    if (lastAddToCartTimestamp.current[dedupeKey] && now - lastAddToCartTimestamp.current[dedupeKey] < 500) {
-      return; // Strictly debounce rapid touch/click events within 500ms
+    if (lastAddToCartTimestamp.current[dedupeKey] && now - lastAddToCartTimestamp.current[dedupeKey] < 600) {
+      return; // Strictly debounce rapid touch/click events within 600ms
     }
     lastAddToCartTimestamp.current[dedupeKey] = now;
 
     setCart(prev => {
-      const existingIndex = prev.findIndex(item => isMatchingCartItem(item, product));
+      const cleanPrev = sanitizeCart(prev);
+      const existingIndex = cleanPrev.findIndex(item => isSameCartItem(item, { product }));
 
       const stock = (product.stock !== undefined && product.stock !== null && product.stock > 0) 
         ? product.stock 
@@ -882,16 +945,16 @@ export const AppProvider = ({ children }) => {
       
       let updatedCart;
       if (existingIndex > -1) {
-        const existing = prev[existingIndex];
+        const existing = cleanPrev[existingIndex];
         const newQty = existing.quantity + qty;
         if (newQty > stock && stock > 0) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
-          return prev;
+          return cleanPrev;
         }
-        updatedCart = [...prev];
+        updatedCart = [...cleanPrev];
         updatedCart[existingIndex] = { ...existing, quantity: newQty };
       } else {
-        updatedCart = [...prev, { product, quantity: qty }];
+        updatedCart = [...cleanPrev, { product, quantity: qty }];
       }
 
       // Immediate local cache update
@@ -912,19 +975,18 @@ export const AppProvider = ({ children }) => {
     showToast(`${product.name?.substring(0, 24) || 'Item'} added to bag! 🛍️`, 'success');
   };
 
-
-  const updateCartQty = (productId, qty) => {
+  const updateCartQty = (productOrId, qty) => {
     if (qty <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productOrId);
       return;
     }
     setCart(prev => {
-      const updatedCart = prev.map(item => {
-        const itemId = item.product?.id || item.product?._id;
-        if (itemId === productId) {
-          const stock = (item.product.stock !== undefined && item.product.stock !== null && item.product.stock > 0) 
+      const cleanPrev = sanitizeCart(prev);
+      const updatedCart = cleanPrev.map(item => {
+        if (isSameProduct(item, productOrId)) {
+          const stock = (item.product?.stock !== undefined && item.product?.stock !== null && item.product?.stock > 0) 
             ? item.product.stock 
-            : (item.product.inStock !== false ? 99 : 0);
+            : (item.product?.inStock !== false ? 99 : 0);
           if (qty > stock && stock > 0) {
             showToast(`Only ${stock} units available in stock.`, 'warning');
             return item;
@@ -942,17 +1004,16 @@ export const AppProvider = ({ children }) => {
         }
       } catch (e) {}
 
-      dispatchDeltaSync('cart', { cart: updatedCart, action: 'update', item: { product: productId, quantity: qty } });
+      const pId = typeof productOrId === 'object' ? (productOrId.id || productOrId._id || productOrId) : productOrId;
+      dispatchDeltaSync('cart', { cart: updatedCart, action: 'update', item: { product: pId, quantity: qty } });
       return updatedCart;
     });
   };
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = (productOrId) => {
     setCart(prev => {
-      const updatedCart = prev.filter(item => {
-        const itemId = item.product?.id || item.product?._id;
-        return itemId !== productId;
-      });
+      const cleanPrev = sanitizeCart(prev);
+      const updatedCart = cleanPrev.filter(item => !isSameProduct(item, productOrId));
 
       try {
         if (!currentUser?.token) {
@@ -962,11 +1023,13 @@ export const AppProvider = ({ children }) => {
         }
       } catch (e) {}
 
-      dispatchDeltaSync('cart', { cart: updatedCart, action: 'remove', productId });
+      const pId = typeof productOrId === 'object' ? (productOrId.id || productOrId._id || productOrId) : productOrId;
+      dispatchDeltaSync('cart', { cart: updatedCart, action: 'remove', productId: pId });
       return updatedCart;
     });
     showToast('Item removed from cart.', 'info');
   };
+
 
   const clearCart = () => {
     setCart([]);

@@ -32,16 +32,39 @@ export async function POST(req) {
         if (body.action === 'clear') {
           user.cart = [];
         } else if (Array.isArray(body.cart)) {
-          user.cart = body.cart
+          const rawItems = body.cart
             .map(item => {
               const prod = item.product || item;
               const pId = prod.id || prod._id || prod;
               return pId ? { product: prod, quantity: Math.max(1, Number(item.quantity || 1)) } : null;
             })
             .filter(Boolean);
+
+          const deduplicated = [];
+          for (const item of rawItems) {
+            const itemPId = String(item.product?.id || item.product?._id || item.product || '');
+            const itemVar = String(item.product?.selectedVariant || item.product?.variant || '').toLowerCase().trim();
+            const itemCol = String(item.product?.selectedColor || item.product?.color || '').toLowerCase().trim();
+
+            const existing = deduplicated.find(d => {
+              const dPId = String(d.product?.id || d.product?._id || d.product || '');
+              const dVar = String(d.product?.selectedVariant || d.product?.variant || '').toLowerCase().trim();
+              const dCol = String(d.product?.selectedColor || d.product?.color || '').toLowerCase().trim();
+              return (itemPId && dPId && itemPId === dPId) && (itemVar === dVar) && (itemCol === dCol);
+            });
+
+            if (existing) {
+              existing.quantity = Math.max(existing.quantity, item.quantity);
+            } else {
+              deduplicated.push(item);
+            }
+          }
+
+          user.cart = deduplicated;
         }
         user.cartUpdatedAt = new Date();
         await user.save();
+
       }
     }
 

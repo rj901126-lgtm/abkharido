@@ -63,13 +63,25 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
   // Cart Status Calculation
   const cartItem = (cart || []).find(item => {
-    const itemPId = String(item.product?._id || item.product?.id || item.product || '');
-    const itemSlug = String(item.product?.id || '');
-    const targetPId = String(prodId || '');
-    const targetSlug = String(product.id || '');
-    return (itemPId && targetPId && itemPId === targetPId) || (itemSlug && targetSlug && itemSlug === targetSlug);
+    const itemProd = item.product || item;
+    const itemPId = String(itemProd._id || itemProd.id || itemProd || '').trim();
+    const itemSlug = String(itemProd.slug || itemProd.id || '').trim().toLowerCase();
+    const itemName = String(itemProd.name || itemProd.title || '').trim().toLowerCase();
+
+    const targetPId = String(product._id || product.id || prodId || '').trim();
+    const targetSlug = String(product.slug || product.id || '').trim().toLowerCase();
+    const targetName = String(product.name || product.title || '').trim().toLowerCase();
+
+    return (
+      (itemPId && targetPId && itemPId === targetPId) ||
+      (itemSlug && targetSlug && itemSlug === targetSlug) ||
+      (itemPId && targetSlug && itemPId.toLowerCase() === targetSlug) ||
+      (itemSlug && targetPId && itemSlug === targetPId.toLowerCase()) ||
+      (itemName && targetName && itemName.length > 2 && itemName === targetName)
+    );
   });
   const quantityInCart = cartItem?.quantity || 0;
+
 
   // Flash Sale Engine Check
   const isFlashSale = product.flashSale?.isActive && new Date(product.flashSale.endTime) > new Date();
