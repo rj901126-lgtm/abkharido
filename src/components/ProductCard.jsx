@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Heart, ShoppingCart, ShoppingBag, Check, ShieldCheck, Truck, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Check, ShieldCheck, Truck, Star } from 'lucide-react';
 import LazyImage from './LazyImage';
 import ProductQuickPreviewModal from './ProductQuickPreviewModal';
 import { calculateCoinReward } from '../utils/coinUtils';
@@ -319,7 +319,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             </div>
           </div>
 
-          {/* 🍏 Primary Marketplace Add to Cart / Apple Pill Stepper */}
+          {/* Primary Marketplace Add to Cart / In Bag Stepper */}
           {quantityInCart > 0 ? (
             <div 
               style={{
@@ -328,12 +328,13 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                 justifyContent: 'space-between',
                 width: '100%',
                 height: '38px',
-                borderRadius: '10px',
-                background: '#f5f5f7',
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                padding: '3px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                border: '1.5px solid #059669',
+                padding: '2px 4px',
                 boxSizing: 'border-box',
-                boxShadow: 'none'
+                boxShadow: '0 3px 10px rgba(5, 150, 105, 0.25)',
+                color: '#ffffff'
               }}
               onClick={(e) => {
                 e.stopPropagation();
@@ -348,24 +349,23 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                   updateCartQty(targetId, quantityInCart - 1);
                 }}
                 style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  background: '#ffffff',
-                  border: '1px solid rgba(0, 0, 0, 0.06)',
-                  color: '#1d1d1f',
-                  fontSize: '17px',
-                  fontWeight: '600',
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '6px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontSize: '18px',
+                  fontWeight: '900',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                  transition: 'all 0.15s ease'
+                  transition: 'background 0.15s ease'
                 }}
                 title="Decrease quantity"
               >
-                −
+                -
               </button>
               
               <div 
@@ -380,18 +380,16 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                   flex: 1,
                   textAlign: 'center',
                   fontSize: '12px',
-                  fontWeight: '700',
-                  color: '#1d1d1f',
+                  fontWeight: '800',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '4px',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Outfit", sans-serif'
+                  gap: '4px'
                 }}
                 title="View in Bag (Click to open Cart)"
               >
-                <Check size={12} color="#34c759" strokeWidth={3} />
+                <Check size={13} strokeWidth={3} />
                 <span>{quantityInCart} in Bag</span>
               </div>
 
@@ -404,20 +402,19 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                   updateCartQty(targetId, quantityInCart + 1);
                 }}
                 style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  background: '#ffffff',
-                  border: '1px solid rgba(0, 0, 0, 0.06)',
-                  color: '#1d1d1f',
-                  fontSize: '17px',
-                  fontWeight: '600',
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '6px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontSize: '18px',
+                  fontWeight: '900',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                  transition: 'all 0.15s ease'
+                  transition: 'background 0.15s ease'
                 }}
                 title="Increase quantity"
               >
@@ -430,11 +427,9 @@ const ProductCard = ({ product, onNavigateProduct }) => {
               style={{
                 ...styles.addBtn,
                 background: isJustAdded 
-                  ? 'linear-gradient(180deg, #34c759 0%, #248a3d 100%)' 
-                  : 'linear-gradient(180deg, #1d1d1f 0%, #000000 100%)',
-                borderColor: isJustAdded ? '#34c759' : '#1d1d1f',
-                boxShadow: isJustAdded ? '0 4px 12px rgba(52, 199, 89, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
-                borderRadius: '10px'
+                  ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
+                  : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                borderColor: isJustAdded ? '#059669' : '#0f172a'
               }}
               onClick={handleAddToCart}
             >
@@ -445,13 +440,12 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                 </>
               ) : (
                 <>
-                  <ShoppingBag size={13} color="#ffffff" />
+                  <ShoppingCart size={13} color="#ffffff" />
                   <span>Add to Cart</span>
                 </>
               )}
             </button>
           )}
-
 
         </div>
       </div>
