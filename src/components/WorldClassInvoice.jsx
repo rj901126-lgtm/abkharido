@@ -133,8 +133,17 @@ const WorldClassInvoice = forwardRef(({ order, onGenerated }, ref) => {
                 <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '16px 12px', fontSize: '13px', color: '#1e293b' }}>
                     <div style={{ fontWeight: '600' }}>{name}</div>
-                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>SKU: {sku}</div>
+                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                      SKU: {sku}
+                      {item.batchNumber && <span> • Batch: {item.batchNumber}</span>}
+                      {item.expiryDate && (
+                        <span style={{ color: '#b45309', fontWeight: '700' }}>
+                          {' '}• Expiry: {new Date(item.expiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                      )}
+                    </div>
                   </td>
+
                   <td style={{ padding: '16px 12px', fontSize: '13px', color: '#1e293b', textAlign: 'center' }}>{qty}</td>
                   <td style={{ padding: '16px 12px', fontSize: '13px', color: '#1e293b', textAlign: 'right' }}>₹{price.toLocaleString('en-IN')}</td>
                   <td style={{ padding: '16px 12px', fontSize: '14px', color: '#0f172a', textAlign: 'right', fontWeight: '600' }}>

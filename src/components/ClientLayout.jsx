@@ -9,7 +9,9 @@ import Toast from './Toast';
 import Footer from './Footer';
 import LivePurchasePopup from './LivePurchasePopup';
 import SmartSupportBot from './SmartSupportBot';
+import ProductExpiryAlertModal from './ProductExpiryAlertModal';
 import { useApp } from '../context/AppContext';
+
 import { MessageCircle, Wrench, ShieldAlert, Mail, Phone, Lock, Clock, Sparkles } from 'lucide-react';
 
 export default function ClientLayout({ children }) {
@@ -217,6 +219,12 @@ export default function ClientLayout({ children }) {
           supportEmail={globalConfig.supportEmail} 
         />
       )}
+
+      {/* ⏰ Automated Product Expiry & Smart Replenishment Alert Pop-up */}
+      {!isPortalPage && (
+        <ProductExpiryAlertModal onNavigate={handleNavigate} />
+      )}
+
 
       {/* Mobile Sticky Bottom Tab Bar - Strictly hidden on portal pages */}
       {!isPortalPage && !pathname?.startsWith('/product') && !pathname?.startsWith('/cart') && !pathname?.startsWith('/checkout') && (

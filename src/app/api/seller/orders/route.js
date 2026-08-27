@@ -108,12 +108,41 @@ export async function PUT(req) {
     const order = await Order.findOne({ $or: [{ _id: orderId }, { orderId: orderId }] });
     if (order) {
       order.status = status;
-      if (status === 'Dispatched') {
+      if (status === 'Dispatched' || status === 'Shipped') {
         order.courier = courier;
+        order.courierPartner = courier;
         if (!order.awb) order.awb = `NMB-${Math.floor(10000000 + Math.random() * 90000000)}`;
+        if (!order.awbNumber) order.awbNumber = order.awb;
+
+        // Record Batch Expiry for each dispatched item
+        const itemExpiryDates = body.itemExpiryDates || {};
+        const batchNumbers = body.batchNumbers || {};
+        const defaultBatch = `BAT-${Date.now().toString().slice(-6)}`;
+
+        if (Array.isArray(order.orderItems)) {
+          order.orderItems = order.orderItems.map((item, idx) => {
+            const customExp = itemExpiryDates[item.product] || itemExpiryDates[idx] || body.expiryDate;
+            const customBatch = batchNumbers[item.product] || batchNumbers[idx] || body.batchNumber || defaultBatch;
+
+            let finalExpiryDate = item.expiryDate;
+            if (customExp) {
+              finalExpiryDate = new Date(customExp);
+            } else if (!finalExpiryDate) {
+              finalExpiryDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
+            }
+
+            return {
+              ...item.toObject?.() || item,
+              expiryDate: finalExpiryDate,
+              batchNumber: customBatch,
+              isReplenishable: true
+            };
+          });
+        }
       }
       await order.save();
     }
+
 
     return NextResponse.json({
       success: true,

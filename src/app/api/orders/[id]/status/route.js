@@ -35,6 +35,33 @@ async function handleUpdateStatus(req, context) {
 
     if (status) {
       order.status = status;
+      if (status === 'Shipped') {
+        const itemExpiryDates = body.itemExpiryDates || {};
+        const batchNumbers = body.batchNumbers || {};
+        const defaultBatch = `BAT-${Date.now().toString().slice(-6)}`;
+
+        if (Array.isArray(order.orderItems)) {
+          order.orderItems = order.orderItems.map((item, idx) => {
+            const customExp = itemExpiryDates[item.product] || itemExpiryDates[idx] || body.expiryDate;
+            const customBatch = batchNumbers[item.product] || batchNumbers[idx] || body.batchNumber || defaultBatch;
+
+            let finalExpiryDate = item.expiryDate;
+            if (customExp) {
+              finalExpiryDate = new Date(customExp);
+            } else if (!finalExpiryDate) {
+              finalExpiryDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
+            }
+
+            return {
+              ...item.toObject?.() || item,
+              expiryDate: finalExpiryDate,
+              batchNumber: customBatch,
+              isReplenishable: true
+            };
+          });
+        }
+      }
+
       if (status === 'Delivered') {
         order.isDelivered = true;
         order.deliveredAt = new Date();
@@ -52,6 +79,7 @@ async function handleUpdateStatus(req, context) {
     }
 
     await order.save();
+
 
     return NextResponse.json({
       success: true,
