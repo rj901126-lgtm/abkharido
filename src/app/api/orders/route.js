@@ -158,7 +158,35 @@ export async function POST(req) {
     const itemsPrice = Math.round(orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0));
     const shippingPrice = itemsPrice > 500 ? 0 : 40;
     const taxPrice = 0;
-    let totalPrice = itemsPrice + shippingPrice + taxPrice;
+    
+    // Coins Discount calculation (1 Coin = ₹1)
+    let coinsUsed = 0;
+    if (useCoinsDiscount && user) {
+      const userCoins = user.walletCoins || 0;
+      coinsUsed = Math.min(userCoins, itemsPrice);
+    }
+
+    let couponDiscount = 0;
+    if (couponCode) {
+      const Coupon = (await import('../../../../../server/models/Coupon.js')).default;
+      const dbCoupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
+      if (dbCoupon && new Date(dbCoupon.expiryDate) > new Date()) {
+        couponDiscount = dbCoupon.discountType === 'percentage'
+          ? Math.round((itemsPrice * dbCoupon.discountAmount) / 100)
+          : dbCoupon.discountAmount;
+      }
+    }
+
+    let totalPrice = Math.max(0, itemsPrice - coinsUsed - couponDiscount + shippingPrice + taxPrice);
+
+    // Deduct coins used from user wallet
+    if (coinsUsed > 0 && user && user._id) {
+      try {
+        await User.updateOne({ _id: user._id }, { $inc: { walletCoins: -coinsUsed } });
+      } catch (coinErr) {
+        console.error('[Order Coin Deduction Error]:', coinErr);
+      }
+    }
 
     // Delivery PIN (4 digits)
     const deliveryPin = String(Math.floor(1000 + Math.random() * 9000));
@@ -182,12 +210,14 @@ export async function POST(req) {
       shippingPrice,
       taxPrice,
       totalPrice,
+      coinsUsed,
       isPaid,
       paidAt: isPaid ? new Date() : undefined,
       status: 'Processing',
       deliveryPin,
       cfOrderId: generatedCfOrderId,
       appliedCoupon: couponCode || undefined,
+
       trackingHistory: [{
         status: 'Processing',
         timestamp: new Date(),

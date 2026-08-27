@@ -8,8 +8,9 @@ import ScratchCard from '../components/ScratchCard';
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const { cart, currentUser, placeOrder, showToast, clearCart, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards } = useApp();
   const [step, setStep] = useState(1); // 1: Address, 2: Summary, 3: Payment, 4: Success
-
+  const [useCoins, setUseCoins] = useState(Boolean(useCoinsDiscount));
   const [selectedSavedCard, setSelectedSavedCard] = useState(null);
+
 
   useEffect(() => {
     fetchUserSavedCards();
@@ -172,10 +173,11 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
   const deliveryCharge = itemsPrice > 500 ? 0 : 40;
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
-  const coinsDiscount = useCoinsDiscount && currentUser ? Math.min(userCoins, itemsPrice) : 0;
+  const coinsDiscount = useCoins && currentUser ? Math.min(userCoins, itemsPrice) : 0;
   
   const couponDiscountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const finalAmount = itemsPrice - coinsDiscount - couponDiscountAmount + deliveryCharge;
+
 
   const handleApplyCoupon = async () => {
     if (!couponCode) return;
@@ -285,7 +287,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         const orderDetails = await placeOrder(
           normalizedAddress, 
           'Cash on Delivery',
-          useCoinsDiscount,
+          useCoins,
           null,
           appliedCoupon?.code
         );
@@ -340,10 +342,11 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             country: 'India'
           },
           paymentMethod: 'Online Payment',
-          useCoinsDiscount,
+          useCoinsDiscount: useCoins,
           couponCode: appliedCoupon?.code
         })
       });
+
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
@@ -942,6 +945,90 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             ))}
           </div>
 
+          {/* 🪙 Interactive AB Coins Redemption Section */}
+          {currentUser && userCoins > 0 && (
+            <div style={{
+              background: useCoins ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' : '#ffffff',
+              border: useCoins ? '1.5px solid #f59e0b' : '1px solid #e2e8f0',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              transition: 'all 0.2s ease',
+              boxShadow: useCoins ? '0 4px 14px rgba(245, 158, 11, 0.15)' : '0 1px 3px rgba(0,0,0,0.03)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)',
+                  fontSize: '18px',
+                  flexShrink: 0
+                }}>
+                  🪙
+                </div>
+                <div>
+                  <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>Redeem AB Coins</span>
+                    <span style={{ fontSize: '11px', background: '#fef3c7', color: '#b45309', padding: '2px 8px', borderRadius: '100px', fontWeight: '800', border: '1px solid #fde68a' }}>
+                      Balance: {userCoins} Coins
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+                    {useCoins 
+                      ? `🎉 ₹${Math.min(userCoins, itemsPrice).toLocaleString('en-IN')} instant discount applied (1 Coin = ₹1)!` 
+                      : `Save up to ₹${Math.min(userCoins, itemsPrice).toLocaleString('en-IN')} on this order with 1 click.`}
+                  </div>
+                </div>
+              </div>
+
+              {/* Toggle Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const nextState = !useCoins;
+                  setUseCoins(nextState);
+                  if (nextState) {
+                    showToast(`🪙 Applied ₹${Math.min(userCoins, itemsPrice)} AB Coins discount!`, 'success');
+                  } else {
+                    showToast('AB Coins removed from order.', 'info');
+                  }
+                }}
+                style={{
+                  width: '46px',
+                  height: '26px',
+                  borderRadius: '100px',
+                  background: useCoins ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : '#cbd5e1',
+                  border: 'none',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s ease',
+                  flexShrink: 0,
+                  outline: 'none'
+                }}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  position: 'absolute',
+                  top: '3px',
+                  left: useCoins ? '23px' : '3px',
+                  transition: 'left 0.2s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }} />
+              </button>
+            </div>
+          )}
+
           {/* Coupon Code Section */}
           <div style={{ backgroundColor: '#ffffff', border: '1px dashed #cbd5e1', padding: '14px', borderRadius: '14px', marginBottom: '18px' }}>
             <h4 style={{ margin: '0 0 8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: '800' }}>
@@ -980,7 +1067,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               <span>Items Total Price:</span>
               <span style={{ color: '#0f172a', fontWeight: '700' }}>₹{itemsPrice.toLocaleString('en-IN')}</span>
             </div>
-            {useCoinsDiscount && (
+            {useCoins && coinsDiscount > 0 && (
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13.5px', color: '#b45309', fontWeight: '700' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Coins size={14} /> AB Coins Redeemed:</span>
                 <span>- ₹{coinsDiscount.toLocaleString('en-IN')}</span>
@@ -1001,6 +1088,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               <span>₹{finalAmount.toLocaleString('en-IN')}</span>
             </div>
           </div>
+
 
           <div className="checkout-sticky-action-bar">
             <div className="checkout-sticky-price-info">
@@ -1030,8 +1118,75 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       {step === 3 && (
         <div className="card checkout-card">
           <h2 className="checkout-step-header"><CreditCard size={20} /> Select Payment Option</h2>
+          
+          {/* 🪙 AB Coins in Step 3 */}
+          {currentUser && userCoins > 0 && (
+            <div style={{
+              background: useCoins ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' : '#f8fafc',
+              border: useCoins ? '1.5px solid #f59e0b' : '1px solid #e2e8f0',
+              borderRadius: '14px',
+              padding: '12px 16px',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: useCoins ? '0 4px 12px rgba(245, 158, 11, 0.12)' : 'none'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '20px' }}>🪙</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>Use AB Coins</span>
+                    <span style={{ fontSize: '10.5px', background: '#fef3c7', color: '#b45309', padding: '1px 6px', borderRadius: '100px', fontWeight: '800' }}>
+                      {userCoins} Available
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#64748b' }}>
+                    {useCoins ? `Applied: -₹${coinsDiscount.toLocaleString('en-IN')}` : `Save ₹${Math.min(userCoins, itemsPrice).toLocaleString('en-IN')}`}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const nextState = !useCoins;
+                  setUseCoins(nextState);
+                  if (nextState) {
+                    showToast(`🪙 Applied ₹${Math.min(userCoins, itemsPrice)} AB Coins discount!`, 'success');
+                  } else {
+                    showToast('AB Coins removed from order.', 'info');
+                  }
+                }}
+                style={{
+                  width: '42px',
+                  height: '24px',
+                  borderRadius: '100px',
+                  background: useCoins ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : '#cbd5e1',
+                  border: 'none',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <div style={{
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  position: 'absolute',
+                  top: '3px',
+                  left: useCoins ? '21px' : '3px',
+                  transition: 'left 0.2s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }} />
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handlePaymentSubmit}>
             <div className="checkout-form">
+
               
               {/* Saved Cards Section */}
               {savedCards && savedCards.length > 0 && (
