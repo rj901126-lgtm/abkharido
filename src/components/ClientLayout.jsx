@@ -213,7 +213,7 @@ export default function ClientLayout({ children }) {
       {isHomePage && <Footer onNavigate={handleNavigate} />}
 
       {/* AI Smart Customer Support Assistant Bot */}
-      {!isPortalPage && (
+      {!isPortalPage && !pathname?.startsWith('/checkout') && !pathname?.startsWith('/cart') && (
         <SmartSupportBot 
           supportPhone={globalConfig.supportPhone} 
           supportEmail={globalConfig.supportEmail} 
@@ -221,9 +221,10 @@ export default function ClientLayout({ children }) {
       )}
 
       {/* ⏰ Automated Product Expiry & Smart Replenishment Alert Pop-up */}
-      {!isPortalPage && (
+      {!isPortalPage && !pathname?.startsWith('/checkout') && (
         <ProductExpiryAlertModal onNavigate={handleNavigate} />
       )}
+
 
 
       {/* Mobile Sticky Bottom Tab Bar - Strictly hidden on portal pages */}

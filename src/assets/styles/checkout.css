@@ -319,4 +319,20 @@ textarea.checkout-input {
     justify-content: center !important;
     white-space: nowrap !important;
   }
+
+  .checkout-btn.btn-accent {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35) !important;
+    border: none !important;
+    font-weight: 900 !important;
+  }
+
+  .checkout-btn.btn-outline {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #334155 !important;
+    font-weight: 800 !important;
+  }
 }
+

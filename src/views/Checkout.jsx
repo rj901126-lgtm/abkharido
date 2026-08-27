@@ -948,43 +948,44 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           {/* 🪙 Interactive AB Coins Redemption Section */}
           {currentUser && userCoins > 0 && (
             <div style={{
-              background: useCoins ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' : '#ffffff',
+              backgroundColor: useCoins ? '#fffbeb' : '#ffffff',
               border: useCoins ? '1.5px solid #f59e0b' : '1px solid #e2e8f0',
-              borderRadius: '14px',
               padding: '14px 16px',
+              borderRadius: '16px',
               marginBottom: '16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              gap: '12px',
               transition: 'all 0.2s ease',
               boxShadow: useCoins ? '0 4px 14px rgba(245, 158, 11, 0.15)' : '0 1px 3px rgba(0,0,0,0.03)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
                 <div style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '12px',
                   background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)',
-                  fontSize: '18px',
+                  boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
+                  fontSize: '20px',
                   flexShrink: 0
                 }}>
                   🪙
                 </div>
-                <div>
-                  <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span>Redeem AB Coins</span>
-                    <span style={{ fontSize: '11px', background: '#fef3c7', color: '#b45309', padding: '2px 8px', borderRadius: '100px', fontWeight: '800', border: '1px solid #fde68a' }}>
-                      Balance: {userCoins} Coins
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '13.5px', fontWeight: '900', color: '#0f172a' }}>Redeem AB Coins</span>
+                    <span style={{ fontSize: '10.5px', background: '#fef3c7', color: '#b45309', padding: '1px 7px', borderRadius: '100px', fontWeight: '800', border: '1px solid #fde68a' }}>
+                      {userCoins} Available
                     </span>
                   </div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+                  <div style={{ fontSize: '11.5px', color: useCoins ? '#b45309' : '#64748b', marginTop: '2px', fontWeight: useCoins ? '700' : '500', lineHeight: 1.3 }}>
                     {useCoins 
                       ? `🎉 ₹${Math.min(userCoins, itemsPrice).toLocaleString('en-IN')} instant discount applied (1 Coin = ₹1)!` 
-                      : `Save up to ₹${Math.min(userCoins, itemsPrice).toLocaleString('en-IN')} on this order with 1 click.`}
+                      : `Save ₹${Math.min(userCoins, itemsPrice).toLocaleString('en-IN')} with 1-click toggle.`}
                   </div>
                 </div>
               </div>
@@ -1002,8 +1003,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   }
                 }}
                 style={{
-                  width: '46px',
-                  height: '26px',
+                  width: '48px',
+                  height: '28px',
                   borderRadius: '100px',
                   background: useCoins ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : '#cbd5e1',
                   border: 'none',
@@ -1015,8 +1016,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 }}
               >
                 <div style={{
-                  width: '20px',
-                  height: '20px',
+                  width: '22px',
+                  height: '22px',
                   borderRadius: '50%',
                   background: '#ffffff',
                   position: 'absolute',
@@ -1030,27 +1031,68 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           )}
 
           {/* Coupon Code Section */}
-          <div style={{ backgroundColor: '#ffffff', border: '1px dashed #cbd5e1', padding: '14px', borderRadius: '14px', marginBottom: '18px' }}>
-            <h4 style={{ margin: '0 0 8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: '800' }}>
+          <div style={{ backgroundColor: '#ffffff', border: '1.5px dashed #cbd5e1', padding: '14px 16px', borderRadius: '16px', marginBottom: '18px' }}>
+            <h4 style={{ margin: '0 0 10px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: '900' }}>
               <Tag size={15} color="#4f46e5" /> Have a Coupon Code?
             </h4>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input 
                 type="text" 
-                placeholder="ENTER COUPON CODE" 
+                placeholder="Enter coupon code" 
                 className="checkout-input"
-                style={{ flex: 1, textTransform: 'uppercase', height: '42px', fontSize: '13px', fontWeight: '700' }}
+                style={{
+                  flex: 1,
+                  textTransform: 'uppercase',
+                  height: '44px',
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  borderRadius: '10px',
+                  border: '1.5px solid #cbd5e1',
+                  padding: '0 12px',
+                  letterSpacing: '0.5px'
+                }}
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                 disabled={!!appliedCoupon}
               />
               {appliedCoupon ? (
-                <button className="btn btn-outline checkout-btn" onClick={() => { setAppliedCoupon(null); setCouponCode(''); }} style={{ color: '#dc2626', borderColor: '#fca5a5', height: '42px', padding: '0 16px', fontSize: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
+                  style={{
+                    background: '#fef2f2',
+                    color: '#dc2626',
+                    border: '1.5px solid #fecaca',
+                    borderRadius: '10px',
+                    height: '44px',
+                    padding: '0 16px',
+                    fontSize: '12.5px',
+                    fontWeight: '800',
+                    cursor: 'pointer'
+                  }}
+                >
                   Remove
                 </button>
               ) : (
-                <button className="btn btn-primary checkout-btn" onClick={handleApplyCoupon} disabled={applyingCoupon || !couponCode} style={{ height: '42px', padding: '0 20px', fontSize: '12px' }}>
-                  {applyingCoupon ? 'Applying...' : 'Apply'}
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={applyingCoupon || !couponCode}
+                  style={{
+                    background: couponCode ? 'linear-gradient(135deg, #4f46e5, #6366f1)' : '#e2e8f0',
+                    color: couponCode ? '#ffffff' : '#94a3b8',
+                    border: 'none',
+                    borderRadius: '10px',
+                    height: '44px',
+                    padding: '0 20px',
+                    fontSize: '13px',
+                    fontWeight: '900',
+                    cursor: couponCode ? 'pointer' : 'not-allowed',
+                    boxShadow: couponCode ? '0 3px 10px rgba(79, 70, 229, 0.3)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {applyingCoupon ? '...' : 'Apply'}
                 </button>
               )}
             </div>
@@ -1060,6 +1102,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               </p>
             )}
           </div>
+
 
           {/* Price Breakdown */}
           <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '14px', marginBottom: '20px' }}>
