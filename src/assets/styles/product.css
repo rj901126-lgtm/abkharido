@@ -205,19 +205,258 @@
   }
 }
 
-/* Action Buttons — Desktop: inline in right column. Mobile: fixed bottom bar */
-.action-buttons-container {
+/* 🍏 Steve Jobs / Apple Cupertino Inspired Action Hub */
+.action-buttons-container,
+.apple-action-hub {
   display: block;
   margin-top: 24px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
   position: relative;
   z-index: 10;
+  box-sizing: border-box;
 }
 
-.action-buttons-row {
+.apple-price-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.apple-price-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #86868b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Outfit", sans-serif;
+  margin-bottom: 2px;
+}
+
+.apple-price-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1d1d1f;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Outfit", sans-serif;
+}
+
+.apple-price-subtext {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0071e3;
+  letter-spacing: 0;
+}
+
+.apple-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(52, 199, 89, 0.12);
+  color: #1b7a33;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(52, 199, 89, 0.25);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Outfit", sans-serif;
+}
+
+.apple-status-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34c759;
+  box-shadow: 0 0 6px #34c759;
+}
+
+.action-buttons-row,
+.apple-actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  align-items: center;
   margin-top: 0;
+}
+
+/* 🍎 Apple Pill Stepper (In Bag) */
+.apple-stepper-capsule {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 52px !important;
+  border-radius: 16px !important;
+  background: #f5f5f7 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  width: 100% !important;
+}
+
+.apple-stepper-btn {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #1d1d1f !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  user-select: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.apple-stepper-btn:hover {
+  background: #fbfbfd !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.09) !important;
+  transform: translateY(-1px);
+}
+
+.apple-stepper-btn:active {
+  transform: scale(0.92) !important;
+  background: #e8e8ed !important;
+}
+
+.apple-stepper-label {
+  flex: 1 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 4px !important;
+  user-select: none !important;
+  min-width: 0 !important;
+}
+
+.apple-stepper-count {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #1d1d1f !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Outfit", sans-serif !important;
+  white-space: nowrap !important;
+}
+
+.apple-stepper-link {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #0071e3 !important;
+  letter-spacing: -0.1px !important;
+  margin-top: 1px !important;
+  white-space: nowrap !important;
+}
+
+.apple-stepper-link:hover {
+  text-decoration: underline !important;
+}
+
+/* 🍎 Apple Minimalist Add to Bag CTA */
+.apple-add-btn {
+  height: 52px !important;
+  border-radius: 16px !important;
+  background: #f5f5f7 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #1d1d1f !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Outfit", sans-serif !important;
+  letter-spacing: -0.2px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.apple-add-btn:hover:not(:disabled) {
+  background: #e8e8ed !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-1px);
+}
+
+.apple-add-btn:active:not(:disabled) {
+  transform: scale(0.98) !important;
+}
+
+.apple-add-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+/* 🍎 Apple Electric Buy Now Hero CTA */
+.apple-buy-btn {
+  height: 52px !important;
+  border-radius: 16px !important;
+  background: linear-gradient(180deg, #0077ed 0%, #0066cc 100%) !important;
+  border: 1px solid rgba(0, 113, 227, 0.3) !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  box-shadow: 0 6px 18px rgba(0, 113, 227, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Outfit", sans-serif !important;
+  letter-spacing: -0.2px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  outline: none !important;
+}
+
+.apple-buy-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #0082fb 0%, #0071e3 100%) !important;
+  box-shadow: 0 8px 24px rgba(0, 113, 227, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+.apple-buy-btn:active:not(:disabled) {
+  transform: scale(0.98) !important;
+  box-shadow: 0 3px 10px rgba(0, 113, 227, 0.3) !important;
+}
+
+.apple-buy-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  background: #cbd5e1 !important;
+  box-shadow: none !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
 }
 
 .mobile-price-preview {
@@ -242,11 +481,11 @@
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    background: rgba(255, 255, 255, 0.98) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border-top: 1.5px solid #e2e8f0 !important;
-    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.09) !important;
     z-index: 2500 !important;
     padding: 10px 16px !important;
     padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
@@ -261,17 +500,18 @@
     grid-template-columns: 1fr 1fr !important;
     gap: 10px !important;
   }
-  .vip-fixed-bar-right button {
+  .vip-fixed-bar-right button,
+  .vip-fixed-bar-right .apple-stepper-capsule {
     width: 100% !important;
-    padding: 0 10px !important;
-    height: 46px !important;
-    font-size: 14px !important;
-    border-radius: 12px !important;
+    height: 48px !important;
   }
-  .buy-bar-btn-text {
-    display: inline !important;
+  .vip-fixed-bar-right .apple-stepper-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
   }
 }
+
 
 
 .details-action-btn {

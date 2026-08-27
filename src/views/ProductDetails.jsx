@@ -5,6 +5,8 @@ import { useApp } from '../context/AppContext';
 import { 
   Star, 
   ShoppingCart, 
+  ShoppingBag,
+  ArrowRight,
   Zap, 
   Award, 
   Share2, 
@@ -906,7 +908,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                       {/* Low stock tag */}
                       {!isVariantOutOfStock && v.stock !== undefined && v.stock > 0 && v.stock <= 5 && (
                         <div style={{ fontSize: '10.5px', fontWeight: '800', color: '#dc2626', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#dc2626', animation: 'pulse 1s infinite' }}></span>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#dc2626' }}></span>
                           Only {v.stock} left
                         </div>
                       )}
@@ -917,96 +919,66 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </div>
           )}
 
-          {/* 🔥 PRIMARY PURCHASE ACTION HUB IN RIGHT COLUMN */}
-          <div className="action-buttons-container" style={{ marginTop: '24px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '22px', padding: '20px', boxShadow: '0 8px 30px rgba(9, 13, 22, 0.05)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+          {/* 🍏 STEVE JOBS / APPLE CUPERTINO INSPIRED ACTION HUB */}
+          <div className="apple-action-hub">
+
+            <div className="apple-price-header">
               <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Total Payable Amount:</span>
-                <div style={{ fontSize: '26px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')} <span style={{ fontSize: '12.5px', color: '#059669', fontWeight: '800' }}>(Taxes Included)</span></div>
+                <div className="apple-price-title">Total Payable Amount</div>
+                <div className="apple-price-value">
+                  <span>₹{(currentDisplayPrice || 0).toLocaleString('en-IN')}</span>
+                  <span className="apple-price-subtext">(Incl. all taxes)</span>
+                </div>
               </div>
-              <span style={{ background: '#ecfdf5', color: '#047857', padding: '5px 12px', borderRadius: '100px', fontSize: '11.5px', fontWeight: '800', border: '1px solid #a7f3d0', boxShadow: '0 2px 6px rgba(5, 150, 105, 0.08)' }}>
-                ⚡ Express Dispatch Ready
-              </span>
+              <div className="apple-status-badge">
+                <span className="apple-status-badge-dot"></span>
+                <span>Express Dispatch Ready</span>
+              </div>
             </div>
             
-            <div className="action-buttons-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', position: 'relative' }}>
+            <div className="apple-actions-grid">
               {quantityInCart > 0 ? (
-                <div style={{ 
-                  flex: '1 1 180px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  height: '52px', 
-                  border: '2px solid #059669', 
-                  borderRadius: '16px', 
-                  background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', 
-                  padding: '5px', 
-                  gap: '8px', 
-                  boxSizing: 'border-box',
-                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.15)' 
-                }}>
+                <div className="apple-stepper-capsule">
                   <button
                     type="button"
+                    className="apple-stepper-btn"
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart - 1);
                     }}
-                    style={{ 
-                      width: '42px', 
-                      height: '42px', 
-                      borderRadius: '12px', 
-                      background: '#ffffff', 
-                      border: '1.5px solid #a7f3d0', 
-                      color: '#047857', 
-                      fontSize: '22px', 
-                      fontWeight: '900', 
-                      cursor: 'pointer', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                      transition: 'all 0.15s ease'
-                    }}
+                    title="Decrease Quantity"
                   >
-                    -
+                    −
                   </button>
                   <div 
+                    className="apple-stepper-label"
                     onClick={() => onNavigate('cart')}
-                    style={{ flex: 1, textAlign: 'center', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+                    title="View in Bag"
                   >
-                    <div style={{ fontSize: '13.5px', fontWeight: '900', color: '#047857', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Check size={15} /> {quantityInCart} in Bag
+                    <div className="apple-stepper-count">
+                      <Check size={14} color="#34c759" strokeWidth={3} />
+                      <span>{quantityInCart} in Bag</span>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#065f46', fontWeight: '800' }}>View Cart ➔</div>
+                    <span className="apple-stepper-link">View Bag →</span>
                   </div>
                   <button
                     type="button"
+                    className="apple-stepper-btn"
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart + 1);
                     }}
-                    style={{ 
-                      width: '42px', 
-                      height: '42px', 
-                      borderRadius: '12px', 
-                      background: '#059669', 
-                      border: 'none', 
-                      color: '#ffffff', 
-                      fontSize: '22px', 
-                      fontWeight: '900', 
-                      cursor: 'pointer', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)',
-                      transition: 'all 0.15s ease'
-                    }}
+                    title="Increase Quantity"
                   >
                     +
                   </button>
                 </div>
               ) : (
                 <button
-                  className="add-cart-outline-btn"
+                  type="button"
+                  className="apple-add-btn"
                   disabled={isOutOfStock}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1014,31 +986,15 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                     addToCart(customProduct, 1);
                   }}
-                  style={{
-                    flex: '1 1 180px',
-                    height: '52px',
-                    border: isOutOfStock ? '2px solid #cbd5e1' : 'none',
-                    borderRadius: '16px',
-                    background: isOutOfStock ? '#f1f5f9' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                    color: isOutOfStock ? '#94a3b8' : '#ffffff',
-                    fontWeight: '900',
-                    fontSize: '15px',
-                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    fontFamily: "'Outfit', sans-serif",
-                    boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(15, 23, 42, 0.2)',
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    opacity: isOutOfStock ? 0.7 : 1
-                  }}
                 >
-                  <ShoppingCart size={19} color={isOutOfStock ? '#94a3b8' : '#ffffff'} /> {isOutOfStock ? 'Out of Stock' : 'Add to Bag'}
+                  <ShoppingBag size={18} />
+                  <span>{isOutOfStock ? 'Out of Stock' : 'Add to Bag'}</span>
                 </button>
               )}
+              
               <button
-                className={isOutOfStock ? '' : 'buy-now-pulse-btn'}
+                type="button"
+                className="apple-buy-btn"
                 disabled={isOutOfStock}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1049,29 +1005,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   }
                   onBuyNow(customProduct);
                 }}
-                style={{
-                  flex: '1 1 180px',
-                  height: '52px',
-                  border: 'none',
-                  borderRadius: '16px',
-                  backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                  backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
-                  color: isOutOfStock ? '#64748b' : '#ffffff',
-                  fontWeight: '900',
-                  fontSize: '15.5px',
-                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  boxShadow: isOutOfStock ? 'none' : '0 8px 24px rgba(234, 88, 12, 0.35)',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  opacity: isOutOfStock ? 0.7 : 1,
-                  letterSpacing: '0.2px'
-                }}
               >
-                <Zap size={20} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now ➔'}
+                <span>⚡ Buy Now</span>
+                <ArrowRight size={17} strokeWidth={2.5} />
               </button>
             </div>
           </div>
@@ -1698,37 +1634,49 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
           </div>
 
           {/* Right Side: Instant Action Purchase Buttons */}
-          <div className="vip-fixed-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <div className="vip-fixed-bar-right">
             {quantityInCart > 0 ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNavigate('cart');
-                }}
-                style={{
-                  height: '46px',
-                  padding: '0 16px',
-                  border: '1.5px solid #059669',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-                  color: '#047857',
-                  fontWeight: '900',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  fontFamily: "'Outfit', sans-serif",
-                  boxShadow: '0 2px 8px rgba(5, 150, 105, 0.15)'
-                }}
-              >
-                <Check size={16} /> <span className="buy-bar-btn-text">Bag ({quantityInCart}) ➔</span>
-              </button>
+              <div className="apple-stepper-capsule">
+                <button
+                  type="button"
+                  className="apple-stepper-btn"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart - 1);
+                  }}
+                  title="Decrease Quantity"
+                >
+                  −
+                </button>
+                <div 
+                  className="apple-stepper-label"
+                  onClick={() => onNavigate('cart')}
+                  title="View in Bag"
+                >
+                  <div className="apple-stepper-count">
+                    <Check size={13} color="#34c759" strokeWidth={3} />
+                    <span>{quantityInCart} in Bag</span>
+                  </div>
+                  <span className="apple-stepper-link">View Bag →</span>
+                </div>
+                <button
+                  type="button"
+                  className="apple-stepper-btn"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart + 1);
+                  }}
+                  title="Increase Quantity"
+                >
+                  +
+                </button>
+              </div>
             ) : (
               <button
-                className="add-cart-outline-btn"
+                type="button"
+                className="apple-add-btn"
                 disabled={isOutOfStock}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1736,29 +1684,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
                   addToCart(customProduct, 1);
                 }}
-                style={{
-                  height: '46px',
-                  padding: '0 14px',
-                  border: isOutOfStock ? '1.5px solid #cbd5e1' : 'none',
-                  borderRadius: '12px',
-                  background: isOutOfStock ? '#f1f5f9' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                  color: isOutOfStock ? '#94a3b8' : '#ffffff',
-                  fontWeight: '800',
-                  fontSize: '13px',
-                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  fontFamily: "'Outfit', sans-serif",
-                  boxShadow: isOutOfStock ? 'none' : '0 4px 12px rgba(15, 23, 42, 0.2)'
-                }}
               >
-                <ShoppingCart size={17} color={isOutOfStock ? '#94a3b8' : '#ffffff'} /> <span className="buy-bar-btn-text">{isOutOfStock ? 'Out of Stock' : 'Add to Bag'}</span>
+                <ShoppingBag size={17} />
+                <span>{isOutOfStock ? 'Out of Stock' : 'Add to Bag'}</span>
               </button>
             )}
             <button
-              className={isOutOfStock ? '' : 'buy-now-pulse-btn'}
+              type="button"
+              className="apple-buy-btn"
               disabled={isOutOfStock}
               onClick={(e) => {
                 e.stopPropagation();
@@ -1769,29 +1702,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 }
                 onBuyNow(customProduct);
               }}
-              style={{
-                height: '46px',
-                padding: '0 18px',
-                border: 'none',
-                borderRadius: '12px',
-                backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
-                color: isOutOfStock ? '#64748b' : '#ffffff',
-                fontWeight: '900',
-                fontSize: '14px',
-                cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                fontFamily: "'Outfit', sans-serif",
-                boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(234, 88, 12, 0.35)'
-              }}
             >
-              <Zap size={17} fill={isOutOfStock ? '#64748b' : 'white'} /> {isOutOfStock ? 'Sold Out' : 'Buy Now ➔'}
+              <span>⚡ Buy Now</span>
+              <ArrowRight size={16} strokeWidth={2.5} />
             </button>
           </div>
         </div>
+
 
       {/* 🔔 Luxury Price Drop & Restock Alert Modal / Bottom Sheet */}
       {isAlertModalOpen && (
