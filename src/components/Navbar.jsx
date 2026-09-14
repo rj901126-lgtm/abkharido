@@ -163,7 +163,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     return () => window.removeEventListener('focus-main-search', handleFocusSearch);
   }, []);
 
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const cartCount = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.quantity) || 1), 0) : 0;
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

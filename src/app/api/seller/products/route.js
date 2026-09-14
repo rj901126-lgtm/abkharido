@@ -68,8 +68,8 @@ export async function POST(req) {
       specs: specs || [],
       inStock: Boolean(inStock),
       countInStock: Number(countInStock),
-      rating: 4.8,
-      reviewsCount: 1,
+      rating: 0,
+      reviewsCount: 0,
       vendorId: seller ? seller.id : null,
       sellerShopName: seller ? (seller.shopName || 'Verified Merchant') : 'Verified Merchant'
     });

@@ -50,8 +50,8 @@ export async function POST(req) {
         brand: p.brand || 'AbKharido Verified',
         countInStock: Number(p.countInStock || 50),
         inStock: Number(p.countInStock || 50) > 0,
-        rating: 4.8,
-        reviewsCount: 1,
+        rating: 0,
+        reviewsCount: 0,
         vendorId: user ? user.id : null,
         sellerShopName: user ? (user.shopName || user.fullName || 'Verified Merchant') : (p.sellerShopName || 'AbKharido Official Store'),
         specs: p.specs || [

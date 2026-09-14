@@ -566,7 +566,7 @@ input:focus, textarea:focus, select:focus {
   /* Global Page Margins */
   .main-content {
     margin-top: 104px !important;
-    padding-bottom: env(safe-area-inset-bottom, 80px) !important;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
   }
   
   input, select, textarea {

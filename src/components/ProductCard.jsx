@@ -5,14 +5,6 @@ import LazyImage from './LazyImage';
 import ProductQuickPreviewModal from './ProductQuickPreviewModal';
 import { calculateCoinReward } from '../utils/coinUtils';
 
-// Stable hash for static reviews count fallback
-function stableHash(str, min, max) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
-  }
-  return min + (hash % (max - min + 1));
-}
 
 // Color map for standard swatches
 const COLOR_PALETTE = {
@@ -283,13 +275,25 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           {/* Rating & AB Coins Trust Row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginTop: 'auto', paddingTop: '4px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={styles.ratingTag}>
-                <span style={{ fontSize: '11px', fontWeight: '800' }}>{product.rating || '4.5'}</span>
-                <Star size={10} fill="#ffffff" color="#ffffff" />
-              </span>
-              <span style={styles.reviewsCount}>
-                ({(product.reviewsCount && product.reviewsCount > 999) ? `${(product.reviewsCount/1000).toFixed(1)}k` : (product.reviewsCount || stableHash(String(prodId || 'p'), 50, 490))})
-              </span>
+              {Number(product.rating) > 0 && (
+                <span style={styles.ratingTag}>
+                  <span style={{ fontSize: '11px', fontWeight: '800' }}>{product.rating}</span>
+                  <Star size={10} fill="#ffffff" color="#ffffff" />
+                </span>
+              )}
+              {(() => {
+                const count = Array.isArray(product.reviews) && product.reviews.length > 0
+                  ? product.reviews.length
+                  : (typeof product.reviewsCount === 'number' && product.reviewsCount > 0 ? product.reviewsCount : 0);
+                if (count > 0) {
+                  return (
+                    <span style={styles.reviewsCount}>
+                      ({count > 999 ? `${(count / 1000).toFixed(1)}k` : count})
+                    </span>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             {!(currentUser && currentUser.isInfluencer) && (

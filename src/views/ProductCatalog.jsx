@@ -810,7 +810,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
       </main>
 
       {/* ── 📱 Mobile Filter Slide-in Drawer Modal ── */}
-      {showFilterDrawer && createPortal(
+      {showFilterDrawer && typeof document !== 'undefined' && createPortal(
         <div 
           style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', zIndex: 99999, display: 'flex', justifyContent: 'flex-end' }}
           onClick={() => setShowFilterDrawer(false)}

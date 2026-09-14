@@ -33,9 +33,8 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
 
   if (!mounted || !isOpen) return null;
 
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
-  const progressPercent = Math.min((itemsPrice / 500) * 100, 100);
+  const cartCount = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.quantity) || 1), 0) : 0;
+  const itemsPrice = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.product?.price ?? item?.price) || 0) * (Number(item?.quantity) || 1), 0) : 0;
 
   const drawerContent = (
     <>

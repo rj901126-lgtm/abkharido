@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { BLOG_POSTS } from '../../data/blogPosts';
+import { SITE_URL } from '../../utils/constants';
 
 const categoryColors = {
   'Buying Guide': '#4f46e5',

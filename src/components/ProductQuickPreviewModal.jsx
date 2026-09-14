@@ -216,10 +216,12 @@ const ProductQuickPreviewModal = ({
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '3px', background: '#ecfdf5', padding: '3px 8px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '12px', fontWeight: '800', color: '#059669' }}>{product.rating || '4.8'}</span>
-                <span style={{ fontSize: '11px', color: '#059669' }}>★</span>
-              </div>
+              {Number(product.rating) > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', background: '#ecfdf5', padding: '3px 8px', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: '800', color: '#059669' }}>{product.rating}</span>
+                  <span style={{ fontSize: '11px', color: '#059669' }}>★</span>
+                </div>
+              )}
             </div>
 
             {/* Tap to view prompt hint */}

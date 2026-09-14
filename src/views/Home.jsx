@@ -806,24 +806,30 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
 
 const DealsCountdown = ({ targetDate }) => {
-  const [timer, setTimer] = useState({ hrs: '14', mins: '42', secs: '00' });
+  const getMidnightTarget = () => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
+  };
+  const effectiveTarget = targetDate || getMidnightTarget();
+
+  const calculateRemaining = () => {
+    const now = new Date();
+    const diff = Math.max(0, effectiveTarget.getTime() - now.getTime());
+    const hrs = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+    const secs = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+    return { hrs, mins, secs };
+  };
+
+  const [timer, setTimer] = useState({ hrs: '00', mins: '00', secs: '00' });
   const [mounted, setMounted] = useState(false);
-  const fallbackDateRef = useRef(new Date(Date.now() + 14 * 3600 * 1000 + 42 * 60 * 1000));
-  const effectiveTarget = targetDate || fallbackDateRef.current;
 
   useEffect(() => {
     setMounted(true);
-    const updateTimer = () => {
-      const now = new Date();
-      const diff = effectiveTarget ? effectiveTarget.getTime() - now.getTime() : 0;
-      if (diff <= 0) { setTimer({ hrs: '00', mins: '00', secs: '00' }); return; }
-      const hrs = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-      const secs = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-      setTimer({ hrs, mins, secs });
-    };
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+    setTimer(calculateRemaining());
+    const interval = setInterval(() => {
+      setTimer(calculateRemaining());
+    }, 1000);
     return () => clearInterval(interval);
   }, [effectiveTarget]);
 

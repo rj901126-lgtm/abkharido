@@ -135,8 +135,8 @@ export function parseCsvProducts(csvText) {
       inStock: countInStock > 0,
       description,
       brand,
-      rating: 4.8,
-      reviewsCount: 1,
+      rating: 0,
+      reviewsCount: 0,
       specs: [
         { key: 'Brand', value: brand },
         { key: 'Condition', value: 'Brand New (Sealed)' },

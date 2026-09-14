@@ -196,8 +196,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     setCategory(prod.category || 'electronics');
     setPrice(prod.price?.toString() || '');
     setOriginalPrice(prod.originalPrice?.toString() || '');
-    setRating(prod.rating?.toString() || '4.5');
-    setReviewsCount(prod.reviewsCount?.toString() || '120');
+    setRating(prod.rating?.toString() || '0');
+    setReviewsCount(prod.reviewsCount?.toString() || '0');
     setBadge(prod.badge || 'none');
     setDescription(prod.description || '');
     setUserCommissionRate(prod.userCommissionRate ? (prod.userCommissionRate * 100).toString() : '2');
@@ -743,8 +743,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
   const [category, setCategory] = useState('electronics');
   const [price, setPrice] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
-  const [rating, setRating] = useState('4.5');
-  const [reviewsCount, setReviewsCount] = useState('10');
+  const [rating, setRating] = useState('0');
+  const [reviewsCount, setReviewsCount] = useState('0');
   const [media, setMedia] = useState([]);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [description, setDescription] = useState('');

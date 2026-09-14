@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Trash2, ShoppingBag, Award, Coins, HelpCircle, ArrowRight, ShieldCheck, Lock, Heart } from 'lucide-react';
+import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '../utils/constants';
 import '../assets/styles/cart.css';
 
 const CartPage = ({ onNavigate, onCheckout }) => {
@@ -153,7 +154,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
   const originalItemsPrice = cart.reduce((acc, item) => acc + getItemOriginalPrice(item) * getItemQty(item), 0);
   
   const discountValue = Math.max(0, originalItemsPrice - itemsPrice);
-  const deliveryCharge = itemsPrice > 500 ? 0 : 40;
+  const deliveryCharge = itemsPrice >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
   
   // Coin redemption calculation
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
@@ -416,7 +417,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         <div className="mobile-cart-price-info">
           <div className="mobile-cart-amount">₹{finalAmount.toLocaleString('en-IN')}</div>
           <div className="mobile-cart-meta">
-            🚚 Free Express Delivery
+            {deliveryCharge === 0 ? '🚚 Free Express Delivery' : `+ ₹${deliveryCharge} Standard Delivery`}
           </div>
         </div>
         <button 

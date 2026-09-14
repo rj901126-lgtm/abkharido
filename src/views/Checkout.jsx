@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag, Download, Coins } from 'lucide-react';
+import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '../utils/constants';
 import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 import ScratchCard from '../components/ScratchCard';
@@ -170,13 +171,13 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   }, [address.pincode]);
 
   // Price calculations — safe fallbacks to prevent NaN
-  const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
-  const deliveryCharge = itemsPrice >= 499 ? 0 : 40;
+  const itemsPrice = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.product?.price ?? item?.price) || 0) * (Math.max(1, Number(item?.quantity ?? 1))), 0) : 0;
+  const deliveryCharge = itemsPrice >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
   const coinsDiscount = useCoins && currentUser ? Math.min(userCoins, itemsPrice) : 0;
   
   const couponDiscountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const finalAmount = itemsPrice - coinsDiscount - couponDiscountAmount + deliveryCharge;
+  const finalAmount = Math.max(0, itemsPrice - coinsDiscount - couponDiscountAmount + deliveryCharge);
 
 
   const handleApplyCoupon = async () => {

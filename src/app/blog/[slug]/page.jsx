@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
   if (!post) return {};
 
   return {
-    title: post.metaTitle,
+    title: (post.metaTitle || post.title).replace(/\s*\|\s*AbKharido.*$/i, ''),
     description: post.metaDescription,
     metadataBase: new URL(SITE_URL),
     authors: [{ name: post.author }],

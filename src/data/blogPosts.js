@@ -6,7 +6,7 @@ export const BLOG_POSTS = [
   {
     slug: 'best-smartwatch-under-5000-india-2026',
     title: 'Best Smartwatch Under ₹5000 in India 2026 — Top 10 Picks with Free Delivery',
-    metaTitle: 'Best Smartwatch Under ₹5000 in India 2026 | AbKharido',
+    metaTitle: 'Best Smartwatch Under ₹5000 in India 2026',
     metaDescription: 'Discover the best smartwatches under ₹5000 in India for 2026. Compare Noise, boAt, Fire-Boltt & more. Free delivery, 7-day returns on AbKharido.',
     category: 'Buying Guide',
     author: 'AbKharido Editorial Team',
@@ -125,7 +125,7 @@ At minimum, look for:
   {
     slug: 'best-wireless-earbuds-under-2000-india-2026',
     title: 'Best Wireless Earbuds Under ₹2000 in India 2026 — Tested & Ranked',
-    metaTitle: 'Best Wireless Earbuds Under ₹2000 India 2026 | AbKharido',
+    metaTitle: 'Best Wireless Earbuds Under ₹2000 India 2026',
     metaDescription: 'Best TWS earbuds under ₹2000 in India 2026. Reviewed boAt, Noise, realme, Redmi earbuds for sound quality, ANC & battery. Free shipping on AbKharido.',
     category: 'Buying Guide',
     author: 'AbKharido Editorial Team',
@@ -205,7 +205,7 @@ Look for **low-latency mode** (< 60ms) if you use earbuds for gaming or video st
   {
     slug: 'online-shopping-cash-on-delivery-india',
     title: 'Best Online Shopping Sites in India with Cash on Delivery (COD) — 2026 Guide',
-    metaTitle: 'Best Online Shopping Sites with Cash on Delivery India 2026 | AbKharido',
+    metaTitle: 'Best Online Shopping Sites with Cash on Delivery India 2026',
     metaDescription: 'Complete list of best online shopping sites in India that offer Cash on Delivery (COD) in 2026. Compare safety, product range, and delivery timelines.',
     category: 'Shopping Guide',
     author: 'AbKharido Editorial Team',
@@ -290,7 +290,7 @@ This ensures 100% delivery safety. No pay-before-delivery scams.
   {
     slug: 'how-to-return-product-online-shopping-india',
     title: 'How to Return a Product from Online Shopping in India — Step-by-Step 2026 Guide',
-    metaTitle: 'How to Return Product from Online Shopping India 2026 | AbKharido',
+    metaTitle: 'How to Return Product from Online Shopping India 2026',
     metaDescription: 'Complete guide on how to return products from online shopping in India in 2026. Step-by-step return process for AbKharido, Flipkart, Amazon and more.',
     category: 'Help Guide',
     author: 'AbKharido Support Team',
@@ -379,7 +379,7 @@ After initiating return, note the Return ID / Ticket Number for tracking.
   {
     slug: 'sell-products-online-india-free-2026',
     title: 'How to Sell Products Online in India for Free — Become an AbKharido Seller 2026',
-    metaTitle: 'Sell Products Online India Free 2026 — Zero Commission Seller | AbKharido',
+    metaTitle: 'Sell Products Online India Free 2026 — Zero Commission Seller',
     metaDescription: 'Learn how to sell products online in India for free in 2026. AbKharido offers 0% commission, free seller registration, bulk upload, and daily bank settlements.',
     category: 'Seller Guide',
     author: 'AbKharido Seller Success Team',

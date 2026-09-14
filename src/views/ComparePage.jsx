@@ -155,10 +155,16 @@ const ComparePage = ({ onNavigate, onNavigateProduct, initialProductIds = [] }) 
                 <td style={{ padding: '14px 16px', fontWeight: '800', color: '#334155', fontSize: '13px' }}>Customer Rating</td>
                 {selectedProducts.map(p => (
                   <td key={p.id} style={{ padding: '14px 16px', textAlign: 'center' }}>
-                    <span style={{ background: '#059669', color: 'white', fontSize: '12px', fontWeight: '800', padding: '4px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                      {p.rating || 4.5} <Star size={12} fill="white" />
-                    </span>
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>({p.reviewsCount || 0} reviews)</div>
+                    {Number(p.rating) > 0 ? (
+                      <span style={{ background: '#059669', color: 'white', fontSize: '12px', fontWeight: '800', padding: '4px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {p.rating} <Star size={12} fill="white" />
+                      </span>
+                    ) : (
+                      <span style={{ color: '#94a3b8', fontSize: '12px', fontWeight: '600' }}>No ratings yet</span>
+                    )}
+                    {Number(p.reviewsCount) > 0 && (
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>({p.reviewsCount} reviews)</div>
+                    )}
                   </td>
                 ))}
               </tr>

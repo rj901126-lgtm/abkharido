@@ -684,10 +684,11 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               const activeList = (reviewsList && reviewsList.length > 0) ? reviewsList : (product?.reviews || []);
               const realCount = activeList.length;
               if (realCount > 0) {
+                const avgRating = product.rating || (activeList.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / realCount).toFixed(1);
                 return (
                   <>
                     <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white', boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)' }}>
-                      {product.rating || 5} <Star size={12} fill="white" />
+                      {avgRating} <Star size={12} fill="white" />
                     </span>
                     <span style={{ color: '#475569', fontSize: '13.5px', fontWeight: '600' }}>
                       {realCount} Verified {realCount === 1 ? 'Rating & Review' : 'Ratings & Reviews'}

@@ -15,7 +15,7 @@ function toPublicProductDTO(product) {
     inStock: Boolean(product.inStock !== false && (product.stock === undefined || product.stock > 0)),
     image: product.image,
     images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
-    rating: product.rating || 4.5,
+    rating: product.rating || 0,
     reviewsCount: product.reviewsCount || 0,
     highlights: product.highlights || [],
     features: product.features || [],

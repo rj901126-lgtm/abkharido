@@ -5,7 +5,7 @@ import '../assets/styles/bottomnav.css';
 
 const BottomNavigation = ({ activePage, onNavigate }) => {
   const { currentUser, cart, wishlist } = useApp();
-  const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalCartItems = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.quantity) || 1), 0) : 0;
 
   return (
     <div className="bottom-nav-island">

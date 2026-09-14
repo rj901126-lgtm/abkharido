@@ -166,13 +166,15 @@ export default async function Page({ params }) {
         returnFees: 'https://schema.org/FreeReturn'
       }
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: product.rating || 4.8,
-      reviewCount: product.reviewsCount || 148,
-      bestRating: 5,
-      worstRating: 1
-    }
+    ...((product.rating && (product.reviewsCount > 0 || (Array.isArray(product.reviews) && product.reviews.length > 0))) ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: product.rating,
+        reviewCount: product.reviewsCount || product.reviews.length,
+        bestRating: 5,
+        worstRating: 1
+      }
+    } : {})
   };
 
   const breadcrumbJsonLd = {

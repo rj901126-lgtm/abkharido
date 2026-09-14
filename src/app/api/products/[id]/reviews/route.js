@@ -18,13 +18,13 @@ export async function GET(req, context) {
       if (product) {
         return NextResponse.json({
           reviews: product.reviews || [],
-          rating: product.rating || 4.5,
+          rating: product.rating || 0,
           reviewsCount: (product.reviews || []).length
         });
       }
     } catch (_e) {}
 
-    return NextResponse.json({ reviews: [], rating: 4.5, reviewsCount: 0 });
+    return NextResponse.json({ reviews: [], rating: 0, reviewsCount: 0 });
   } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 });
   }
