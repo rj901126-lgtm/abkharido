@@ -149,6 +149,18 @@ export const authOptions = {
   pages: {
     signIn: '/login',
   },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: (process.env.NODE_ENV === 'production' && typeof window === 'undefined' && process.env.NEXTAUTH_URL?.includes('abkharido.com')) ? '.abkharido.com' : undefined,
+      },
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET || 'fallback_secret_for_dev_abkharido',
 };
 

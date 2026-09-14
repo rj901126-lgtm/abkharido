@@ -139,7 +139,7 @@ orderSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
   fields: ['shippingAddress', 'paymentResult'],
   secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
   saltGenerator: function (secret) {
-    return "1234567890123456"; // 16 byte static salt for deterministic encryption if needed
+    return process.env.DATABASE_ENCRYPTION_SALT || "1234567890123456";
   },
 });
 

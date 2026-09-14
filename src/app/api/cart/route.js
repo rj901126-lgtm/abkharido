@@ -4,24 +4,15 @@ import User from '../../../../server/models/User.js';
 import Product from '../../../../server/models/Product.js';
 import productsData from '../../../../server/data/productsData.js';
 import { PRODUCTS } from '../../../db/mockData.js';
-import jwt from 'jsonwebtoken';
+import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
-
-function getUserIdFromReq(req) {
-  try {
-    const authHeader = req.headers.get('authorization') || '';
-    if (!authHeader.startsWith('Bearer ')) return null;
-    const token = authHeader.split(' ')[1];
-    if (!token) return null;
-    const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.id || decoded._id || decoded.userId || null;
-  } catch (err) {
-    return null;
-  }
+async function getUserIdFromReq(req) {
+  const auth = await getAuthenticatedUser(req);
+  return auth?.user?.id || null;
 }
+
 
 async function resolveProduct(pRef) {
   if (!pRef) return null;
@@ -55,7 +46,7 @@ async function resolveProduct(pRef) {
 
 export async function GET(req) {
   try {
-    const userId = getUserIdFromReq(req);
+    const userId = await getUserIdFromReq(req);
     if (!userId) {
       return NextResponse.json([]);
     }
@@ -87,7 +78,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const userId = getUserIdFromReq(req);
+    const userId = await getUserIdFromReq(req);
     const body = await req.json().catch(() => ({}));
     const cartItems = Array.isArray(body.cart) ? body.cart : [];
 

@@ -1,16 +1,23 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import User from '../../../../server/models/User.js';
+import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin privileges required' }, { status: 401 });
+    }
+
     await connectDB();
     // Query documents without .lean() to allow field decryption hooks to run
     const users = await User.find({})
       .select('-password')
       .sort({ createdAt: -1 });
+
 
     // Deduplicate and merge user records by phone or email
     const seen = new Map();

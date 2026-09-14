@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,6 +75,11 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json();
     const { action, rule, config } = body;

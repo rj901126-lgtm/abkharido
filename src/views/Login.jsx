@@ -148,8 +148,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
                 'expired-callback': () => { cleanupRecaptcha(); }
               });
               await window.recaptchaVerifier.render();
-            } catch (recaptchaErr) {
-              console.warn('[reCAPTCHA Render]', recaptchaErr?.message || recaptchaErr);
+            } catch (_recaptchaErr) {
+              // Gracefully handle recaptcha render
             }
           }
           
@@ -165,7 +165,6 @@ const Login = ({ onNavigate, callbackUrl }) => {
           }
         } catch (fbErr) {
           cleanupRecaptcha();
-          console.warn('[Firebase SMS Error]', fbErr?.code || fbErr?.message || fbErr);
           if (fbErr?.code === 'auth/invalid-phone-number') {
             showToast('Invalid phone number format. Please check and try again.', 'error');
             return;
@@ -174,12 +173,12 @@ const Login = ({ onNavigate, callbackUrl }) => {
         }
       }
 
-      // ── Fallback to direct backend SMS gateway if Firebase client is unavailable ──
+      // ── Fallback to direct backend SMS gateway ONLY if Firebase client could not send ──
       if (!firebaseSent) {
         cleanupRecaptcha();
         await triggerBackendOtp();
       }
-    } catch (err) {
+    } catch (_err) {
       cleanupRecaptcha();
       showToast('Unable to send verification SMS. Please check your network connection.', 'error');
     } finally {
@@ -204,8 +203,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
       setTimer(60);
       showToast('✅ 6-digit verification code sent via SMS to +91 ' + phone, 'success');
     } catch (apiErr) {
-      console.error('Backend SMS delivery failed:', apiErr);
-      showToast('❌ Could not send SMS code. Please check your network connection.', 'error');
+      showToast(apiErr.message || 'Could not send SMS code. Please check your network connection.', 'error');
     } finally {
       setIsSending(false);
     }
@@ -227,8 +225,9 @@ const Login = ({ onNavigate, callbackUrl }) => {
       let result = null;
       let verifySuccess = false;
 
-      // ── Path 1: Attempt Firebase SMS Confirmation if token exists ──
+      // ── One verification path only: Firebase SMS confirmation OR Backend Direct SMS Gateway ──
       if (firebaseConfirmation) {
+        // Path A: Firebase verification
         try {
           const confirmationResult = await firebaseConfirmation.confirm(enteredOtp);
           const firebaseIdToken = await confirmationResult.user.getIdToken();
@@ -241,13 +240,14 @@ const Login = ({ onNavigate, callbackUrl }) => {
           if (result && !result.error) {
             verifySuccess = true;
           }
-        } catch (fbErr) {
-          console.warn('[Firebase Verify Error - Falling back to direct database OTP]:', fbErr?.message || fbErr);
+        } catch (_fbErr) {
+          showToast('Incorrect OTP. Please check the SMS code and try again.', 'error');
+          setIsVerifying(false);
+          isVerifyingRef.current = false;
+          return;
         }
-      }
-
-      // ── Path 2: Direct Backend / Database OTP Verification Fallback ──
-      if (!verifySuccess) {
+      } else {
+        // Path B: Direct Backend SMS Gateway verification
         try {
           result = await signIn('credentials', {
              redirect: false,
@@ -257,9 +257,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
           if (result && !result.error) {
             verifySuccess = true;
           }
-        } catch (authErr) {
-          console.error('[Direct OTP Error]:', authErr);
-          result = { error: 'Authentication service temporary unreachable' };
+        } catch (_authErr) {
+          result = { error: 'Authentication service temporarily unreachable' };
         }
       }
 
@@ -277,8 +276,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
       } else {
         showToast(result?.error || 'Authentication failed. Incorrect OTP.', 'error');
       }
-    // eslint-disable-next-line
-    } catch (err) {
+    } catch (_err) {
       showToast('Verification failed. Try again.', 'error');
     } finally {
       isVerifyingRef.current = false;

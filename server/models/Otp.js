@@ -5,15 +5,20 @@ const otpSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true,
+    index: true,
   },
   otp: {
     type: String,
     required: true,
   },
+  attempts: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 300 // TTL index: Automatically deleted after 5 minutes (300 seconds)
+    expires: 300 // 5 minutes TTL index
   }
 });
 
@@ -24,9 +29,18 @@ otpSchema.pre('save', async function() {
   this.otp = await bcrypt.hash(this.otp, salt);
 });
 
-// Match OTP method (supports both bcrypt hash and direct string match)
+// Strictly verify OTP using bcrypt hash with max 5 attempts limit
 otpSchema.methods.matchOtp = async function(enteredOtp) {
-  if (String(this.otp) === String(enteredOtp)) return true;
+  if (!enteredOtp) return false;
+  
+  // Rate limit: Max 5 failed attempts per OTP record
+  if (this.attempts >= 5) {
+    return false;
+  }
+
+  this.attempts = (this.attempts || 0) + 1;
+  await this.save().catch(() => {});
+
   try {
     return await bcrypt.compare(String(enteredOtp), this.otp);
   } catch (e) {

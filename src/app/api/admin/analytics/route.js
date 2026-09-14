@@ -3,11 +3,17 @@ import connectDB from '../../../../lib/connectDB.js';
 import Order from '../../../../../server/models/Order.js';
 import User from '../../../../../server/models/User.js';
 import Product from '../../../../../server/models/Product.js';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+
     await connectDB();
     const orders = await Order.find({}).lean();
     const userCount = await User.countDocuments({});

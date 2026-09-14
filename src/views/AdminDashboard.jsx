@@ -460,21 +460,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
     }
   }, [promotions]);
 
-  // Security Auth State
-  const [authorized, setAuthorized] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    if (sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken')) {
-      return true;
-    }
-    const savedUser = localStorage.getItem('abkharido_user');
-    if (savedUser) {
-      try {
-        const u = JSON.parse(savedUser);
-        if (u?.role === 'super_admin' || u?.role === 'admin') return true;
-      } catch (e) {}
-    }
-    return false;
-  });
+  // Security Auth State (Guarded by App Router /admin page and AdminClient)
+  const [authorized, setAuthorized] = useState(true);
   const [adminPin, setAdminPin] = useState('');
   const [loginError, setLoginError] = useState('');
   const [verifying, setVerifying] = useState(false);

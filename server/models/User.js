@@ -137,7 +137,7 @@ userSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
   fields: ['payoutDetails'],
   secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
   saltGenerator: function (secret) {
-    return "1234567890123456";
+    return process.env.DATABASE_ENCRYPTION_SALT || "1234567890123456";
   },
 });
 

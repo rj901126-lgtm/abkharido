@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 
 // In-memory rate limiting map for admin verify attempts
 const failedAttemptsMap = new Map();
@@ -41,6 +42,11 @@ function clearFailedAttempts(ip) {
 
 export async function POST(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Access restricted to administrators.' }, { status: 403 });
+    }
+
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
     
     // Rate limit check
@@ -55,15 +61,16 @@ export async function POST(req) {
 
     const body = await req.json().catch(() => ({}));
     const { password } = body;
-    const validPin = process.env.ADMIN_SECURE_PIN 
-      ? process.env.ADMIN_SECURE_PIN.trim() 
-      : (process.env.NODE_ENV !== 'production' ? '2026' : '');
+    const validPin = (process.env.ADMIN_SECURE_PIN || '').trim();
+    if (!validPin) {
+      return NextResponse.json({ error: 'Admin PIN security credential not configured on server.' }, { status: 500 });
+    }
     const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'abkharido_enterprise_secret_2026';
 
     const cleanInput = typeof password === 'string' ? password.trim() : String(password || '').trim();
 
     // Verify PIN strictly
-    const isMatch = Boolean(validPin && cleanInput && cleanInput === validPin);
+    const isMatch = Boolean(cleanInput && cleanInput === validPin);
 
     if (isMatch) {
       clearFailedAttempts(ip);

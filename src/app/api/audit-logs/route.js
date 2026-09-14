@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import AuditLog from '../../../../server/models/AuditLog.js';
+import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+
     await connectDB();
     let logs = [];
     if (AuditLog) {
@@ -13,13 +19,17 @@ export async function GET(req) {
     }
     return NextResponse.json(logs || []);
   } catch (error) {
-    // If AuditLog model has no documents yet, return empty list cleanly
     return NextResponse.json([]);
   }
 }
 
 export async function POST(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json();
     let log = null;

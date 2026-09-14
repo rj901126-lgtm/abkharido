@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import User from '../../../../server/models/User.js';
+import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+
     await connectDB();
     const staffUsers = await User.find({
       role: { $in: ['admin', 'super_admin', 'manager', 'support_agent', 'catalog_manager'] }
@@ -15,37 +21,19 @@ export async function GET(req) {
       return NextResponse.json(staffUsers);
     }
 
-    // Default authentic Super Admin staff
-    return NextResponse.json([
-      {
-        _id: '66554433221100aabbccddee',
-        username: 'super_admin',
-        email: 'admin@abkharido.com',
-        fullName: 'AbKharido Principal Administrator',
-        role: 'super_admin',
-        status: 'Active',
-        isFrozen: false,
-        lastLogin: new Date().toISOString()
-      }
-    ]);
+    return NextResponse.json([]);
   } catch (error) {
-    return NextResponse.json([
-      {
-        _id: '66554433221100aabbccddee',
-        username: 'super_admin',
-        email: 'admin@abkharido.com',
-        fullName: 'AbKharido Principal Administrator',
-        role: 'super_admin',
-        status: 'Active',
-        isFrozen: false,
-        lastLogin: new Date().toISOString()
-      }
-    ]);
+    return NextResponse.json([]);
   }
 }
 
 export async function POST(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json();
     const { username, email, password, fullName, role } = body;

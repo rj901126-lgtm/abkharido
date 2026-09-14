@@ -4,12 +4,17 @@ import Order from '../../../../server/models/Order.js';
 import Product from '../../../../server/models/Product.js';
 import User from '../../../../server/models/User.js';
 import Coupon from '../../../../server/models/Coupon.js';
-
+import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAuthenticated) {
+      return NextResponse.json({ error: 'Unauthorized: Please log in to view orders' }, { status: 401 });
+    }
+
     await connectDB();
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit')) || 200;
@@ -17,6 +22,15 @@ export async function GET(req) {
     const search = searchParams.get('search') || '';
 
     let query = {};
+    if (!auth.isAdmin) {
+      // Normal user: strictly scope to their user ID or phone
+      const userPhone = auth.user.phone || '';
+      query.$or = [
+        { user: auth.user.id },
+        ...(userPhone ? [{ customerPhone: userPhone }, { 'shippingAddress.phone': userPhone }] : [])
+      ];
+    }
+
     if (status && status !== 'all' && status !== 'ALL') {
       if (status === 'LIVE') {
         query.status = { $nin: ['Cancelled', 'CANCELLED', 'Returned'] };
@@ -25,7 +39,7 @@ export async function GET(req) {
       }
     }
 
-    if (search && search.trim()) {
+    if (search && search.trim() && auth.isAdmin) {
       const s = search.trim();
       query.$or = [
         { cfOrderId: { $regex: s, $options: 'i' } },
@@ -41,10 +55,21 @@ export async function GET(req) {
       .limit(limit)
       .lean();
 
-    return NextResponse.json(orders || []);
+    // Strip internal encryption fields (__enc_*) from serialized JSON
+    const cleanOrders = (orders || []).map(ord => {
+      const clean = { ...ord };
+      Object.keys(clean).forEach(k => {
+        if (k.startsWith('__enc_')) {
+          delete clean[k];
+        }
+      });
+      return clean;
+    });
+
+    return NextResponse.json(cleanOrders);
   } catch (error) {
-    console.error('Error fetching admin orders:', error);
-    return NextResponse.json([]);
+    console.error('Error fetching orders:', error);
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
   }
 }
 

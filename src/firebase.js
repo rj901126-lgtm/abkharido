@@ -1,7 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
-const apiKey = (process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || 'AIzaSyBelERlA93mJok7ibKf6AMEYTROS4yNFKY').trim();
+const apiKey = (process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || '').trim();
 const hasValidConfig = Boolean(apiKey && apiKey.length > 10 && !apiKey.includes('placeholder') && !apiKey.includes('YOUR_'));
 
 let app = null;

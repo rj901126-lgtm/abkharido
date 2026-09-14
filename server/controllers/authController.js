@@ -130,13 +130,15 @@ export const sendOtp = async (req, res, next) => {
       }
     }
 
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Cryptographically secure 6-digit OTP
+    const { randomInt } = await import('crypto');
+    const generatedOtp = randomInt(100000, 1000000).toString();
     
     // Store OTP in database (will be hashed automatically by pre-save hook and auto-deleted after 5 mins)
     await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }, { phone: rawRecipient }] });
     await Otp.create({ phone: normalizedRecipient, otp: generatedOtp });
     
-    console.log(`[OTP] Generated OTP ****** for ${normalizedRecipient.substring(0, 3)}****${normalizedRecipient.substring(normalizedRecipient.length - 3)}`);
+    console.log(`[OTP] Generated OTP for ${normalizedRecipient.substring(0, 3)}****${normalizedRecipient.substring(normalizedRecipient.length - 3)}`);
     
     res.json({ success: true, message: 'OTP sent to mobile successfully', phone: normalizedRecipient });
   } catch (error) {
@@ -176,22 +178,22 @@ export const verifyOtp = async (req, res, next) => {
       storedOtpDoc = await Otp.findOne({ phone: rawRecipient }).sort({ createdAt: -1 });
     }
     
-    // Test OTP is authorized for developer test account (mobile 9172600587) or with ENABLE_TEST_OTP flag
-    const isTestNumber = normalizedRecipient === '9172600587' || rawRecipient === '9172600587' || rawRecipient.includes('9172600587') || process.env.ENABLE_TEST_OTP === 'true';
-    const isTestOtp = isTestNumber && otp === '123456';
+    // Strict Dev-only bypass: NEVER in production environment
+    const isDevTestAllowed = process.env.NODE_ENV !== 'production' && process.env.ALLOW_TEST_OTP === 'true';
+    const isTestOtp = isDevTestAllowed && otp === '123456';
 
     if (!storedOtpDoc && !isTestOtp) {
-      return res.status(400).json({ error: 'OTP expired or not found. Please request a new OTP.' });
+      return res.status(400).json({ error: 'Incorrect OTP or verification expired. Please request a new code.' });
     }
     
     if (storedOtpDoc) {
       const isMatch = await storedOtpDoc.matchOtp(otp);
       if (!isMatch && !isTestOtp) {
-        return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
+        return res.status(400).json({ error: 'Incorrect OTP. Please check the code and try again.' });
       }
     }
     
-    // OTP is valid — delete it to prevent reuse
+    // OTP is valid — delete immediately to enforce single-use
     await Otp.deleteMany({ $or: [{ phone: normalizedRecipient }, { phone: '+91' + normalizedRecipient }, { phone: rawRecipient }] });
     
     // SECURITY: Escape user input before using in RegExp to prevent ReDoS

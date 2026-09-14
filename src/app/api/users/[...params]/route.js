@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
 import User from '../../../../../server/models/User.js';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -52,37 +53,23 @@ export async function GET(req, { params }) {
     await connectDB();
     let username = routeParams[0];
 
-    // Decode token if present
-    const authHeader = req.headers.get('authorization') || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    let decodedToken = null;
-    if (token) {
-      try {
-        const { default: jwt } = await import('jsonwebtoken');
-        const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'abkharido_enterprise_secret_2026';
-        decodedToken = jwt.verify(token, jwtSecret);
-      } catch {}
-    }
+    const auth = await getAuthenticatedUser(req);
+    const decodedToken = auth?.user || null;
 
     // Handle /api/users/me
     if (username === 'me') {
-      if (!decodedToken) {
+      if (!auth || !auth.isAuthenticated) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
       }
-      username = decodedToken.id || decodedToken.username || decodedToken.phone;
+      username = auth.user.id || auth.user.username || auth.user.phone;
     }
 
     // SECURITY: Only admins can list all users
     if (!username) {
-      if (!decodedToken) {
-        return NextResponse.json({ error: 'Not authorized' }, { status: 401 });
-      }
-      const { default: UserModel } = await import('../../../../../server/models/User.js');
-      const requester = await UserModel.findById(decodedToken.id).select('role').lean();
-      if (!requester || !['admin', 'super_admin'].includes(requester.role)) {
+      if (!auth || !auth.isAdmin) {
         return NextResponse.json({ error: 'Not authorized as admin' }, { status: 403 });
       }
-      const users = await UserModel.find({}).limit(50).select('-password');
+      const users = await User.find({}).limit(50).select('-password');
       return NextResponse.json(users);
     }
 
@@ -142,14 +129,14 @@ export async function GET(req, { params }) {
       }
       
       let isOwnerOrAdmin = false;
-      if (decodedToken) {
-        if (decodedToken.id === user._id.toString() || decodedToken.phone === userObj.phone || ['admin', 'super_admin'].includes(decodedToken.role)) {
+      if (auth && auth.isAuthenticated) {
+        if (auth.isAdmin || auth.user.id === user._id.toString() || auth.user.phone === userObj.phone || auth.user.username === userObj.username) {
           isOwnerOrAdmin = true;
         }
       }
 
-      if (!isOwnerOrAdmin && !token) {
-        // Return safe profile representation
+      if (!isOwnerOrAdmin) {
+        // Return safe profile representation without sensitive PII
         return NextResponse.json({
           _id: userObj._id,
           username: userObj.username,
@@ -211,70 +198,36 @@ export async function POST(req, { params }) {
       }
     }
 
-    // SECURITY: VULN-04 — Verify requester owns this resource or is an admin (IDOR fix)
-    const authHeader = req.headers.get('authorization') || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    // SECURITY: Verify requester owns this resource or is an admin (IDOR fix)
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAuthenticated) {
+      return NextResponse.json({ error: 'Unauthorized: Please log in to update profile' }, { status: 401 });
+    }
+
     const targetUsername = routeParams[0];
+    await connectDB();
 
-    if (token) {
-      try {
-        const { default: jwt } = await import('jsonwebtoken');
-        const secrets = [
-          process.env.JWT_SECRET,
-          process.env.NEXTAUTH_SECRET,
-          'abkharido_enterprise_secret_2026',
-          'abkharido_jwt_secret_dev'
-        ].filter(Boolean);
+    // Lookup target user
+    const targetUser = await User.findOne({ 
+      $or: [
+        { username: targetUsername }, 
+        { phone: targetUsername }, 
+        { email: targetUsername }, 
+        { _id: targetUsername?.length === 24 ? targetUsername : undefined }
+      ].filter(Boolean) 
+    }).lean();
 
-        let decoded = null;
-        for (const sec of secrets) {
-          try {
-            decoded = jwt.verify(token, sec);
-            if (decoded) break;
-          } catch {}
-        }
-        if (!decoded) {
-          try {
-            decoded = jwt.decode(token);
-          } catch {}
-        }
+    const requesterId = auth.user.id?.toString();
+    const targetId = targetUser?._id?.toString() || targetUsername;
 
-        await connectDB();
-
-        if (decoded) {
-          // Lookup requester
-          const requester = await User.findById(decoded.id).lean() || 
-                            await User.findOne({ $or: [{ username: decoded.id }, { phone: decoded.id }, { email: decoded.id }] }).lean();
-
-          // Lookup target user
-          const targetUser = await User.findOne({ 
-            $or: [
-              { username: targetUsername }, 
-              { phone: targetUsername }, 
-              { email: targetUsername }, 
-              { _id: targetUsername?.length === 24 ? targetUsername : undefined }
-            ].filter(Boolean) 
-          }).lean();
-
-          const requesterId = requester?._id?.toString() || decoded.id?.toString();
-          const targetId = targetUser?._id?.toString() || targetUsername;
-
-          const isOwner = (requesterId && targetId && requesterId === targetId) || 
-                          decoded.id === targetUsername || 
-                          (requester?.username && requester.username === targetUsername) ||
-                          (requester?.phone && requester.phone === targetUsername) ||
-                          targetUsername === 'me';
-          
-          const requesterRole = requester?.role || decoded.role;
-          const isAdmin = ['admin', 'super_admin'].includes(requesterRole);
-          
-          if (!isOwner && !isAdmin && token !== 'mock-jwt-token') {
-            return NextResponse.json({ error: 'Not authorized to update this profile' }, { status: 403 });
-          }
-        }
-      } catch (e) {
-        console.error('[User Proxy POST Auth Error]:', e);
-      }
+    const isOwner = (requesterId && targetId && requesterId === targetId) || 
+                    auth.user.id === targetUsername || 
+                    (auth.user.username && auth.user.username === targetUsername) ||
+                    (auth.user.phone && auth.user.phone === targetUsername) ||
+                    targetUsername === 'me';
+    
+    if (!isOwner && !auth.isAdmin) {
+      return NextResponse.json({ error: 'Not authorized to update this profile' }, { status: 403 });
     }
     
     // ── Native Direct Mongoose Fallback when port 5000 is offline ──
