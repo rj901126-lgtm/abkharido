@@ -18,7 +18,7 @@ async function getAppliancesProducts() {
 }
 
 export const metadata = {
-  title: 'Buy Home & Kitchen Appliances Online India — Best Deals | AbKharido',
+  title: 'Buy Home & Kitchen Appliances Online India — Best Deals',
   description: 'Shop smart refrigerators, front-load washing machines, 5-star split ACs, air fryers & microwave ovens online in India. Free brand installation & warranty on AbKharido.',
   metadataBase: new URL(SITE_URL),
   keywords: ['buy appliances online india', 'refrigerators online india', 'washing machine sale india', 'split inverter ac best price', 'kitchen appliances india', 'abkharido appliances'],

@@ -4,7 +4,7 @@ import { HeadphonesIcon, MessageSquare, Send, User } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const CustomerTickets = () => {
-  const { showToast } = useApp();
+  const { showToast, currentUser } = useApp();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTicket, setActiveTicket] = useState(null);
@@ -13,6 +13,21 @@ const CustomerTickets = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [newSubject, setNewSubject] = useState('');
   const [newMessage, setNewMessage] = useState('');
+
+  const getUserToken = () => {
+    if (currentUser?.token) return currentUser.token;
+    if (typeof window === 'undefined') return null;
+    try {
+      const direct = localStorage.getItem('abkharido_token') || sessionStorage.getItem('abkharido_token');
+      if (direct) return direct;
+      const rawUser = localStorage.getItem('abkharido_user_session');
+      if (rawUser) {
+        const parsed = JSON.parse(rawUser);
+        return parsed?.token || null;
+      }
+    } catch (_e) {}
+    return null;
+  };
   
   // Reply State
   const [replyContent, setReplyContent] = useState('');
@@ -20,7 +35,7 @@ const CustomerTickets = () => {
   const fetchMyTickets = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('abkharido_token');
+      const token = getUserToken();
       if (!token) return;
       
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/my-tickets`, {
@@ -45,7 +60,7 @@ const CustomerTickets = () => {
     if (!newSubject.trim() || !newMessage.trim()) return;
 
     try {
-      const token = sessionStorage.getItem('abkharido_token');
+      const token = getUserToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets`, {
         method: 'POST',
         headers: { 
@@ -79,7 +94,7 @@ const CustomerTickets = () => {
     if (!replyContent.trim() || !activeTicket) return;
 
     try {
-      const token = sessionStorage.getItem('abkharido_token');
+      const token = getUserToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/${activeTicket._id}/reply`, {
         method: 'POST',
         headers: { 

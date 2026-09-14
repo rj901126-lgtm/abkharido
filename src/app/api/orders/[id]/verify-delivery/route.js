@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
+import { getAuthenticatedUser } from '../../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +11,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req, context) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth?.isAuthenticated) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     await connectDB();
     const params = await (context?.params || {});
     const id = params?.id;
@@ -32,8 +38,14 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    // Check PIN match (or fallback if PIN was not initialized)
-    const expectedPin = String(order.deliveryPin || '1234');
+    if (!order.deliveryPin) {
+      return NextResponse.json({ 
+        error: 'No Doorstep PIN configured for this order. Please use standard delivery verification.',
+        matched: false 
+      }, { status: 400 });
+    }
+
+    const expectedPin = String(order.deliveryPin).trim();
     const enteredPin = String(pin).trim();
 
     if (enteredPin !== expectedPin) {

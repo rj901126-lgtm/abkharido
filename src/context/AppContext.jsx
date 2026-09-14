@@ -265,45 +265,49 @@ export const AppProvider = ({ children }) => {
         }
       }
 
-      // 3. Fast IP Location Auto-Detection
+      // 3. Fast IP Location Auto-Detection (India only — never show foreign city)
       const ipRes = await fetch('https://ipapi.co/json/').catch(() => null);
       if (ipRes && ipRes.ok) {
         const ipData = await ipRes.json();
-        const postal = ipData.postal || '';
-        const city = ipData.city || ipData.region || 'Palghar';
-        const state = ipData.region || 'Maharashtra';
-        
-        if (postal && postal.length === 6) {
-          const info = await lookupPincodeAsync(postal);
-          const finalInfo = info || {
-            pincode: postal,
-            city,
-            state,
-            slaDays: 2,
-            deliveryDateStr: '2-3 Days',
-            isExpress: true,
-            isCodAvailable: true,
-            displayText: `${city} ${postal}`
-          };
-          setDeliveryLocation(finalInfo);
-          safeSetItem('abkharido_delivery_pincode', JSON.stringify(finalInfo));
-          if (manualTrigger) showToast(`📍 Location auto-detected: ${finalInfo.displayText}`, 'success');
-          setIsDetectingLocation(false);
-          return finalInfo;
-        } else if (city) {
-          const fallbackPin = city.toLowerCase().includes('palghar') ? '401404' : (city.toLowerCase().includes('mumbai') || city.toLowerCase().includes('thane') ? '400001' : '401404');
-          const info = lookupPincode(fallbackPin);
-          const finalInfo = {
-            ...info,
-            city: city || 'Palghar',
-            displayText: `${city || 'Palghar'} ${fallbackPin}`
-          };
-          setDeliveryLocation(finalInfo);
-          safeSetItem('abkharido_delivery_pincode', JSON.stringify(finalInfo));
-          if (manualTrigger) showToast(`📍 Location set: ${finalInfo.displayText}`, 'success');
-          setIsDetectingLocation(false);
-          return finalInfo;
+        // Only use IP geolocation result if it resolves to India
+        if (ipData.country_code === 'IN') {
+          const postal = ipData.postal || '';
+          const city = ipData.city || ipData.region || 'Palghar';
+          const state = ipData.region || 'Maharashtra';
+
+          if (postal && postal.length === 6) {
+            const info = await lookupPincodeAsync(postal);
+            const finalInfo = info || {
+              pincode: postal,
+              city,
+              state,
+              slaDays: 2,
+              deliveryDateStr: '2-3 Days',
+              isExpress: true,
+              isCodAvailable: true,
+              displayText: `${city} ${postal}`
+            };
+            setDeliveryLocation(finalInfo);
+            safeSetItem('abkharido_delivery_pincode', JSON.stringify(finalInfo));
+            if (manualTrigger) showToast(`📍 Location auto-detected: ${finalInfo.displayText}`, 'success');
+            setIsDetectingLocation(false);
+            return finalInfo;
+          } else if (city) {
+            const fallbackPin = city.toLowerCase().includes('palghar') ? '401404' : (city.toLowerCase().includes('mumbai') || city.toLowerCase().includes('thane') ? '400001' : '401404');
+            const info = lookupPincode(fallbackPin);
+            const finalInfo = {
+              ...info,
+              city: city || 'Palghar',
+              displayText: `${city || 'Palghar'} ${fallbackPin}`
+            };
+            setDeliveryLocation(finalInfo);
+            safeSetItem('abkharido_delivery_pincode', JSON.stringify(finalInfo));
+            if (manualTrigger) showToast(`📍 Location set: ${finalInfo.displayText}`, 'success');
+            setIsDetectingLocation(false);
+            return finalInfo;
+          }
         }
+        // Non-Indian IP → fall through to hardcoded Palghar default below
       }
     } catch (e) {
       console.warn('[AppContext] Location detection error:', e);

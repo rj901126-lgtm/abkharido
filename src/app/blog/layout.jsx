@@ -2,7 +2,7 @@
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'Shopping Guides & Buying Advice | AbKharido Blog',
+  title: 'Shopping Guides & Buying Advice',
   metadataBase: new URL(SITE_URL),
   description: 'Expert buying guides, product comparisons, and online shopping tips for India. Best smartwatches, earbuds, mobiles, and more — researched and reviewed by AbKharido editorial team.',
   alternates: { canonical: `${SITE_URL}/blog` },

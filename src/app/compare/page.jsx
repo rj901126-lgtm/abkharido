@@ -4,7 +4,7 @@ import CompareClient from './CompareClient';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'Compare Products Side-by-Side | AbKharido',
+  title: 'Compare Products Side-by-Side',
   description: 'Compare prices, ratings, technical specifications, and key features of up to 4 products side-by-side on AbKharido.',
   alternates: {
     canonical: `${SITE_URL}/compare`,

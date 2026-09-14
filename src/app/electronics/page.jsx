@@ -19,7 +19,7 @@ async function getElectronicsProducts() {
 }
 
 export const metadata = {
-  title: 'Buy Electronics Online India — Best Deals with Free Delivery | AbKharido',
+  title: 'Buy Electronics Online India — Best Deals with Free Delivery',
   description: 'Shop the best electronics online in India — smartphones, laptops, smartwatches, earbuds, tablets & more. Free express delivery, 7-day returns, Cash on Delivery on AbKharido.',
   metadataBase: new URL(SITE_URL),
   keywords: ['buy electronics online india', 'electronics sale india', 'best electronics deals', 'smartphones online india', 'laptops online india', 'earbuds india', 'smartwatch india'],

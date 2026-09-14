@@ -53,16 +53,18 @@ export async function POST(req) {
 
       order.isPaid = true;
       order.paidAt = new Date();
-      order.status = 'Placed';
+      order.status = 'Confirmed';
       order.paymentResult = {
         id: String(paymentData.cf_payment_id || orderData.cf_order_id || Date.now()),
         status: 'SUCCESS',
         update_time: new Date().toISOString()
       };
+      if (!order.trackingHistory) order.trackingHistory = [];
       order.trackingHistory.push({
-        status: 'Paid (Cashfree Webhook Verified)',
+        status: 'Confirmed (Payment Verified)',
         timestamp: new Date(),
-        comment: 'Webhook verified payment success.'
+        location: 'Payment Gateway',
+        comment: 'Payment verified via Cashfree Webhook. Order confirmed and scheduled for dispatch.'
       });
 
       await order.save();

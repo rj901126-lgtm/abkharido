@@ -10,8 +10,7 @@ const ComparePage = ({ onNavigate, onNavigateProduct, initialProductIds = [] }) 
   
   // Selected product IDs for comparison (max 4)
   const [selectedIds, setSelectedIds] = useState(() => {
-    if (initialProductIds.length > 0) return initialProductIds.slice(0, 4);
-    if (products.length >= 2) return [products[0].id, products[1].id];
+    if (initialProductIds.length >= 2) return initialProductIds.slice(0, 4);
     return [];
   });
 
@@ -78,16 +77,22 @@ const ComparePage = ({ onNavigate, onNavigateProduct, initialProductIds = [] }) 
         )}
       </div>
 
-      {selectedProducts.length === 0 ? (
+      {selectedProducts.length < 2 ? (
         <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚖️</div>
-          <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', marginBottom: '8px', fontFamily: "'Outfit', sans-serif" }}>No Products Selected for Comparison</h3>
-          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>Select 2 to 4 products to compare their specifications, pricing, ratings, and features side-by-side.</p>
+          <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', marginBottom: '8px', fontFamily: "'Outfit', sans-serif" }}>
+            {selectedProducts.length === 1 ? '1 Product Selected' : 'No Products Selected for Comparison'}
+          </h3>
+          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
+            {selectedProducts.length === 1 
+              ? 'Please select at least one more product to compare their specifications side-by-side.'
+              : 'Select 2 to 4 products to compare their specifications, pricing, ratings, and features side-by-side.'}
+          </p>
           <button
             onClick={() => setShowProductPicker(true)}
             style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: '800', fontSize: '14px', cursor: 'pointer' }}
           >
-            Select Products
+            {selectedProducts.length === 1 ? 'Add Second Product' : 'Select Products'}
           </button>
         </div>
       ) : (

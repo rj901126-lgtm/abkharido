@@ -204,8 +204,8 @@ const Orders = ({ onNavigate }) => {
   };
 
   const handleShareOnWhatsApp = (order) => {
-    const pin = order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4) || '8492' : '8492');
-    const msg = `📦 Track my AbKharido.com Order #${order._id.slice(-6).toUpperCase()}\nItems: ${order.orderItems?.map(i => i.name).join(', ')}\nAmount: ₹${order.totalPrice?.toLocaleString('en-IN')}\nDoorstep PIN: ${pin}\nStatus: ${order.status}`;
+    const pin = order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4).padStart(4, '0') : '');
+    const msg = `📦 Track my AbKharido.com Order #${order._id.slice(-6).toUpperCase()}\nItems: ${order.orderItems?.map(i => i.name).join(', ')}\nAmount: ₹${order.totalPrice?.toLocaleString('en-IN')}${pin ? `\nDoorstep PIN: ${pin}` : ''}\nStatus: ${order.status}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -574,7 +574,7 @@ const Orders = ({ onNavigate }) => {
 
         {filteredOrders.map(order => {
           const isExpanded = expandedOrderId === order._id;
-          const pin = order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4) || '8492' : '8492');
+          const pin = order.deliveryPin || (order._id ? order._id.replace(/\D/g, '').slice(-4).padStart(4, '0') : '');
           const isCancelled = order.status === 'Cancelled' || order.status === 'CANCELLED';
           const isDelivered = order.status === 'Delivered';
           const itemsList = order.orderItems || order.items || [];
@@ -643,7 +643,14 @@ const Orders = ({ onNavigate }) => {
                     ? 'Delivered safely at your doorstep' 
                     : isCancelled 
                     ? 'Order cancelled • 100% Refund processed' 
-                    : `Estimated delivery: ${new Date(Date.now() + 3*24*60*60*1000).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}`}
+                    : (() => {
+                        const orderDate = new Date(order.createdAt || Date.now());
+                        const estDate = new Date(orderDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+                        if (Date.now() > estDate.getTime() && order.status !== 'Delivered') {
+                          return 'In Transit • Expected arrival shortly';
+                        }
+                        return `Estimated delivery: ${estDate.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}`;
+                      })()}
                 </div>
               </div>
 
@@ -1140,7 +1147,11 @@ const Orders = ({ onNavigate }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
               <div>
                 <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', margin: 0 }}>📜 Shipment Journey & Scans</h3>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>AWB: {trackingTimelineOrder.awbNumber || `DEL${trackingTimelineOrder._id.replace(/\D/g, '').slice(-8)}`} ({trackingTimelineOrder.courierPartner || 'Delhivery Air'})</div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                  {trackingTimelineOrder.awbNumber 
+                    ? `AWB: ${trackingTimelineOrder.awbNumber} (${trackingTimelineOrder.courierPartner || 'NimbusPost'})`
+                    : 'Awaiting Courier Dispatch & AWB Assignment'}
+                </div>
               </div>
               <button onClick={() => setTrackingTimelineOrder(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748b' }}>✕</button>
             </div>
@@ -1148,14 +1159,40 @@ const Orders = ({ onNavigate }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', position: 'relative', paddingLeft: '24px' }}>
               <div style={{ position: 'absolute', top: '10px', bottom: '10px', left: '8px', width: '2px', background: '#cbd5e1' }} />
               
-              {[
-                { title: 'Order Confirmed & Payment Verified', loc: 'New Delhi National Fulfillment Center', time: new Date(trackingTimelineOrder.createdAt).toLocaleString('en-IN'), done: true },
-                { title: '360° Quality Passed & Tamper-Sealed', loc: 'AbKharido Packing Dock', time: 'Completed', done: true },
-                { title: 'Handed Over to Express Air Cargo', loc: 'IGI Airport Air Cargo Hub', time: 'In Transit', done: trackingTimelineOrder.status !== 'Pending' && trackingTimelineOrder.status !== 'Placed' },
-                { title: `Arrived at Delivery Facility (${trackingTimelineOrder.shippingAddress?.city || 'Destination Hub'})`, loc: `${trackingTimelineOrder.shippingAddress?.city || 'Local'} Sorting Station`, time: 'Scanned', done: trackingTimelineOrder.status === 'In Transit' || trackingTimelineOrder.status === 'Shipped' || trackingTimelineOrder.status === 'Delivered' },
-                { title: 'Out for Doorstep Delivery with Associate', loc: 'Assigned Courier Rider (Rohan K. +91-9876543210)', time: 'Active', done: trackingTimelineOrder.status === 'Delivered' },
-                { title: 'Delivered Successfully via OTP Handover', loc: trackingTimelineOrder.shippingAddress?.address || 'Doorstep', time: trackingTimelineOrder.deliveredAt ? new Date(trackingTimelineOrder.deliveredAt).toLocaleString('en-IN') : 'Pending', done: trackingTimelineOrder.status === 'Delivered' }
-              ].map((ev, eIdx) => (
+              {((trackingTimelineOrder.trackingHistory && trackingTimelineOrder.trackingHistory.length > 0) 
+                ? trackingTimelineOrder.trackingHistory.map(th => ({
+                    title: th.status || 'Status Update',
+                    loc: th.location || trackingTimelineOrder.shippingAddress?.city || 'Fulfillment Center',
+                    time: th.timestamp ? new Date(th.timestamp).toLocaleString('en-IN') : 'Logged',
+                    done: true
+                  }))
+                : [
+                    { 
+                      title: 'Order Placed & Confirmed', 
+                      loc: 'Palghar Fulfillment Center', 
+                      time: new Date(trackingTimelineOrder.createdAt).toLocaleString('en-IN'), 
+                      done: true 
+                    },
+                    { 
+                      title: trackingTimelineOrder.status === 'Cancelled' ? 'Order Cancelled' : 'Order Packed & Quality Verified', 
+                      loc: 'AbKharido Warehouse Dock', 
+                      time: trackingTimelineOrder.status === 'Cancelled' ? 'Cancelled' : (trackingTimelineOrder.status !== 'Pending' && trackingTimelineOrder.status !== 'Placed' ? 'Completed' : 'Processing'), 
+                      done: trackingTimelineOrder.status !== 'Pending' && trackingTimelineOrder.status !== 'Placed' 
+                    },
+                    { 
+                      title: trackingTimelineOrder.awbNumber ? `In Transit via ${trackingTimelineOrder.courierPartner || 'Logistics Partner'}` : 'Handover to Logistics Partner', 
+                      loc: trackingTimelineOrder.shippingAddress?.city ? `In Transit to ${trackingTimelineOrder.shippingAddress.city}` : 'In Transit', 
+                      time: trackingTimelineOrder.awbNumber ? `AWB: ${trackingTimelineOrder.awbNumber}` : 'Pending Handover', 
+                      done: trackingTimelineOrder.status === 'In Transit' || trackingTimelineOrder.status === 'Shipped' || trackingTimelineOrder.status === 'Delivered' 
+                    },
+                    { 
+                      title: 'Delivered Successfully at Doorstep', 
+                      loc: trackingTimelineOrder.shippingAddress?.city || 'Doorstep Delivery', 
+                      time: trackingTimelineOrder.deliveredAt ? new Date(trackingTimelineOrder.deliveredAt).toLocaleString('en-IN') : 'Pending', 
+                      done: trackingTimelineOrder.status === 'Delivered' 
+                    }
+                  ]
+              ).map((ev, eIdx) => (
                 <div key={eIdx} style={{ position: 'relative' }}>
                   <div style={{ position: 'absolute', left: '-20px', top: '3px', width: '12px', height: '12px', borderRadius: '50%', background: ev.done ? '#10b981' : '#94a3b8', border: '2px solid #ffffff', boxShadow: ev.done ? '0 0 8px #10b981' : 'none' }} />
                   <div style={{ fontSize: '13px', fontWeight: '800', color: ev.done ? '#0f172a' : '#64748b' }}>{ev.title}</div>
@@ -1185,7 +1222,7 @@ const Orders = ({ onNavigate }) => {
             
             <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '16px', border: '2px dashed #059669', display: 'inline-block', marginBottom: '14px' }}>
               <div style={{ fontSize: '42px', fontWeight: '900', letterSpacing: '8px', color: '#065f46', fontFamily: 'monospace' }}>
-                {qrCodePinOrder.deliveryPin || qrCodePinOrder._id.replace(/\D/g, '').slice(-4) || '8492'}
+                {qrCodePinOrder.deliveryPin || (qrCodePinOrder._id ? qrCodePinOrder._id.replace(/\D/g, '').slice(-4).padStart(4, '0') : '----')}
               </div>
               <div style={{ fontSize: '11px', color: '#047857', fontWeight: '700', marginTop: '6px' }}>AUTHENTICATED HANDOVER PIN</div>
             </div>

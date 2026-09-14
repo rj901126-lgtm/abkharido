@@ -55,7 +55,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
     sender: 'bot',
     text: currentUser 
       ? `Namaste **${currentUser.fullName || currentUser.name || 'Friend'}**! 🙏 Welcome to AbKharido AI Assistant. How can I help you today?`
-      : `Namaste! 🙏 Welcome to **AbKharido 24/7 Smart Support**. How can I help you today?`,
+      : `Namaste! 🙏 Welcome to **AbKharido Smart Support**. How can I help you today?`,
     timestamp: new Date(),
     chips: [
       { id: 'track_order', label: '📦 Track My Order', action: 'track_order' },
@@ -217,13 +217,13 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
     // 6. Contact Human Support / WhatsApp
     if (q.includes('human') || q.includes('agent') || q.includes('call') || q.includes('phone') || q.includes('number') || q.includes('baat') || q.includes('help') || q.includes('contact')) {
       return {
-        text: `👤 **Connect with AbKharido Human Support Agent:**\n\n` +
-              `• 📱 **WhatsApp Support:** Instant live chat on **+91 9172600587**\n` +
-              `• ✉️ **Email Desk:** **support@abkharido.com**\n` +
-              `• ⏰ **Operating Hours:** 24x7 Priority Assistance for Verified Customers`,
+        text: `👤 **Connect with AbKharido Support:**\n\n` +
+              `• 📱 **WhatsApp:** +91 9172600587\n` +
+              `• ✉️ **Email:** support@abkharido.com\n` +
+              `• ⏰ **Hours:** Mon–Sat, 9 AM – 9 PM IST`,
         chips: [
-          { id: 'open_wa', label: '💬 Open WhatsApp Live Chat Now', action: 'human' },
-          { id: 'contact_page', label: '📞 Open Contact Page', link: '/contact' }
+          { id: 'open_wa', label: '💬 WhatsApp Us', action: 'human' },
+          { id: 'contact_page', label: '📞 Contact Page', link: '/contact' }
         ]
       };
     }
@@ -330,7 +330,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
           </div>
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: '13px', fontWeight: '800', lineHeight: 1.1 }}>AbKharido AI</div>
-            <div style={{ fontSize: '10px', color: '#a5b4fc', fontWeight: '700' }}>24/7 Live Help</div>
+            <div style={{ fontSize: '10px', color: '#a5b4fc', fontWeight: '700' }}>Instant AI Help</div>
           </div>
         </button>
       )}

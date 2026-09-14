@@ -4,7 +4,7 @@ import PartnerClient from './PartnerClient';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'Creator & Affiliate Partner Program | AbKharido',
+  title: 'Creator & Affiliate Partner Program',
   description: 'Join the AbKharido Creator Economy. Share authentic product links on WhatsApp and Instagram to earn direct bank cashbacks up to 12%.',
   alternates: {
     canonical: `${SITE_URL}/partner`,

@@ -4,7 +4,7 @@ import InfoPage from '../../views/InfoPage';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'About Us | AbKharido India - Direct Buy & Earn Marketplace',
+  title: 'About Us — Direct Buy & Earn Marketplace',
   description: 'Learn about AbKharido.com, India\'s premier direct-to-consumer e-commerce destination for verified electronics, fashion, and lifestyle products with genuine brand warranty.',
   alternates: {
     canonical: `${SITE_URL}/about`

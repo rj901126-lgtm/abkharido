@@ -13,7 +13,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com'
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "AbKharido | India's #1 Premium E-Commerce & Online Shopping Destination",
+    default: "AbKharido | Online Shopping — Electronics, Fashion & More",
     template: "%s | AbKharido"
   },
   description: "Shop 100% verified genuine electronics, flagship smartphones, luxury designer fashion, audio gear and home appliances at AbKharido. Express 24-48h Delivery across 29,000+ Indian pincodes, 7-day doorstep returns, Cash on Delivery (COD) and 0% EMI.",
@@ -47,7 +47,7 @@ export const metadata = {
     locale: 'en_IN',
     url: SITE_URL,
     siteName: 'AbKharido',
-    title: "AbKharido | India's #1 Premium E-Commerce Destination",
+    title: "AbKharido | Online Shopping — Electronics, Fashion & More",
     description: "Shop verified smartphones, designer apparel, premium audio, and lifestyle gear. Lightning-fast express delivery, 7-day returns, Cash on Delivery.",
     images: [
       {
@@ -60,16 +60,16 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "AbKharido | India's #1 Premium E-Commerce Destination",
+    title: "AbKharido | Online Shopping — Electronics, Fashion & More",
     description: "Shop verified electronics, fashion, and lifestyle. Fast shipping, 7-day returns, secure payments.",
     images: [`${SITE_URL}/logo.jpg`],
     creator: '@abkharido',
   },
   other: {
-    'geo.region': 'IN',
-    'geo.placename': 'India',
-    'geo.position': '19.0760;72.8777',
-    'ICBM': '19.0760, 72.8777',
+    'geo.region': 'IN-MH',
+    'geo.placename': 'Palghar, Maharashtra, India',
+    'geo.position': '19.6967;72.7696',
+    'ICBM': '19.6967, 72.7696',
     'rating': 'general',
     'distribution': 'global',
     'revisit-after': '1 days'
@@ -135,10 +135,10 @@ export default function RootLayout({ children }) {
       numberOfEmployees: { '@type': 'QuantitativeValue', value: 50 },
       address: {
         '@type': 'PostalAddress',
-        streetAddress: 'Outer Ring Road, Devarabeesanahalli',
-        addressLocality: 'Bengaluru',
-        addressRegion: 'Karnataka',
-        postalCode: '560103',
+        streetAddress: 'Palghar',
+        addressLocality: 'Palghar',
+        addressRegion: 'Maharashtra',
+        postalCode: '401404',
         addressCountry: 'IN'
       },
       contactPoint: [
@@ -184,16 +184,16 @@ export default function RootLayout({ children }) {
       paymentAccepted: 'Cash on Delivery, UPI, Credit Card, Debit Card, Net Banking, EMI',
       address: {
         '@type': 'PostalAddress',
-        streetAddress: 'Outer Ring Road, Devarabeesanahalli',
-        addressLocality: 'Bengaluru',
-        addressRegion: 'Karnataka',
-        postalCode: '560103',
+        streetAddress: 'Palghar',
+        addressLocality: 'Palghar',
+        addressRegion: 'Maharashtra',
+        postalCode: '401404',
         addressCountry: 'IN'
       },
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: 12.9716,
-        longitude: 77.5946
+        latitude: 19.6967,
+        longitude: 72.7696
       },
       areaServed: [
         { '@type': 'Country', name: 'India' },
@@ -224,13 +224,6 @@ export default function RootLayout({ children }) {
           { '@type': 'OfferCatalog', name: 'Appliances' }
         ]
       },
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: 4.6,
-        reviewCount: 12847,
-        bestRating: 5,
-        worstRating: 1
-      }
     }
   ];
 

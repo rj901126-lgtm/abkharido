@@ -21,7 +21,7 @@ async function getCategoriesProducts() {
 }
 
 export const metadata = {
-  title: 'All Categories - Explore Collections | AbKharido',
+  title: 'All Categories - Explore Collections',
   description: 'Browse all categories on AbKharido: Mobiles, Electronics, Designer Fashion, Home Decor, Appliances, and more with huge daily savings.',
   alternates: {
     canonical: `${SITE_URL}/categories`,

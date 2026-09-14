@@ -4,7 +4,7 @@ import InfoPage from '../../views/InfoPage';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'Frequently Asked Questions (FAQ) | AbKharido Support',
+  title: 'Frequently Asked Questions (FAQ)',
   description: 'Find instant answers to questions about order tracking, delivery timelines, 7-day returns, Cash on Delivery (COD), brand warranty, and seller onboarding on AbKharido.',
   alternates: {
     canonical: `${SITE_URL}/faq`

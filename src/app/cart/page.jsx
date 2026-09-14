@@ -4,7 +4,7 @@ import CartClient from './CartClient';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'Your Shopping Cart | AbKharido',
+  title: 'Your Shopping Cart',
   description: 'View your selected items, apply promotional discount coupons, and checkout securely on AbKharido.',
   alternates: {
     canonical: `${SITE_URL}/cart`,

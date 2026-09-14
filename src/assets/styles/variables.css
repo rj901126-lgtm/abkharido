@@ -1,4 +1,4 @@
-/* CSS Brand Tokens for AbKharido.com - India's #1 Ultra-Premium E-Commerce Palette */
+/* CSS Brand Tokens for AbKharido.com */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
@@ -23,7 +23,7 @@
   /* Neutral Colors - Slate Design System */
   --text-primary: #090d16;        /* Slate 950 for hyper contrast */
   --text-secondary: #475569;      /* Slate 600 for secondary copy */
-  --bg-page: #f8fafc;             /* Ultra crisp diamond white/slate 50 */
+  --bg-page: #f1f3f6;             /* Classic high-contrast e-commerce canvas #F1F3F6 */
   --bg-card: #ffffff;             /* Pure white containers */
   --border-light: #e2e8f0;        /* Muted Slate 200 grid lines */
   --border-focus: #6366f1;        /* Soft Indigo focus indicators */

@@ -114,9 +114,86 @@ const InfoPage = ({ infoType }) => {
             </p>
             <h3 style={styles.subtitle}>🚚 Shipping & Delivery Policy</h3>
             <p style={styles.paragraph}>
-              Orders are dispatched within 24 hours of successful placement. Express 1-Day home delivery is available 
-              for all addresses located within the Bengaluru hub zone. Shipping to other national zones takes 
-              between 3-5 business days. We offer free standard shipping on orders valued above ₹500.
+              Orders are dispatched within 24 hours of successful placement. Standard express delivery takes between 
+              2 to 5 business days across 29,000+ Indian pincodes. Free standard shipping is provided on all orders 
+              valued at ₹499 and above (₹40 delivery fee applies for orders below ₹499).
+            </p>
+          </div>
+        );
+      case 'shipping':
+        return (
+          <div>
+            <h2 style={styles.title}>Shipping & Delivery Policy</h2>
+            <p style={styles.date}>Last Updated: 2026</p>
+            <p style={styles.paragraph}>
+              At <strong>AbKharido.com</strong>, we are committed to delivering your orders swiftly, securely, and transparently 
+              to your doorstep anywhere in India.
+            </p>
+
+            <h3 style={styles.subtitle}>1. Fulfillment Hubs & Dispatch Timelines</h3>
+            <p style={styles.paragraph}>
+              All products listed on AbKharido are stocked and dispatched directly from our verified fulfillment centers in 
+              Maharashtra (Palghar &amp; Mumbai MMR) and regional logistics partners. Orders placed before 2:00 PM IST on business days 
+              are processed and dispatched within 24 hours.
+            </p>
+
+            <h3 style={styles.subtitle}>2. Estimated Delivery Timeframes</h3>
+            <p style={styles.paragraph}>
+              • <strong>Metro &amp; Tier-1 Cities (Mumbai, Delhi NCR, Bengaluru, Pune, Hyderabad, Ahmedabad):</strong> 2 to 3 business days.<br />
+              • <strong>Tier-2 &amp; Tier-3 Districts:</strong> 3 to 5 business days.<br />
+              • <strong>Special / Remote Areas:</strong> 5 to 7 business days.
+            </p>
+
+            <h3 style={styles.subtitle}>3. Shipping Charges</h3>
+            <p style={styles.paragraph}>
+              • <strong>Orders ₹499 and above:</strong> 100% FREE Delivery across India.<br />
+              • <strong>Orders below ₹499:</strong> A nominal flat shipping charge of ₹40 is applied at checkout.
+            </p>
+
+            <h3 style={styles.subtitle}>4. Live Tracking & Handover</h3>
+            <p style={styles.paragraph}>
+              Once dispatched, you will receive real-time SMS / WhatsApp tracking details with your courier partner 
+              (NimbusPost, BlueDart, or Delhivery) and AWB tracking number. You can also track your orders live in your 
+              <strong>My Orders</strong> tab.
+            </p>
+          </div>
+        );
+      case 'faq':
+        return (
+          <div>
+            <h2 style={styles.title}>Frequently Asked Questions (FAQ)</h2>
+            <p style={styles.paragraph}>
+              Quick answers to commonly asked questions about ordering, delivery, returns, and payments on AbKharido.
+            </p>
+
+            <h3 style={styles.subtitle}>📦 How do I track my order?</h3>
+            <p style={styles.paragraph}>
+              You can track your order live from the <strong>My Orders</strong> section in the top menu or by tapping on your 
+              profile. You will see real-time updates as your package moves from fulfillment to delivery.
+            </p>
+
+            <h3 style={styles.subtitle}>💵 Is Cash on Delivery (COD) available?</h3>
+            <p style={styles.paragraph}>
+              Yes! Cash on Delivery is available across most serviceable Indian pincodes for eligible items. You can choose COD 
+              at checkout.
+            </p>
+
+            <h3 style={styles.subtitle}>🔄 What is the return / replacement policy?</h3>
+            <p style={styles.paragraph}>
+              We offer an easy <strong>7-Day Doorstep Replacement Guarantee</strong> for items that arrive defective, damaged, 
+              or mismatched. Simply raise a request from your Orders page within 7 days of delivery.
+            </p>
+
+            <h3 style={styles.subtitle}>💳 What payment methods are accepted?</h3>
+            <p style={styles.paragraph}>
+              We accept UPI (Google Pay, PhonePe, Paytm), Credit &amp; Debit Cards (Visa, MasterCard, RuPay), Net Banking via 
+              Cashfree Payments, as well as Cash on Delivery.
+            </p>
+
+            <h3 style={styles.subtitle}>📞 How can I reach customer support?</h3>
+            <p style={styles.paragraph}>
+              Our support team is available Monday to Saturday, 9:00 AM to 9:00 PM IST via WhatsApp at 
+              <strong> +91 9172600587</strong> or email at <strong>support@abkharido.com</strong>.
             </p>
           </div>
         );
@@ -128,7 +205,6 @@ const InfoPage = ({ infoType }) => {
             <p className="info-paragraph">
               Need assistance with an order, payment transaction, or creator payout? Get in touch with our team directly.
             </p>
-            
 
             <div className="info-contact-card">
               <div className="info-contact-item">
@@ -136,30 +212,29 @@ const InfoPage = ({ infoType }) => {
                 <div>
                   <strong>Registered Office Address:</strong><br />
                   AbKharido Retail Private Limited,<br />
-                  Outer Ring Road, Devarabeesanahalli Village,<br />
-                  Bengaluru, Karnataka - 560103, India.
+                  Palghar, Maharashtra - 401404, India.
                 </div>
               </div>
               <div className="info-contact-item">
                 <Mail size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
                 <div>
                   <strong>Support Helpdesk:</strong><br />
-                  <a href="mailto:help@abkharido.com" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>help@abkharido.com</a>
+                  <a href="mailto:support@abkharido.com" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>support@abkharido.com</a>
+                  <span style={{ display: 'block', fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>Operating Hours: Mon–Sat, 9:00 AM – 9:00 PM IST</span>
                 </div>
               </div>
               <div className="info-contact-item">
                 <FileText size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
                 <div>
-                  <strong>Corporate Identification Number (CIN):</strong><br />
-                  U72900KA2026PTC998877
+                  <strong>WhatsApp Support:</strong><br />
+                  <a href="https://wa.me/919172600587" target="_blank" rel="noopener noreferrer" style={{ color: '#059669', fontWeight: 'bold' }}>+91 9172600587</a>
                 </div>
               </div>
             </div>
 
-            <h3 className="info-subtitle">🤝 Creator &amp; Affiliate Partnership Dashboard</h3>
+            <h3 className="info-subtitle">🤝 Creator &amp; Affiliate Partnership Desk</h3>
             <p className="info-paragraph">
-              Are you looking to view your share stats, withdraw cash commissions, or track your friend referral progress? 
-              You can access all creator tools directly inside the <strong>Affiliate / Creator Tab</strong> in the top header.
+              Looking to monetize your product recommendations or track creator commissions? Access the creator tools directly inside the <strong>Partner Hub</strong>.
             </p>
           </div>
         );
@@ -171,11 +246,13 @@ const InfoPage = ({ infoType }) => {
       <div className="info-sidebar">
         <h3 className="info-sidebar-title">Policies &amp; Info</h3>
         <div className="info-nav-menu">
-          <a href="#about" className="info-nav-link">🏢 About AbKharido</a>
-          <a href="#terms" className="info-nav-link">📄 Terms of Use</a>
-          <a href="#privacy" className="info-nav-link">🔒 Privacy Policy</a>
-          <a href="#returns" className="info-nav-link">↩️ Returns &amp; Refund</a>
-          <a href="#contact" className="info-nav-link">📞 Contact Support</a>
+          <a href="/about" className="info-nav-link">🏢 About AbKharido</a>
+          <a href="/terms" className="info-nav-link">📄 Terms of Use</a>
+          <a href="/privacy" className="info-nav-link">🔒 Privacy Policy</a>
+          <a href="/returns" className="info-nav-link">↩️ Returns &amp; Replacement</a>
+          <a href="/shipping" className="info-nav-link">🚚 Shipping &amp; Delivery</a>
+          <a href="/faq" className="info-nav-link">❓ Frequently Asked Questions</a>
+          <a href="/contact" className="info-nav-link">📞 Contact Support</a>
         </div>
       </div>
       <div className="card info-content-card">

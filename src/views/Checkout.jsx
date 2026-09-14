@@ -36,7 +36,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const [isCheckingShipping, setIsCheckingShipping] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState('online'); // default to online for smooth checkout
-  const [whatsAppUpdates, setWhatsAppUpdates] = useState(true);
+  const [whatsAppUpdates, setWhatsAppUpdates] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGuestCheckout, setIsGuestCheckout] = useState(false);
@@ -171,7 +171,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   // Price calculations — safe fallbacks to prevent NaN
   const itemsPrice = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
-  const deliveryCharge = itemsPrice > 500 ? 0 : 40;
+  const deliveryCharge = itemsPrice >= 499 ? 0 : 40;
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
   const coinsDiscount = useCoins && currentUser ? Math.min(userCoins, itemsPrice) : 0;
   

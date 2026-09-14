@@ -10,8 +10,10 @@ export const revalidate = 60; // ISR: Revalidate every 60 seconds
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: "AbKharido — India's #1 Online Shopping Destination | Free Delivery & Cash on Delivery",
-  description: "Shop 100% genuine electronics, smartphones, fashion & home products at AbKharido. Free express delivery pan-India, 7-day doorstep returns, Cash on Delivery, and exclusive deals.",
+  title: {
+    absolute: "AbKharido — Online Shopping for Electronics, Fashion & Home"
+  },
+  description: "Shop genuine electronics, smartphones, fashion & home products at AbKharido. Free express delivery, 7-day doorstep returns, Cash on Delivery, and exclusive deals.",
   keywords: [
     'online shopping india', 'buy online india', 'free delivery india', 'cash on delivery shopping india',
     'best online shopping site india 2026', 'electronics online india', 'fashion online india',
@@ -19,7 +21,7 @@ export const metadata = {
   ],
   alternates: { canonical: SITE_URL },
   openGraph: {
-    title: "AbKharido — India's Best Online Shopping | Free Delivery + COD",
+    title: "AbKharido — Online Shopping | Free Delivery + COD",
     description: "Shop genuine electronics, smartphones, fashion and lifestyle. Free express delivery, 7-day returns, Cash on Delivery available.",
     url: SITE_URL, siteName: 'AbKharido', locale: 'en_IN', type: 'website',
     images: [{ url: `${SITE_URL}/logo.jpg`, width: 1200, height: 630, alt: 'AbKharido India Online Shopping' }]

@@ -4,7 +4,7 @@ import LoginClient from './LoginClient';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'Sign In / Register | AbKharido',
+  title: 'Sign In / Register',
   description: 'Log in to your AbKharido account using SMS OTP, Google, or password to track orders, manage wallet coins, and earn rewards.',
   alternates: {
     canonical: `${SITE_URL}/login`,

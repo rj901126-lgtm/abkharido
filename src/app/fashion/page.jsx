@@ -19,7 +19,7 @@ async function getFashionProducts() {
 }
 
 export const metadata = {
-  title: 'Buy Fashion Online India — Biker Jackets, Streetwear & More | AbKharido',
+  title: 'Buy Fashion Online India — Biker Jackets, Streetwear & More',
   description: 'Shop trendy fashion online India — leather biker jackets, streetwear, sneakers & more. Free delivery, 7-day free returns, Cash on Delivery at AbKharido.',
   metadataBase: new URL(SITE_URL),
   keywords: ['buy fashion online india', 'biker jacket online india', 'leather jacket india', 'streetwear india online', 'fashion sale india free delivery', 'buy clothes online cash on delivery'],

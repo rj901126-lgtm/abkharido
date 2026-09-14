@@ -19,7 +19,7 @@ async function getMobilesProducts() {
 }
 
 export const metadata = {
-  title: 'Buy Mobile Phones Online India — Best Smartphones 2026 | AbKharido',
+  title: 'Buy Mobile Phones Online India — Best Smartphones 2026',
   description: 'Buy the latest smartphones online in India. iPhone, Samsung, OnePlus, realme — compare prices, read reviews, free delivery & 7-day returns at AbKharido.',
   metadataBase: new URL(SITE_URL),
   keywords: ['buy mobile phones online india', 'best smartphones india 2026', 'latest mobile phones india', 'iphone india price', 'samsung phone online india', 'mobile phones free delivery'],

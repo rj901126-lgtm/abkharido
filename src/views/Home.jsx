@@ -22,7 +22,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
-  const targetDate = useRef(new Date(Date.now() + 14 * 3600 * 1000 + 42 * 60 * 1000)).current;
+  const targetDate = useRef((() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
+  })()).current;
 
 
 
@@ -370,7 +373,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           >
             {slides.map((slide, idx) => {
               const slideBg = slide.imageUrl ? `url(${slide.imageUrl}) center/cover no-repeat` : (slide.bg || slide.bgGradient || 'var(--primary-color)');
-              const slideTag = slide.badge || slide.tag || '🇮🇳 PROUDLY INDIA #1 MEGASTORE';
+              const slideTag = slide.badge || slide.tag || '🇮🇳 Shop India — Direct to You';
               const slideTitle = slide.title || 'Grand Store Exclusive';
               const slideDesc = slide.subTitle || slide.desc || 'Experience authentic brand inventory, verified bank cash protection, and instant creator commission incentives.';
               const slideCat = slide.link ? slide.link.split('/').pop().replace('category=', '').replace('?','') : (slide.cat || 'all');
@@ -644,82 +647,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
       </section>
 
-      {/* ── 9. Verified Customer Reviews Grid ── */}
-      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-        <div style={{ marginBottom: '18px' }}>
-          <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-            <span>⭐</span> Verified Customer Reviews
-          </h3>
-          <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Real feedback from shoppers across India</p>
-        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '14px' }}>
-          {[
-            {
-              name: "Rajesh Sharma",
-              city: "New Delhi",
-              comment: "Ordered iPhone 16 Pro on Sunday, delivered to Delhi in 24 hours with sealed packaging. Super genuine!",
-              rating: 5,
-              item: "Apple iPhone 16 Pro 5G"
-            },
-            {
-              name: "Ananya Roy",
-              city: "Bengaluru",
-              comment: "Loved the return policy! Exchanged my footwear size seamlessly at doorstep without even having to call support.",
-              rating: 5,
-              item: "Nike Air Max Pulse"
-            },
-            {
-              name: "Vikram Patil",
-              city: "Pune",
-              comment: "Cashfree escrow security and instant 50 AB Coins cashback on UPI made checkout so rewarding. Best e-commerce site!",
-              rating: 5,
-              item: "Sony Spatial Noise-Cancelling Headphones"
-            },
-            {
-              name: "Priya Mehra",
-              city: "Mumbai",
-              comment: "Quality is top notch! The designer dress arrived in luxury box packaging with genuine tag verification.",
-              rating: 5,
-              item: "Luxe Couture Silk Ensemble"
-            }
-          ].map((review, rIdx) => (
-            <div 
-              key={rIdx} 
-              style={{
-                background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                border: '1px solid #e2e8f0',
-                borderRadius: '16px',
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '10px'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <div style={{ display: 'flex', gap: '2px' }}>
-                    {[...Array(review.rating)].map((_, i) => (
-                      <span key={i} style={{ color: '#f59e0b', fontSize: '13px' }}>★</span>
-                    ))}
-                  </div>
-                  <span style={{ fontSize: '10px', background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: '4px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
-                    ✓ Verified Buyer
-                  </span>
-                </div>
-                <p style={{ fontSize: '12px', color: '#334155', lineHeight: '1.5', margin: 0, fontStyle: 'italic' }}>
-                  &ldquo;{review.comment}&rdquo;
-                </p>
-              </div>
-              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a' }}>{review.name} ({review.city})</span>
-                <span style={{ fontSize: '10px', color: '#64748b' }}>{review.item}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       {/* ── 9.5 Verified Merchant Stores Spotlight ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '14px 12px 0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>

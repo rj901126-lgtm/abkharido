@@ -44,7 +44,7 @@ export async function generateMetadata({ params }) {
 
   if (!product || !product.name) {
     return {
-      title: 'Product Not Found | AbKharido',
+      title: 'Product Not Found',
       description: 'The requested product could not be found in the AbKharido catalog. Explore top smartphones, electronics, and fashion deals.',
     };
   }

@@ -680,12 +680,27 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
           {/* 2. Star Rating & Trust Verification Badge BEFORE Price (Flipkart / Amazon standard) */}
           <div className="product-ratings-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 14px 0', flexWrap: 'wrap' }}>
-            <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white', boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)' }}>
-              {product.rating} <Star size={12} fill="white" />
-            </span>
-            <span style={{ color: '#475569', fontSize: '13.5px', fontWeight: '600' }}>
-              {(product.reviewsCount || 0).toLocaleString()} Verified Ratings &amp; Reviews
-            </span>
+            {(() => {
+              const activeList = (reviewsList && reviewsList.length > 0) ? reviewsList : (product?.reviews || []);
+              const realCount = activeList.length;
+              if (realCount > 0) {
+                return (
+                  <>
+                    <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white', boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)' }}>
+                      {product.rating || 5} <Star size={12} fill="white" />
+                    </span>
+                    <span style={{ color: '#475569', fontSize: '13.5px', fontWeight: '600' }}>
+                      {realCount} Verified {realCount === 1 ? 'Rating & Review' : 'Ratings & Reviews'}
+                    </span>
+                  </>
+                );
+              }
+              return (
+                <span style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
+                  ⭐ Be the first to review this product
+                </span>
+              );
+            })()}
             
             {/* Proprietary A-Assured Badge Graphic */}
             <div style={{ 
@@ -1314,7 +1329,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                           { key: "Warranty Coverage", value: "1 Year Official Brand Assurance" }
                         ] : [
                           { key: "Build & Model", value: product.name || "Official Certified Model" },
-                          { key: "Operating Standard", value: "Standard 230V Indian Voltage Compatible" },
+                          { key: "Brand Assurance", value: "Verified Genuine Manufacturer Inventory" },
                           { key: "Connectivity / Interface", value: "High-Speed Universal Connectivity Standard" },
                           { key: "Warranty Coverage", value: "1 Year Comprehensive Official Brand Warranty" },
                           { key: "Authenticity Guarantee", value: "100% Original Sealed Brand Warehouse Stock" },

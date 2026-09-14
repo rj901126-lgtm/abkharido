@@ -99,16 +99,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   // Delivery Pincode Modal State
   const [isPincodeModalOpen, setIsPincodeModalOpen] = useState(false);
 
-  // Load saved delivery pincode
-  useEffect(() => {
-    try {
-      const savedPin = localStorage.getItem('abkharido_delivery_pincode');
-      const savedCity = localStorage.getItem('abkharido_delivery_city');
-      if (savedPin) setDeliveryPincode(savedPin);
-      if (savedCity) setDeliveryCity(savedCity);
-    } catch (e) {}
-  }, []);
-
   // Rotating search placeholder timer
   useEffect(() => {
     const timer = setInterval(() => {
@@ -116,41 +106,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     }, 3500);
     return () => clearInterval(timer);
   }, []);
-
-  const handlePincodeLookup = async (pin) => {
-    setTempPincode(pin);
-    setPincodeMessage('');
-    if (pin.length === 6 && /^\d+$/.test(pin)) {
-      setPincodeLoading(true);
-      try {
-        const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
-        const data = await res.json();
-        if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
-          const po = data[0].PostOffice[0];
-          const city = po.District || po.Block || po.Circle || 'India';
-          setDeliveryPincode(pin);
-          setDeliveryCity(city);
-          localStorage.setItem('abkharido_delivery_pincode', pin);
-          localStorage.setItem('abkharido_delivery_city', city);
-          setPincodeMessage(`✅ Deliverable to ${city} via Express (24-48 hrs)!`);
-          setTimeout(() => {
-            setIsPincodeModalOpen(false);
-            setPincodeMessage('');
-          }, 1200);
-        } else {
-          setPincodeMessage('⚠️ Pincode not found. Saved as standard delivery area.');
-          setDeliveryPincode(pin);
-          localStorage.setItem('abkharido_delivery_pincode', pin);
-        }
-      } catch (e) {
-        setDeliveryPincode(pin);
-        localStorage.setItem('abkharido_delivery_pincode', pin);
-        setIsPincodeModalOpen(false);
-      } finally {
-        setPincodeLoading(false);
-      }
-    }
-  };
 
   const playBeep = (freq = 800, duration = 0.15) => {
     try {

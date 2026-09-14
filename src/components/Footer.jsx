@@ -85,7 +85,7 @@ const Footer = ({ onNavigate }) => {
               <PhoneCall size={14} color="#38bdf8" /> <span>+91 9172600587 (Mon-Sat 9AM-8PM)</span>
             </a>
             <a href="https://wa.me/919172600587?text=Hi%20AbKharido%20Support" target="_blank" rel="noopener noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(37, 211, 102, 0.1)', padding: '8px 12px', borderRadius: '10px', border: '1px solid rgba(37, 211, 102, 0.2)' }}>
-              <MessageSquare size={14} color="#34d399" /> <span>WhatsApp Support 24/7</span>
+              <MessageSquare size={14} color="#34d399" /> <span>WhatsApp Support (9AM-9PM IST)</span>
             </a>
             <a href="mailto:support@abkharido.com" style={{ color: '#e2e8f0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
               <Mail size={14} color="#fbbf24" /> <span>support@abkharido.com</span>
@@ -220,7 +220,7 @@ const Footer = ({ onNavigate }) => {
       <div style={{ backgroundColor: '#05070d', padding: '20px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500', lineHeight: 1.5 }}>
-            <strong style={{ color: '#ffffff', fontWeight: '800' }}>AbKharido Retail Private Limited</strong> • Registered in New Delhi, India.
+            <strong style={{ color: '#ffffff', fontWeight: '800' }}>AbKharido Retail Private Limited</strong> • Registered in Palghar, Maharashtra, India.
             <div style={{ fontSize: '11px', color: '#64748b' }}>© 2026 AbKharido.com. 100% Genuine Direct Buy &amp; Earn Destination. All rights reserved.</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>

@@ -4,7 +4,7 @@ import WishlistClient from './WishlistClient';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
 export const metadata = {
-  title: 'My Wishlist | AbKharido',
+  title: 'My Wishlist',
   description: 'View and manage items saved to your AbKharido wishlist.',
   alternates: {
     canonical: `${SITE_URL}/wishlist`,
