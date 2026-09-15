@@ -58,10 +58,12 @@ const Orders = ({ onNavigate }) => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
+  const [showTimeSheet, setShowTimeSheet] = useState(false);
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   
+
   const [orderToCancel, setOrderToCancel] = useState(null);
   const [cancellationReason, setCancellationReason] = useState('Found a better price / deal elsewhere');
   
@@ -464,27 +466,27 @@ const Orders = ({ onNavigate }) => {
         <div className="orders-hero-top">
           <div className="orders-hero-title-group">
             <div className="orders-hero-icon">
-              <History size={18} color="#4f46e5" />
+              <History size={16} color="#4f46e5" />
             </div>
             <div>
-              <h1 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', fontFamily: "'Outfit', sans-serif", margin: 0, lineHeight: 1.2 }}>My Orders</h1>
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>Live shipment tracking & order history</span>
+              <h1 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', fontFamily: "'Outfit', sans-serif", margin: 0, lineHeight: 1.2 }}>My Orders</h1>
+              <span style={{ fontSize: '10.5px', color: '#94a3b8', fontWeight: '500' }}>Track shipments & order history</span>
             </div>
           </div>
 
-          {/* Quick Metrics */}
+          {/* Quick Metrics — tight row */}
           <div className="orders-hero-badges">
             <span className="orders-hero-badge">
-              Total: <strong style={{ color: '#0f172a' }}>{totalOrdersCount}</strong>
+              <strong style={{ color: '#0f172a' }}>{totalOrdersCount}</strong> Total
             </span>
             {activeInTransitCount > 0 && (
               <span className="orders-hero-badge" style={{ background: '#eff6ff', borderColor: '#bfdbfe', color: '#1d4ed8' }}>
-                🚚 In Transit: <strong>{activeInTransitCount}</strong>
+                🚚 <strong>{activeInTransitCount}</strong>
               </span>
             )}
             {totalDeliveredCount > 0 && (
               <span className="orders-hero-badge" style={{ background: '#f0fdf4', borderColor: '#bbf7d0', color: '#15803d' }}>
-                ✅ Delivered: <strong>{totalDeliveredCount}</strong>
+                ✅ <strong>{totalDeliveredCount}</strong>
               </span>
             )}
           </div>
@@ -492,10 +494,11 @@ const Orders = ({ onNavigate }) => {
 
         {/* Search & Filter Tabs */}
         {(orders?.length > 0 || searchQuery !== '' || statusFilter !== 'all' || timeFilter !== 'all') && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
-            <div className="orders-search-filter-row">
-              <div className="orders-search-bar">
-                <Search size={15} color="#94a3b8" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+            {/* Full-width search + compact date pill trigger on same row */}
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <div className="orders-search-bar" style={{ flex: 1 }}>
+                <Search size={13} color="#94a3b8" />
                 <input
                   type="text"
                   placeholder="Search orders, items, AWB..."
@@ -504,36 +507,37 @@ const Orders = ({ onNavigate }) => {
                   className="orders-search-input"
                 />
                 {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>
+                  <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '12px', fontWeight: '700', padding: '0', lineHeight: 1 }}>
                     ✕
                   </button>
                 )}
               </div>
 
-              {/* Date Filter Dropdown */}
-              <select
-                value={timeFilter}
-                onChange={(e) => setTimeFilter(e.target.value)}
+              {/* Custom Date Filter Pill Button — opens bottom sheet */}
+              <button
+                onClick={() => setShowTimeSheet(true)}
                 style={{
-                  padding: '7px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  padding: '0 9px',
+                  height: '35px',
                   borderRadius: '10px',
-                  background: '#f8fafc',
-                  border: '1px solid #cbd5e1',
-                  color: '#0f172a',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  outline: 'none',
+                  background: timeFilter !== 'all' ? '#eff6ff' : '#f8fafc',
+                  border: `1px solid ${timeFilter !== 'all' ? '#bfdbfe' : '#cbd5e1'}`,
+                  color: timeFilter !== 'all' ? '#1d4ed8' : '#475569',
+                  fontSize: '11px',
+                  fontWeight: '700',
                   cursor: 'pointer',
-                  height: '38px'
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  fontFamily: "'Outfit', sans-serif",
                 }}
               >
-                <option value="all">📅 All Time</option>
-                <option value="30days">Past 30 Days</option>
-                <option value="3months">Past 3 Months</option>
-                <option value="6months">Past 6 Months</option>
-                <option value="2026">Year 2026</option>
-                <option value="2025">Year 2025</option>
-              </select>
+                <Calendar size={12} />
+                {timeFilter === 'all' ? 'All Time' : timeFilter === '30days' ? '30 Days' : timeFilter === '3months' ? '3 Mo' : timeFilter === '6months' ? '6 Mo' : timeFilter}
+                <ChevronDown size={11} />
+              </button>
             </div>
 
             {/* Status Filter Chips */}
@@ -1522,6 +1526,50 @@ const Orders = ({ onNavigate }) => {
               >
                 Confirm Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════
+          Custom Time Filter Bottom Sheet Modal
+          ════════════════════════════════════════ */}
+      {showTimeSheet && (
+        <div className="orders-sheet-overlay" onClick={(e) => { if (e.target === e.currentTarget) setShowTimeSheet(false); }}>
+          <div className="orders-time-sheet">
+            <div className="orders-sheet-handle" />
+            <div className="orders-sheet-header">
+              <div>
+                <p className="orders-sheet-title">Filter by Date</p>
+                <p className="orders-sheet-subtitle">Show orders from a specific time period</p>
+              </div>
+              <button className="orders-sheet-close-btn" onClick={() => setShowTimeSheet(false)}>✕</button>
+            </div>
+            <div className="orders-time-options-list">
+              {[
+                { v: 'all', l: '📅 All Time', sub: 'Show all your orders' },
+                { v: '30days', l: '🗓 Past 30 Days', sub: 'Orders placed this month' },
+                { v: '3months', l: '📆 Past 3 Months', sub: 'Last quarter orders' },
+                { v: '6months', l: '📆 Past 6 Months', sub: 'Last 6 months' },
+                { v: '2026', l: '🗂 Year 2026', sub: 'Orders placed in 2026' },
+                { v: '2025', l: '🗂 Year 2025', sub: 'Orders placed in 2025' },
+              ].map(opt => (
+                <button
+                  key={opt.v}
+                  className={`orders-time-option-item ${timeFilter === opt.v ? 'selected' : ''}`}
+                  onClick={() => { setTimeFilter(opt.v); setShowTimeSheet(false); }}
+                >
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: 700, fontSize: '13.5px' }}>{opt.l}</div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '1px' }}>{opt.sub}</div>
+                  </div>
+                  {timeFilter === opt.v && (
+                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Check size={11} color="#ffffff" strokeWidth={3} />
+                    </div>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         </div>
