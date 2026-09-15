@@ -236,35 +236,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
 
 
-      {/* ── 2. VIP Member Ribbon (Compact single-line on mobile, sleek on desktop) ── */}
-      {currentUser && (
-        <div className="home-member-ribbon-container">
-          <div className="home-member-ribbon">
-            <div className="home-member-ribbon-left">
-              <span className="home-member-coin-pill" style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }}>
-                ✨ VIP Member
-              </span>
-              <span className="home-member-name-text">
-                Hi, {((typeof currentUser?.fullName === 'string' && currentUser.fullName.trim().split(' ')[0]) || (typeof currentUser?.name === 'string' && currentUser.name.trim().split(' ')[0]) || 'Member')}! 👋
-              </span>
-            </div>
-            <div className="home-member-ribbon-actions">
-              <button 
-                onClick={() => onNavigate('orders')}
-                className="home-member-ribbon-btn"
-              >
-                📦 Track
-              </button>
-              <button 
-                onClick={() => onNavigate('wishlist')}
-                className="home-member-ribbon-btn"
-              >
-                ❤️ Wishlist
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
 
       {/* ── 3. Hero / Banner Carousel (With Dot Indicators & Auto-Rotate) ── */}
