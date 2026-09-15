@@ -22,6 +22,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   const products = initialProducts || contextProducts || [];
   const [activeSlide, setActiveSlide] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+  const [activeCuratedTab, setActiveCuratedTab] = useState('bestsellers');
   const targetDate = useRef((() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
@@ -158,6 +159,20 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     const remainder = displayList.filter(p => p && !candidates.some(c => c && (c.id || c._id) === (p.id || p._id)));
     return [...candidates, ...remainder].slice(0, 4);
   }, [displayList, flashDeals, bestSellers]);
+
+  const topRated = React.useMemo(() => {
+    if (!Array.isArray(displayList)) return [];
+    const flashIds = new Set(flashDeals.map(p => p?.id || p?._id).filter(Boolean));
+    const candidates = displayList.filter(p => p && !flashIds.has(p.id || p._id) && Number(p.rating || 0) >= 4);
+    if (candidates.length >= 4) {
+      return [...candidates]
+        .sort((a, b) => (Number(b?.rating || 0) - Number(a?.rating || 0)) || (Number(b?.reviewsCount || 0) - Number(a?.reviewsCount || 0)))
+        .slice(0, 4);
+    }
+    return [...displayList]
+      .sort((a, b) => (Number(b?.rating || 0) - Number(a?.rating || 0)) || (Number(b?.reviewsCount || 0) - Number(a?.reviewsCount || 0)))
+      .slice(0, 4);
+  }, [displayList, flashDeals]);
 
 
   return (
@@ -560,44 +575,65 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         )}
       </section>
 
-      {/* ── 6. Best Sellers in India ── */}
-      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+      {/* ── 6. Curated Marketplace Highlights (Interactive Category Tabs) ── */}
+      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '14px 12px 0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-              <span>🔥</span> Best Sellers in India
+              <span>🛍️</span> Curated For You
             </h3>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Highest customer satisfaction ratings across all categories</p>
+            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
+              {activeCuratedTab === 'bestsellers' && "India's highest selling products with verified 5-star customer ratings"}
+              {activeCuratedTab === 'newarrivals' && "Freshly restocked premium styles and trending direct-to-consumer tech"}
+              {activeCuratedTab === 'toprated' && "Top rated buyer choices verified by 100% genuine reviews"}
+            </p>
           </div>
-          <span style={{ fontSize: '13px', color: '#4338ca', fontWeight: '800', cursor: 'pointer' }} onClick={() => onNavigate('catalog')}>
-            Explore All →
-          </span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '3px', borderRadius: '12px' }}>
+              {[
+                { id: 'bestsellers', label: '🔥 Best Sellers' },
+                { id: 'newarrivals', label: '✨ New Arrivals' },
+                { id: 'toprated', label: '⭐ Top Rated' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveCuratedTab(tab.id)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: activeCuratedTab === tab.id ? '800' : '600',
+                    background: activeCuratedTab === tab.id ? '#ffffff' : 'transparent',
+                    color: activeCuratedTab === tab.id ? '#0f172a' : '#64748b',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: activeCuratedTab === tab.id ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <span 
+              style={{ fontSize: '12.5px', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', whiteSpace: 'nowrap' }} 
+              onClick={() => onNavigate('catalog')}
+            >
+              Explore All →
+            </span>
+          </div>
         </div>
 
         <div className="product-responsive-row">
-          {(bestSellers.length > 0 ? bestSellers : displayList.slice(0, 4)).map((product, idx) => (
-            product ? <ProductCard key={product?.id || product?._id || `best-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
-          ))}
-        </div>
-      </section>
-
-      {/* ── 7. New Arrivals & Trending Picks ── */}
-      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
-          <div>
-            <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-              <span>✨</span> New Arrivals & Trending Picks
-            </h3>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Freshly restocked premium styles and high-demand electronics</p>
-          </div>
-          <span style={{ fontSize: '13px', color: '#4338ca', fontWeight: '800', cursor: 'pointer' }} onClick={() => onNavigate('catalog')}>
-            View All →
-          </span>
-        </div>
-
-        <div className="product-responsive-row">
-          {(newArrivals.length > 0 ? newArrivals : displayList.slice(0, 4)).map((product, idx) => (
-            product ? <ProductCard key={product?.id || product?._id || `new-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
+          {(activeCuratedTab === 'bestsellers'
+            ? (bestSellers.length > 0 ? bestSellers : displayList.slice(0, 4))
+            : activeCuratedTab === 'newarrivals'
+              ? (newArrivals.length > 0 ? newArrivals : displayList.slice(0, 4))
+              : (topRated.length > 0 ? topRated : displayList.slice(0, 4))
+          ).map((product, idx) => (
+            product ? <ProductCard key={product?.id || product?._id || `curated-${activeCuratedTab}-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
           ))}
         </div>
       </section>

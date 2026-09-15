@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Heart, ShoppingCart, Check, ShieldCheck, Truck, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Check, Truck, Star } from 'lucide-react';
 import LazyImage from './LazyImage';
 import ProductQuickPreviewModal from './ProductQuickPreviewModal';
 import { calculateCoinReward } from '../utils/coinUtils';
@@ -316,23 +316,10 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             )}
           </div>
 
-          {/* Financial & Trust Triggers: No-Cost EMI */}
-          {emiPerMonth > 0 && (
-            <div style={{ fontSize: '11px', color: '#475569', fontWeight: '600', marginTop: '2px' }}>
-              No-Cost EMI from <strong style={{ color: '#0f172a' }}>₹{emiPerMonth.toLocaleString('en-IN')}/mo</strong>
-            </div>
-          )}
-
-          {/* Logistics & Warranty Assurance */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px', borderTop: '1px solid #f1f5f9', paddingTop: '6px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#059669', fontWeight: '700' }}>
-              <Truck size={12} color="#059669" />
-              <span>{deliveryETA}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10.5px', color: '#64748b', fontWeight: '600' }}>
-              <ShieldCheck size={12} color="#6366f1" />
-              <span>1 Year Brand Warranty • 100% Genuine</span>
-            </div>
+          {/* Delivery Note */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10.5px', color: '#059669', fontWeight: '700', marginTop: '3px' }}>
+            <Truck size={11} color="#059669" />
+            <span>{deliveryETA}</span>
           </div>
 
           {/* Primary Marketplace Add to Cart / In Bag Stepper */}
@@ -343,14 +330,15 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 width: '100%',
-                height: '38px',
-                borderRadius: '8px',
+                height: '32px',
+                borderRadius: '6px',
                 background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                border: '1.5px solid #059669',
-                padding: '2px 4px',
+                border: '1px solid #059669',
+                padding: '2px',
                 boxSizing: 'border-box',
-                boxShadow: '0 3px 10px rgba(5, 150, 105, 0.25)',
-                color: '#ffffff'
+                boxShadow: '0 2px 6px rgba(5, 150, 105, 0.2)',
+                color: '#ffffff',
+                marginTop: '6px'
               }}
               onClick={(e) => {
                 e.stopPropagation();
@@ -365,13 +353,13 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                   updateCartQty(targetId, quantityInCart - 1);
                 }}
                 style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '6px',
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '4px',
                   background: 'rgba(255, 255, 255, 0.2)',
                   border: 'none',
                   color: '#ffffff',
-                  fontSize: '18px',
+                  fontSize: '16px',
                   fontWeight: '900',
                   cursor: 'pointer',
                   display: 'flex',
@@ -395,17 +383,17 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                 style={{
                   flex: 1,
                   textAlign: 'center',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: '800',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '4px'
+                  gap: '3px'
                 }}
                 title="View in Bag (Click to open Cart)"
               >
-                <Check size={13} strokeWidth={3} />
+                <Check size={11} strokeWidth={3} />
                 <span>{quantityInCart} in Bag</span>
               </div>
 
@@ -418,13 +406,13 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                   updateCartQty(targetId, quantityInCart + 1);
                 }}
                 style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '6px',
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '4px',
                   background: 'rgba(255, 255, 255, 0.2)',
                   border: 'none',
                   color: '#ffffff',
-                  fontSize: '18px',
+                  fontSize: '16px',
                   fontWeight: '900',
                   cursor: 'pointer',
                   display: 'flex',
@@ -496,8 +484,8 @@ const styles = {
   imageWrapper: {
     width: '100%',
     aspectRatio: '1 / 1',
-    maxHeight: '190px',
-    padding: '14px',
+    maxHeight: '150px',
+    padding: '8px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -559,21 +547,21 @@ const styles = {
     transition: 'transform 0.15s ease'
   },
   info: {
-    padding: '12px 14px 14px',
+    padding: '8px 10px 10px',
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
-    gap: '3px',
+    gap: '2px',
     boxSizing: 'border-box'
   },
   name: {
     fontFamily: "'Outfit', sans-serif",
-    fontSize: '13.5px',
+    fontSize: '12.5px',
     fontWeight: '700',
     color: '#0f172a',
-    lineHeight: '1.35',
-    minHeight: '36px',
-    maxHeight: '36px',
+    lineHeight: '1.25',
+    minHeight: '32px',
+    maxHeight: '32px',
     overflow: 'hidden',
     display: '-webkit-box',
     WebkitLineClamp: 2,
@@ -599,36 +587,37 @@ const styles = {
   },
   price: {
     fontFamily: "'Outfit', sans-serif",
-    fontSize: '16px',
+    fontSize: '15px',
     fontWeight: '900',
     color: '#0f172a',
     letterSpacing: '-0.3px',
     lineHeight: 1.1
   },
   originalPrice: {
-    fontSize: '11.5px',
+    fontSize: '11px',
     textDecoration: 'line-through',
     color: '#94a3b8',
     fontWeight: '600'
   },
   addBtn: {
-    marginTop: '10px',
+    marginTop: '6px',
     width: '100%',
-    padding: '9px 12px',
-    borderRadius: '8px',
+    padding: '6px 10px',
+    height: '32px',
+    borderRadius: '6px',
     border: 'none',
     color: '#ffffff',
     fontFamily: "'Outfit', sans-serif",
-    fontSize: '12.5px',
+    fontSize: '12px',
     fontWeight: '800',
     letterSpacing: '0.3px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '6px',
+    gap: '5px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.15)'
+    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)'
   }
 };
 

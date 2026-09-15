@@ -307,6 +307,11 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           width: 100% !important;
           box-sizing: border-box !important;
         }
+        .catalog-product-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 14px;
+        }
         @media (max-width: 900px) {
           .catalog-page-layout-container {
             display: flex !important;
@@ -319,6 +324,12 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           }
           .mobile-filter-trigger-btn {
             display: inline-flex !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .catalog-product-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
           }
         }
       `}</style>
@@ -758,19 +769,19 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           )}
         </div>
 
-        {/* ── 🛒 Product Listing Grid (3 or 4 Columns) ── */}
+        {/* ── 🛒 Product Listing Grid (Responsive Compact Multi-Columns) ── */}
         {isSearching ? (
-          <div className="grid-cols-4" style={{ gap: '16px' }}>
+          <div className="catalog-product-grid">
             {[...Array(8)].map((_, i) => (
-              <div key={i} style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #f1f5f9', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ width: '100%', height: '170px', background: '#f1f5f9', borderRadius: '8px' }} />
-                <div style={{ width: '80%', height: '16px', background: '#f1f5f9', borderRadius: '4px' }} />
-                <div style={{ width: '40%', height: '14px', background: '#f1f5f9', borderRadius: '4px' }} />
+              <div key={i} style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #f1f5f9', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ width: '100%', height: '140px', background: '#f1f5f9', borderRadius: '8px' }} />
+                <div style={{ width: '80%', height: '14px', background: '#f1f5f9', borderRadius: '4px' }} />
+                <div style={{ width: '40%', height: '12px', background: '#f1f5f9', borderRadius: '4px' }} />
               </div>
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid-cols-4" style={{ gap: '16px' }}>
+          <div className="catalog-product-grid">
             {filteredProducts.map(product => (
               <ProductCard 
                 key={product.id || product._id} 

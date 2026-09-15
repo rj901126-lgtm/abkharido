@@ -212,8 +212,8 @@ export default function ClientLayout({ children }) {
       {/* VIP Corporate E-Commerce Footer (Home page only) */}
       {isHomePage && <Footer onNavigate={handleNavigate} />}
 
-      {/* AI Smart Customer Support Assistant Bot */}
-      {!isPortalPage && !pathname?.startsWith('/checkout') && !pathname?.startsWith('/cart') && (
+      {/* AI Smart Customer Support Assistant Bot — hidden on cart, checkout, and product details pages to prevent bottom bar collision */}
+      {!isPortalPage && !pathname?.startsWith('/checkout') && !pathname?.startsWith('/cart') && !pathname?.startsWith('/product') && (
         <SmartSupportBot 
           supportPhone={globalConfig.supportPhone} 
           supportEmail={globalConfig.supportEmail} 
