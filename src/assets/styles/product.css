@@ -142,20 +142,29 @@
   margin: 0 auto;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 991px) {
   .product-page-container {
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
   
   .details-page-grid {
-    grid-template-columns: 1fr;
-    gap: 0;
-    padding: 0;
-    margin: 0;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .details-info-column {
+    padding: 8px 16px 48px 16px !important;
+    gap: 14px !important;
+  }
+
+  .gallery-trust-grid {
+    display: none !important;
   }
 }
 
@@ -169,7 +178,7 @@
   min-width: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 991px) {
   .image-showcase-column {
     position: relative;
     top: 0;
@@ -189,26 +198,26 @@
   box-sizing: border-box;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 991px) {
   .main-image-frame {
     border-radius: 0;
     border: none;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
+    border-bottom: 1px solid #f1f5f9;
     aspect-ratio: 1 / 1;
     height: auto;
-    max-height: 60vh;
+    max-height: 56vh;
     background-color: #f8fafc;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     width: 100%;
     margin-left: 0;
     margin-right: 0;
   }
 }
 
-/* Action Buttons — Desktop: inline in right column. Mobile: fixed bottom bar */
+/* Action Buttons — Desktop: inline in right column. Mobile: strictly hidden because bottom fixed bar is active */
 .action-buttons-container {
   display: block;
-  margin-top: 24px;
+  margin-top: 20px;
   position: relative;
   z-index: 10;
 }
@@ -234,6 +243,11 @@
 @media (max-width: 991px) {
   .details-image-column {
     position: static !important;
+  }
+
+  /* Redundant inline desktop purchase container hidden on mobile */
+  .action-buttons-container {
+    display: none !important;
   }
 
   .vip-fixed-bottom-purchase-bar {
@@ -296,6 +310,63 @@
   flex-direction: column;
   gap: 16px;
   min-width: 0;
+}
+
+/* Modern Unified PDP Card Design System */
+.pdp-card-clean {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  box-sizing: border-box;
+}
+
+@media (min-width: 992px) {
+  .pdp-card-clean {
+    padding: 20px 22px;
+    border-radius: 18px;
+  }
+}
+
+.mobile-trust-badges-strip {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .mobile-trust-badges-strip {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    text-align: center !important;
+  }
+  .mobile-trust-badge-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+  }
+  .mobile-trust-badge-icon {
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+  .mobile-trust-badge-label {
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    white-space: nowrap !important;
+  }
+  .mobile-trust-badge-sub {
+    font-size: 9.5px !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+  }
 }
 
 .product-title-text {
