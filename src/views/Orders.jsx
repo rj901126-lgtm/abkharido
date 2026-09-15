@@ -497,11 +497,11 @@ const Orders = ({ onNavigate }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
             {/* Full-width search + compact date pill trigger on same row */}
             <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-              <div className="orders-search-bar" style={{ flex: 1 }}>
+              <div className="orders-search-bar" style={{ flex: 1, minWidth: 0 }}>
                 <Search size={13} color="#94a3b8" />
                 <input
                   type="text"
-                  placeholder="Search orders, items, AWB..."
+                  placeholder="Search orders..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="orders-search-input"
@@ -519,19 +519,21 @@ const Orders = ({ onNavigate }) => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '3px',
-                  padding: '0 9px',
+                  gap: '4px',
+                  padding: '0 10px',
                   height: '35px',
+                  minWidth: '82px',
                   borderRadius: '10px',
                   background: timeFilter !== 'all' ? '#eff6ff' : '#f8fafc',
                   border: `1px solid ${timeFilter !== 'all' ? '#bfdbfe' : '#cbd5e1'}`,
                   color: timeFilter !== 'all' ? '#1d4ed8' : '#475569',
-                  fontSize: '11px',
+                  fontSize: '11.5px',
                   fontWeight: '700',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
                   flexShrink: 0,
                   fontFamily: "'Outfit', sans-serif",
+                  justifyContent: 'center',
                 }}
               >
                 <Calendar size={12} />
