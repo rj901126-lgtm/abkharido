@@ -147,7 +147,7 @@ img {
     top: calc(88px + env(safe-area-inset-top, 0px)) !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding: 7px 0 !important;
+    padding: 10px 0 !important;
     z-index: 900 !important;
     background: rgba(255, 255, 255, 0.98) !important;
     backdrop-filter: blur(12px) !important;
@@ -169,7 +169,6 @@ img {
   .home-page-layout-container > div:first-child {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding-top: 0 !important;
   }
 }
 
@@ -569,7 +568,7 @@ input:focus, textarea:focus, select:focus {
 @media (max-width: 768px) {
   /* Global Page Margins */
   .main-content {
-    margin-top: 104px !important;
+    margin-top: calc(88px + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
   }
   

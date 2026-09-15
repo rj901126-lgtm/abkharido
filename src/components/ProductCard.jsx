@@ -296,11 +296,6 @@ const ProductCard = ({ product, onNavigateProduct }) => {
               })()}
             </div>
 
-            {!(currentUser && currentUser.isInfluencer) && (
-              <span style={{ fontSize: '10px', color: '#b45309', fontWeight: '800', background: '#fffbeb', border: '1px solid #fde68a', padding: '1px 5px', borderRadius: '4px', whiteSpace: 'nowrap' }}>
-                🪙 +{userEarningsCoins}
-              </span>
-            )}
           </div>
 
           {/* Price Stack & Discount Row */}

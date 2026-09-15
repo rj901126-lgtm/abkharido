@@ -241,8 +241,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         <div className="home-member-ribbon-container">
           <div className="home-member-ribbon">
             <div className="home-member-ribbon-left">
-              <span className="home-member-coin-pill">
-                🪙 {currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} Coins
+              <span className="home-member-coin-pill" style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }}>
+                ✨ VIP Member
               </span>
               <span className="home-member-name-text">
                 Hi, {((typeof currentUser?.fullName === 'string' && currentUser.fullName.trim().split(' ')[0]) || (typeof currentUser?.name === 'string' && currentUser.name.trim().split(' ')[0]) || 'Member')}! 👋
@@ -495,7 +495,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         {[
           { title: "Smartphones & Audio", tag: "UP TO 40% OFF", cat: "mobiles", bg: "linear-gradient(135deg, #0c192c 0%, #1e3a8a 100%)", icon: "📱", badgeColor: "#38bdf8" },
           { title: "Designer Runway Fashion", tag: "NEW SUMMER STYLES", cat: "fashion", bg: "linear-gradient(135deg, #2b091f 0%, #831843 100%)", icon: "👗", badgeColor: "#f472b6" },
-          { title: "Smart Home & Living", tag: "INSTANT COIN REWARDS", cat: "appliances", bg: "linear-gradient(135deg, #062b20 0%, #065f46 100%)", icon: "🏠", badgeColor: "#34d399" },
+          { title: "Smart Home & Living", tag: "SMART HOME DEALS", cat: "appliances", bg: "linear-gradient(135deg, #062b20 0%, #065f46 100%)", icon: "🏠", badgeColor: "#34d399" },
           { title: "VIP Flash Clearance", tag: "LIMITED TIME DEALS", cat: "electronics", bg: "linear-gradient(135deg, #2d1804 0%, #7c2d12 100%)", icon: "⚡", badgeColor: "#fbbf24" }
         ].map((card, idx) => (
           <div 
@@ -737,30 +737,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
       </section>
 
-      {/* ── 10. Direct Buy & Earn / Creator Economy Hub ── */}
-      <section style={{ margin: '14px 12px 0 12px' }}>
-        <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%)', borderRadius: '24px', padding: '24px 20px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 30px rgba(9, 13, 22, 0.12)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-            <div>
-              <span style={{ background: '#fde047', color: '#090d16', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '900', display: 'inline-block', marginBottom: '8px' }}>
-                👑 DIRECT BUY & EARN REWARDS
-              </span>
-              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(20px, 3vw, 26px)', fontWeight: '900', marginBottom: '8px', letterSpacing: '-0.3px' }}>
-                Monetize Your Influence & Earn Coins
-              </h3>
-              <p style={{ color: '#cbd5e1', margin: 0, fontSize: '13px', maxWidth: '520px', lineHeight: '1.5', fontWeight: '500' }}>
-                Share genuine product deals on WhatsApp and Instagram to earn up to 12% cash rewards, plus redeem AB Coins for flat discounts on every order.
-              </p>
-            </div>
-            <button 
-              style={{ background: 'linear-gradient(135deg, #fde047, #f59e0b)', color: '#090d16', padding: '12px 26px', borderRadius: '30px', fontWeight: '900', fontSize: '13.5px', cursor: 'pointer', border: 'none', boxShadow: '0 8px 20px rgba(245, 158, 11, 0.3)', flexShrink: 0 }} 
-              onClick={() => onNavigate && onNavigate('partner')}
-            >
-              Join Partner Hub →
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* ── Floating Back to Top Action ── */}
       {showBackToTop && (
