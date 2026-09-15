@@ -10,6 +10,34 @@ import {
 import WorldClassInvoice from '../components/WorldClassInvoice';
 import '../assets/styles/orders.css';
 
+const OrdersSkeleton = () => (
+  <div className="orders-skeleton-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {[1, 2, 3].map((n) => (
+      <div key={n} className="ak-skeleton-card">
+        <div className="ak-skeleton-header">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="ak-skeleton-shimmer" style={{ width: '130px', height: '14px' }} />
+            <div className="ak-skeleton-shimmer" style={{ width: '80px', height: '11px' }} />
+          </div>
+          <div className="ak-skeleton-shimmer" style={{ width: '90px', height: '22px', borderRadius: '99px' }} />
+        </div>
+        <div className="ak-skeleton-body">
+          <div className="ak-skeleton-shimmer" style={{ width: '64px', height: '64px', borderRadius: '10px', flexShrink: 0 }} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="ak-skeleton-shimmer" style={{ width: '75%', height: '14px' }} />
+            <div className="ak-skeleton-shimmer" style={{ width: '40%', height: '12px' }} />
+            <div className="ak-skeleton-shimmer" style={{ width: '25%', height: '14px' }} />
+          </div>
+        </div>
+        <div className="ak-skeleton-actions">
+          <div className="ak-skeleton-shimmer" style={{ width: '80px', height: '30px', borderRadius: '8px' }} />
+          <div className="ak-skeleton-shimmer" style={{ width: '95px', height: '30px', borderRadius: '8px' }} />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const Orders = ({ onNavigate }) => {
   const router = useRouter();
   const navigateTo = (path) => {
@@ -427,59 +455,47 @@ const Orders = ({ onNavigate }) => {
     }
   };
 
-  const [isLoading, setIsLoading] = React.useState(true);
-  React.useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(t);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="orders-page" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-        <div style={{ color: '#64748b', fontWeight: '500' }}>Loading your orders...</div>
-      </div>
-    );
-  }
-
   return (
     <>
     <div className="orders-page-wrapper animate-fade-in">
 
-      {/* 🌟 Modern Hero Orders Header */}
+      {/* 🌟 Modern Hero Orders Header — Sleek, High-Contrast & Compact */}
       <div className="orders-hero-header">
         <div className="orders-hero-top">
           <div className="orders-hero-title-group">
             <div className="orders-hero-icon">
-              <History size={20} color="#ffffff" />
+              <History size={18} color="#4f46e5" />
             </div>
             <div>
-              <h1 style={{ fontSize: '20px', fontWeight: '900', color: '#ffffff', fontFamily: "'Outfit', sans-serif", margin: 0, lineHeight: 1.2 }}>My Orders</h1>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>Track live shipments, download tax invoices & request returns</span>
+              <h1 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', fontFamily: "'Outfit', sans-serif", margin: 0, lineHeight: 1.2 }}>My Orders</h1>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>Live shipment tracking & order history</span>
             </div>
           </div>
 
           {/* Quick Metrics */}
           <div className="orders-hero-badges">
             <span className="orders-hero-badge">
-              Total: <strong style={{ color: '#ffffff' }}>{totalOrdersCount}</strong>
+              Total: <strong style={{ color: '#0f172a' }}>{totalOrdersCount}</strong>
             </span>
-            <span className="orders-hero-badge">
-              In Transit: <strong style={{ color: '#38bdf8' }}>{activeInTransitCount}</strong>
-            </span>
-            <span className="orders-hero-badge">
-              Spent: <strong style={{ color: '#4ade80' }}>₹{totalSpentAmount.toLocaleString('en-IN')}</strong>
-            </span>
+            {activeInTransitCount > 0 && (
+              <span className="orders-hero-badge" style={{ background: '#eff6ff', borderColor: '#bfdbfe', color: '#1d4ed8' }}>
+                🚚 In Transit: <strong>{activeInTransitCount}</strong>
+              </span>
+            )}
+            {totalDeliveredCount > 0 && (
+              <span className="orders-hero-badge" style={{ background: '#f0fdf4', borderColor: '#bbf7d0', color: '#15803d' }}>
+                ✅ Delivered: <strong>{totalDeliveredCount}</strong>
+              </span>
+            )}
           </div>
         </div>
 
         {/* Search & Filter Tabs */}
-        {(orders.length > 0 || searchQuery !== '' || statusFilter !== 'all' || timeFilter !== 'all') && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+        {(orders?.length > 0 || searchQuery !== '' || statusFilter !== 'all' || timeFilter !== 'all') && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
             <div className="orders-search-filter-row">
               <div className="orders-search-bar">
-                <Search size={15} color="rgba(255,255,255,0.6)" />
+                <Search size={15} color="#94a3b8" />
                 <input
                   type="text"
                   placeholder="Search orders, items, AWB..."
@@ -488,7 +504,7 @@ const Orders = ({ onNavigate }) => {
                   className="orders-search-input"
                 />
                 {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>
+                  <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>
                     ✕
                   </button>
                 )}
@@ -499,24 +515,24 @@ const Orders = ({ onNavigate }) => {
                 value={timeFilter}
                 onChange={(e) => setTimeFilter(e.target.value)}
                 style={{
-                  padding: '8px 12px',
+                  padding: '7px 10px',
                   borderRadius: '10px',
-                  background: 'rgba(255,255,255,0.12)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#ffffff',
+                  background: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  color: '#0f172a',
                   fontSize: '12px',
-                  fontWeight: '700',
+                  fontWeight: '600',
                   outline: 'none',
                   cursor: 'pointer',
-                  height: '100%'
+                  height: '38px'
                 }}
               >
-                <option value="all" style={{ background: '#1e1b4b', color: 'white' }}>📅 All Time</option>
-                <option value="30days" style={{ background: '#1e1b4b', color: 'white' }}>Past 30 Days</option>
-                <option value="3months" style={{ background: '#1e1b4b', color: 'white' }}>Past 3 Months</option>
-                <option value="6months" style={{ background: '#1e1b4b', color: 'white' }}>Past 6 Months</option>
-                <option value="2026" style={{ background: '#1e1b4b', color: 'white' }}>Year 2026</option>
-                <option value="2025" style={{ background: '#1e1b4b', color: 'white' }}>Year 2025</option>
+                <option value="all">📅 All Time</option>
+                <option value="30days">Past 30 Days</option>
+                <option value="3months">Past 3 Months</option>
+                <option value="6months">Past 6 Months</option>
+                <option value="2026">Year 2026</option>
+                <option value="2025">Year 2025</option>
               </select>
             </div>
 
@@ -541,11 +557,14 @@ const Orders = ({ onNavigate }) => {
         )}
       </div>
 
-      {isFetching ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 20px', textAlign: 'center' }}>
-          <div style={{ width: '32px', height: '32px', border: '3px solid #e0e7ff', borderTop: '3px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '12px' }}></div>
-          <div style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>Fetching orders...</div>
-        </div>
+      {/* Subtle top indicator if fetching in background while items are displayed */}
+      {isFetching && filteredOrders.length > 0 && (
+        <div style={{ height: '3px', background: 'linear-gradient(90deg, #4f46e5, #06b6d4, #4f46e5)', backgroundSize: '200% 100%', animation: 'ak-skeleton-shimmer 1.2s infinite linear', borderRadius: '4px', marginBottom: '10px' }} />
+      )}
+
+      {/* Shimmer skeleton screen (Amazon/Flipkart style) during initial load or empty fetch */}
+      {(isFetching && filteredOrders.length === 0) || (!orders && isFetching) ? (
+        <OrdersSkeleton />
       ) : filteredOrders.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', textAlign: 'center' }}>
           <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px', boxShadow: '0 12px 36px rgba(79, 70, 229, 0.25)' }}>
