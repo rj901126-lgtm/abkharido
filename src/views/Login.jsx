@@ -382,7 +382,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
               padding: '6px',
               boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
             }}>
-              <img src="/favicon.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             <div>
               <span className="lp-brand-text" style={{ fontSize: '28px', fontStyle: 'normal', display: 'block', lineHeight: 1.1 }}>
@@ -415,14 +415,6 @@ const Login = ({ onNavigate, callbackUrl }) => {
               <div>
                 <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>Zero Middleman Margin</div>
                 <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Direct shipment from manufacturers with genuine brand assurance and express air-dispatch.</div>
-              </div>
-            </div>
-
-            <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '24px', background: 'rgba(245, 158, 11, 0.2)', padding: '10px', borderRadius: '12px' }}>🪙</span>
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>Instant 100 Welcome Coins</div>
-                <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Get ₹100 value in AB Coins immediately credited upon login to redeem on your cart.</div>
               </div>
             </div>
           </div>
@@ -491,7 +483,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   padding: '5px',
                   flexShrink: 0
                 }}>
-                  <img src="/favicon.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
                 <div>
                   <div style={{ fontSize: '20px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.3px', lineHeight: 1.2 }}>
@@ -570,7 +562,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   padding: '6px',
                   flexShrink: 0
                 }}>
-                  <img src="/favicon.png" alt="AbKharido Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/logo.png" alt="AbKharido Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
                 <div>
                   <div style={{ fontSize: '22px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.4px', lineHeight: 1.2 }}>
@@ -704,7 +696,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                     justifyContent: 'center',
                     gap: '8px',
                     transition: 'all 0.2s ease',
-                    marginTop: '12px'
+                    marginTop: '14px'
                   }}
                 >
                   {isSending ? 'Sending Authentic OTP...' : 'CONTINUE'}
@@ -712,27 +704,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
                 </button>
               </form>
 
-              {/* VIP Welcome Perks Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginTop: '20px', textAlign: 'center' }}>
-                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '10px 6px' }}>
-                  <div style={{ fontSize: '16px', marginBottom: '2px' }}>🪙</div>
-                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#92400e' }}>100 Coins</div>
-                  <div style={{ fontSize: '9.5px', color: '#b45309', fontWeight: '600' }}>Free Welcome</div>
-                </div>
-                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '10px 6px' }}>
-                  <div style={{ fontSize: '16px', marginBottom: '2px' }}>🚚</div>
-                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#1e40af' }}>Express Air</div>
-                  <div style={{ fontSize: '9.5px', color: '#3b82f6', fontWeight: '600' }}>Fast Dispatch</div>
-                </div>
-                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '10px 6px' }}>
-                  <div style={{ fontSize: '16px', marginBottom: '2px' }}>🛡️</div>
-                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#166534' }}>100% Brand</div>
-                  <div style={{ fontSize: '9.5px', color: '#15803d', fontWeight: '600' }}>Official Warranty</div>
-                </div>
-              </div>
-
               {/* Terms & Privacy */}
-              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '20px', fontSize: '12px', color: '#64748b' }}>
+              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '18px', fontSize: '12px', color: '#64748b' }}>
                 <CheckCircle size={14} color="#10b981" />
                 <span>
                   By proceeding, you agree to our <span onClick={() => onNavigate('info?tab=terms')} style={{ color: '#2563eb', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}>Terms</span> &amp; <span onClick={() => onNavigate('info?tab=privacy')} style={{ color: '#2563eb', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</span>
