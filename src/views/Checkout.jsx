@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ShieldCheck, Tag, Download, Coins } from 'lucide-react';
+import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ArrowLeft, ShieldCheck, Tag, Download, Coins } from 'lucide-react';
 import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '../utils/constants';
 import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
@@ -659,7 +659,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   }
 
   return (
-    <div className="container animate-fade-in desktop-premium-checkout" style={{ padding: '24px 0 150px 0', maxWidth: '800px' }}>
+    <div className="container animate-fade-in-only desktop-premium-checkout" style={{ padding: '24px 0 150px 0', maxWidth: '800px' }}>
       
       {/* Wizard Step Progress Tracker */}
       {step < 4 && (
@@ -890,7 +890,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 className="btn btn-primary checkout-btn"
                 style={{ width: '100%' }}
               >
-                Deliver to this Address →
+                <span className="desktop-only-text">Deliver to this Address →</span>
+                <span className="mobile-only-text">Deliver Here →</span>
               </button>
             </div>
           </div>
@@ -1142,8 +1143,14 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               </div>
             </div>
             <div className="checkout-sticky-actions">
-              <button className="btn btn-outline checkout-btn" style={{ flex: '0 0 75px' }} onClick={() => setStep(1)}>Back</button>
-              <button className="btn btn-accent checkout-btn" style={{ flex: 1 }} onClick={() => setStep(3)}>Proceed to Payment →</button>
+              <button type="button" className="btn btn-outline checkout-btn checkout-back-btn" onClick={() => setStep(1)} aria-label="Go back to delivery address">
+                <ArrowLeft size={16} />
+                <span className="checkout-back-text">Back</span>
+              </button>
+              <button type="button" className="btn btn-accent checkout-btn" style={{ flex: 1 }} onClick={() => setStep(3)}>
+                <span className="desktop-only-text">Proceed to Payment →</span>
+                <span className="mobile-only-text">Continue to Pay →</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1344,7 +1351,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 </div>
               </div>
               <div className="checkout-sticky-actions">
-                <button type="button" className="btn btn-outline checkout-btn" style={{ flex: '0 0 75px' }} onClick={() => setStep(2)} disabled={isSubmitting}>Back</button>
+                <button type="button" className="btn btn-outline checkout-btn checkout-back-btn" onClick={() => setStep(2)} disabled={isSubmitting} aria-label="Go back to order summary">
+                  <ArrowLeft size={16} />
+                  <span className="checkout-back-text">Back</span>
+                </button>
                 <button type="submit" className="btn btn-accent checkout-btn" style={{ flex: 1 }} disabled={isSubmitting}>
                   {isSubmitting ? 'Processing...' : (paymentMethod === 'cod' ? 'Place Order ⚡' : 'Pay Now ⚡')}
                 </button>

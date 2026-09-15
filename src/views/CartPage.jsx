@@ -188,7 +188,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
   const totalItemsCount = cart.reduce((acc, item) => acc + getItemQty(item), 0);
 
   return (
-    <div className="container cart-layout-grid animate-fade-in desktop-premium-cart">
+    <div className="container cart-layout-grid animate-fade-in-only desktop-premium-cart">
       
       {/* Left side: Cart Items list */}
       <div className="cart-items-section">
