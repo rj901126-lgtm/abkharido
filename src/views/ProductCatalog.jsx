@@ -335,12 +335,22 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
         .catalog-mobile-actions-bar {
           display: none;
         }
+        .catalog-breadcrumb-trail {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-bottom: 8px;
+          font-size: 12px;
+          color: #64748b;
+          font-weight: 600;
+          flex-wrap: wrap;
+        }
         @media (max-width: 900px) {
           .catalog-page-layout-container {
             display: flex !important;
             flex-direction: column !important;
-            padding: 10px 10px calc(130px + env(safe-area-inset-bottom, 20px)) !important;
-            gap: 10px !important;
+            padding: 4px 10px calc(130px + env(safe-area-inset-bottom, 20px)) !important;
+            gap: 4px !important;
           }
           .filters-sidebar {
             display: none !important;
@@ -348,11 +358,33 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           .catalog-desktop-sort {
             display: none !important;
           }
+          .catalog-breadcrumb-trail {
+            display: none !important; /* Standard across mobile e-commerce apps (Flipkart/Myntra/Amazon) to save critical above-the-fold space */
+          }
           .catalog-mobile-actions-bar {
             display: flex !important;
             gap: 8px !important;
             width: 100% !important;
-            margin-bottom: 10px !important;
+            margin-bottom: 6px !important;
+          }
+          .catalog-mobile-action-btn {
+            height: 35px !important;
+            font-size: 11.5px !important;
+            border-radius: 10px !important;
+          }
+          .catalog-chips-scroll-strip {
+            margin-bottom: 6px !important;
+            padding: 0 0 4px 0 !important;
+          }
+          .catalog-chip-pill {
+            padding: 4px 10px !important;
+            font-size: 10.5px !important;
+          }
+          .catalog-header-bar {
+            margin-bottom: 4px !important;
+          }
+          .catalog-mobile-title-row {
+            margin-bottom: 4px !important;
           }
         }
         @media (max-width: 640px) {
@@ -877,7 +909,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
         )}
 
         {/* ── 🧭 Breadcrumbs Navigation ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '12px', color: '#64748b', fontWeight: '600', flexWrap: 'wrap' }}>
+        <div className="catalog-breadcrumb-trail">
           <span 
             onClick={() => onSelectCategory && onSelectCategory('all')} 
             style={{ cursor: 'pointer', color: '#4f46e5' }}
@@ -906,10 +938,10 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
         </div>
 
         {/* ── 🏷️ Sleek Category Header + Dual Actions Bar ── */}
-        <div style={{ marginBottom: '10px' }}>
+        <div className="catalog-header-bar">
           {/* Top Title & Count Bar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '8px' }}>
-            <h1 style={{ fontSize: 'clamp(17px, 2.4vw, 22px)', fontWeight: '900', color: '#0f172a', margin: 0, fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="catalog-mobile-title-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+            <h1 style={{ fontSize: 'clamp(15px, 2.2vw, 20px)', fontWeight: '900', color: '#0f172a', margin: 0, fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>{pageHeadingTitle}</span>
               <span style={{ 
                 fontSize: '11px', 
@@ -917,7 +949,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 color: '#475569',
                 backgroundColor: '#f1f5f9',
                 border: '1px solid #e2e8f0',
-                padding: '2px 8px',
+                padding: '1.5px 7px',
                 borderRadius: '99px'
               }}>
                 {filteredProducts.length} items
