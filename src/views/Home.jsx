@@ -117,13 +117,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   };
 
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       setShowBackToTop(scrollY > 400);
-      setIsScrolled(scrollY > 70);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -205,43 +203,28 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
-      {/* ── 1. Category Strip (Full mode at top, compact sticky pill bar on scroll) ── */}
-      <section className={`home-category-strip ${isScrolled ? 'is-scrolled' : ''}`}>
+      {/* ── 1. Category Strip (Smooth, jitter-free, sticky category bar) ── */}
+      <section className="home-category-strip">
         <div className="home-category-pills-row">
-          {isScrolled ? (
-            activeVipCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
-                className="category-scroll-pill"
-                type="button"
-                aria-label={`Filter by ${cat.label}`}
+          {activeVipCategories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryClick(cat.id)}
+              className="home-category-pill-btn"
+              type="button"
+              aria-label={`Filter by ${cat.label}`}
+            >
+              <div 
+                className="category-pill-icon-wrap"
+                style={{ background: cat.bg || '#f1f5f9' }}
               >
-                <span className="pill-icon">{cat.icon}</span>
-                <span className="pill-label">{cat.label}</span>
-              </button>
-            ))
-          ) : (
-            activeVipCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
-                className="category-avatar-btn"
-                type="button"
-                aria-label={`Filter by ${cat.label}`}
-              >
-                <div 
-                  className="category-avatar-circle"
-                  style={{ background: cat.bg || '#f1f5f9' }}
-                >
-                  <span className="avatar-icon">{cat.icon}</span>
-                </div>
-                <span className="avatar-label">
-                  {cat.label}
-                </span>
-              </button>
-            ))
-          )}
+                <span className="category-pill-icon">{cat.icon}</span>
+              </div>
+              <span className="category-pill-name">
+                {cat.label}
+              </span>
+            </button>
+          ))}
         </div>
       </section>
 
@@ -352,17 +335,14 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                         </div>
                       </div>
 
-                      {/* Right: Floating Product Image Showcase with Glowing Halo */}
+                      {/* Right: Clean Studio Product Showcase Frame */}
                       <div className="signature-hero-right">
-                        <div className="sig-image-glow-aura"></div>
-                        <img 
-                          src={slide.image} 
-                          alt={slide.title} 
-                          className="signature-hero-img"
-                        />
-                        <div className="sig-verified-stamp">
-                          <span className="sig-stamp-icon">✓</span>
-                          <span className="sig-stamp-text">ORIGINAL</span>
+                        <div className="sig-studio-card">
+                          <img 
+                            src={slide.image} 
+                            alt={slide.title} 
+                            className="signature-hero-img"
+                          />
                         </div>
                       </div>
                     </div>
