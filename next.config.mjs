@@ -20,6 +20,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: false,       // Disabled — can cause build issues on some setups
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    cpus: 4,
   },
   async headers() {
     return [

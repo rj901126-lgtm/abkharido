@@ -256,115 +256,28 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
 
 
-      {/* ── 2. VIP Platinum Member Pass (Glassmorphism & Gold Theme) ── */}
+      {/* ── 2. VIP Member Ribbon (Compact single-line on mobile, sleek on desktop) ── */}
       {currentUser && (
-        <div style={{ width: '100%', padding: '0 12px' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #090d16 0%, #17153b 50%, #2e236c 100%)',
-            borderRadius: '22px',
-            padding: '16px 20px',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '14px',
-            border: '1px solid rgba(251, 191, 36, 0.22)',
-            boxShadow: '0 12px 32px -4px rgba(9, 13, 22, 0.35), inset 0 1px 0 rgba(255,255,255,0.1)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
-                color: '#1e1b4b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                fontWeight: '900',
-                boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)',
-                border: '2px solid rgba(255,255,255,0.6)'
-              }}>
-                {(() => {
-                  const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
-                    || (typeof currentUser?.name === 'string' && currentUser.name.trim())
-                    || (typeof currentUser?.username === 'string' && currentUser.username.trim())
-                    || 'U';
-                  return name.charAt(0).toUpperCase();
-                })()}
-              </div>
-              <div>
-                <div style={{ fontSize: '15px', fontWeight: '800', fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.2px' }}>
-                  Welcome back, {(() => {
-                    const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
-                      || (typeof currentUser?.name === 'string' && currentUser.name.trim())
-                      || (typeof currentUser?.username === 'string' && currentUser.username.trim())
-                      || 'Member';
-                    return name;
-                  })()}! 👋
-                </div>
-
-                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    background: 'rgba(251, 191, 36, 0.15)',
-                    border: '1px solid rgba(251, 191, 36, 0.35)',
-                    padding: '2px 8px',
-                    borderRadius: '99px',
-                    fontSize: '11.5px',
-                    fontWeight: '800',
-                    color: '#fde047'
-                  }}>
-                    🪙 {currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} AB Coins
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>• Instant Discounts</span>
-                </div>
-              </div>
+        <div className="home-member-ribbon-container">
+          <div className="home-member-ribbon">
+            <div className="home-member-ribbon-left">
+              <span className="home-member-coin-pill">
+                🪙 {currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} Coins
+              </span>
+              <span className="home-member-name-text">
+                Hi, {((typeof currentUser?.fullName === 'string' && currentUser.fullName.trim().split(' ')[0]) || (typeof currentUser?.name === 'string' && currentUser.name.trim().split(' ')[0]) || 'Member')}! 👋
+              </span>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="home-member-ribbon-actions">
               <button 
                 onClick={() => onNavigate('orders')}
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#ffffff',
-                  padding: '7px 14px',
-                  borderRadius: '99px',
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  transition: 'all 0.2s',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-                }}
+                className="home-member-ribbon-btn"
               >
-                📦 Track Orders
+                📦 Track
               </button>
               <button 
                 onClick={() => onNavigate('wishlist')}
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#ffffff',
-                  padding: '7px 14px',
-                  borderRadius: '99px',
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  transition: 'all 0.2s',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-                }}
+                className="home-member-ribbon-btn"
               >
                 ❤️ Wishlist
               </button>
@@ -379,7 +292,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         <div style={{ position: 'relative', margin: '0 12px' }}>
           <section 
             className="hero-carousel"
-            style={{ margin: 0, height: '320px', borderRadius: '20px' }}
+            style={{ margin: 0, borderRadius: '20px' }}
             onMouseEnter={() => setIsCarouselPaused(true)}
             onMouseLeave={() => setIsCarouselPaused(false)}
             onTouchStart={handleTouchStart}
@@ -470,8 +383,36 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
       )}
 
-      {/* ── 4. 4-Pillar Trust Signals USP Row ── */}
-      <div className="home-trust-grid" style={{ margin: '10px 12px 6px' }}>
+      {/* ── 4. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
+      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <span>⚡</span> Deal of the Day
+            </h3>
+            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Limited lightning deals with extra discount coupons</p>
+          </div>
+          <DealsCountdown targetDate={targetDate} />
+        </div>
+
+        {/* Product Grid / Row */}
+        {products.length === 0 ? (
+          <div className="product-responsive-row">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} style={{ height: '280px', backgroundColor: '#f1f5f9', borderRadius: '18px' }} />
+            ))}
+          </div>
+        ) : (
+          <div className="product-responsive-row">
+            {(flashDeals.length > 0 ? flashDeals : displayList.slice(0, 4)).map((product, idx) => (
+              product ? <ProductCard key={product?.id || product?._id || `flash-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ── 5. 4-Pillar Trust Signals USP Row ── */}
+      <div className="home-trust-grid" style={{ margin: '14px 12px 6px' }}>
         {[
           { icon: <Zap size={18} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
           { icon: <ShieldCheck size={18} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade payment security", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
@@ -499,7 +440,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         ))}
       </div>
 
-      {/* ── Segmented Intent-Driven Category Collection Cards ── */}
+      {/* ── 6. Segmented Intent-Driven Category Collection Cards ── */}
       <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
         {[
           { title: "Smartphones & Audio", tag: "UP TO 40% OFF", cat: "mobiles", bg: "linear-gradient(135deg, #0c192c 0%, #1e3a8a 100%)", icon: "📱", badgeColor: "#38bdf8" },
@@ -544,38 +485,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         ))}
       </div>
 
-
-      {/* ── 5. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
-      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
-          <div>
-            <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-
-              <span>⚡</span> Deal of the Day
-            </h3>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Limited lightning deals with extra discount coupons</p>
-          </div>
-          <DealsCountdown targetDate={targetDate} />
-        </div>
-
-
-        {/* Product Grid / Row */}
-        {products.length === 0 ? (
-          <div className="product-responsive-row">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{ height: '280px', backgroundColor: '#f1f5f9', borderRadius: '18px' }} />
-            ))}
-          </div>
-        ) : (
-          <div className="product-responsive-row">
-            {(flashDeals.length > 0 ? flashDeals : displayList.slice(0, 4)).map((product, idx) => (
-              product ? <ProductCard key={product?.id || product?._id || `flash-${idx}`} product={product} onNavigateProduct={onNavigateProduct} /> : null
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ── 6. Curated Marketplace Highlights (Interactive Category Tabs) ── */}
+      {/* ── 7. Curated Marketplace Highlights (Interactive Category Tabs) ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '14px 12px 0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
           <div>

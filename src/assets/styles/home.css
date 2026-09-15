@@ -19,6 +19,85 @@
 }
 
 
+/* ── VIP Member Ribbon (Compact single-line on mobile, sleek on desktop) ── */
+.home-member-ribbon-container {
+  width: 100%;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.home-member-ribbon {
+  background: linear-gradient(135deg, #090d16 0%, #17153b 50%, #2e236c 100%);
+  border-radius: 12px;
+  padding: 7px 14px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  box-shadow: 0 3px 12px rgba(9, 13, 22, 0.12);
+}
+
+.home-member-ribbon-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.home-member-coin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fde047;
+  white-space: nowrap;
+}
+
+.home-member-name-text {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Outfit', sans-serif;
+}
+
+.home-member-ribbon-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.home-member-ribbon-btn {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.home-member-ribbon-btn:active {
+  transform: scale(0.95);
+}
+
 /* Hero Carousel */
 .hero-carousel {
   position: relative;
@@ -28,14 +107,6 @@
   border-radius: 20px;
   box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
   margin-bottom: 16px;
-}
-
-@media (max-width: 768px) {
-  .hero-carousel {
-    height: 220px;
-    border-radius: 16px;
-    margin-bottom: 14px;
-  }
 }
 
 
@@ -486,8 +557,8 @@
 
 .home-trust-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
   margin: 0;
 }
 .home-brand-grid {
@@ -521,67 +592,88 @@
 
   /* ── Hero Carousel Mobile ── */
   .hero-carousel {
-    height: 220px !important;
-    border-radius: 18px !important;
-    margin: 8px 12px 14px 12px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+    height: 165px !important;
+    border-radius: 14px !important;
+    margin: 4px 10px 10px 10px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
   }
 
   .carousel-slide {
-    padding: 16px 14px !important;
+    padding: 12px 14px !important;
     justify-content: flex-end !important;
     align-items: flex-end !important;
     text-align: left !important;
   }
   .carousel-slide-overlay {
-    background: linear-gradient(0deg, rgba(9,13,22,0.95) 0%, rgba(9,13,22,0.6) 55%, rgba(9,13,22,0.1) 100%) !important;
+    background: linear-gradient(0deg, rgba(9,13,22,0.92) 0%, rgba(9,13,22,0.45) 60%, rgba(9,13,22,0.05) 100%) !important;
   }
   .slide-content-box {
-    padding: 16px 14px !important;
-    border-radius: 16px !important;
-    background: rgba(9, 13, 22, 0.55) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+    background: rgba(9, 13, 22, 0.45) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
     width: 100% !important;
     margin-bottom: 0 !important;
     margin-top: 0 !important;
   }
   .slide-title {
-    font-size: 20px !important;
+    font-size: 15px !important;
     line-height: 1.2 !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 4px !important;
     letter-spacing: -0.3px !important;
   }
   .slide-desc {
-    font-size: 12px !important;
-    margin-bottom: 12px !important;
-    line-height: 1.4 !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
+    display: none !important;
+  }
+  .slide-tag {
+    font-size: 8.5px !important;
+    padding: 2px 6px !important;
+    margin-bottom: 4px !important;
+  }
+  .hero-cta-btn {
+    padding: 5px 12px !important;
+    font-size: 11px !important;
+    border-radius: 16px !important;
+    gap: 4px !important;
   }
   .carousel-nav-btn {
     display: none !important;
   }
 
-  /* ── Trust Badges — Horizontal scroll strip on mobile ── */
+  /* ── Trust Badges — 2x2 Clean Grid on mobile ── */
   .home-trust-grid {
-    display: flex !important;
-    flex-direction: row !important;
-    overflow-x: auto !important;
-    gap: 10px !important;
-    padding: 4px 16px 4px 16px !important;
-    scrollbar-width: none !important;
-    margin: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    margin: 10px 10px 4px 10px !important;
+    overflow-x: visible !important;
   }
-  .home-trust-grid::-webkit-scrollbar { display: none; }
   .home-trust-grid > div {
-    min-width: 160px !important;
-    flex-shrink: 0 !important;
-    padding: 12px 14px !important;
-    border-radius: 14px !important;
+    min-width: unset !important;
+    flex-shrink: 1 !important;
+    padding: 8px 10px !important;
+    border-radius: 12px !important;
+    gap: 8px !important;
+  }
+  .home-trust-grid h4 {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+  .home-trust-grid p {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+  .home-trust-grid > div > div:first-child {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+  }
+  .home-trust-grid svg {
+    width: 14px !important;
+    height: 14px !important;
   }
 
   /* ── Brand Cards on mobile ── */
@@ -600,9 +692,9 @@
 
   /* ── Section containers on mobile ── */
   .home-section-card {
-    padding: 20px 16px !important;
-    border-radius: 20px !important;
-    margin: 0 12px !important;
+    padding: 16px 14px !important;
+    border-radius: 18px !important;
+    margin: 0 10px !important;
   }
 
   /* ── Affiliate banner ── */
@@ -730,27 +822,6 @@
     flex: 0 0 165px !important;
     max-width: 165px !important;
     scroll-snap-align: start;
-  }
-}
-
-/* ── 4-Pillar Trust Signals USP Grid ── */
-.home-trust-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 900px) {
-  .home-trust-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .home-trust-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
   }
 }
 
