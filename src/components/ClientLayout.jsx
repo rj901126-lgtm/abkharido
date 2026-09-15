@@ -202,8 +202,8 @@ export default function ClientLayout({ children }) {
       )}
 
       <main 
-        className={`main-content`}
-        style={isPortalPage ? { marginTop: 0 } : undefined}
+        className={`main-content ${isPortalPage ? 'portal-main' : ''}`}
+        style={isPortalPage ? { marginTop: 0, paddingTop: 0, minHeight: '100vh' } : undefined}
       >
         {children}
       </main>

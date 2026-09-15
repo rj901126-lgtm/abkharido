@@ -98,6 +98,13 @@ img {
   min-height: calc(100vh - 64px - 250px);
 }
 
+.main-content.portal-main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: 100vh !important;
+}
+
 /* Category Strip Desktop — Sleek, compact, sticky */
 .home-category-strip {
   position: relative !important;
@@ -139,6 +146,13 @@ img {
     margin-top: calc(88px + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
     min-height: calc(100vh - 88px);
+  }
+
+  .main-content.portal-main {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: 100vh !important;
   }
 
   /* Category strip on mobile: 100% sticky at top, zero-jitter, stable height */
@@ -570,6 +584,13 @@ input:focus, textarea:focus, select:focus {
   .main-content {
     margin-top: calc(88px + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .main-content.portal-main {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: 100vh !important;
   }
   
   input, select, textarea {

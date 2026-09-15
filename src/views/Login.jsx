@@ -331,26 +331,33 @@ const Login = ({ onNavigate, callbackUrl }) => {
           50% { transform: scale(1.05); opacity: 1; }
         }
         @media (max-width: 991px) {
+          .lp-wrapper {
+            min-height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: #f8fafc !important;
+          }
           .lp-left-desktop-only { display: none !important; width: 0 !important; height: 0 !important; opacity: 0 !important; visibility: hidden !important; }
           .lp-right {
-            padding: 24px 16px 60px 16px !important;
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
-            justify-content: center !important;
+            padding: 8px 12px 36px 12px !important;
+            background: #f8fafc !important;
+            justify-content: flex-start !important;
             align-items: center !important;
             width: 100% !important;
             max-width: 100vw !important;
-            min-height: 100vh !important;
+            min-height: auto !important;
             box-sizing: border-box !important;
           }
           .lp-form-card {
             width: 100% !important;
-            max-width: 440px !important;
-            border-radius: 28px !important;
+            max-width: 430px !important;
+            border-radius: 24px !important;
             border: 1px solid rgba(226, 232, 240, 0.9) !important;
-            box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08) !important;
-            padding: 28px 20px !important;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+            padding: 20px 16px !important;
             box-sizing: border-box !important;
             background: #ffffff !important;
+            margin-top: 4px !important;
           }
         }
         @media (min-width: 992px) {
@@ -385,8 +392,16 @@ const Login = ({ onNavigate, callbackUrl }) => {
               <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             <div>
-              <span className="lp-brand-text" style={{ fontSize: '28px', fontStyle: 'normal', display: 'block', lineHeight: 1.1 }}>
-                AbKharido<span className="lp-brand-dot" style={{ color: '#fde047' }}>.com</span>
+              <span style={{
+                fontFamily: "var(--font-logo, 'Outfit', sans-serif)",
+                fontSize: '28px',
+                fontWeight: '900',
+                letterSpacing: '-0.5px',
+                color: '#ffffff',
+                display: 'block',
+                lineHeight: 1.1
+              }}>
+                AbKharido<span style={{ color: '#f59e0b', fontWeight: '900' }}>.com</span>
               </span>
               <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600', letterSpacing: '0.5px' }}>
                 DIRECT BUY • VIP PRIVILEGES
@@ -486,10 +501,20 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '20px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.3px', lineHeight: 1.2 }}>
-                    AbKharido<span style={{ color: '#2563eb' }}>.com</span>
-                  </div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700' }}>
+                  <span style={{
+                    fontFamily: "var(--font-logo, 'Outfit', sans-serif)",
+                    fontSize: '22px',
+                    fontWeight: '900',
+                    letterSpacing: '-0.5px',
+                    background: 'linear-gradient(135deg, #0f172a 0%, #4338ca 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    display: 'inline-block',
+                    lineHeight: 1.15
+                  }}>
+                    AbKharido<span style={{ color: '#f59e0b', WebkitTextFillColor: '#f59e0b', fontWeight: '900' }}>.com</span>
+                  </span>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700', marginTop: '2px' }}>
                     Authentic OTP Verification
                   </div>
                 </div>
@@ -565,11 +590,21 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   <img src="/logo.png" alt="AbKharido Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.4px', lineHeight: 1.2 }}>
-                    AbKharido<span style={{ color: '#2563eb' }}>.com</span>
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '700', marginTop: '2px' }}>
-                    Direct Buy • VIP Rewards • Brand Warranty
+                  <span style={{
+                    fontFamily: "var(--font-logo, 'Outfit', sans-serif)",
+                    fontSize: '24px',
+                    fontWeight: '900',
+                    letterSpacing: '-0.5px',
+                    background: 'linear-gradient(135deg, #0f172a 0%, #4338ca 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    display: 'inline-block',
+                    lineHeight: 1.15
+                  }}>
+                    AbKharido<span style={{ color: '#f59e0b', WebkitTextFillColor: '#f59e0b', fontWeight: '900' }}>.com</span>
+                  </span>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    Direct Buy <span style={{ color: '#2563eb', fontWeight: '800' }}>&amp; Earn</span> • Brand Warranty
                   </div>
                 </div>
               </div>
