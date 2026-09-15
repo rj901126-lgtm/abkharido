@@ -307,15 +307,55 @@
   text-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
-/* --- SIGNATURE FLAGSHIP HERO SLIDE (CLEAN STUDIO LIGHT THEME) --- */
+/* --- SIGNATURE FLAGSHIP HERO SLIDE — PREMIUM DARK GRADIENT REDESIGN --- */
+@keyframes sig-glow-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes sig-badge-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes sig-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
 .signature-hero-slide {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #eff6ff 100%) !important;
-  border: 1px solid rgba(226, 232, 240, 0.8) !important;
-  padding: 0 45px !important;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
+  border: none !important;
+  padding: 0 36px !important;
   cursor: pointer;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glowing radial blob behind product image */
+.signature-hero-slide::before {
+  content: '';
+  position: absolute;
+  right: 15%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.55) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: sig-glow-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Subtle grid texture overlay */
+.signature-hero-slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
 }
 
 .signature-hero-container {
@@ -325,7 +365,7 @@
   width: 100%;
   max-width: 1080px;
   margin: 0 auto;
-  gap: 28px;
+  gap: 20px;
   position: relative;
   z-index: 2;
 }
@@ -340,37 +380,40 @@
 }
 
 .signature-hero-badge {
-  background: #fef08a;
-  color: #854d0e;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);
+  background-size: 200% auto;
+  animation: sig-badge-shimmer 2.5s linear infinite;
+  color: #1c1003;
   font-weight: 900;
-  font-size: 11px;
+  font-size: 10px;
   padding: 4px 12px;
   border-radius: 99px;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  border: 1px solid #fde047;
-  box-shadow: 0 2px 6px rgba(234, 179, 8, 0.15);
+  border: none;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.4), 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .signature-hero-title {
   font-family: 'Outfit', sans-serif;
-  font-size: clamp(20px, 3.2vw, 29px);
+  font-size: clamp(20px, 3.2vw, 30px);
   font-weight: 900;
-  color: #0f172a;
+  color: #ffffff;
   line-height: 1.15;
   margin: 0 0 4px 0;
   letter-spacing: -0.5px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
 
 .signature-hero-subtitle-block {
   display: block;
-  font-size: clamp(13px, 1.8vw, 15px);
-  font-weight: 700;
-  color: #4f46e5;
+  font-size: clamp(12px, 1.6vw, 14px);
+  font-weight: 600;
+  color: #a5b4fc;
   margin-top: 3px;
 }
 
@@ -378,51 +421,54 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin: 8px 0 12px 0;
+  margin: 10px 0 14px 0;
 }
 
 .signature-hero-chip {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #334155;
-  font-size: 11px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #e2e8f0;
+  font-size: 10.5px;
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 6px;
   white-space: nowrap;
+  backdrop-filter: blur(4px);
 }
 
 .signature-hero-price-row {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .sig-price-main {
   font-size: clamp(26px, 4vw, 36px);
   font-weight: 900;
-  color: #059669;
+  color: #4ade80;
   font-family: 'Outfit', sans-serif;
   letter-spacing: -0.5px;
+  text-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
 }
 
 .sig-price-mrp {
-  font-size: 14px;
-  color: #94a3b8;
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
   text-decoration: line-through;
   font-weight: 600;
 }
 
 .sig-discount-pill {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
-  font-size: 11px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border: none;
+  font-size: 10px;
   font-weight: 900;
-  padding: 3px 8px;
+  padding: 3px 9px;
   border-radius: 6px;
   letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
 }
 
 .signature-hero-cta-wrap {
@@ -433,15 +479,15 @@
 }
 
 .signature-hero-cta {
-  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 60%, #4338ca 100%) !important;
   color: #ffffff !important;
   font-family: 'Outfit', sans-serif !important;
-  font-size: 13.5px !important;
+  font-size: 13px !important;
   font-weight: 800 !important;
-  padding: 9px 22px !important;
+  padding: 10px 22px !important;
   border-radius: 99px !important;
-  border: none !important;
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  box-shadow: 0 6px 24px rgba(79, 70, 229, 0.5), inset 0 1px 0 rgba(255,255,255,0.2) !important;
   display: inline-flex !important;
   align-items: center !important;
   gap: 8px !important;
@@ -450,12 +496,12 @@
 }
 .signature-hero-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.45) !important;
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.6) !important;
 }
 
 .sig-guarantee-note {
-  font-size: 11px;
-  color: #64748b;
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.5);
   font-weight: 600;
 }
 
@@ -468,26 +514,30 @@
 }
 
 .sig-studio-card {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 10px 14px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: sig-float 4s ease-in-out infinite;
 }
 .signature-hero-slide:hover .sig-studio-card {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+  animation-play-state: paused;
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
 }
 
 .signature-hero-img {
   width: 250px;
   height: 195px;
   object-fit: contain;
-  mix-blend-mode: multiply;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5));
 }
 
 .carousel-nav-btn {
@@ -844,16 +894,16 @@
     box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
   }
 
-  /* ── Signature Flagship Hero Slide Mobile (Clean Studio Theme) ── */
+  /* ── Signature Flagship Hero Slide Mobile — Premium Dark Theme ── */
   .signature-hero-slide {
-    padding: 8px 12px !important;
+    padding: 8px 14px !important;
     justify-content: center !important;
     align-items: center !important;
   }
   .signature-hero-container {
     display: grid !important;
-    grid-template-columns: 1fr 125px !important;
-    gap: 8px !important;
+    grid-template-columns: 1fr 120px !important;
+    gap: 10px !important;
     align-items: center !important;
     width: 100% !important;
   }
@@ -864,15 +914,15 @@
   }
   .signature-hero-badge {
     font-size: 8px !important;
-    padding: 2px 7px !important;
-    margin-bottom: 2px !important;
-    line-height: 1.1 !important;
+    padding: 3px 8px !important;
+    margin-bottom: 4px !important;
+    line-height: 1.2 !important;
   }
   .signature-hero-title {
-    font-size: 13.5px !important;
+    font-size: 14px !important;
     line-height: 1.2 !important;
     margin: 0 0 2px 0 !important;
-    color: #0f172a !important;
+    color: #ffffff !important;
   }
   .signature-hero-subtitle-block {
     display: none !important;
@@ -881,27 +931,28 @@
     display: none !important;
   }
   .signature-hero-price-row {
-    margin: 2px 0 5px 0 !important;
+    margin: 3px 0 6px 0 !important;
     gap: 6px !important;
     display: flex !important;
     align-items: baseline !important;
   }
   .sig-price-main {
-    font-size: 19px !important;
+    font-size: 20px !important;
     line-height: 1 !important;
-    color: #059669 !important;
+    color: #4ade80 !important;
+    text-shadow: 0 0 12px rgba(74,222,128,0.4) !important;
   }
   .sig-price-mrp {
     font-size: 11px !important;
-    color: #94a3b8 !important;
+    color: rgba(255,255,255,0.4) !important;
   }
   .sig-discount-pill {
     font-size: 9px !important;
-    padding: 2px 5px !important;
+    padding: 2px 6px !important;
   }
   .signature-hero-cta {
     font-size: 11px !important;
-    padding: 6px 14px !important;
+    padding: 7px 14px !important;
     border-radius: 99px !important;
     gap: 4px !important;
   }
@@ -909,7 +960,7 @@
     display: none !important;
   }
   .signature-hero-right {
-    width: 120px !important;
+    width: 115px !important;
     height: 110px !important;
     justify-content: center !important;
     align-items: center !important;
@@ -917,17 +968,18 @@
   .sig-studio-card {
     width: 100% !important;
     height: 100% !important;
-    padding: 4px !important;
-    border-radius: 14px !important;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+    padding: 6px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    animation: none !important;
   }
   .signature-hero-img {
-    width: 115px !important;
-    height: 102px !important;
-    mix-blend-mode: multiply !important;
+    width: 106px !important;
+    height: 100px !important;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)) !important;
   }
 
   .carousel-slide {
