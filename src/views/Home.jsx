@@ -7,15 +7,13 @@ import '../assets/styles/home.css';
 
 const defaultVipCategories = [
   { id: 'mobiles', label: 'Mobiles', icon: '📱', bg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', activeBg: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)', color: '#0369a1' },
-  { id: 'electronics', label: 'Audio & Tech', icon: '🎧', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)', activeBg: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)', color: '#6d28d9' },
+  { id: 'electronics', label: 'Audio', icon: '🎧', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)', activeBg: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)', color: '#6d28d9' },
   { id: 'fashion', label: 'Fashion', icon: '👗', bg: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)', activeBg: 'linear-gradient(135deg, #e11d48 0%, #fb7185 100%)', color: '#be123c' },
   { id: 'home', label: 'Home', icon: '🏠', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', activeBg: 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)', color: '#b45309' },
   { id: 'beauty', label: 'Beauty', icon: '💄', bg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', activeBg: 'linear-gradient(135deg, #db2777 0%, #f472b6 100%)', color: '#be185d' },
   { id: 'sports', label: 'Fitness', icon: '🏋️', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', activeBg: 'linear-gradient(135deg, #059669 0%, #34d399 100%)', color: '#15803d' },
   { id: 'appliances', label: 'Appliances', icon: '🍳', bg: 'linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%)', activeBg: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)', color: '#0e7490' },
 ];
-
-
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
   const { products: contextProducts, currentUser } = useApp();
@@ -28,13 +26,31 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
   })()).current;
 
-
-
   const activeVipCategories = (promotions && promotions.vipCategories && Array.isArray(promotions.vipCategories) && promotions.vipCategories.length > 0)
     ? promotions.vipCategories
     : defaultVipCategories;
 
   const defaultSlides = [
+    {
+      isSignature: true,
+      productId: 'signature-wireless-earphone',
+      title: 'Signature Sigboom 21',
+      subTitle: 'RGB Wireless Bluetooth Speaker',
+      tag: '🔥 ABKHARIDO ORIGINAL • FLAT 50% OFF',
+      price: 379,
+      originalPrice: 758,
+      discount: '50% OFF',
+      rating: 4.5,
+      reviewsCount: 10,
+      image: 'https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg',
+      features: [
+        '🔊 360° High Bass Sound',
+        '🌈 Dynamic RGB Lights',
+        '📱 Mobile Stand Mount',
+        '🔋 12hr Battery & FM/BT/TF'
+      ],
+      cat: 'electronics'
+    },
     {
       title: 'Titanium AI Sound. Studio Perfected.',
       desc: 'Experience our flagship spatial noise-cancelling headphones. Up to 60 hours of hyper-battery and quantum acoustics.',
@@ -58,9 +74,18 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     }
   ];
 
-  const slides = (promotions && Array.isArray(promotions.banners) && promotions.banners.length > 0)
+  const baseSlides = (promotions && Array.isArray(promotions.banners) && promotions.banners.length > 0)
     ? promotions.banners
     : defaultSlides;
+
+  // Ensure Signature Sigboom 21 flagship slide is always featured at Slide 0
+  const slides = React.useMemo(() => {
+    const signatureSlide = defaultSlides[0];
+    if (baseSlides.some(s => s.isSignature || s.productId === 'signature-wireless-earphone')) {
+      return baseSlides;
+    }
+    return [signatureSlide, ...baseSlides];
+  }, [baseSlides]);
 
 
   const handleNextSlide = () => setActiveSlide((prev) => (prev + 1) % (slides.length || 1));
@@ -92,11 +117,13 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   };
 
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       setShowBackToTop(scrollY > 400);
+      setIsScrolled(scrollY > 70);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -178,73 +205,43 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
-      {/* ── 1. Category Strip (Balanced spacing, premium pastel avatars) ── */}
-      <section className="home-category-strip">
-        <div 
-          className="home-category-pills-row"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            overflowX: 'auto',
-            padding: '0 14px',
-            maxWidth: '1360px',
-            margin: '0 auto',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-          }}
-        >
-          {activeVipCategories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.id)}
-              style={{
-                flexShrink: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '5px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '3px 6px',
-                minWidth: '56px',
-                outline: 'none',
-                transition: 'transform 0.15s ease',
-              }}
-            >
-              {/* Category Circle Avatar */}
-              <div style={{
-
-
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: cat.bg || '#f1f5f9',
-                border: '1px solid rgba(0,0,0,0.06)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '19px',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
-                transition: 'transform 0.15s ease',
-              }}>
-
-                <span>{cat.icon}</span>
-              </div>
-              {/* Category Name */}
-              <span style={{
-                fontSize: '11.5px',
-                fontWeight: '700',
-                color: '#1e293b',
-                whiteSpace: 'nowrap',
-                lineHeight: 1.2,
-                letterSpacing: '-0.2px',
-              }}>
-                {cat.label}
-              </span>
-            </button>
-          ))}
+      {/* ── 1. Category Strip (Full mode at top, compact sticky pill bar on scroll) ── */}
+      <section className={`home-category-strip ${isScrolled ? 'is-scrolled' : ''}`}>
+        <div className="home-category-pills-row">
+          {isScrolled ? (
+            activeVipCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className="category-scroll-pill"
+                type="button"
+                aria-label={`Filter by ${cat.label}`}
+              >
+                <span className="pill-icon">{cat.icon}</span>
+                <span className="pill-label">{cat.label}</span>
+              </button>
+            ))
+          ) : (
+            activeVipCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className="category-avatar-btn"
+                type="button"
+                aria-label={`Filter by ${cat.label}`}
+              >
+                <div 
+                  className="category-avatar-circle"
+                  style={{ background: cat.bg || '#f1f5f9' }}
+                >
+                  <span className="avatar-icon">{cat.icon}</span>
+                </div>
+                <span className="avatar-label">
+                  {cat.label}
+                </span>
+              </button>
+            ))
+          )}
         </div>
       </section>
 
@@ -300,6 +297,79 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             onTouchEnd={handleTouchEnd}
           >
             {slides.map((slide, idx) => {
+              if (slide.isSignature) {
+                return (
+                  <div 
+                    key={slide.id || idx} 
+                    className={`carousel-slide signature-hero-slide ${idx === activeSlide ? 'active' : ''}`}
+                    onClick={() => {
+                      if (onNavigateProduct) onNavigateProduct(slide.productId || 'signature-wireless-earphone');
+                      else if (onNavigate) onNavigate(`product/${slide.productId || 'signature-wireless-earphone'}`);
+                    }}
+                  >
+                    <div className="signature-hero-container">
+                      {/* Left: Product Info & Mega Pricing */}
+                      <div className="signature-hero-left">
+                        <span className="signature-hero-badge">
+                          {slide.tag || '🔥 ABKHARIDO ORIGINAL • FLAT 50% OFF'}
+                        </span>
+                        
+                        <h2 className="signature-hero-title">
+                          {slide.title}
+                          <span className="signature-hero-subtitle-block">{slide.subTitle}</span>
+                        </h2>
+
+                        {/* Feature Badges Row */}
+                        <div className="signature-hero-chips">
+                          {slide.features && slide.features.map((feat, fIdx) => (
+                            <span key={fIdx} className="signature-hero-chip">
+                              {feat}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Pricing Box */}
+                        <div className="signature-hero-price-row">
+                          <span className="sig-price-main">₹{slide.price}</span>
+                          <span className="sig-price-mrp">M.R.P. ₹{slide.originalPrice}</span>
+                          <span className="sig-discount-pill">{slide.discount || '50% OFF'}</span>
+                        </div>
+
+                        {/* CTA Button */}
+                        <div className="signature-hero-cta-wrap">
+                          <button 
+                            type="button"
+                            className="btn signature-hero-cta"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onNavigateProduct) onNavigateProduct(slide.productId || 'signature-wireless-earphone');
+                              else if (onNavigate) onNavigate(`product/${slide.productId || 'signature-wireless-earphone'}`);
+                            }}
+                          >
+                            ⚡ BUY NOW FOR ₹{slide.price} <ArrowRight size={15} />
+                          </button>
+                          <span className="sig-guarantee-note">✓ 100% Original • COD Available</span>
+                        </div>
+                      </div>
+
+                      {/* Right: Floating Product Image Showcase with Glowing Halo */}
+                      <div className="signature-hero-right">
+                        <div className="sig-image-glow-aura"></div>
+                        <img 
+                          src={slide.image} 
+                          alt={slide.title} 
+                          className="signature-hero-img"
+                        />
+                        <div className="sig-verified-stamp">
+                          <span className="sig-stamp-icon">✓</span>
+                          <span className="sig-stamp-text">ORIGINAL</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               const slideBg = slide.imageUrl ? `url(${slide.imageUrl}) center/cover no-repeat` : (slide.bg || slide.bgGradient || 'var(--primary-color)');
               const slideTag = slide.badge || slide.tag || '🇮🇳 Shop India — Direct to You';
               const slideTitle = slide.title || 'Grand Store Exclusive';

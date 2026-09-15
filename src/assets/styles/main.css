@@ -106,8 +106,15 @@ img {
   background-color: #ffffff;
   border-bottom: 1px solid rgba(226, 232, 240, 0.85);
   box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.03);
-  padding: 14px 0 !important;
-  margin: 0 0 20px 0 !important;
+  padding: 12px 0 !important;
+  margin: 0 0 16px 0 !important;
+  transition: padding 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.home-category-strip.is-scrolled {
+  padding: 6px 0 !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
 }
 
 @media (min-width: 769px) {
@@ -141,17 +148,26 @@ img {
     min-height: calc(100vh - 88px);
   }
 
-  /* Category pill strip on mobile with exact equal top & bottom visual spacing and 0-line gap */
+  /* Category strip on mobile: 100% sticky at top, collapses to 34px pill bar on scroll */
   .home-category-strip {
     position: sticky !important;
     top: calc(88px + env(safe-area-inset-top, 0px)) !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding: 12px 0 !important;
+    padding: 8px 0 !important;
     z-index: 900 !important;
     background: #ffffff !important;
     border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+    transition: padding 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important;
+  }
+
+  .home-category-strip.is-scrolled {
+    padding: 3px 0 !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
   }
 
 

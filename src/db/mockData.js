@@ -11,6 +11,44 @@ export const CATEGORIES = [
 
 export const PRODUCTS = [
   {
+    id: 'signature-wireless-earphone',
+    name: 'Signature Sigboom 21 wireless Bluetooth Speaker',
+    category: 'electronics',
+    price: 379,
+    originalPrice: 758,
+    rating: 4.5,
+    reviewsCount: 10,
+    badge: 'TOP CHOICE',
+    image: 'https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg',
+    images: [
+      'https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg'
+    ],
+    description: 'AbKharido Original Signature Sigboom 21 Wireless Bluetooth Speaker. Features powerful 360° Dynamic RGB Party Lights, Deep Bass Sound, Built-in Phone Stand on top, FM Radio, TF card, USB, AUX, and Bluetooth 5.1 connectivity. Splash-proof and long-lasting battery life.',
+    specifications: [
+      { key: 'Connectivity', value: 'Bluetooth 5.1, AUX, USB, TF Card, FM' },
+      { key: 'Lighting', value: '360° Dynamic Multi-Color RGB Party Lights' },
+      { key: 'Special Feature', value: 'Built-in Smartphone Stand Mount' },
+      { key: 'Sound Output', value: 'High Bass Stereo Drivers' },
+      { key: 'Battery', value: 'Up to 12 Hours Playtime' },
+      { key: 'Warranty', value: '1 Year Brand Warranty' }
+    ],
+    colorModels: [
+      {
+        name: 'Party RGB Edition',
+        primaryImage: 'https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg',
+        images: [
+          'https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg'
+        ],
+        variants: [
+          { name: 'Standard', price: 379, originalPrice: 758, stock: 45, sku: 'SIG-BOOM-21-STD' }
+        ]
+      }
+    ],
+    inStock: true,
+    stock: 45,
+    freeDelivery: true
+  },
+  {
     id: 'iphone-15-pro',
     name: 'Apple iPhone 15 Pro (Titanium Gray, 128 GB)',
     category: 'mobiles',
