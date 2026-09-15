@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-// eslint-disable-next-line
-import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle } from 'lucide-react';
+import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle, ShieldCheck, Zap, Coins, Sparkles, X } from 'lucide-react';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { signIn } from 'next-auth/react';
 import { auth as firebaseAuth } from '../firebase';
@@ -325,15 +324,45 @@ const Login = ({ onNavigate, callbackUrl }) => {
 
 
   return (
-    <div className="lp-wrapper animate-fade-in" style={{ alignItems: 'stretch', flexWrap: 'nowrap' }}>
+    <div className="lp-wrapper animate-fade-in" style={{ alignItems: 'stretch', flexWrap: 'nowrap', minHeight: '100vh', background: '#f8fafc' }}>
       <style>{`
+        @keyframes lp-pulse-glow {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.05); opacity: 1; }
+        }
         @media (max-width: 991px) {
           .lp-left-desktop-only { display: none !important; width: 0 !important; height: 0 !important; opacity: 0 !important; visibility: hidden !important; }
-          .lp-right { padding: 0 !important; background: #ffffff !important; justify-content: flex-start !important; width: 100% !important; max-width: 100vw !important; overflow-x: hidden !important; }
-          .lp-form-card { width: 100% !important; max-width: 100vw !important; border-radius: 28px 28px 0 0 !important; margin-top: -24px !important; border: none !important; box-shadow: 0 -8px 24px rgba(0,0,0,0.12) !important; padding: 28px 20px 120px !important; z-index: 10 !important; flex-grow: 1 !important; box-sizing: border-box !important; }
+          .lp-right {
+            padding: 24px 16px 60px 16px !important;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            min-height: 100vh !important;
+            box-sizing: border-box !important;
+          }
+          .lp-form-card {
+            width: 100% !important;
+            max-width: 440px !important;
+            border-radius: 28px !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08) !important;
+            padding: 28px 20px !important;
+            box-sizing: border-box !important;
+            background: #ffffff !important;
+          }
         }
         @media (min-width: 992px) {
-          .lp-mobile-header { display: none !important; }
+          .lp-form-card {
+            width: 100% !important;
+            max-width: 460px !important;
+            border-radius: 28px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.06) !important;
+            padding: 36px 32px !important;
+            background: #ffffff !important;
+          }
         }
       `}</style>
       <div id="recaptcha-container"></div>
@@ -341,13 +370,28 @@ const Login = ({ onNavigate, callbackUrl }) => {
       {/* ── Desktop: Left Titanium Security & Assurance Panel ── */}
       <div className="lp-left lp-left-desktop-only">
         <div className="lp-left-content" style={{ maxWidth: '440px' }}>
-          <div className="lp-logo-row" style={{ marginBottom: '24px' }}>
-            <span className="lp-brand-text" style={{ fontSize: '28px', fontStyle: 'normal' }}>
-              AbKharido<span className="lp-brand-dot" style={{ color: '#fde047' }}>.com</span>
-            </span>
-            <span style={{ fontSize: '11px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '4px 10px', borderRadius: '100px', fontWeight: '800', color: '#38bdf8' }}>
-              🇮🇳 INDIA VIP
-            </span>
+          <div className="lp-logo-row" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              background: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '6px',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
+            }}>
+              <img src="/favicon.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
+            <div>
+              <span className="lp-brand-text" style={{ fontSize: '28px', fontStyle: 'normal', display: 'block', lineHeight: 1.1 }}>
+                AbKharido<span className="lp-brand-dot" style={{ color: '#fde047' }}>.com</span>
+              </span>
+              <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600', letterSpacing: '0.5px' }}>
+                DIRECT BUY • VIP PRIVILEGES
+              </span>
+            </div>
           </div>
 
           <h1 className="lp-left-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '36px', fontWeight: '900', lineHeight: '1.15', letterSpacing: '-0.5px', marginBottom: '16px' }}>
@@ -373,55 +417,98 @@ const Login = ({ onNavigate, callbackUrl }) => {
                 <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Direct shipment from manufacturers with genuine brand assurance and express air-dispatch.</div>
               </div>
             </div>
+
+            <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '24px', background: 'rgba(245, 158, 11, 0.2)', padding: '10px', borderRadius: '12px' }}>🪙</span>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>Instant 100 Welcome Coins</div>
+                <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Get ₹100 value in AB Coins immediately credited upon login to redeem on your cart.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* ── Right / Mobile: Form Panel ── */}
       <div className="lp-right">
-        {/* ── Mobile Vibrant Brand Header (Flipkart/Swiggy style) ── */}
-        <div className="lp-mobile-header" style={{
-          background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%)',
-          width: '100%',
-          padding: '36px 24px 52px 24px',
-          color: '#ffffff',
-          textAlign: 'left',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{ position: 'absolute', right: '-20px', bottom: '-20px', width: '160px', height: '160px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)', filter: 'blur(20px)' }} />
-          <div className="lp-logo-row" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '24px', fontWeight: '900', fontStyle: 'italic', letterSpacing: '-0.5px' }}>
-              AbKharido<span style={{ color: '#fbbf24' }}>.com</span>
-            </span>
-            <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.15)', padding: '3px 8px', borderRadius: '100px', fontWeight: '800', border: '1px solid rgba(255,255,255,0.2)' }}>
-              VIP INDIA
-            </span>
-          </div>
-          <h1 style={{ fontSize: '24px', fontWeight: '900', lineHeight: 1.25, marginBottom: '8px', letterSpacing: '-0.3px' }}>
-            India&apos;s #1 Direct Buy<br />&amp; Earn SuperStore 🚀
-          </h1>
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: '0 0 16px 0', lineHeight: 1.4 }}>
-            Login now for VIP Prices, Free Shipping &amp; Instant Cashback on every order!
-          </p>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', fontSize: '11px', fontWeight: '700', color: '#38bdf8' }}>
-            <span style={{ background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.3)', padding: '4px 10px', borderRadius: '20px' }}>⚡ Up to 70% OFF</span>
-            <span style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', color: '#34d399', padding: '4px 10px', borderRadius: '20px' }}>🛡️ 100% Assured</span>
-          </div>
-        </div>
-
         <div className="lp-form-card">
+          
+          {/* Top Row: Back to Store + Security Status */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <button 
+              type="button"
+              onClick={() => onNavigate('home')} 
+              style={{ 
+                background: '#f8fafc', 
+                border: '1px solid #e2e8f0', 
+                color: '#475569', 
+                fontSize: '12px', 
+                fontWeight: '800', 
+                padding: '6px 14px', 
+                borderRadius: '100px', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+              }}
+            >
+              <ArrowLeft size={14} /> Back to Store
+            </button>
+            
+            <span style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '5px', 
+              background: '#ecfdf5', 
+              border: '1px solid #a7f3d0', 
+              color: '#059669', 
+              fontSize: '11px', 
+              fontWeight: '800', 
+              padding: '4px 10px', 
+              borderRadius: '100px' 
+            }}>
+              <ShieldCheck size={13} /> 256-Bit SSL
+            </span>
+          </div>
+
           {/* ── OTP Screen ── */}
           {showOtpScreen ? (
             <>
-              <button className="lp-back-btn" onClick={handleGoBack}>
-                <ArrowLeft size={16} /> Back
-              </button>
-
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#eff6ff', color: '#2563eb', padding: '6px 14px', borderRadius: '100px', fontSize: '12px', fontWeight: '800', marginBottom: '12px', border: '1px solid #bfdbfe' }}>
-                <span>🔐</span> TWO-STEP SECURITY
+              {/* Brand Logo in OTP Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+                <div style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '14px',
+                  background: '#ffffff',
+                  border: '1.5px solid #e2e8f0',
+                  boxShadow: '0 4px 14px rgba(37,99,235,0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '5px',
+                  flexShrink: 0
+                }}>
+                  <img src="/favicon.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '20px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.3px', lineHeight: 1.2 }}>
+                    AbKharido<span style={{ color: '#2563eb' }}>.com</span>
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700' }}>
+                    Authentic OTP Verification
+                  </div>
+                </div>
               </div>
-              <h2 className="lp-form-title">Enter OTP Code</h2>
+
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#eff6ff', color: '#2563eb', padding: '5px 12px', borderRadius: '100px', fontSize: '11.5px', fontWeight: '800', marginBottom: '10px', border: '1px solid #bfdbfe' }}>
+                <span>🔐</span> TWO-STEP OTP SECURITY
+              </div>
+              <h2 className="lp-form-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#0f172a', margin: '0 0 4px 0' }}>
+                Enter OTP Code
+              </h2>
               
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '10px 14px', borderRadius: '14px', marginBottom: '18px', fontSize: '13px', color: '#334155', overflow: 'hidden', minWidth: 0 }}>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>SMS Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91 {phone}</strong></span>
@@ -449,7 +536,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   ))}
                 </div>
 
-                <button type="submit" className="lp-submit-btn" disabled={isVerifying} style={{ marginTop: '8px' }}>
+                <button type="submit" className="lp-submit-btn" disabled={isVerifying} style={{ marginTop: '12px' }}>
                   {isVerifying ? 'Verifying OTP...' : '⚡ VERIFY & LOGIN'}
                   {!isVerifying && <ChevronRight size={18} />}
                 </button>
@@ -465,31 +552,80 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   <span style={{ fontSize: '12px', color: '#94a3b8' }}>Verified by Telecom Gateway</span>
                 </div>
               </form>
-
-
             </>
           ) : (
             <>
+              {/* Brand Logo Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
+                <div style={{
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '16px',
+                  background: '#ffffff',
+                  border: '1.5px solid #e2e8f0',
+                  boxShadow: '0 4px 16px rgba(37,99,235,0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px',
+                  flexShrink: 0
+                }}>
+                  <img src="/favicon.png" alt="AbKharido Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.4px', lineHeight: 1.2 }}>
+                    AbKharido<span style={{ color: '#2563eb' }}>.com</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '700', marginTop: '2px' }}>
+                    Direct Buy • VIP Rewards • Brand Warranty
+                  </div>
+                </div>
+              </div>
+
+              {/* Banking Grade Security Pill */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#059669', padding: '5px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: '800', marginBottom: '12px', border: '1px solid #a7f3d0' }}>
                 <span>🔒</span> BANKING-GRADE AUTHENTIC OTP
               </div>
 
-              <h2 className="lp-form-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.4px', margin: '0 0 6px 0' }}>
+              <h2 className="lp-form-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '26px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.4px', margin: '0 0 6px 0' }}>
                 Login or Signup
               </h2>
-              <p className="lp-form-sub" style={{ fontSize: '14px', color: '#64748b', margin: '0 0 24px 0' }}>
+              <p className="lp-form-sub" style={{ fontSize: '13.5px', color: '#64748b', margin: '0 0 22px 0' }}>
                 Enter your 10-digit mobile number to verify via SMS
               </p>
 
               <form onSubmit={handleRequestOtp} className="lp-form">
-                {/* Phone Input */}
-                <div className="lp-input-group" style={{ height: '54px', border: '2px solid #cbd5e1', borderRadius: '16px', background: '#ffffff', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
-                  <span className="lp-input-prefix" style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', padding: '0 16px', borderRight: '2px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '6px', height: '100%' }}>
+                {/* Phone Input with Dynamic Validation Glow */}
+                <div style={{
+                  position: 'relative',
+                  height: '56px',
+                  border: `2px solid ${phone.length === 10 ? '#10b981' : phone.length > 0 ? '#3b82f6' : '#cbd5e1'}`,
+                  borderRadius: '16px',
+                  background: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'all 0.2s ease',
+                  boxShadow: phone.length === 10 ? '0 0 0 3px rgba(16,185,129,0.15)' : '0 2px 10px rgba(0,0,0,0.02)'
+                }}>
+                  <span style={{
+                    fontSize: '15px',
+                    fontWeight: '800',
+                    color: '#0f172a',
+                    padding: '0 14px',
+                    borderRight: '2px solid #f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    height: '100%',
+                    background: '#f8fafc',
+                    borderTopLeftRadius: '14px',
+                    borderBottomLeftRadius: '14px'
+                  }}>
                     🇮🇳 +91
                   </span>
                   <input
                     type="tel"
-                    placeholder="Mobile Number (e.g. 9876543210)"
+                    placeholder="Enter mobile number"
                     value={phone}
                     onChange={(e) => {
                       let val = e.target.value.replace(/\D/g, '');
@@ -500,36 +636,116 @@ const Login = ({ onNavigate, callbackUrl }) => {
                       setPhone(val);
                       localStorage.setItem('abkharido_login_phone', val);
                     }}
-                    className="lp-input lp-input-phone"
-                    style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a', letterSpacing: '0.5px', height: '100%', paddingLeft: '16px', fontFamily: 'monospace' }}
+                    style={{
+                      flex: 1,
+                      border: 'none',
+                      outline: 'none',
+                      padding: '0 40px 0 14px',
+                      fontSize: phone ? '17px' : '15px',
+                      fontWeight: phone ? '800' : '500',
+                      color: '#0f172a',
+                      letterSpacing: phone ? '1.5px' : 'normal',
+                      fontFamily: phone ? 'monospace, sans-serif' : 'inherit',
+                      height: '100%',
+                      background: 'transparent'
+                    }}
                     inputMode="numeric"
                     disabled={isSending}
                     required
                   />
-                  <Phone size={18} style={{ position: 'absolute', right: '16px', color: phone.length === 10 ? '#059669' : '#94a3b8', transition: 'color 0.2s' }} />
+                  {/* Clear button when typed */}
+                  {phone.length > 0 && !isSending && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhone('');
+                        localStorage.removeItem('abkharido_login_phone');
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '14px',
+                        background: '#f1f5f9',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '26px',
+                        height: '26px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#64748b',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '900',
+                        transition: 'background 0.2s'
+                      }}
+                      title="Clear number"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
 
-                <button type="submit" className="lp-submit-btn" disabled={isSending} style={{ height: '52px', borderRadius: '16px', fontSize: '15px', fontWeight: '800', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'transform 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                {/* Continue CTA Button */}
+                <button
+                  type="submit"
+                  disabled={isSending || phone.length !== 10}
+                  style={{
+                    height: '52px',
+                    borderRadius: '16px',
+                    fontSize: '15px',
+                    fontWeight: '800',
+                    background: phone.length === 10 ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : '#94a3b8',
+                    boxShadow: phone.length === 10 ? '0 6px 20px rgba(37, 99, 235, 0.35)' : 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: phone.length === 10 ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s ease',
+                    marginTop: '12px'
+                  }}
+                >
                   {isSending ? 'Sending Authentic OTP...' : 'CONTINUE'}
                   {!isSending && <ChevronRight size={20} />}
                 </button>
               </form>
 
+              {/* VIP Welcome Perks Row */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginTop: '20px', textAlign: 'center' }}>
+                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '10px 6px' }}>
+                  <div style={{ fontSize: '16px', marginBottom: '2px' }}>🪙</div>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#92400e' }}>100 Coins</div>
+                  <div style={{ fontSize: '9.5px', color: '#b45309', fontWeight: '600' }}>Free Welcome</div>
+                </div>
+                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '10px 6px' }}>
+                  <div style={{ fontSize: '16px', marginBottom: '2px' }}>🚚</div>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#1e40af' }}>Express Air</div>
+                  <div style={{ fontSize: '9.5px', color: '#3b82f6', fontWeight: '600' }}>Fast Dispatch</div>
+                </div>
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '10px 6px' }}>
+                  <div style={{ fontSize: '16px', marginBottom: '2px' }}>🛡️</div>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#166534' }}>100% Brand</div>
+                  <div style={{ fontSize: '9.5px', color: '#15803d', fontWeight: '600' }}>Official Warranty</div>
+                </div>
+              </div>
 
-              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '24px', fontSize: '12.5px', color: '#64748b' }}>
+              {/* Terms & Privacy */}
+              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '20px', fontSize: '12px', color: '#64748b' }}>
                 <CheckCircle size={14} color="#10b981" />
                 <span>
-                  By proceeding, you agree to our <a className="lp-policy-link" style={{ color: '#2563eb', fontWeight: '700' }}>Terms</a> &amp; <a className="lp-policy-link" style={{ color: '#2563eb', fontWeight: '700' }}>Privacy Policy</a>
+                  By proceeding, you agree to our <span onClick={() => onNavigate('info?tab=terms')} style={{ color: '#2563eb', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}>Terms</span> &amp; <span onClick={() => onNavigate('info?tab=privacy')} style={{ color: '#2563eb', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</span>
                 </span>
               </div>
 
-              <div style={{ marginTop: '24px', padding: '16px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', borderRadius: '20px', border: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800', color: '#1e3a8a' }}>
-                  <span>🛡️ 100% Safe &amp; Direct</span>
-                  <span style={{ color: '#059669' }}>✓ Zero Backup Bypass</span>
+              {/* Direct Reassurance Box */}
+              <div style={{ marginTop: '20px', padding: '14px 16px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', borderRadius: '16px', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#ffffff', border: '1px solid #93c5fd', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb', flexShrink: 0, boxShadow: '0 2px 6px rgba(37,99,235,0.1)' }}>
+                  <ShieldCheck size={20} />
                 </div>
-                <div style={{ fontSize: '11px', color: '#475569', lineHeight: 1.4 }}>
-                  To ensure maximum privacy &amp; safety against account takeovers, we rely strictly on authentic SMS OTP verification. Powered by Cashfree Escrow &amp; Firebase Auth.
+                <div style={{ fontSize: '11.5px', color: '#334155', lineHeight: 1.4 }}>
+                  <strong style={{ color: '#0f172a' }}>100% Safe &amp; Direct:</strong> Authentic SMS OTP verification powered by Cashfree Escrow &amp; Firebase Auth with Zero Bypass policy.
                 </div>
               </div>
             </>
