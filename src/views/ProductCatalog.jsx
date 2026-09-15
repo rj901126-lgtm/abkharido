@@ -17,11 +17,20 @@ import {
   Zap, 
   Sparkles,
   Search,
-  X
+  X,
+  ArrowUpDown
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { normalizeSearchQuery } from '../utils/searchHelper';
 import { getCategoryData, ALL_POPULAR_BRANDS } from '../utils/categoryData';
+
+const SORT_OPTIONS = [
+  { id: 'popularity', label: 'Featured & Popular', shortLabel: 'Popular', icon: '⚡' },
+  { id: 'priceLow', label: 'Price: Low to High', shortLabel: 'Price: Low', icon: '💰' },
+  { id: 'priceHigh', label: 'Price: High to Low', shortLabel: 'Price: High', icon: '💎' },
+  { id: 'rating', label: 'Customer Rating', shortLabel: 'Rating', icon: '⭐' },
+  { id: 'discount', label: 'Highest Discount', shortLabel: 'Discount', icon: '🏷️' }
+];
 
 
 const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery = '', sellerShopName = '', onNavigateProduct, promotions, initialProducts }) => {
@@ -46,8 +55,19 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
 
   // Mobile Drawers
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
+  const [showSortSheet, setShowSortSheet] = useState(false);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [isDeptTreeOpen, setIsDeptTreeOpen] = useState(true);
+
+  const activeSortOption = SORT_OPTIONS.find(o => o.id === sortBy) || SORT_OPTIONS[0];
+  const activeFilterCount = (selectedSubCategory ? 1 : 0) 
+    + (selectedBrand ? 1 : 0) 
+    + (selectedRating ? 1 : 0) 
+    + (minPrice > 0 || maxPrice < 150000 ? 1 : 0)
+    + (selectedQuickChip ? 1 : 0)
+    + (isFreeDeliveryOnly ? 1 : 0)
+    + (isWarrantyOnly ? 1 : 0)
+    + (isEmiOnly ? 1 : 0);
 
   // Scroll to top and reset sub-filters when primary category changes
   useEffect(() => {
@@ -312,18 +332,27 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
           gap: 14px;
         }
+        .catalog-mobile-actions-bar {
+          display: none;
+        }
         @media (max-width: 900px) {
           .catalog-page-layout-container {
             display: flex !important;
             flex-direction: column !important;
-            padding: 12px 10px 80px !important;
-            gap: 12px !important;
+            padding: 10px 10px calc(130px + env(safe-area-inset-bottom, 20px)) !important;
+            gap: 10px !important;
           }
           .filters-sidebar {
             display: none !important;
           }
-          .mobile-filter-trigger-btn {
-            display: inline-flex !important;
+          .catalog-desktop-sort {
+            display: none !important;
+          }
+          .catalog-mobile-actions-bar {
+            display: flex !important;
+            gap: 8px !important;
+            width: 100% !important;
+            margin-bottom: 10px !important;
           }
         }
         @media (max-width: 640px) {
@@ -331,6 +360,213 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 8px !important;
           }
+        }
+
+        /* ── Mobile Toolbar Action Buttons (50%/50% segmented) ── */
+        .catalog-mobile-action-btn {
+          flex: 1;
+          height: 40px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #0f172a;
+          font-family: 'Outfit', sans-serif;
+          cursor: pointer;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+          transition: all 0.15s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .catalog-mobile-action-btn:active {
+          background: #f8fafc;
+          transform: scale(0.98);
+        }
+        .catalog-filter-badge {
+          background: #4f46e5;
+          color: #ffffff;
+          font-size: 10.5px;
+          font-weight: 900;
+          padding: 1px 7px;
+          border-radius: 99px;
+          margin-left: 2px;
+        }
+
+        /* ── Quick Filter Chips Horizontal Scroll Strip ── */
+        .catalog-chips-scroll-strip {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          overflow-x: auto;
+          padding: 2px 2px 8px 2px;
+          margin-bottom: 10px;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .catalog-chips-scroll-strip::-webkit-scrollbar {
+          display: none;
+        }
+        .catalog-chip-pill {
+          padding: 6px 12px;
+          border-radius: 99px;
+          font-size: 11px;
+          font-weight: 700;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          color: #334155;
+          cursor: pointer;
+          white-space: nowrap;
+          flex-shrink: 0;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+          transition: all 0.15s ease;
+          font-family: 'Outfit', sans-serif;
+          display: inline-flex;
+          align-items: center;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .catalog-chip-pill.active {
+          border-color: #4f46e5;
+          background: #4f46e5;
+          color: #ffffff;
+          box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+        .catalog-chip-reset {
+          background: #fef2f2;
+          border: 1px solid #fee2e2;
+          color: #ef4444;
+          font-size: 10.5px;
+          font-weight: 800;
+          cursor: pointer;
+          white-space: nowrap;
+          border-radius: 99px;
+          padding: 5px 10px;
+          flex-shrink: 0;
+        }
+
+        /* ── Mobile Sort Bottom Sheet ── */
+        .catalog-sort-bottomsheet-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+          z-index: 99999;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          animation: sortBackdropFadeIn 0.2s ease-out;
+        }
+        @keyframes sortBackdropFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .catalog-sort-bottomsheet-panel {
+          width: 100%;
+          max-width: 480px;
+          background: #ffffff;
+          border-radius: 24px 24px 0 0;
+          padding: 12px 18px calc(24px + env(safe-area-inset-bottom, 12px));
+          box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+          animation: sortSheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          box-sizing: border-box;
+        }
+        @keyframes sortSheetSlideUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        .catalog-sort-handle {
+          width: 40px;
+          height: 4px;
+          background: #cbd5e1;
+          border-radius: 99px;
+          margin: 2px auto 14px;
+        }
+        .catalog-sort-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #f1f5f9;
+          margin-bottom: 10px;
+        }
+        .catalog-sort-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: 16px;
+          font-weight: 800;
+          color: #0f172a;
+          margin: 0;
+        }
+        .catalog-sort-close-btn {
+          background: #f1f5f9;
+          border: none;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #475569;
+          cursor: pointer;
+          font-size: 16px;
+          line-height: 1;
+        }
+        .catalog-sort-options-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .catalog-sort-option-btn {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 13px 14px;
+          border-radius: 12px;
+          border: 1.5px solid #f1f5f9;
+          background: #f8fafc;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          width: 100%;
+          text-align: left;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .catalog-sort-option-btn.selected {
+          background: #eef2ff;
+          border-color: #6366f1;
+        }
+        .catalog-sort-option-label {
+          font-family: 'Outfit', sans-serif;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #1e293b;
+        }
+        .catalog-sort-option-btn.selected .catalog-sort-option-label {
+          color: #4338ca;
+          font-weight: 800;
+        }
+        .catalog-sort-radio {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          border: 2px solid #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.15s ease;
+        }
+        .catalog-sort-radio.active {
+          border-color: #4f46e5;
+          background: #4f46e5;
+        }
+        .catalog-sort-radio-inner {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #ffffff;
         }
       `}</style>
       
@@ -669,41 +905,27 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           )}
         </div>
 
-        {/* ── 🏷️ Sleek Category Header + Single Source Sort Control ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
-          <div>
-            <h1 style={{ fontSize: 'clamp(18px, 2.5vw, 24px)', fontWeight: '900', color: '#0f172a', margin: 0, fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+        {/* ── 🏷️ Sleek Category Header + Dual Actions Bar ── */}
+        <div style={{ marginBottom: '10px' }}>
+          {/* Top Title & Count Bar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '8px' }}>
+            <h1 style={{ fontSize: 'clamp(17px, 2.4vw, 22px)', fontWeight: '900', color: '#0f172a', margin: 0, fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>{pageHeadingTitle}</span>
-              <span style={{ fontSize: '13.5px', fontWeight: '600', color: '#64748b' }}>
-                ({filteredProducts.length} Products)
+              <span style={{ 
+                fontSize: '11px', 
+                fontWeight: '800', 
+                color: '#475569',
+                backgroundColor: '#f1f5f9',
+                border: '1px solid #e2e8f0',
+                padding: '2px 8px',
+                borderRadius: '99px'
+              }}>
+                {filteredProducts.length} items
               </span>
             </h1>
-          </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Mobile Filter Button */}
-            <button
-              className="mobile-filter-trigger-btn"
-              onClick={() => setShowFilterDrawer(true)}
-              style={{
-                display: 'none',
-                alignItems: 'center',
-                gap: '6px',
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                padding: '7px 12px',
-                borderRadius: '8px',
-                fontSize: '12.5px',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
-            >
-              <SlidersHorizontal size={14} color="#4f46e5" />
-              <span>Filters</span>
-            </button>
-
-            {/* Single Source of Truth: Sort Dropdown */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {/* Desktop Sort Dropdown (hidden on mobile <= 768px via CSS) */}
+            <div className="catalog-desktop-sort" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Sort by:</span>
               <select
                 value={sortBy}
@@ -721,18 +943,38 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                   outline: 'none'
                 }}
               >
-                <option value="popularity">Featured &amp; Popular</option>
-                <option value="priceLow">Price: Low to High</option>
-                <option value="priceHigh">Price: High to Low</option>
-                <option value="rating">Customer Rating</option>
-                <option value="discount">Highest Discount</option>
+                {SORT_OPTIONS.map(opt => (
+                  <option key={opt.id} value={opt.id}>{opt.label}</option>
+                ))}
               </select>
             </div>
+          </div>
+
+          {/* Mobile Dual Action Bar (50%/50% touch-friendly buttons) */}
+          <div className="catalog-mobile-actions-bar">
+            <button
+              type="button"
+              className="catalog-mobile-action-btn"
+              onClick={() => setShowSortSheet(true)}
+            >
+              <ArrowUpDown size={14} color="#4f46e5" />
+              <span>Sort: <strong style={{ color: '#4f46e5' }}>{activeSortOption.shortLabel}</strong></span>
+              <ChevronDown size={14} color="#64748b" />
+            </button>
+
+            <button
+              type="button"
+              className="catalog-mobile-action-btn"
+              onClick={() => setShowFilterDrawer(true)}
+            >
+              <SlidersHorizontal size={14} color="#4f46e5" />
+              <span>Filters {activeFilterCount > 0 && <span className="catalog-filter-badge">{activeFilterCount}</span>}</span>
+            </button>
           </div>
         </div>
 
         {/* ── ⚡ High-Intent Attribute Quick Filter Chips Row ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px', scrollbarWidth: 'none' }}>
+        <div className="catalog-chips-scroll-strip">
           {quickFilterChips.map(chip => {
             const isSelected = selectedQuickChip === chip.id;
             return (
@@ -740,31 +982,19 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 key={chip.id}
                 type="button"
                 onClick={() => setSelectedQuickChip(isSelected ? null : chip.id)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '20px',
-                  fontSize: '11.5px',
-                  fontWeight: '700',
-                  border: isSelected ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
-                  background: isSelected ? '#4f46e5' : '#ffffff',
-                  color: isSelected ? '#ffffff' : '#334155',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  boxShadow: isSelected ? '0 2px 6px rgba(79, 70, 229, 0.25)' : '0 1px 3px rgba(0,0,0,0.03)',
-                  transition: 'all 0.15s ease'
-                }}
+                className={`catalog-chip-pill ${isSelected ? 'active' : ''}`}
               >
-                {chip.label} {isSelected ? '✓' : ''}
+                <span>{chip.label}</span>
+                {isSelected && <span style={{ marginLeft: '4px', fontWeight: '900' }}>✓</span>}
               </button>
             );
           })}
           {selectedQuickChip && (
             <button
               onClick={() => setSelectedQuickChip(null)}
-              style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '11px', fontWeight: '800', cursor: 'pointer', whiteSpace: 'nowrap' }}
+              className="catalog-chip-reset"
             >
-              ✕ Reset Chip
+              ✕ Reset
             </button>
           )}
         </div>
@@ -820,6 +1050,61 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
 
       </main>
 
+      {/* ── 📱 Mobile Sort Bottom Sheet Modal ── */}
+      {showSortSheet && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="catalog-sort-bottomsheet-backdrop"
+          onClick={() => setShowSortSheet(false)}
+        >
+          <div 
+            className="catalog-sort-bottomsheet-panel"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="catalog-sort-handle" />
+            
+            <div className="catalog-sort-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ArrowUpDown size={17} color="#4f46e5" />
+                <h3 className="catalog-sort-title">Sort Products By</h3>
+              </div>
+              <button 
+                className="catalog-sort-close-btn"
+                onClick={() => setShowSortSheet(false)}
+                aria-label="Close sort"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="catalog-sort-options-list">
+              {SORT_OPTIONS.map(opt => {
+                const isSelected = sortBy === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={`catalog-sort-option-btn ${isSelected ? 'selected' : ''}`}
+                    onClick={() => {
+                      setSortBy(opt.id);
+                      setShowSortSheet(false);
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '16px' }}>{opt.icon}</span>
+                      <span className="catalog-sort-option-label">{opt.label}</span>
+                    </div>
+                    <div className={`catalog-sort-radio ${isSelected ? 'active' : ''}`}>
+                      {isSelected && <div className="catalog-sort-radio-inner" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* ── 📱 Mobile Filter Slide-in Drawer Modal ── */}
       {showFilterDrawer && typeof document !== 'undefined' && createPortal(
         <div 
@@ -831,21 +1116,83 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
-              <span style={{ fontSize: '16px', fontWeight: '900', color: '#0f172a' }}>Filters</span>
-              <button onClick={() => setShowFilterDrawer(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}>✕</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '16px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
+                <SlidersHorizontal size={18} color="#4f46e5" />
+                <span>Filters {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
+              </div>
+              <button onClick={() => setShowFilterDrawer(false)} style={{ background: '#f1f5f9', border: 'none', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', cursor: 'pointer', color: '#475569' }}>✕</button>
             </div>
 
             {/* Department */}
             <div>
-              <h5 style={{ fontSize: '12.5px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px' }}>Department</h5>
+              <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Category</h5>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div onClick={() => { setSelectedSubCategory(null); setShowFilterDrawer(false); }} style={{ padding: '6px', fontSize: '12.5px', color: !selectedSubCategory ? '#4f46e5' : '#334155', fontWeight: !selectedSubCategory ? '800' : '500' }}>
+                <div onClick={() => { setSelectedSubCategory(null); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: !selectedSubCategory ? '#4f46e5' : '#334155', background: !selectedSubCategory ? '#eef2ff' : 'transparent', fontWeight: !selectedSubCategory ? '800' : '500', cursor: 'pointer' }}>
                   All Items
                 </div>
                 {activeSubCategories.map(sub => (
-                  <div key={sub.id} onClick={() => { setSelectedSubCategory(sub); setShowFilterDrawer(false); }} style={{ padding: '6px', fontSize: '12.5px', color: selectedSubCategory?.id === sub.id ? '#4f46e5' : '#334155', fontWeight: selectedSubCategory?.id === sub.id ? '800' : '500' }}>
+                  <div key={sub.id} onClick={() => { setSelectedSubCategory(selectedSubCategory?.id === sub.id ? null : sub); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: selectedSubCategory?.id === sub.id ? '#4f46e5' : '#334155', background: selectedSubCategory?.id === sub.id ? '#eef2ff' : 'transparent', fontWeight: selectedSubCategory?.id === sub.id ? '800' : '500', cursor: 'pointer' }}>
                     {sub.name}
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Brands */}
+            {visibleBrands.length > 0 && (
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+                <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Brands</h5>
+                <div style={{ maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {visibleBrands.slice(0, 10).map((brand, idx) => (
+                    <label key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#334155', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={selectedBrand === brand.name} onChange={() => setSelectedBrand(selectedBrand === brand.name ? null : brand.name)} style={{ accentColor: '#4f46e5', width: '15px', height: '15px' }} />
+                      <span>{brand.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Price Range */}
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+              <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Price Range</h5>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {[
+                  { label: 'Under ₹1k', min: 0, max: 1000 },
+                  { label: '₹1k - ₹5k', min: 1000, max: 5000 },
+                  { label: '₹5k - ₹20k', min: 5000, max: 20000 },
+                  { label: 'Above ₹20k', min: 20000, max: 150000 }
+                ].map((chip, cIdx) => (
+                  <button
+                    key={cIdx}
+                    type="button"
+                    onClick={() => { setMinPrice(chip.min); setMaxPrice(chip.max); }}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: '6px',
+                      border: (minPrice === chip.min && maxPrice === chip.max) ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
+                      background: (minPrice === chip.min && maxPrice === chip.max) ? '#eef2ff' : '#f8fafc',
+                      color: (minPrice === chip.min && maxPrice === chip.max) ? '#4f46e5' : '#475569',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Customer Rating */}
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+              <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Customer Rating</h5>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {[4, 3].map(stars => (
+                  <label key={stars} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
+                    <input type="radio" name="mobile-rating-filter" checked={selectedRating === stars} onChange={() => setSelectedRating(selectedRating === stars ? null : stars)} style={{ accentColor: '#4f46e5', width: '15px', height: '15px' }} />
+                    <span style={{ fontWeight: '700' }}>{stars}★ & above</span>
+                  </label>
                 ))}
               </div>
             </div>
@@ -854,15 +1201,15 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             <div style={{ marginTop: 'auto', display: 'flex', gap: '8px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
               <button 
                 onClick={() => { handleResetFilters(); setShowFilterDrawer(false); }}
-                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}
               >
-                Reset
+                Reset All
               </button>
               <button 
                 onClick={() => setShowFilterDrawer(false)}
-                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: '#0f172a', color: '#ffffff', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', color: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}
               >
-                Apply
+                Apply ({filteredProducts.length})
               </button>
             </div>
           </div>

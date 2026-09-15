@@ -317,8 +317,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           </div>
 
           {/* Delivery Note */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10.5px', color: '#059669', fontWeight: '700', marginTop: '3px' }}>
-            <Truck size={11} color="#059669" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9.5px', color: '#059669', fontWeight: '700', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <Truck size={10} color="#059669" />
             <span>{deliveryETA}</span>
           </div>
 
@@ -547,7 +547,7 @@ const styles = {
     transition: 'transform 0.15s ease'
   },
   info: {
-    padding: '8px 10px 10px',
+    padding: '8px 8px 10px',
     display: 'flex',
     flexDirection: 'column',
     flex: 1,

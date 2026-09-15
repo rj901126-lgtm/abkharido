@@ -462,13 +462,13 @@
 @media (max-width: 900px) {
   .catalog-page-layout-container {
     flex-direction: column;
-    padding: 12px 10px;
+    padding: 10px 10px calc(130px + env(safe-area-inset-bottom, 20px)) !important;
   }
   .filters-sidebar {
     display: none;
   }
   .mobile-filter-trigger-btn {
-    display: inline-flex !important;
+    display: none !important;
   }
   .details-page-grid {
     grid-template-columns: 1fr;
