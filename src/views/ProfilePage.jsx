@@ -7,19 +7,15 @@ import CustomerTickets from '../components/CustomerTickets';
 import { auth } from '../firebase';
 import { updateEmail, sendEmailVerification } from 'firebase/auth';
 
-const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
+const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', onTabChange }) => {
   const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard, addToCart } = useApp();
   const isMountedRef = useRef(true);
+  
+  const userCoins = currentUser?.walletCoins !== undefined ? currentUser.walletCoins : 100;
+
   React.useEffect(() => {
     isMountedRef.current = true;
     fetchUserSavedCards();
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get('tab');
-      if (tab && ['overview', 'rewards', 'wishlist', 'savedcards', 'support'].includes(tab)) {
-        setActiveTab(tab);
-      }
-    }
     return () => { isMountedRef.current = false; };
   }, []);
   
@@ -73,7 +69,34 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   });
   const [isModalPincodeLoading, setIsModalPincodeLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'wishlist', 'support'
+  const [activeTab, setActiveTab] = useState(initialTab || 'overview');
+
+  // Reactively sync activeTab with URL tab changes (from Navbar, Back button, or deep-link)
+  React.useEffect(() => {
+    if (initialTab && ['overview', 'rewards', 'wishlist', 'savedcards', 'support'].includes(initialTab)) {
+      setActiveTab(initialTab);
+    } else if (!initialTab) {
+      setActiveTab('overview');
+    }
+  }, [initialTab]);
+
+  const handleTabSelect = (tab) => {
+    setActiveTab(tab);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (tab === 'overview') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', tab);
+      }
+      const newQuery = url.searchParams.toString();
+      const newPath = url.pathname + (newQuery ? '?' + newQuery : '');
+      window.history.replaceState({}, '', newPath);
+    }
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
 
 
   // Sync Firebase email verification status to backend DB
@@ -498,7 +521,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
   };
 
   return (
-    <div className="profile-page-container animate-fade-in" style={{ padding: '0 0 130px 0', background: '#f8fafc', minHeight: '100vh' }}>
+    <div className="profile-page-container animate-fade-in" style={{ padding: '0 0 160px 0', background: '#f8fafc', minHeight: '100vh' }}>
       
       {/* 1. VIP Luxury Dashboard Header (Unified Midnight Titanium & Gold Theme) */}
       <div className="profile-dashboard-header" style={{
@@ -553,8 +576,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                 fontWeight: '700',
                 cursor: 'pointer',
                 backdropFilter: 'blur(6px)'
-              }} onClick={() => setActiveTab('rewards')}>
-                🪙 {currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} Coins Active &gt;
+              }} onClick={() => handleTabSelect('rewards')}>
+                🪙 {userCoins} Coins Active &gt;
               </span>
             </div>
           </div>
@@ -577,7 +600,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               </div>
             </div>
 
-            <div className="quick-action-card" onClick={() => setActiveTab('wishlist')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="quick-action-card" onClick={() => handleTabSelect('wishlist')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Heart size={22} fill="#dc2626" color="#dc2626" />
               </div>
@@ -587,17 +610,17 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
               </div>
             </div>
 
-            <div className="quick-action-card" onClick={() => setActiveTab('rewards')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="quick-action-card" onClick={() => handleTabSelect('rewards')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '22px' }}>
                 🪙
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '14.5px', fontWeight: '800', color: '#92400e' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100} Coins</span>
+                <span style={{ fontSize: '14.5px', fontWeight: '800', color: '#92400e' }}>{userCoins} Coins</span>
                 <small style={{ fontSize: '11.5px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>Redeem Rewards</small>
               </div>
             </div>
 
-            <div className="quick-action-card" onClick={() => setActiveTab('support')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="quick-action-card" onClick={() => handleTabSelect('support')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <ShieldCheck size={22} color="#16a34a" />
               </div>
@@ -608,14 +631,35 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '12px 0 20px 0', background: 'white', padding: '14px 18px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '12px 0 20px 0', background: 'white', padding: '12px 16px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
             <button
-              onClick={() => setActiveTab('overview')}
-              style={{ background: '#f1f5f9', border: 'none', padding: '8px 16px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '8px', color: '#334155', fontWeight: '800', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleTabSelect('overview');
+              }}
+              style={{
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                padding: '9px 18px',
+                borderRadius: '100px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: '#1e293b',
+                fontWeight: '800',
+                fontSize: '13px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent'
+              }}
             >
               <ArrowLeft size={16} /> Back to Overview
             </button>
-            <span style={{ fontSize: '15px', fontWeight: '900', color: '#4f46e5' }}>
+            <span style={{ fontSize: '14.5px', fontWeight: '900', color: '#4f46e5' }}>
               {activeTab === 'rewards' ? '🪙 AB Rewards Hub' : activeTab === 'wishlist' ? `❤️ Wishlist (${wishlistProducts.length})` : activeTab === 'savedcards' ? '💳 Saved Wallets & Cards' : '🎧 Support Tickets'}
             </span>
           </div>
@@ -811,7 +855,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
 
         {/* 4. Account Quick Nav Links */}
         <div className="profile-menu-list">
-          <div className="profile-menu-item" onClick={() => setActiveTab('savedcards')}>
+          <div className="profile-menu-item" onClick={() => handleTabSelect('savedcards')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
                 <CreditCard size={18} />
@@ -936,7 +980,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                   <div style={{ fontSize: '13px', color: '#a1a1aa', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>Available Balance</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                     <span style={{ fontSize: '64px', fontWeight: '900', background: 'linear-gradient(to bottom, #ffffff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: '1', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))' }}>
-                      {currentUser.walletCoins?.toLocaleString('en-IN') || 0}
+                      {userCoins.toLocaleString('en-IN')}
                     </span>
                     <span style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b', textShadow: '0 2px 10px rgba(245,158,11,0.4)' }}>Coins</span>
                   </div>
@@ -946,11 +990,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                   <div style={{ display: 'flex', gap: '32px' }}>
                     <div>
                       <div style={{ fontSize: '12px', color: '#71717a', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Equivalent Value</div>
-                      <div style={{ fontSize: '18px', fontWeight: '800', color: '#e4e4e7' }}>₹{currentUser.walletCoins?.toLocaleString('en-IN') || 0}</div>
+                      <div style={{ fontSize: '18px', fontWeight: '800', color: '#e4e4e7' }}>₹{userCoins.toLocaleString('en-IN')}</div>
                     </div>
                     <div>
                       <div style={{ fontSize: '12px', color: '#71717a', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Lifetime Earned</div>
-                      <div style={{ fontSize: '18px', fontWeight: '800', color: '#e4e4e7' }}>{((currentUser.walletCoins || 0) + (currentUser.totalSpent || 0) * 0.05).toLocaleString('en-IN')}</div>
+                      <div style={{ fontSize: '18px', fontWeight: '800', color: '#e4e4e7' }}>{(userCoins + (currentUser.totalSpent || 0) * 0.05).toLocaleString('en-IN')}</div>
                     </div>
                   </div>
                   <button onClick={() => onNavigate('home')} style={{ background: 'white', color: '#09090b', border: 'none', padding: '12px 28px', borderRadius: '100px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255,255,255,0.2)', transition: 'transform 0.2s' }}>
@@ -1127,12 +1171,12 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                           >
                             <Heart size={16} color="#dc2626" />
                           </button>
-                          <div onClick={() => onNavigate(`product-${p.id}`)} style={{ height: '150px', padding: '12px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                          <div onClick={() => { if (onNavigateProduct) onNavigateProduct(p.id); else onNavigate('product/' + p.id); }} style={{ height: '150px', padding: '12px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                             <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                           </div>
                           <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', gap: '8px' }}>
                             <div>
-                              <h5 onClick={() => onNavigate(`product-${p.id}`)} style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0', cursor: 'pointer', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.3' }}>
+                              <h5 onClick={() => { if (onNavigateProduct) onNavigateProduct(p.id); else onNavigate('product/' + p.id); }} style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0', cursor: 'pointer', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.3' }}>
                                 {p.name}
                               </h5>
                               <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
@@ -1193,7 +1237,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                     <div 
                       onClick={() => {
                         if (onNavigateProduct) onNavigateProduct(p.id);
-                        else onNavigate(`product-${p.id}`);
+                        else onNavigate(`product/${p.id}`);
                       }}
                       style={{ height: '160px', width: '100%', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', cursor: 'pointer' }}
                     >
@@ -1210,7 +1254,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct }) => {
                         <h4 
                           onClick={() => {
                             if (onNavigateProduct) onNavigateProduct(p.id);
-                            else onNavigate(`product-${p.id}`);
+                            else onNavigate(`product/${p.id}`);
                           }}
                           style={{ fontSize: '13.5px', fontWeight: '700', color: '#0f172a', cursor: 'pointer', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.3', minHeight: '35px', margin: '0 0 6px 0' }}
                         >
