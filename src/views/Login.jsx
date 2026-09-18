@@ -155,9 +155,13 @@ const Login = ({ onNavigate, callbackUrl }) => {
           cleanupRecaptcha();
           console.warn('[Firebase SMS Gateway Warning]:', fbErr);
           const code = fbErr?.code || '';
+          const msg = fbErr?.message || '';
           
           if (code === 'auth/invalid-phone-number') {
             showToast('Invalid phone number format. Please check and try again.', 'error');
+            return;
+          } else if (code === 'auth/operation-not-allowed') {
+            showToast('Firebase Error: Phone sign-in provider is disabled in Firebase Console > Authentication > Sign-in method.', 'error');
             return;
           } else if (code === 'auth/sms-region-policy-denied') {
             showToast('Firebase SMS Blocked: Region India (+91) is not allowed in Firebase Console > Authentication > Settings > SMS region policy.', 'error');
@@ -176,6 +180,12 @@ const Login = ({ onNavigate, callbackUrl }) => {
             return;
           } else if (code === 'auth/captcha-check-failed') {
             showToast('reCAPTCHA security verification failed or was cancelled. Please try again.', 'error');
+            return;
+          } else if (code === 'auth/network-request-failed') {
+            showToast('Network error contacting Firebase. Please check your connection or disable ad-blocker.', 'error');
+            return;
+          } else {
+            showToast(`Firebase SMS Error (${code || 'Unknown'}): ${msg || 'Check Firebase Console configuration.'}`, 'error');
             return;
           }
         }
