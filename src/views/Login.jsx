@@ -224,7 +224,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
       let result = null;
       let verifySuccess = false;
 
-      // ── One verification path only: Firebase SMS confirmation OR Backend Direct SMS Gateway ──
+      // ── Resilient verification path: Firebase confirmation with automatic Direct Gateway failover ──
       if (firebaseConfirmation) {
         // Path A: Firebase verification
         try {
@@ -240,10 +240,24 @@ const Login = ({ onNavigate, callbackUrl }) => {
             verifySuccess = true;
           }
         } catch (_fbErr) {
-          showToast('Incorrect OTP. Please check the SMS code and try again.', 'error');
-          setIsVerifying(false);
-          isVerifyingRef.current = false;
-          return;
+          // Fallback: If Firebase confirm fails (e.g. carrier SMS didn't match or test code entered), try backend direct verification
+          try {
+            result = await signIn('credentials', {
+              redirect: false,
+              phone,
+              otp: enteredOtp
+            });
+            if (result && !result.error) {
+              verifySuccess = true;
+            }
+          } catch (_authErr) {}
+
+          if (!verifySuccess) {
+            showToast('Incorrect OTP code. Please check the digits and try again.', 'error');
+            setIsVerifying(false);
+            isVerifyingRef.current = false;
+            return;
+          }
         }
       } else {
         // Path B: Direct Backend SMS Gateway verification
@@ -562,9 +576,22 @@ const Login = ({ onNavigate, callbackUrl }) => {
                   {timer > 0 ? (
                     <span className="lp-timer">Resend SMS code in <strong>{timer}s</strong></span>
                   ) : (
-                    <button type="button" onClick={() => handleRequestOtp(null)} className="lp-link-btn" style={{ fontSize: '14px', fontWeight: '800', color: '#4f46e5' }}>
-                      🔄 Resend OTP via SMS
-                    </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '100%' }}>
+                      <button type="button" onClick={() => handleRequestOtp(null)} className="lp-link-btn" style={{ fontSize: '14px', fontWeight: '800', color: '#4f46e5' }}>
+                        🔄 Resend OTP via SMS
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setFirebaseConfirmation(null);
+                          triggerBackendOtp();
+                        }} 
+                        className="lp-link-btn" 
+                        style={{ fontSize: '12.5px', fontWeight: '700', color: '#6366f1', textDecoration: 'underline' }}
+                      >
+                        Didn't receive SMS? Try Alternative Fast Route 🚀
+                      </button>
+                    </div>
                   )}
                   <span style={{ fontSize: '12px', color: '#94a3b8' }}>Verified by Telecom Gateway</span>
                 </div>

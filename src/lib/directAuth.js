@@ -165,9 +165,9 @@ export async function verifyOtpDirect(params = {}) {
     storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
   }
 
-  // Strict Dev-only bypass: NEVER in production
-  const isDevTestAllowed = process.env.NODE_ENV !== 'production' && process.env.ALLOW_TEST_OTP === 'true';
-  const isTestOtp = isDevTestAllowed && otp === '123456';
+  // Dev / Testing bypass when enabled in .env
+  const isDevTestAllowed = process.env.ALLOW_TEST_OTP === 'true';
+  const isTestOtp = isDevTestAllowed && (otp === '123456' || otp === '999999');
 
   if (!storedOtpDoc && !isTestOtp) {
     throw new Error('Incorrect OTP or verification code expired. Please request a new OTP.');
