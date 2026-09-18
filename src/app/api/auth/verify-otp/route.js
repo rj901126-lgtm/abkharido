@@ -5,8 +5,7 @@ async function fetchBackend(path, body) {
   const hosts = [
     process.env.BACKEND_API_URL,
     'http://127.0.0.1:5000',
-    'http://localhost:5000',
-    'http://16.16.195.180:5000'
+    'http://localhost:5000'
   ].filter(Boolean);
 
   const uniqueHosts = [...new Set(hosts.map(h => h.replace(/\/$/, '')))];

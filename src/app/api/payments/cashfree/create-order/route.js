@@ -99,7 +99,7 @@ export async function POST(req) {
     }
 
     // 3. Shipping & Discounts
-    const shippingPrice = calculatedItemsPrice > 499 ? 0 : 40;
+    const shippingPrice = calculatedItemsPrice >= 499 ? 0 : 40;
     let finalAmount = calculatedItemsPrice + shippingPrice;
 
     // Coins Discount (1 Coin = ₹1)

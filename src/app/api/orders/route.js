@@ -167,7 +167,7 @@ export async function POST(req) {
       }
 
       const qty = Math.max(1, parseInt(item.quantity || item.qty, 10) || 1);
-      const price = Number(item.price || prod.price || (dbProduct ? dbProduct.price : 999));
+      const price = Number(dbProduct ? dbProduct.price : (prod.price || item.price || 999));
       const name = item.name || prod.name || (dbProduct ? dbProduct.name : 'AbKharido Verified Product');
       const image = item.image || prod.image || (dbProduct ? (dbProduct.image || dbProduct.images?.[0]) : 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600');
 
@@ -185,7 +185,7 @@ export async function POST(req) {
 
 
     const itemsPrice = Math.round(orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0));
-    const shippingPrice = itemsPrice > 500 ? 0 : 40;
+    const shippingPrice = itemsPrice >= 499 ? 0 : 40;
     const taxPrice = 0;
     
     // Coins Discount calculation (1 Coin = ₹1)
@@ -221,7 +221,8 @@ export async function POST(req) {
     const deliveryPin = String(Math.floor(1000 + Math.random() * 9000));
     const generatedCfOrderId = cfOrderId || `ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
-    const isPaid = paymentMethod.toLowerCase().includes('online') || paymentMethod.toLowerCase().includes('upi') || paymentMethod.toLowerCase().includes('card');
+    const isOnlinePayment = paymentMethod.toLowerCase().includes('online') || paymentMethod.toLowerCase().includes('upi') || paymentMethod.toLowerCase().includes('card');
+    const initialStatus = isOnlinePayment ? 'Pending' : 'Placed';
 
     const newOrder = await Order.create({
       user: user._id,
@@ -240,18 +241,18 @@ export async function POST(req) {
       taxPrice,
       totalPrice,
       coinsUsed,
-      isPaid,
-      paidAt: isPaid ? new Date() : undefined,
-      status: 'Processing',
+      isPaid: false,
+      paidAt: undefined,
+      status: initialStatus,
       deliveryPin,
       cfOrderId: generatedCfOrderId,
       appliedCoupon: couponCode || undefined,
 
       trackingHistory: [{
-        status: 'Processing',
+        status: initialStatus,
         timestamp: new Date(),
         location: shippingAddress.city || 'Warehouse Direct',
-        comment: 'Order placed & scheduled for express air-dispatch'
+        comment: isOnlinePayment ? 'Awaiting Cashfree payment confirmation' : 'Order placed & scheduled for express air-dispatch'
       }]
     });
 

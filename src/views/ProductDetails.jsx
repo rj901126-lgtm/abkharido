@@ -234,7 +234,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
   const computeDeliveryEstimate = (pin, areaName = '') => {
     const deliveryDate = getDeliveryDateString(3);
-    const shippingText = (currentDisplayPrice || 0) >= 499 ? 'FREE Delivery' : '₹49 Shipping';
+    const shippingText = (currentDisplayPrice || 0) >= 499 ? 'FREE Delivery' : '₹40 Shipping';
     const loc = areaName ? ` to ${areaName.toUpperCase()} (${pin})` : ` to ${pin}`;
     return `📦 Delivery by ${deliveryDate}${loc} | ${shippingText} | 💵 Cash on Delivery Available`;
   };
@@ -555,13 +555,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
   const handleShareWhatsApp = () => {
     const text = `Hey! Check out this awesome ${product.name} on AbKharido: ${getReferralLink()}`;
-    const url = `https://pi.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 
   const handleShareTwitter = () => {
     const text = `Check out this product on AbKharido.com: ${product.name}`;
-    const url = `https://witter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getReferralLink())}`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getReferralLink())}`;
     window.open(url, '_blank');
   };
 

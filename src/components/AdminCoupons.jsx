@@ -202,7 +202,7 @@ const AdminCoupons = () => {
   };
 
   const copyDealToClipboard = (coupon) => {
-    const dealText = `Use Code: ${coupon.code} - Get ${coupon.discountType === 'FLAT' ? 'Flat ₹' + coupon.discountValue : coupon.discountValue + '%'} OFF on Ab Kharido! (Min order ₹${coupon.minCartValue}). Shop now at https://bkharido.in`;
+    const dealText = `Use Code: ${coupon.code} - Get ${coupon.discountType === 'FLAT' ? 'Flat ₹' + coupon.discountValue : coupon.discountValue + '%'} OFF on Ab Kharido! (Min order ₹${coupon.minCartValue}). Shop now at https://abkharido.com`;
     navigator.clipboard.writeText(dealText);
     setCopiedCode(coupon.code);
     showToast(`📋 Copied promotional deal for code ${coupon.code}!`, 'success');
@@ -211,8 +211,8 @@ const AdminCoupons = () => {
 
   const handleWhatsAppBroadcast = (coupon) => {
     const discountText = coupon.discountType === 'FLAT' ? `Flat ₹${coupon.discountValue} OFF` : `${coupon.discountValue}% OFF (Up to ₹${coupon.maxDiscount})`;
-    const message = `🎉 *EXCLUSIVE VIP OFFER from Ab Kharido!* 🛍️\n\nEnjoy *${discountText}* on our entire premium catalog!\n\n🔑 *Your Coupon Code:* ${coupon.code}\n🛒 *Minimum Basket:* ₹${coupon.minCartValue}\n⏳ *Valid Till:* ${new Date(coupon.expiryDate).toLocaleDateString()}\n\n👉 *Click & redeem instore:* https://bkharido.in\n\n_Limited to first ${coupon.usageLimit} shoppers only! Hurry!_`;
-    const whatsappUrl = `https://pi.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    const message = `🎉 *EXCLUSIVE VIP OFFER from Ab Kharido!* 🛍️\n\nEnjoy *${discountText}* on our entire premium catalog!\n\n🔑 *Your Coupon Code:* ${coupon.code}\n🛒 *Minimum Basket:* ₹${coupon.minCartValue}\n⏳ *Valid Till:* ${new Date(coupon.expiryDate).toLocaleDateString()}\n\n👉 *Click & redeem instore:* https://abkharido.com\n\n_Limited to first ${coupon.usageLimit} shoppers only! Hurry!_`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 

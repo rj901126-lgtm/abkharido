@@ -142,10 +142,11 @@ export function verifyCashfreeWebhookSignature({ rawBody, timestamp, signature }
       .update(payload)
       .digest('base64');
 
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
-    );
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expectedSignature);
+    if (sigBuf.length !== expBuf.length) return false;
+
+    return crypto.timingSafeEqual(sigBuf, expBuf);
   } catch (err) {
     console.error('[Cashfree Webhook Signature Verification Error]:', err);
     return false;

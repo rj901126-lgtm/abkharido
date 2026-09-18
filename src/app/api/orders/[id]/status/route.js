@@ -1,11 +1,20 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
+import { getAuthenticatedUser } from '../../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 async function handleUpdateStatus(req, context) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth?.isAuthenticated) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    if (!auth.isAdmin && !auth.isSeller) {
+      return NextResponse.json({ error: 'Forbidden: Admin or Seller access required to update order status' }, { status: 403 });
+    }
+
     await connectDB();
     const params = await (context?.params || {});
     const id = params?.id;

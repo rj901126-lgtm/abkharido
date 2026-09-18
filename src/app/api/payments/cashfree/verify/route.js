@@ -30,7 +30,7 @@ export async function POST(req) {
 
     // 3. Verify status with Cashfree PG server
     const cfData = await getCashfreeOrderStatus(order.cfOrderId || orderId);
-    const isPaid = cfData.order_status === 'PAID' || cfData.simulated === true;
+    const isPaid = cfData.order_status === 'PAID' || (cfData.simulated === true && process.env.NODE_ENV !== 'production' && process.env.ALLOW_PAYMENT_SIMULATION === 'true');
 
     if (!isPaid) {
       return NextResponse.json({ 

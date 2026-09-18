@@ -3,7 +3,7 @@ import { Star, MessageCircle, CheckCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const ProductReviews = ({ product, productId }) => {
-  const { user } = useApp();
+  const { currentUser } = useApp();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -11,17 +11,18 @@ const ProductReviews = ({ product, productId }) => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    if (!user) {
+    if (!currentUser) {
       setMessage('Please login to write a review');
       return;
     }
     setLoading(true);
     try {
+      const token = currentUser.token || (typeof window !== 'undefined' ? localStorage.getItem('abkharido_token') : null);
       const res = await fetch(`/api/products/${productId}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token || user.token_override}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ rating, comment })
       });
@@ -72,7 +73,7 @@ const ProductReviews = ({ product, productId }) => {
         </div>
       )}
 
-      {user ? (
+      {currentUser ? (
         <div style={{ marginTop: '30px', borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
           <h4 style={{ fontWeight: '700', marginBottom: '15px' }}>Write a Review</h4>
           <form onSubmit={submitHandler} style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '500px' }}>

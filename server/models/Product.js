@@ -23,10 +23,11 @@ const specSchema = new mongoose.Schema({
 }, { _id: false });
 
 const reviewSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   name: { type: String, required: true },
   rating: { type: Number, required: true },
   comment: { type: String, required: true },
+  photos: [{ type: String }],
   isVerifiedPurchase: { type: Boolean, default: false }
 }, {
   timestamps: true

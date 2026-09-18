@@ -37,15 +37,15 @@ export async function generateMetadata({ searchParams }) {
   const category = params?.category;
   const search = params?.search;
 
-  let title = 'Explore All Products | AbKharido';
+  let title = 'Explore All Products';
   let description = 'Shop thousands of genuine verified products across Electronics, Mobiles, Fashion, and Home appliances with express shipping across India.';
 
   if (search) {
-    title = `Search results for "${search}" | AbKharido`;
+    title = `Search results for "${search}"`;
     description = `Explore top deals and verified items matching "${search}" on AbKharido.`;
   } else if (category && category !== 'all') {
     const formattedCat = category.charAt(0).toUpperCase() + category.slice(1);
-    title = `${formattedCat} Store - Best Deals Online | AbKharido`;
+    title = `${formattedCat} Store - Best Deals Online`;
     description = `Shop the latest ${formattedCat} online with exclusive discounts, express delivery, and cash on delivery on AbKharido.`;
   }
 

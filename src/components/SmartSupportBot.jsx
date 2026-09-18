@@ -123,17 +123,19 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
         const topOrder = recentOrders[0];
         const orderNum = topOrder._id?.toString()?.slice(-6)?.toUpperCase() || topOrder.id || 'LIVE';
         const itemCount = topOrder.orderItems?.length || 1;
-        const total = (topOrder.totalPrice || topOrder.amount || 0).toLocaleString('en-IN');
-        const pin = topOrder.deliveryPin || '5821';
+        const pin = topOrder.deliveryPin || (topOrder._id ? String(topOrder._id).replace(/\D/g, '').slice(-4).padStart(4, '0') : '');
         const status = topOrder.status || 'Processing';
         const itemName = topOrder.orderItems?.[0]?.name || 'AbKharido Product';
+        const pinText = pin 
+          ? `🔐 **Doorstep OTP/PIN:** \`${pin}\` (Share this with delivery agent upon arrival)\n\n`
+          : `🔐 **Doorstep OTP/PIN:** Sent via SMS when out for delivery\n\n`;
 
         return {
           text: `Here is the live status for your recent order **#${orderNum}**:\n\n` +
                 `📦 **Item:** ${itemName} ${itemCount > 1 ? `(+${itemCount - 1} more)` : ''}\n` +
                 `📊 **Status:** ${status.toUpperCase()} (Express Courier Dispatch)\n` +
                 `💰 **Total:** ₹${total}\n` +
-                `🔐 **Doorstep OTP/PIN:** \`${pin}\` (Share this with delivery agent upon arrival)\n\n` +
+                pinText +
                 `You can view full tracking history and download the tax invoice below:`,
           orderData: topOrder,
           chips: [

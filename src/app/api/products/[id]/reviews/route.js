@@ -88,19 +88,23 @@ export async function POST(req, context) {
       }
       
       let userName = 'Verified Buyer';
+      let userId = undefined;
       try {
         const token = authHeader.replace('Bearer ', '');
         const decoded = jwt.decode(token);
-        if (decoded && (decoded.name || decoded.fullName || decoded.username)) {
-          userName = decoded.name || decoded.fullName || decoded.username;
+        if (decoded) {
+          userName = decoded.name || decoded.fullName || decoded.username || userName;
+          userId = decoded.id || decoded._id || decoded.userId;
         }
       } catch (_e) {}
 
       const newReview = {
         name: userName,
+        user: userId && /^[0-9a-fA-F]{24}$/.test(String(userId)) ? userId : undefined,
         rating: numRating,
         comment: comment.trim(),
         photos: Array.isArray(photos) ? photos.slice(0, 5) : [],
+        isVerifiedPurchase: true,
         date: new Date().toISOString().split('T')[0],
         createdAt: new Date()
       };
@@ -123,7 +127,9 @@ export async function POST(req, context) {
           reviews: product.reviews
         }, { status: 201 });
       }
-    } catch (_dbErr) {}
+    } catch (_dbErr) {
+      console.error('[Product Review DB Save Error]:', _dbErr);
+    }
 
     // In-memory fallback
     return NextResponse.json({

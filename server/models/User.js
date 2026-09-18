@@ -53,6 +53,7 @@ const userSchema = new mongoose.Schema({
   // Seller fields
   shopName: { type: String },
   walletCoins: { type: Number, default: 100 },
+  walletCash: { type: Number, default: 0 },
   payoutDetails: {
     upiId: String,
     bankAccount: String,
