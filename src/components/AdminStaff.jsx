@@ -76,7 +76,28 @@ const AdminStaff = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const newStaffMember = {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
+      let createdStaff = null;
+
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': token,
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          createdStaff = data.staff;
+        }
+      } catch (apiErr) {
+        console.warn('API error creating staff, falling back to local state:', apiErr);
+      }
+
+      const newStaffMember = createdStaff || {
         _id: 's_' + Date.now(),
         fullName: formData.fullName,
         username: formData.username,
@@ -85,7 +106,7 @@ const AdminStaff = () => {
         status: 'Active',
         mfaStatus: formData.enforceMfa ? 'Enforced (Waiting First Login)' : 'Disabled',
         lastActive: 'Just Now',
-        ipAddress: '136.192.115.78',
+        ipAddress: '127.0.0.1',
         actionsCount: 0
       };
 
@@ -93,7 +114,7 @@ const AdminStaff = () => {
       setStaff(updated);
       localStorage.setItem('abkharido_staff_list', JSON.stringify(updated));
 
-      showToastMsg(`✅ Registered ${formData.fullName} with role [${formData.role.toUpperCase()}]. MFA token dispatched to ${formData.email}!`, 'success');
+      showToastMsg(`✅ Registered ${formData.fullName} with role [${formData.role.toUpperCase()}]. Account active!`, 'success');
       setIsAdding(false);
       setFormData({ username: '', email: '', password: '', fullName: '', role: 'support_agent', enforceMfa: true });
     } catch (err) {

@@ -109,7 +109,7 @@ export const replyTicket = async (req, res, next) => {
       });
 
       // Update status if replied by admin
-      if (isAdmin && ticket.status === 'Open') {
+      if (isStaffOrAdmin && ticket.status === 'Open') {
         ticket.status = 'In Progress';
       }
 

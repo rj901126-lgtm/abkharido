@@ -117,46 +117,69 @@ const AdminHelpdesk = () => {
     }
   };
 
-  const handleReply = (e) => {
+  const handleReply = async (e) => {
     if (e) e.preventDefault();
     if (!replyContent.trim() || !activeTicket) return;
 
-    const newMsg = {
-      isAdmin: true,
-      content: replyContent,
-      createdAt: new Date().toISOString()
-    };
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/${activeTicket._id}/reply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ content: replyContent })
+      });
 
-    const updatedTicket = {
-      ...activeTicket,
-      status: activeTicket.status === 'Open' ? 'In Progress' : activeTicket.status,
-      updatedAt: new Date().toISOString(),
-      messages: [...(activeTicket.messages || []), newMsg]
-    };
-
-    setActiveTicket(updatedTicket);
-    setReplyContent('');
-
-    const updatedList = tickets.map(t => t._id === updatedTicket._id ? updatedTicket : t);
-    setTickets(updatedList);
-    localStorage.setItem('abkharido_helpdesk_tickets', JSON.stringify(updatedList));
-    showToastMsg('📨 Resolution reply dispatched instantly to customer!', 'success');
+      if (res.ok) {
+        const updatedTicket = await res.json();
+        setActiveTicket(updatedTicket);
+        setReplyContent('');
+        const updatedList = tickets.map(t => t._id === updatedTicket._id ? updatedTicket : t);
+        setTickets(updatedList);
+        localStorage.setItem('abkharido_helpdesk_tickets', JSON.stringify(updatedList));
+        showToastMsg('📨 Resolution reply dispatched instantly to customer!', 'success');
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToastMsg(err.error || 'Failed to dispatch reply', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToastMsg('Network error while dispatching reply', 'error');
+    }
   };
 
-  const handleUpdateStatus = (status) => {
+  const handleUpdateStatus = async (status) => {
     if (!activeTicket) return;
-    const updatedTicket = {
-      ...activeTicket,
-      status,
-      slaRemaining: status === 'Resolved' ? 'Resolved within SLA' : activeTicket.slaRemaining,
-      updatedAt: new Date().toISOString()
-    };
+    try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/${activeTicket._id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
 
-    setActiveTicket(updatedTicket);
-    const updatedList = tickets.map(t => t._id === updatedTicket._id ? updatedTicket : t);
-    setTickets(updatedList);
-    localStorage.setItem('abkharido_helpdesk_tickets', JSON.stringify(updatedList));
-    showToastMsg(`🛡️ Ticket #${activeTicket._id} status transitioned to: [${status}]!`, 'success');
+      if (res.ok) {
+        const updatedTicket = await res.json();
+        setActiveTicket(updatedTicket);
+        const updatedList = tickets.map(t => t._id === updatedTicket._id ? updatedTicket : t);
+        setTickets(updatedList);
+        localStorage.setItem('abkharido_helpdesk_tickets', JSON.stringify(updatedList));
+        showToastMsg(`🛡️ Ticket #${activeTicket._id} status transitioned to: [${status}]!`, 'success');
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToastMsg(err.error || 'Failed to update ticket status', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToastMsg('Network error while updating status', 'error');
+    }
   };
 
   const handleToggleMask = () => {
@@ -204,9 +227,14 @@ const AdminHelpdesk = () => {
 
     setIsSavingBot(true);
     try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch('/api/admin/bot-config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ action: 'ADD_RULE', rule: newRule })
       });
       const data = await res.json();
@@ -226,9 +254,14 @@ const AdminHelpdesk = () => {
 
   const handleToggleRule = async (ruleId) => {
     try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch('/api/admin/bot-config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ action: 'TOGGLE_RULE', rule: { id: ruleId } })
       });
       if (res.ok) {
@@ -240,9 +273,14 @@ const AdminHelpdesk = () => {
 
   const handleDeleteRule = async (ruleId) => {
     try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch('/api/admin/bot-config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ action: 'DELETE_RULE', rule: { id: ruleId } })
       });
       if (res.ok) {
@@ -255,9 +293,14 @@ const AdminHelpdesk = () => {
 
   const handleUpdateBotSettings = async (updates) => {
     try {
+      const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch('/api/admin/bot-config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ action: 'UPDATE_CONFIG', config: updates })
       });
       if (res.ok) {

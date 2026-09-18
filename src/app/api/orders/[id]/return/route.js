@@ -21,7 +21,8 @@ export async function POST(req, context) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { reason, refundDestination, status: returnStatus } = body;
+    const { reason, refundDestination, status: returnStatus, action } = body;
+    const effectiveStatus = returnStatus || (action === 'Approve' ? 'Approved' : (action === 'Reject' ? 'Return Rejected' : action));
 
     let order = null;
     if (/^[0-9a-fA-F]{24}$/.test(String(id))) {
@@ -41,8 +42,8 @@ export async function POST(req, context) {
     }
 
     // Admin updating return status
-    if (returnStatus && (auth.isAdmin || auth.isSeller)) {
-      order.status = returnStatus === 'Approved' ? 'Return Approved' : returnStatus;
+    if (effectiveStatus && (auth.isAdmin || auth.isSeller)) {
+      order.status = effectiveStatus === 'Approved' ? 'Return Approved' : effectiveStatus;
       if (!order.trackingHistory) order.trackingHistory = [];
       order.trackingHistory.push({
         status: order.status,

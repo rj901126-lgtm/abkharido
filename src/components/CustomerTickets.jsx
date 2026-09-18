@@ -118,7 +118,7 @@ const CustomerTickets = () => {
 
   const handleViewTicket = async (id) => {
     try {
-      const token = sessionStorage.getItem('abkharido_token');
+      const token = getUserToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tickets/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

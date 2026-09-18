@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema({
   senderId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.Mixed,
     ref: 'User',
-    required: true
+    required: false
   },
   isAdmin: {
     type: Boolean,
