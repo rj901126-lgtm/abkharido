@@ -109,24 +109,18 @@ const Login = ({ onNavigate, callbackUrl }) => {
 
   const cleanupRecaptcha = () => {
     if (window.recaptchaVerifier) {
-      try { window.recaptchaVerifier.clear(); } catch (_) {}
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (_) {}
       window.recaptchaVerifier = null;
     }
     const container = document.getElementById('recaptcha-container');
     if (container) container.innerHTML = '';
-    if (typeof document !== 'undefined') {
-      const strayBadges = document.querySelectorAll('.grecaptcha-badge, iframe[src*="recaptcha"]');
-      strayBadges.forEach(el => {
-        try {
-          const parent = el.closest('div[style*="position: absolute"], div[style*="position: fixed"]') || el;
-          if (parent && parent.parentNode) parent.parentNode.removeChild(parent);
-        } catch (_) {}
-      });
-    }
   };
 
   const handleRequestOtp = async (e) => {
     if (e) e.preventDefault();
+    const cleanPhone = (phone || '').trim();
     if (!validatePhone()) return;
     setIsSending(true);
     setFirebaseConfirmation(null);
@@ -137,42 +131,52 @@ const Login = ({ onNavigate, callbackUrl }) => {
         // ── Primary: Firebase Phone Authentication (Authentic Carrier SMS Delivery) ──
         try {
           if (!window.recaptchaVerifier) {
-            try {
-              const container = document.getElementById('recaptcha-container');
-              if (container) container.innerHTML = '';
-              
-              window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
-                size: 'invisible',
-                callback: () => {},
-                'expired-callback': () => { cleanupRecaptcha(); }
-              });
-              await window.recaptchaVerifier.render();
-            } catch (_recaptchaErr) {
-              // Gracefully handle recaptcha render
-            }
+            const container = document.getElementById('recaptcha-container');
+            if (container) container.innerHTML = '';
+            
+            window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', {
+              size: 'invisible',
+              callback: () => {},
+              'expired-callback': () => { cleanupRecaptcha(); }
+            });
+            await window.recaptchaVerifier.render();
           }
           
           if (window.recaptchaVerifier) {
-            const fbPromise = signInWithPhoneNumber(firebaseAuth, `+91${phone}`, window.recaptchaVerifier);
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase SMS timeout')), 20000));
-            const result = await Promise.race([fbPromise, timeoutPromise]);
+            const result = await signInWithPhoneNumber(firebaseAuth, `+91${cleanPhone}`, window.recaptchaVerifier);
             setFirebaseConfirmation(result);
             firebaseSent = true;
             setShowOtpScreen(true);
             setTimer(60);
-            showToast('✅ 6-digit verification code sent via SMS to +91 ' + phone, 'success');
+            showToast('✅ 6-digit verification code sent via SMS to +91 ' + cleanPhone, 'success');
+            return;
           }
         } catch (fbErr) {
           cleanupRecaptcha();
           console.warn('[Firebase SMS Gateway Warning]:', fbErr);
-          if (fbErr?.code === 'auth/invalid-phone-number') {
+          const code = fbErr?.code || '';
+          
+          if (code === 'auth/invalid-phone-number') {
             showToast('Invalid phone number format. Please check and try again.', 'error');
             return;
-          }
-          if (fbErr?.code === 'auth/quota-exceeded') {
-            showToast('Firebase daily SMS quota reached. Falling back to direct SMS...', 'info');
-          } else if (fbErr?.code === 'auth/billing-not-enabled') {
-            showToast('Firebase carrier billing not enabled. Falling back to direct SMS...', 'info');
+          } else if (code === 'auth/sms-region-policy-denied') {
+            showToast('Firebase SMS Blocked: Region India (+91) is not allowed in Firebase Console > Authentication > Settings > SMS region policy.', 'error');
+            return;
+          } else if (code === 'auth/unauthorized-domain') {
+            const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'domain';
+            showToast(`Firebase Blocked: Domain "${currentHost}" is not added in Firebase Console > Authentication > Settings > Authorized domains.`, 'error');
+            return;
+          } else if (code === 'auth/billing-not-enabled') {
+            showToast('Firebase SMS requires Blaze plan in Firebase Console for carrier SMS delivery.', 'error');
+            return;
+          } else if (code === 'auth/quota-exceeded') {
+            showToast('Firebase daily SMS quota reached. Checking alternative gateway...', 'info');
+          } else if (code === 'auth/too-many-requests') {
+            showToast('Too many OTP attempts from this device. Please wait a few minutes.', 'error');
+            return;
+          } else if (code === 'auth/captcha-check-failed') {
+            showToast('reCAPTCHA security verification failed or was cancelled. Please try again.', 'error');
+            return;
           }
         }
       }
@@ -189,7 +193,6 @@ const Login = ({ onNavigate, callbackUrl }) => {
       setIsSending(false);
     }
   };
-
 
   const triggerBackendOtp = async () => {
     try {

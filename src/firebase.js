@@ -19,6 +19,11 @@ if (hasValidConfig) {
     };
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     authInstance = getAuth(app);
+    if (typeof window !== 'undefined' && authInstance && typeof authInstance.useDeviceLanguage === 'function') {
+      try {
+        authInstance.useDeviceLanguage();
+      } catch (_) {}
+    }
   } catch (err) {
     console.warn('[Firebase Client] Initialization skipped:', err?.message || err);
   }
