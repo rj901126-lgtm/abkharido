@@ -50,8 +50,12 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    await connectDB();
     const seller = verifySeller(req);
+    if (!seller || !seller.id) {
+      return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
+    }
+
+    await connectDB();
     const body = await req.json().catch(() => ({}));
     const { amount, method = 'UPI', upiId, bankAccount } = body;
 
@@ -59,6 +63,26 @@ export async function POST(req) {
     if (isNaN(withdrawAmt) || withdrawAmt < 500) {
       return NextResponse.json({ error: 'Minimum withdrawal amount is ₹500' }, { status: 400 });
     }
+
+    const user = await User.findById(seller.id);
+    if (!user) {
+      return NextResponse.json({ error: 'Merchant profile not found' }, { status: 404 });
+    }
+
+    const availableBalance = user.walletCash || user.walletCoins || user.sellerWalletBalance || 0;
+    if (withdrawAmt > availableBalance) {
+      return NextResponse.json({ 
+        error: `Insufficient balance. Your available balance is ₹${availableBalance.toLocaleString('en-IN')}.` 
+      }, { status: 400 });
+    }
+
+    // Deduct requested balance
+    if (user.walletCash && user.walletCash >= withdrawAmt) {
+      user.walletCash -= withdrawAmt;
+    } else if (user.walletCoins) {
+      user.walletCoins = Math.max(0, user.walletCoins - withdrawAmt);
+    }
+    await user.save();
 
     const payoutTxn = {
       id: `PAY-${Math.floor(100000 + Math.random() * 900000)}`,
@@ -72,7 +96,8 @@ export async function POST(req) {
     return NextResponse.json({
       success: true,
       message: `Withdrawal request for ₹${withdrawAmt.toLocaleString('en-IN')} submitted successfully!`,
-      payout: payoutTxn
+      payout: payoutTxn,
+      remainingBalance: user.walletCash || user.walletCoins || 0
     });
 
   } catch (error) {

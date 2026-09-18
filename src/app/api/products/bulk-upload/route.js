@@ -1,27 +1,19 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026_super_secure';
-
-function getAuthenticatedUser(req) {
-  const authHeader = req.headers.get('authorization') || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-  if (!token) return null;
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch {
-    return null;
-  }
-}
-
 export async function POST(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || (!auth.isAdmin && !auth.isSeller)) {
+      return NextResponse.json({ error: 'Unauthorized: Admin or Vendor credentials required for bulk product import' }, { status: 401 });
+    }
+
     await connectDB();
-    const user = getAuthenticatedUser(req);
+    const user = auth.user;
     const body = await req.json().catch(() => ({}));
     const { products } = body;
 

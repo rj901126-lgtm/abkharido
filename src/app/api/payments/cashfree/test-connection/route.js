@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getCashfreeConfig } from '../../../../../lib/cashfree.js';
+import { getAuthenticatedUser } from '../../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin privileges required' }, { status: 401 });
+    }
+
     const config = getCashfreeConfig();
 
     if (!config.appId || !config.secretKey) {

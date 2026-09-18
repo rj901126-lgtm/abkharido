@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
 import Order from '../../../../../server/models/Order.js';
 import User from '../../../../../server/models/User.js';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,62 +10,51 @@ export async function GET(req) {
   try {
     await connectDB();
     const { searchParams } = new URL(req.url);
-    const username = searchParams.get('username') || '';
-    const email = searchParams.get('email') || '';
-    const phone = searchParams.get('phone') || '';
+    const orderIdParam = searchParams.get('orderId') || searchParams.get('orderNumber') || '';
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || 'all';
 
-    // 1. Resolve user ID
-    let user = null;
-    const authHeader = req.headers.get('authorization') || '';
-    if (authHeader.startsWith('Bearer ')) {
-      const token = authHeader.slice(7);
-      try {
-        const jwt = (await import('jsonwebtoken')).default;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026');
-        if (decoded && decoded.id) {
-          user = await User.findById(decoded.id).lean();
-        }
-      } catch (_) {}
-    }
-
-    if (!user && (username || email || phone)) {
-      user = await User.findOne({
-        $or: [
-          { username: username || undefined },
-          { email: email || undefined },
-          { phone: phone || username || undefined },
-          { phone: `+91${phone || username}` }
-        ].filter(Boolean)
-      }).lean();
-    }
+    // 1. Check Authenticated Session
+    const auth = await getAuthenticatedUser(req);
 
     let userIds = [];
-    if (user) {
-      userIds.push(user._id);
-    }
+    let cleanPhone = '';
 
-    const cleanPhone = (phone || (user?.phone) || (username && /^\d{10}$/.test(username) ? username : '') || '').replace(/\D/g, '').slice(-10);
-    if (cleanPhone && cleanPhone.length === 10) {
-      const allMatchedUsers = await User.find({
-        $or: [{ phone: cleanPhone }, { username: cleanPhone }, { phone: `+91${cleanPhone}` }, { phone: `91${cleanPhone}` }]
-      }).select('_id').lean();
-      allMatchedUsers.forEach(u => {
-        if (!userIds.some(id => String(id) === String(u._id))) {
-          userIds.push(u._id);
-        }
+    if (auth && auth.isAuthenticated) {
+      if (auth.user?.id) userIds.push(auth.user.id);
+      if (auth.user?.phone) {
+        cleanPhone = auth.user.phone.replace(/\D/g, '').slice(-10);
+      }
+    } else if (orderIdParam) {
+      // 🔒 GUEST ORDER TRACKING: Only allow single order lookup when BOTH Order ID and Phone are provided
+      const guestPhone = (searchParams.get('phone') || '').replace(/\D/g, '').slice(-10);
+      if (!guestPhone || guestPhone.length !== 10) {
+        return NextResponse.json({
+          success: false,
+          error: 'Phone number is required alongside Order ID for guest order verification.',
+          orders: []
+        }, { status: 400 });
+      }
+
+      const singleOrder = await Order.findOne({
+        $and: [
+          { $or: [{ cfOrderId: orderIdParam }, { _id: orderIdParam.length === 24 ? orderIdParam : undefined }].filter(Boolean) },
+          { $or: [{ 'shippingAddress.phone': guestPhone }, { 'shippingAddress.phone': `+91${guestPhone}` }, { 'shippingAddress.phone': `91${guestPhone}` }] }
+        ]
+      }).lean();
+
+      return NextResponse.json({
+        success: true,
+        orders: singleOrder ? [singleOrder] : [],
+        total: singleOrder ? 1 : 0
       });
-    }
-
-    // 🔒 STRICT PRIVACY LOCK: Never return orders if no user or 10-digit phone is identified
-    if (userIds.length === 0 && (!cleanPhone || cleanPhone.length !== 10)) {
+    } else {
+      // Unauthenticated request without Order ID -> reject enumeration to protect customer PII
       return NextResponse.json({
         success: true,
         orders: [],
         total: 0,
-        page: 1,
-        pages: 0
+        message: 'Authentication required to list order history.'
       });
     }
 

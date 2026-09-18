@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import Product from '../../../../server/models/Product.js';
 import { PRODUCTS } from '../../../db/mockData.js';
+import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
 
 // Public Product DTO Serializer
 function toPublicProductDTO(product) {
@@ -181,6 +182,11 @@ export async function GET(req) {
 
 export async function DELETE(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin privileges required to delete products' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json().catch(() => ({}));
     const { ids, id, deleteAll } = body;

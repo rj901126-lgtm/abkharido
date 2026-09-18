@@ -54,6 +54,11 @@ export async function GET(req) {
 
 export async function PUT(req) {
   try {
+    const seller = verifySeller(req);
+    if (!seller || !seller.id) {
+      return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json().catch(() => ({}));
     const { orderId, status = 'Dispatched', courier = 'BlueDart Express Air' } = body;
@@ -62,19 +67,27 @@ export async function PUT(req) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
     }
 
-    const order = await Order.findOne({ $or: [{ _id: orderId }, { orderId: orderId }] });
-    if (order) {
-      order.status = status;
-      if (status === 'Dispatched' || status === 'Shipped') {
-        order.courier = courier;
-        order.courierPartner = courier;
-        if (!order.awb) order.awb = `NMB-${Math.floor(10000000 + Math.random() * 90000000)}`;
-        if (!order.awbNumber) order.awbNumber = order.awb;
-      }
-      await order.save();
+    const order = await Order.findOne({ $or: [{ _id: orderId }, { cfOrderId: orderId }, { id: orderId }] });
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
+    const sellerOwnsOrder = order.vendorId === seller.id ||
+      (Array.isArray(order.orderItems) && order.orderItems.some(i => i.vendorId === seller.id)) ||
+      seller.role === 'admin' || seller.role === 'super_admin';
 
+    if (!sellerOwnsOrder) {
+      return NextResponse.json({ error: 'Forbidden: You do not have permission to manage this order' }, { status: 403 });
+    }
+
+    order.status = status;
+    if (status === 'Dispatched' || status === 'Shipped') {
+      order.courier = courier;
+      order.courierPartner = courier;
+      if (!order.awb) order.awb = `NMB-${Math.floor(10000000 + Math.random() * 90000000)}`;
+      if (!order.awbNumber) order.awbNumber = order.awb;
+    }
+    await order.save();
 
     return NextResponse.json({
       success: true,

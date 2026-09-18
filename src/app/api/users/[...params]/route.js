@@ -319,7 +319,9 @@ export async function POST(req, { params }) {
     }
 
     const updatedUser = await user.save();
-    return NextResponse.json(updatedUser.toObject());
+    const safeUser = updatedUser.toObject();
+    delete safeUser.password;
+    return NextResponse.json(safeUser);
   } catch (error) {
     console.error('[User API Proxy POST Error]:', error);
     return NextResponse.json({ error: error.message || 'Failed to update user profile' }, { status: 500 });

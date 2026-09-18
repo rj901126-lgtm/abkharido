@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
 import { PRODUCTS } from '../../../../db/mockData.js';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 
 function toPublicProductDTO(product) {
   if (!product) return null;
@@ -108,6 +109,11 @@ export async function GET(req, context) {
 
 export async function DELETE(req, context) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || (!auth.isAdmin && !auth.isSeller)) {
+      return NextResponse.json({ error: 'Unauthorized: Admin or Vendor access required' }, { status: 401 });
+    }
+
     await connectDB();
     const params = await context.params;
     const id = params?.id;
@@ -117,6 +123,20 @@ export async function DELETE(req, context) {
 
     const cleanId = id.trim();
     const isObjectId = cleanId.length === 24;
+
+    // If seller, check vendor ownership
+    if (!auth.isAdmin && auth.isSeller) {
+      const existingProduct = await Product.findOne({
+        $or: [
+          { id: cleanId },
+          { slug: cleanId },
+          { _id: isObjectId ? cleanId : undefined }
+        ].filter(Boolean)
+      });
+      if (existingProduct && existingProduct.vendorId && String(existingProduct.vendorId) !== String(auth.user?.id)) {
+        return NextResponse.json({ error: 'Forbidden: You cannot delete a product belonging to another seller' }, { status: 403 });
+      }
+    }
 
     const res = await Product.deleteOne({
       $or: [

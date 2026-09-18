@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
+import { getAuthenticatedUser } from '../../../../../lib/serverAuth.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req, context) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || (!auth.isAdmin && !auth.isSeller)) {
+      return NextResponse.json({ error: 'Unauthorized: Admin or Vendor access required' }, { status: 401 });
+    }
+
     await connectDB();
     const params = await (context?.params || {});
     const id = params?.id;

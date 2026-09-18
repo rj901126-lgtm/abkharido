@@ -46,8 +46,12 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    await connectDB();
     const seller = verifySeller(req);
+    if (!seller || !seller.id) {
+      return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
+    }
+
+    await connectDB();
     const body = await req.json().catch(() => ({}));
     const { name, category, price, originalPrice, image, description, specs, inStock = true, countInStock = 50 } = body;
 
