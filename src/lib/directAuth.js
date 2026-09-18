@@ -165,19 +165,13 @@ export async function verifyOtpDirect(params = {}) {
     storedOtpDoc = await Otp.findOne({ phone: '+91' + normalizedRecipient }).sort({ createdAt: -1 });
   }
 
-  // Dev / Testing bypass when enabled in .env
-  const isDevTestAllowed = process.env.ALLOW_TEST_OTP === 'true';
-  const isTestOtp = isDevTestAllowed && (otp === '123456' || otp === '999999');
-
-  if (!storedOtpDoc && !isTestOtp) {
-    throw new Error('Incorrect OTP or verification code expired. Please request a new OTP.');
+  if (!storedOtpDoc) {
+    throw new Error('Verification code expired or not found. Please request a new OTP.');
   }
 
-  if (storedOtpDoc) {
-    const isMatch = await storedOtpDoc.matchOtp(otp);
-    if (!isMatch && !isTestOtp) {
-      throw new Error('Incorrect OTP code. Please check the digits received via SMS and try again.');
-    }
+  const isMatch = await storedOtpDoc.matchOtp(otp);
+  if (!isMatch) {
+    throw new Error('Incorrect OTP code. Please check the digits received via SMS and try again.');
   }
 
   // OTP verified — immediately delete to enforce single-use

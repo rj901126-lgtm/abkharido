@@ -149,7 +149,14 @@ export async function POST(req) {
     const directResult = await sendOtpDirect({ recipient: normalized });
 
     // Try external SMS gateway if configured
-    await sendViaSmsGateway(normalized, directResult._otp || '');
+    const smsSent = await sendViaSmsGateway(normalized, directResult._otp || '');
+
+    if (!smsSent && !process.env.FAST2SMS_API_KEY && !process.env.MSG91_API_KEY) {
+      return NextResponse.json({
+        error: 'Carrier SMS Gateway not configured on server. Please configure FAST2SMS_API_KEY in .env or verify your Firebase Blaze plan for real SMS delivery.',
+        requiresGateway: true
+      }, { status: 503 });
+    }
 
     // Return sanitized response with no sensitive internals
     return NextResponse.json({ 

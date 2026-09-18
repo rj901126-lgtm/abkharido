@@ -178,19 +178,13 @@ export const verifyOtp = async (req, res, next) => {
       storedOtpDoc = await Otp.findOne({ phone: rawRecipient }).sort({ createdAt: -1 });
     }
     
-    // Strict Dev-only bypass: NEVER in production environment
-    const isDevTestAllowed = process.env.NODE_ENV !== 'production' && process.env.ALLOW_TEST_OTP === 'true';
-    const isTestOtp = isDevTestAllowed && otp === '123456';
-
-    if (!storedOtpDoc && !isTestOtp) {
-      return res.status(400).json({ error: 'Incorrect OTP or verification expired. Please request a new code.' });
+    if (!storedOtpDoc) {
+      return res.status(400).json({ error: 'Verification code expired or not found. Please request a new OTP.' });
     }
     
-    if (storedOtpDoc) {
-      const isMatch = await storedOtpDoc.matchOtp(otp);
-      if (!isMatch && !isTestOtp) {
-        return res.status(400).json({ error: 'Incorrect OTP. Please check the code and try again.' });
-      }
+    const isMatch = await storedOtpDoc.matchOtp(otp);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Incorrect OTP. Please check the SMS code and try again.' });
     }
     
     // OTP is valid — delete immediately to enforce single-use

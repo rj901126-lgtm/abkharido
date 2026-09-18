@@ -164,11 +164,16 @@ const Login = ({ onNavigate, callbackUrl }) => {
           }
         } catch (fbErr) {
           cleanupRecaptcha();
+          console.warn('[Firebase SMS Gateway Warning]:', fbErr);
           if (fbErr?.code === 'auth/invalid-phone-number') {
             showToast('Invalid phone number format. Please check and try again.', 'error');
             return;
           }
-          // On Firebase limit or network error, silently fall through to backend OTP gateway
+          if (fbErr?.code === 'auth/quota-exceeded') {
+            showToast('Firebase daily SMS quota reached. Falling back to direct SMS...', 'info');
+          } else if (fbErr?.code === 'auth/billing-not-enabled') {
+            showToast('Firebase carrier billing not enabled. Falling back to direct SMS...', 'info');
+          }
         }
       }
 
