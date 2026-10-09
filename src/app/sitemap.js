@@ -63,7 +63,10 @@ export default async function sitemap() {
   let productUrls = [];
   try {
     await connectDB();
-    const dbProducts = await Product.find({}).select('id _id updatedAt').lean();
+    const dbProducts = await Product.find({
+      status: { $in: ['published', 'active'] },
+      isArchived: { $ne: true }
+    }).select('id _id updatedAt').lean();
     if (dbProducts && dbProducts.length > 0) {
       productUrls = dbProducts.map(p => ({
         url: `${baseUrl}/product/${p.id || p._id}`,
@@ -75,12 +78,14 @@ export default async function sitemap() {
   } catch (_err) {}
 
   if (productUrls.length === 0) {
-    productUrls = PRODUCTS.map(p => ({
-      url: `${baseUrl}/product/${p.id}`,
-      lastModified: new Date().toISOString(),
-      changeFrequency: 'daily',
-      priority: 0.95,
-    }));
+    productUrls = PRODUCTS
+      .filter(p => (p.status === 'published' || p.status === 'active') && !p.isArchived)
+      .map(p => ({
+        url: `${baseUrl}/product/${p.id}`,
+        lastModified: p.updatedAt ? new Date(p.updatedAt).toISOString() : new Date().toISOString(),
+        changeFrequency: 'daily',
+        priority: 0.95,
+      }));
   }
 
   return [...staticPages, ...dedicatedCategoryPages, ...categoryUrls, ...blogUrls, ...productUrls];

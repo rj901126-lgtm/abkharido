@@ -63,17 +63,26 @@ const productSchema = new mongoose.Schema({
 
   // Services
   hasProCare: { type: Boolean, default: false },
+  warrantyMonths: { type: Number, default: 0 },
+  gstRate: { type: Number, default: 18 },
 
   // Catalogue Lifecycle Status
-  status: { type: String, enum: ['active', 'archived', 'draft'], default: 'active', index: true },
+  status: { type: String, enum: ['draft', 'review', 'published', 'archived', 'active'], default: 'draft', index: true },
   isArchived: { type: Boolean, default: false, index: true },
+  updatedBy: { type: String },
+  auditLogs: [{
+    action: { type: String, required: true },
+    user: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    details: { type: mongoose.Schema.Types.Mixed }
+  }],
 
   // Imagery
   image: { type: String, required: true },
   images: [{ type: String }],
   
   // Ratings & Reviews
-  rating: { type: Number, default: 4.5 },
+  rating: { type: Number, default: 0 },
   reviewsCount: { type: Number, default: 0 },
   reviews: [reviewSchema],
   

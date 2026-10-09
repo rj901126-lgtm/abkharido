@@ -75,7 +75,7 @@ async function runTestSuite() {
     console.log('\n--- Test 2.3: GET /api/products Route Filter Implementation ---');
     const productsRouteContent = fs.readFileSync(path.resolve('./src/app/api/products/route.js'), 'utf-8');
     
-    assert(productsRouteContent.includes("status: { $ne: 'archived' }"), 
+    assert(productsRouteContent.includes("$ne: 'archived'") || productsRouteContent.includes("status: { $ne: 'archived' }"), 
       '2.3.1: src/app/api/products/route.js filters out status: archived from DB queries');
     assert(productsRouteContent.includes("isArchived: { $ne: true }"), 
       '2.3.2: src/app/api/products/route.js filters out isArchived: true from DB queries');

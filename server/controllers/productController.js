@@ -2,45 +2,8 @@ import Product from '../models/Product.js';
 // eslint-disable-next-line
 import productsData from '../data/productsData.js';
 import { clearCache } from '../middleware/cacheMiddleware.js';
-
-// Public Product DTO Serializer to protect business confidentiality
-export const toPublicProductDTO = (product) => {
-  if (!product) return null;
-  return {
-    id: product.id,
-    name: product.name,
-    category: product.category,
-    description: product.description,
-    price: product.price,
-    originalPrice: product.originalPrice,
-    inStock: Boolean(product.inStock !== false && (product.stock === undefined || product.stock > 0)),
-    image: product.image,
-    images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
-    rating: product.rating || 4.5,
-    reviewsCount: product.reviewsCount || 0,
-    highlights: product.highlights || [],
-    features: product.features || [],
-    specs: product.specs || [],
-    specifications: product.specifications || product.specs || [],
-    colorModels: (product.colorModels || []).map(cm => ({
-      name: cm.name,
-      primaryImage: cm.primaryImage,
-      images: cm.images || [],
-      variants: (cm.variants || []).map(v => ({
-        name: v.name,
-        price: v.price,
-        originalPrice: v.originalPrice,
-        discount: v.discount
-      }))
-    })),
-    hasProCare: Boolean(product.hasProCare),
-    flashSale: product.flashSale?.isActive ? {
-      isActive: true,
-      price: product.flashSale.price,
-      endTime: product.flashSale.endTime
-    } : undefined
-  };
-};
+import { toPublicProductDTO, validateProductData } from '../../src/lib/productValidator.js';
+export { toPublicProductDTO };
 
 // @desc    Fetch all products with strict validation and public sanitization
 // @route   GET /api/products
@@ -56,7 +19,12 @@ export const getProducts = async (req, res, next) => {
     const search = typeof req.query.search === 'string' ? req.query.search.trim().substring(0, 100) : '';
     const category = typeof req.query.category === 'string' ? req.query.category.trim().substring(0, 50) : '';
 
+    const isPrivileged = req.user && ['admin', 'super_admin', 'seller'].includes(req.user.role);
     let filter = {};
+    if (!isPrivileged) {
+      filter.status = { $in: ['published', 'active'] };
+      filter.isArchived = { $ne: true };
+    }
     if (category && category.toLowerCase() !== 'all') {
       filter.category = { $regex: new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
     }
@@ -100,7 +68,6 @@ export const getProducts = async (req, res, next) => {
     const products = await query;
     
     // Check if requester is admin/seller with privileged access
-    const isPrivileged = req.user && ['admin', 'super_admin', 'seller'].includes(req.user.role);
     const sanitizedProducts = isPrivileged ? products : products.map(toPublicProductDTO);
 
     res.json({
@@ -130,6 +97,10 @@ export const getProductById = async (req, res, next) => {
 
     if (product) {
       const isPrivileged = req.user && ['admin', 'super_admin', 'seller'].includes(req.user.role);
+      const isLive = product.status === 'published' || product.status === 'active';
+      if (!isPrivileged && (!isLive || product.isArchived)) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
       res.json(isPrivileged ? product : toPublicProductDTO(product));
     } else {
       res.status(404).json({ error: 'Product not found' });
@@ -144,22 +115,35 @@ export const getProductById = async (req, res, next) => {
 // @access  Private/Admin or Seller
 export const createProduct = async (req, res, next) => {
   try {
-    // [SEC-PATCH]: Prevent Mass Assignment Vulnerability
-    const sanitizedBody = { ...req.body };
-    delete sanitizedBody.rating;
-    delete sanitizedBody.reviewsCount;
-    delete sanitizedBody.reviews;
-    delete sanitizedBody.vendorId;
-    delete sanitizedBody.sellerId;
-    delete sanitizedBody.soldCount;
+    const validation = validateProductData(req.body, req.user, false);
+    if (!validation.isValid) {
+      return res.status(400).json({ error: 'Validation failed', errors: validation.errors });
+    }
+
+    const { sanitizedProduct } = validation;
+
+    // Check duplicate ID
+    const existing = await Product.findOne({ id: sanitizedProduct.id });
+    if (existing) {
+      return res.status(409).json({ error: `Product ID "${sanitizedProduct.id}" already exists.` });
+    }
+
+    sanitizedProduct.updatedBy = req.user?.email || req.user?._id || 'admin';
+    sanitizedProduct.auditLogs = [{
+      action: 'CREATE',
+      user: req.user?.email || req.user?._id || 'admin',
+      timestamp: new Date(),
+      details: { status: sanitizedProduct.status, name: sanitizedProduct.name }
+    }];
 
     const product = new Product({
-      ...sanitizedBody,
+      ...sanitizedProduct,
       sellerId: req.user._id === 'master_admin_legacy' ? null : req.user._id
     });
     const createdProduct = await product.save();
     await clearCache('cache:/api/products*');
-    res.status(201).json(createdProduct);
+    const isPrivileged = req.user && ['admin', 'super_admin', 'seller'].includes(req.user.role);
+    res.status(201).json(isPrivileged ? createdProduct : toPublicProductDTO(createdProduct));
   } catch (error) {
     next(error);
   }
@@ -179,19 +163,27 @@ export const updateProduct = async (req, res, next) => {
         throw new Error('Not authorized to edit this product');
       }
 
-      // [SEC-PATCH]: Prevent Mass Assignment Vulnerability
-      const sanitizedBody = { ...req.body };
-      delete sanitizedBody.rating;
-      delete sanitizedBody.reviewsCount;
-      delete sanitizedBody.reviews;
-      delete sanitizedBody.vendorId;
-      delete sanitizedBody.sellerId;
-      delete sanitizedBody.soldCount;
+      const validation = validateProductData(req.body, req.user, true);
+      if (!validation.isValid) {
+        return res.status(400).json({ error: 'Validation failed', errors: validation.errors });
+      }
 
-      Object.assign(product, sanitizedBody);
+      const { sanitizedProduct } = validation;
+
+      if (!product.auditLogs) product.auditLogs = [];
+      product.auditLogs.push({
+        action: 'UPDATE',
+        user: req.user?.email || req.user?._id || 'admin',
+        timestamp: new Date(),
+        details: { changedStatus: sanitizedProduct.status, changes: Object.keys(sanitizedProduct) }
+      });
+      product.updatedBy = req.user?.email || req.user?._id || 'admin';
+
+      Object.assign(product, sanitizedProduct);
       const updatedProduct = await product.save();
       await clearCache('cache:/api/products*');
-      res.json(updatedProduct);
+      const isPrivileged = req.user && ['admin', 'super_admin', 'seller'].includes(req.user.role);
+      res.json(isPrivileged ? updatedProduct : toPublicProductDTO(updatedProduct));
     } else {
       res.status(404);
       throw new Error('Product not found');

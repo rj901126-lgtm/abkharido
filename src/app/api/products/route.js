@@ -3,47 +3,7 @@ import connectDB from '../../../lib/connectDB.js';
 import Product from '../../../../server/models/Product.js';
 import { PRODUCTS } from '../../../db/mockData.js';
 import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
-
-// Public Product DTO Serializer
-function toPublicProductDTO(product) {
-  if (!product) return null;
-  return {
-    id: product.id,
-    name: product.name,
-    category: product.category,
-    description: product.description,
-    price: product.price,
-    originalPrice: product.originalPrice,
-    inStock: Boolean(product.inStock !== false && (product.stock === undefined || product.stock > 0)),
-    image: product.image,
-    images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
-    rating: product.rating || 0,
-    reviewsCount: product.reviewsCount || 0,
-    highlights: product.highlights || [],
-    features: product.features || [],
-    specs: product.specs || [],
-    specifications: product.specifications || product.specs || [],
-    colorModels: (product.colorModels || []).map(cm => ({
-      name: cm.name,
-      primaryImage: cm.primaryImage,
-      images: cm.images || [],
-      variants: (cm.variants || []).map(v => ({
-        name: v.name,
-        price: v.price,
-        originalPrice: v.originalPrice,
-        discount: v.discount
-      }))
-    })),
-    hasProCare: Boolean(product.hasProCare),
-    sellerShopName: product.sellerShopName || product.sellerName || 'AbKharido Official Store',
-    sellerId: product.sellerId || product.seller || '',
-    flashSale: product.flashSale?.isActive ? {
-      isActive: true,
-      price: product.flashSale.price,
-      endTime: product.flashSale.endTime
-    } : undefined
-  };
-}
+import { toPublicProductDTO, validateProductData } from '../../../lib/productValidator.js';
 
 async function fetchBackend(url) {
   const hosts = [
@@ -106,7 +66,7 @@ export async function GET(req) {
     try {
       await connectDB();
       let filter = {
-        status: { $ne: 'archived' },
+        status: { $in: ['published', 'active'], $ne: 'archived' },
         isArchived: { $ne: true }
       };
       if (category && category !== 'all') {
@@ -134,7 +94,7 @@ export async function GET(req) {
       let products = await query;
 
       if (!products || (products.length === 0 && total === 0)) {
-        let fallback = PRODUCTS.filter(p => p.status !== 'archived' && !p.isArchived);
+        let fallback = PRODUCTS.filter(p => p.status !== 'archived' && !p.isArchived && (p.status === 'published' || p.status === 'active'));
         if (category && category !== 'all') {
           fallback = fallback.filter(p => p.category && p.category.toLowerCase() === category.toLowerCase());
         }
@@ -168,7 +128,7 @@ export async function GET(req) {
       });
     } catch (dbError) {
       console.warn('[Products Native API] DB fallback, using mock catalog:', dbError.message);
-      let fallback = [...PRODUCTS];
+      let fallback = PRODUCTS.filter(p => p.status !== 'archived' && !p.isArchived && (p.status === 'published' || p.status === 'active'));
       if (category && category !== 'all') {
         fallback = fallback.filter(p => p.category && p.category.toLowerCase() === category.toLowerCase());
       }
@@ -183,6 +143,59 @@ export async function GET(req) {
   } catch (error) {
     console.error('[Products API Route Error]:', error);
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+  }
+}
+
+export async function POST(req) {
+  try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || (!auth.isAdmin && auth.user?.role !== 'seller')) {
+      return NextResponse.json({ error: 'Unauthorized: Admin or Seller access required' }, { status: 401 });
+    }
+
+    await connectDB();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid product payload' }, { status: 400 });
+    }
+
+    const validation = validateProductData(body, auth.user, false);
+    if (!validation.isValid) {
+      return NextResponse.json({ error: 'Validation failed', errors: validation.errors }, { status: 400 });
+    }
+
+    const { sanitizedProduct } = validation;
+
+    // Check if ID already exists
+    const existing = await Product.findOne({ id: sanitizedProduct.id }).lean();
+    if (existing) {
+      return NextResponse.json({ error: `Product with ID "${sanitizedProduct.id}" already exists.` }, { status: 409 });
+    }
+
+    // Set owner / seller linkage
+    if (!auth.isAdmin && auth.user?.role === 'seller') {
+      sanitizedProduct.sellerId = auth.user._id || auth.user.id;
+      sanitizedProduct.sellerShopName = auth.user.shopName || 'Verified Partner Store';
+    }
+
+    // Audit trail
+    sanitizedProduct.updatedBy = auth.user.email || auth.user.id || 'admin';
+    sanitizedProduct.auditLogs = [{
+      action: 'CREATE',
+      user: auth.user.email || auth.user.id || 'admin',
+      timestamp: new Date(),
+      details: { status: sanitizedProduct.status, name: sanitizedProduct.name, price: sanitizedProduct.price }
+    }];
+
+    const created = await Product.create(sanitizedProduct);
+    return NextResponse.json({
+      success: true,
+      message: 'Product created successfully',
+      product: toPublicProductDTO(created)
+    }, { status: 201 });
+  } catch (error) {
+    console.error('[Products API POST Error]:', error);
+    return NextResponse.json({ error: error.message || 'Failed to create product' }, { status: 500 });
   }
 }
 

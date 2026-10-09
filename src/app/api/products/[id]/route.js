@@ -3,44 +3,7 @@ import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
 import { PRODUCTS } from '../../../../db/mockData.js';
 import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
-
-function toPublicProductDTO(product) {
-  if (!product) return null;
-  return {
-    id: product.id,
-    name: product.name,
-    category: product.category,
-    description: product.description,
-    price: product.price,
-    originalPrice: product.originalPrice,
-    inStock: Boolean(product.inStock !== false && (product.stock === undefined || product.stock > 0)),
-    image: product.image,
-    images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
-    rating: product.rating || 0,
-    reviewsCount: product.reviewsCount || 0,
-    highlights: product.highlights || [],
-    features: product.features || [],
-    specs: product.specs || [],
-    specifications: product.specifications || product.specs || [],
-    colorModels: (product.colorModels || []).map(cm => ({
-      name: cm.name,
-      primaryImage: cm.primaryImage,
-      images: cm.images || [],
-      variants: (cm.variants || []).map(v => ({
-        name: v.name,
-        price: v.price,
-        originalPrice: v.originalPrice,
-        discount: v.discount
-      }))
-    })),
-    hasProCare: Boolean(product.hasProCare),
-    flashSale: product.flashSale?.isActive ? {
-      isActive: true,
-      price: product.flashSale.price,
-      endTime: product.flashSale.endTime
-    } : undefined
-  };
-}
+import { toPublicProductDTO, validateProductData } from '../../../../lib/productValidator.js';
 
 async function fetchBackend(url) {
   const hosts = [
@@ -104,6 +67,17 @@ export async function GET(req, context) {
             { status: 404, headers: { 'X-Robots-Tag': 'noindex, nofollow' } }
           );
         }
+        const isLive = product.status === 'published' || product.status === 'active';
+        if (!isLive) {
+          const auth = await getAuthenticatedUser(req);
+          const isPrivileged = auth && (auth.isAdmin || (auth.user?.role === 'seller' && (product.sellerId === auth.user._id || product.sellerId === auth.user.id)));
+          if (!isPrivileged) {
+            return NextResponse.json(
+              { error: 'Product not found' },
+              { status: 404, headers: { 'X-Robots-Tag': 'noindex, nofollow' } }
+            );
+          }
+        }
         return NextResponse.json(toPublicProductDTO(product));
       }
     } catch (dbErr) {
@@ -113,7 +87,7 @@ export async function GET(req, context) {
     // Fallback to local catalog if not found in database
     const localProd = PRODUCTS.find(p => 
       (p.id === cleanId || p.id === lookupId || p.slug === cleanId || p._id === cleanId) &&
-      p.status !== 'archived' && !p.isArchived
+      (p.status === 'published' || p.status === 'active') && !p.isArchived
     );
     if (localProd) return NextResponse.json(toPublicProductDTO(localProd));
 
@@ -124,6 +98,78 @@ export async function GET(req, context) {
   } catch (error) {
     console.error('[Product Detail Route Error]:', error);
     return NextResponse.json({ error: 'Failed to retrieve product detail' }, { status: 500 });
+  }
+}
+
+export async function PUT(req, context) {
+  try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || (!auth.isAdmin && auth.user?.role !== 'seller')) {
+      return NextResponse.json({ error: 'Unauthorized: Admin or Seller access required' }, { status: 401 });
+    }
+
+    await connectDB();
+    const params = await context.params;
+    const id = params?.id;
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+    }
+
+    const cleanId = id.trim();
+    const isObjectId = cleanId.length === 24;
+
+    const product = await Product.findOne({
+      $or: [
+        { id: cleanId },
+        { slug: cleanId },
+        { _id: isObjectId ? cleanId : undefined }
+      ].filter(Boolean)
+    });
+
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // If seller, check ownership
+    if (!auth.isAdmin && auth.user?.role === 'seller') {
+      if (product.sellerId && String(product.sellerId) !== String(auth.user._id || auth.user.id)) {
+        return NextResponse.json({ error: 'Forbidden: You cannot edit another seller\'s product' }, { status: 403 });
+      }
+    }
+
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid update payload' }, { status: 400 });
+    }
+
+    const validation = validateProductData(body, auth.user, true);
+    if (!validation.isValid) {
+      return NextResponse.json({ error: 'Validation failed', errors: validation.errors }, { status: 400 });
+    }
+
+    const { sanitizedProduct } = validation;
+
+    // Record audit trail
+    if (!product.auditLogs) product.auditLogs = [];
+    product.auditLogs.push({
+      action: 'UPDATE',
+      user: auth.user.email || auth.user.id || 'admin',
+      timestamp: new Date(),
+      details: { changedStatus: sanitizedProduct.status, changes: Object.keys(sanitizedProduct) }
+    });
+    product.updatedBy = auth.user.email || auth.user.id || 'admin';
+
+    Object.assign(product, sanitizedProduct);
+    await product.save();
+
+    return NextResponse.json({
+      success: true,
+      message: 'Product updated successfully',
+      product: toPublicProductDTO(product)
+    });
+  } catch (error) {
+    console.error('[Product PUT Route Error]:', error);
+    return NextResponse.json({ error: error.message || 'Failed to update product' }, { status: 500 });
   }
 }
 

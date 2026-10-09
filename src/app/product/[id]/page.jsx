@@ -27,7 +27,7 @@ async function getProduct(id) {
         ].filter(Boolean)
       }).lean();
       if (productDoc) {
-        if (productDoc.status === 'archived' || productDoc.isArchived) return null;
+        if (productDoc.status === 'archived' || productDoc.status === 'draft' || productDoc.status === 'review' || productDoc.isArchived) return null;
         return JSON.parse(JSON.stringify(productDoc));
       }
     }
@@ -38,7 +38,7 @@ async function getProduct(id) {
   // Fallback to local catalog
   const localProduct = PRODUCTS.find(p => 
     (p.id === cleanId || p.id === lookupId || p._id === cleanId) &&
-    p.status !== 'archived' && !p.isArchived
+    p.status !== 'archived' && p.status !== 'draft' && p.status !== 'review' && !p.isArchived
   );
   if (localProduct) {
     return JSON.parse(JSON.stringify(localProduct));
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }) {
   const id = resolvedParams?.id;
   const product = await getProduct(id);
 
-  if (!product || !product.name || product.status === 'archived' || product.isArchived) {
+  if (!product || !product.name || product.status === 'archived' || product.status === 'draft' || product.status === 'review' || product.isArchived) {
     return {
       title: 'Product Not Found',
       description: 'The requested product could not be found in the AbKharido catalog.',
