@@ -445,7 +445,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
             {showOtpScreen ? 'Two-Step\nOTP Security 🔐' : 'Buy Direct.\nSave Big.\nEarn Rewards. 🚀'}
           </h1>
           <p className="lp-left-sub" style={{ fontSize: '14.5px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '36px' }}>
-            {showOtpScreen ? `We texted a 6-digit verification code to +91 ${phone}.` : 'India’s trusted direct-from-warehouse shopping platform with official brand warranty.'}
+            {showOtpScreen ? `We texted a 6-digit verification code to +91 ${phone}.` : 'India’s trusted direct-from-warehouse shopping platform with verified quality.'}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -649,7 +649,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
                     AbKharido<span style={{ color: '#f59e0b', WebkitTextFillColor: '#f59e0b', fontWeight: '900' }}>.com</span>
                   </span>
                   <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    Direct Buy <span style={{ color: '#2563eb', fontWeight: '800' }}>&amp; Earn</span> • Brand Warranty
+                    Direct Buy <span style={{ color: '#2563eb', fontWeight: '800' }}>&amp; Earn</span> • Verified Quality
                   </div>
                 </div>
               </div>

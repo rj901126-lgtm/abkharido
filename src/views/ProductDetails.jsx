@@ -674,8 +674,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '20px' }}>🛡️</span>
               <div>
-                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>100% Genuine</div>
-                <div style={{ fontSize: '11px', color: '#64748b' }}>Brand Warranty</div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>Verified Item</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>Quality Assured</div>
               </div>
             </div>
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -823,8 +823,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
           <div className="mobile-trust-badges-strip" style={{ marginTop: '12px' }}>
             <div className="mobile-trust-badge-item">
               <span className="mobile-trust-badge-icon">🛡️</span>
-              <span className="mobile-trust-badge-label">100% Genuine</span>
-              <span className="mobile-trust-badge-sub">Brand Verified</span>
+              <span className="mobile-trust-badge-label">Verified Item</span>
+              <span className="mobile-trust-badge-sub">Quality Checked</span>
             </div>
             <div className="mobile-trust-badge-item">
               <span className="mobile-trust-badge-icon">🔄</span>
@@ -1301,13 +1301,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             ] : isAppliance ? [
               "✅ 1x Main Appliance Unit",
               "✅ Standard Indian 3-Pin Power Cord / Adapter",
-              "✅ Official Brand Warranty Card",
+              "✅ Warranty & Documentation (where applicable)",
               "✅ User Safety & Operation Manual"
             ] : [
               "✅ 1x Original Certified Sealed Unit",
-              "✅ Certified Fast Charging Cable / Adapter",
-              "✅ Official Brand Warranty Documentation",
-              "✅ AbKharido VIP Authentication Seal"
+              "✅ Charging Cable / Adapter",
+              "✅ User Guide & Documentation",
+              "✅ AbKharido Quality Check Seal"
             ];
 
             return (
@@ -1317,7 +1317,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     <ShieldCheck size={19} color="#059669" /> {packageTitle}
                   </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '6px', fontWeight: '800' }}>100% Genuine Stock</span>
+                    <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '6px', fontWeight: '800' }}>Verified Stock</span>
                     <span className="vip-accordion-icon" style={{ fontSize: '18px', fontWeight: 'bold', color: '#64748b' }}>+</span>
                   </div>
                 </summary>
@@ -1353,29 +1353,29 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                           { key: "Equipment Type", value: "Heavy-Duty Training & Fitness Gear" },
                           { key: "Grip & Ergonomics", value: "Anti-Slip Textured Grip Surface" },
                           { key: "Build Durability", value: "Precision Engineered High-Density Build" },
-                          { key: "Authenticity", value: "100% Genuine Direct Warehouse Inventory" },
+                          { key: "Quality Standard", value: "Verified Direct Warehouse Inventory" },
                           { key: "Replacement Policy", value: "7-Day Easy Doorstep Replacement Guarantee" },
                           { key: "Shipping & Delivery", value: "Priority Doorstep Dispatch (2-4 Days)" }
                         ] : isFashion ? [
                           { key: "Material / Fabric", value: "Premium Breathable Cotton Blend / Performance Knit" },
                           { key: "Fit Type", value: "Regular Tailored Fit with Comfort Seams" },
                           { key: "Care Instructions", value: "Machine Wash Cold / Do Not Bleach" },
-                          { key: "Authenticity", value: "100% Genuine Direct Brand Warehouse Stock" },
+                          { key: "Quality Standard", value: "Verified Direct Warehouse Stock" },
                           { key: "Replacement Policy", value: "7-Day Easy Size Replacement Guarantee" },
                           { key: "Shipping & Delivery", value: "Priority Doorstep Dispatch (2-4 Days)" }
                         ] : isHome ? [
                           { key: "Material & Build", value: "Engineered Solid High-Density Structure" },
                           { key: "Assembly Type", value: "Pre-assembled / Tool-Free Quick Assembly" },
                           { key: "Durability Rating", value: "Tested for Long-Term Indian Home Usage" },
-                          { key: "Authenticity", value: "100% Genuine Certified Inventory" },
+                          { key: "Quality Standard", value: "Verified Direct Certified Inventory" },
                           { key: "Replacement Guarantee", value: "7-Day Doorstep Replacement Guarantee" },
-                          { key: "Warranty Coverage", value: "1 Year Official Brand Assurance" }
+                          { key: "Warranty Coverage", value: "Seller Warranty (as per listing)" }
                         ] : [
                           { key: "Build & Model", value: product.name || "Official Certified Model" },
-                          { key: "Brand Assurance", value: "Verified Genuine Manufacturer Inventory" },
+                          { key: "Brand Assurance", value: "Verified Manufacturer Inventory" },
                           { key: "Connectivity / Interface", value: "High-Speed Universal Connectivity Standard" },
-                          { key: "Warranty Coverage", value: "1 Year Comprehensive Official Brand Warranty" },
-                          { key: "Authenticity Guarantee", value: "100% Original Sealed Brand Warehouse Stock" },
+                          { key: "Warranty Coverage", value: "Seller Warranty (as per listing)" },
+                          { key: "Quality Assurance", value: "Quality Tested Sealed Stock" },
                           { key: "Replacement Shield", value: "7-Day Easy Doorstep Replacement Policy" }
                         ];
 

@@ -51,9 +51,9 @@ const AdminPromotions = () => {
 
   const [categoryBanners, setCategoryBanners] = useState({
     all: { show: true, slides: [{ id: 'CAT-ALL-1', title: 'Complete Megastore Catalog Savings', imageUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1000', badge: 'SPECIAL DISCOUNT CODES APPLICABLE' }] },
-    mobiles: { show: true, slides: [{ id: 'CAT-MOB-1', title: 'Flagship Smart Mobiles & 5G Revolution', imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1000', badge: 'INSTANT ₹5,000 BANK DISCOUNT' }] },
-    electronics: { show: true, slides: [{ id: 'CAT-ELE-1', title: 'Enterprise Tech, Laptops & RTX Peripherals', imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=1000', badge: 'ABOVE 40% REBATE ON WORKSTATIONS' }] },
-    fashion: { show: true, slides: [{ id: 'CAT-FAS-1', title: 'Designer Ethnic Ensembles & Western Street Wear', imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1000', badge: 'BUY 2 GET 1 FREE CARNIVAL' }] },
+    mobiles: { show: true, slides: [{ id: 'CAT-MOB-1', title: 'Flagship Smart Mobiles & 5G Revolution', imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1000', badge: 'CURATED SMARTPHONE DEALS' }] },
+    electronics: { show: true, slides: [{ id: 'CAT-ELE-1', title: 'Enterprise Tech, Laptops & RTX Peripherals', imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=1000', badge: 'SPECIAL OFFERS ON ELECTRONICS' }] },
+    fashion: { show: true, slides: [{ id: 'CAT-FAS-1', title: 'Designer Ethnic Ensembles & Western Street Wear', imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1000', badge: 'SEASONAL WARDROBE DEALS' }] },
     home: { show: true, slides: [{ id: 'CAT-HOM-1', title: 'Luxury Living Decor & Smart Lighting Aesthetics', imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1000', badge: 'FREE INSTALLATION + WARRANTY SHIELD' }] },
     kitchen: { show: true, slides: [{ id: 'CAT-KIT-1', title: 'Chef-Grade Cookware & Automatic Kitchen Hubs', imageUrl: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=1000', badge: 'UP TO 55% OFF ON BUNDLES' }] }
   });

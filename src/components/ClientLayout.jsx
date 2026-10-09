@@ -35,7 +35,7 @@ export default function ClientLayout({ children }) {
     themeColor: '#2874f0',
     supportEmail: 'support@abkharido.com',
     supportPhone: '+91 9172600587',
-    announcementBar: '🎉 FREE Express Delivery on all orders + 100% Genuine Brand Warranty!',
+    announcementBar: '🎉 FREE Delivery on orders above ₹499 • Fast Dispatch & Easy 7-Day Returns!',
     freeShippingThreshold: '499',
     enableWhatsAppFloat: true,
     maintenanceMode: false

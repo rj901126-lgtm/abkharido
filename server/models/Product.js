@@ -64,7 +64,9 @@ const productSchema = new mongoose.Schema({
   // Services
   hasProCare: { type: Boolean, default: false },
 
-
+  // Catalogue Lifecycle Status
+  status: { type: String, enum: ['active', 'archived', 'draft'], default: 'active', index: true },
+  isArchived: { type: Boolean, default: false, index: true },
 
   // Imagery
   image: { type: String, required: true },

@@ -94,13 +94,13 @@ const Orders = ({ onNavigate }) => {
   // QR Code PIN Modal State
   const [qrCodePinOrder, setQrCodePinOrder] = useState(null);
 
-  // Brand Warranty & Authenticity Pass State
+  // Authenticity Pass State
   const [warrantyOrder, setWarrantyOrder] = useState(null);
 
   // Item Review Modal State
   const [itemToReview, setItemToReview] = useState(null);
   const [reviewRating, setReviewRating] = useState(5);
-  const [reviewTags, setReviewTags] = useState(['Super Fast Delivery', '100% Genuine']);
+  const [reviewTags, setReviewTags] = useState(['Super Fast Delivery', 'Quality Assured']);
   const [reviewComment, setReviewComment] = useState('');
 
   // Emailing Invoice State
@@ -955,7 +955,7 @@ const Orders = ({ onNavigate }) => {
                     onClick={() => setWarrantyOrder(order)}
                     style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', color: '#6d28d9', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
-                    <Award size={12} /> Warranty Pass
+                    <Award size={12} /> Authenticity Pass
                   </button>
 
                   {/* WhatsApp Support */}
@@ -1263,17 +1263,17 @@ const Orders = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* 🛡️ Modal 5: Digital Brand Warranty & Authenticity Pass */}
+      {/* 🛡️ Modal 5: Digital Authenticity Pass */}
       {warrantyOrder && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setWarrantyOrder(null)}>
           <div style={{ backgroundColor: '#fff', borderRadius: '24px', padding: '28px', width: '100%', maxWidth: '440px', boxShadow: '0 25px 50px rgba(0,0,0,0.2)', border: '2px solid #7c3aed' }} onClick={e => e.stopPropagation()}>
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <span style={{ fontSize: '36px' }}>🛡️</span>
               <h3 style={{ fontSize: '19px', fontWeight: '900', color: '#0f172a', margin: '6px 0 2px 0', fontFamily: "'Outfit', sans-serif" }}>
-                Brand Warranty & Authenticity Pass
+                Order Authenticity & Verification Pass
               </h3>
               <div style={{ fontSize: '11.5px', color: '#7c3aed', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                100% Genuine Authorized Inventory
+                Verified Direct Inventory
               </div>
             </div>
 
@@ -1287,8 +1287,8 @@ const Orders = ({ onNavigate }) => {
                 <strong style={{ color: '#0f172a' }}>#{warrantyOrder._id.slice(-8).toUpperCase()}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span>Warranty Period:</span>
-                <strong style={{ color: '#059669' }}>1 Year Brand Domestic Warranty</strong>
+                <span>Quality Verification:</span>
+                <strong style={{ color: '#059669' }}>Verified Order</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Replacement Cover:</span>
@@ -1297,11 +1297,11 @@ const Orders = ({ onNavigate }) => {
             </div>
 
             <p style={{ fontSize: '11.5px', color: '#64748b', lineHeight: 1.5, margin: '0 0 18px 0', textAlign: 'center' }}>
-              This digital pass verifies authorized brand procurement and guarantees repair/replacement coverage across all authorized service centers in India.
+              This digital pass verifies your order with AbKharido and includes eligible return and exchange coverage.
             </p>
 
             <button className="btn btn-primary" style={{ width: '100%', borderRadius: '10px', background: '#7c3aed', borderColor: '#7c3aed' }} onClick={() => setWarrantyOrder(null)}>
-              Close Warranty Pass
+              Close Authenticity Pass
             </button>
           </div>
         </div>
@@ -1331,7 +1331,7 @@ const Orders = ({ onNavigate }) => {
             <div style={{ marginBottom: '14px' }}>
               <label style={{ fontSize: '11.5px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>What did you like?</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {['Super Fast Delivery', '100% Genuine', 'Value for Money', 'Great Packaging', 'Perfect Fit'].map((tag, idx) => {
+                {['Super Fast Delivery', 'Quality Assured', 'Value for Money', 'Great Packaging', 'Perfect Fit'].map((tag, idx) => {
                   const isSelected = reviewTags.includes(tag);
                   return (
                     <button

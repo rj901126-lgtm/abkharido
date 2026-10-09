@@ -16,12 +16,12 @@ export const metadata = {
     default: "AbKharido | Online Shopping — Electronics, Fashion & More",
     template: "%s | AbKharido"
   },
-  description: "Shop 100% verified genuine electronics, flagship smartphones, luxury designer fashion, audio gear and home appliances at AbKharido. Express 24-48h Delivery across 29,000+ Indian pincodes, 7-day doorstep returns, Cash on Delivery (COD) and 0% EMI.",
+  description: "Shop quality verified electronics, audio gear, and lifestyle products at AbKharido. Standard delivery across Indian pincodes, 7-day doorstep returns, Cash on Delivery (COD) and secure payments.",
   keywords: [
     "abkharido", "ab kharido", "online shopping india", "best online shopping site in india",
-    "buy smartphones online", "flagship mobile phones best price", "electronics sale india",
-    "designer fashion buy online", "cash on delivery shopping", "fast delivery ecommerce india",
-    "cheap online shopping with free delivery", "authentic brand warranty india", "biker jackets online",
+    "buy electronics online", "audio gear best price", "electronics sale india",
+    "cash on delivery shopping", "ecommerce india",
+    "online shopping with free delivery", "quality checked products",
     "smartwatches discounts", "wireless earbuds best price"
   ],
   authors: [{ name: 'AbKharido India Retail Private Limited', url: SITE_URL }],

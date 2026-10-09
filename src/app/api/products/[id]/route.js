@@ -73,11 +73,15 @@ export async function GET(req, context) {
 
     const cleanId = id.trim().substring(0, 100);
 
+    const lookupId = cleanId === 'sigboom-21' ? 'signature-wireless-earphone' : cleanId;
+
     // Try external port 5000 Express server first
-    const backendRes = await fetchBackend(`/api/products/${cleanId}`);
+    const backendRes = await fetchBackend(`/api/products/${lookupId}`);
     if (backendRes) {
       const data = await backendRes.json().catch(() => null);
-      if (data && !data.error) return NextResponse.json(toPublicProductDTO(data));
+      if (data && !data.error && data.status !== 'archived' && !data.isArchived) {
+        return NextResponse.json(toPublicProductDTO(data));
+      }
     }
 
     // ── Native Mongoose / MongoDB Fallback ──
@@ -85,22 +89,38 @@ export async function GET(req, context) {
       await connectDB();
       const product = await Product.findOne({ 
         $or: [
-          { id: cleanId }, 
-          { slug: cleanId }, 
+          { id: lookupId },
+          { id: cleanId },
+          { slug: lookupId },
+          { slug: cleanId },
           { _id: cleanId.length === 24 ? cleanId : undefined }
         ].filter(Boolean) 
       }).lean();
-      if (product) return NextResponse.json(toPublicProductDTO(product));
+
+      if (product) {
+        if (product.status === 'archived' || product.isArchived) {
+          return NextResponse.json(
+            { error: 'Product not found' },
+            { status: 404, headers: { 'X-Robots-Tag': 'noindex, nofollow' } }
+          );
+        }
+        return NextResponse.json(toPublicProductDTO(product));
+      }
     } catch (dbErr) {
       console.warn('[Product Detail DB Fallback Warning]:', dbErr.message);
     }
 
     // Fallback to local catalog if not found in database
-    const localProd = PRODUCTS.find(p => p.id === cleanId || p.slug === cleanId || p._id === cleanId)
-      || PRODUCTS.find(p => (p.name && p.name.toLowerCase().replace(/[^a-z0-9]/g, '-').includes(cleanId.toLowerCase())));
+    const localProd = PRODUCTS.find(p => 
+      (p.id === cleanId || p.id === lookupId || p.slug === cleanId || p._id === cleanId) &&
+      p.status !== 'archived' && !p.isArchived
+    );
     if (localProd) return NextResponse.json(toPublicProductDTO(localProd));
 
-    return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Product not found' },
+      { status: 404, headers: { 'X-Robots-Tag': 'noindex, nofollow' } }
+    );
   } catch (error) {
     console.error('[Product Detail Route Error]:', error);
     return NextResponse.json({ error: 'Failed to retrieve product detail' }, { status: 500 });

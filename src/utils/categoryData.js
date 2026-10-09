@@ -5,8 +5,8 @@ export const CATEGORY_DETAILS = {
     id: 'all',
     name: 'All Categories',
     icon: '🛍️',
-    tagline: 'Direct Brand Authorization with Official 1-Year Pan-India Warranty',
-    promoTicker: '⚡ All-India Megastore Carnival: Instant Extra 15% Off with AB Coins on 10,000+ Verified Products',
+    tagline: 'Quality Products with Fast All-India Delivery',
+    promoTicker: '⚡ Welcome to AbKharido: Shop verified products with AB Coins rewards & COD',
     subCategories: [
       { 
         id: '5g-mobiles', 
@@ -89,8 +89,8 @@ export const CATEGORY_DETAILS = {
     id: 'mobiles',
     name: 'Mobiles & Smartphones',
     icon: '📱',
-    tagline: 'Direct Brand Authorization with Official 1-Year Pan-India Warranty',
-    promoTicker: '⚡ Mega Mobile Carnival: Extra ₹1,000 Instant Bank Off + 50 AB Coins on all 5G Smartphones!',
+    tagline: 'Smartphones & Mobile Accessories with Fast Delivery',
+    promoTicker: '⚡ Mobile & Gadget Deals: Great discounts and COD available nationwide',
     subCategories: [
       { 
         id: '5g-mobiles', 
@@ -154,7 +154,7 @@ export const CATEGORY_DETAILS = {
         query: 'Case', 
         badge: 'PROTECT', 
         startingPrice: 'From ₹199', 
-        discount: 'Buy 2 Get 1',
+        discount: 'Flat ₹100 Off',
         img: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=200&q=80',
         quickChips: ['Military Drop Test', 'MagSafe Clear', '9H Tempered']
       }
@@ -173,8 +173,8 @@ export const CATEGORY_DETAILS = {
     id: 'electronics',
     name: 'Electronics & Audio',
     icon: '🎧',
-    tagline: 'Quantum Studio Acoustics, 4K Displays & Performance Laptops',
-    promoTicker: '🎧 Audio & Gadget Fest: Flat 40% Off on Sony & boAt ANC Headphones | 100% Genuine Studio Acoustics',
+    tagline: 'Audio, Accessories & Everyday Electronics',
+    promoTicker: '🎧 Audio & Gadgets: Quality Bluetooth audio with fast delivery across India',
     subCategories: [
       { 
         id: 'headphones', 
@@ -257,8 +257,8 @@ export const CATEGORY_DETAILS = {
     id: 'fashion',
     name: 'Fashion & Luxury Apparel',
     icon: '👗',
-    tagline: 'Direct-from-Designer Couture, Runway Footwear & Royal Chronographs',
-    promoTicker: '✨ VIP Wardrobe Sale: Buy 2 Get 1 Free on Top Fashion Brands + Extra 10% Instant Wallet Cashback',
+    tagline: 'Comfort Apparel, Footwear & Accessories',
+    promoTicker: '✨ Wardrobe Deals: Quality everyday fashion with hassle-free 7-day returns',
     subCategories: [
       { 
         id: 'mens-shirts', 
@@ -457,7 +457,7 @@ export const CATEGORY_DETAILS = {
         query: 'Hair', 
         badge: 'KERATIN', 
         startingPrice: 'From ₹299', 
-        discount: 'Buy 2 Get 1',
+        discount: 'Flat 25% Off',
         img: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=120&q=80',
         quickChips: ['Sulphate Free', 'Anti-Hairfall Red Onion', 'Keratin Smooth']
       },
@@ -593,8 +593,8 @@ export const CATEGORY_DETAILS = {
     id: 'appliances',
     name: 'Home & Kitchen Appliances',
     icon: '🫧',
-    tagline: 'Smart Inverter Refrigerators, Front-Load Washing Machines & 5-Star ACs',
-    promoTicker: '🫧 Super Appliance Fest: Free Brand Installation + Up to ₹5,000 Instant Bank Off on Large Appliances',
+    tagline: 'Kitchen Appliances, Living Essentials & Home Care',
+    promoTicker: '🫧 Home & Living Deals: Quality appliances and everyday essentials',
     subCategories: [
       {
         id: 'refrigerators',

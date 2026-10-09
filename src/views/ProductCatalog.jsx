@@ -866,7 +866,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 onChange={(e) => setIsWarrantyOnly(e.target.checked)}
                 style={{ accentColor: '#4f46e5' }}
               />
-              <span>1 Year Brand Warranty</span>
+              <span>Warranty Coverage</span>
             </label>
           </div>
         </div>
@@ -893,7 +893,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                   </span>
                 </div>
                 <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>
-                  Showing <strong>{filteredProducts.length}</strong> official verified products from this seller • 100% Brand Warranty &amp; COD
+                  Showing <strong>{filteredProducts.length}</strong> verified products from this seller • Verified Quality &amp; COD
                 </div>
               </div>
             </div>

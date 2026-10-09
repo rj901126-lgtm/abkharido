@@ -140,7 +140,7 @@ export function parseCsvProducts(csvText) {
       specs: [
         { key: 'Brand', value: brand },
         { key: 'Condition', value: 'Brand New (Sealed)' },
-        { key: 'Warranty', value: '1 Year Brand Warranty' }
+        { key: 'Warranty', value: 'Standard Warranty (as per manufacturer/seller)' }
       ]
     });
 

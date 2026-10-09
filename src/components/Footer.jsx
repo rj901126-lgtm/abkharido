@@ -78,7 +78,7 @@ const Footer = ({ onNavigate }) => {
             </div>
           </Link>
           <p style={{ color: '#94a3b8', fontSize: '12.5px', lineHeight: '1.6', marginBottom: '18px', fontWeight: '500' }}>
-            India’s trusted direct-to-consumer shopping platform with 100% genuine inventory &amp; AB Coins rewards.
+            India’s dedicated direct-to-consumer shopping platform with quality products &amp; AB Coins rewards.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#e2e8f0', fontWeight: '700' }}>
             <a href="tel:+919172600587" style={{ color: '#e2e8f0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -221,7 +221,7 @@ const Footer = ({ onNavigate }) => {
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500', lineHeight: 1.5 }}>
             <strong style={{ color: '#ffffff', fontWeight: '800' }}>AbKharido Retail Private Limited</strong> • Registered in Palghar, Maharashtra, India.
-            <div style={{ fontSize: '11px', color: '#64748b' }}>© 2026 AbKharido.com. 100% Genuine Direct Buy &amp; Earn Destination. All rights reserved.</div>
+            <div style={{ fontSize: '11px', color: '#64748b' }}>© 2026 AbKharido.com. Direct Buy &amp; Earn Destination. All rights reserved.</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: '800' }}>🔒 100% SECURE:</span>

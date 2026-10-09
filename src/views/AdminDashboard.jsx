@@ -937,7 +937,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
           { key: 'Model Identifier', value: '' },
           { key: 'Connectivity & Audio/Video', value: 'Bluetooth 5.3 / Type-C Fast Data Sync' },
           { key: 'In The Box', value: 'Device + Fast Charger Adapter + Type-C Braided Cable + Warranty Card' },
-          { key: 'Brand Warranty', value: '1 Year Official Comprehensive Replacement / Service Warranty' }
+          { key: 'Warranty Coverage', value: 'Seller / Manufacturer Warranty (as applicable)' }
         ]);
         break;
       case 'mobiles':
@@ -1657,7 +1657,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                           { key: 'Model Identifier', value: '2026 Pro Wireless Edition' },
                           { key: 'Connectivity', value: 'Bluetooth 5.3 / Ultra-Low Latency Wi-Fi 6E' },
                           { key: 'Power / Battery', value: 'Up to 36 Hours Extended Backup' },
-                          { key: 'Brand Warranty', value: '1 Year Official Comprehensive Replacement / Service Warranty' }
+                          { key: 'Warranty Coverage', value: 'Seller / Manufacturer Warranty (as applicable)' }
                         ]);
                       } else if (category === 'fashion') {
                         smartDesc = `• Luxuriously Soft Breathable Fabric designed for extreme comfort in all seasonal climates\n• Precision Laser-Trimmed Stitching for flawless structure and durability across regular washing\n• Fade-Resistant Eco-Friendly Reactive Dyes that retain vibrant sheen after 50+ wash cycles`;

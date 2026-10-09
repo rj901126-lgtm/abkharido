@@ -67,7 +67,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     },
     {
       title: 'Next-Gen 5G AI Smartphones',
-      desc: 'Ultra-speed flagships with cinematic camera sensors and hyper-fast wireless charging. 100% Genuine brand warranty.',
+      desc: 'Ultra-speed smartphones with vibrant displays and long-lasting battery life. Fast dispatch and secure delivery.',
       bg: 'url(https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
       tag: '📱 5G MEGA LAUNCH',
       cat: 'mobiles'
@@ -517,7 +517,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
               {activeCuratedTab === 'bestsellers' && "India's highest selling products with verified 5-star customer ratings"}
               {activeCuratedTab === 'newarrivals' && "Freshly restocked premium styles and trending direct-to-consumer tech"}
-              {activeCuratedTab === 'toprated' && "Top rated buyer choices verified by 100% genuine reviews"}
+              {activeCuratedTab === 'toprated' && "Top rated buyer choices and customer favorites"}
             </p>
           </div>
 
@@ -571,31 +571,31 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </section>
 
 
-      {/* ── 8. Official Brand Partners ── */}
+      {/* ── 8. Featured Shopping Collections ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
             <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-              <span>🏛️</span> Official Brand Partners
+              <span>🛍️</span> Popular Shopping Collections
             </h3>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Direct authorized brand distribution & warranty</p>
+            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Curated lifestyle, electronics &amp; everyday fashion</p>
           </div>
           <span style={{ fontSize: '11px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '4px 10px', borderRadius: '20px', border: '1px solid #a7f3d0' }}>
-            ✓ 100% Genuine
+            ✓ Verified Store
           </span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
           {[
-            { name: "APPLE", desc: "iPhone & Mac", icon: "🍏", query: "Apple" },
-            { name: "SAMSUNG", desc: "Galaxy AI & 5G", icon: "🌌", query: "Samsung" },
-            { name: "SONY", desc: "Studio Audio", icon: "🎧", query: "Sony" },
-            { name: "NIKE", desc: "Athletic & Air", icon: "👟", query: "Nike" },
-            { name: "BOSE", desc: "QuietComfort", icon: "🔊", query: "Bose" },
-            { name: "TITAN", desc: "Smart & Analog", icon: "⌚", query: "Titan" }
-          ].map((brand, bIdx) => (
+            { name: "AUDIO & SOUND", desc: "Bluetooth Speakers & ANC", icon: "🔊", query: "electronics" },
+            { name: "SMART GADGETS", desc: "Wearables & Accessories", icon: "⌚", query: "electronics" },
+            { name: "HOME LIVING", desc: "Decor & Lighting", icon: "🏠", query: "home" },
+            { name: "CASUAL FASHION", desc: "Everyday Wear & Essentials", icon: "👕", query: "fashion" },
+            { name: "KITCHEN & CARE", desc: "Appliances & Tools", icon: "🍳", query: "appliances" },
+            { name: "TRENDING DEALS", desc: "Best Offers & Savings", icon: "⚡", query: "all" }
+          ].map((catItem, bIdx) => (
             <div 
               key={bIdx}
-              onClick={() => onNavigate('catalog?search=' + encodeURIComponent(brand.query))}
+              onClick={() => onNavigate(catItem.query === 'all' ? 'catalog' : 'catalog?category=' + encodeURIComponent(catItem.query))}
               style={{
                 background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
                 border: '1px solid #e2e8f0',
@@ -607,9 +607,9 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                 textAlign: 'center'
               }}
             >
-              <div style={{ fontSize: '26px', marginBottom: '6px' }}>{brand.icon}</div>
-              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '900', margin: '0 0 2px 0', color: '#0f172a' }}>{brand.name}</h4>
-              <p style={{ fontSize: '11px', color: '#64748b', margin: 0, fontWeight: '600' }}>{brand.desc}</p>
+              <div style={{ fontSize: '26px', marginBottom: '6px' }}>{catItem.icon}</div>
+              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '900', margin: '0 0 2px 0', color: '#0f172a' }}>{catItem.name}</h4>
+              <p style={{ fontSize: '11px', color: '#64748b', margin: 0, fontWeight: '600' }}>{catItem.desc}</p>
             </div>
           ))}
         </div>

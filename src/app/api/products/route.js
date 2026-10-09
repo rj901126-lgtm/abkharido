@@ -105,7 +105,10 @@ export async function GET(req) {
     // ── Native Mongoose / MongoDB Fallback ──
     try {
       await connectDB();
-      let filter = {};
+      let filter = {
+        status: { $ne: 'archived' },
+        isArchived: { $ne: true }
+      };
       if (category && category !== 'all') {
         const escapedCat = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         filter.category = { $regex: new RegExp(`^${escapedCat}$`, 'i') };
@@ -131,7 +134,7 @@ export async function GET(req) {
       let products = await query;
 
       if (!products || (products.length === 0 && total === 0)) {
-        let fallback = [...PRODUCTS];
+        let fallback = PRODUCTS.filter(p => p.status !== 'archived' && !p.isArchived);
         if (category && category !== 'all') {
           fallback = fallback.filter(p => p.category && p.category.toLowerCase() === category.toLowerCase());
         }

@@ -1,5 +1,5 @@
-export default  
-[
+// AbKharido Product Catalog (Synchronized with Verified Inventory)
+export const ARCHIVED_PURGED_PRODUCTS = [
   {
     "id": "iphone-15-pro",
     "name": "Apple iPhone 15 Pro (Titanium Gray, 128 GB)",
@@ -40,7 +40,12 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "samsung-s24-ultra",
@@ -81,7 +86,12 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "macbook-air-m3",
@@ -122,7 +132,12 @@ export default
     ],
     "influencerCommissionRate": 0.03,
     "userCommissionRate": 0.01,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "sony-wh1000xm5",
@@ -159,7 +174,12 @@ export default
     ],
     "influencerCommissionRate": 0.03,
     "userCommissionRate": 0.01,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "sneaker-running-shoes",
@@ -196,7 +216,11 @@ export default
     ],
     "influencerCommissionRate": 0.07,
     "userCommissionRate": 0.03,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "casual-cotton-shirt",
@@ -232,7 +256,11 @@ export default
     ],
     "influencerCommissionRate": 0.07,
     "userCommissionRate": 0.03,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "analog-minimalist-watch",
@@ -268,7 +296,11 @@ export default
     ],
     "influencerCommissionRate": 0.07,
     "userCommissionRate": 0.03,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "blackout-window-curtains",
@@ -304,7 +336,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.02,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "ceramic-table-lamp",
@@ -340,7 +376,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.02,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "smart-led-tv-4k",
@@ -376,7 +416,11 @@ export default
     ],
     "influencerCommissionRate": 0.04,
     "userCommissionRate": 0.015,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "double-door-refrigerator",
@@ -411,7 +455,11 @@ export default
     ],
     "influencerCommissionRate": 0.04,
     "userCommissionRate": 0.015,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "mechanical-keyboard-pro",
@@ -448,7 +496,12 @@ export default
     ],
     "influencerCommissionRate": 0.03,
     "userCommissionRate": 0.012,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "loreal-shampoo",
@@ -475,7 +528,11 @@ export default
     ],
     "influencerCommissionRate": 0.07,
     "userCommissionRate": 0.03,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "lego-police-station",
@@ -485,9 +542,9 @@ export default
     "originalPrice": 5999,
     "rating": 4.7,
     "reviewsCount": 412,
-    "image": "https://images.unsplash.com/photo-1585366119957-e5737520e979?w=600&auto=format&fit=crop&q=80",
+    "image": "/uploads/lego_police_station.jpg",
     "images": [
-      "https://images.unsplash.com/photo-1585366119957-e5737520e979?w=600&auto=format&fit=crop&q=80"
+      "/uploads/lego_police_station.jpg"
     ],
     "description": "Feature-rich 3-level police station building set. Comes with standard cruiser, helicopter, garbage truck, and 5 mini-figures.",
     "specifications": [
@@ -502,7 +559,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.02,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "organic-honey-pure",
@@ -529,7 +590,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.02,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "vega-cruiser-helmet",
@@ -556,7 +621,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.02,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "mrf-cricket-bat",
@@ -583,7 +652,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.02,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "office-chair-ergonomic",
@@ -610,7 +683,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.02,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "alchemist-novel",
@@ -637,7 +714,11 @@ export default
     ],
     "influencerCommissionRate": 0.07,
     "userCommissionRate": 0.03,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "ola-s1-pro",
@@ -664,7 +745,11 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "samsung-a35",
@@ -695,7 +780,11 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "oneplus-12r",
@@ -726,7 +815,11 @@ export default
     ],
     "influencerCommissionRate": 0.025,
     "userCommissionRate": 0.006,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "redmi-note-13-pro",
@@ -736,9 +829,9 @@ export default
     "originalPrice": 28999,
     "rating": 4.4,
     "reviewsCount": 425,
-    "image": "https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=600&auto=format&fit=crop&q=80",
+    "image": "https://images.unsplash.com/photo-1565630916779-e303be97b6f5?w=600&auto=format&fit=crop&q=80",
     "images": [
-      "https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=600&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1565630916779-e303be97b6f5?w=600&auto=format&fit=crop&q=80"
     ],
     "description": "Featuring a flagship-grade 200MP camera with OIS, 1.5K curved AMOLED display, and turbocharging.",
     "specifications": [
@@ -757,7 +850,11 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "hp-pavilion-15",
@@ -788,7 +885,11 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "ipad-air-m2",
@@ -815,7 +916,11 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "mens-slim-shirt",
@@ -842,7 +947,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.015,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "nike-air-max",
@@ -865,7 +974,11 @@ export default
     ],
     "influencerCommissionRate": 0.04,
     "userCommissionRate": 0.01,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "levis-511-jeans",
@@ -888,7 +1001,11 @@ export default
     ],
     "influencerCommissionRate": 0.04,
     "userCommissionRate": 0.01,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "cotton-bedcover",
@@ -915,7 +1032,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.015,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "wooden-lamp",
@@ -938,7 +1059,11 @@ export default
     ],
     "influencerCommissionRate": 0.05,
     "userCommissionRate": 0.015,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "lg-washing-machine",
@@ -965,7 +1090,11 @@ export default
     ],
     "influencerCommissionRate": 0.02,
     "userCommissionRate": 0.005,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
   },
   {
     "id": "philips-airfryer",
@@ -988,6 +1117,657 @@ export default
     ],
     "influencerCommissionRate": 0.04,
     "userCommissionRate": 0.01,
-    "inStock": true
+    "inStock": false,
+    "source_api_json": true,
+    "source_server_data": true,
+    "status": "archived",
+    "isArchived": true
+  },
+  {
+    "id": "leather-biker-jacket",
+    "name": "AbKharido Leather Biker Jacket - Slim Fit (Pitch Black)",
+    "category": "fashion",
+    "price": 4999,
+    "originalPrice": 9999,
+    "rating": 4.2,
+    "reviewsCount": 88,
+    "image": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80"
+    ],
+    "description": "Add a rugged edge to your outfit with this pure leather biker jacket. Crafted from top-grade sheepskin leather, it features custom metal hardware and dual lining.",
+    "specifications": [
+      {
+        "key": "Material",
+        "value": "100% Genuine Sheepskin Leather"
+      },
+      {
+        "key": "Fit",
+        "value": "Slim Fit Biker Cut"
+      },
+      {
+        "key": "Closure",
+        "value": "Asymmetrical Heavy-Duty Zippers"
+      },
+      {
+        "key": "Pockets",
+        "value": "3 Outer Zipper Pockets, 1 Inner Pocket"
+      }
+    ],
+    "colorModels": [
+      {
+        "name": "Pitch Black",
+        "primaryImage": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "S (38)",
+            "price": 4999,
+            "originalPrice": 9999,
+            "stock": 4,
+            "sku": "JKT-BLK-S"
+          },
+          {
+            "name": "M (40)",
+            "price": 4999,
+            "originalPrice": 9999,
+            "stock": 12,
+            "sku": "JKT-BLK-M"
+          },
+          {
+            "name": "L (42)",
+            "price": 4999,
+            "originalPrice": 9999,
+            "stock": 8,
+            "sku": "JKT-BLK-L"
+          },
+          {
+            "name": "XL (44)",
+            "price": 5299,
+            "originalPrice": 10499,
+            "stock": 3,
+            "sku": "JKT-BLK-XL"
+          },
+          {
+            "name": "XXL (46)",
+            "price": 5499,
+            "originalPrice": 10999,
+            "stock": 0,
+            "sku": "JKT-BLK-XXL"
+          }
+        ]
+      },
+      {
+        "name": "Vintage Brown",
+        "primaryImage": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "M (40)",
+            "price": 4999,
+            "originalPrice": 9999,
+            "stock": 7,
+            "sku": "JKT-BRN-M"
+          },
+          {
+            "name": "L (42)",
+            "price": 4999,
+            "originalPrice": 9999,
+            "stock": 5,
+            "sku": "JKT-BRN-L"
+          },
+          {
+            "name": "XL (44)",
+            "price": 5299,
+            "originalPrice": 10499,
+            "stock": 0,
+            "sku": "JKT-BRN-XL"
+          }
+        ]
+      }
+    ],
+    "influencerCommissionRate": 0.07,
+    "userCommissionRate": 0.03,
+    "inStock": false,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
+  },
+  {
+    "id": "red-running-shoes",
+    "name": "FlexRun Pro Men Red Sports Running Shoes",
+    "category": "fashion",
+    "price": 2499,
+    "originalPrice": 4999,
+    "rating": 4.4,
+    "reviewsCount": 1540,
+    "image": "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=600&auto=format&fit=crop&q=80"
+    ],
+    "description": "Engineered for daily runs, the FlexRun Pro features an ultra-breathable mesh upper and responsiveness cushioning. The lightweight sole protects your joints.",
+    "specifications": [
+      {
+        "key": "Type",
+        "value": "Road Running Shoes"
+      },
+      {
+        "key": "Outer Material",
+        "value": "Engineered Mesh"
+      },
+      {
+        "key": "Sole Material",
+        "value": "EVA Midsole with Rubber Outsole"
+      },
+      {
+        "key": "Weight",
+        "value": "240g (Single Shoe)"
+      }
+    ],
+    "colorModels": [
+      {
+        "name": "Crimson Red",
+        "primaryImage": "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "UK 7 / EU 41",
+            "price": 2499,
+            "originalPrice": 4999,
+            "stock": 5,
+            "sku": "SHOE-RED-7"
+          },
+          {
+            "name": "UK 8 / EU 42",
+            "price": 2499,
+            "originalPrice": 4999,
+            "stock": 15,
+            "sku": "SHOE-RED-8"
+          },
+          {
+            "name": "UK 9 / EU 43",
+            "price": 2499,
+            "originalPrice": 4999,
+            "stock": 9,
+            "sku": "SHOE-RED-9"
+          },
+          {
+            "name": "UK 10 / EU 44",
+            "price": 2499,
+            "originalPrice": 4999,
+            "stock": 3,
+            "sku": "SHOE-RED-10"
+          },
+          {
+            "name": "UK 11 / EU 45",
+            "price": 2699,
+            "originalPrice": 5299,
+            "stock": 0,
+            "sku": "SHOE-RED-11"
+          }
+        ]
+      },
+      {
+        "name": "Stealth Black",
+        "primaryImage": "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "UK 8 / EU 42",
+            "price": 2499,
+            "originalPrice": 4999,
+            "stock": 8,
+            "sku": "SHOE-BLK-8"
+          },
+          {
+            "name": "UK 9 / EU 43",
+            "price": 2499,
+            "originalPrice": 4999,
+            "stock": 6,
+            "sku": "SHOE-BLK-9"
+          }
+        ]
+      }
+    ],
+    "influencerCommissionRate": 0.07,
+    "userCommissionRate": 0.03,
+    "inStock": false,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
+  },
+  {
+    "id": "chronograph-watch",
+    "name": "Imperium Chronograph Men Analog Watch (Royal Gold & Pearl)",
+    "category": "fashion",
+    "price": 8999,
+    "originalPrice": 17999,
+    "rating": 4.3,
+    "reviewsCount": 198,
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=600&auto=format&fit=crop&q=80"
+    ],
+    "description": "The Imperium Chronograph defines status. Featuring a 42mm surgical stainless steel case plated in gold, white sunray dial, and full stopwatch functionalities.",
+    "specifications": [
+      {
+        "key": "Display Type",
+        "value": "Analog Chronograph"
+      },
+      {
+        "key": "Movement",
+        "value": "Japanese Quartz Movement"
+      },
+      {
+        "key": "Water Resistance",
+        "value": "50 Meters (5 ATM)"
+      },
+      {
+        "key": "Strap Material",
+        "value": "Genuine Croco-Pattern Leather"
+      }
+    ],
+    "colorModels": [
+      {
+        "name": "Royal Gold & Pearl",
+        "primaryImage": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "Leather Strap (42mm)",
+            "price": 8999,
+            "originalPrice": 17999,
+            "stock": 7,
+            "sku": "WTCH-GLD-LTH"
+          },
+          {
+            "name": "Stainless Mesh (42mm)",
+            "price": 9999,
+            "originalPrice": 19999,
+            "stock": 4,
+            "sku": "WTCH-GLD-MSH"
+          }
+        ]
+      }
+    ],
+    "influencerCommissionRate": 0.07,
+    "userCommissionRate": 0.03,
+    "inStock": false,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
+  },
+  {
+    "id": "coffee-maker-espresso",
+    "name": "BaristaExpress 15-Bar Espresso & Cappuccino Maker",
+    "category": "home",
+    "price": 14999,
+    "originalPrice": 24999,
+    "rating": 4.4,
+    "reviewsCount": 654,
+    "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?w=600&auto=format&fit=crop&q=80"
+    ],
+    "description": "Bring the cafe home. With a professional 15-bar Italian pump pressure and a high-performance steam wand, you can froth milk for lattes and cappuccinos like a barista.",
+    "specifications": [
+      {
+        "key": "Pressure",
+        "value": "15 Bar Italian Pump"
+      },
+      {
+        "key": "Water Tank Capacity",
+        "value": "1.8 Liters Removable"
+      },
+      {
+        "key": "Heater Type",
+        "value": "Thermo-Block Instant heating"
+      },
+      {
+        "key": "Accessories",
+        "value": "Portafilter, Single/Double shot filters, Tamper-Scoop"
+      }
+    ],
+    "colorModels": [
+      {
+        "name": "Brushed Steel",
+        "primaryImage": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "Standard Edition",
+            "price": 14999,
+            "originalPrice": 24999,
+            "stock": 8,
+            "sku": "COF-15BAR-STD"
+          },
+          {
+            "name": "Barista Pack (+ Milk Pitcher & Tamper)",
+            "price": 16499,
+            "originalPrice": 26999,
+            "stock": 3,
+            "sku": "COF-15BAR-PRO"
+          }
+        ]
+      }
+    ],
+    "influencerCommissionRate": 0.05,
+    "userCommissionRate": 0.02,
+    "inStock": false,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
+  },
+  {
+    "id": "ergonomic-office-chair",
+    "name": "ErgoComfort High-Back Mesh Ergonomic Office Chair",
+    "category": "home",
+    "price": 11999,
+    "originalPrice": 19999,
+    "rating": 4.3,
+    "reviewsCount": 423,
+    "image": "https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1580481072645-022f9a6dbf27?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1592078615290-033ee584e267?w=600&auto=format&fit=crop&q=80"
+    ],
+    "description": "Correct your posture during long work hours. The ErgoComfort features adaptive lumbar support, 3D adjustable armrests, and premium breathable Korean mesh.",
+    "specifications": [
+      {
+        "key": "Support",
+        "value": "Dynamic Self-Adjusting Lumbar Support"
+      },
+      {
+        "key": "Armrests",
+        "value": "3D Adjustable (Height, Depth, Angle)"
+      },
+      {
+        "key": "Base",
+        "value": "Heavy Duty Nylon Base with Silent Castors"
+      },
+      {
+        "key": "Weight Capacity",
+        "value": "Up to 135 kg"
+      }
+    ],
+    "colorModels": [
+      {
+        "name": "Onyx Black",
+        "primaryImage": "https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=600&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1580481072645-022f9a6dbf27?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "Standard Headrest",
+            "price": 11999,
+            "originalPrice": 19999,
+            "stock": 11,
+            "sku": "CHR-ERG-STD"
+          },
+          {
+            "name": "3D Armrest + Footrest Pro",
+            "price": 14499,
+            "originalPrice": 22999,
+            "stock": 4,
+            "sku": "CHR-ERG-PRO"
+          }
+        ]
+      }
+    ],
+    "influencerCommissionRate": 0.05,
+    "userCommissionRate": 0.02,
+    "inStock": false,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
+  },
+  {
+    "id": "smart-air-purifier",
+    "name": "PureAir Smart HEPA H13 Air Purifier with WiFi Control",
+    "category": "appliances",
+    "price": 8999,
+    "originalPrice": 12999,
+    "rating": 4.6,
+    "reviewsCount": 1150,
+    "image": "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1626315582236-fa2c23565e31?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1528190336454-13cd56b45b5a?w=600&auto=format&fit=crop&q=80"
+    ],
+    "description": "Clean air in minutes. Utilizing a True HEPA H13 filter that captures 99.97% of airborne pollutants down to 0.1 microns, including dust, smoke, pollen, and allergens.",
+    "specifications": [
+      {
+        "key": "CADR Value",
+        "value": "250 m³/h (Covers up to 350 sq.ft)"
+      },
+      {
+        "key": "Filter Layers",
+        "value": "Pre-Filter + True HEPA H13 + Activated Carbon"
+      },
+      {
+        "key": "Connectivity",
+        "value": "WiFi - Smart Life App / Alexa / Google Assistant"
+      },
+      {
+        "key": "Noise Level",
+        "value": "Ultra Silent 22dB in Sleep Mode"
+      }
+    ],
+    "colorModels": [
+      {
+        "name": "Glacier White",
+        "primaryImage": "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "Standard H13 Unit",
+            "price": 8999,
+            "originalPrice": 12999,
+            "stock": 16,
+            "sku": "AP-H13-STD"
+          },
+          {
+            "name": "Unit + Extra Pet Carbon Filter",
+            "price": 10499,
+            "originalPrice": 14999,
+            "stock": 5,
+            "sku": "AP-H13-COMBO"
+          }
+        ]
+      }
+    ],
+    "influencerCommissionRate": 0.04,
+    "userCommissionRate": 0.015,
+    "inStock": false,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
+  },
+  {
+    "id": "ultra-hd-led-tv",
+    "name": "Spectra 55-inch 4K Ultra HD Smart LED Android TV",
+    "category": "appliances",
+    "price": 34999,
+    "originalPrice": 49999,
+    "rating": 4.5,
+    "reviewsCount": 3950,
+    "image": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1552975084-6e027cd345c2?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1601944179066-29786cb9d32a?w=600&auto=format&fit=crop&q=80"
+    ],
+    "description": "Immerse yourself in cinematic 4K resolution. Equipped with Dolby Vision, HDR10+, and 30W Dolby Atmos sound, powered by Android TV for access to all popular streaming platforms.",
+    "specifications": [
+      {
+        "key": "Resolution",
+        "value": "4K Ultra HD (3840 x 2160)"
+      },
+      {
+        "key": "Refresh Rate",
+        "value": "60 Hz Native Motion Enhancement"
+      },
+      {
+        "key": "Sound Output",
+        "value": "30 Watts Dolby Atmos & DTS Virtual:X"
+      },
+      {
+        "key": "Operating System",
+        "value": "Android TV 11 with Google Play & Chromecast"
+      },
+      {
+        "key": "Connectivity",
+        "value": "3 HDMI Ports, 2 USB, Dual-band WiFi, Bluetooth 5.0"
+      },
+      {
+        "key": "Warranty",
+        "value": "1 Year Comprehensive Brand Warranty + 2 Years on Panel"
+      },
+      {
+        "key": "In-The-Box",
+        "value": "1 TV Unit, Remote Control, Wall Mount Bracket, Power Cable, Manual"
+      }
+    ],
+    "colorModels": [
+      {
+        "name": "Bezel-less Black",
+        "primaryImage": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop&q=80",
+        "images": [
+          "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1552975084-6e027cd345c2?w=600&auto=format&fit=crop&q=80"
+        ],
+        "variants": [
+          {
+            "name": "55-inch 4K",
+            "price": 34999,
+            "originalPrice": 49999,
+            "stock": 12,
+            "sku": "TV-4K-55"
+          },
+          {
+            "name": "43-inch 4K",
+            "price": 24999,
+            "originalPrice": 34999,
+            "stock": 7,
+            "sku": "TV-4K-43"
+          },
+          {
+            "name": "65-inch 4K",
+            "price": 54999,
+            "originalPrice": 74999,
+            "stock": 2,
+            "sku": "TV-4K-65"
+          }
+        ]
+      }
+    ],
+    "influencerCommissionRate": 0.04,
+    "userCommissionRate": 0.015,
+    "inStock": false,
+    "source_mock_data": true,
+    "status": "archived",
+    "isArchived": true
   }
-]
+];
+
+export default [
+  {
+  "id": "signature-wireless-earphone",
+  "name": "Signature Sigboom 21 wireless Bluetooth Speaker",
+  "category": "electronics",
+  "price": 379,
+  "originalPrice": 758,
+  "rating": 0,
+  "reviewsCount": 0,
+  "reviews": [],
+  "badge": "TOP CHOICE",
+  "image": "https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg",
+  "images": [
+    "https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg"
+  ],
+  "description": "AbKharido Original Signature Sigboom 21 Wireless Bluetooth Speaker. Features powerful 360° Dynamic RGB Party Lights, Deep Bass Sound, Built-in Phone Stand on top, FM Radio, TF card, USB, AUX, and Bluetooth 5.1 connectivity. Splash-proof and long-lasting battery life.",
+  "specifications": [
+    {
+      "key": "Connectivity",
+      "value": "Bluetooth 5.1, AUX, USB, TF Card, FM"
+    },
+    {
+      "key": "Lighting",
+      "value": "360° Dynamic Multi-Color RGB Party Lights"
+    },
+    {
+      "key": "Special Feature",
+      "value": "Built-in Smartphone Stand Mount"
+    },
+    {
+      "key": "Sound Output",
+      "value": "High Bass Stereo Drivers"
+    },
+    {
+      "key": "Battery",
+      "value": "Up to 12 Hours Playtime"
+    },
+    {
+      "key": "Warranty",
+      "value": "6 Months Seller Warranty"
+    }
+  ],
+  "colorModels": [
+    {
+      "name": "Party RGB Edition",
+      "primaryImage": "https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg",
+      "images": [
+        "https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg"
+      ],
+      "variants": [
+        {
+          "name": "Standard",
+          "price": 379,
+          "originalPrice": 758,
+          "stock": 45,
+          "sku": "SIG-BOOM-21-STD"
+        }
+      ]
+    }
+  ],
+  "inStock": true,
+  "stock": 45,
+  "freeDelivery": true,
+  "flashSale": {
+    "isActive": false,
+    "price": 379,
+    "endTime": "2026-07-26T00:00:00.000Z"
+  },
+  "status": "published"
+}
+];

@@ -18,7 +18,7 @@ const InfoPage = ({ infoType }) => {
             <p style={styles.paragraph}>
               Unlike other platforms, we do not host unverified third-party sellers. Every item listed on 
               AbKharido.com is owned, cataloged, warehoused, and directly dispatched by our team. This guarantees 
-              genuine brand warranty, strict packaging standards, and quick support resolutions.
+              verified quality checks, strict packaging standards, and quick support resolutions.
             </p>
             <h3 style={styles.subtitle}>Referral & Sharing Program</h3>
             <p style={styles.paragraph}>

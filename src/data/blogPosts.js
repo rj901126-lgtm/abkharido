@@ -196,10 +196,10 @@ Look for **low-latency mode** (< 60ms) if you use earbuds for gaming or video st
 [👉 Browse All Earbuds on AbKharido →](/catalog?category=electronics&search=earbuds)
 
 **AbKharido exclusive benefits:**
-- ✅ 100% genuine products with brand warranty
-- 🆓 Free express delivery  
+- ✅ Quality checked products
+- 🆓 Free delivery on eligible orders  
 - 💰 Cash on Delivery available
-- 🔄 7-day hassle-free returns
+- 🔄 7-day doorstep returns
     `.trim()
   },
   {

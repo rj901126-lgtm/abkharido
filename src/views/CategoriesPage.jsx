@@ -431,7 +431,7 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
             );
           })()}
 
-          {/* ── 2. Official Brand Partners Section (Home Page Style) ── */}
+          {/* ── 2. Popular Brands & Collections Section ── */}
           {(() => {
             const catInfo = getCategoryData(selectedCatId);
             const brands = catInfo ? catInfo.popularBrands : ALL_POPULAR_BRANDS;
@@ -440,12 +440,12 @@ const CategoriesPage = ({ onNavigate, onSelectCategory, onNavigateProduct, promo
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
                   <div>
                     <h3 className="panel-section-title" style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
-                      <span>🏛️</span> Popular Brands in {catInfo ? catInfo.name : 'Store'}
+                      <span>🏷️</span> Popular Brands in {catInfo ? catInfo.name : 'Store'}
                     </h3>
-                    <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#64748b', fontWeight: '600' }}>Direct authorized brand distribution & warranty</p>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#64748b', fontWeight: '600' }}>Explore popular brands and quality collections</p>
                   </div>
                   <span style={{ fontSize: '10.5px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '2px 8px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
-                    ✓ 100% Genuine
+                    ✓ Verified Stock
                   </span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(115px, 1fr))', gap: '8px' }}>

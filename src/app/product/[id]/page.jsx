@@ -14,21 +14,32 @@ export const revalidate = 60; // ISR: Revalidate product page every 60 seconds
 async function getProduct(id) {
   if (!id) return null;
   const cleanId = String(id).trim();
+  const lookupId = cleanId === 'sigboom-21' ? 'signature-wireless-earphone' : cleanId;
 
   // Try DB query if connected or quick connect
   try {
     if (mongoose.connection.readyState === 1) {
       const productDoc = await Product.findOne({
-        $or: [{ id: cleanId }, { _id: cleanId.length === 24 ? cleanId : undefined }].filter(Boolean)
+        $or: [
+          { id: lookupId },
+          { id: cleanId },
+          { _id: cleanId.length === 24 ? cleanId : undefined }
+        ].filter(Boolean)
       }).lean();
-      if (productDoc) return JSON.parse(JSON.stringify(productDoc));
+      if (productDoc) {
+        if (productDoc.status === 'archived' || productDoc.isArchived) return null;
+        return JSON.parse(JSON.stringify(productDoc));
+      }
     }
   } catch (err) {
     // Continue to fallback
   }
 
   // Fallback to local catalog
-  const localProduct = PRODUCTS.find(p => p.id === cleanId || p._id === cleanId);
+  const localProduct = PRODUCTS.find(p => 
+    (p.id === cleanId || p.id === lookupId || p._id === cleanId) &&
+    p.status !== 'archived' && !p.isArchived
+  );
   if (localProduct) {
     return JSON.parse(JSON.stringify(localProduct));
   }
@@ -42,10 +53,14 @@ export async function generateMetadata({ params }) {
   const id = resolvedParams?.id;
   const product = await getProduct(id);
 
-  if (!product || !product.name) {
+  if (!product || !product.name || product.status === 'archived' || product.isArchived) {
     return {
       title: 'Product Not Found',
-      description: 'The requested product could not be found in the AbKharido catalog. Explore top smartphones, electronics, and fashion deals.',
+      description: 'The requested product could not be found in the AbKharido catalog.',
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 

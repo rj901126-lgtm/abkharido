@@ -359,10 +359,10 @@ export default function SellerDashboard({ onNavigate }) {
     
     if (customProduct) {
       const url = `${origin}/product/${customProduct.id || customProduct._id}?seller=${(currentSeller?.shopName || 'seller').toLowerCase().replace(/\s+/g, '-')}`;
-      text = `🔥 Special Deal from ${currentSeller?.shopName || 'AbKharido Verified Store'}!\n\n🛍️ *${customProduct.name}*\n💰 Special Price: ₹${(customProduct.price || 0).toLocaleString('en-IN')}\n\n👉 Buy Directly on AbKharido: ${url}\n⚡ 100% Genuine with Express Air Dispatch & Pay on Delivery available!`;
+      text = `🔥 Special Deal from ${currentSeller?.shopName || 'AbKharido Verified Store'}!\n\n🛍️ *${customProduct.name}*\n💰 Special Price: ₹${(customProduct.price || 0).toLocaleString('en-IN')}\n\n👉 Buy Directly on AbKharido: ${url}\n⚡ Quality Verified with Express Dispatch & Pay on Delivery available!`;
     } else {
       const url = getStorefrontUrl();
-      text = `🏪 Welcome to *${currentSeller?.shopName || 'Our Official Store'}* on AbKharido!\n\n✨ Browse our complete verified collection of electronics, fashion, and lifestyle deals.\n\n👉 Shop Now: ${url}\n🚚 Fast Dispatch | 🛡️ Brand Warranty | 💵 Pay on Delivery`;
+      text = `🏪 Welcome to *${currentSeller?.shopName || 'Our Store'}* on AbKharido!\n\n✨ Browse our complete verified collection of electronics, fashion, and lifestyle deals.\n\n👉 Shop Now: ${url}\n🚚 Fast Dispatch | 🛡️ Quality Checked | 💵 Pay on Delivery`;
     }
 
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
