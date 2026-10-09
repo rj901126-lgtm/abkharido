@@ -53,23 +53,29 @@ export async function GET(req, { params }) {
     let username = routeParams[0];
 
     const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAuthenticated) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Authentication required to view user profiles' }, 
+        { status: 401, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
     const decodedToken = auth?.user || null;
 
     // Handle /api/users/me
     if (username === 'me') {
-      if (!auth || !auth.isAuthenticated) {
-        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-      }
       username = auth.user.id || auth.user.username || auth.user.phone;
     }
 
     // SECURITY: Only admins can list all users
     if (!username) {
-      if (!auth || !auth.isAdmin) {
-        return NextResponse.json({ error: 'Not authorized as admin' }, { status: 403 });
+      if (!auth.isAdmin) {
+        return NextResponse.json(
+          { error: 'Not authorized as admin' }, 
+          { status: 403, headers: { 'Cache-Control': 'private, no-store' } }
+        );
       }
       const users = await User.find({}).limit(50).select('-password');
-      return NextResponse.json(users);
+      return NextResponse.json(users, { headers: { 'Cache-Control': 'private, no-store' } });
     }
 
     const phoneDigits = (username && username.match(/\d{10}/)) ? username.match(/\d{10}/)[0] : (decodedToken?.phone ? decodedToken.phone.replace(/\D/g, '').slice(-10) : '');
@@ -321,9 +327,9 @@ export async function POST(req, { params }) {
     const updatedUser = await user.save();
     const safeUser = updatedUser.toObject();
     delete safeUser.password;
-    return NextResponse.json(safeUser);
+    return NextResponse.json(safeUser, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     console.error('[User API Proxy POST Error]:', error);
-    return NextResponse.json({ error: error.message || 'Failed to update user profile' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Failed to update user profile' }, { status: 500, headers: { 'Cache-Control': 'private, no-store' } });
   }
 }

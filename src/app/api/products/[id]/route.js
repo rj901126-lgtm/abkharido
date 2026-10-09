@@ -77,7 +77,7 @@ export async function GET(req, context) {
     const backendRes = await fetchBackend(`/api/products/${cleanId}`);
     if (backendRes) {
       const data = await backendRes.json().catch(() => null);
-      if (data && !data.error) return NextResponse.json(data);
+      if (data && !data.error) return NextResponse.json(toPublicProductDTO(data));
     }
 
     // ── Native Mongoose / MongoDB Fallback ──

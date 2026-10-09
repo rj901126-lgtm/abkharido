@@ -95,7 +95,10 @@ export async function GET(req) {
     if (backendRes) {
       const data = await backendRes.json().catch(() => null);
       if (data && data.products) {
-        return NextResponse.json(data);
+        return NextResponse.json({
+          ...data,
+          products: (data.products || []).map(toPublicProductDTO)
+        });
       }
     }
 

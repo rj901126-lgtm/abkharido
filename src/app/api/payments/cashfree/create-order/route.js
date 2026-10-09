@@ -60,36 +60,63 @@ export async function POST(req) {
     let calculatedItemsPrice = 0;
     const enrichedItems = [];
 
-    const { PRODUCTS } = await import('../../../../../db/mockData.js');
-
     for (const item of cartItems) {
       const pId = typeof item.product === 'object' ? (item.product.id || item.product._id) : (item.product || item.id);
       let dbProduct = null;
 
       try {
-        dbProduct = await Product.findOne({ $or: [{ id: pId }, { slug: pId }, { _id: pId && pId.length === 24 ? pId : undefined }].filter(Boolean) }).lean();
+        if (pId && /^[0-9a-fA-F]{24}$/.test(String(pId))) {
+          dbProduct = await Product.findById(pId).lean();
+        }
+        if (!dbProduct && pId) {
+          dbProduct = await Product.findOne({ $or: [{ id: String(pId) }, { slug: String(pId) }] }).lean();
+        }
       } catch {}
 
       if (!dbProduct) {
-        const catalog = Array.isArray(productsData) ? productsData : [];
-        dbProduct = catalog.find(p => p.id === pId || p.slug === pId);
+        return NextResponse.json(
+          { error: 'One or more items in your cart are invalid or no longer available.' },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
       }
 
-      if (!dbProduct && Array.isArray(PRODUCTS)) {
-        dbProduct = PRODUCTS.find(p => p.id === pId || p.slug === pId);
+      if (dbProduct.status === 'archived' || dbProduct.inStock === false || (dbProduct.stock !== undefined && dbProduct.stock <= 0)) {
+        return NextResponse.json(
+          { error: `Product '${dbProduct.name}' is currently out of stock or unavailable.` },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
       }
 
-      const itemPrice = dbProduct ? Number(dbProduct.price) : Number(item.price || 999);
-      const qty = Math.max(1, Number(item.quantity || item.qty || 1));
+      const rawQty = item.quantity !== undefined ? item.quantity : item.qty;
+      const qty = parseInt(rawQty, 10);
+      if (!Number.isInteger(qty) || qty < 1) {
+        return NextResponse.json(
+          { error: `Invalid quantity specified for '${dbProduct.name}'.` },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
+      }
+
+      if (dbProduct.stock !== undefined && qty > dbProduct.stock) {
+        return NextResponse.json(
+          { error: `Requested quantity (${qty}) exceeds available stock (${dbProduct.stock}) for '${dbProduct.name}'.` },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
+      }
+
+      // Unit price is strictly authoritative from DB: flash price only if active AND now < endTime
+      const isFlashActive = dbProduct.flashSale?.isActive === true && 
+                            dbProduct.flashSale?.endTime && 
+                            new Date(dbProduct.flashSale.endTime) > new Date();
+      const itemPrice = isFlashActive ? Number(dbProduct.flashSale.price) : Number(dbProduct.price);
       const lineTotal = itemPrice * qty;
       calculatedItemsPrice += lineTotal;
 
       const fallbackImg = 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600';
-      const itemImage = dbProduct?.image || (dbProduct?.images && dbProduct.images[0]) || item.image || fallbackImg;
+      const itemImage = dbProduct?.image || (dbProduct?.images && dbProduct.images[0]) || fallbackImg;
 
       enrichedItems.push({
-        product: dbProduct?._id || (pId && pId.length === 24 ? pId : '66554433221100aabbccddee'),
-        name: dbProduct?.name || item.name || 'Product Item',
+        product: dbProduct._id,
+        name: dbProduct.name || 'Product Item',
         qty,
         image: itemImage,
         price: itemPrice,
@@ -100,34 +127,32 @@ export async function POST(req) {
 
     // 3. Shipping & Discounts
     const shippingPrice = calculatedItemsPrice >= 499 ? 0 : 40;
-    let finalAmount = calculatedItemsPrice + shippingPrice;
+    
+    // Server-authoritative Coupon validation
+    let couponDiscount = 0;
+    if (couponCode) {
+      const { validateCoupon } = await import('../../../../../lib/couponValidator.js');
+      const couponRes = await validateCoupon(couponCode, calculatedItemsPrice);
+      if (couponRes.valid) {
+        couponDiscount = couponRes.discountAmount;
+      }
+    }
 
-    // Coins Discount (1 Coin = ₹1)
+    // Coins Discount (1 Coin = ₹1, clamped to remaining subtotal)
     let coinsUsed = 0;
     if (useCoinsDiscount && user) {
       const userCoins = user.walletCoins || 0;
-      coinsUsed = Math.min(userCoins, calculatedItemsPrice);
-      finalAmount = Math.max(0, finalAmount - coinsUsed);
+      coinsUsed = Math.min(userCoins, Math.max(0, calculatedItemsPrice - couponDiscount));
     }
 
-    // Coupon Discount
-    let couponDiscount = 0;
-    if (couponCode) {
-      const dbCoupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
-      if (dbCoupon && new Date(dbCoupon.expiryDate) > new Date()) {
-        couponDiscount = dbCoupon.discountType === 'percentage'
-          ? Math.round((calculatedItemsPrice * dbCoupon.discountAmount) / 100)
-          : dbCoupon.discountAmount;
-        finalAmount = Math.max(0, finalAmount - couponDiscount);
-      }
-    }
+    let finalAmount = Math.max(0, calculatedItemsPrice - couponDiscount - coinsUsed + shippingPrice);
 
     // 4. COD Limit Verification
     const isCod = paymentMethod.toLowerCase().includes('cod') || paymentMethod.toLowerCase().includes('cash');
     if (isCod && finalAmount > 15000) {
       return NextResponse.json({ 
         error: 'Cash on Delivery is limited to orders up to ₹15,000 for verified delivery safety. Please use Online Payment.' 
-      }, { status: 400 });
+      }, { status: 400, headers: { 'Cache-Control': 'private, no-store' } });
     }
 
     // 5. Generate standard Order ID

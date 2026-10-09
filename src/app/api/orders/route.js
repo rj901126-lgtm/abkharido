@@ -75,6 +75,16 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
+    const { checkRouteRateLimit } = await import('../../../lib/rateLimiter.js');
+    const limit = checkRouteRateLimit('orders-create', ip, 15, 5 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many order requests. Please wait a moment before trying again.' },
+        { status: 429, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
+
     await connectDB();
     const body = await req.json();
     const {
@@ -153,60 +163,99 @@ export async function POST(req) {
       }
     }
 
-    // 2. Map items & resolve Product references
-    const orderItems = await Promise.all(rawCart.map(async (item) => {
+    // 2. Validate items & resolve authoritative product data from MongoDB
+    const orderItems = [];
+    for (const item of rawCart) {
       const prod = item.product || item;
-      const prodId = prod._id || prod.id;
+      const prodId = prod?._id || prod?.id || item?._id || item?.id;
       let dbProduct = null;
 
       if (prodId && /^[0-9a-fA-F]{24}$/.test(String(prodId))) {
         dbProduct = await Product.findById(prodId).lean();
       }
-      if (!dbProduct && prod.id) {
-        dbProduct = await Product.findOne({ id: prod.id }).lean();
+      if (!dbProduct && prodId) {
+        dbProduct = await Product.findOne({ id: String(prodId) }).lean();
       }
 
-      const qty = Math.max(1, parseInt(item.quantity || item.qty, 10) || 1);
-      const price = Number(dbProduct ? dbProduct.price : (prod.price || item.price || 999));
-      const name = item.name || prod.name || (dbProduct ? dbProduct.name : 'AbKharido Verified Product');
-      const image = item.image || prod.image || (dbProduct ? (dbProduct.image || dbProduct.images?.[0]) : 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600');
+      if (!dbProduct) {
+        return NextResponse.json(
+          { error: `Product not found or unavailable in catalogue.` },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
+      }
 
-      return {
-        product: dbProduct ? dbProduct._id : user._id, // fallback to user ObjectId if mock
-        name,
+      if (dbProduct.status === 'archived' || dbProduct.inStock === false || (dbProduct.stock !== undefined && dbProduct.stock <= 0)) {
+        return NextResponse.json(
+          { error: `Product '${dbProduct.name}' is currently out of stock or unavailable.` },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
+      }
+
+      const rawQty = item.quantity !== undefined ? item.quantity : item.qty;
+      const qty = parseInt(rawQty, 10);
+      if (!Number.isInteger(qty) || qty < 1) {
+        return NextResponse.json(
+          { error: `Invalid quantity specified for '${dbProduct.name}'. Must be at least 1.` },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
+      }
+
+      if (dbProduct.stock !== undefined && qty > dbProduct.stock) {
+        return NextResponse.json(
+          { error: `Requested quantity (${qty}) exceeds available stock (${dbProduct.stock}) for '${dbProduct.name}'.` },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
+      }
+
+      // Unit price is strictly authoritative from DB: flash price only if active AND now < endTime
+      const isFlashActive = dbProduct.flashSale?.isActive === true && 
+                            dbProduct.flashSale?.endTime && 
+                            new Date(dbProduct.flashSale.endTime) > new Date();
+      const unitPrice = isFlashActive ? Number(dbProduct.flashSale.price) : Number(dbProduct.price);
+
+      orderItems.push({
+        product: dbProduct._id,
+        name: dbProduct.name,
         qty,
-        price,
-        image,
+        price: unitPrice,
+        image: dbProduct.image || dbProduct.images?.[0] || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600',
         color: item.selectedColor || item.color || '',
         variant: item.selectedVariant || item.variant || ''
-      };
-    }));
-
-
+      });
+    }
 
     const itemsPrice = Math.round(orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0));
     const shippingPrice = itemsPrice >= 499 ? 0 : 40;
     const taxPrice = 0;
     
-    // Coins Discount calculation (1 Coin = ₹1)
-    let coinsUsed = 0;
-    if (useCoinsDiscount && user) {
-      const userCoins = user.walletCoins || 0;
-      coinsUsed = Math.min(userCoins, itemsPrice);
-    }
-
+    // Server-authoritative Coupon revalidation
     let couponDiscount = 0;
     if (couponCode) {
-      const dbCoupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
-      if (dbCoupon && new Date(dbCoupon.expiryDate) > new Date()) {
-        couponDiscount = dbCoupon.discountType === 'percentage'
-          ? Math.round((itemsPrice * dbCoupon.discountAmount) / 100)
-          : dbCoupon.discountAmount;
+      const { validateCoupon } = await import('../../../lib/couponValidator.js');
+      const couponRes = await validateCoupon(couponCode, itemsPrice);
+      if (couponRes.valid) {
+        couponDiscount = couponRes.discountAmount;
       }
     }
 
+    // Coins Discount calculation (1 Coin = ₹1, clamped to remaining subtotal)
+    let coinsUsed = 0;
+    if (useCoinsDiscount && user) {
+      const userCoins = user.walletCoins || 0;
+      coinsUsed = Math.min(userCoins, Math.max(0, itemsPrice - couponDiscount));
+    }
 
     let totalPrice = Math.max(0, itemsPrice - coinsUsed - couponDiscount + shippingPrice + taxPrice);
+
+    // COD Cap Verification (Enforce ₹15,000 maximum order limit) [MIRROR OF CURRENT UI/CODE — OWNER TO CONFIRM]
+    const isOnlinePayment = paymentMethod.toLowerCase().includes('online') || paymentMethod.toLowerCase().includes('upi') || paymentMethod.toLowerCase().includes('card');
+    const isCod = !isOnlinePayment;
+    if (isCod && totalPrice > 15000) {
+      return NextResponse.json(
+        { error: 'Cash on Delivery is limited to orders up to ₹15,000 for verified delivery safety. Please select an online payment method.' },
+        { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
 
     // Deduct coins used from user wallet
     if (coinsUsed > 0 && user && user._id) {
@@ -221,7 +270,6 @@ export async function POST(req) {
     const deliveryPin = String(Math.floor(1000 + Math.random() * 9000));
     const generatedCfOrderId = cfOrderId || `ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
-    const isOnlinePayment = paymentMethod.toLowerCase().includes('online') || paymentMethod.toLowerCase().includes('upi') || paymentMethod.toLowerCase().includes('card');
     const initialStatus = isOnlinePayment ? 'Pending' : 'Placed';
 
     const newOrder = await Order.create({
@@ -257,7 +305,6 @@ export async function POST(req) {
     });
 
     // Clear user cart in DB upon order placement
-
     if (user && user._id) {
       try {
         await User.updateOne({ _id: user._id }, { $set: { cart: [] } });
@@ -266,7 +313,10 @@ export async function POST(req) {
       }
     }
 
-    return NextResponse.json(newOrder, { status: 201 });
+    return NextResponse.json(newOrder, { 
+      status: 201, 
+      headers: { 'Cache-Control': 'private, no-store' } 
+    });
 
   } catch (error) {
     console.error('Error in POST /api/orders:', error);

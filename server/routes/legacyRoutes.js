@@ -142,10 +142,6 @@ router.post('/payouts', protect, async (req, res) => {
   }
 });
 
-router.post('/reset', protect, admin, (req, res) => {
-  res.json({ success: true, message: 'Database reset successfully' });
-});
-
 // [SEC-PATCH]: Removed mock legacy auth and seller endpoints so all auth is handled strictly by authentic controllers.
 
 router.get('/admin/analytics', protect, admin, async (req, res) => {

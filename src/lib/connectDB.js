@@ -24,12 +24,6 @@ async function connectDB() {
       return mongoose.connect(targetUri, {
         bufferCommands: false,
         serverSelectionTimeoutMS: 2000,
-      }).then(async (mongooseInstance) => {
-        try {
-          const { seedDatabaseIfEmpty } = await import('../../server/utils/seed.js');
-          await seedDatabaseIfEmpty();
-        } catch (_) {}
-        return mongooseInstance;
       });
     };
 

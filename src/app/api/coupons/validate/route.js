@@ -1,124 +1,103 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
-import Coupon from '../../../../../server/models/Coupon.js';
+import Product from '../../../../../server/models/Product.js';
+import { validateCoupon } from '../../../../lib/couponValidator.js';
+
+import { checkRouteRateLimit } from '../../../../lib/rateLimiter.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
+    const limit = checkRouteRateLimit('coupons', ip, 30, 5 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { success: false, message: 'Too many coupon check attempts. Please slow down.' },
+        { status: 429, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
-    const { code, cartValue = 0, itemsPrice = 0 } = body;
-    const value = Number(cartValue || itemsPrice || 0);
+    const { code, cartValue, itemsPrice, items, cart } = body;
 
-    const upperCode = (code || '').trim().toUpperCase();
-    if (!upperCode) {
-      return NextResponse.json({ success: false, message: 'Coupon code is required.' }, { status: 400 });
+    const rawCode = (code || '').trim().toUpperCase();
+    if (!rawCode) {
+      return NextResponse.json(
+        { success: false, message: 'Coupon code is required.' }, 
+        { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+      );
     }
 
-    // 1. Check MongoDB Coupon database
-    try {
+    let serverSubtotal = 0;
+    const itemList = Array.isArray(items) ? items : (Array.isArray(cart) ? cart : null);
+
+    if (itemList && itemList.length > 0) {
+      // Recompute authoritative subtotal from MongoDB products
       await connectDB();
-      const dbCoupon = await Coupon.findOne({ code: upperCode, isActive: true });
+      for (const item of itemList) {
+        const prod = item.product || item;
+        const pId = prod?._id || prod?.id || item?._id || item?.id;
+        let dbProd = null;
 
-      if (dbCoupon) {
-        if (dbCoupon.expiryDate && new Date(dbCoupon.expiryDate) < new Date()) {
-          return NextResponse.json({ success: false, message: `Coupon '${upperCode}' has expired.` }, { status: 400 });
+        if (pId && /^[0-9a-fA-F]{24}$/.test(String(pId))) {
+          dbProd = await Product.findById(pId).lean();
+        }
+        if (!dbProd && pId) {
+          dbProd = await Product.findOne({ id: String(pId) }).lean();
         }
 
-        if (dbCoupon.usageLimit > 0 && (dbCoupon.usedCount || 0) >= dbCoupon.usageLimit) {
-          return NextResponse.json({ success: false, message: `Coupon '${upperCode}' usage limit has been reached.` }, { status: 400 });
+        const qty = Math.max(1, parseInt(item.quantity || item.qty, 10) || 1);
+        if (dbProd) {
+          const isFlash = dbProd.flashSale?.isActive === true && dbProd.flashSale?.endTime && new Date(dbProd.flashSale.endTime) > new Date();
+          const unitPrice = isFlash ? Number(dbProd.flashSale.price) : Number(dbProd.price);
+          serverSubtotal += unitPrice * qty;
+        } else {
+          // If product not found, fall back to safe numeric unit price (never negative)
+          const fallbackPrice = Math.max(0, Number(prod?.price || item?.price || 0));
+          serverSubtotal += fallbackPrice * qty;
         }
-
-        const minCart = Number(dbCoupon.minCartValue || 0);
-        if (minCart > 0 && value < minCart) {
-          return NextResponse.json({ 
-            success: false, 
-            message: `Minimum cart value of ₹${minCart} required for ${upperCode}. Add ₹${minCart - value} more to unlock.` 
-          }, { status: 400 });
-        }
-
-        const isPercentage = String(dbCoupon.discountType).toLowerCase() === 'percentage';
-        let discount = isPercentage
-          ? Math.round((value * Number(dbCoupon.discountValue)) / 100)
-          : Number(dbCoupon.discountValue);
-
-        const maxDisc = Number(dbCoupon.maxDiscount || 0);
-        if (maxDisc > 0 && discount > maxDisc) {
-          discount = maxDisc;
-        }
-        discount = Math.min(value, Math.max(0, discount));
-
-        return NextResponse.json({
-          success: true,
-          couponCode: upperCode,
-          discountType: isPercentage ? 'percentage' : 'fixed',
-          discountValue: dbCoupon.discountValue,
-          discountAmount: discount,
-          message: `🎉 ${upperCode} applied! Saved ₹${discount}.`
-        });
       }
-    } catch (dbErr) {
-      console.warn('[Coupon DB lookup warning]:', dbErr.message);
-    }
-
-    // 2. Built-in Native Fallback for standard store coupons
-    if (upperCode === 'FESTIVE20' || upperCode === 'HURRY20') {
-      if (value < 499) {
-        return NextResponse.json({ success: false, message: `Minimum cart value of ₹499 required for ${upperCode}` }, { status: 400 });
+    } else {
+      // Fallback to client-provided subtotal value, strictly clamped to non-negative numeric
+      const numericVal = Number(cartValue !== undefined ? cartValue : itemsPrice);
+      if (!Number.isFinite(numericVal) || numericVal <= 0) {
+        return NextResponse.json(
+          { success: false, message: 'Cart subtotal must be a positive number.' },
+          { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+        );
       }
-      const discount = Math.min(2000, Math.round(value * 0.20));
-      return NextResponse.json({
-        success: true,
-        couponCode: upperCode,
-        discountType: 'percentage',
-        discountValue: 20,
-        discountAmount: discount,
-        message: `🎉 ${upperCode} applied! 20% discount added to your cart.`
-      });
+      serverSubtotal = Math.max(0, numericVal);
     }
 
-    if (upperCode === 'SAVE10') {
-      const discount = Math.min(1000, Math.round(value * 0.10));
-      return NextResponse.json({
-        success: true,
-        couponCode: 'SAVE10',
-        discountType: 'percentage',
-        discountValue: 10,
-        discountAmount: discount,
-        message: '🎉 SAVE10 applied! 10% discount added.'
-      });
+    serverSubtotal = Math.round(serverSubtotal);
+
+    const validationResult = await validateCoupon(rawCode, serverSubtotal);
+
+    if (!validationResult.valid) {
+      return NextResponse.json(
+        { success: false, message: validationResult.message },
+        { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
+      );
     }
 
-    if (upperCode === 'WELCOME100') {
-      const discount = Math.min(value, 100);
-      return NextResponse.json({
+    return NextResponse.json(
+      {
         success: true,
-        couponCode: 'WELCOME100',
-        discountType: 'fixed',
-        discountValue: 100,
-        discountAmount: discount,
-        message: '🎉 WELCOME100 applied! Flat ₹100 saved.'
-      });
-    }
-
-    if (upperCode === 'DIWALI50') {
-      if (value < 1000) {
-        return NextResponse.json({ success: false, message: 'Minimum cart value of ₹1000 required for DIWALI50' }, { status: 400 });
-      }
-      const discount = Math.min(3000, Math.round(value * 0.50));
-      return NextResponse.json({
-        success: true,
-        couponCode: 'DIWALI50',
-        discountType: 'percentage',
-        discountValue: 50,
-        discountAmount: discount,
-        message: '🪔 DIWALI50 Mega Discount applied! 50% discount added.'
-      });
-    }
-
-    return NextResponse.json({ success: false, message: `Coupon code '${code}' is invalid or expired.` }, { status: 400 });
+        couponCode: validationResult.couponCode,
+        discountType: validationResult.discountType,
+        discountValue: validationResult.discountValue,
+        discountAmount: validationResult.discountAmount,
+        serverSubtotal,
+        message: validationResult.message
+      },
+      { status: 200, headers: { 'Cache-Control': 'private, no-store' } }
+    );
   } catch (error) {
     console.error('Error in validate coupon:', error);
-    return NextResponse.json({ success: false, message: 'Internal server error validating coupon' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: 'Internal server error validating coupon.' },
+      { status: 500, headers: { 'Cache-Control': 'private, no-store' } }
+    );
   }
 }

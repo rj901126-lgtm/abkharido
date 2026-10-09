@@ -8,28 +8,28 @@ export const dynamic = 'force-dynamic';
 let botConfigState = {
   isEnabled: true,
   botName: 'AbKharido Smart Assistant',
-  welcomeGreeting: 'Namaste! 🙏 Welcome to AbKharido 24/7 Smart Support. How can I help you today?',
+  welcomeGreeting: 'Namaste! 🙏 Welcome to AbKharido Support. How can I help you today?',
   supportPhone: '+91 9172600587',
   supportEmail: 'support@abkharido.com',
-  workingHours: '24x7 Priority Desk',
+  workingHours: 'Mon-Sat: 9:00 AM - 9:00 PM IST',
   enableOrderTracking: true,
   enableCouponsChip: true,
   enableReturnsChip: true,
   enableSellerChip: true,
   enableWhatsAppHandoff: true,
   stats: {
-    totalConversations: 1428,
-    resolvedByAI: 1276,
-    escalatedToHuman: 152,
-    avgResponseTime: '0.4s',
-    satisfactionRate: '98.2%'
+    totalConversations: 0,
+    resolvedByAI: 0,
+    escalatedToHuman: 0,
+    avgResponseTime: 'Real-time',
+    satisfactionRate: 'N/A'
   },
   customRules: [
     {
       id: 'rule_1',
-      triggerKeywords: ['delhi', 'mumbai', 'bangalore', 'kolkata', 'delivery time', 'speed'],
+      triggerKeywords: ['delhi', 'mumbai', 'bangalore', 'kolkata', 'delivery time', 'speed', 'shipping time'],
       category: 'Shipping',
-      response: '🚀 We provide **Next-Day Air Priority Delivery** to all major metros (Delhi NCR, Mumbai, Bangalore, Pune, Hyderabad, Chennai, Kolkata) and 2-3 business days across all other Indian pin codes.',
+      response: '📦 Standard delivery across India is typically 3-7 business days depending on destination pincode and courier serviceability.',
       isActive: true,
       lastUpdated: new Date().toISOString()
     },
@@ -37,7 +37,7 @@ let botConfigState = {
       id: 'rule_2',
       triggerKeywords: ['warranty', 'guarantee', 'repair', 'brand warranty'],
       category: 'Product Assurance',
-      response: '🛡️ All electronics and appliances on AbKharido come with **100% Original Brand Manufacturer Warranty (1-2 Years)**. Invoices are GST-compliant and honored at all official brand service centers nationwide.',
+      response: '🛡️ Products are backed by seller or manufacturer warranty as specified on the individual product listing. Invoices are provided for all orders.',
       isActive: true,
       lastUpdated: new Date().toISOString()
     },
@@ -45,7 +45,7 @@ let botConfigState = {
       id: 'rule_3',
       triggerKeywords: ['emi', 'credit card emi', 'no cost emi', 'installments'],
       category: 'Payments',
-      response: '💳 **No-Cost & Low-Cost EMI** is available on all orders above ₹3,000 using major Credit Cards (HDFC, ICICI, SBI, Axis, Kotak, OneCard) and Cardless Bajaj Finserv EMI.',
+      response: '💳 We support secure online payments via UPI, Credit/Debit cards, Net Banking via Cashfree, and Cash on Delivery (COD) for eligible orders.',
       isActive: true,
       lastUpdated: new Date().toISOString()
     },
@@ -53,7 +53,7 @@ let botConfigState = {
       id: 'rule_4',
       triggerKeywords: ['exchange', 'old phone', 'trade in', 'upgrade'],
       category: 'Offers',
-      response: '🔄 You can trade in your existing smartphone or gadget for up to **₹12,000 instant exchange bonus** on flagship devices during checkout.',
+      response: 'ℹ️ We do not currently offer device trade-in or exchange programs. Please check product pages for direct promotional discounts.',
       isActive: true,
       lastUpdated: new Date().toISOString()
     }
@@ -62,14 +62,22 @@ let botConfigState = {
 
 export async function GET(req) {
   try {
+    const auth = await getAuthenticatedUser(req);
+    if (!auth || !auth.isAdmin) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' },
+        { status: 401, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
+
     await connectDB();
-    return NextResponse.json({
-      success: true,
-      config: botConfigState
-    });
+    return NextResponse.json(
+      { success: true, config: botConfigState },
+      { headers: { 'Cache-Control': 'private, no-store' } }
+    );
   } catch (error) {
     console.error('Error in GET /api/admin/bot-config:', error);
-    return NextResponse.json({ success: true, config: botConfigState });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

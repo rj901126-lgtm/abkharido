@@ -31,10 +31,20 @@ async function fetchBackend(path, body) {
 
 export async function POST(req) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
+    const { checkRouteRateLimit } = await import('../../../../lib/rateLimiter.js');
+    const limit = checkRouteRateLimit('verify-otp', ip, 15, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many verification attempts. Please try again after 15 minutes.' },
+        { status: 429, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
+
     const body = await req.json();
     const rawTarget = body.phone || body.recipient || body.mobile || body.email || '';
     if (!rawTarget) {
-      return NextResponse.json({ error: 'Phone number is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'Phone number is required.' }, { status: 400, headers: { 'Cache-Control': 'private, no-store' } });
     }
     body.phone = rawTarget;
     body.recipient = rawTarget;

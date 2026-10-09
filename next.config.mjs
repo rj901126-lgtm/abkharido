@@ -49,6 +49,13 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, s-maxage=60, stale-while-revalidate=3600' },
         ],
       },
+      // API routes must never be cached by shared CDN or intermediate proxies
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate' },
+        ],
+      },
     ];
   },
   async rewrites() {

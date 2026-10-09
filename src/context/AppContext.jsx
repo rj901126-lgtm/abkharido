@@ -1367,29 +1367,6 @@ export const AppProvider = ({ children }) => {
     return false;
   };
 
-  const resetDatabase = async () => {
-    try {
-      const res = await fetch(`/api/reset`, { method: 'POST' });
-      if (res.ok) {
-        showToast('Database files reset successfully.', 'info');
-        fetchProducts();
-        if (currentUser) {
-          const targetUsername = currentUser.username || currentUser.name;
-          if (targetUsername) {
-            fetchUser(targetUsername);
-          }
-          fetchOrders(currentUser.email);
-        }
-        fetchStats();
-        clearCart();
-        setActiveReferral(null);
-      }
-    // eslint-disable-next-line
-    } catch (err) {
-      showToast('Failed to communicate database reset.', 'error');
-    }
-  };
-
   return (
     <AppContext.Provider
       value={{
@@ -1417,7 +1394,6 @@ export const AppProvider = ({ children }) => {
         placeOrder,
         fetchOrders,
         verifyPayment,
-        resetDatabase,
         addProduct,
         editProduct,
         removeProduct,

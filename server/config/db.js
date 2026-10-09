@@ -29,57 +29,11 @@ const connectDB = async () => {
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
-    
-    // Auto-seed if empty
-    await seedDatabaseIfEmpty();
   } catch (error) {
     console.error(`Error: ${error.message}`);
     // Do not exit process in serverless env, just throw error
   }
 };
 
-const seedDatabaseIfEmpty = async () => {
-  try {
-    const { default: Product } = await import('../models/Product.js');
-    const { default: User } = await import('../models/User.js');
-    
-    const count = await Product.countDocuments();
-    if (count === 0) {
-      console.log('Local MongoDB is empty. Seeding from old JSON files...');
-      const fs = await import('fs');
-      const path = await import('path');
-      const { fileURLToPath } = await import('url');
-      const __dirname = path.dirname(fileURLToPath(import.meta.url));
-      
-      const productsPath = path.join(__dirname, '..', '..', 'api', 'data', 'products.json');
-      if (fs.existsSync(productsPath)) {
-        const productsData = JSON.parse(fs.readFileSync(productsPath, 'utf-8'));
-        const docs = productsData.map(p => ({
-           ...p,
-           stock: (p.stock !== undefined && p.stock > 0) ? p.stock : 50,
-           originalPrice: p.originalPrice || p.price + 500,
-           inStock: p.inStock !== undefined ? p.inStock : true,
-           soldCount: p.soldCount || 0
-        }));
-        await Product.insertMany(docs);
-        console.log(`Seeded ${docs.length} products.`);
-      }
-      
-      const adminExists = await User.findOne({ role: 'admin' });
-      if (!adminExists) {
-          await User.create({
-              username: 'admin',
-              email: 'admin@abkharido.com',
-              password: 'admin',
-              role: 'admin',
-              fullName: 'System Administrator'
-          });
-          console.log('Seeded Admin user.');
-      }
-    }
-  } catch (e) {
-    console.error('Failed to auto-seed local database:', e);
-  }
-};
-
 export default connectDB;
+

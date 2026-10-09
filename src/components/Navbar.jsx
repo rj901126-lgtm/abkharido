@@ -86,7 +86,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const searchParams = useSearchParams();
   const { t } = useLanguage();
   const activeCat = searchParams ? (searchParams.get('category') || currentCategory || 'all') : (currentCategory || 'all');
-  const { currentUser, cart, logout, resetDatabase, products, deliveryLocation, showToast } = useApp();
+  const { currentUser, cart, logout, products, deliveryLocation, showToast } = useApp();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);

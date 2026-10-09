@@ -126,6 +126,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
         const pin = topOrder.deliveryPin || (topOrder._id ? String(topOrder._id).replace(/\D/g, '').slice(-4).padStart(4, '0') : '');
         const status = topOrder.status || 'Processing';
         const itemName = topOrder.orderItems?.[0]?.name || 'AbKharido Product';
+        const total = topOrder.totalPrice || topOrder.total || 0;
         const pinText = pin 
           ? `🔐 **Doorstep OTP/PIN:** \`${pin}\` (Share this with delivery agent upon arrival)\n\n`
           : `🔐 **Doorstep OTP/PIN:** Sent via SMS when out for delivery\n\n`;
@@ -133,7 +134,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
         return {
           text: `Here is the live status for your recent order **#${orderNum}**:\n\n` +
                 `📦 **Item:** ${itemName} ${itemCount > 1 ? `(+${itemCount - 1} more)` : ''}\n` +
-                `📊 **Status:** ${status.toUpperCase()} (Express Courier Dispatch)\n` +
+                `📊 **Status:** ${status.toUpperCase()}\n` +
                 `💰 **Total:** ₹${total}\n` +
                 pinText +
                 `You can view full tracking history and download the tax invoice below:`,
@@ -160,11 +161,9 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
     if (q.includes('coupon') || q.includes('offer') || q.includes('discount') || q.includes('code') || q.includes('bachat') || q.includes('save') || q.includes('promo')) {
       return {
         text: `🎉 **Today's Verified Discount Coupons on AbKharido:**\n\n` +
-              `1️⃣ **\`SAVE10\`** — Instant **10% OFF** on all orders above ₹499.\n` +
-              `2️⃣ **\`FIRSTBUY\`** — Flat **₹150 OFF** for your first order.\n` +
-              `3️⃣ **\`ABVIP500\`** — Flat **₹500 OFF** on premium luxury items.\n\n` +
-              `⚡ *Tap any coupon code below to copy instantly:*`,
-        couponCodes: ['SAVE10', 'FIRSTBUY', 'ABVIP500'],
+              `1️⃣ **\`SAVE10\`** — Instant **10% OFF** on all orders above ₹499.\n\n` +
+              `⚡ *Tap coupon code below to copy instantly:*`,
+        couponCodes: ['SAVE10'],
         chips: [
           { id: 'browse_deals', label: '🛍️ Shop with Coupon', link: '/catalog' },
           { id: 'cart_view', label: '🛒 Open My Cart', link: '/cart' }
