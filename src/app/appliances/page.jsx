@@ -11,26 +11,30 @@ export const revalidate = 300;
 async function getAppliancesProducts() {
   try {
     await connectDB();
-    const products = await Product.find({ category: { $in: ['appliances', 'home'] } }).limit(60).lean();
+    const products = await Product.find({
+      category: { $in: ['appliances', 'home'] },
+      status: { $in: ['published', 'active'], $ne: 'archived' },
+      isArchived: { $ne: true }
+    }).limit(60).lean();
     if (products && products.length > 0) return JSON.parse(JSON.stringify(products));
   } catch (_e) {}
-  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => ['appliances', 'home'].includes(p.category))));
+  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => ['appliances', 'home'].includes(p.category) && (p.status === 'published' || p.status === 'active') && !p.isArchived)));
 }
 
 export const metadata = {
-  title: 'Buy Home & Kitchen Appliances Online India — Best Deals',
-  description: 'Shop smart refrigerators, front-load washing machines, 5-star split ACs, air fryers & microwave ovens online in India. Free brand installation & warranty on AbKharido.',
+  title: 'Buy Home & Living Products Online India — Best Deals',
+  description: 'Shop home utilities and small appliances online in India. Quality checked direct inventory, standard courier delivery & 7-day returns on AbKharido.',
   metadataBase: new URL(SITE_URL),
-  keywords: ['buy appliances online india', 'refrigerators online india', 'washing machine sale india', 'split inverter ac best price', 'kitchen appliances india', 'abkharido appliances'],
+  keywords: ['buy home living online india', 'home appliances india', 'kitchen utilities india', 'abkharido home'],
   alternates: { canonical: `${SITE_URL}/appliances` },
   openGraph: {
-    title: 'Home & Kitchen Appliances Store India — Free Delivery & Warranty | AbKharido',
-    description: 'India\'s top large and kitchen appliances deals. Smart refrigerators, washing machines, ACs & microwaves with free delivery and brand warranty.',
+    title: 'Home & Living Products Store India — Reliable Delivery | AbKharido',
+    description: 'Home and utility essentials. Standard 2-5 day courier delivery and easy 7-day returns.',
     url: `${SITE_URL}/appliances`,
     siteName: 'AbKharido',
     locale: 'en_IN',
     type: 'website',
-    images: [{ url: `${SITE_URL}/logo.jpg`, width: 1200, height: 630, alt: 'AbKharido Appliances Store India' }]
+    images: [{ url: `${SITE_URL}/logo.jpg`, width: 1200, height: 630, alt: 'AbKharido Home Store India' }]
   }
 };
 

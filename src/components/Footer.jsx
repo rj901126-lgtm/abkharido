@@ -38,8 +38,8 @@ const Footer = ({ onNavigate }) => {
               <Zap size={22} color="#38bdf8" />
             </div>
             <div>
-              <div style={{ fontWeight: '800', fontSize: '13.5px', color: '#ffffff' }}>Priority Express Dispatch</div>
-              <div style={{ color: '#94a3b8', fontSize: '11px', fontWeight: '500' }}>Free fast delivery across India</div>
+              <div style={{ fontWeight: '800', fontSize: '13.5px', color: '#ffffff' }}>Standard Courier Dispatch</div>
+              <div style={{ color: '#94a3b8', fontSize: '11px', fontWeight: '500' }}>2-5 days delivery across India</div>
             </div>
           </div>
 
@@ -95,7 +95,7 @@ const Footer = ({ onNavigate }) => {
 
         {/* Shopping Categories */}
         <div>
-          <h4 style={{ color: '#ffffff', fontSize: '14px', fontWeight: '900', marginBottom: '16px', letterSpacing: '0.4px', textTransform: 'uppercase', borderLeft: '3px solid #6366f1', paddingLeft: '8px' }}>
+          <h4 style={{ color: '#ffffff', fontSize: '14px', fontWeight: '900', marginBottom: '16px', letterSpacing: '0.4px', textTransform: 'uppercase', borderLeft: '3px solid var(--brand-accent)', paddingLeft: '8px' }}>
             Popular Categories
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', fontWeight: '600' }}>
@@ -107,7 +107,7 @@ const Footer = ({ onNavigate }) => {
               { label: "VIP Vault Offers", path: "vip" }
             ].map((item, i) => (
               <Link key={i} href={`/${item.path}`} onClick={(e) => handleNav(e, item.path)} style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }}>
-                <ChevronRight size={13} color="#6366f1" /> {item.label}
+                <ChevronRight size={13} color="var(--brand-accent)" /> {item.label}
               </Link>
             ))}
           </div>
@@ -123,7 +123,8 @@ const Footer = ({ onNavigate }) => {
               { label: "Track Your Order Live", path: "orders" },
               { label: "Easy 7-Day Replacement", path: "returns" },
               { label: "Shipping & Delivery Policy", path: "shipping" },
-              { label: "Terms & Privacy Policy", path: "privacy" },
+              { label: "Terms of Use", path: "terms" },
+              { label: "Privacy Policy", path: "privacy" },
               { label: "Customer Help & FAQ", path: "faq" },
               { label: "Contact Support Team", path: "contact" }
             ].map((item, idx) => (
@@ -163,7 +164,7 @@ const Footer = ({ onNavigate }) => {
         <details style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '12px 18px', cursor: 'pointer' }}>
           <summary style={{ fontSize: '13px', fontWeight: '800', color: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', outline: 'none' }}>
             <span>🔍 Popular Searches &amp; City Delivery Directories (India)</span>
-            <span style={{ fontSize: '11px', color: '#6366f1' }}>Tap to Expand ▾</span>
+            <span style={{ fontSize: '11px', color: 'var(--brand-accent)' }}>Tap to Expand ▾</span>
           </summary>
 
           <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', cursor: 'default' }}>
@@ -203,7 +204,7 @@ const Footer = ({ onNavigate }) => {
             </div>
 
             <div>
-              <div style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px' }}>Express Delivery Cities</div>
+              <div style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px' }}>Serviceable Cities</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
                 {["Mumbai", "Delhi NCR", "Bengaluru", "Hyderabad", "Pune", "Chennai", "Kolkata", "Ahmedabad", "Jaipur", "Lucknow", "Chandigarh", "Surat"].map((city, idx) => (
                   <span key={idx} style={{ background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px' }}>

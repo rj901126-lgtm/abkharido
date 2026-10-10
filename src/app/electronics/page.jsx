@@ -12,21 +12,25 @@ export const revalidate = 300;
 async function getElectronicsProducts() {
   try {
     await connectDB();
-    const products = await Product.find({ category: { $in: ['electronics', 'mobiles'] } }).limit(60).lean();
+    const products = await Product.find({
+      category: { $in: ['electronics', 'mobiles'] },
+      status: { $in: ['published', 'active'], $ne: 'archived' },
+      isArchived: { $ne: true }
+    }).limit(60).lean();
     if (products && products.length > 0) return JSON.parse(JSON.stringify(products));
   } catch (_e) {}
-  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => ['electronics', 'mobiles'].includes(p.category))));
+  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => ['electronics', 'mobiles'].includes(p.category) && (p.status === 'published' || p.status === 'active') && !p.isArchived)));
 }
 
 export const metadata = {
-  title: 'Buy Electronics Online India — Best Deals with Free Delivery',
-  description: 'Shop the best electronics online in India — smartphones, laptops, smartwatches, earbuds, tablets & more. Free express delivery, 7-day returns, Cash on Delivery on AbKharido.',
+  title: 'Buy Electronics Online India — Best Deals with Standard Delivery',
+  description: 'Shop quality verified electronics online in India — audio gear, wireless speakers, smartwatches & accessories. Standard courier delivery, 7-day returns, Cash on Delivery on AbKharido.',
   metadataBase: new URL(SITE_URL),
-  keywords: ['buy electronics online india', 'electronics sale india', 'best electronics deals', 'smartphones online india', 'laptops online india', 'earbuds india', 'smartwatch india'],
+  keywords: ['buy electronics online india', 'electronics sale india', 'best electronics deals', 'earbuds india', 'smartwatch india', 'wireless speakers india'],
   alternates: { canonical: `${SITE_URL}/electronics` },
   openGraph: {
-    title: 'Electronics Store India — Free Delivery & 7-Day Returns | AbKharido',
-    description: 'India\'s best electronics deals. Genuine smartphones, laptops, earbuds, smartwatches with free express delivery pan-India.',
+    title: 'Electronics Store India — Reliable Delivery & 7-Day Returns | AbKharido',
+    description: 'Quality assured consumer electronics and audio gear. Standard 2-5 day courier delivery pan-India.',
     url: `${SITE_URL}/electronics`,
     siteName: 'AbKharido',
     locale: 'en_IN',

@@ -48,7 +48,7 @@ export const metadata = {
     url: SITE_URL,
     siteName: 'AbKharido',
     title: "AbKharido | Online Shopping — Electronics, Fashion & More",
-    description: "Shop verified smartphones, designer apparel, premium audio, and lifestyle gear. Lightning-fast express delivery, 7-day returns, Cash on Delivery.",
+    description: "Shop quality verified smartphones, apparel, audio, and lifestyle gear. Standard 2-5 day delivery across India, 7-day returns, and Cash on Delivery.",
     images: [
       {
         url: `${SITE_URL}/logo.jpg`,
@@ -61,7 +61,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "AbKharido | Online Shopping — Electronics, Fashion & More",
-    description: "Shop verified electronics, fashion, and lifestyle. Fast shipping, 7-day returns, secure payments.",
+    description: "Shop quality verified electronics, fashion, and lifestyle. Standard 2-5 day delivery, 7-day returns, secure payments.",
     images: [`${SITE_URL}/logo.jpg`],
     creator: '@abkharido',
   },
@@ -178,7 +178,7 @@ export default function RootLayout({ children }) {
       name: 'AbKharido India — Online Shopping',
       url: SITE_URL,
       image: `${SITE_URL}/logo.jpg`,
-      description: 'India\'s trusted online shopping destination. Free delivery across 29,000+ pincodes. Electronics, smartphones, fashion, and home products with genuine warranty.',
+      description: 'India\'s trusted online shopping destination. Free delivery across 29,000+ pincodes on orders ₹499+. Electronics, smartphones, fashion, and home products with direct quality assurance.',
       priceRange: '₹99 - ₹1,99,999',
       currenciesAccepted: 'INR',
       paymentAccepted: 'Cash on Delivery, UPI, Credit Card, Debit Card, Net Banking, EMI',

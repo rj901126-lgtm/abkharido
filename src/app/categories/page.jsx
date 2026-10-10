@@ -11,24 +11,27 @@ export const revalidate = 60; // Revalidate every 60 seconds
 async function getCategoriesProducts() {
   try {
     if (mongoose.connection.readyState === 1) {
-      const products = await Product.find({}).limit(100).lean();
+      const products = await Product.find({
+        status: { $in: ['published', 'active'], $ne: 'archived' },
+        isArchived: { $ne: true }
+      }).limit(100).lean();
       if (products && products.length > 0) {
         return JSON.parse(JSON.stringify(products));
       }
     }
   } catch (_e) {}
-  return JSON.parse(JSON.stringify(PRODUCTS));
+  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => (p.status === 'published' || p.status === 'active') && !p.isArchived)));
 }
 
 export const metadata = {
   title: 'All Categories - Explore Collections',
-  description: 'Browse all categories on AbKharido: Mobiles, Electronics, Designer Fashion, Home Decor, Appliances, and more with huge daily savings.',
+  description: 'Browse active categories on AbKharido: Mobiles, Electronics, Fashion, Home Decor, and more with daily value deals.',
   alternates: {
     canonical: `${SITE_URL}/categories`,
   },
   openGraph: {
     title: 'Explore Collections & Categories | AbKharido',
-    description: 'Browse all departments on AbKharido with express doorstep delivery across India.',
+    description: 'Browse active departments on AbKharido with reliable courier delivery across India.',
     url: `${SITE_URL}/categories`,
     siteName: 'AbKharido',
     type: 'website',
@@ -44,7 +47,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Explore Collections & Categories | AbKharido',
-    description: 'Browse all departments on AbKharido with express doorstep delivery.',
+    description: 'Browse active departments on AbKharido with standard courier delivery.',
     images: [`${SITE_URL}/logo.jpg`],
   },
 };

@@ -12,21 +12,25 @@ export const revalidate = 300;
 async function getMobilesProducts() {
   try {
     await connectDB();
-    const products = await Product.find({ category: 'mobiles' }).limit(60).lean();
+    const products = await Product.find({
+      category: 'mobiles',
+      status: { $in: ['published', 'active'], $ne: 'archived' },
+      isArchived: { $ne: true }
+    }).limit(60).lean();
     if (products && products.length > 0) return JSON.parse(JSON.stringify(products));
   } catch (_e) {}
-  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => p.category === 'mobiles')));
+  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => p.category === 'mobiles' && (p.status === 'published' || p.status === 'active') && !p.isArchived)));
 }
 
 export const metadata = {
-  title: 'Buy Mobile Phones Online India — Best Smartphones 2026',
-  description: 'Buy the latest smartphones online in India. iPhone, Samsung, OnePlus, realme — compare prices, read reviews, free delivery & 7-day returns at AbKharido.',
+  title: 'Buy Mobile Phones Online India — Verified Smartphones 2026',
+  description: 'Shop verified mobile phones and accessories online in India. Quality checked inventory, 2-5 day courier delivery & 7-day returns at AbKharido.',
   metadataBase: new URL(SITE_URL),
-  keywords: ['buy mobile phones online india', 'best smartphones india 2026', 'latest mobile phones india', 'iphone india price', 'samsung phone online india', 'mobile phones free delivery'],
+  keywords: ['buy mobile phones online india', 'best smartphones india 2026', 'latest mobile phones india', 'mobile phones free delivery', 'mobile accessories india'],
   alternates: { canonical: `${SITE_URL}/mobiles` },
   openGraph: {
-    title: 'Buy Mobile Phones Online India — Best Price 2026 | AbKharido',
-    description: 'Latest smartphones at the best price in India. iPhone, Samsung, OnePlus — free express delivery & COD.',
+    title: 'Buy Mobile Phones Online India — Quality Verified | AbKharido',
+    description: 'Verified smartphones and accessories at direct value pricing. Standard courier delivery & COD.',
     url: `${SITE_URL}/mobiles`,
     siteName: 'AbKharido',
     locale: 'en_IN',

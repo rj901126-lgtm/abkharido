@@ -69,13 +69,13 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${product.name} - Best Price in India`,
-    description: product.description || `Buy ${product.name} online at the best price in India on AbKharido. Express Delivery, 7-Day Returns & Cash on Delivery available.`,
+    description: product.description || `Buy ${product.name} online at the best price in India on AbKharido. Standard Delivery (2-5 Days), 7-Day Returns & Cash on Delivery available.`,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       title: `${product.name} | AbKharido`,
-      description: product.description || `Shop ${product.name} on AbKharido for ₹${(product.price || 0).toLocaleString('en-IN')}. Fast shipping across India.`,
+      description: product.description || `Shop ${product.name} on AbKharido for ₹${(product.price || 0).toLocaleString('en-IN')}. Reliable delivery across India.`,
       url: canonicalUrl,
       siteName: 'AbKharido',
       type: 'website',
@@ -121,7 +121,7 @@ export default async function Page({ params }) {
       product.image || (product.images && product.images[0]) || `${SITE_URL}/logo.jpg`,
       ...(product.images || [])
     ].filter(Boolean),
-    description: product.description || `Buy ${product.name} online in India with Free Express Delivery at AbKharido.`,
+    description: product.description || `Buy ${product.name} online in India with Standard Courier Delivery at AbKharido.`,
     sku: `AK-${product.id || id}`,
     mpn: `MPN-${product.id || id}`,
     brand: {

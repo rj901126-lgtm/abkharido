@@ -12,21 +12,25 @@ export const revalidate = 300;
 async function getFashionProducts() {
   try {
     await connectDB();
-    const products = await Product.find({ category: 'fashion' }).limit(60).lean();
+    const products = await Product.find({
+      category: 'fashion',
+      status: { $in: ['published', 'active'], $ne: 'archived' },
+      isArchived: { $ne: true }
+    }).limit(60).lean();
     if (products && products.length > 0) return JSON.parse(JSON.stringify(products));
   } catch (_e) {}
-  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => p.category === 'fashion')));
+  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => p.category === 'fashion' && (p.status === 'published' || p.status === 'active') && !p.isArchived)));
 }
 
 export const metadata = {
-  title: 'Buy Fashion Online India — Biker Jackets, Streetwear & More',
-  description: 'Shop trendy fashion online India — leather biker jackets, streetwear, sneakers & more. Free delivery, 7-day free returns, Cash on Delivery at AbKharido.',
+  title: 'Buy Fashion Online India — Apparel, Footwear & Lifestyle',
+  description: 'Shop quality verified fashion online India — apparel, jackets, footwear, and accessories. Standard courier delivery, 7-day returns, Cash on Delivery at AbKharido.',
   metadataBase: new URL(SITE_URL),
-  keywords: ['buy fashion online india', 'biker jacket online india', 'leather jacket india', 'streetwear india online', 'fashion sale india free delivery', 'buy clothes online cash on delivery'],
+  keywords: ['buy fashion online india', 'fashion apparel india', 'footwear india online', 'fashion sale india', 'buy clothes online cash on delivery'],
   alternates: { canonical: `${SITE_URL}/fashion` },
   openGraph: {
-    title: 'Fashion Store India — Free Delivery & Returns | AbKharido',
-    description: 'Shop India\'s trendiest fashion — jackets, footwear, streetwear. Free express delivery, 7-day returns, COD.',
+    title: 'Fashion Store India — Quality Verified & 7-Day Returns | AbKharido',
+    description: 'Shop curated fashion collections. Reliable 2-5 day courier delivery, 7-day returns, COD.',
     url: `${SITE_URL}/fashion`,
     siteName: 'AbKharido',
     locale: 'en_IN',

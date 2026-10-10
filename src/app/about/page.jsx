@@ -5,13 +5,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com'
 
 export const metadata = {
   title: 'About Us — Direct Buy & Earn Marketplace',
-  description: 'Learn about AbKharido.com, India\'s premier direct-to-consumer e-commerce destination for verified electronics, fashion, and lifestyle products with genuine brand warranty.',
+  description: 'Learn about AbKharido.com, India\'s direct-to-consumer e-commerce destination for quality verified electronics, fashion, and lifestyle products with reliable courier dispatch.',
   alternates: {
     canonical: `${SITE_URL}/about`
   },
   openGraph: {
-    title: 'About AbKharido.com | India\'s Premium Online Shopping Destination',
-    description: '100% genuine brand warranty, express warehouse shipping, and rewarding community commerce.',
+    title: 'About AbKharido.com | India\'s Online Shopping Destination',
+    description: 'Direct quality assurance, 2-5 day courier dispatch, 7-day returns, and rewarding community commerce.',
     url: `${SITE_URL}/about`,
     siteName: 'AbKharido',
     locale: 'en_IN',
@@ -34,10 +34,10 @@ export default function AboutPage() {
       founders: [{ '@type': 'Person', name: 'AbKharido Leadership Team' }],
       address: {
         '@type': 'PostalAddress',
-        streetAddress: 'Outer Ring Road, Devarabeesanahalli',
-        addressLocality: 'Bengaluru',
-        addressRegion: 'Karnataka',
-        postalCode: '560103',
+        streetAddress: 'Palghar',
+        addressLocality: 'Palghar',
+        addressRegion: 'Maharashtra',
+        postalCode: '401404',
         addressCountry: 'IN'
       }
     }
