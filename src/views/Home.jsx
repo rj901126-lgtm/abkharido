@@ -17,15 +17,19 @@ import {
   Smartphone,
   Shirt,
   Home as HomeIcon,
-  CheckCircle2
+  CheckCircle2,
+  LayoutGrid
 } from 'lucide-react';
 import '../assets/styles/home.css';
 
 const defaultVipCategories = [
+  { id: 'all', label: 'All Categories', icon: LayoutGrid, bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', color: '#334155' },
   { id: 'electronics', label: 'Audio & Tech', icon: Headphones, bg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', color: '#1d4ed8' },
-  { id: 'mobiles', label: 'Mobiles', icon: Smartphone, bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', color: '#15803d' },
+  { id: 'mobiles', label: 'Mobiles & 5G', icon: Smartphone, bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', color: '#15803d' },
   { id: 'fashion', label: 'Fashion', icon: Shirt, bg: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)', color: '#be185d' },
-  { id: 'home', label: 'Home', icon: HomeIcon, bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', color: '#b45309' },
+  { id: 'appliances', label: 'Appliances', icon: HomeIcon, bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', color: '#b45309' },
+  { id: 'beauty', label: 'Beauty & Care', icon: Sparkles, bg: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)', color: '#7e22ce' },
+  { id: 'sports', label: 'Sports & Fitness', icon: Award, bg: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', color: '#047857' },
 ];
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
@@ -39,18 +43,18 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
   })()).current;
 
-  // Categories list only categories that still have a published in-stock product
+  // Derive categories: Always display full department suite so catalog is accessible for future and current stock
   const activeVipCategories = React.useMemo(() => {
-    if (!Array.isArray(products) || products.length === 0) {
-      return defaultVipCategories.filter(c => c.id === 'electronics');
-    }
-    const activeCats = new Set(
-      products
+    const inStockCats = new Set(
+      (Array.isArray(products) ? products : [])
         .filter(p => p && (Number(p.stock) > 0 || p.inStock) && (p.status === 'published' || p.status === 'active') && !p.isArchived)
         .map(p => (p.category || '').toLowerCase().trim())
         .filter(Boolean)
     );
-    return defaultVipCategories.filter(c => activeCats.has(c.id.toLowerCase()));
+    return defaultVipCategories.map(cat => ({
+      ...cat,
+      hasStock: inStockCats.has(cat.id.toLowerCase())
+    }));
   }, [products]);
 
   const defaultSlides = [
@@ -158,10 +162,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     } else if (catId === 'fashion') {
       if (onNavigate) onNavigate('fashion');
       else if (onSelectCategory) onSelectCategory('fashion');
+    } else if (catId === 'appliances') {
+      if (onNavigate) onNavigate('appliances');
+      else if (onSelectCategory) onSelectCategory('appliances');
+    } else if (catId === 'home') {
+      if (onNavigate) onNavigate('appliances');
+      else if (onSelectCategory) onSelectCategory('home');
+    } else if (catId === 'all') {
+      if (onNavigate) onNavigate('categories');
+      else if (onSelectCategory) onSelectCategory('all');
     } else if (onSelectCategory) {
       onSelectCategory(catId);
     } else if (onNavigate) {
-      onNavigate(catId === 'all' ? 'catalog' : `catalog?category=${catId}`);
+      onNavigate(`catalog?category=${catId}`);
     }
   };
 
@@ -481,10 +494,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         ))}
       </div>
 
-      {/* ── 6. Category Highlights (Active Categories Only) ── */}
-      {activeVipCategories.length > 0 && (
+      {/* ── 6. Category Highlights (Active In-Stock Categories) ── */}
+      {activeVipCategories.some(c => c.hasStock && c.id !== 'all') && (
         <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
-          {activeVipCategories.map((cat, idx) => {
+          {activeVipCategories.filter(c => c.hasStock && c.id !== 'all').map((cat, idx) => {
             const CatIcon = cat.icon || Sparkles;
             return (
               <div 

@@ -51,7 +51,7 @@ const MEGA_MENU_CATEGORIES = [
     ]
   },
   {
-    title: "Mobiles & Accessories",
+    title: "Mobiles & 5G",
     cat: "mobiles",
     icon: Smartphone,
     items: [
@@ -66,16 +66,34 @@ const MEGA_MENU_CATEGORIES = [
     icon: Shirt,
     items: [
       { name: "Apparel & Essentials", query: "Apparel" },
-      { name: "Footwear", query: "Shoes" }
+      { name: "Footwear & Shoes", query: "Shoes" }
     ]
   },
   {
-    title: "Home Appliances",
-    cat: "home",
+    title: "Appliances & Kitchen",
+    cat: "appliances",
     icon: HomeIcon,
     items: [
       { name: "Home Living", query: "Living" },
       { name: "Kitchen Appliances", query: "Kitchen" }
+    ]
+  },
+  {
+    title: "Beauty & Wellness",
+    cat: "beauty",
+    icon: Sparkles,
+    items: [
+      { name: "Skincare & Personal Care", query: "Beauty" },
+      { name: "Grooming & Health", query: "Grooming" }
+    ]
+  },
+  {
+    title: "Sports & Fitness",
+    cat: "sports",
+    icon: Award,
+    items: [
+      { name: "Fitness Gear", query: "Fitness" },
+      { name: "Outdoor & Sports", query: "Sports" }
     ]
   }
 ];
@@ -162,16 +180,16 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   }, []);
 
   const availableMegaCategories = React.useMemo(() => {
-    if (!Array.isArray(products) || products.length === 0) {
-      return MEGA_MENU_CATEGORIES.filter(c => c.cat === 'electronics');
-    }
     const activeCats = new Set(
-      products
+      (Array.isArray(products) ? products : [])
         .filter(p => p && (Number(p.stock) > 0 || p.inStock) && (p.status === 'published' || p.status === 'active') && !p.isArchived)
         .map(p => (p.category || '').toLowerCase().trim())
         .filter(Boolean)
     );
-    return MEGA_MENU_CATEGORIES.filter(c => activeCats.has(c.cat.toLowerCase()));
+    return MEGA_MENU_CATEGORIES.map(cat => ({
+      ...cat,
+      hasStock: activeCats.has(cat.cat.toLowerCase())
+    }));
   }, [products]);
 
   const cartCount = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.quantity) || 1), 0) : 0;

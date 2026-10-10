@@ -1431,6 +1431,8 @@ export default function SellerDashboard({ onNavigate }) {
                   <option value="mobiles">Mobiles & Accessories</option>
                   <option value="fashion">Fashion & Apparel</option>
                   <option value="home">Home & Kitchen</option>
+                  <option value="appliances">Large Home Appliances</option>
+                  <option value="beauty">Beauty & Personal Care</option>
                   <option value="sports">Fitness & Sports</option>
                 </select>
               </div>

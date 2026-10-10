@@ -1634,6 +1634,8 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions }) => {
                   <option value="fashion">Fashion & Clothing</option>
                   <option value="home">Home & Living Essentials</option>
                   <option value="appliances">Large Home Appliances</option>
+                  <option value="beauty">Beauty & Personal Care</option>
+                  <option value="sports">Sports & Fitness</option>
                 </select>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap' }}>
                   <button
