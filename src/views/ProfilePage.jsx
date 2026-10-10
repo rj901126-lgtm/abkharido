@@ -461,15 +461,24 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
       return;
     }
 
+    const isDifferentEmail = emailToVerify !== (currentUser?.email || '').toLowerCase();
+
     setIsVerifyingEmail(true);
     try {
-      // 1. First save to database profile
+      // 1. Save email to database profile
       const saveSuccess = await updateUserProfile({ email: emailToVerify });
       if (!saveSuccess) {
         return;
       }
 
-      // 2. Attempt Firebase Email Verification if Firebase user is authenticated
+      // If the email was newly entered or changed, celebrate and finish without blocking on Firebase verification
+      if (isDifferentEmail) {
+        showToast(`Email address linked to your profile! 🎉`, 'success');
+        setIsChangingEmail(false);
+        return;
+      }
+
+      // 2. If email is already linked and user clicked "Verify Now ⚡", attempt Firebase Email Verification
       let firebaseSent = false;
       if (auth && auth.currentUser) {
         try {
@@ -484,8 +493,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
         } catch (fbErr) {
           console.warn('[Firebase Email Verification Notice]:', fbErr);
           if (fbErr.code === 'auth/requires-recent-login') {
-            showToast(`Email saved to profile! Firebase verification requires a fresh OTP sign-in.`, 'info');
-            setIsChangingEmail(false);
+            showToast('Firebase security: Please re-login with OTP to send verification email.', 'info');
             return;
           } else if (fbErr.code === 'auth/email-already-in-use') {
             showToast('This email is already associated with another Firebase account.', 'error');

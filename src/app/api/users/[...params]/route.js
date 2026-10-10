@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
 import User from '../../../../../server/models/User.js';
+import Order from '../../../../../server/models/Order.js';
 import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 import { isValidEmail } from '../../../../utils/constants.js';
 
@@ -292,23 +293,69 @@ export async function POST(req, { params }) {
       return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
     }
 
-    // 1. Conflict Check: verify the email is not already taken by another account
+    // 1. Build explicit update payload to bypass untouched required field validation
+    const updateSet = {};
+    const updateUnset = {};
+
+    // 2. Conflict Check & Legacy Customer Merge
     if (cleanEmail) {
       const emailConflict = await User.findOne({
         email: cleanEmail,
         _id: { $ne: user._id }
       }).lean();
+
       if (emailConflict) {
-        return NextResponse.json(
-          { error: 'This email address is already registered to another account.' },
-          { status: 409, headers: { 'Cache-Control': 'private, no-store' } }
+        // Protect staff & seller accounts from being absorbed
+        const privilegedRoles = ['admin', 'super_admin', 'seller', 'support_agent', 'catalog_manager'];
+        if (privilegedRoles.includes(emailConflict.role)) {
+          return NextResponse.json(
+            { error: `This email address is already registered as an official ${emailConflict.role} account.` },
+            { status: 409, headers: { 'Cache-Control': 'private, no-store' } }
+          );
+        }
+
+        // Auto-merge regular customer account:
+        console.log(`[Account Merge] Merging legacy customer (${emailConflict._id}) into active account (${user._id}) for email ${cleanEmail}`);
+        
+        try {
+          await Order.updateMany(
+            { user: emailConflict._id },
+            { $set: { user: user._id } }
+          );
+        } catch (mErr) {
+          console.warn('[Account Merge] Order migration warning:', mErr?.message);
+        }
+
+        const conflictCoins = Number(emailConflict.walletCoins) || 0;
+        const currentCoins = Number(user.walletCoins) || 0;
+        if (conflictCoins > 0) {
+          updateSet.walletCoins = currentCoins + conflictCoins;
+        }
+
+        if ((!user.addresses || user.addresses.length === 0) && (!body.addresses || body.addresses.length === 0)) {
+          if (emailConflict.addresses && emailConflict.addresses.length > 0) {
+            updateSet.addresses = emailConflict.addresses;
+          }
+        }
+
+        if (emailConflict.isEmailVerified && body.isEmailVerified === undefined) {
+          updateSet.isEmailVerified = true;
+        }
+
+        // Release email uniqueness from older record
+        await User.updateOne(
+          { _id: emailConflict._id },
+          { 
+            $unset: { email: 1 },
+            $set: { 
+              status: 'Suspended',
+              mergedInto: user._id,
+              notes: `Merged into phone-verified account ${user._id} on ${new Date().toISOString()}`
+            }
+          }
         );
       }
     }
-
-    // 2. Build explicit update payload to bypass untouched required field validation
-    const updateSet = {};
-    const updateUnset = {};
 
     if (body.firstName !== undefined && body.lastName !== undefined) {
       updateSet.firstName = body.firstName.trim();
