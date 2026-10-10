@@ -14,6 +14,21 @@ const generateToken = (id) => {
   });
 };
 
+const isValidEmail = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  const clean = email.trim().toLowerCase();
+  if (!clean.includes('@') || !clean.includes('.')) return false;
+  if (clean.includes(':') || clean.startsWith('313233')) return false;
+  if (/^[0-9a-fA-F]{24,}$/.test(clean)) return false;
+  if (
+    clean.endsWith('@abkharido.com') && 
+    !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com', 'wholesale@abkharido.com'].includes(clean)
+  ) {
+    return false;
+  }
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(clean);
+};
+
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -248,29 +263,34 @@ export const verifyOtp = async (req, res, next) => {
         user.fullName = fullName;
         shouldUpdate = true;
       }
-      if (shouldUpdate) {
-        await user.save();
-      }
+    // Auto-heal invalid or ciphertext email from legacy database saves
+    if (user.email && !isValidEmail(user.email)) {
+      user.email = undefined;
+      shouldUpdate = true;
     }
-    // Update fullName/email if provided during signup
-    if (fullName && !user.fullName) {
-      user.fullName = fullName;
-      await User.updateOne({ _id: user._id }, { $set: { fullName: user.fullName } });
+    if (shouldUpdate) {
+      await user.save();
     }
-    res.json({ 
-      success: true, 
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        phone: user.phone,
-        fullName: user.fullName,
-        role: user.role,
-        walletCoins: user.walletCoins || 0,
-        shopName: user.shopName,
-        token: generateToken(user._id),
-      }
-    });
+  }
+  // Update fullName if provided during signup
+  if (fullName && !user.fullName) {
+    user.fullName = fullName;
+    await User.updateOne({ _id: user._id }, { $set: { fullName: user.fullName } });
+  }
+  res.json({ 
+    success: true, 
+    user: {
+      _id: user._id,
+      username: user.username,
+      email: isValidEmail(user.email) ? user.email : null,
+      phone: user.phone,
+      fullName: user.fullName,
+      role: user.role,
+      walletCoins: user.walletCoins || 0,
+      shopName: user.shopName,
+      token: generateToken(user._id),
+    }
+  });
   } catch (error) {
     next(error);
   }
@@ -337,7 +357,12 @@ export const verifyFirebase = async (req, res, next) => {
         user.fullName = fullName;
         shouldUpdate = true;
       }
-      if (email && !user.email && !email.includes(':') && !email.endsWith('@abkharido.com')) {
+      // Auto-heal invalid or ciphertext email from legacy database saves
+      if (user.email && !isValidEmail(user.email)) {
+        user.email = undefined;
+        shouldUpdate = true;
+      }
+      if (email && isValidEmail(email) && (!user.email || user.email !== email.trim().toLowerCase())) {
         user.email = email.trim().toLowerCase();
         shouldUpdate = true;
       }
@@ -349,7 +374,7 @@ export const verifyFirebase = async (req, res, next) => {
       user: {
         _id: user._id,
         username: user.username,
-        email: user.email,
+        email: isValidEmail(user.email) ? user.email : null,
         phone: user.phone,
         role: user.role,
         token: generateToken(user._id),

@@ -5,7 +5,8 @@ import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, Arro
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
 import { auth } from '../firebase';
-import { updateEmail, sendEmailVerification } from 'firebase/auth';
+import { updateEmail, sendEmailVerification, verifyBeforeUpdateEmail } from 'firebase/auth';
+import { isValidEmail } from '../utils/constants';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', onTabChange }) => {
   const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard, addToCart } = useApp();
@@ -37,10 +38,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
   // State hooks
   const initialFirstName = currentUser?.firstName || (currentUser?.fullName ? currentUser.fullName.split(' ')[0] : '');
   const initialLastName = currentUser?.lastName || (currentUser?.fullName ? currentUser.fullName.split(' ').slice(1).join(' ') : '');
+  const initialEmail = isValidEmail(currentUser?.email) ? currentUser.email : '';
   
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
-  const [emailInput, setEmailInput] = useState(currentUser?.email || '');
+  const [emailInput, setEmailInput] = useState(initialEmail);
   const [pincodeInput, setPincodeInput] = useState(currentUser?.pincode || '');
   const [houseFlatInput, setHouseFlatInput] = useState(currentUser?.houseNo || '');
   const [streetAreaInput, setStreetAreaInput] = useState(currentUser?.streetArea || currentUser?.address || '');
@@ -120,7 +122,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
 
       setFirstName(currentUser.firstName || (currentUser.fullName ? currentUser.fullName.split(' ')[0] : ''));
       setLastName(currentUser.lastName || (currentUser.fullName ? currentUser.fullName.split(' ').slice(1).join(' ') : ''));
-      setEmailInput(currentUser.email || '');
+      setEmailInput(isValidEmail(currentUser.email) ? currentUser.email : '');
       setPincodeInput(currentUser.pincode || '');
       setHouseFlatInput(currentUser.houseNo || '');
       setStreetAreaInput(currentUser.streetArea || currentUser.address || '');
@@ -453,36 +455,48 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
   };
 
   const handleVerifyEmail = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailInput)) {
-      showToast('Please enter a valid email address.', 'error');
-      return;
-    }
-
-    if (!auth.currentUser) {
-      showToast('Authentication error. Please log in again.', 'error');
+    const emailToVerify = (emailInput || '').trim().toLowerCase();
+    if (!isValidEmail(emailToVerify)) {
+      showToast('Please enter a valid email address (e.g. name@gmail.com).', 'error');
       return;
     }
 
     setIsVerifyingEmail(true);
     try {
-      // First update email in Firebase
-      await updateEmail(auth.currentUser, emailInput.trim());
-      // Then send verification email
-      await sendEmailVerification(auth.currentUser);
+      let firebaseSent = false;
+      if (auth && auth.currentUser) {
+        try {
+          if (typeof verifyBeforeUpdateEmail === 'function') {
+            await verifyBeforeUpdateEmail(auth.currentUser, emailToVerify);
+            firebaseSent = true;
+          } else {
+            await updateEmail(auth.currentUser, emailToVerify);
+            await sendEmailVerification(auth.currentUser);
+            firebaseSent = true;
+          }
+        } catch (fbErr) {
+          console.warn('[Firebase Email Verification Notice]:', fbErr);
+          if (fbErr.code === 'auth/requires-recent-login') {
+            showToast('Security check: Please sign out and log in again before linking a new email.', 'info');
+          } else if (fbErr.code === 'auth/email-already-in-use') {
+            showToast('This email address is already linked with another account.', 'error');
+            return;
+          }
+        }
+      }
+
+      // Update email in our DB (isEmailVerified remains false until confirmed)
+      await updateUserProfile({ email: emailToVerify, isEmailVerified: false });
       
-      showToast('Verification link sent! Please check your inbox.', 'success');
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-      
-      // Update email in our DB but leave isEmailVerified false until they click the link
-      await updateUserProfile({ email: emailInput.trim() });
+      if (firebaseSent) {
+        showToast(`Verification link sent to ${emailToVerify}! Check your inbox.`, 'success');
+        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+      } else {
+        showToast(`Email updated to ${emailToVerify}. Firebase verification link will be sent.`, 'info');
+      }
     } catch (error) {
       console.error('Email verification error:', error);
-      if (error.code === 'auth/requires-recent-login') {
-        showToast('Please log out and log back in to update your email.', 'error');
-      } else {
-        showToast(error.message || 'Failed to send verification email.', 'error');
-      }
+      showToast(error.message || 'Failed to send verification email.', 'error');
     } finally {
       if (isMountedRef.current) {
         setIsVerifyingEmail(false);
@@ -731,12 +745,15 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
               <label className="profile-input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
                 <span>EMAIL ADDRESS</span>
-                {currentUser.isEmailVerified && !isChangingEmail ? 
-                  <span style={{ color: '#059669', background: '#d1fae5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>✔ VERIFIED</span> : 
-                  <span style={{ color: '#ea580c', background: '#ffedd5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>⚠️ {emailInput ? 'PENDING' : 'NOT LINKED'}</span>
-                }
+                {currentUser.isEmailVerified && isValidEmail(currentUser.email) && !isChangingEmail ? (
+                  <span style={{ color: '#059669', background: '#d1fae5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>✔ VERIFIED</span>
+                ) : isValidEmail(emailInput) ? (
+                  <span style={{ color: '#ea580c', background: '#ffedd5', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>⚠️ PENDING</span>
+                ) : (
+                  <span style={{ color: '#64748b', background: '#f1f5f9', padding: '1px 6px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>NOT LINKED</span>
+                )}
               </label>
-              {currentUser.isEmailVerified && !isChangingEmail && (
+              {currentUser.isEmailVerified && isValidEmail(currentUser.email) && !isChangingEmail && (
                 <button 
                   type="button" 
                   onClick={() => setIsChangingEmail(true)} 
@@ -752,8 +769,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                 type="email" 
                 value={emailInput} 
                 onChange={(e) => setEmailInput(e.target.value)} 
-                placeholder="Enter valid email address..."
-                disabled={currentUser.isEmailVerified && !isChangingEmail}
+                placeholder="Enter your Gmail / Email address (e.g. name@gmail.com)"
+                disabled={currentUser.isEmailVerified && isValidEmail(currentUser.email) && !isChangingEmail}
                 className="profile-input"
                 style={{ paddingRight: (!currentUser.isEmailVerified || isChangingEmail) ? '115px' : '14px' }}
               />
@@ -761,8 +778,24 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                 <button 
                   type="button" 
                   onClick={handleVerifyEmail}
-                  disabled={isVerifyingEmail || !emailInput}
-                  style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', opacity: (isVerifyingEmail || !emailInput) ? 0.7 : 1, padding: '6px 12px', background: 'linear-gradient(135deg, #f97316, #ea580c)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '800', fontSize: '11.5px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(234,88,12,0.25)', whiteSpace: 'nowrap' }}
+                  disabled={isVerifyingEmail || !isValidEmail(emailInput)}
+                  style={{ 
+                    position: 'absolute', 
+                    right: '5px', 
+                    top: '50%', 
+                    transform: 'translateY(-50%)', 
+                    opacity: (isVerifyingEmail || !isValidEmail(emailInput)) ? 0.6 : 1, 
+                    padding: '6px 12px', 
+                    background: isValidEmail(emailInput) ? 'linear-gradient(135deg, #f97316, #ea580c)' : '#cbd5e1', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '8px', 
+                    fontWeight: '800', 
+                    fontSize: '11.5px', 
+                    cursor: isValidEmail(emailInput) ? 'pointer' : 'not-allowed', 
+                    boxShadow: isValidEmail(emailInput) ? '0 2px 8px rgba(234,88,12,0.25)' : 'none', 
+                    whiteSpace: 'nowrap' 
+                  }}
                 >
                   {isVerifyingEmail ? 'Sending...' : 'Verify Now ⚡'}
                 </button>
@@ -772,14 +805,14 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
             {isChangingEmail && (
               <div style={{ fontSize: '11.5px', color: '#4f46e5', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontWeight: '600' }}>
                 <span>🔒</span>
-                <span>Account secured via Mobile OTP (+91 {currentUser.phone || currentUser.username}). You can update your email address anytime.</span>
+                <span>Account secured via Mobile OTP (+91 {currentUser.phone || currentUser.username}). You can link or update your email address anytime.</span>
               </div>
             )}
 
             {!currentUser.isEmailVerified && !isChangingEmail && (
               <div style={{ fontSize: '11.5px', color: '#b45309', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontWeight: '600' }}>
                 <span>ℹ️</span>
-                <span>Link email to receive invoice PDFs, dispatch tracking alerts &amp; coins.</span>
+                <span>Link your email to receive invoice PDFs, dispatch tracking alerts &amp; AB Coins.</span>
               </div>
             )}
           </div>

@@ -3,6 +3,7 @@ import connectDB from './connectDB.js';
 import User from '../../server/models/User.js';
 import Otp from '../../server/models/Otp.js';
 import jwt from 'jsonwebtoken';
+import { isValidEmail } from '../utils/constants.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026_super_secure', {
@@ -37,11 +38,9 @@ export async function findExistingUser({ phone, email, username } = {}) {
     }
   }
 
-  if (email) {
+  if (email && isValidEmail(email)) {
     const cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail && !cleanEmail.includes(':') && !cleanEmail.endsWith('@abkharido.com')) {
-      orConditions.push({ email: cleanEmail });
-    }
+    orConditions.push({ email: cleanEmail });
   }
 
   if (username) {
@@ -90,7 +89,7 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
       user = await User.create({
         username: normalizedPhone,
         phone: normalizedPhone,
-        email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email : undefined,
+        email: isValidEmail(email) ? email.trim().toLowerCase() : undefined,
         fullName: defaultName,
         password: 'FirebaseVerifiedUser123!'
       });
@@ -101,7 +100,7 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
           user = await User.create({
             username: `${normalizedPhone}_${Date.now().toString().slice(-4)}`,
             phone: normalizedPhone,
-            email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email : undefined,
+            email: isValidEmail(email) ? email.trim().toLowerCase() : undefined,
             fullName: defaultName,
             password: 'FirebaseVerifiedUser123!'
           });
@@ -120,15 +119,20 @@ export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) 
       user.fullName = fullName;
       shouldSave = true;
     }
-    if (email && !user.email && !email.includes(':') && !email.endsWith('@abkharido.com')) {
-      user.email = email;
+    // Auto-heal invalid or ciphertext email from legacy database saves
+    if (user.email && !isValidEmail(user.email)) {
+      user.email = undefined;
+      shouldSave = true;
+    }
+    if (email && isValidEmail(email) && (!user.email || user.email !== email.trim().toLowerCase())) {
+      user.email = email.trim().toLowerCase();
       shouldSave = true;
     }
     if (shouldSave) await user.save();
   }
 
   const cleanPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedPhone;
-  const cleanEmail = (user.email && !user.email.includes(':') && !user.email.endsWith('@abkharido.com')) ? user.email : null;
+  const cleanEmail = isValidEmail(user.email) ? user.email : null;
   return {
     success: true,
     user: {
@@ -223,11 +227,16 @@ export async function verifyOtpDirect(params = {}) {
       user.fullName = fullName;
       shouldSave = true;
     }
+    // Auto-heal invalid or ciphertext email from legacy database saves
+    if (user.email && !isValidEmail(user.email)) {
+      user.email = undefined;
+      shouldSave = true;
+    }
     if (shouldSave) await user.save();
   }
 
   const cleanRecipientPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedRecipient;
-  const cleanEmail = (user.email && !user.email.includes(':') && !user.email.endsWith('@abkharido.com')) ? user.email : null;
+  const cleanEmail = isValidEmail(user.email) ? user.email : null;
   return {
     success: true,
     user: {
@@ -246,12 +255,13 @@ export async function loginPasswordDirect({ username, password }) {
   await connectDB();
   const user = await User.findOne({ username });
   if (user && (await user.matchPassword(password))) {
+    const cleanEmail = isValidEmail(user.email) ? user.email : null;
     return {
       success: true,
       user: {
         _id: user._id.toString(),
         username: user.username,
-        email: user.email,
+        email: cleanEmail,
         phone: user.phone,
         fullName: user.fullName || 'VIP Member',
         role: user.role,

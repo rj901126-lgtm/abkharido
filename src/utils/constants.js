@@ -20,3 +20,28 @@ export const COMPANY_STATE = 'Maharashtra';
 export const COMPANY_PINCODE = '401404';
 export const FREE_SHIPPING_THRESHOLD = 499;
 export const STANDARD_SHIPPING_FEE = 40;
+
+/**
+ * Validates whether an email string is a real, legitimate email address.
+ * Rejects legacy encrypted ciphertext (hex salt 313233...), colons, pure hashes,
+ * and internal auto-generated placeholder domains.
+ */
+export const isValidEmail = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  const clean = email.trim().toLowerCase();
+  if (!clean.includes('@') || !clean.includes('.')) return false;
+  if (clean.includes(':') || clean.startsWith('313233')) return false;
+  if (/^[0-9a-fA-F]{24,}$/.test(clean)) return false;
+  if (
+    clean.endsWith('@abkharido.com') && 
+    !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com', 'wholesale@abkharido.com'].includes(clean)
+  ) {
+    return false;
+  }
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(clean);
+};
+
+export const sanitizeEmail = (email) => {
+  return isValidEmail(email) ? email.trim().toLowerCase() : '';
+};
+

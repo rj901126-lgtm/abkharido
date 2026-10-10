@@ -95,8 +95,25 @@ const userSchema = new mongoose.Schema({
 // Pre-save hook to normalize phone & email and handle empty strings for sparse unique indexes
 userSchema.pre('save', function() {
   if (this.email !== undefined) {
-    this.email = this.email ? this.email.trim().toLowerCase() : undefined;
-    if (this.email === '') this.email = undefined;
+    if (this.email) {
+      const e = this.email.trim().toLowerCase();
+      // Reject legacy hex ciphertexts, colons, dummy placeholder domains, or malformed strings
+      if (
+        !e.includes('@') || 
+        !e.includes('.') || 
+        e.includes(':') || 
+        e.startsWith('313233') || 
+        /^[0-9a-fA-F]{24,}$/.test(e) ||
+        (e.endsWith('@abkharido.com') && !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com', 'wholesale@abkharido.com'].includes(e)) ||
+        !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(e)
+      ) {
+        this.email = undefined;
+      } else {
+        this.email = e;
+      }
+    } else {
+      this.email = undefined;
+    }
   }
   if (this.phone !== undefined) {
     if (this.phone) {

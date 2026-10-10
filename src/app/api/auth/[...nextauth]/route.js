@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { verifyFirebaseDirect, verifyOtpDirect, loginPasswordDirect } from '../../../../lib/directAuth.js';
+import { isValidEmail } from '../../../../utils/constants.js';
 
 async function fetchBackend(path, body) {
   const hosts = [
@@ -101,7 +102,7 @@ export const authOptions = {
           
           if (userObj && (userObj.token || data?.token || userObj._id)) {
             const cleanPhone = (userObj.phone && !userObj.phone.includes(':')) ? userObj.phone : normalizedPhone;
-            const cleanEmail = (userObj.email && !userObj.email.includes(':')) ? userObj.email : null;
+            const cleanEmail = isValidEmail(userObj.email) ? userObj.email.trim().toLowerCase() : null;
             return {
               id: userObj._id?.toString() || userObj.id,
               name: userObj.username || userObj.name || cleanPhone,
@@ -127,7 +128,7 @@ export const authOptions = {
         token.role = user.role;
         token.accessToken = user.accessToken;
         token.phone = user.phone;   // persist phone in JWT
-        token.email = user.email;   // persist actual email (may be null for OTP users)
+        token.email = isValidEmail(user.email) ? user.email : null;   // persist actual email (null for phone users)
       }
       return token;
     },
@@ -136,7 +137,7 @@ export const authOptions = {
         session.user.id = token.id;
         session.user.role = token.role;
         session.user.phone = token.phone;   // expose phone to client
-        if (!token.email) session.user.email = null;  // don't show Gmail if no real email
+        session.user.email = isValidEmail(token.email) ? token.email : null;  // clean null if not legitimate email
         session.accessToken = token.accessToken;
       }
       return session;

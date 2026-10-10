@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/connectDB.js';
 import User from '../../../../server/models/User.js';
 import { getAuthenticatedUser } from '../../../lib/serverAuth.js';
+import { isValidEmail } from '../../../utils/constants.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,15 +37,7 @@ export async function GET(req) {
       }
 
       // Clean email: never return ciphertext or dummy auto-generated fake email
-      let cleanEmail = u.email || '';
-      if (
-        cleanEmail.includes(':') || 
-        (cleanEmail.endsWith('@abkharido.com') && !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com', 'wholesale@abkharido.com'].includes(cleanEmail.toLowerCase()))
-      ) {
-        cleanEmail = '';
-      } else {
-        cleanEmail = cleanEmail.trim().toLowerCase();
-      }
+      let cleanEmail = isValidEmail(u.email) ? u.email.trim().toLowerCase() : '';
 
       // A valid customer account MUST have a phone number (unless it is a system admin/seller)
       if (!cleanPhone && !['admin', 'super_admin', 'seller'].includes(u.role)) {

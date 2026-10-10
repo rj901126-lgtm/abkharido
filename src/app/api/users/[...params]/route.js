@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
 import User from '../../../../../server/models/User.js';
 import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
+import { isValidEmail } from '../../../../utils/constants.js';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -129,8 +130,14 @@ export async function GET(req, { params }) {
         const cleanDigits = phoneDigits || (userObj.username && userObj.username.match(/\d{10}/) ? userObj.username.match(/\d{10}/)[0] : '') || decodedToken?.phone || '';
         if (cleanDigits) userObj.phone = cleanDigits;
       }
-      if (userObj.email && (userObj.email.includes(':') || (userObj.email.endsWith('@abkharido.com') && !['admin@abkharido.com', 'support@abkharido.com', 'care@abkharido.com'].includes(userObj.email.toLowerCase())))) {
-        userObj.email = decodedToken?.email || undefined;
+      // Auto-heal legacy ciphertext email from MongoDB and sanitize response
+      if (user.email && !isValidEmail(user.email)) {
+        try {
+          await User.updateOne({ _id: user._id }, { $unset: { email: 1 } });
+        } catch (_) {}
+        userObj.email = (decodedToken?.email && isValidEmail(decodedToken.email)) ? decodedToken.email.toLowerCase() : undefined;
+      } else if (!isValidEmail(userObj.email)) {
+        userObj.email = (decodedToken?.email && isValidEmail(decodedToken.email)) ? decodedToken.email.toLowerCase() : undefined;
       }
       
       let isOwnerOrAdmin = false;
@@ -239,7 +246,7 @@ export async function POST(req, { params }) {
     await connectDB();
     const username = routeParams[0];
     const phoneDigits = (username && username.match(/\d{10}/)) ? username.match(/\d{10}/)[0] : (body.phone ? body.phone.replace(/\D/g, '').slice(-10) : '');
-    const cleanEmail = (body.email && !body.email.includes(':') && !body.email.endsWith('@abkharido.com')) ? body.email.trim().toLowerCase() : undefined;
+    const cleanEmail = isValidEmail(body.email) ? body.email.trim().toLowerCase() : undefined;
     
     let user = await User.findOne({ 
       $or: [
@@ -292,7 +299,17 @@ export async function POST(req, { params }) {
     } else if (body.fullName) {
       user.fullName = body.fullName;
     }
-    if (body.email) user.email = body.email;
+    if (body.email !== undefined) {
+      if (isValidEmail(body.email)) {
+        user.email = body.email.trim().toLowerCase();
+        if (body.isEmailVerified !== undefined) {
+          user.isEmailVerified = !!body.isEmailVerified;
+        }
+      } else {
+        user.email = undefined;
+        user.isEmailVerified = false;
+      }
+    }
     if (body.phone) user.phone = body.phone;
     
     // Handle Address Book Updates

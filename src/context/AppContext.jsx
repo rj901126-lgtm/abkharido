@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 
 import { lookupPincode, lookupPincodeAsync } from '../utils/pincodeData';
 import { sanitizeReferralCode, generateSafeReferralCode } from '../utils/referralUtils';
+import { isValidEmail } from '../utils/constants';
 
 const AppContext = createContext();
 
@@ -330,6 +331,8 @@ export const AppProvider = ({ children }) => {
       );
 
       const safeDb = isMatchingDbUser ? dbUser : {};
+      const rawEmail = session.user.email || safeDb.email || undefined;
+      const cleanEmail = isValidEmail(rawEmail) ? rawEmail.trim().toLowerCase() : undefined;
 
       return {
         ...session.user,
@@ -338,7 +341,7 @@ export const AppProvider = ({ children }) => {
         token: session.accessToken || safeDb.token,
         username: session.user.name || safeDb.username || sessPhone,
         phone: sessPhone || safeDb.phone || '',
-        email: session.user.email || safeDb.email || undefined,
+        email: cleanEmail,
       };
     }
 
@@ -353,12 +356,15 @@ export const AppProvider = ({ children }) => {
       );
 
       const safeDb = isMatchingDbUser ? dbUser : {};
+      const rawLocalEmail = localSession.email || safeDb.email || undefined;
+      const cleanLocalEmail = isValidEmail(rawLocalEmail) ? rawLocalEmail.trim().toLowerCase() : undefined;
 
       return {
         _id: locId || safeDb._id || 'user_' + Date.now(),
         ...localSession,
         ...safeDb,
         phone: locPhone || safeDb.phone || '',
+        email: cleanLocalEmail,
       };
     }
 
