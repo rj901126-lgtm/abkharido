@@ -61,6 +61,12 @@ const nextConfig = {
   async rewrites() {
     const backendUrl = process.env.BACKEND_API_URL || 'http://127.0.0.1:5000';
     return {
+      beforeFiles: [
+        {
+          source: '/__/auth/:path*',
+          destination: 'https://abkharido-auth.firebaseapp.com/__/auth/:path*',
+        },
+      ],
       fallback: [
         {
           source: '/api/:path*',
