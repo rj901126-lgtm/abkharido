@@ -292,61 +292,87 @@ export async function POST(req, { params }) {
       return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
     }
 
-    if (body.firstName && body.lastName) {
-      user.firstName = body.firstName;
-      user.lastName = body.lastName;
-      user.fullName = `${body.firstName} ${body.lastName}`;
-    } else if (body.fullName) {
-      user.fullName = body.fullName;
-    }
-    if (body.email !== undefined) {
-      if (isValidEmail(body.email)) {
-        user.email = body.email.trim().toLowerCase();
-        if (body.isEmailVerified !== undefined) {
-          user.isEmailVerified = !!body.isEmailVerified;
-        }
-      } else {
-        user.email = undefined;
-        user.isEmailVerified = false;
+    // 1. Conflict Check: verify the email is not already taken by another account
+    if (cleanEmail) {
+      const emailConflict = await User.findOne({
+        email: cleanEmail,
+        _id: { $ne: user._id }
+      }).lean();
+      if (emailConflict) {
+        return NextResponse.json(
+          { error: 'This email address is already registered to another account.' },
+          { status: 409, headers: { 'Cache-Control': 'private, no-store' } }
+        );
       }
-    }
-    if (body.phone) user.phone = body.phone;
-    
-    // Handle Address Book Updates
-    if (body.addresses && Array.isArray(body.addresses)) {
-      user.addresses = body.addresses;
-      if (typeof user.markModified === 'function') {
-        user.markModified('addresses');
-      }
-      
-      // Keep legacy fields in sync with the default address (or the first one)
-      const defaultAddr = body.addresses.find(a => a.isDefault) || body.addresses[0];
-      if (defaultAddr) {
-        user.address = defaultAddr.streetAddress || defaultAddr.address || '';
-        user.houseNo = defaultAddr.houseNo || '';
-        user.streetArea = defaultAddr.streetArea || '';
-        user.addressType = defaultAddr.addressType || 'Home';
-        user.pincode = defaultAddr.pincode || '';
-        user.city = defaultAddr.city || '';
-        user.state = defaultAddr.state || '';
-      }
-    } else {
-      // Legacy updates
-      if (body.address !== undefined) user.address = body.address;
-      if (body.houseNo !== undefined) user.houseNo = body.houseNo;
-      if (body.streetArea !== undefined) user.streetArea = body.streetArea;
-      if (body.addressType !== undefined) user.addressType = body.addressType;
-      if (body.pincode !== undefined) user.pincode = body.pincode;
-      if (body.city !== undefined) user.city = body.city;
-      if (body.state !== undefined) user.state = body.state;
     }
 
-    const updatedUser = await user.save();
-    const safeUser = updatedUser.toObject();
+    // 2. Build explicit update payload to bypass untouched required field validation
+    const updateSet = {};
+    const updateUnset = {};
+
+    if (body.firstName !== undefined && body.lastName !== undefined) {
+      updateSet.firstName = body.firstName.trim();
+      updateSet.lastName = body.lastName.trim();
+      updateSet.fullName = `${body.firstName.trim()} ${body.lastName.trim()}`.trim();
+    } else if (body.fullName !== undefined) {
+      updateSet.fullName = body.fullName.trim();
+    }
+
+    if (body.email !== undefined) {
+      if (cleanEmail) {
+        updateSet.email = cleanEmail;
+        if (body.isEmailVerified !== undefined) {
+          updateSet.isEmailVerified = !!body.isEmailVerified;
+        }
+      } else {
+        updateUnset.email = 1;
+        updateSet.isEmailVerified = false;
+      }
+    }
+
+    if (body.phone && !body.phone.includes(':')) {
+      updateSet.phone = body.phone.replace(/\D/g, '').slice(-10);
+    }
+
+    // Handle Address Book Updates
+    if (body.addresses && Array.isArray(body.addresses)) {
+      updateSet.addresses = body.addresses;
+      const defaultAddr = body.addresses.find(a => a.isDefault) || body.addresses[0];
+      if (defaultAddr) {
+        updateSet.address = defaultAddr.streetAddress || defaultAddr.address || '';
+        updateSet.houseNo = defaultAddr.houseNo || '';
+        updateSet.streetArea = defaultAddr.streetArea || '';
+        updateSet.addressType = defaultAddr.addressType || 'Home';
+        updateSet.pincode = defaultAddr.pincode || '';
+        updateSet.city = defaultAddr.city || '';
+        updateSet.state = defaultAddr.state || '';
+      }
+    } else {
+      if (body.address !== undefined) updateSet.address = body.address;
+      if (body.houseNo !== undefined) updateSet.houseNo = body.houseNo;
+      if (body.streetArea !== undefined) updateSet.streetArea = body.streetArea;
+      if (body.addressType !== undefined) updateSet.addressType = body.addressType;
+      if (body.pincode !== undefined) updateSet.pincode = body.pincode;
+      if (body.city !== undefined) updateSet.city = body.city;
+      if (body.state !== undefined) updateSet.state = body.state;
+    }
+
+    const updateOps = { $set: updateSet };
+    if (Object.keys(updateUnset).length > 0) {
+      updateOps.$unset = updateUnset;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(user._id, updateOps, { new: true })
+      .select('-password')
+      .lean();
+
+    const safeUser = updatedUser || (typeof user.toObject === 'function' ? user.toObject() : user);
     delete safeUser.password;
     return NextResponse.json(safeUser, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     console.error('[User API Proxy POST Error]:', error);
-    return NextResponse.json({ error: error.message || 'Failed to update user profile' }, { status: 500, headers: { 'Cache-Control': 'private, no-store' } });
+    const status = error.code === 11000 ? 409 : 500;
+    const msg = error.code === 11000 ? 'This email address is already registered to another account.' : (error.message || 'Failed to update user profile');
+    return NextResponse.json({ error: msg }, { status, headers: { 'Cache-Control': 'private, no-store' } });
   }
 }

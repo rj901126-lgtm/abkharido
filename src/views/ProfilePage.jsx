@@ -463,6 +463,13 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
 
     setIsVerifyingEmail(true);
     try {
+      // 1. First save to database profile
+      const saveSuccess = await updateUserProfile({ email: emailToVerify });
+      if (!saveSuccess) {
+        return;
+      }
+
+      // 2. Attempt Firebase Email Verification if Firebase user is authenticated
       let firebaseSent = false;
       if (auth && auth.currentUser) {
         try {
@@ -477,26 +484,26 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
         } catch (fbErr) {
           console.warn('[Firebase Email Verification Notice]:', fbErr);
           if (fbErr.code === 'auth/requires-recent-login') {
-            showToast('Security check: Please sign out and log in again before linking a new email.', 'info');
+            showToast(`Email saved to profile! Firebase verification requires a fresh OTP sign-in.`, 'info');
+            setIsChangingEmail(false);
+            return;
           } else if (fbErr.code === 'auth/email-already-in-use') {
-            showToast('This email address is already linked with another account.', 'error');
+            showToast('This email is already associated with another Firebase account.', 'error');
             return;
           }
         }
       }
 
-      // Update email in our DB (isEmailVerified remains false until confirmed)
-      await updateUserProfile({ email: emailToVerify, isEmailVerified: false });
-      
       if (firebaseSent) {
         showToast(`Verification link sent to ${emailToVerify}! Check your inbox.`, 'success');
         confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
       } else {
-        showToast(`Email updated to ${emailToVerify}. Firebase verification link will be sent.`, 'info');
+        showToast(`Email address saved to your profile! 🎉`, 'success');
       }
+      setIsChangingEmail(false);
     } catch (error) {
       console.error('Email verification error:', error);
-      showToast(error.message || 'Failed to send verification email.', 'error');
+      showToast(error.message || 'Failed to update email address.', 'error');
     } finally {
       if (isMountedRef.current) {
         setIsVerifyingEmail(false);
@@ -797,7 +804,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                     whiteSpace: 'nowrap' 
                   }}
                 >
-                  {isVerifyingEmail ? 'Sending...' : 'Verify Now ⚡'}
+                  {isVerifyingEmail ? 'Saving...' : (emailInput.trim().toLowerCase() !== (currentUser?.email || '').toLowerCase()) ? 'Save Email 💾' : 'Verify Now ⚡'}
                 </button>
               )}
             </div>
