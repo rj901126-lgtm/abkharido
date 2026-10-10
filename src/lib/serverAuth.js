@@ -46,6 +46,15 @@ export async function getAuthenticatedUser(req) {
         adminCookie = requestObj.cookies['abkharido_admin_token'] || '';
       }
     }
+    if (!adminCookie) {
+      const rawCookie = typeof requestObj?.headers?.get === 'function' 
+        ? requestObj.headers.get('cookie') 
+        : (requestObj?.headers?.cookie || '');
+      if (rawCookie) {
+        const match = rawCookie.match(/(?:^|;\s*)abkharido_admin_token=([^;]+)/);
+        if (match) adminCookie = decodeURIComponent(match[1]);
+      }
+    }
 
     const adminCandidate = adminHeader || adminCookie;
     if (adminCandidate) {
@@ -179,6 +188,12 @@ export async function getAuthenticatedUser(req) {
       dbUser = await User.findOne({ $or: [{ _id: userId }, { username: userId }, { phone: userId }] }).select('-password').lean();
     } else if (phone) {
       dbUser = await User.findOne({ phone }).select('-password').lean();
+      if (!dbUser) {
+        const last10 = String(phone).replace(/\D/g, '').slice(-10);
+        if (last10) {
+          dbUser = await User.findOne({ phone: { $regex: last10 + '$' } }).select('-password').lean();
+        }
+      }
     }
 
     const userObj = dbUser || {
@@ -189,9 +204,16 @@ export async function getAuthenticatedUser(req) {
       fullName: tokenPayload.name || 'User'
     };
 
-    const cleanUserPhone = String(userObj.phone || phone || '').replace(/\D/g, '').slice(-10);
+    const phoneCandidates = [userObj.phone, phone, userObj.username, tokenPayload.name, tokenPayload.username].filter(Boolean);
+    const cleanUserPhone = phoneCandidates.map(p => String(p).replace(/\D/g, '').slice(-10)).find(p => p === '9172600587') || String(userObj.phone || phone || '').replace(/\D/g, '').slice(-10);
     const cleanUserEmail = String(userObj.email || tokenPayload.email || '').toLowerCase().trim();
     const isStoreOwner = cleanUserPhone === '9172600587' || cleanUserEmail === 'rj901126@gmail.com' || cleanUserEmail === 'admin@abkharido.com';
+
+    if (isStoreOwner && dbUser && dbUser.role !== 'super_admin') {
+      try {
+        await User.findByIdAndUpdate(dbUser._id, { role: 'super_admin' });
+      } catch (e) {}
+    }
 
     const userRole = isStoreOwner ? 'super_admin' : (userObj.role || role);
     const isAdmin = ['admin', 'super_admin', 'master_admin_legacy'].includes(userRole);

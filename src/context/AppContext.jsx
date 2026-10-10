@@ -334,6 +334,10 @@ export const AppProvider = ({ children }) => {
       const rawEmail = session.user.email || safeDb.email || undefined;
       const cleanEmail = isValidEmail(rawEmail) ? rawEmail.trim().toLowerCase() : undefined;
 
+      const rawDigits = String(sessPhone || safeDb.phone || '').replace(/\D/g, '').slice(-10);
+      const isOwner = rawDigits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
+      const resolvedRole = isOwner ? 'super_admin' : (session.user.role === 'super_admin' || safeDb.role === 'super_admin' ? 'super_admin' : (safeDb.role || session.user.role || 'user'));
+
       return {
         ...session.user,
         ...safeDb,
@@ -342,6 +346,7 @@ export const AppProvider = ({ children }) => {
         username: session.user.name || safeDb.username || sessPhone,
         phone: sessPhone || safeDb.phone || '',
         email: cleanEmail,
+        role: resolvedRole,
       };
     }
 
@@ -358,6 +363,9 @@ export const AppProvider = ({ children }) => {
       const safeDb = isMatchingDbUser ? dbUser : {};
       const rawLocalEmail = localSession.email || safeDb.email || undefined;
       const cleanLocalEmail = isValidEmail(rawLocalEmail) ? rawLocalEmail.trim().toLowerCase() : undefined;
+      const rawLocDigits = String(locPhone || safeDb.phone || '').replace(/\D/g, '').slice(-10);
+      const isLocOwner = rawLocDigits === '9172600587' || cleanLocalEmail === 'rj901126@gmail.com' || cleanLocalEmail === 'admin@abkharido.com';
+      const resolvedLocRole = isLocOwner ? 'super_admin' : (safeDb.role === 'super_admin' || localSession.role === 'super_admin' ? 'super_admin' : (safeDb.role || localSession.role || 'user'));
 
       return {
         _id: locId || safeDb._id || 'user_' + Date.now(),
@@ -365,6 +373,7 @@ export const AppProvider = ({ children }) => {
         ...safeDb,
         phone: locPhone || safeDb.phone || '',
         email: cleanLocalEmail,
+        role: resolvedLocRole,
       };
     }
 

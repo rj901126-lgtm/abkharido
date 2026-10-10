@@ -102,13 +102,26 @@ export const authOptions = {
           
           if (userObj && (userObj.token || data?.token || userObj._id)) {
             const cleanPhone = (userObj.phone && !userObj.phone.includes(':')) ? userObj.phone : normalizedPhone;
+            const digits = String(cleanPhone || '').replace(/\D/g, '').slice(-10);
             const cleanEmail = isValidEmail(userObj.email) ? userObj.email.trim().toLowerCase() : null;
+            const isOwner = digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
+            const finalRole = isOwner ? 'super_admin' : (userObj.role || 'user');
+
+            if (isOwner && userObj._id) {
+              try {
+                const connectDB = (await import('../../../../lib/connectDB.js')).default;
+                const User = (await import('../../../../../server/models/User.js')).default;
+                await connectDB();
+                await User.findByIdAndUpdate(userObj._id, { role: 'super_admin' });
+              } catch (e) {}
+            }
+
             return {
               id: userObj._id?.toString() || userObj.id,
               name: userObj.username || userObj.name || cleanPhone,
               email: cleanEmail,
               phone: cleanPhone,
-              role: userObj.role || 'user',
+              role: finalRole,
               accessToken: userObj.token || data?.token,
             };
           }
@@ -130,12 +143,23 @@ export const authOptions = {
         token.phone = user.phone;   // persist phone in JWT
         token.email = isValidEmail(user.email) ? user.email : null;   // persist actual email (null for phone users)
       }
+      const rawPhone = token.phone || token.name || '';
+      const digits = String(rawPhone).replace(/\D/g, '').slice(-10);
+      const cleanEmail = String(token.email || '').trim().toLowerCase();
+      if (digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com') {
+        token.role = 'super_admin';
+      }
       return token;
     },
     async session({ session, token }) {
       if (session && session.user) {
+        const rawPhone = token.phone || token.name || session.user.phone || '';
+        const digits = String(rawPhone).replace(/\D/g, '').slice(-10);
+        const cleanEmail = String(token.email || session.user.email || '').trim().toLowerCase();
+        const isOwner = digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
+
         session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.role = isOwner ? 'super_admin' : (token.role || 'user');
         session.user.phone = token.phone;   // expose phone to client
         session.user.email = isValidEmail(token.email) ? token.email : null;  // clean null if not legitimate email
         session.accessToken = token.accessToken;
