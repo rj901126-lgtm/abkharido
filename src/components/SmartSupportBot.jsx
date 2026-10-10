@@ -38,17 +38,19 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
 
   const cleanPhone = String(supportPhone).replace(/[^0-9]/g, '');
 
-  // Load custom admin-trained rules
+  // Load custom admin-trained rules only when an admin is logged in
   useEffect(() => {
-    fetch('/api/admin/bot-config')
-      .then(res => res.json())
-      .then(data => {
-        if (data?.config?.customRules) {
-          setCustomRules(data.config.customRules);
-        }
-      })
-      .catch(() => {});
-  }, []);
+    if (currentUser?.role === 'admin' || currentUser?.role === 'super_admin') {
+      fetch('/api/admin/bot-config')
+        .then(res => res.json())
+        .then(data => {
+          if (data?.config?.customRules) {
+            setCustomRules(data.config.customRules);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [currentUser]);
 
   const defaultGreeting = {
     id: 'msg_welcome',
