@@ -56,7 +56,6 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
   // Mobile Drawers
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [showSortSheet, setShowSortSheet] = useState(false);
-  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [isDeptTreeOpen, setIsDeptTreeOpen] = useState(true);
 
   const activeSortOption = SORT_OPTIONS.find(o => o.id === sortBy) || SORT_OPTIONS[0];

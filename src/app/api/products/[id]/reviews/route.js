@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import connectDB from '../../../../../../server/config/db.js';
 import Product from '../../../../../../server/models/Product.js';
+import Order from '../../../../../../server/models/Order.js';
 import jwt from 'jsonwebtoken';
 
 export async function GET(req, context) {
@@ -87,16 +88,47 @@ export async function POST(req, context) {
         await connectDB();
       }
       
-      let userName = 'Verified Buyer';
+      let userName = 'Customer';
       let userId = undefined;
+      let userPhone = '';
       try {
         const token = authHeader.replace('Bearer ', '');
         const decoded = jwt.decode(token);
         if (decoded) {
           userName = decoded.name || decoded.fullName || decoded.username || userName;
           userId = decoded.id || decoded._id || decoded.userId;
+          userPhone = decoded.phone || '';
         }
       } catch (_e) {}
+
+      const product = await Product.findOne({ id });
+      if (!product) {
+        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      }
+
+      // Check whether user is a genuine verified purchaser
+      let isVerifiedPurchase = false;
+      const cleanPhone = userPhone ? userPhone.replace(/\D/g, '').slice(-10) : '';
+      if (userId || cleanPhone) {
+        try {
+          const verifiedOrder = await Order.findOne({
+            $or: [
+              userId && /^[0-9a-fA-F]{24}$/.test(String(userId)) ? { user: userId } : null,
+              cleanPhone ? { 'shippingAddress.phone': cleanPhone } : null,
+              cleanPhone ? { 'shippingAddress.phone': `+91${cleanPhone}` } : null
+            ].filter(Boolean),
+            status: { $nin: ['Cancelled', 'CANCELLED', 'Failed', 'FAILED'] },
+            $or: [
+              { 'orderItems.product': product._id },
+              { 'orderItems.product': product.id },
+              { 'orderItems.name': product.name }
+            ]
+          }).lean();
+          if (verifiedOrder) {
+            isVerifiedPurchase = true;
+          }
+        } catch (_ordErr) {}
+      }
 
       const newReview = {
         name: userName,
@@ -104,12 +136,10 @@ export async function POST(req, context) {
         rating: numRating,
         comment: comment.trim(),
         photos: Array.isArray(photos) ? photos.slice(0, 5) : [],
-        isVerifiedPurchase: true,
+        isVerifiedPurchase,
         date: new Date().toISOString().split('T')[0],
         createdAt: new Date()
       };
-
-      const product = await Product.findOne({ id });
       if (product) {
         if (!product.reviews) product.reviews = [];
         product.reviews.unshift(newReview);

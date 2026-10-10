@@ -4,12 +4,10 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Home from '../views/Home';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../db/mockData';
-
 export default function HomeClientWrapper({ serverProducts }) {
   const router = useRouter();
   const { promotions, setProducts, products } = useApp();
-  const safeProducts = (serverProducts && Array.isArray(serverProducts) && serverProducts.length > 0) ? serverProducts : PRODUCTS;
+  const safeProducts = Array.isArray(serverProducts) ? serverProducts : [];
 
   useEffect(() => {
     try {

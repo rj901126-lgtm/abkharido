@@ -32,7 +32,7 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const category = (searchParams.get('category') || '').trim();
-    const search = (searchParams.get('search') || '').trim();
+    const search = (searchParams.get('search') || searchParams.get('q') || '').trim();
     const seller = (searchParams.get('seller') || '').trim();
     const rawLimit = parseInt(searchParams.get('limit') || '20', 10);
     const rawPage = parseInt(searchParams.get('page') || '1', 10);

@@ -138,28 +138,30 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         if (res.ok) {
           const data = await res.json();
           if (data.status === 1 || data.serviceable) {
-            const courier = data.data?.available_courier_companies?.[0];
             setShippingServiceability({
               serviceable: true,
-              courier: courier?.courier_name || 'Premium Courier',
-              estimatedDays: courier?.estimated_delivery_days || '3-5'
+              courier: data.courier || 'Standard Courier',
+              estimatedDays: data.estimatedDays || 'Estimate unavailable'
             });
           } else {
-            setShippingServiceability({ serviceable: true, courier: 'Express Logistics', estimatedDays: '3-4' });
+            setShippingServiceability({
+              serviceable: false,
+              courier: null,
+              estimatedDays: 'Unavailable'
+            });
           }
         } else {
           setShippingServiceability({
-            serviceable: true,
-            courier: 'Express Priority Logistics',
-            estimatedDays: '3-4'
+            serviceable: false,
+            courier: null,
+            estimatedDays: 'Unavailable'
           });
         }
-      // eslint-disable-next-line
       } catch (err) {
         setShippingServiceability({
-          serviceable: true,
-          courier: 'Express Priority Logistics',
-          estimatedDays: '3-4'
+          serviceable: false,
+          courier: null,
+          estimatedDays: 'Unavailable'
         });
       } finally {
         setIsCheckingShipping(false);
@@ -1378,9 +1380,15 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <div style={{ fontWeight: 'bold', borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}><ShieldCheck size={16} color="var(--primary-color)" /> Direct Warehousing dispatch</div>
             <div style={{ marginBottom: '4px' }}><strong>Deliver to:</strong> {createdOrder?.shippingAddress?.fullName || createdOrder?.shippingAddress?.name || address?.name || 'Customer'}</div>
             <div style={{ marginBottom: '8px' }}><strong>Address:</strong> {createdOrder?.shippingAddress?.address || createdOrder?.shippingAddress?.streetAddress || address?.streetAddress || ''}, {createdOrder?.shippingAddress?.locality || address?.locality || ''}, {createdOrder?.shippingAddress?.city || address?.city || ''} - {createdOrder?.shippingAddress?.postalCode || createdOrder?.shippingAddress?.pincode || address?.pincode || ''}</div>
-            <div style={{ marginBottom: '4px', color: '#059669', fontWeight: '500' }}><strong>Estimated Arrival:</strong> Next-day priority shipping</div>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #eee' }}><strong>Payment Mode:</strong> {createdOrder?.paymentMethod || paymentMethod?.toUpperCase() || 'Cash on Delivery'}</div>
-            <div style={{ fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', fontSize: '16px' }}>Paid Amount: ₹{(createdOrder?.totalPrice || finalAmount || 0).toLocaleString('en-IN')}</div>
+            <div style={{ marginBottom: '4px', color: '#059669', fontWeight: '500' }}>
+              <strong>Estimated Delivery:</strong> {shippingServiceability?.estimatedDays && shippingServiceability.estimatedDays !== 'Unavailable' ? `${shippingServiceability.estimatedDays} business days` : 'Standard Dispatch (2-5 business days)'}
+            </div>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #eee' }}>
+              <strong>Payment Mode:</strong> {createdOrder?.paymentMethod || paymentMethod?.toUpperCase() || 'Cash on Delivery'}
+            </div>
+            <div style={{ fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', fontSize: '16px' }}>
+              {createdOrder?.paymentMethod === 'Cash on Delivery' || paymentMethod === 'cod' ? 'Payable on Delivery:' : (createdOrder?.isPaid ? 'Amount Paid:' : 'Order Total:')} ₹{(createdOrder?.totalPrice || finalAmount || 0).toLocaleString('en-IN')}
+            </div>
           </div>
 
           {/* Post Purchase Referral Boost */}

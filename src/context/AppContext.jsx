@@ -629,16 +629,14 @@ export const AppProvider = ({ children }) => {
 
   // --- API Fetches ---
   const fetchProducts = async () => {
-    // If SSR has already hydrated products, skip the client-side initial fetch
-    if (products.length > 0) {
-      setIsLoadingProducts(false);
-      return;
-    }
     try {
-      const res = await fetch(`/api/products?limit=100`);
+      const res = await fetch(`/api/products?limit=100`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setProducts(data.products || data);
+        const liveList = data.products || (Array.isArray(data) ? data : []);
+        if (liveList.length > 0) {
+          setProducts(liveList);
+        }
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to load products:', err);

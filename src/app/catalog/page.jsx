@@ -1,8 +1,9 @@
 import React from 'react';
 import CatalogClient from './CatalogClient';
-import { PRODUCTS } from '../../db/mockData.js';
-import mongoose from 'mongoose';
 import Product from '../../../server/models/Product.js';
+
+import connectDB from '../../lib/connectDB.js';
+import { toPublicProductDTO } from '../../lib/productValidator.js';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
@@ -10,26 +11,31 @@ export const revalidate = 60; // Revalidate every 60 seconds
 
 async function getCatalogProducts(category, search) {
   try {
-    if (mongoose.connection.readyState === 1) {
-      let query = {};
-      if (category && category !== 'all') query.category = category;
-      if (search) query.name = { $regex: search, $options: 'i' };
-      const products = await Product.find(query).limit(100).lean();
-      if (products && products.length > 0) {
-        return JSON.parse(JSON.stringify(products));
-      }
+    await connectDB();
+    const query = {
+      status: { $in: ['published', 'active'], $ne: 'archived' },
+      isArchived: { $ne: true }
+    };
+    if (category && category !== 'all') {
+      const escapedCat = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.category = { $regex: new RegExp(`^${escapedCat}$`, 'i') };
     }
-  } catch (_e) {}
-  
-  let list = PRODUCTS;
-  if (category && category !== 'all') {
-    list = list.filter(p => p.category === category);
+    if (search && search.trim()) {
+      const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [
+        { name: { $regex: escapedSearch, $options: 'i' } },
+        { description: { $regex: escapedSearch, $options: 'i' } },
+        { category: { $regex: escapedSearch, $options: 'i' } }
+      ];
+    }
+    const products = await Product.find(query).limit(100).lean();
+    if (products && products.length > 0) {
+      return products.map(toPublicProductDTO);
+    }
+    return [];
+  } catch (_e) {
+    return [];
   }
-  if (search) {
-    const s = search.toLowerCase();
-    list = list.filter(p => p.name.toLowerCase().includes(s) || (p.description && p.description.toLowerCase().includes(s)));
-  }
-  return JSON.parse(JSON.stringify(list));
 }
 
 export async function generateMetadata({ searchParams }) {

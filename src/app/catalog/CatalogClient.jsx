@@ -9,7 +9,7 @@ function CatalogContent({ initialCategory, initialSearch, initialProducts }) {
   const searchParams = useSearchParams();
   const { promotions } = useApp();
   const category = searchParams.get('category') || initialCategory || 'all';
-  const search = searchParams.get('search') || initialSearch || '';
+  const search = searchParams.get('search') || searchParams.get('q') || initialSearch || '';
   const seller = searchParams.get('seller') || '';
   
   return (

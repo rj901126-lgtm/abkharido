@@ -39,7 +39,12 @@ const ComparePage = ({ onNavigate, onNavigateProduct, initialProductIds = [] }) 
   // Collect all unique specification keys across selected products
   const allSpecKeys = Array.from(
     new Set(
-      selectedProducts.flatMap(p => (p.specifications || []).map(s => s.key))
+      selectedProducts.flatMap(p => {
+        if (Array.isArray(p.specifications)) return p.specifications.map(s => s?.key).filter(Boolean);
+        if (Array.isArray(p.specs)) return p.specs.map(s => (typeof s === 'object' ? s?.key || s?.name : String(s))).filter(Boolean);
+        if (p.specs && typeof p.specs === 'object') return Object.keys(p.specs);
+        return [];
+      })
     )
   );
 
@@ -77,7 +82,23 @@ const ComparePage = ({ onNavigate, onNavigateProduct, initialProductIds = [] }) 
         )}
       </div>
 
-      {selectedProducts.length < 2 ? (
+      {selectedProducts.length >= 2 && allSpecKeys.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚖️</div>
+          <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', marginBottom: '8px', fontFamily: "'Outfit', sans-serif" }}>
+            Specifications Unavailable for Comparison
+          </h3>
+          <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '480px', margin: '0 auto 20px', lineHeight: '1.5' }}>
+            No verified technical specification arrays have been published for these products yet. Side-by-side comparison is unavailable until specifications are published.
+          </p>
+          <button
+            onClick={() => onNavigate ? onNavigate('catalog') : (window.location.href = '/catalog')}
+            style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: '800', fontSize: '14px', cursor: 'pointer' }}
+          >
+            Return to Products Catalog
+          </button>
+        </div>
+      ) : selectedProducts.length < 2 ? (
         <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚖️</div>
           <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', marginBottom: '8px', fontFamily: "'Outfit', sans-serif" }}>

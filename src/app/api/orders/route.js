@@ -257,6 +257,32 @@ export async function POST(req) {
       );
     }
 
+    // 3. Server Idempotency & Double Submit Prevention
+    if (cfOrderId) {
+      const existingOrder = await Order.findOne({ cfOrderId });
+      if (existingOrder) {
+        return NextResponse.json(existingOrder, { 
+          status: 200, 
+          headers: { 'Cache-Control': 'private, no-store' } 
+        });
+      }
+    }
+
+    if (user && user._id) {
+      const recentDuplicate = await Order.findOne({
+        user: user._id,
+        totalPrice,
+        'shippingAddress.phone': recipientPhone,
+        createdAt: { $gte: new Date(Date.now() - 5000) }
+      });
+      if (recentDuplicate) {
+        return NextResponse.json(recentDuplicate, { 
+          status: 200, 
+          headers: { 'Cache-Control': 'private, no-store' } 
+        });
+      }
+    }
+
     // Deduct coins used from user wallet
     if (coinsUsed > 0 && user && user._id) {
       try {
@@ -300,7 +326,7 @@ export async function POST(req) {
         status: initialStatus,
         timestamp: new Date(),
         location: shippingAddress.city || 'Warehouse Direct',
-        comment: isOnlinePayment ? 'Awaiting Cashfree payment confirmation' : 'Order placed & scheduled for express air-dispatch'
+        comment: isOnlinePayment ? 'Awaiting Cashfree payment confirmation' : 'Order placed & scheduled for standard warehouse dispatch'
       }]
     });
 

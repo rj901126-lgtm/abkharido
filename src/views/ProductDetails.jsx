@@ -671,34 +671,34 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
           {/* Left Column 4-Pillar Trust Grid (Desktop only, mobile renders below price) */}
           <div className="gallery-trust-grid" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <a href="/terms" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('terms'); } }} style={{ textDecoration: 'none', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '20px' }}>🛡️</span>
               <div>
                 <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>Verified Item</div>
                 <div style={{ fontSize: '11px', color: '#64748b' }}>Quality Assured</div>
               </div>
-            </div>
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            </a>
+            <a href="/returns" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('returns'); } }} style={{ textDecoration: 'none', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '20px' }}>🔄</span>
               <div>
                 <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>7-Day Returns</div>
                 <div style={{ fontSize: '11px', color: '#64748b' }}>Easy Replacement</div>
               </div>
-            </div>
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            </a>
+            <a href="/shipping" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('shipping'); } }} style={{ textDecoration: 'none', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '20px' }}>⚡</span>
               <div>
-                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>Free Express</div>
-                <div style={{ fontSize: '11px', color: '#64748b' }}>Air Dispatch</div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>Standard Delivery</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>2-5 Business Days</div>
               </div>
-            </div>
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            </a>
+            <a href="/shipping" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('shipping'); } }} style={{ textDecoration: 'none', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '20px' }}>💵</span>
               <div>
                 <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>Pay on Delivery</div>
                 <div style={{ fontSize: '11px', color: '#64748b' }}>Cash & UPI at Door</div>
               </div>
-            </div>
+            </a>
           </div>
         </div>
 
@@ -718,7 +718,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               const activeList = (reviewsList && reviewsList.length > 0) ? reviewsList : (product?.reviews || []);
               const realCount = activeList.length;
               if (realCount > 0) {
-                const avgRating = product.rating || (activeList.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / realCount).toFixed(1);
+                const avgRating = (activeList.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / realCount).toFixed(1);
                 return (
                   <>
                     <span className="rating-tag" style={{ fontSize: '13px', padding: '4px 8px', borderRadius: '6px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#16a34a', color: 'white', boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)' }}>
@@ -732,7 +732,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               }
               return (
                 <span style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
-                  ⭐ Be the first to review this product
+                  No customer reviews yet
                 </span>
               );
             })()}
@@ -821,60 +821,69 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
           {/* 4. Mobile Inline Trust Badges Strip (Visible only on mobile <= 991px) */}
           <div className="mobile-trust-badges-strip" style={{ marginTop: '12px' }}>
-            <div className="mobile-trust-badge-item">
+            <a href="/terms" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('terms'); } }} className="mobile-trust-badge-item" style={{ textDecoration: 'none', color: 'inherit' }}>
               <span className="mobile-trust-badge-icon">🛡️</span>
               <span className="mobile-trust-badge-label">Verified Item</span>
               <span className="mobile-trust-badge-sub">Quality Checked</span>
-            </div>
-            <div className="mobile-trust-badge-item">
+            </a>
+            <a href="/returns" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('returns'); } }} className="mobile-trust-badge-item" style={{ textDecoration: 'none', color: 'inherit' }}>
               <span className="mobile-trust-badge-icon">🔄</span>
               <span className="mobile-trust-badge-label">7-Day Returns</span>
               <span className="mobile-trust-badge-sub">Doorstep Pickup</span>
-            </div>
-            <div className="mobile-trust-badge-item">
+            </a>
+            <a href="/shipping" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('shipping'); } }} className="mobile-trust-badge-item" style={{ textDecoration: 'none', color: 'inherit' }}>
               <span className="mobile-trust-badge-icon">⚡</span>
-              <span className="mobile-trust-badge-label">Free Express</span>
-              <span className="mobile-trust-badge-sub">Air Dispatch</span>
-            </div>
-            <div className="mobile-trust-badge-item">
+              <span className="mobile-trust-badge-label">Standard Delivery</span>
+              <span className="mobile-trust-badge-sub">2-5 Business Days</span>
+            </a>
+            <a href="/shipping" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('shipping'); } }} className="mobile-trust-badge-item" style={{ textDecoration: 'none', color: 'inherit' }}>
               <span className="mobile-trust-badge-icon">💵</span>
               <span className="mobile-trust-badge-label">Cash on Delivery</span>
               <span className="mobile-trust-badge-sub">Pay at Door</span>
-            </div>
+            </a>
           </div>
 
           {/* 5. Product Secondary Actions: Compare & Price Drop Alert */}
-          <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <button
-              onClick={() => {
-                if (onNavigate) {
-                  onNavigate('compare?ids=' + product.id);
-                } else if (typeof window !== 'undefined') {
-                  window.location.href = '/compare?ids=' + product.id;
-                }
-              }}
-              style={{
-                height: '42px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '0 12px',
-                fontSize: '12.5px',
-                fontWeight: '700',
-                color: '#334155',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.color = '#4f46e5'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#334155'; }}
-            >
-              ⚖️ Compare Models
-            </button>
+          {(() => {
+            const hasValidSpecs = Boolean(
+              (Array.isArray(product?.specifications) && product.specifications.length > 0) ||
+              (Array.isArray(product?.specs) && product.specs.length > 0) ||
+              (product?.specs && typeof product.specs === 'object' && Object.keys(product.specs).length > 0)
+            );
+            return (
+              <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: hasValidSpecs ? '1fr 1fr' : '1fr', gap: '10px' }}>
+                {hasValidSpecs && (
+                  <button
+                    onClick={() => {
+                      if (onNavigate) {
+                        onNavigate('compare?ids=' + product.id);
+                      } else if (typeof window !== 'undefined') {
+                        window.location.href = '/compare?ids=' + product.id;
+                      }
+                    }}
+                    style={{
+                      height: '42px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      background: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '0 12px',
+                      fontSize: '12.5px',
+                      fontWeight: '700',
+                      color: '#334155',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.color = '#4f46e5'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#334155'; }}
+                  >
+                    ⚖️ Compare Models
+                  </button>
+                )}
             <button
               onClick={() => {
                 if (!alertContact && currentUser?.phone) {
@@ -905,6 +914,8 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               🔔 Price Drop Alert
             </button>
           </div>
+            );
+          })()}
 
           {isFlashSale && (
             <div style={{ marginTop: '12px', marginBottom: '12px' }}>
@@ -1283,32 +1294,13 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               ? "🫧 Appliance In-Box & Power Specifications" 
               : "📦 Technical Specifications & Box Assurance";
 
-            const boxItems = isFitness ? [
-              "✅ 1x Complete Fitness Equipment Unit",
-              "✅ Anti-Slip Ergonomic Grip Construction",
-              "✅ Exercise & Safety Workout Guide",
-              "✅ 7-Day Easy Doorstep Replacement Shield"
-            ] : isFashion ? [
-              "✅ 1x Handcrafted Designer Article",
-              "✅ Fabric & Wash Care Instructions Label",
-              "✅ Verified Brand Authenticity Tag",
-              "✅ 7-Day Easy Size Replacement Shield"
-            ] : isHome ? [
-              "✅ 1x Complete Product Unit",
-              "✅ Easy Assembly Guide & Hardware Pack",
-              "✅ Protective Multi-Layer Transit Pack",
-              "✅ 7-Day Replacement Guarantee"
-            ] : isAppliance ? [
-              "✅ 1x Main Appliance Unit",
-              "✅ Standard Indian 3-Pin Power Cord / Adapter",
-              "✅ Warranty & Documentation (where applicable)",
-              "✅ User Safety & Operation Manual"
-            ] : [
-              "✅ 1x Original Certified Sealed Unit",
-              "✅ Charging Cable / Adapter",
-              "✅ User Guide & Documentation",
-              "✅ AbKharido Quality Check Seal"
-            ];
+            const boxItems = (product.packageContents || product.inTheBox)
+              ? (Array.isArray(product.packageContents || product.inTheBox) ? (product.packageContents || product.inTheBox) : [product.packageContents || product.inTheBox])
+              : [
+                  `1x ${product.name}`,
+                  ...(product.warrantyMonths > 0 ? [`Warranty Card (${product.warrantyMonths} Months)`] : []),
+                  "User Documentation & Manual"
+                ];
 
             return (
               <details open className="pdp-vip-accordion" style={{ marginTop: '16px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)' }}>
@@ -1345,46 +1337,32 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   <table className="specs-table" style={{ width: '100%', borderCollapse: 'collapse', borderRadius: '10px', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
                     <tbody>
                       {(() => {
-                        const baseSpecs = Array.isArray(product.specifications) && product.specifications.length > 0 
-                          ? [...product.specifications] 
-                          : [];
-                        
-                        const defaults = isFitness ? [
-                          { key: "Equipment Type", value: "Heavy-Duty Training & Fitness Gear" },
-                          { key: "Grip & Ergonomics", value: "Anti-Slip Textured Grip Surface" },
-                          { key: "Build Durability", value: "Precision Engineered High-Density Build" },
-                          { key: "Quality Standard", value: "Verified Direct Warehouse Inventory" },
-                          { key: "Replacement Policy", value: "7-Day Easy Doorstep Replacement Guarantee" },
-                          { key: "Shipping & Delivery", value: "Priority Doorstep Dispatch (2-4 Days)" }
-                        ] : isFashion ? [
-                          { key: "Material / Fabric", value: "Premium Breathable Cotton Blend / Performance Knit" },
-                          { key: "Fit Type", value: "Regular Tailored Fit with Comfort Seams" },
-                          { key: "Care Instructions", value: "Machine Wash Cold / Do Not Bleach" },
-                          { key: "Quality Standard", value: "Verified Direct Warehouse Stock" },
-                          { key: "Replacement Policy", value: "7-Day Easy Size Replacement Guarantee" },
-                          { key: "Shipping & Delivery", value: "Priority Doorstep Dispatch (2-4 Days)" }
-                        ] : isHome ? [
-                          { key: "Material & Build", value: "Engineered Solid High-Density Structure" },
-                          { key: "Assembly Type", value: "Pre-assembled / Tool-Free Quick Assembly" },
-                          { key: "Durability Rating", value: "Tested for Long-Term Indian Home Usage" },
-                          { key: "Quality Standard", value: "Verified Direct Certified Inventory" },
-                          { key: "Replacement Guarantee", value: "7-Day Doorstep Replacement Guarantee" },
-                          { key: "Warranty Coverage", value: "Seller Warranty (as per listing)" }
-                        ] : [
-                          { key: "Build & Model", value: product.name || "Official Certified Model" },
-                          { key: "Brand Assurance", value: "Verified Manufacturer Inventory" },
-                          { key: "Connectivity / Interface", value: "High-Speed Universal Connectivity Standard" },
-                          { key: "Warranty Coverage", value: "Seller Warranty (as per listing)" },
-                          { key: "Quality Assurance", value: "Quality Tested Sealed Stock" },
-                          { key: "Replacement Shield", value: "7-Day Easy Doorstep Replacement Policy" }
-                        ];
+                        let finalSpecs = [];
+                        if (Array.isArray(product.specifications) && product.specifications.length > 0) {
+                          finalSpecs = [...product.specifications];
+                        } else if (Array.isArray(product.specs) && product.specs.length > 0) {
+                          finalSpecs = product.specs.map(s => typeof s === 'object' ? s : { key: 'Specification', value: String(s) });
+                        } else if (product.specs && typeof product.specs === 'object') {
+                          finalSpecs = Object.entries(product.specs).map(([key, value]) => ({ key, value: String(value) }));
+                        }
 
-                        const finalSpecs = [...baseSpecs];
-                        defaults.forEach(d => {
-                          if (finalSpecs.length < 6 && !finalSpecs.some(s => s.key === d.key)) {
-                            finalSpecs.push(d);
-                          }
-                        });
+                        // Add warranty only when warrantyMonths > 0
+                        if (product.warrantyMonths && product.warrantyMonths > 0 && !finalSpecs.some(s => s.key?.toLowerCase().includes('warranty'))) {
+                          finalSpecs.push({
+                            key: "Warranty Coverage",
+                            value: `${product.warrantyMonths} Months ${product.warrantyInfo || 'Standard Warranty'}`
+                          });
+                        }
+
+                        if (finalSpecs.length === 0) {
+                          return (
+                            <tr>
+                              <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
+                                Detailed technical specifications provided in manufacturer packaging and user documentation.
+                              </td>
+                            </tr>
+                          );
+                        }
 
                         return finalSpecs.map((spec, index) => (
                           <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8fafc' : '#ffffff', borderBottom: '1px solid #f1f5f9' }}>
@@ -1419,17 +1397,19 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             });
             const calculatedAvgRating = totalRatingsCount > 0
               ? (activeReviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / totalRatingsCount).toFixed(1)
-              : (product?.rating || 4.5);
+              : 0;
 
             return (
               <details open className="pdp-vip-accordion" id="reviews-section" style={{ marginTop: '16px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)' }}>
                 <summary style={{ background: '#f8fafc', padding: '16px 20px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderBottom: '1px solid #e2e8f0', fontWeight: '800', fontSize: '15.5px', fontFamily: "'Outfit', sans-serif" }}>
                   <span>⭐</span> Customer Ratings &amp; Reviews
-                  <span className="rating-tag" style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 'bold', background: '#059669', color: '#ffffff' }}>
-                    {calculatedAvgRating} ★
-                  </span>
+                  {totalRatingsCount > 0 && (
+                    <span className="rating-tag" style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 'bold', background: '#059669', color: '#ffffff' }}>
+                      {calculatedAvgRating} ★
+                    </span>
+                  )}
                   <span style={{ fontSize: '12px', color: '#64748b', marginLeft: 'auto', fontWeight: '600' }}>
-                    {totalRatingsCount} verified review{totalRatingsCount === 1 ? '' : 's'}
+                    {totalRatingsCount === 0 ? 'No customer reviews yet' : `${totalRatingsCount} verified review${totalRatingsCount === 1 ? '' : 's'}`}
                   </span>
                 </summary>
                 <div className="accordion-content" style={{ padding: '20px' }}>
@@ -1480,7 +1460,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                             {rev.rating} ★
                           </span>
                           <strong style={{ fontSize: '13px', color: '#0f172a' }}>{rev.name}</strong>
-                          <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>Verified Buyer</span>
+                          {rev.isVerifiedPurchase === true && (
+                            <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>Verified Buyer</span>
+                          )}
                           <span style={{ fontSize: '11px', color: '#94a3b8', marginLeft: 'auto' }}>{rev.date || (rev.createdAt ? new Date(rev.createdAt).toISOString().split('T')[0] : '')}</span>
                         </div>
                         <p style={{ fontSize: '13px', color: '#475569', marginTop: '6px', lineHeight: '1.5', margin: '6px 0 0 0' }}>{rev.comment}</p>

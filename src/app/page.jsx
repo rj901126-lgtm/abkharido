@@ -3,7 +3,7 @@ import HomeClientWrapper from './HomeClientWrapper';
 import logger from '../../server/config/logger.js';
 import connectDB from '../../server/config/db.js';
 import Product from '../../server/models/Product.js';
-import { PRODUCTS } from '../db/mockData.js';
+import { toPublicProductDTO } from '../lib/productValidator.js';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
@@ -32,30 +32,29 @@ async function getProducts() {
   try {
     const dbPromise = (async () => {
       await connectDB();
-      const products = await Product.find({}).limit(100).lean();
+      const products = await Product.find({
+        status: { $in: ['published', 'active'], $ne: 'archived' },
+        isArchived: { $ne: true }
+      }).limit(100).lean();
       if (products && products.length > 0) {
-        return JSON.parse(JSON.stringify(products));
+        return products.map(toPublicProductDTO);
       }
-      return null;
+      return [];
     })();
 
     // 2.5s fast timeout safeguard so SSR never crashes or times out
-    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 2500));
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve([]), 2500));
     const result = await Promise.race([dbPromise, timeoutPromise]);
-    if (result) return result;
+    if (result && result.length > 0) return result;
   } catch (error) {
     logger.error('Failed to fetch products for SSR', error);
   }
-  return JSON.parse(JSON.stringify(PRODUCTS));
+  return [];
 }
 
 export default async function Page() {
-  try {
-    const products = await getProducts();
-    return <HomeClientWrapper serverProducts={products || PRODUCTS} />;
-  } catch (err) {
-    return <HomeClientWrapper serverProducts={PRODUCTS} />;
-  }
+  const products = await getProducts();
+  return <HomeClientWrapper serverProducts={products} />;
 }
 
 
