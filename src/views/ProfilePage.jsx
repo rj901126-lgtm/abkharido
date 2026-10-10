@@ -5,7 +5,7 @@ import { User, Phone, Mail, MapPin, Award, Coins, CheckCircle, ShieldAlert, Arro
 import confetti from 'canvas-confetti';
 import CustomerTickets from '../components/CustomerTickets';
 import { auth } from '../firebase';
-import { updateEmail, sendEmailVerification, verifyBeforeUpdateEmail } from 'firebase/auth';
+import { updateEmail, sendEmailVerification, verifyBeforeUpdateEmail, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { isValidEmail } from '../utils/constants';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', onTabChange }) => {
@@ -101,11 +101,48 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
   };
 
 
-  // Sync Firebase email verification status to backend DB
+  // Handle incoming email verification links and sync Firebase status to backend DB
   React.useEffect(() => {
     const checkEmailSync = async () => {
+      if (typeof window === 'undefined') return;
+
+      // 1. Check if arriving from Firebase email sign-in / verification link
+      if (auth && typeof isSignInWithEmailLink === 'function' && isSignInWithEmailLink(auth, window.location.href)) {
+        let email = window.localStorage.getItem('emailForSignIn') || currentUser?.email;
+        if (email) {
+          try {
+            await signInWithEmailLink(auth, email, window.location.href);
+            window.localStorage.removeItem('emailForSignIn');
+            await updateUserProfile({
+              email,
+              isEmailVerified: true
+            });
+            showToast('Email successfully verified! 🎉', 'success');
+            confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, '', cleanUrl);
+            return;
+          } catch (linkErr) {
+            console.warn('[Firebase Email Link Verification Notice]:', linkErr?.message);
+          }
+        }
+      }
+
+      // 2. Check query param ?emailVerified=true
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('emailVerified') === 'true' && currentUser && !currentUser.isEmailVerified) {
+        await updateUserProfile({
+          isEmailVerified: true
+        });
+        showToast('Email successfully verified! 🎉', 'success');
+        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, '', cleanUrl);
+        return;
+      }
+
+      // 3. Regular Firebase currentUser emailVerified sync
       if (auth?.currentUser?.emailVerified && currentUser && !currentUser.isEmailVerified) {
-        // Firebase says verified, but backend says false. Time to sync.
         await updateUserProfile({
           email: auth.currentUser.email,
           isEmailVerified: true
@@ -471,33 +508,54 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
 
       // 2. Trigger Firebase Email Verification link
       let firebaseSent = false;
-      if (auth && auth.currentUser) {
+      if (auth) {
         const actionCodeSettings = {
           url: typeof window !== 'undefined' ? `${window.location.origin}/profile?emailVerified=true` : 'https://www.abkharido.com/profile?emailVerified=true',
           handleCodeInApp: true
         };
 
-        try {
-          if (typeof verifyBeforeUpdateEmail === 'function') {
-            await verifyBeforeUpdateEmail(auth.currentUser, emailToVerify, actionCodeSettings);
-            firebaseSent = true;
-          } else {
-            await updateEmail(auth.currentUser, emailToVerify);
-            await sendEmailVerification(auth.currentUser, actionCodeSettings);
-            firebaseSent = true;
+        let usedFallback = false;
+        if (auth.currentUser) {
+          try {
+            if (typeof verifyBeforeUpdateEmail === 'function') {
+              await verifyBeforeUpdateEmail(auth.currentUser, emailToVerify, actionCodeSettings);
+              firebaseSent = true;
+            } else {
+              await updateEmail(auth.currentUser, emailToVerify);
+              await sendEmailVerification(auth.currentUser, actionCodeSettings);
+              firebaseSent = true;
+            }
+          } catch (fbErr) {
+            console.warn('[Firebase Primary Verification Notice]:', fbErr?.code || fbErr?.message);
+            // When Firebase requires fresh credentials or cross-provider security check, switch to passwordless email verification link
+            if (fbErr?.code === 'auth/requires-recent-login' || fbErr?.code === 'auth/user-token-expired' || fbErr?.code === 'auth/operation-not-allowed') {
+              usedFallback = true;
+            } else if (fbErr?.code === 'auth/email-already-in-use') {
+              showToast('This email is already associated with another Firebase account.', 'error');
+              return;
+            } else {
+              usedFallback = true;
+            }
           }
-        } catch (fbErr) {
-          console.warn('[Firebase Email Verification Notice]:', fbErr);
-          if (fbErr.code === 'auth/requires-recent-login') {
-            showToast('Email linked! Firebase security: To receive verification link, please logout and login once with OTP (fresh session required).', 'info');
-            setIsChangingEmail(false);
-            return;
-          } else if (fbErr.code === 'auth/email-already-in-use') {
-            showToast('This email is already associated with another Firebase account.', 'error');
-            return;
-          } else {
-            showToast(`Email linked to profile! (${fbErr.message || fbErr.code})`, 'info');
-            setIsChangingEmail(false);
+        } else {
+          usedFallback = true;
+        }
+
+        // Resilient Fallback: sendSignInLinkToEmail sends a direct email link from Firebase without requiring fresh phone credentials
+        if (!firebaseSent || usedFallback) {
+          try {
+            await sendSignInLinkToEmail(auth, emailToVerify, actionCodeSettings);
+            if (typeof window !== 'undefined') {
+              window.localStorage.setItem('emailForSignIn', emailToVerify);
+            }
+            firebaseSent = true;
+          } catch (fallbackErr) {
+            console.warn('[Firebase Fallback Notice]:', fallbackErr?.code || fallbackErr?.message);
+            if (fallbackErr?.code === 'auth/operation-not-allowed') {
+              showToast('Firebase Notice: Please enable "Email/Password" & "Email link" in Firebase Console.', 'error');
+              return;
+            }
+            showToast('Firebase security: Please logout and login once with OTP to verify email.', 'info');
             return;
           }
         }
