@@ -9,7 +9,7 @@ import { updateEmail, sendEmailVerification, verifyBeforeUpdateEmail, sendSignIn
 import { isValidEmail } from '../utils/constants';
 
 const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', onTabChange }) => {
-  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard, addToCart } = useApp();
+  const { currentUser, updateUserProfile, logout, showToast, products, wishlist, toggleWishlist, isAuthLoading, savedCards, fetchUserSavedCards, removeSavedCard, addToCart, refreshProfile } = useApp();
   const isMountedRef = useRef(true);
   
   const userCoins = currentUser?.walletCoins !== undefined ? currentUser.walletCoins : 100;
@@ -152,6 +152,60 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
     };
     checkEmailSync();
   }, [currentUser, updateUserProfile, showToast]);
+
+  // Real-time synchronization when switching back from Gmail / other tabs (No refresh needed!)
+  React.useEffect(() => {
+    const handleSyncOnReturn = () => {
+      if (document.visibilityState === 'visible' && !currentUser?.isEmailVerified) {
+        if (typeof refreshProfile === 'function') {
+          refreshProfile();
+        }
+      }
+    };
+
+    const handleStorageSync = (e) => {
+      if (e.key === 'abkharido_cached_profile' || e.key === 'abkharido_email_verified') {
+        if (typeof refreshProfile === 'function') {
+          refreshProfile();
+        }
+      }
+    };
+
+    window.addEventListener('focus', handleSyncOnReturn);
+    document.addEventListener('visibilitychange', handleSyncOnReturn);
+    window.addEventListener('storage', handleStorageSync);
+
+    return () => {
+      window.removeEventListener('focus', handleSyncOnReturn);
+      document.removeEventListener('visibilitychange', handleSyncOnReturn);
+      window.removeEventListener('storage', handleStorageSync);
+    };
+  }, [currentUser?.isEmailVerified, refreshProfile]);
+
+  // Real-time live polling while on Profile page waiting for email verification
+  React.useEffect(() => {
+    if (!currentUser || currentUser.isEmailVerified || !isValidEmail(currentUser.email)) {
+      return;
+    }
+
+    const pollInterval = setInterval(() => {
+      if (typeof refreshProfile === 'function' && document.visibilityState === 'visible') {
+        refreshProfile();
+      }
+    }, 3000);
+
+    return () => clearInterval(pollInterval);
+  }, [currentUser?.isEmailVerified, currentUser?.email, refreshProfile]);
+
+  // Confetti & instant alert when status turns VERIFIED in real time
+  const wasVerifiedRef = useRef(!!currentUser?.isEmailVerified);
+  React.useEffect(() => {
+    if (!wasVerifiedRef.current && currentUser?.isEmailVerified) {
+      wasVerifiedRef.current = true;
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+      showToast('🎉 Email address verified successfully! Your profile is updated.', 'success');
+    }
+  }, [currentUser?.isEmailVerified, showToast]);
 
   // Sync state with currentUser when not editing or when currentUser updates
   React.useEffect(() => {

@@ -1413,7 +1413,9 @@ export const AppProvider = ({ children }) => {
         detectUserLocation,
         isDetectingLocation,
         currentPincode: deliveryLocation?.pincode || '401404',
-        isAuthLoading: status === 'loading'
+        isAuthLoading: status === 'loading',
+        fetchUser,
+        refreshProfile: (u, p, i) => fetchUser(u || currentUser?.username || currentUser?.name, p || currentUser?.phone, i || currentUser?._id)
       }}
     >
       {children}
