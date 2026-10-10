@@ -197,13 +197,15 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
     return () => clearInterval(pollInterval);
   }, [currentUser?.isEmailVerified, currentUser?.email, refreshProfile]);
 
-  // Confetti & instant alert when status turns VERIFIED in real time
-  const wasVerifiedRef = useRef(!!currentUser?.isEmailVerified);
+  // Confetti & alert ONLY when verification completes during an active verification session (never on regular login)
   React.useEffect(() => {
-    if (!wasVerifiedRef.current && currentUser?.isEmailVerified) {
-      wasVerifiedRef.current = true;
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-      showToast('🎉 Email address verified successfully! Your profile is updated.', 'success');
+    if (currentUser?.isEmailVerified && typeof window !== 'undefined') {
+      const wasAwaiting = sessionStorage.getItem('abkharido_awaiting_email_verify');
+      if (wasAwaiting === 'true') {
+        sessionStorage.removeItem('abkharido_awaiting_email_verify');
+        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+        showToast('🎉 Email address verified successfully! Your profile is updated.', 'success');
+      }
     }
   }, [currentUser?.isEmailVerified, showToast]);
 
@@ -616,6 +618,9 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
       }
 
       if (firebaseSent) {
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('abkharido_awaiting_email_verify', 'true');
+        }
         showToast(`Verification link sent to ${emailToVerify}! Check your inbox & spam folder.`, 'success');
         confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
       } else {
