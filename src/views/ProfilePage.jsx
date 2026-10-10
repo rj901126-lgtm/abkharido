@@ -461,49 +461,50 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
       return;
     }
 
-    const isDifferentEmail = emailToVerify !== (currentUser?.email || '').toLowerCase();
-
     setIsVerifyingEmail(true);
     try {
-      // 1. Save email to database profile
+      // 1. Save & link email to database profile first
       const saveSuccess = await updateUserProfile({ email: emailToVerify });
       if (!saveSuccess) {
         return;
       }
 
-      // If the email was newly entered or changed, celebrate and finish without blocking on Firebase verification
-      if (isDifferentEmail) {
-        showToast(`Email address linked to your profile! 🎉`, 'success');
-        setIsChangingEmail(false);
-        return;
-      }
-
-      // 2. If email is already linked and user clicked "Verify Now ⚡", attempt Firebase Email Verification
+      // 2. Trigger Firebase Email Verification link
       let firebaseSent = false;
       if (auth && auth.currentUser) {
+        const actionCodeSettings = {
+          url: typeof window !== 'undefined' ? `${window.location.origin}/profile?emailVerified=true` : 'https://www.abkharido.com/profile?emailVerified=true',
+          handleCodeInApp: true
+        };
+
         try {
           if (typeof verifyBeforeUpdateEmail === 'function') {
-            await verifyBeforeUpdateEmail(auth.currentUser, emailToVerify);
+            await verifyBeforeUpdateEmail(auth.currentUser, emailToVerify, actionCodeSettings);
             firebaseSent = true;
           } else {
             await updateEmail(auth.currentUser, emailToVerify);
-            await sendEmailVerification(auth.currentUser);
+            await sendEmailVerification(auth.currentUser, actionCodeSettings);
             firebaseSent = true;
           }
         } catch (fbErr) {
           console.warn('[Firebase Email Verification Notice]:', fbErr);
           if (fbErr.code === 'auth/requires-recent-login') {
-            showToast('Firebase security: Please re-login with OTP to send verification email.', 'info');
+            showToast('Email linked! Firebase security: To receive verification link, please logout and login once with OTP (fresh session required).', 'info');
+            setIsChangingEmail(false);
             return;
           } else if (fbErr.code === 'auth/email-already-in-use') {
             showToast('This email is already associated with another Firebase account.', 'error');
+            return;
+          } else {
+            showToast(`Email linked to profile! (${fbErr.message || fbErr.code})`, 'info');
+            setIsChangingEmail(false);
             return;
           }
         }
       }
 
       if (firebaseSent) {
-        showToast(`Verification link sent to ${emailToVerify}! Check your inbox.`, 'success');
+        showToast(`Verification link sent to ${emailToVerify}! Check your inbox & spam folder.`, 'success');
         confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
       } else {
         showToast(`Email address saved to your profile! 🎉`, 'success');
@@ -787,7 +788,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                 placeholder="Enter your Gmail / Email address (e.g. name@gmail.com)"
                 disabled={currentUser.isEmailVerified && isValidEmail(currentUser.email) && !isChangingEmail}
                 className="profile-input"
-                style={{ paddingRight: (!currentUser.isEmailVerified || isChangingEmail) ? '115px' : '14px' }}
+                style={{ paddingRight: (!currentUser.isEmailVerified || isChangingEmail) ? '180px' : '14px' }}
               />
               {(!currentUser.isEmailVerified || isChangingEmail) && (
                 <button 
@@ -812,7 +813,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                     whiteSpace: 'nowrap' 
                   }}
                 >
-                  {isVerifyingEmail ? 'Saving...' : (emailInput.trim().toLowerCase() !== (currentUser?.email || '').toLowerCase()) ? 'Save Email 💾' : 'Verify Now ⚡'}
+                  {isVerifyingEmail ? 'Sending Link...' : (emailInput.trim().toLowerCase() !== (currentUser?.email || '').toLowerCase()) ? 'Save & Verify ⚡' : 'Send Verification Link ⚡'}
                 </button>
               )}
             </div>
