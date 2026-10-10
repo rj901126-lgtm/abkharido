@@ -1,18 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
-import { ChevronLeft, ChevronRight, ArrowRight, Zap, ShieldCheck, Truck, Award, Sparkles, Filter, Store, ArrowUp } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  ArrowRight, 
+  Zap, 
+  ShieldCheck, 
+  Truck, 
+  Award, 
+  Sparkles, 
+  Filter, 
+  Store, 
+  ArrowUp,
+  Headphones,
+  Smartphone,
+  Shirt,
+  Home as HomeIcon,
+  CheckCircle2
+} from 'lucide-react';
 import '../assets/styles/home.css';
 
-
 const defaultVipCategories = [
-  { id: 'mobiles', label: 'Mobiles', icon: '📱', bg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', activeBg: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)', color: '#0369a1' },
-  { id: 'electronics', label: 'Audio', icon: '🎧', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)', activeBg: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)', color: '#6d28d9' },
-  { id: 'fashion', label: 'Fashion', icon: '👗', bg: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)', activeBg: 'linear-gradient(135deg, #e11d48 0%, #fb7185 100%)', color: '#be123c' },
-  { id: 'home', label: 'Home', icon: '🏠', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', activeBg: 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)', color: '#b45309' },
-  { id: 'beauty', label: 'Beauty', icon: '💄', bg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', activeBg: 'linear-gradient(135deg, #db2777 0%, #f472b6 100%)', color: '#be185d' },
-  { id: 'sports', label: 'Fitness', icon: '🏋️', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', activeBg: 'linear-gradient(135deg, #059669 0%, #34d399 100%)', color: '#15803d' },
-  { id: 'appliances', label: 'Appliances', icon: '🍳', bg: 'linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%)', activeBg: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)', color: '#0e7490' },
+  { id: 'electronics', label: 'Audio & Tech', icon: Headphones, bg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', color: '#1d4ed8' },
+  { id: 'mobiles', label: 'Mobiles', icon: Smartphone, bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', color: '#15803d' },
+  { id: 'fashion', label: 'Fashion', icon: Shirt, bg: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)', color: '#be185d' },
+  { id: 'home', label: 'Home', icon: HomeIcon, bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', color: '#b45309' },
 ];
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
@@ -26,9 +39,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
   })()).current;
 
-  const activeVipCategories = (promotions && promotions.vipCategories && Array.isArray(promotions.vipCategories) && promotions.vipCategories.length > 0)
-    ? promotions.vipCategories
-    : defaultVipCategories;
+  // Categories list only categories that still have a published in-stock product
+  const activeVipCategories = React.useMemo(() => {
+    if (!Array.isArray(products) || products.length === 0) {
+      return defaultVipCategories.filter(c => c.id === 'electronics');
+    }
+    const activeCats = new Set(
+      products
+        .filter(p => p && (Number(p.stock) > 0 || p.inStock) && (p.status === 'published' || p.status === 'active') && !p.isArchived)
+        .map(p => (p.category || '').toLowerCase().trim())
+        .filter(Boolean)
+    );
+    return defaultVipCategories.filter(c => activeCats.has(c.id.toLowerCase()));
+  }, [products]);
 
   const defaultSlides = [
     {
@@ -36,41 +59,34 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       productId: 'signature-wireless-earphone',
       title: 'Signature Sigboom 21',
       subTitle: 'RGB Wireless Bluetooth Speaker',
-      tag: '🔥 ABKHARIDO ORIGINAL • FLAT 50% OFF',
+      tag: 'ABKHARIDO ORIGINAL • FLAT 50% OFF',
       price: 379,
       originalPrice: 758,
       discount: '50% OFF',
-      rating: 4.5,
-      reviewsCount: 10,
+      rating: 0,
+      reviewsCount: 0,
       image: 'https://res.cloudinary.com/rx1klbob/image/upload/v1784995324/abkharido/products/r687it063mcwcn507c9w.jpg',
       features: [
-        '🔊 360° High Bass Sound',
-        '🌈 Dynamic RGB Lights',
-        '📱 Mobile Stand Mount',
-        '🔋 12hr Battery & FM/BT/TF'
+        '360° High Bass Sound',
+        'Dynamic RGB Lights',
+        'Mobile Stand Mount',
+        '12hr Battery & FM/BT/TF'
       ],
       cat: 'electronics'
     },
     {
-      title: 'Titanium AI Sound. Studio Perfected.',
-      desc: 'Experience our flagship spatial noise-cancelling headphones. Up to 60 hours of hyper-battery and quantum acoustics.',
-      bg: 'url(https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
-      tag: '🇮🇳 AUDIO CHAMPION DEAL',
+      title: 'Direct From Certified Indian Warehouses',
+      desc: 'Quality checked consumer electronics and direct-to-consumer goods. Reliable courier dispatch across Indian PIN codes.',
+      bg: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
+      tag: 'VERIFIED DISPATCH',
       cat: 'electronics'
     },
     {
-      title: 'The Platinum Standard in Indian Couture',
-      desc: 'Elevate your aesthetic with our direct-from-designer runway collection. Uncompromising luxury at revolutionary member prices.',
-      bg: 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
-      tag: '✨ VIP SUMMER COLLECTION',
-      cat: 'fashion'
-    },
-    {
-      title: 'Next-Gen 5G AI Smartphones',
-      desc: 'Ultra-speed smartphones with vibrant displays and long-lasting battery life. Fast dispatch and secure delivery.',
-      bg: 'url(https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1400&auto=format&fit=crop) center/cover no-repeat',
-      tag: '📱 5G MEGA LAUNCH',
-      cat: 'mobiles'
+      title: 'Shop With Complete Confidence',
+      desc: 'Cash on Delivery available on eligible orders up to ₹15,000. Easy 7-day doorstep replacement guarantee.',
+      bg: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
+      tag: 'BUYER PROTECTION',
+      cat: 'electronics'
     }
   ];
 
@@ -206,25 +222,28 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       {/* ── 1. Category Strip (Smooth, jitter-free, sticky category bar) ── */}
       <section className="home-category-strip">
         <div className="home-category-pills-row">
-          {activeVipCategories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.id)}
-              className="home-category-pill-btn"
-              type="button"
-              aria-label={`Filter by ${cat.label}`}
-            >
-              <div 
-                className="category-pill-icon-wrap"
-                style={{ background: cat.bg || '#f1f5f9' }}
+          {activeVipCategories.map((cat) => {
+            const CatIcon = cat.icon || Sparkles;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className="home-category-pill-btn"
+                type="button"
+                aria-label={`Filter by ${cat.label}`}
               >
-                <span className="category-pill-icon">{cat.icon}</span>
-              </div>
-              <span className="category-pill-name">
-                {cat.label}
-              </span>
-            </button>
-          ))}
+                <div 
+                  className="category-pill-icon-wrap"
+                  style={{ background: cat.bg || '#f1f5f9' }}
+                >
+                  <CatIcon size={18} color={cat.color || 'var(--brand-accent)'} />
+                </div>
+                <span className="category-pill-name">
+                  {cat.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -436,10 +455,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       {/* ── 5. 4-Pillar Trust Signals USP Row ── */}
       <div className="home-trust-grid" style={{ margin: '14px 12px 6px' }}>
         {[
-          { icon: <Zap size={18} color="#0284c7" />, title: "Priority Express Dispatch", sub: "Fast 24-48 hr doorstep drop", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
-          { icon: <ShieldCheck size={18} color="#059669" />, title: "100% Cashfree Escrow", sub: "Bank-grade payment security", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
-          { icon: <Truck size={18} color="#7c3aed" />, title: "Easy 7-Day Replacement", sub: "Hassle-free doorstep returns", bg: "linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%)", border: "#ede9fe" },
-          { icon: <Award size={18} color="#d97706" />, title: "Cash on Delivery (COD)", sub: "Pay at doorstep at 27K+ PINs", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
+          { icon: <Truck size={18} color="#0284c7" />, title: "Standard Courier Dispatch", sub: "Reliable 2-5 business days", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
+          { icon: <ShieldCheck size={18} color="#059669" />, title: "Secure Cashfree Checkout", sub: "Encrypted payment gateway", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
+          { icon: <CheckCircle2 size={18} color="#7c3aed" />, title: "Easy 7-Day Replacement", sub: "Hassle-free doorstep returns", bg: "linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%)", border: "#ede9fe" },
+          { icon: <Award size={18} color="#d97706" />, title: "Cash on Delivery (COD)", sub: "Eligible orders up to ₹15,000", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
         ].map((item, idx) => (
           <div key={idx} style={{
             background: item.bg, 
@@ -462,50 +481,50 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         ))}
       </div>
 
-      {/* ── 6. Segmented Intent-Driven Category Collection Cards ── */}
-      <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
-        {[
-          { title: "Smartphones & Audio", tag: "UP TO 40% OFF", cat: "mobiles", bg: "linear-gradient(135deg, #0c192c 0%, #1e3a8a 100%)", icon: "📱", badgeColor: "#38bdf8" },
-          { title: "Designer Runway Fashion", tag: "NEW SUMMER STYLES", cat: "fashion", bg: "linear-gradient(135deg, #2b091f 0%, #831843 100%)", icon: "👗", badgeColor: "#f472b6" },
-          { title: "Smart Home & Living", tag: "SMART HOME DEALS", cat: "appliances", bg: "linear-gradient(135deg, #062b20 0%, #065f46 100%)", icon: "🏠", badgeColor: "#34d399" },
-          { title: "VIP Flash Clearance", tag: "LIMITED TIME DEALS", cat: "electronics", bg: "linear-gradient(135deg, #2d1804 0%, #7c2d12 100%)", icon: "⚡", badgeColor: "#fbbf24" }
-        ].map((card, idx) => (
-          <div 
-            key={idx}
-            onClick={() => handleCategoryClick(card.cat)}
-            style={{
-              background: card.bg,
-              borderRadius: '14px',
-              padding: '14px 16px',
-              color: '#ffffff',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              transition: 'transform 0.15s ease'
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
-          >
-            <div>
-              <span style={{ fontSize: '9.5px', fontWeight: '900', color: card.badgeColor, letterSpacing: '0.5px' }}>
-                {card.tag}
-              </span>
-              <h4 style={{ margin: '2px 0 0', fontSize: '14px', fontWeight: '800', fontFamily: "'Outfit', sans-serif" }}>
-                {card.title}
-              </h4>
-              <span style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.7)', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
-                Shop Collection →
-              </span>
-            </div>
-            <div style={{ fontSize: '24px', background: 'rgba(255,255,255,0.12)', width: '42px', height: '42px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              {card.icon}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* ── 6. Category Highlights (Active Categories Only) ── */}
+      {activeVipCategories.length > 0 && (
+        <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
+          {activeVipCategories.map((cat, idx) => {
+            const CatIcon = cat.icon || Sparkles;
+            return (
+              <div 
+                key={idx}
+                onClick={() => handleCategoryClick(cat.id)}
+                style={{
+                  background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)',
+                  borderRadius: '14px',
+                  padding: '14px 16px',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  transition: 'transform 0.15s ease'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                <div>
+                  <span style={{ fontSize: '9.5px', fontWeight: '900', color: '#38bdf8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                    IN-STOCK INVENTORY
+                  </span>
+                  <h4 style={{ margin: '2px 0 0', fontSize: '14px', fontWeight: '800', fontFamily: "'Outfit', sans-serif" }}>
+                    {cat.label}
+                  </h4>
+                  <span style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.7)', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
+                    Shop Collection →
+                  </span>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.12)', width: '42px', height: '42px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <CatIcon size={20} color="#ffffff" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* ── 7. Curated Marketplace Highlights (Interactive Category Tabs) ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '14px 12px 0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
@@ -618,96 +637,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
 
 
-      {/* ── 9.5 Verified Merchant Stores Spotlight ── */}
-      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '14px 12px 0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
-          <div>
-            <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-              <Store size={20} color="#059669" /> Verified Merchant Stores
-            </h3>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Direct manufacturer & certified brand storefronts</p>
-          </div>
 
-          <button 
-            onClick={() => onNavigate && onNavigate('seller')}
-            style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '6px 14px', borderRadius: '20px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            🏪 Open Your Store on AbKharido &rarr;
-          </button>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-          {[
-            {
-              name: 'AbKharido Premier Store',
-              slug: 'abkharido-premier-store',
-              category: 'Flagship Electronics & Mobiles',
-              rating: '4.9',
-              sales: '1.2k+ Orders',
-              badge: 'OFFICIAL'
-            },
-            {
-              name: 'Apex Audio Labs',
-              slug: 'apex-audio-labs',
-              category: 'Spatial Headphones & Audio',
-              rating: '4.8',
-              sales: '850+ Orders',
-              badge: 'VERIFIED'
-            },
-            {
-              name: 'AbKharido Couture',
-              slug: 'abkharido-couture',
-              category: 'Designer Apparel & Footwear',
-              rating: '4.9',
-              sales: '2.1k+ Orders',
-              badge: 'TRENDING'
-            },
-            {
-              name: 'Milton Living Official',
-              slug: 'milton-living-official',
-              category: 'Home & Kitchen Essentials',
-              rating: '4.8',
-              sales: '980+ Orders',
-              badge: 'CERTIFIED'
-            }
-          ].map((merchant, mIdx) => (
-            <div 
-              key={mIdx}
-              onClick={() => onNavigate && onNavigate(`catalog?seller=${merchant.slug}`)}
-              style={{
-                background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-                border: '1px solid #e2e8f0',
-                borderRadius: '16px',
-                padding: '16px',
-                cursor: 'pointer',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '10px'
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 23, 42, 0.08)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '10px', background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: '4px', fontWeight: '800', border: '1px solid #a7f3d0' }}>
-                    ✓ {merchant.badge}
-                  </span>
-                  <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#f59e0b' }}>★ {merchant.rating}</span>
-                </div>
-                <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginBottom: '2px' }}>{merchant.name}</div>
-                <div style={{ fontSize: '11.5px', color: '#64748b' }}>{merchant.category}</div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
-                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>{merchant.sales}</span>
-                <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#4f46e5' }}>Visit Store &rarr;</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
 
       {/* ── Floating Back to Top Action ── */}

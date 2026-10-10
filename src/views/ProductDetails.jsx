@@ -2073,6 +2073,50 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
         </div>
       )}
 
+      {/* ── Mobile Sticky Single Bottom Bar: Price & Add to Cart / Buy Now ── */}
+      <div className="mobile-sticky-cart-bar" style={{ zIndex: 1050 }}>
+        <div className="mobile-sticky-cart-price">
+          <span className="price">₹{(currentDisplayPrice || product?.price || 0).toLocaleString('en-IN')}</span>
+          {Number(currentDisplayOriginalPrice || product?.originalPrice || 0) > Number(currentDisplayPrice || product?.price || 0) && (
+            <span className="mrp">₹{Number(currentDisplayOriginalPrice || product?.originalPrice).toLocaleString('en-IN')}</span>
+          )}
+        </div>
+        <div className="mobile-sticky-cart-actions">
+          <button
+            type="button"
+            className="mobile-sticky-cart-btn mobile-sticky-cart-btn-add"
+            disabled={isOutOfStock}
+            onClick={() => {
+              if (isOutOfStock) return;
+              const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+              addToCart(customProduct, 1);
+            }}
+            style={{ minHeight: '44px' }}
+          >
+            <ShoppingCart size={16} /> {isOutOfStock ? 'Sold Out' : 'Add to Bag'}
+          </button>
+          {!isOutOfStock && (
+            <button
+              type="button"
+              className="mobile-sticky-cart-btn mobile-sticky-cart-btn-buy"
+              onClick={() => {
+                const customProduct = { ...product, price: currentDisplayPrice, originalPrice: currentDisplayOriginalPrice, selectedColor: activeColor ? activeColor.name : '', selectedVariant: activeVariant ? activeVariant.name : '' };
+                if (quantityInCart === 0) {
+                  addToCart(customProduct, 1);
+                }
+                if (onBuyNow) {
+                  onBuyNow(customProduct);
+                }
+              }}
+              style={{ minHeight: '44px' }}
+            >
+              <Zap size={16} /> Buy Now
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="mobile-only-spacer" style={{ height: '80px' }} />
+
     </>
   );
 };

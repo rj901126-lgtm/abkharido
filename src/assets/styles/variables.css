@@ -1,56 +1,167 @@
-/* CSS Brand Tokens for AbKharido.com */
+/* Design Tokens for AbKharido.com (Patch 5 Architecture) */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Brand Colors - Ultra Luxury Indigo & Titanium Theme */
-  --primary-color: #4338ca;       /* Royal Indigo 700 */
-  --primary-light: #e0e7ff;       /* Soft Electric Indigo Wrapper */
-  --primary-dark: #2e1065;        /* Deep Midnight Obsidian */
-  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #4338ca 100%);
-  --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
-  --neon-fire: linear-gradient(90deg, #ff0055 0%, #ff5500 100%);
+  /* ── 1. Accent & Brand Colors (Unified Single Accent, Indigo Replaced) ── */
+  --brand-accent: #2563eb;          /* Royal Blue Brand Accent */
+  --brand-accent-hover: #1d4ed8;    /* Darker Accent for active/hover */
+  --brand-accent-light: #eff6ff;    /* Soft tinted surface */
+  --brand-accent-dark: #1e3a8a;     /* Deep navy accent wrapper */
 
-  --secondary-color: #059669;     /* Deep Emerald Green (for offers/ratings) */
-  --accent-color: #090d16;        /* Titanium Black (Add to Cart / Bold actions) */
-  --accent-light: #1e293b;        /* Slate Slate 800 */
-  
-  /* Status Colors */
-  --success: #059669;             /* Emerald Green */
-  --error: #e11d48;               /* Crimson Rose */
-  --warning: #d97706;             /* Amber VIP Gold */
-  --info: #0284c7;                /* Diamond Sky Blue */
+  --primary-color: var(--brand-accent);
+  --primary-light: var(--brand-accent-light);
+  --primary-dark: var(--brand-accent-dark);
+  --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 
-  /* Neutral Colors - Slate Design System */
-  --text-primary: #090d16;        /* Slate 950 for hyper contrast */
-  --text-secondary: #475569;      /* Slate 600 for secondary copy */
-  --bg-page: #f1f3f6;             /* Classic high-contrast e-commerce canvas #F1F3F6 */
-  --bg-card: #ffffff;             /* Pure white containers */
-  --border-light: #e2e8f0;        /* Muted Slate 200 grid lines */
-  --border-focus: #6366f1;        /* Soft Indigo focus indicators */
+  --secondary-color: #059669;       /* Emerald Green (ratings / honest savings) */
+  --accent-color: #0f172a;          /* Slate 900 for high-contrast primary actions */
+  --accent-light: #1e293b;          /* Slate 800 */
 
-  /* Typography */
-  --font-primary: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* ── Status Colors ── */
+  --success: #059669;               /* Emerald */
+  --error: #dc2626;                 /* Ruby Red */
+  --warning: #d97706;               /* Amber Gold */
+  --info: #0284c7;                  /* Sky Blue */
+
+  /* ── Neutrals & Surfaces (High Contrast) ── */
+  --text-primary: #090d16;          /* Slate 950 (4.5:1+ WCAG AA compliant) */
+  --text-secondary: #475569;        /* Slate 600 */
+  --text-muted: #64748b;            /* Slate 500 */
+  --bg-page: #f8fafc;               /* Crisp high-contrast neutral background */
+  --bg-card: #ffffff;               /* Clean white surface */
+  --border-light: #e2e8f0;          /* Slate 200 border lines */
+  --border-focus: var(--brand-accent); /* Focus indicator */
+
+  /* ── 2. Type Scale ── */
+  --font-xs: 0.75rem;               /* 12px */
+  --font-sm: 0.875rem;              /* 14px */
+  --font-base: 1rem;                /* 16px */
+  --font-lg: 1.125rem;              /* 18px */
+  --font-xl: 1.25rem;               /* 20px */
+  --font-2xl: 1.5rem;               /* 24px */
+  --font-3xl: 1.875rem;             /* 30px */
+  --font-4xl: 2.25rem;              /* 36px */
+
+  --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-logo: 'Outfit', -apple-system, sans-serif;
 
-  /* Elevation/Shadows - Ultra Ambient Luxury Glows */
-  --shadow-sm: 0 2px 4px rgba(9, 13, 22, 0.04);
-  --shadow-md: 0 8px 20px rgba(9, 13, 22, 0.06);
-  --shadow-lg: 0 16px 36px rgba(9, 13, 22, 0.09);
-  --shadow-hover: 0 22px 48px rgba(67, 56, 202, 0.16);
-  --shadow-glow: 0 8px 25px -4px rgba(79, 70, 229, 0.45);
+  /* ── 3. 8px Spacing Grid ── */
+  --space-1: 4px;                   /* 0.5x */
+  --space-2: 8px;                   /* 1x base */
+  --space-3: 12px;                  /* 1.5x */
+  --space-4: 16px;                  /* 2x */
+  --space-5: 20px;                  /* 2.5x */
+  --space-6: 24px;                  /* 3x */
+  --space-8: 32px;                  /* 4x */
+  --space-10: 40px;                 /* 5x */
+  --space-12: 48px;                 /* 6x */
+  --space-16: 64px;                 /* 8x */
 
-  /* Layout / Borders */
-  --radius-sm: 8px;               /* Ultra soft rounded geometry */
-  --radius-md: 14px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  /* ── 4. Mobile Touch Targets (WCAG 2.1 & 5.2 minimum 44px) ── */
+  --touch-target-min: 44px;
+
+  /* ── Layout & Elevation ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
-  
-  /* Transitions */
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.10);
+  --shadow-hover: 0 14px 32px rgba(37, 99, 235, 0.14);
+
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  --max-width-content: 1280px;
+}
 
-  /* Width boundaries */
-  --max-width-content: 1320px;
+/* ── Shared Component Design Tokens ── */
+
+/* Buttons */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-4);
+  font-family: var(--font-primary);
+  font-size: var(--font-sm);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.ui-btn-primary {
+  background-color: var(--brand-accent);
+  color: #ffffff;
+  border-color: var(--brand-accent);
+}
+
+.ui-btn-primary:hover {
+  background-color: var(--brand-accent-hover);
+  border-color: var(--brand-accent-hover);
+}
+
+.ui-btn-secondary {
+  background-color: #ffffff;
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.ui-btn-secondary:hover {
+  background-color: var(--brand-accent-light);
+  border-color: var(--brand-accent);
+  color: var(--brand-accent);
+}
+
+/* Shared Cards */
+.ui-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Shared Inputs */
+.ui-input {
+  width: 100%;
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-3);
+  font-family: var(--font-primary);
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.ui-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.ui-input.has-error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* Inline Form Errors */
+.ui-form-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--error);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  margin-top: var(--space-1);
 }

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingBag, ArrowLeft, Home, Search, Smartphone, Laptop, Shirt, Home as HomeIcon, Tv } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Home, Search, Smartphone, Laptop, Shirt, Home as HomeIcon, Tv, Headphones } from 'lucide-react';
 
 export default function NotFound() {
   const router = useRouter();
@@ -19,11 +19,10 @@ export default function NotFound() {
   };
 
   const popularCategories = [
-    { label: 'Mobiles', slug: 'mobiles', icon: '📱' },
-    { label: 'Electronics', slug: 'electronics', icon: '🎧' },
-    { label: 'Fashion', slug: 'fashion', icon: '👗' },
-    { label: 'Home & Living', slug: 'home', icon: '🏠' },
-    { label: 'Appliances', slug: 'appliances', icon: '🫧' },
+    { label: 'Electronics', slug: 'electronics', Icon: Headphones },
+    { label: 'Mobiles', slug: 'mobiles', Icon: Smartphone },
+    { label: 'Fashion', slug: 'fashion', Icon: Shirt },
+    { label: 'Home & Living', slug: 'home', Icon: HomeIcon },
   ];
 
   return (
@@ -42,13 +41,13 @@ export default function NotFound() {
       <div style={{
         width: '110px',
         height: '110px',
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%)',
+        background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 100%)',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: '20px',
-        boxShadow: '0 20px 40px rgba(79, 70, 229, 0.25)',
+        boxShadow: '0 20px 40px rgba(37, 99, 235, 0.2)',
       }}>
         <ShoppingBag size={50} color="#ffffff" strokeWidth={1.5} />
       </div>
@@ -56,8 +55,8 @@ export default function NotFound() {
       <span style={{
         display: 'inline-block',
         padding: '6px 16px',
-        background: 'rgba(79, 70, 229, 0.1)',
-        color: '#4f46e5',
+        background: 'rgba(37, 99, 235, 0.08)',
+        color: '#2563eb',
         borderRadius: '999px',
         fontSize: '12px',
         fontWeight: '800',
@@ -102,7 +101,7 @@ export default function NotFound() {
           <Search size={18} color="#94a3b8" style={{ marginRight: '8px', flexShrink: 0 }} />
           <input
             type="text"
-            placeholder="Search phones, laptops, shoes..."
+            placeholder="Search products, brands, or categories..."
             value={searchVal}
             onChange={(e) => setSearchVal(e.target.value)}
             style={{
@@ -117,7 +116,7 @@ export default function NotFound() {
           <button
             type="submit"
             style={{
-              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '12px',
@@ -136,7 +135,7 @@ export default function NotFound() {
       {/* Popular Category Shortcuts */}
       <div style={{ maxWidth: '520px', width: '100%', marginBottom: '32px' }}>
         <div style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>
-          ✨ Popular Departments
+          Popular Departments
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
           {popularCategories.map((cat) => (
@@ -146,7 +145,7 @@ export default function NotFound() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '8px',
                 padding: '8px 14px',
                 background: '#f8fafc',
                 border: '1px solid #e2e8f0',
@@ -158,7 +157,7 @@ export default function NotFound() {
                 transition: 'all 0.2s ease',
               }}
             >
-              <span>{cat.icon}</span>
+              <cat.Icon size={15} color="#2563eb" />
               <span>{cat.label}</span>
             </Link>
           ))}
@@ -183,13 +182,13 @@ export default function NotFound() {
             justifyContent: 'center',
             gap: '8px',
             padding: '14px 24px',
-            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
             color: '#ffffff',
             textDecoration: 'none',
             borderRadius: '14px',
             fontSize: '15px',
             fontWeight: '800',
-            boxShadow: '0 8px 20px rgba(79, 70, 229, 0.35)',
+            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.25)',
             transition: 'transform 0.2s ease',
           }}
         >
@@ -206,8 +205,8 @@ export default function NotFound() {
             gap: '8px',
             padding: '14px 24px',
             background: '#ffffff',
-            color: '#4f46e5',
-            border: '2px solid #e0e7ff',
+            color: '#2563eb',
+            border: '2px solid #dbeafe',
             textDecoration: 'none',
             borderRadius: '14px',
             fontSize: '15px',

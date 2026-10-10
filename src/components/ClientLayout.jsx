@@ -32,7 +32,7 @@ export default function ClientLayout({ children }) {
   
   // Global Store Configuration State
   const [globalConfig, setGlobalConfig] = useState({
-    themeColor: '#2874f0',
+    themeColor: '#2563eb',
     supportEmail: 'support@abkharido.com',
     supportPhone: '+91 9172600587',
     announcementBar: '🎉 FREE Delivery on orders above ₹499 • Fast Dispatch & Easy 7-Day Returns!',

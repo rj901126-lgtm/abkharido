@@ -20,7 +20,7 @@ const AdminCRM = () => {
 
   // Global Store Settings State
   const [settings, setSettings] = useState({
-    themeColor: '#2874f0',
+    themeColor: '#2563eb',
     supportEmail: 'support@abkharido.com',
     supportPhone: '+91 1800 123 4567',
     announcementBar: '🎉 FREE Shipping on all orders above ₹999 + Extra 20% OFF using code FESTIVE20!',

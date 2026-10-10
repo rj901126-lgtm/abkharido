@@ -18,7 +18,13 @@ import {
   MapPin,
   Sparkles,
   CheckCircle2,
-  X
+  X,
+  Smartphone,
+  Headphones,
+  Shirt,
+  Home as HomeIcon,
+  Flame,
+  Coins
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
@@ -27,57 +33,49 @@ import PincodeModal from './PincodeModal';
 import { useLanguage } from '../context/LanguageContext';
 
 const SEARCH_PLACEHOLDERS = [
-  "Search for 'iPhone 16 Pro'...",
-  "Search for 'Nike Running Shoes'...",
-  "Search for 'Sony Spatial Headphones'...",
-  "Search for 'Designer Silk Saree'...",
-  "Search for 'Smart Air Conditioner'...",
-  "Search for 'Fast Wireless Chargers'..."
+  "Search for 'Signature Wireless ANC Earphones'...",
+  "Search for 'Bluetooth Audio & Speakers'...",
+  "Search for 'True Wireless Earbuds'...",
+  "Search for 'Active Noise Cancellation'..."
 ];
 
 const MEGA_MENU_CATEGORIES = [
   {
-    title: "📱 Mobiles & Tablets",
-    cat: "mobiles",
-    items: [
-      { name: "5G Flagship Smartphones", query: "5G Mobile" },
-      { name: "Budget & Mid-Range Phones", query: "Smartphone" },
-      { name: "Fast Chargers & Adapters", query: "Charger" },
-      { name: "Powerbanks & Cables", query: "Powerbank" },
-      { name: "Protective Cases & Glass", query: "Case" }
-    ]
-  },
-  {
-    title: "🎧 Electronics & Audio",
+    title: "Electronics & Audio",
     cat: "electronics",
+    icon: Headphones,
     items: [
       { name: "True Wireless Earbuds", query: "Earbuds" },
       { name: "Noise Cancelling Headphones", query: "Headphones" },
-      { name: "Bluetooth Soundbars", query: "Speaker" },
-      { name: "Smart Fitness Watches", query: "Smartwatch" },
-      { name: "Laptops & Hubs", query: "Laptop" }
+      { name: "Bluetooth Soundbars & Speakers", query: "Speaker" }
     ]
   },
   {
-    title: "👗 Fashion & Lifestyle",
+    title: "Mobiles & Accessories",
+    cat: "mobiles",
+    icon: Smartphone,
+    items: [
+      { name: "Smartphones", query: "Mobile" },
+      { name: "Fast Chargers & Adapters", query: "Charger" },
+      { name: "Cables & Accessories", query: "Accessories" }
+    ]
+  },
+  {
+    title: "Fashion & Lifestyle",
     cat: "fashion",
+    icon: Shirt,
     items: [
-      { name: "Men's Luxury T-Shirts & Shirts", query: "Shirt" },
-      { name: "Women's Ethnic & Western Wear", query: "Dress" },
-      { name: "Athletic & Running Shoes", query: "Shoes" },
-      { name: "Designer Sunglasses & Belts", query: "Accessories" },
-      { name: "Titanium Chronograph Watches", query: "Watch" }
+      { name: "Apparel & Essentials", query: "Apparel" },
+      { name: "Footwear", query: "Shoes" }
     ]
   },
   {
-    title: "🏠 Home Appliances",
+    title: "Home Appliances",
     cat: "home",
+    icon: HomeIcon,
     items: [
-      { name: "Smart 4K Ultra HD TVs", query: "TV" },
-      { name: "Kitchen Air Fryers & Mixers", query: "Kitchen" },
-      { name: "Robotic & Hand Vacuums", query: "Vacuum" },
-      { name: "Smart Lighting & Lamps", query: "Lighting" },
-      { name: "Air Purifiers & Coolers", query: "Air Purifier" }
+      { name: "Home Living", query: "Living" },
+      { name: "Kitchen Appliances", query: "Kitchen" }
     ]
   }
 ];
@@ -163,6 +161,19 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     return () => window.removeEventListener('focus-main-search', handleFocusSearch);
   }, []);
 
+  const availableMegaCategories = React.useMemo(() => {
+    if (!Array.isArray(products) || products.length === 0) {
+      return MEGA_MENU_CATEGORIES.filter(c => c.cat === 'electronics');
+    }
+    const activeCats = new Set(
+      products
+        .filter(p => p && (Number(p.stock) > 0 || p.inStock) && (p.status === 'published' || p.status === 'active') && !p.isArchived)
+        .map(p => (p.category || '').toLowerCase().trim())
+        .filter(Boolean)
+    );
+    return MEGA_MENU_CATEGORIES.filter(c => activeCats.has(c.cat.toLowerCase()));
+  }, [products]);
+
   const cartCount = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.quantity) || 1), 0) : 0;
 
   const handleSearchSubmit = (e) => {
@@ -196,7 +207,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 AbKharido<span className="logo-plus">.com</span>
               </span>
               <span className="logo-sub">
-                Direct Buy <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>& Earn</span>
+                Direct Buy <span style={{ color: 'var(--brand-accent)', fontWeight: 'bold' }}>& Earn</span>
               </span>
             </a>
 
@@ -214,10 +225,11 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 background: '#f8fafc',
                 border: '1px solid #e2e8f0',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                minHeight: '44px'
               }}
             >
-              <MapPin size={15} color="#4f46e5" />
+              <MapPin size={15} color="var(--brand-accent)" />
               <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
                 <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600' }}>Deliver to</div>
                 <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>
@@ -226,7 +238,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               </div>
             </div>
 
-            {/* 🗂️ Category Mega-Menu Trigger */}
+            {/* Category Mega-Menu Trigger (Displays only categories with in-stock products) */}
             <div 
               className="category-mega-menu-wrapper"
               onMouseEnter={() => setMegaMenuOpen(true)}
@@ -243,16 +255,17 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   background: megaMenuOpen ? '#eff6ff' : 'none',
                   border: '1px solid',
                   borderColor: megaMenuOpen ? '#bfdbfe' : 'transparent',
-                  color: megaMenuOpen ? '#2563eb' : '#334155',
+                  color: megaMenuOpen ? 'var(--brand-accent)' : '#334155',
                   padding: '6px 10px',
                   borderRadius: '10px',
                   fontSize: '13px',
                   fontWeight: '700',
                   cursor: 'pointer',
+                  minHeight: '44px',
                   transition: 'all 0.2s'
                 }}
               >
-                <Layers size={15} color={megaMenuOpen ? '#2563eb' : '#64748b'} />
+                <Layers size={15} color={megaMenuOpen ? 'var(--brand-accent)' : '#64748b'} />
                 <span>Categories</span>
                 <ChevronDown size={13} style={{ transform: megaMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </button>
@@ -264,46 +277,58 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                     position: 'absolute',
                     top: '100%',
                     left: 0,
-                    width: '680px',
+                    width: '640px',
                     backgroundColor: '#ffffff',
                     borderRadius: '20px',
                     boxShadow: '0 20px 40px rgba(9, 13, 22, 0.15)',
                     border: '1.5px solid #e2e8f0',
                     padding: '20px',
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gridTemplateColumns: availableMegaCategories.length > 1 ? 'repeat(2, 1fr)' : '1fr',
                     gap: '20px',
                     zIndex: 1200,
                     marginTop: '8px'
                   }}
                 >
-                  {MEGA_MENU_CATEGORIES.map((section, sIdx) => (
-                    <div key={sIdx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div 
-                        onClick={() => { setMegaMenuOpen(false); onSelectCategory(section.cat); }}
-                        style={{ fontSize: '13.5px', fontWeight: '900', color: '#0f172a', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                      >
-                        <span>{section.title}</span>
-                        <span style={{ fontSize: '11px', color: '#4f46e5', fontWeight: '800' }}>View All →</span>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        {section.items.map((item, iIdx) => (
-                          <span
-                            key={iIdx}
-                            onClick={() => {
-                              setMegaMenuOpen(false);
-                              onSearch(item.query);
-                            }}
-                            style={{ fontSize: '12.5px', color: '#475569', fontWeight: '500', cursor: 'pointer', padding: '3px 6px', borderRadius: '6px', transition: 'all 0.15s' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = '#4f46e5'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#475569'; }}
-                          >
-                            • {item.name}
-                          </span>
-                        ))}
-                      </div>
+                  {availableMegaCategories.length === 0 ? (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
+                      Catalogue restock in progress. Check back shortly!
                     </div>
-                  ))}
+                  ) : (
+                    availableMegaCategories.map((section, sIdx) => {
+                      const SectionIcon = section.icon || Layers;
+                      return (
+                        <div key={sIdx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div 
+                            onClick={() => { setMegaMenuOpen(false); onSelectCategory(section.cat); }}
+                            style={{ fontSize: '13.5px', fontWeight: '900', color: '#0f172a', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                          >
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <SectionIcon size={16} color="var(--brand-accent)" />
+                              {section.title}
+                            </span>
+                            <span style={{ fontSize: '11px', color: 'var(--brand-accent)', fontWeight: '800' }}>View All →</span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {section.items.map((item, iIdx) => (
+                              <span
+                                key={iIdx}
+                                onClick={() => {
+                                  setMegaMenuOpen(false);
+                                  onSearch(item.query);
+                                }}
+                                style={{ fontSize: '12.5px', color: '#475569', fontWeight: '500', cursor: 'pointer', padding: '3px 6px', borderRadius: '6px', transition: 'all 0.15s' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = 'var(--brand-accent)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#475569'; }}
+                              >
+                                • {item.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               )}
             </div>
@@ -441,11 +466,11 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               }}>
                 {!searchQuery.trim() ? (
                   <div>
-                    <div style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-                      🔥 Trending Searches in India
+                    <div style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Flame size={14} color="#f59e0b" /> Trending Searches
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-                      {["5G AI Smartphone", "Spatial AirPods", "Luxe Couture", "Nike Air Jordan", "Smartwatch 5G"].map((tag, i) => (
+                      {["Wireless Audio", "Bluetooth Earphones", "ANC Headphones", "Original Inventory"].map((tag, i) => (
                         <span
                           key={i}
                           onMouseDown={() => {
@@ -453,14 +478,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                             onSearch(tag);
                             setShowSuggestions(false);
                           }}
-                          style={{ background: '#f1f5f9', color: '#0f172a', padding: '6px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #e2e8f0' }}
+                          style={{ background: '#f1f5f9', color: '#0f172a', padding: '6px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                         >
-                          🔍 {tag}
+                          <Search size={12} color="#64748b" /> {tag}
                         </span>
                       ))}
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '800', color: '#4338ca', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-                      💎 Instant VIP Deal Highlights
+                    <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--brand-accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sparkles size={14} color="var(--brand-accent)" /> Featured Inventory
                     </div>
                     {products.slice(0, 3).map((p, idx) => (
                       <div 
@@ -471,7 +496,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                         <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
                         <div style={{ flex: 1, overflow: 'hidden' }}>
                           <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
-                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>⚡ Express Ready in {p?.category || 'Catalog'}</div>
+                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>In {p?.category || 'Catalog'}</div>
                         </div>
                         <span style={{ fontSize: '14px', fontWeight: '900', color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: '8px' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</span>
                       </div>
@@ -642,7 +667,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                         </div>
                       ) : (
                         <a href="#rewards" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile?tab=rewards'); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderRadius: '12px', color: '#b45309', fontWeight: '800', fontSize: '13.5px', marginBottom: '8px', border: '1px solid #fde68a', boxShadow: '0 2px 4px rgba(245,158,11,0.06)', textDecoration: 'none', cursor: 'pointer', transition: 'transform 0.2s' }}>
-                          <span style={{ fontSize: '22px' }}>🪙</span> 
+                          <Coins size={22} color="#d97706" /> 
                           <div style={{ flex: 1 }}>
                             <div style={{ color: '#92400e', lineHeight: 1.2, fontSize: '13px' }}>My Coins: <span style={{ color: '#d97706', fontWeight: '900', fontSize: '16px', marginLeft: '2px' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100}</span></div>
                             <div style={{ fontSize: '10px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>✨ View & Redeem rewards &gt;</div>
