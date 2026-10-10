@@ -195,14 +195,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header className="navbar-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
+      <header className="navbar-header" role="banner" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
 
 
-        <div className="navbar-container">
+        <nav className="navbar-container" aria-label="Main Navigation">
           
           <div className="navbar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {/* Logo */}
-            <a href="#" className="logo-container" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
+            <a href="/" className="logo-container" aria-label="AbKharido Home" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
               <span className="logo-text">
                 AbKharido<span className="logo-plus">.com</span>
               </span>
@@ -212,10 +212,12 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             </a>
 
             {/* 📍 Pincode / Delivery Location Selector */}
-            <div 
+            <button 
+              type="button"
               className="delivery-pincode-badge"
               onClick={() => setIsPincodeModalOpen(true)}
               title="Click to change your delivery pincode"
+              aria-label={`Delivery location: ${deliveryLocation?.displayText || 'Palghar 401404'}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -236,7 +238,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   {deliveryLocation?.displayText || 'Palghar 401404'}
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* Category Mega-Menu Trigger (Displays only categories with in-stock products) */}
             <div 
@@ -248,6 +250,9 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               <button
                 type="button"
                 onClick={() => setMegaMenuOpen(prev => !prev)}
+                aria-expanded={megaMenuOpen}
+                aria-haspopup="true"
+                aria-label="Category mega menu"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -335,12 +340,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
           </div>
 
           {/* Search form */}
-          <form className="search-form" onSubmit={handleSearchSubmit}>
+          <form className="search-form" role="search" aria-label="Sitewide Product Search" onSubmit={handleSearchSubmit}>
             <div className="search-input-wrapper" style={{ position: 'relative', border: isListening ? '1.5px solid #ef4444' : undefined, boxShadow: isListening ? '0 0 16px rgba(239, 68, 68, 0.35)' : undefined, transition: 'all 0.3s ease' }}>
               <input
                 ref={searchInputRef}
                 type="text"
+                id="main-store-search"
                 className="search-input"
+                aria-label="Search products, brands, or categories"
                 placeholder={isListening ? "🎙️ Listening... Speak product name now..." : SEARCH_PLACEHOLDERS[placeholderIndex]}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -351,6 +358,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               {searchQuery && !isListening && (
                 <button 
                   type="button" 
+                  aria-label="Clear search input"
                   onClick={() => { setSearchQuery(''); if (searchInputRef.current) searchInputRef.current.focus(); }}
                   style={{ position: 'absolute', right: '64px', top: '50%', transform: 'translateY(-50%)', background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '22px', height: '22px', color: '#64748b', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 6, transition: 'all 0.2s' }}
                 >
@@ -362,6 +370,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 type="button"
                 onClick={handleVoiceSearch}
                 title="Search by voice"
+                aria-label={isListening ? "Listening to voice input" : "Search by voice"}
                 style={{
                   position: 'absolute',
                   right: '34px',
@@ -384,7 +393,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               >
                 <Mic size={14} style={{ animation: isListening ? 'pulse 0.8s infinite' : 'none' }} />
               </button>
-              <button type="submit" className="search-button">
+              <button type="submit" className="search-button" aria-label="Submit Search">
                 <Search size={18} />
               </button>
             </div>
@@ -728,6 +737,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             <a 
               href="#cart" 
               className="nav-item cart-item" 
+              aria-label={`Shopping Cart, ${cartCount} item${cartCount === 1 ? '' : 's'}`}
               onClick={(e) => { 
                 e.preventDefault(); 
                 if (onCartClick) {
@@ -739,13 +749,13 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             >
               <div className="cart-icon-wrapper">
                 <ShoppingCart size={20} />
-                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                {cartCount > 0 && <span className="cart-badge" aria-live="polite">{cartCount}</span>}
               </div>
               <span className="nav-text">{t('cart', 'Cart')}</span>
             </a>
 
           </div>
-        </div>
+        </nav>
       </header>
 
       {/* 📍 Pincode Serviceability & Delivery Modal */}

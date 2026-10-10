@@ -194,9 +194,11 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
           {/* Top Right Wishlist Button */}
           <button 
+            type="button"
             style={styles.wishlistBtn}
             onClick={handleWishlistToggle}
             title={isInWishlist ? "Remove from Wishlist" : "Save to Wishlist"}
+            aria-label={isInWishlist ? `Remove ${product.name} from Wishlist` : `Save ${product.name} to Wishlist`}
           >
             <Heart 
               size={15} 
@@ -238,6 +240,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                     key={idx}
                     type="button"
                     title={cm.name}
+                    aria-label={`Select color ${cm.name}`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();

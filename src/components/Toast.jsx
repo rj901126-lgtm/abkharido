@@ -99,7 +99,7 @@ const Toast = ({ message, type = 'success', onClose }) => {
           }
         }
       `}</style>
-      <div className="abkharido-toast-pill" role="alert">
+      <div className="abkharido-toast-pill" role="alert" aria-live="assertive">
         {/* Dynamic Glowing Icon Badge */}
         <div 
           style={{ 
@@ -137,6 +137,7 @@ const Toast = ({ message, type = 'success', onClose }) => {
         {onClose && (
           <button
             onClick={onClose}
+            aria-label="Dismiss notification"
             style={{
               background: 'transparent',
               border: 'none',

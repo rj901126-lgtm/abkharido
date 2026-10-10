@@ -11,14 +11,18 @@ const Footer = ({ onNavigate }) => {
   };
 
   return (
-    <footer style={{
-      backgroundColor: '#070a12',
-      color: '#94a3b8',
-      borderTop: '1px solid rgba(255,255,255,0.08)',
-      fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
-      marginTop: '40px',
-      paddingBottom: 'calc(105px + env(safe-area-inset-bottom))'
-    }}>
+    <footer 
+      role="contentinfo"
+      aria-label="Site Footer"
+      style={{
+        backgroundColor: '#070a12',
+        color: '#94a3b8',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
+        marginTop: '40px',
+        paddingBottom: 'calc(105px + env(safe-area-inset-bottom))'
+      }}
+    >
       {/* 🌟 Top Value Assurance Ribbon — Responsive 2x2 on Mobile, 4-Col on Desktop */}
       <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #17153b 50%, #1e1b4b 100%)', padding: '28px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', alignItems: 'center' }}>
