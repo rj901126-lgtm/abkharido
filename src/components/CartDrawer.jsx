@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingBag, X, Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { createPortal } from 'react-dom';
+import { FREE_SHIPPING_THRESHOLD } from '../utils/constants';
 
 const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
   const { cart, updateCartQty, removeFromCart, currentUser, showToast } = useApp();
@@ -81,6 +82,51 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
             <X size={20} color="#64748b" />
           </button>
         </div>
+
+        {/* Interactive Free Delivery Progress Meter */}
+        {cart.length > 0 && (
+          <div style={{
+            padding: '12px 20px',
+            backgroundColor: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#ecfdf5' : '#f8faff',
+            borderBottom: '1px solid #e2e8f0'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12.5px', fontWeight: '700' }}>
+              {itemsPrice >= FREE_SHIPPING_THRESHOLD ? (
+                <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🎉 <strong>FREE Express Delivery Unlocked!</strong>
+                </span>
+              ) : (
+                <span style={{ color: '#334155' }}>
+                  🚚 Add <strong>₹{FREE_SHIPPING_THRESHOLD - itemsPrice}</strong> more for <strong>FREE Delivery</strong>
+                </span>
+              )}
+              <span style={{
+                fontSize: '11px',
+                fontWeight: '800',
+                color: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#059669' : '#4f46e5'
+              }}>
+                {Math.min(100, Math.round((itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%
+              </span>
+            </div>
+            <div style={{
+              width: '100%',
+              height: '6px',
+              backgroundColor: '#e2e8f0',
+              borderRadius: '999px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${Math.min(100, Math.max(0, (itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%`,
+                height: '100%',
+                background: itemsPrice >= FREE_SHIPPING_THRESHOLD 
+                  ? 'linear-gradient(90deg, #10b981, #059669)' 
+                  : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+                borderRadius: '999px',
+                transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              }} />
+            </div>
+          </div>
+        )}
 
 
 

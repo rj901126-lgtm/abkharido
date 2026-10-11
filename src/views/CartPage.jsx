@@ -215,6 +215,57 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           </button>
         </div>
 
+        {/* Free Delivery Progress Banner */}
+        <div style={{
+          padding: '14px 18px',
+          background: itemsPrice >= FREE_SHIPPING_THRESHOLD 
+            ? 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)' 
+            : 'linear-gradient(135deg, #f8faff 0%, #f1f5f9 100%)',
+          borderRadius: '16px',
+          border: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
+          marginBottom: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', fontWeight: '700' }}>
+              {itemsPrice >= FREE_SHIPPING_THRESHOLD ? (
+                <span style={{ color: '#047857' }}>🎉 <strong>Woohoo! You have unlocked FREE Express Delivery!</strong></span>
+              ) : (
+                <span style={{ color: '#1e293b' }}>
+                  🚚 Add <strong>₹{FREE_SHIPPING_THRESHOLD - itemsPrice}</strong> more to unlock <strong>FREE Delivery</strong>
+                </span>
+              )}
+            </div>
+            <span style={{
+              fontSize: '11px',
+              fontWeight: '800',
+              padding: '2px 8px',
+              borderRadius: '999px',
+              background: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#d1fae5' : '#e0e7ff',
+              color: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#065f46' : '#4338ca'
+            }}>
+              {Math.min(100, Math.round((itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%
+            </span>
+          </div>
+          <div style={{
+            width: '100%',
+            height: '7px',
+            backgroundColor: '#e2e8f0',
+            borderRadius: '999px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: `${Math.min(100, Math.max(0, (itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%`,
+              height: '100%',
+              background: itemsPrice >= FREE_SHIPPING_THRESHOLD 
+                ? 'linear-gradient(90deg, #10b981, #059669)' 
+                : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+              borderRadius: '999px',
+              transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }} />
+          </div>
+        </div>
+
         {/* Active Referral Confirmation Banner */}
         {activeReferral && (
           <div className="active-referral-banner">

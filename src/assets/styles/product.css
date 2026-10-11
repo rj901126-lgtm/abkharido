@@ -563,7 +563,8 @@
     line-height: 1.4 !important;
   }
   /* Keep default bottom nav hidden on mobile when ProductDetails is active so sticky purchase bar doesn't overlap */
-  body.product-details-active .bottom-nav {
+  body.product-details-active .bottom-nav,
+  body.product-details-active .bottom-nav-island {
     display: none !important;
   }
   body.product-details-active .main-content {
