@@ -43,15 +43,15 @@ const ProductReviews = ({ product, productId }) => {
   const reviews = product?.reviews || [];
 
   return (
-    <div style={{ marginTop: '40px', padding: '30px', background: 'white', borderRadius: '16px', border: '1px solid #f0f0f0' }}>
-      <h3 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div style={{ marginTop: '30px', padding: '18px 14px', background: 'white', borderRadius: '16px', border: '1px solid #f0f0f0' }}>
+      <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <MessageCircle color="var(--primary-color)" /> Customer Reviews
       </h3>
       
       {reviews.length === 0 ? (
         <p style={{ color: '#666', fontStyle: 'italic' }}>No reviews yet. Be the first to review this product!</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px', marginBottom: '24px' }}>
           {reviews.map((r, i) => (
             <div key={i} style={{ padding: '20px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>

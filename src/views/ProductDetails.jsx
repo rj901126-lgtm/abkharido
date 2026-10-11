@@ -1326,7 +1326,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#090d16', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 0 8px 0' }}>
                       <span>{isFitness ? '🏋️' : isFashion ? '👗' : isHome ? '🏠' : isAppliance ? '🫧' : '📦'}</span> Package &amp; Items Included:
                     </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '12.5px', fontWeight: '700', color: '#1e293b' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', fontSize: '12.5px', fontWeight: '700', color: '#1e293b' }}>
                       {boxItems.map((item, idx) => (
                         <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>{item}</div>
                       ))}

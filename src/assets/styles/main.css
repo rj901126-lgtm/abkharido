@@ -141,11 +141,11 @@ img {
     padding-right: 14px;
   }
 
-  /* Mobile navbar total height with safe-area + search bar is 88px */
+  /* Mobile navbar total height with safe-area + search bar is ~108px */
   .main-content {
-    margin-top: calc(88px + env(safe-area-inset-top, 0px)) !important;
-    padding-bottom: calc(90px + env(safe-area-inset-bottom));
-    min-height: calc(100vh - 88px);
+    margin-top: calc(108px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(100vh - 108px);
   }
 
   .main-content.portal-main {
@@ -155,10 +155,10 @@ img {
     min-height: 100vh !important;
   }
 
-  /* Category strip on mobile: 100% sticky at top, zero-jitter, stable height */
+  /* Category strip on mobile: 100% sticky at top, zero-jitter, aligned right below navbar */
   .home-category-strip {
     position: sticky !important;
-    top: calc(88px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(108px + env(safe-area-inset-top, 0px)) !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     padding: 10px 0 !important;
@@ -582,7 +582,7 @@ input:focus, textarea:focus, select:focus {
 @media (max-width: 768px) {
   /* Global Page Margins */
   .main-content {
-    margin-top: calc(88px + env(safe-area-inset-top, 0px)) !important;
+    margin-top: calc(108px + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
   }
 

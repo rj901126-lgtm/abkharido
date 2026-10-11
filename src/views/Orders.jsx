@@ -756,7 +756,7 @@ const Orders = ({ onNavigate }) => {
               </div>
 
               {/* 2-Column Responsive Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', marginBottom: '12px' }}>
                 
                 {/* 📍 Left Column: Live Milestone Timeline & Doorstep PIN */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

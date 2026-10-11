@@ -294,6 +294,28 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
 
   return (
     <>
+      <style>{`
+        @media (max-width: 768px) {
+          .ai-support-floating-btn {
+            bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+            right: 14px !important;
+            height: 42px !important;
+            padding: 0 12px 0 10px !important;
+            z-index: 1500 !important;
+          }
+          .ai-support-chat-window {
+            bottom: 0 !important;
+            right: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: calc(100vh - 54px) !important;
+            max-height: 100vh !important;
+            border-radius: 20px 20px 0 0 !important;
+            z-index: 99999 !important;
+          }
+        }
+      `}</style>
       {/* 🟢 FLOATING AI BOT TRIGGER BUTTON */}
       {!isOpen && (
         <button

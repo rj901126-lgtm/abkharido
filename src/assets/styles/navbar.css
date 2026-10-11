@@ -320,9 +320,25 @@
   .delivery-pincode-badge {
     display: inline-flex !important;
     align-items: center !important;
-    min-height: 44px !important;
+    min-height: 40px !important;
+    max-width: 130px !important;
     padding: 0 8px !important;
     border-radius: 8px !important;
+    overflow: hidden !important;
+    flex-shrink: 1 !important;
+  }
+
+  .delivery-pincode-badge > div {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .delivery-pincode-badge > div > div:last-child {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   .logo-text {
@@ -432,6 +448,23 @@
     color: var(--brand-accent) !important;
   }
 
+}
+
+@media (max-width: 380px) {
+  .delivery-pincode-badge {
+    max-width: 95px !important;
+    padding: 0 4px !important;
+  }
+  .delivery-pincode-badge > div > div:first-child {
+    display: none !important;
+  }
+  .user-profile-pill {
+    max-width: 85px !important;
+    padding: 0 6px !important;
+  }
+  .logo-text {
+    font-size: 18px !important;
+  }
 }
 
 

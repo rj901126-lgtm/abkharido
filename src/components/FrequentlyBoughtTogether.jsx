@@ -253,8 +253,8 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
       {/* Visual Bundle Flow Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '24px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '16px',
         alignItems: 'center'
       }}>
         

@@ -229,4 +229,22 @@
   .profile-input-grid {
     grid-template-columns: 1fr;
   }
+
+  .profile-quick-actions {
+    gap: 8px !important;
+  }
+
+  .quick-action-card {
+    padding: 10px 8px !important;
+    gap: 8px !important;
+    border-radius: 12px !important;
+  }
+
+  .quick-action-card span {
+    font-size: 12.5px !important;
+  }
+
+  .quick-action-card small {
+    font-size: 10px !important;
+  }
 }

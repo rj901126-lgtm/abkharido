@@ -116,3 +116,24 @@
   }
 }
 
+/* Extra compact spacing for narrow mobile screens <= 360px */
+@media (max-width: 360px) {
+  .bottom-nav-island {
+    left: 8px !important;
+    right: 8px !important;
+    height: 60px !important;
+    padding: 0 2px !important;
+  }
+  .bottom-nav-item {
+    font-size: 9.5px !important;
+  }
+  .nav-icon-wrapper {
+    width: 36px !important;
+    height: 26px !important;
+  }
+  .center-cart-icon {
+    width: 44px !important;
+    height: 34px !important;
+  }
+}
+

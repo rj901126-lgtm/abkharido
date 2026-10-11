@@ -496,7 +496,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
       {/* ── 6. Category Highlights (Active In-Stock Categories) ── */}
       {activeVipCategories.some(c => c.hasStock && c.id !== 'all') && (
-        <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
+        <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
           {activeVipCategories.filter(c => c.hasStock && c.id !== 'all').map((cat, idx) => {
             const CatIcon = cat.icon || Sparkles;
             return (
