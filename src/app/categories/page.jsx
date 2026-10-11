@@ -30,7 +30,7 @@ export const metadata = {
     canonical: `${SITE_URL}/categories`,
   },
   openGraph: {
-    title: 'Explore Collections & Categories | AbKharido',
+    title: 'Explore Collections & Categories',
     description: 'Browse active departments on AbKharido with reliable courier delivery across India.',
     url: `${SITE_URL}/categories`,
     siteName: 'AbKharido',
@@ -46,7 +46,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Explore Collections & Categories | AbKharido',
+    title: 'Explore Collections & Categories',
     description: 'Browse active departments on AbKharido with standard courier delivery.',
     images: [`${SITE_URL}/logo.jpg`],
   },

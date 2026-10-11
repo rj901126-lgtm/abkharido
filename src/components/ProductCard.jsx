@@ -482,7 +482,6 @@ const styles = {
   imageWrapper: {
     width: '100%',
     aspectRatio: '1 / 1',
-    maxHeight: '150px',
     padding: '8px',
     display: 'flex',
     alignItems: 'center',

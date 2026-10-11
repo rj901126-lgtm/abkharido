@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/returns`
   },
   openGraph: {
-    title: '7-Day Return & Replacement Policy | AbKharido',
+    title: '7-Day Return & Replacement Policy',
     description: 'Hassle-free 7-day returns, doorstep courier pickup, and fast refunds on verified orders.',
     url: `${SITE_URL}/returns`,
     siteName: 'AbKharido',

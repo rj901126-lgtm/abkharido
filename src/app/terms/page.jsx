@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/terms`
   },
   openGraph: {
-    title: 'Terms of Use & Guidelines | AbKharido',
+    title: 'Terms of Use & Guidelines',
     description: 'Official user terms, transaction guidelines, and affiliate compliance policies on AbKharido.',
     url: `${SITE_URL}/terms`,
     siteName: 'AbKharido',

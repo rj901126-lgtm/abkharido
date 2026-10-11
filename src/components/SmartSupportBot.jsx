@@ -328,7 +328,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
             bottom: '24px',
             right: '24px',
             zIndex: 50,
-            background: 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #3b82f6 100%)',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1d4ed8 50%, #2563eb 100%)',
             color: '#ffffff',
             height: '48px',
             borderRadius: '28px',
@@ -336,7 +336,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            boxShadow: '0 8px 24px rgba(67, 56, 202, 0.35)',
+            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
             border: '1.5px solid rgba(255, 255, 255, 0.3)',
             cursor: 'pointer',
             transition: 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s',
@@ -344,8 +344,8 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
             WebkitBackdropFilter: 'blur(10px)',
             fontFamily: "'Outfit', sans-serif"
           }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.boxShadow = '0 12px 28px rgba(67, 56, 202, 0.5)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(67, 56, 202, 0.35)'; }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.boxShadow = '0 12px 28px rgba(37, 99, 235, 0.5)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(37, 99, 235, 0.35)'; }}
         >
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ background: 'rgba(255,255,255,0.2)', padding: '6px', borderRadius: '50%' }}>
@@ -355,7 +355,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
           </div>
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: '13px', fontWeight: '800', lineHeight: 1.1 }}>AbKharido AI</div>
-            <div style={{ fontSize: '10px', color: '#a5b4fc', fontWeight: '700' }}>Instant AI Help</div>
+            <div style={{ fontSize: '10px', color: '#bfdbfe', fontWeight: '700' }}>Instant AI Help</div>
           </div>
         </button>
       )}
@@ -384,7 +384,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
         >
           {/* Header */}
           <div style={{
-            background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%)',
+            background: 'linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%)',
             padding: '16px 18px',
             color: '#ffffff',
             display: 'flex',
@@ -394,7 +394,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ position: 'relative' }}>
-                <div style={{ background: 'linear-gradient(135deg, #4f46e5, #9333ea)', width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.4)' }}>
+                <div style={{ background: 'linear-gradient(135deg, #1d4ed8, #2563eb)', width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)' }}>
                   <Bot size={22} color="#ffffff" />
                 </div>
                 <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', border: '2px solid #090d16' }}></span>
@@ -475,11 +475,11 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
                   maxWidth: '85%',
                   padding: '12px 16px',
                   borderRadius: msg.sender === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                  background: msg.sender === 'user' ? 'linear-gradient(135deg, #4338ca 0%, #3b82f6 100%)' : '#ffffff',
+                  background: msg.sender === 'user' ? 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)' : '#ffffff',
                   color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
                   fontSize: '13px',
                   lineHeight: '1.5',
-                  boxShadow: msg.sender === 'user' ? '0 4px 14px rgba(67, 56, 202, 0.25)' : '0 2px 10px rgba(0,0,0,0.05)',
+                  boxShadow: msg.sender === 'user' ? '0 4px 14px rgba(37, 99, 235, 0.25)' : '0 2px 10px rgba(0,0,0,0.05)',
                   border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0',
                   whiteSpace: 'pre-line'
                 }}>
@@ -493,23 +493,23 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
                           key={code}
                           onClick={() => handleCopyCoupon(code)}
                           style={{
-                            background: '#f8fafc',
-                            border: '1.5px dashed #4f46e5',
+                            background: '#eff6ff',
+                            border: '1.5px dashed #2563eb',
                             borderRadius: '10px',
                             padding: '6px 12px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             cursor: 'pointer',
-                            color: '#1e1b4b',
+                            color: '#1e3a8a',
                             fontWeight: '800'
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Tag size={13} color="#4f46e5" />
+                            <Tag size={13} color="#2563eb" />
                             <span>{code}</span>
                           </div>
-                          <span style={{ fontSize: '11px', color: copiedCoupon === code ? '#16a34a' : '#4f46e5', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <span style={{ fontSize: '11px', color: copiedCoupon === code ? '#16a34a' : '#2563eb', display: 'flex', alignItems: 'center', gap: '3px' }}>
                             {copiedCoupon === code ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Copy Code</>}
                           </span>
                         </div>
@@ -541,7 +541,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
                           boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
                           transition: 'all 0.15s ease'
                         }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.color = '#4f46e5'; }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#2563eb'; e.currentTarget.style.color = '#2563eb'; }}
                         onMouseLeave={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#1e293b'; }}
                       >
                         {chip.label}
@@ -555,7 +555,7 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
             {/* Typing Indicator */}
             {isTyping && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#ffffff', borderRadius: '16px', width: 'fit-content', border: '1px solid #e2e8f0' }}>
-                <Bot size={15} color="#4f46e5" />
+                <Bot size={15} color="#2563eb" />
                 <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '700' }}>AI Assistant is typing...</span>
               </div>
             )}
@@ -603,14 +603,14 @@ export default function SmartSupportBot({ supportPhone = '+91 9172600587', suppo
                 outline: 'none',
                 fontFamily: "'Outfit', sans-serif"
               }}
-              onFocus={e => e.target.style.borderColor = '#4f46e5'}
+              onFocus={e => e.target.style.borderColor = '#2563eb'}
               onBlur={e => e.target.style.borderColor = '#e2e8f0'}
             />
             <button
               type="submit"
               disabled={!inputValue.trim()}
               style={{
-                background: inputValue.trim() ? 'linear-gradient(135deg, #4338ca 0%, #3b82f6 100%)' : '#e2e8f0',
+                background: inputValue.trim() ? 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)' : '#e2e8f0',
                 border: 'none',
                 color: '#ffffff',
                 width: '38px',

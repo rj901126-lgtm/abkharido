@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/privacy`
   },
   openGraph: {
-    title: 'Privacy Policy | AbKharido Customer Protection',
+    title: 'Privacy Policy & Customer Protection',
     description: 'Learn about our data privacy practices, secure payment isolation, and referral code privacy protection.',
     url: `${SITE_URL}/privacy`,
     siteName: 'AbKharido',

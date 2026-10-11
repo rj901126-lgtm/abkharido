@@ -8,8 +8,8 @@
 :root {
   --admin-sidebar-bg: #0b0f19;
   --admin-sidebar-hover: rgba(255, 255, 255, 0.05);
-  --admin-sidebar-active: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 100%);
-  --admin-sidebar-accent: #6366f1;
+  --admin-sidebar-active: linear-gradient(90deg, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0) 100%);
+  --admin-sidebar-accent: var(--brand-accent, #2563eb);
   --admin-bg: #f4f7fa; /* Very soft, cool gray/blue */
   --admin-surface: #ffffff;
   --admin-text-primary: #0f172a;
@@ -187,7 +187,7 @@
 }
 
 .admin-nav-sub-item.active .admin-nav-badge {
-  background: #6366f1;
+  background: var(--brand-accent, #2563eb);
   color: #ffffff;
 }
 
@@ -403,14 +403,14 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
 }
 
 .btn-primary:active {

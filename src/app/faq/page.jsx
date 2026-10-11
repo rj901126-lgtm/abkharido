@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/faq`
   },
   openGraph: {
-    title: 'Frequently Asked Questions (FAQ) | AbKharido Helpdesk',
+    title: 'Frequently Asked Questions (FAQ)',
     description: 'Get help on orders, shipping, returns, refunds, and coupons on AbKharido.',
     url: `${SITE_URL}/faq`,
     siteName: 'AbKharido',

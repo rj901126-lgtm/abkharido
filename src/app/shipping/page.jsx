@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/shipping`
   },
   openGraph: {
-    title: 'Shipping & Delivery Policy | AbKharido Pan-India Delivery',
+    title: 'Shipping & Delivery Policy — Pan-India Delivery',
     description: 'Standard 2-5 day delivery across 29,000+ Indian pincodes. Free shipping on orders ₹499+.',
     url: `${SITE_URL}/shipping`,
     siteName: 'AbKharido',

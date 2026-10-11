@@ -29,7 +29,7 @@ export const metadata = {
   keywords: ['buy electronics online india', 'electronics sale india', 'best electronics deals', 'earbuds india', 'smartwatch india', 'wireless speakers india'],
   alternates: { canonical: `${SITE_URL}/electronics` },
   openGraph: {
-    title: 'Electronics Store India — Reliable Delivery & 7-Day Returns | AbKharido',
+    title: 'Electronics Store India — Reliable Delivery & 7-Day Returns',
     description: 'Quality assured consumer electronics and audio gear. Standard 2-5 day courier delivery pan-India.',
     url: `${SITE_URL}/electronics`,
     siteName: 'AbKharido',

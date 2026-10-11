@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/contact`
   },
   openGraph: {
-    title: 'Contact Support & Helpdesk | AbKharido',
+    title: 'Contact Support & Helpdesk',
     description: 'Direct phone, WhatsApp, and email support for orders, refunds, and partnerships.',
     url: `${SITE_URL}/contact`,
     siteName: 'AbKharido',

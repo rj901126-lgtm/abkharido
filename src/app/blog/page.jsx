@@ -5,7 +5,7 @@ import { BLOG_POSTS } from '../../data/blogPosts';
 import { SITE_URL } from '../../utils/constants';
 
 const categoryColors = {
-  'Buying Guide': '#4f46e5',
+  'Buying Guide': 'var(--brand-accent, #2563eb)',
   'Shopping Guide': '#0891b2',
   'Help Guide': '#059669',
   'Seller Guide': '#d97706'
@@ -38,7 +38,7 @@ export default function BlogPage() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
         {/* Hero Header */}
         <div style={{ textAlign: 'center', marginBottom: 48, padding: '32px 16px' }}>
-          <div style={{ display: 'inline-block', background: '#eef2ff', color: '#4f46e5', borderRadius: 99, padding: '6px 16px', fontSize: 13, fontWeight: 700, marginBottom: 12 }}>
+          <div style={{ display: 'inline-block', background: '#eff6ff', color: 'var(--brand-accent, #2563eb)', borderRadius: 99, padding: '6px 16px', fontSize: 13, fontWeight: 700, marginBottom: 12 }}>
             📚 AbKharido Expert Guides
           </div>
           <h1 style={{ fontSize: 'clamp(24px, 5vw, 40px)', fontWeight: 800, color: '#111827', margin: '0 0 12px', lineHeight: 1.2 }}>

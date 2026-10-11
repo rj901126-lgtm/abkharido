@@ -29,7 +29,7 @@ export const metadata = {
   keywords: ['buy mobile phones online india', 'best smartphones india 2026', 'latest mobile phones india', 'mobile phones free delivery', 'mobile accessories india'],
   alternates: { canonical: `${SITE_URL}/mobiles` },
   openGraph: {
-    title: 'Buy Mobile Phones Online India — Quality Verified | AbKharido',
+    title: 'Buy Mobile Phones Online India — Quality Verified',
     description: 'Verified smartphones and accessories at direct value pricing. Standard courier delivery & COD.',
     url: `${SITE_URL}/mobiles`,
     siteName: 'AbKharido',

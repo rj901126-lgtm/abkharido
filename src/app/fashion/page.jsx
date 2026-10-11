@@ -29,7 +29,7 @@ export const metadata = {
   keywords: ['buy fashion online india', 'fashion apparel india', 'footwear india online', 'fashion sale india', 'buy clothes online cash on delivery'],
   alternates: { canonical: `${SITE_URL}/fashion` },
   openGraph: {
-    title: 'Fashion Store India — Quality Verified & 7-Day Returns | AbKharido',
+    title: 'Fashion Store India — Quality Verified & 7-Day Returns',
     description: 'Shop curated fashion collections. Reliable 2-5 day courier delivery, 7-day returns, COD.',
     url: `${SITE_URL}/fashion`,
     siteName: 'AbKharido',

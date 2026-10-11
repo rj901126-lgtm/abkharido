@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/about`
   },
   openGraph: {
-    title: 'About AbKharido.com | India\'s Online Shopping Destination',
+    title: 'About Us — India\'s Online Shopping Destination',
     description: 'Direct quality assurance, 2-5 day courier dispatch, 7-day returns, and rewarding community commerce.',
     url: `${SITE_URL}/about`,
     siteName: 'AbKharido',

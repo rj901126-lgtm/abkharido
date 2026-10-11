@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/compare`,
   },
   openGraph: {
-    title: 'Compare Products Side-by-Side | AbKharido',
+    title: 'Compare Products Side-by-Side',
     description: 'Compare prices, technical specifications, and customer ratings on AbKharido.',
     url: `${SITE_URL}/compare`,
     siteName: 'AbKharido',

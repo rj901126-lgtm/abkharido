@@ -49,7 +49,7 @@
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #0f172a 0%, #4338ca 100%);
+  background: linear-gradient(135deg, #0f172a 0%, var(--brand-accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -622,7 +622,7 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+  background: linear-gradient(135deg, #0f172a 0%, var(--brand-accent) 100%);
   color: #fbbf24;
   display: flex;
   align-items: center;
@@ -630,7 +630,7 @@
   font-size: 20px;
   font-weight: 900;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(30, 27, 75, 0.2);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
 }
 
 .mobile-sheet-userinfo {

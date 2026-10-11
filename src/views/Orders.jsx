@@ -873,14 +873,16 @@ const Orders = ({ onNavigate }) => {
                             >
                               WhatsApp
                             </button>
-                            <a 
-                              href={order.trackingUrl || `https://track.delhivery.com/p/${order.awbNumber || '87492104'}`}
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              style={{ color: '#4f46e5', fontWeight: '800', textDecoration: 'none', background: '#eef2ff', border: '1px solid #c7d2fe', padding: '3px 6px', borderRadius: '6px', fontSize: '10.5px' }}
-                            >
-                              Live AWB ↗
-                            </a>
+                            {order.awbNumber && (
+                              <a 
+                                href={order.trackingUrl || `https://track.delhivery.com/p/${order.awbNumber}`}
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ color: 'var(--brand-accent, #2563eb)', fontWeight: '800', textDecoration: 'none', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '3px 6px', borderRadius: '6px', fontSize: '10.5px' }}
+                              >
+                                Live AWB ↗
+                              </a>
+                            )}
                           </div>
                         </div>
                       </div>

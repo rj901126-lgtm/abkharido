@@ -10,7 +10,7 @@ export const metadata = {
     canonical: `${SITE_URL}/partner`,
   },
   openGraph: {
-    title: 'Monetize Your Digital Influence | AbKharido Partner Center',
+    title: 'Monetize Your Digital Influence',
     description: 'Earn automated weekly bank payouts by sharing verified store links.',
     url: `${SITE_URL}/partner`,
     siteName: 'AbKharido',

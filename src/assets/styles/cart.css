@@ -297,8 +297,8 @@
 }
 
 .premium-checkout-btn {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
   color: #ffffff;
   border: none;
   width: 100%;
@@ -373,7 +373,7 @@
 }
 
 .mobile-cart-checkout-btn {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
   color: #ffffff;
   font-weight: 900;
   font-size: 14px;
@@ -381,7 +381,7 @@
   border-radius: 12px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
   transition: all 0.15s ease;
 }
 

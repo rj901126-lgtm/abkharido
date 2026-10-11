@@ -232,46 +232,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
       
-      {/* ── 1. Category Strip (Smooth, jitter-free, sticky category bar) ── */}
-      <section className="home-category-strip">
-        <div className="home-category-pills-row">
-          {activeVipCategories.map((cat) => {
-            const CatIcon = cat.icon || Sparkles;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
-                className="home-category-pill-btn"
-                type="button"
-                aria-label={`Filter by ${cat.label}`}
-              >
-                <div 
-                  className="category-pill-icon-wrap"
-                  style={{ background: cat.bg || '#f1f5f9' }}
-                >
-                  <CatIcon size={18} color={cat.color || 'var(--brand-accent)'} />
-                </div>
-                <span className="category-pill-name">
-                  {cat.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-
-
-
-
-
-
-
-
-
-
-
-      {/* ── 3. Hero / Banner Carousel (With Dot Indicators & Auto-Rotate) ── */}
+      {/* ── 1. Hero / Banner Carousel (With Dot Indicators & Auto-Rotate) ── */}
       {slides.length > 0 && (
         <div style={{ position: 'relative', margin: '0 12px' }}>
           <section 
@@ -437,6 +398,63 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         </div>
       )}
 
+      {/* ── 2. 4-Pillar Trust Signals USP Bar (Instant Reassurance) ── */}
+      <div className="home-trust-grid" style={{ margin: '4px 12px 6px' }}>
+        {[
+          { icon: <Truck size={18} color="#0284c7" />, title: "Standard Courier Dispatch", sub: "Reliable 2-5 business days", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
+          { icon: <ShieldCheck size={18} color="#059669" />, title: "Secure Cashfree Checkout", sub: "Encrypted payment gateway", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
+          { icon: <CheckCircle2 size={18} color="var(--brand-accent)" />, title: "Easy 7-Day Replacement", sub: "Hassle-free doorstep returns", bg: "linear-gradient(135deg, #ffffff 0%, #eff6ff 100%)", border: "#dbeafe" },
+          { icon: <Award size={18} color="#d97706" />, title: "Cash on Delivery (COD)", sub: "Eligible orders up to ₹15,000", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
+        ].map((item, idx) => (
+          <div key={idx} style={{
+            background: item.bg, 
+            border: `1px solid ${item.border}`, 
+            borderRadius: '14px', 
+            padding: '10px 14px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'white', border: `1px solid ${item.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
+              {item.icon}
+            </div>
+            <div>
+              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12.5px', fontWeight: '800', color: '#090d16', margin: '0 0 1px 0' }}>{item.title}</h4>
+              <p style={{ fontSize: '10.5px', color: '#64748b', margin: 0, fontWeight: '600' }}>{item.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── 3. Category Strip (Smooth, jitter-free department navigation) ── */}
+      <section className="home-category-strip">
+        <div className="home-category-pills-row">
+          {activeVipCategories.map((cat) => {
+            const CatIcon = cat.icon || Sparkles;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className="home-category-pill-btn"
+                type="button"
+                aria-label={`Filter by ${cat.label}`}
+              >
+                <div 
+                  className="category-pill-icon-wrap"
+                  style={{ background: cat.bg || '#f1f5f9' }}
+                >
+                  <CatIcon size={18} color={cat.color || 'var(--brand-accent)'} />
+                </div>
+                <span className="category-pill-name">
+                  {cat.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
       {/* ── 4. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
@@ -464,35 +482,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </div>
         )}
       </section>
-
-      {/* ── 5. 4-Pillar Trust Signals USP Row ── */}
-      <div className="home-trust-grid" style={{ margin: '14px 12px 6px' }}>
-        {[
-          { icon: <Truck size={18} color="#0284c7" />, title: "Standard Courier Dispatch", sub: "Reliable 2-5 business days", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
-          { icon: <ShieldCheck size={18} color="#059669" />, title: "Secure Cashfree Checkout", sub: "Encrypted payment gateway", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
-          { icon: <CheckCircle2 size={18} color="#7c3aed" />, title: "Easy 7-Day Replacement", sub: "Hassle-free doorstep returns", bg: "linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%)", border: "#ede9fe" },
-          { icon: <Award size={18} color="#d97706" />, title: "Cash on Delivery (COD)", sub: "Eligible orders up to ₹15,000", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
-        ].map((item, idx) => (
-          <div key={idx} style={{
-            background: item.bg, 
-            border: `1px solid ${item.border}`, 
-            borderRadius: '14px', 
-            padding: '10px 14px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '10px',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
-          }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'white', border: `1px solid ${item.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
-              {item.icon}
-            </div>
-            <div>
-              <h4 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12.5px', fontWeight: '800', color: '#090d16', margin: '0 0 1px 0' }}>{item.title}</h4>
-              <p style={{ fontSize: '10.5px', color: '#64748b', margin: 0, fontWeight: '600' }}>{item.sub}</p>
-            </div>
-          </div>
-        ))}
-      </div>
 
       {/* ── 6. Category Highlights (Active In-Stock Categories) ── */}
       {activeVipCategories.some(c => c.hasStock && c.id !== 'all') && (

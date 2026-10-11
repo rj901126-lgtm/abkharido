@@ -882,7 +882,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <div className="checkout-sticky-price-info">
               <div className="checkout-sticky-price">₹{finalAmount.toLocaleString('en-IN')}</div>
               <div className="checkout-sticky-subtext">
-                {itemsPrice > 500 ? '🚚 Free Delivery' : '+₹40 Delivery'}
+                {itemsPrice >= FREE_SHIPPING_THRESHOLD ? '🚚 Free Delivery' : `+₹${STANDARD_SHIPPING_FEE} Delivery`}
               </div>
             </div>
             <div className="checkout-sticky-actions">
@@ -1142,7 +1142,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <div className="checkout-sticky-price-info">
               <div className="checkout-sticky-price">₹{finalAmount.toLocaleString('en-IN')}</div>
               <div className="checkout-sticky-subtext">
-                {appliedCoupon ? `🎉 Saved ₹${appliedCoupon.discountAmount}` : (itemsPrice > 500 ? '🚚 Free Delivery' : '+₹40 Delivery')}
+                {appliedCoupon ? `🎉 Saved ₹${appliedCoupon.discountAmount}` : (itemsPrice >= FREE_SHIPPING_THRESHOLD ? '🚚 Free Delivery' : `+₹${STANDARD_SHIPPING_FEE} Delivery`)}
               </div>
             </div>
             <div className="checkout-sticky-actions">

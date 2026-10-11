@@ -28,7 +28,7 @@ export const metadata = {
   keywords: ['buy home living online india', 'home appliances india', 'kitchen utilities india', 'abkharido home'],
   alternates: { canonical: `${SITE_URL}/appliances` },
   openGraph: {
-    title: 'Home & Living Products Store India — Reliable Delivery | AbKharido',
+    title: 'Home & Living Products Store India — Reliable Delivery',
     description: 'Home and utility essentials. Standard 2-5 day courier delivery and easy 7-day returns.',
     url: `${SITE_URL}/appliances`,
     siteName: 'AbKharido',

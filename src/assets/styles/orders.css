@@ -136,8 +136,8 @@
 
 .orders-search-bar:focus-within {
   background: #ffffff;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: var(--brand-accent, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .orders-search-input {
@@ -312,7 +312,7 @@
 }
 
 .orders-time-option-item.selected {
-  border-color: #4f46e5;
+  border-color: var(--brand-accent, #2563eb);
   background: #eff6ff;
   color: #1d4ed8;
   font-weight: 700;
@@ -333,13 +333,13 @@
 }
 
 .ak-order-card:hover {
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.07);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.07);
   border-color: #cbd5e1;
 }
 
 .ak-order-card.expanded {
-  border-color: #4f46e5;
-  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.09);
+  border-color: var(--brand-accent, #2563eb);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.09);
 }
 
 /* Card Header Strip */
@@ -545,8 +545,8 @@
 }
 
 .ak-btn-details.active {
-  background: #4f46e5;
-  border-color: #4f46e5;
+  background: var(--brand-accent, #2563eb);
+  border-color: var(--brand-accent, #2563eb);
   color: #ffffff;
 }
 

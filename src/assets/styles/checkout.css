@@ -25,7 +25,7 @@
 }
 
 .checkout-step-indicator.active {
-  color: #4f46e5;
+  color: var(--brand-accent, #2563eb);
   font-weight: 900;
 }
 
@@ -44,9 +44,9 @@
 }
 
 .checkout-step-indicator.active .checkout-step-num {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
 }
 
 .checkout-step-connector {
@@ -114,8 +114,8 @@
 }
 
 .checkout-input:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: var(--brand-accent, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 textarea.checkout-input {
@@ -138,9 +138,9 @@ textarea.checkout-input {
 }
 
 .checkout-payment-option.active {
-  border-color: #4f46e5;
+  border-color: var(--brand-accent, #2563eb);
   background: #f8faff;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.08);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
 }
 
 /* ── Checkout Buttons ── */
@@ -153,10 +153,10 @@ textarea.checkout-input {
   font-weight: 900;
   font-size: 14px;
   border-radius: 12px !important;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
   color: #ffffff !important;
   border: none !important;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
   cursor: pointer;
 }
 
@@ -377,9 +377,9 @@ textarea.checkout-input {
   }
 
   .checkout-btn.btn-accent {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35) !important;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35) !important;
     border: none !important;
     font-weight: 900 !important;
   }
