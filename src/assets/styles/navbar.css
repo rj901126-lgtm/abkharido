@@ -307,7 +307,7 @@
     max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     align-items: center !important;
   }
 
@@ -414,6 +414,10 @@
   .user-profile-pill > span,
   .user-profile-pill > svg {
     display: none !important; /* Hide full name and chevron on mobile */
+  }
+
+  .dropdown-menu {
+    display: none !important; /* On mobile, tapping profile navigates directly to /profile */
   }
 
   .user-profile-pill > div:first-child {

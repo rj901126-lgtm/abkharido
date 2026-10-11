@@ -111,9 +111,36 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const [isListening, setIsListening] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const searchInputRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   // Delivery Pincode Modal State
   const [isPincodeModalOpen, setIsPincodeModalOpen] = useState(false);
+
+  // Close dropdown on outside click or escape key
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [dropdownOpen]);
+
+  // Close dropdown on navigation
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [activePage]);
 
   // Rotating search placeholder timer
   useEffect(() => {
@@ -595,10 +622,27 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             {currentUser ? (
               /* Steve Jobs Grade Luxury Profile Pill */
               <div 
+                ref={dropdownRef}
                 className="nav-item user-profile-pill" 
-                onMouseEnter={() => setDropdownOpen(true)}
-                onMouseLeave={() => setDropdownOpen(false)}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                onMouseEnter={() => {
+                  if (typeof window !== 'undefined' && window.innerWidth > 768) {
+                    setDropdownOpen(true);
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (typeof window !== 'undefined' && window.innerWidth > 768) {
+                    setDropdownOpen(false);
+                  }
+                }}
+                onClick={(e) => {
+                  if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+                    e.preventDefault();
+                    setDropdownOpen(false);
+                    onNavigate('profile');
+                    return;
+                  }
+                  setDropdownOpen(!dropdownOpen);
+                }}
                 style={{ 
                   position: 'relative',
                   display: 'flex',
