@@ -90,6 +90,12 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
             backgroundColor: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#ecfdf5' : '#f8faff',
             borderBottom: '1px solid #e2e8f0'
           }}>
+            <style>{`
+              @keyframes freeShipShimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+              }
+            `}</style>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12.5px', fontWeight: '700' }}>
               {itemsPrice >= FREE_SHIPPING_THRESHOLD ? (
                 <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -119,8 +125,10 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
                 width: `${Math.min(100, Math.max(0, (itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%`,
                 height: '100%',
                 background: itemsPrice >= FREE_SHIPPING_THRESHOLD 
-                  ? 'linear-gradient(90deg, #10b981, #059669)' 
+                  ? 'linear-gradient(90deg, #059669 0%, #34d399 50%, #059669 100%)' 
                   : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+                backgroundSize: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '200% 100%' : 'auto',
+                animation: itemsPrice >= FREE_SHIPPING_THRESHOLD ? 'freeShipShimmer 2.5s ease-in-out infinite' : 'none',
                 borderRadius: '999px',
                 transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
               }} />

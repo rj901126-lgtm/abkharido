@@ -226,6 +226,12 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           marginBottom: '16px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
         }}>
+          <style>{`
+            @keyframes freeShipPageShimmer {
+              0% { background-position: -200% 0; }
+              100% { background-position: 200% 0; }
+            }
+          `}</style>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', fontWeight: '700' }}>
               {itemsPrice >= FREE_SHIPPING_THRESHOLD ? (
@@ -258,8 +264,10 @@ const CartPage = ({ onNavigate, onCheckout }) => {
               width: `${Math.min(100, Math.max(0, (itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%`,
               height: '100%',
               background: itemsPrice >= FREE_SHIPPING_THRESHOLD 
-                ? 'linear-gradient(90deg, #10b981, #059669)' 
+                ? 'linear-gradient(90deg, #059669 0%, #34d399 50%, #059669 100%)' 
                 : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+              backgroundSize: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '200% 100%' : 'auto',
+              animation: itemsPrice >= FREE_SHIPPING_THRESHOLD ? 'freeShipPageShimmer 2.5s ease-in-out infinite' : 'none',
               borderRadius: '999px',
               transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
             }} />
