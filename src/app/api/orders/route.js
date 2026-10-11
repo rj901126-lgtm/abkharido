@@ -41,11 +41,14 @@ export async function GET(req) {
 
     if (search && search.trim() && auth.isAdmin) {
       const s = search.trim();
+      const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
-        { cfOrderId: { $regex: s, $options: 'i' } },
-        { 'orderItems.name': { $regex: s, $options: 'i' } },
-        { 'shippingAddress.fullName': { $regex: s, $options: 'i' } },
-        { 'shippingAddress.phone': { $regex: s, $options: 'i' } }
+        { cfOrderId: { $regex: escaped, $options: 'i' } },
+        { 'orderItems.name': { $regex: escaped, $options: 'i' } },
+        { 'shippingAddress.fullName': { $regex: escaped, $options: 'i' } },
+        { 'shippingAddress.phone': { $regex: escaped, $options: 'i' } },
+        { 'returnDetails.rmaNumber': { $regex: escaped, $options: 'i' } },
+        { deliveryPin: { $regex: escaped, $options: 'i' } }
       ];
     }
 

@@ -147,6 +147,10 @@ orderSchema.index({ user: 1, createdAt: -1 }); // Fast lookup for user's order h
 orderSchema.index({ 'orderItems.vendorId': 1, createdAt: -1 }); // Fast lookup for seller dashboards
 orderSchema.index({ status: 1, createdAt: -1 }); // Fast lookup for admin filtering
 orderSchema.index({ createdAt: -1 }); // Fast lookup for admin sorting by date
+orderSchema.index({ returnStatus: 1, createdAt: -1 }); // Fast lookup for returns & RMA management
+orderSchema.index({ 'returnDetails.rmaNumber': 1 }, { sparse: true }); // Fast lookup by RMA Number
+orderSchema.index({ 'returnDetails.pickupPin': 1 }, { sparse: true }); // Fast lookup for Return PIN verification
+orderSchema.index({ deliveryPin: 1 }, { sparse: true }); // Fast lookup for Delivery PIN verification
 // NOTE: cfOrderId index is auto-created by { unique: true, sparse: true } on the field itself
 orderSchema.index({ 'orderItems.product': 1 }); // Fast lookup for product sales analysis
 // Compound index for the TTL stock-release cron — covers the exact query it uses

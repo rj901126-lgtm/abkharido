@@ -11,14 +11,11 @@ const generateToken = (id) => {
   });
 };
 
-// Normalize any phone format (+919172600587, 919172600587, 9172600587) to 10 digits
+// Normalize any phone format (+919172600587, 919172600587, 9172600587) to 10 pure digits
 export function normalizePhone(phone) {
-  if (!phone) return phone;
-  let p = phone.toString().replace(/\s/g, '').replace(/-/g, '');
-  // Remove +91 or 91 prefix if present (Indian numbers)
-  if (p.startsWith('+91')) p = p.slice(3);
-  else if (p.startsWith('91') && p.length === 12) p = p.slice(2);
-  return p;
+  if (!phone) return '';
+  const digits = phone.toString().replace(/\D/g, '');
+  return digits.length >= 10 ? digits.slice(-10) : digits;
 }
 
 // Find existing user across all potential identifiers to prevent duplicate account creation
