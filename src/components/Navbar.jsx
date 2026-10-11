@@ -24,7 +24,8 @@ import {
   Shirt,
   Home as HomeIcon,
   Flame,
-  Coins
+  Coins,
+  ChevronRight
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
@@ -140,7 +141,27 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   // Close dropdown on navigation
   useEffect(() => {
     setDropdownOpen(false);
+    setMobileMenuOpen(false);
   }, [activePage]);
+
+  // Mobile Account Menu Drawer State
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Lock scroll and handle escape when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') setMobileMenuOpen(false);
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [mobileMenuOpen]);
 
   // Rotating search placeholder timer
   useEffect(() => {
@@ -635,10 +656,9 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   }
                 }}
                 onClick={(e) => {
+                  e.preventDefault();
                   if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-                    e.preventDefault();
-                    setDropdownOpen(false);
-                    onNavigate('profile');
+                    setMobileMenuOpen(true);
                     return;
                   }
                   setDropdownOpen(!dropdownOpen);
@@ -825,6 +845,172 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
         isOpen={isPincodeModalOpen} 
         onClose={() => setIsPincodeModalOpen(false)} 
       />
+
+      {/* 📱 Luxury Mobile Account Action Sheet (Bottom Drawer) */}
+      {mobileMenuOpen && currentUser && (
+        <div 
+          className="mobile-profile-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="User Account Menu"
+        >
+          <div 
+            className="mobile-profile-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sheet Handle */}
+            <div className="mobile-sheet-handle" />
+
+            {/* User Profile Card */}
+            <div className="mobile-sheet-header">
+              <div className="mobile-sheet-avatar">
+                {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <div className="mobile-sheet-userinfo">
+                <div className="mobile-sheet-name">{currentUser.fullName || 'Valued Customer'}</div>
+                <div className="mobile-sheet-email">{currentUser.email || currentUser.phone || 'VIP Member'}</div>
+              </div>
+              <button 
+                type="button" 
+                className="mobile-sheet-close-btn" 
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Coins / Rewards Card */}
+            {currentUser.isInfluencer ? (
+              <div className="mobile-sheet-creator-card">
+                <CircleDollarSign size={20} color="#059669" />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '11px', color: '#047857', fontWeight: '700' }}>CREATOR WALLET</div>
+                  <div style={{ fontSize: '15px', color: '#065f46', fontWeight: '900' }}>Withdrawable: ₹{(currentUser.walletCash || 0).toFixed(2)}</div>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => { setMobileMenuOpen(false); onNavigate('partner'); }}
+                  className="mobile-sheet-creator-btn"
+                >
+                  Dashboard &gt;
+                </button>
+              </div>
+            ) : (
+              <div 
+                className="mobile-sheet-coins-card"
+                onClick={() => { setMobileMenuOpen(false); onNavigate('profile?tab=rewards'); }}
+              >
+                <div className="mobile-sheet-coins-icon">
+                  <Coins size={22} color="#d97706" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: '#92400e', fontSize: '13px', fontWeight: '700' }}>
+                    AbKharido Coins: <span style={{ color: '#b45309', fontWeight: '900', fontSize: '16px' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100}</span>
+                  </div>
+                  <div style={{ color: '#b45309', fontSize: '11px', fontWeight: '600', marginTop: '2px' }}>
+                    ✨ Tap to view &amp; redeem discounts &gt;
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Menu Navigation Items */}
+            <div className="mobile-sheet-menu-list">
+              <button 
+                type="button"
+                className="mobile-sheet-item"
+                onClick={() => { setMobileMenuOpen(false); onNavigate('profile'); }}
+              >
+                <div className="mobile-sheet-icon" style={{ background: '#eff6ff', color: '#2563eb' }}>
+                  <User size={18} />
+                </div>
+                <div className="mobile-sheet-item-text">
+                  <span className="mobile-sheet-item-title">My Profile</span>
+                  <span className="mobile-sheet-item-subtitle">Manage personal info, phone &amp; addresses</span>
+                </div>
+                <ChevronRight size={18} color="#94a3b8" />
+              </button>
+
+              <button 
+                type="button"
+                className="mobile-sheet-item"
+                onClick={() => { setMobileMenuOpen(false); onNavigate('orders'); }}
+              >
+                <div className="mobile-sheet-icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+                  <Package size={18} />
+                </div>
+                <div className="mobile-sheet-item-text">
+                  <span className="mobile-sheet-item-title">My Orders</span>
+                  <span className="mobile-sheet-item-subtitle">Track, return &amp; cancel active orders</span>
+                </div>
+                <ChevronRight size={18} color="#94a3b8" />
+              </button>
+
+              <button 
+                type="button"
+                className="mobile-sheet-item"
+                onClick={() => { setMobileMenuOpen(false); onNavigate('profile?tab=wishlist'); }}
+              >
+                <div className="mobile-sheet-icon" style={{ background: '#fef2f2', color: '#dc2626' }}>
+                  <Heart size={18} fill="#dc2626" />
+                </div>
+                <div className="mobile-sheet-item-text">
+                  <span className="mobile-sheet-item-title">My Wishlist</span>
+                  <span className="mobile-sheet-item-subtitle">Items saved for future shopping</span>
+                </div>
+                <ChevronRight size={18} color="#94a3b8" />
+              </button>
+
+              {currentUser.isInfluencer && (
+                <button 
+                  type="button"
+                  className="mobile-sheet-item"
+                  onClick={() => { setMobileMenuOpen(false); onNavigate('partner'); }}
+                >
+                  <div className="mobile-sheet-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
+                    <Award size={18} />
+                  </div>
+                  <div className="mobile-sheet-item-text">
+                    <span className="mobile-sheet-item-title">Creator Dashboard</span>
+                    <span className="mobile-sheet-item-subtitle">Partner earnings, links &amp; analytics</span>
+                  </div>
+                  <ChevronRight size={18} color="#94a3b8" />
+                </button>
+              )}
+
+              <button 
+                type="button"
+                className="mobile-sheet-item"
+                onClick={() => { setMobileMenuOpen(false); onNavigate('seller'); }}
+              >
+                <div className="mobile-sheet-icon" style={{ background: '#faf5ff', color: '#9333ea' }}>
+                  <Store size={18} />
+                </div>
+                <div className="mobile-sheet-item-text">
+                  <span className="mobile-sheet-item-title">Sell on AbKharido</span>
+                  <span className="mobile-sheet-item-subtitle">Grow your business as verified seller</span>
+                </div>
+                <ChevronRight size={18} color="#94a3b8" />
+              </button>
+            </div>
+
+            {/* Logout Action */}
+            <div className="mobile-sheet-footer">
+              <button 
+                type="button"
+                className="mobile-sheet-logout-btn"
+                onClick={() => { setMobileMenuOpen(false); logout(); }}
+              >
+                <LogOut size={18} />
+                <span>Logout Account</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </>
   );
 };
