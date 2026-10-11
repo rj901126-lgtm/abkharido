@@ -28,7 +28,7 @@ export default function LanguageToggle({ style = {} }) {
         type="button"
         onClick={() => changeLanguage('en')}
         style={{
-          background: lang === 'en' ? '#4f46e5' : 'transparent',
+          background: lang === 'en' ? 'var(--brand-accent)' : 'transparent',
           color: lang === 'en' ? '#ffffff' : '#94a3b8',
           border: 'none',
           borderRadius: '100px',
@@ -45,7 +45,7 @@ export default function LanguageToggle({ style = {} }) {
         type="button"
         onClick={() => changeLanguage('hi')}
         style={{
-          background: lang === 'hi' ? '#4f46e5' : 'transparent',
+          background: lang === 'hi' ? 'var(--brand-accent)' : 'transparent',
           color: lang === 'hi' ? '#ffffff' : '#94a3b8',
           border: 'none',
           borderRadius: '100px',

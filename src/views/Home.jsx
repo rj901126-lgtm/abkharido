@@ -383,7 +383,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                       <button 
                         className="btn hero-cta-btn" 
                         style={{ 
-                          background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)',
+                          background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
                           color: 'white',
                           borderRadius: '24px', 
                           padding: '9px 18px', 
@@ -397,7 +397,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                           textTransform: 'uppercase',
                           letterSpacing: '0.4px',
                           cursor: 'pointer',
-                          boxShadow: '0 6px 16px rgba(79, 70, 229, 0.35)'
+                          boxShadow: '0 6px 16px rgba(37, 99, 235, 0.35)'
                         }}
                         onClick={() => onSelectCategory(slideCat)}
                       >
@@ -427,7 +427,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                   width: dotIdx === activeSlide ? '22px' : '7px',
                   height: '7px',
                   borderRadius: '4px',
-                  backgroundColor: dotIdx === activeSlide ? '#4f46e5' : '#cbd5e1',
+                  backgroundColor: dotIdx === activeSlide ? 'var(--brand-accent)' : '#cbd5e1',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease'
                 }}
@@ -582,7 +582,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
             </div>
 
             <span 
-              style={{ fontSize: '12.5px', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', whiteSpace: 'nowrap' }} 
+              style={{ fontSize: '12.5px', color: 'var(--brand-accent)', fontWeight: '800', cursor: 'pointer', whiteSpace: 'nowrap' }} 
               onClick={() => onNavigate('catalog')}
             >
               Explore All →

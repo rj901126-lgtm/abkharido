@@ -252,8 +252,8 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                       height: '14px',
                       borderRadius: '50%',
                       backgroundColor: swatchBg,
-                      border: isSelected ? '2px solid #4f46e5' : '1.5px solid #cbd5e1',
-                      outline: isSelected ? '1px solid #4f46e5' : 'none',
+                      border: isSelected ? '2px solid var(--brand-accent)' : '1.5px solid #cbd5e1',
+                      outline: isSelected ? '1px solid var(--brand-accent)' : 'none',
                       outlineOffset: '1px',
                       cursor: 'pointer',
                       padding: 0,
@@ -506,14 +506,14 @@ const styles = {
     display: 'inline-block'
   },
   badgeTrending: {
-    background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', 
+    background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)', 
     color: 'white', 
     fontSize: '9px', 
     fontWeight: '900', 
     padding: '2px 6px', 
     borderRadius: '4px', 
     letterSpacing: '0.4px',
-    boxShadow: '0 2px 6px rgba(99, 102, 241, 0.25)',
+    boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)',
     display: 'inline-block'
   },
   badgeDeal: {

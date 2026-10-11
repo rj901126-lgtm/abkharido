@@ -1467,7 +1467,7 @@ const Orders = ({ onNavigate }) => {
               <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '6px' }}>Where should we credit your ₹{(orderToReturn.totalPrice || 0).toLocaleString('en-IN')} refund? *</label>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', border: refundMode === 'Wallet' ? '1.5px solid #4f46e5' : '1px solid #e2e8f0', background: refundMode === 'Wallet' ? '#eef2ff' : '#ffffff', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', border: refundMode === 'Wallet' ? '1.5px solid var(--brand-accent)' : '1px solid #e2e8f0', background: refundMode === 'Wallet' ? 'var(--brand-accent-light)' : '#ffffff', cursor: 'pointer' }}>
                   <input type="radio" name="refundMode" checked={refundMode === 'Wallet'} onChange={() => setRefundMode('Wallet')} />
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>🪙 Instant AB Coins Wallet (+5% Extra Bonus)</div>
@@ -1475,7 +1475,7 @@ const Orders = ({ onNavigate }) => {
                   </div>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', border: refundMode === 'UPI' ? '1.5px solid #4f46e5' : '1px solid #e2e8f0', background: refundMode === 'UPI' ? '#eef2ff' : '#ffffff', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', border: refundMode === 'UPI' ? '1.5px solid var(--brand-accent)' : '1px solid #e2e8f0', background: refundMode === 'UPI' ? 'var(--brand-accent-light)' : '#ffffff', cursor: 'pointer' }}>
                   <input type="radio" name="refundMode" checked={refundMode === 'UPI'} onChange={() => setRefundMode('UPI')} />
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>🏦 Direct Bank Transfer via UPI</div>
@@ -1491,7 +1491,7 @@ const Orders = ({ onNavigate }) => {
                     placeholder="Enter your UPI ID (e.g. mobile@okaxis, name@paytm)"
                     value={returnUpiId}
                     onChange={(e) => setReturnUpiId(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #4f46e5', borderRadius: '10px', fontSize: '13px', fontWeight: '700' }}
+                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--brand-accent)', borderRadius: '10px', fontSize: '13px', fontWeight: '700' }}
                   />
                 </div>
               )}
@@ -1633,7 +1633,7 @@ const Orders = ({ onNavigate }) => {
                     <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '1px' }}>{opt.sub}</div>
                   </div>
                   {timeFilter === opt.v && (
-                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--brand-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <Check size={11} color="#ffffff" strokeWidth={3} />
                     </div>
                   )}

@@ -1105,7 +1105,7 @@
   .desktop-premium-price {
     font-size: 44px !important;
     font-weight: 900 !important;
-    color: #4f46e5 !important;
+    color: var(--brand-accent) !important;
     letter-spacing: -1px !important;
   }
 

@@ -42,13 +42,13 @@ const CartPage = ({ onNavigate, onCheckout }) => {
         <div style={{
           width: '130px',
           height: '130px',
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #4f46e5 60%, #7c3aed 100%)',
+          background: 'linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%)',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: '28px',
-          boxShadow: '0 20px 60px rgba(79, 70, 229, 0.35)',
+          boxShadow: '0 20px 60px rgba(37, 99, 235, 0.25)',
           animation: 'cartBounce 3s ease-in-out infinite',
           position: 'relative',
         }}>
@@ -95,12 +95,12 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           style={{
             width: '100%', maxWidth: '320px',
             padding: '16px 24px',
-            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+            background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
             color: 'white', border: 'none', borderRadius: '16px',
             fontSize: '15px', fontWeight: '800',
             fontFamily: "'Outfit', sans-serif",
             letterSpacing: '0.3px',
-            boxShadow: '0 8px 24px rgba(79, 70, 229, 0.4)',
+            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.3)',
             cursor: 'pointer', marginBottom: '12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             transition: 'all 0.2s ease',
@@ -115,7 +115,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
             width: '100%', maxWidth: '320px',
             padding: '14px 24px',
             background: 'transparent',
-            color: '#4f46e5', border: '2px solid #e0e7ff', borderRadius: '16px',
+            color: 'var(--brand-accent)', border: '2px solid #bfdbfe', borderRadius: '16px',
             fontSize: '14px', fontWeight: '700',
             cursor: 'pointer', marginBottom: '32px',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -194,7 +194,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
       <div className="cart-items-section">
         <div className="cart-header-title-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '38px', height: '38px', background: 'linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
+            <div style={{ width: '38px', height: '38px', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)' }}>
               <ShoppingBag size={20} color="#ffffff" />
             </div>
             <div>
@@ -209,7 +209,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
 
           <button 
             onClick={() => onNavigate('categories')}
-            style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: 'var(--brand-accent)', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer' }}
           >
             + Add More Items
           </button>
@@ -247,8 +247,8 @@ const CartPage = ({ onNavigate, onCheckout }) => {
               fontWeight: '800',
               padding: '2px 8px',
               borderRadius: '999px',
-              background: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#d1fae5' : '#e0e7ff',
-              color: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#065f46' : '#4338ca'
+              background: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#d1fae5' : 'var(--brand-accent-light)',
+              color: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#065f46' : 'var(--brand-accent)'
             }}>
               {Math.min(100, Math.round((itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%
             </span>
@@ -265,7 +265,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
               height: '100%',
               background: itemsPrice >= FREE_SHIPPING_THRESHOLD 
                 ? 'linear-gradient(90deg, #059669 0%, #34d399 50%, #059669 100%)' 
-                : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+                : 'linear-gradient(90deg, #1d4ed8, #2563eb)',
               backgroundSize: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '200% 100%' : 'auto',
               animation: itemsPrice >= FREE_SHIPPING_THRESHOLD ? 'freeShipPageShimmer 2.5s ease-in-out infinite' : 'none',
               borderRadius: '999px',

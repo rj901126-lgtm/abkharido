@@ -253,7 +253,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
   if (isAuthLoading && !currentUser) {
     return (
       <div className="container animate-fade-in" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '40px', height: '40px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '24px' }}></div>
+        <div style={{ width: '40px', height: '40px', border: '4px solid #dbeafe', borderTop: '4px solid var(--brand-accent)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '24px' }}></div>
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
         <h2 style={{ fontWeight: '700', fontSize: '20px', color: '#64748b' }}>Loading Profile...</h2>
       </div>
@@ -266,11 +266,11 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
         <div style={{ background: 'white', padding: '40px 32px', borderRadius: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.08)', border: '1px solid #f1f5f9', maxWidth: '420px', width: '100%', position: 'relative', overflow: 'hidden' }}>
           
           {/* Decorative glowing blobs */}
-          <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(79,70,229,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
+          <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
           <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
           
-          <div style={{ position: 'relative', width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 10px 25px -5px rgba(79,70,229,0.2)' }}>
-            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'linear-gradient(135deg, #4f46e5, #9333ea)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'relative', width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 10px 25px -5px rgba(37,99,235,0.2)' }}>
+            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'linear-gradient(135deg, #1d4ed8, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <User size={34} color="white" strokeWidth={2.5} />
             </div>
             <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', background: '#fff', padding: '4px', borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
@@ -290,7 +290,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f8fafc', padding: '12px 16px', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-              <ShoppingBag size={18} color="#4f46e5" />
+              <ShoppingBag size={18} color="var(--brand-accent)" />
               <span style={{ fontSize: '14px', fontWeight: '600', color: '#334155' }}>Track All Your Orders</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fef3c7', padding: '12px 16px', borderRadius: '16px', border: '1px solid #fde68a' }}>
@@ -307,8 +307,8 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
               fontSize: '16px', 
               fontWeight: '700',
               borderRadius: '16px', 
-              background: 'linear-gradient(135deg, #4f46e5, #6366f1)',
-              boxShadow: '0 10px 25px -5px rgba(79, 70, 229, 0.4)',
+              background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
+              boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -324,7 +324,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
           </button>
           
           <p style={{ marginTop: '20px', fontSize: '13px', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
-            New to AbKharido? <span onClick={() => onNavigate('login?callbackUrl=/profile')} style={{ color: '#4f46e5', fontWeight: '700', cursor: 'pointer' }}>Create an Account</span>
+            New to AbKharido? <span onClick={() => onNavigate('login?callbackUrl=/profile')} style={{ color: 'var(--brand-accent)', fontWeight: '700', cursor: 'pointer' }}>Create an Account</span>
           </p>
         </div>
       </div>
@@ -968,7 +968,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
               <button 
                 type="button" 
                 onClick={openAddAddressModal}
-                style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                style={{ background: 'var(--brand-accent)', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 + Add Address
               </button>
@@ -976,9 +976,9 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {Array.isArray(currentUser?.addresses) && currentUser.addresses.length > 0 ? currentUser.addresses.filter(Boolean).map((addr, addrIdx) => (
-                <div key={addr?.id || `addr-${addrIdx}`} style={{ border: addr?.isDefault ? '1.5px solid #4f46e5' : '1px solid #e2e8f0', borderRadius: '14px', padding: '14px', background: addr?.isDefault ? '#f8faff' : '#ffffff', position: 'relative' }}>
+                <div key={addr?.id || `addr-${addrIdx}`} style={{ border: addr?.isDefault ? '1.5px solid var(--brand-accent)' : '1px solid #e2e8f0', borderRadius: '14px', padding: '14px', background: addr?.isDefault ? 'var(--brand-accent-light)' : '#ffffff', position: 'relative' }}>
                   {addr?.isDefault && (
-                    <span style={{ position: 'absolute', top: '10px', right: '12px', background: '#4f46e5', color: 'white', fontSize: '9.5px', fontWeight: '900', padding: '2px 8px', borderRadius: '100px', letterSpacing: '0.3px' }}>
+                    <span style={{ position: 'absolute', top: '10px', right: '12px', background: 'var(--brand-accent)', color: 'white', fontSize: '9.5px', fontWeight: '900', padding: '2px 8px', borderRadius: '100px', letterSpacing: '0.3px' }}>
                       DEFAULT
                     </span>
                   )}
@@ -994,7 +994,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                   </div>
                   
                   <div style={{ display: 'flex', gap: '14px', borderTop: '1px solid #f1f5f9', paddingTop: '10px', alignItems: 'center' }}>
-                    <button type="button" onClick={() => openEditAddressModal(addr)} style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', padding: 0 }}>Edit</button>
+                    <button type="button" onClick={() => openEditAddressModal(addr)} style={{ background: 'none', border: 'none', color: 'var(--brand-accent)', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', padding: 0 }}>Edit</button>
                     <button type="button" onClick={() => handleDeleteAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', padding: 0 }}>Delete</button>
                     {!addr?.isDefault && (
                       <button type="button" onClick={() => handleSetDefaultAddress(addr?.id)} style={{ background: 'none', border: 'none', color: '#059669', fontSize: '12.5px', fontWeight: '800', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}>Set Default</button>
@@ -1642,9 +1642,9 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                           flex: 1,
                           height: '38px',
                           borderRadius: '10px',
-                          border: isSelected ? '2px solid #4f46e5' : '1px solid #cbd5e1',
-                          background: isSelected ? '#f5f3ff' : '#ffffff',
-                          color: isSelected ? '#4f46e5' : '#475569',
+                          border: isSelected ? '2px solid var(--brand-accent)' : '1px solid #cbd5e1',
+                          background: isSelected ? 'var(--brand-accent-light)' : '#ffffff',
+                          color: isSelected ? 'var(--brand-accent)' : '#475569',
                           fontWeight: '800',
                           fontSize: '12.5px',
                           cursor: 'pointer',
@@ -1669,7 +1669,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                   id="modal-default-address"
                   checked={addressModalData.isDefault}
                   onChange={(e) => setAddressModalData({ ...addressModalData, isDefault: e.target.checked })}
-                  style={{ width: '16px', height: '16px', accentColor: '#4f46e5', cursor: 'pointer' }}
+                  style={{ width: '16px', height: '16px', accentColor: 'var(--brand-accent)', cursor: 'pointer' }}
                 />
                 <label htmlFor="modal-default-address" style={{ fontSize: '12.5px', fontWeight: '700', color: '#0f172a', cursor: 'pointer', margin: 0 }}>
                   Make this my default delivery address
@@ -1688,7 +1688,7 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
                 <button 
                   type="submit" 
                   disabled={isUpdating}
-                  style={{ flex: 2, height: '44px', background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', border: 'none', color: '#ffffff', fontWeight: '800', fontSize: '13.5px', borderRadius: '10px', cursor: isUpdating ? 'not-allowed' : 'pointer', boxShadow: '0 4px 14px rgba(79, 70, 229, 0.3)' }}
+                  style={{ flex: 2, height: '44px', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)', border: 'none', color: '#ffffff', fontWeight: '800', fontSize: '13.5px', borderRadius: '10px', cursor: isUpdating ? 'not-allowed' : 'pointer', boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)' }}
                 >
                   {isUpdating ? 'Saving Address...' : editingAddressId ? 'Update Address' : 'Save Address'}
                 </button>

@@ -418,7 +418,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           transform: scale(0.98);
         }
         .catalog-filter-badge {
-          background: #4f46e5;
+          background: var(--brand-accent);
           color: #ffffff;
           font-size: 10.5px;
           font-weight: 900;
@@ -461,10 +461,10 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           -webkit-tap-highlight-color: transparent;
         }
         .catalog-chip-pill.active {
-          border-color: #4f46e5;
-          background: #4f46e5;
+          border-color: var(--brand-accent);
+          background: var(--brand-accent);
           color: #ffffff;
-          box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
         }
         .catalog-chip-reset {
           background: #fef2f2;
@@ -566,8 +566,8 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           -webkit-tap-highlight-color: transparent;
         }
         .catalog-sort-option-btn.selected {
-          background: #eef2ff;
-          border-color: #6366f1;
+          background: #eff6ff;
+          border-color: var(--brand-accent);
         }
         .catalog-sort-option-label {
           font-family: 'Outfit', sans-serif;
@@ -576,7 +576,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           color: #1e293b;
         }
         .catalog-sort-option-btn.selected .catalog-sort-option-label {
-          color: #4338ca;
+          color: var(--brand-accent);
           font-weight: 800;
         }
         .catalog-sort-radio {
@@ -590,8 +590,8 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           transition: all 0.15s ease;
         }
         .catalog-sort-radio.active {
-          border-color: #4f46e5;
-          background: #4f46e5;
+          border-color: var(--brand-accent);
+          background: var(--brand-accent);
         }
         .catalog-sort-radio-inner {
           width: 7px;
@@ -607,7 +607,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
         {/* Sidebar Header & Clear All */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: '800', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
-            <SlidersHorizontal size={16} color="#4f46e5" />
+            <SlidersHorizontal size={16} color="var(--brand-accent)" />
             <span>Faceted Filters</span>
           </div>
 
@@ -642,8 +642,8 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                   borderRadius: '8px',
                   fontSize: '12.5px',
                   fontWeight: !selectedSubCategory ? '800' : '600',
-                  color: !selectedSubCategory ? '#4f46e5' : '#334155',
-                  background: !selectedSubCategory ? '#eef2ff' : 'transparent',
+                  color: !selectedSubCategory ? 'var(--brand-accent)' : '#334155',
+                  background: !selectedSubCategory ? 'var(--brand-accent-light)' : 'transparent',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -651,7 +651,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 }}
               >
                 <span>All {activeCategoryInfo ? activeCategoryInfo.name : 'Items'}</span>
-                {!selectedSubCategory && <Check size={14} color="#4f46e5" strokeWidth={3} />}
+                {!selectedSubCategory && <Check size={14} color="var(--brand-accent)" strokeWidth={3} />}
               </div>
 
               {activeSubCategories.map(sub => {
@@ -668,8 +668,8 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                       borderRadius: '8px',
                       fontSize: '12.5px',
                       fontWeight: isSelected ? '800' : '500',
-                      color: isSelected ? '#4f46e5' : '#334155',
-                      background: isSelected ? '#eef2ff' : 'transparent',
+                      color: isSelected ? 'var(--brand-accent)' : '#334155',
+                      background: isSelected ? 'var(--brand-accent-light)' : 'transparent',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -678,7 +678,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                     }}
                   >
                     <span>{sub.name}</span>
-                    {isSelected && <Check size={14} color="#4f46e5" strokeWidth={3} />}
+                    {isSelected && <Check size={14} color="var(--brand-accent)" strokeWidth={3} />}
                   </div>
                 );
               })}
@@ -729,7 +729,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => setSelectedBrand(isChecked ? null : brand.name)}
-                    style={{ accentColor: '#4f46e5', width: '15px', height: '15px', cursor: 'pointer' }}
+                    style={{ accentColor: 'var(--brand-accent)', width: '15px', height: '15px', cursor: 'pointer' }}
                   />
                   <span>{brand.name}</span>
                 </label>
@@ -758,9 +758,9 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 style={{
                   padding: '4px 8px',
                   borderRadius: '6px',
-                  border: (minPrice === chip.min && maxPrice === chip.max) ? '1px solid #4f46e5' : '1px solid #e2e8f0',
-                  background: (minPrice === chip.min && maxPrice === chip.max) ? '#eef2ff' : '#f8fafc',
-                  color: (minPrice === chip.min && maxPrice === chip.max) ? '#4f46e5' : '#475569',
+                  border: (minPrice === chip.min && maxPrice === chip.max) ? '1px solid var(--brand-accent)' : '1px solid #e2e8f0',
+                  background: (minPrice === chip.min && maxPrice === chip.max) ? 'var(--brand-accent-light)' : '#f8fafc',
+                  color: (minPrice === chip.min && maxPrice === chip.max) ? 'var(--brand-accent)' : '#475569',
                   fontSize: '11px',
                   fontWeight: '700',
                   cursor: 'pointer'
@@ -814,7 +814,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                   name="rating-filter"
                   checked={selectedRating === stars}
                   onChange={() => setSelectedRating(selectedRating === stars ? null : stars)}
-                  style={{ accentColor: '#4f46e5', width: '15px', height: '15px', cursor: 'pointer' }}
+                  style={{ accentColor: 'var(--brand-accent)', width: '15px', height: '15px', cursor: 'pointer' }}
                 />
                 <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                   {stars}★ &amp; Above
@@ -827,7 +827,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 name="rating-filter"
                 checked={selectedRating === null}
                 onChange={() => setSelectedRating(null)}
-                style={{ accentColor: '#4f46e5', width: '15px', height: '15px', cursor: 'pointer' }}
+                style={{ accentColor: 'var(--brand-accent)', width: '15px', height: '15px', cursor: 'pointer' }}
               />
               <span>All Ratings</span>
             </label>
@@ -845,7 +845,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 type="checkbox"
                 checked={isFreeDeliveryOnly}
                 onChange={(e) => setIsFreeDeliveryOnly(e.target.checked)}
-                style={{ accentColor: '#4f46e5' }}
+                style={{ accentColor: 'var(--brand-accent)' }}
               />
               <span>Free Delivery Eligible</span>
             </label>
@@ -854,7 +854,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 type="checkbox"
                 checked={isEmiOnly}
                 onChange={(e) => setIsEmiOnly(e.target.checked)}
-                style={{ accentColor: '#4f46e5' }}
+                style={{ accentColor: 'var(--brand-accent)' }}
               />
               <span>No-Cost EMI Available</span>
             </label>
@@ -863,7 +863,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 type="checkbox"
                 checked={isWarrantyOnly}
                 onChange={(e) => setIsWarrantyOnly(e.target.checked)}
-                style={{ accentColor: '#4f46e5' }}
+                style={{ accentColor: 'var(--brand-accent)' }}
               />
               <span>Warranty Coverage</span>
             </label>
@@ -911,14 +911,14 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
         <div className="catalog-breadcrumb-trail">
           <span 
             onClick={() => onSelectCategory && onSelectCategory('all')} 
-            style={{ cursor: 'pointer', color: '#4f46e5' }}
+            style={{ cursor: 'pointer', color: 'var(--brand-accent)' }}
           >
             Home
           </span>
           <span>›</span>
           <span 
             onClick={() => { setSelectedSubCategory(null); setSelectedBrand(null); setSelectedQuickChip(null); }}
-            style={{ cursor: 'pointer', color: currentCategory !== 'all' ? '#4f46e5' : '#0f172a', fontWeight: currentCategory !== 'all' ? '600' : '800' }}
+            style={{ cursor: 'pointer', color: currentCategory !== 'all' ? 'var(--brand-accent)' : '#0f172a', fontWeight: currentCategory !== 'all' ? '600' : '800' }}
           >
             {activeCategoryInfo ? activeCategoryInfo.name : 'All Catalog'}
           </span>
@@ -988,8 +988,8 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
               className="catalog-mobile-action-btn"
               onClick={() => setShowSortSheet(true)}
             >
-              <ArrowUpDown size={14} color="#4f46e5" />
-              <span>Sort: <strong style={{ color: '#4f46e5' }}>{activeSortOption.shortLabel}</strong></span>
+              <ArrowUpDown size={14} color="var(--brand-accent)" />
+              <span>Sort: <strong style={{ color: 'var(--brand-accent)' }}>{activeSortOption.shortLabel}</strong></span>
               <ChevronDown size={14} color="#64748b" />
             </button>
 
@@ -998,7 +998,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
               className="catalog-mobile-action-btn"
               onClick={() => setShowFilterDrawer(true)}
             >
-              <SlidersHorizontal size={14} color="#4f46e5" />
+              <SlidersHorizontal size={14} color="var(--brand-accent)" />
               <span>Filters {activeFilterCount > 0 && <span className="catalog-filter-badge">{activeFilterCount}</span>}</span>
             </button>
           </div>
@@ -1095,7 +1095,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             
             <div className="catalog-sort-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ArrowUpDown size={17} color="#4f46e5" />
+                <ArrowUpDown size={17} color="var(--brand-accent)" />
                 <h3 className="catalog-sort-title">Sort Products By</h3>
               </div>
               <button 
@@ -1148,7 +1148,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '16px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
-                <SlidersHorizontal size={18} color="#4f46e5" />
+                <SlidersHorizontal size={18} color="var(--brand-accent)" />
                 <span>Filters {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
               </div>
               <button onClick={() => setShowFilterDrawer(false)} style={{ background: '#f1f5f9', border: 'none', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', cursor: 'pointer', color: '#475569' }}>✕</button>
@@ -1158,11 +1158,11 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             <div>
               <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Category</h5>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div onClick={() => { setSelectedSubCategory(null); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: !selectedSubCategory ? '#4f46e5' : '#334155', background: !selectedSubCategory ? '#eef2ff' : 'transparent', fontWeight: !selectedSubCategory ? '800' : '500', cursor: 'pointer' }}>
+                <div onClick={() => { setSelectedSubCategory(null); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: !selectedSubCategory ? 'var(--brand-accent)' : '#334155', background: !selectedSubCategory ? 'var(--brand-accent-light)' : 'transparent', fontWeight: !selectedSubCategory ? '800' : '500', cursor: 'pointer' }}>
                   All Items
                 </div>
                 {activeSubCategories.map(sub => (
-                  <div key={sub.id} onClick={() => { setSelectedSubCategory(selectedSubCategory?.id === sub.id ? null : sub); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: selectedSubCategory?.id === sub.id ? '#4f46e5' : '#334155', background: selectedSubCategory?.id === sub.id ? '#eef2ff' : 'transparent', fontWeight: selectedSubCategory?.id === sub.id ? '800' : '500', cursor: 'pointer' }}>
+                  <div key={sub.id} onClick={() => { setSelectedSubCategory(selectedSubCategory?.id === sub.id ? null : sub); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: selectedSubCategory?.id === sub.id ? 'var(--brand-accent)' : '#334155', background: selectedSubCategory?.id === sub.id ? 'var(--brand-accent-light)' : 'transparent', fontWeight: selectedSubCategory?.id === sub.id ? '800' : '500', cursor: 'pointer' }}>
                     {sub.name}
                   </div>
                 ))}
@@ -1176,7 +1176,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                 <div style={{ maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {visibleBrands.slice(0, 10).map((brand, idx) => (
                     <label key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#334155', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={selectedBrand === brand.name} onChange={() => setSelectedBrand(selectedBrand === brand.name ? null : brand.name)} style={{ accentColor: '#4f46e5', width: '15px', height: '15px' }} />
+                      <input type="checkbox" checked={selectedBrand === brand.name} onChange={() => setSelectedBrand(selectedBrand === brand.name ? null : brand.name)} style={{ accentColor: 'var(--brand-accent)', width: '15px', height: '15px' }} />
                       <span>{brand.name}</span>
                     </label>
                   ))}
@@ -1201,9 +1201,9 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                     style={{
                       padding: '5px 10px',
                       borderRadius: '6px',
-                      border: (minPrice === chip.min && maxPrice === chip.max) ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
-                      background: (minPrice === chip.min && maxPrice === chip.max) ? '#eef2ff' : '#f8fafc',
-                      color: (minPrice === chip.min && maxPrice === chip.max) ? '#4f46e5' : '#475569',
+                      border: (minPrice === chip.min && maxPrice === chip.max) ? '1.5px solid var(--brand-accent)' : '1px solid #e2e8f0',
+                      background: (minPrice === chip.min && maxPrice === chip.max) ? 'var(--brand-accent-light)' : '#f8fafc',
+                      color: (minPrice === chip.min && maxPrice === chip.max) ? 'var(--brand-accent)' : '#475569',
                       fontSize: '11px',
                       fontWeight: '700',
                       cursor: 'pointer'
@@ -1221,7 +1221,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {[4, 3].map(stars => (
                   <label key={stars} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
-                    <input type="radio" name="mobile-rating-filter" checked={selectedRating === stars} onChange={() => setSelectedRating(selectedRating === stars ? null : stars)} style={{ accentColor: '#4f46e5', width: '15px', height: '15px' }} />
+                    <input type="radio" name="mobile-rating-filter" checked={selectedRating === stars} onChange={() => setSelectedRating(selectedRating === stars ? null : stars)} style={{ accentColor: 'var(--brand-accent)', width: '15px', height: '15px' }} />
                     <span style={{ fontWeight: '700' }}>{stars}★ & above</span>
                   </label>
                 ))}
@@ -1238,7 +1238,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
               </button>
               <button 
                 onClick={() => setShowFilterDrawer(false)}
-                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', color: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}
+                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)', color: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}
               >
                 Apply ({filteredProducts.length})
               </button>

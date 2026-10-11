@@ -1,6 +1,5 @@
 /* Main styles, reset, and utilities for AbKharido.com */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import url('./variables.css');
 @import url('./admin.css');
 @import url('./profile.css');
@@ -21,12 +20,12 @@ html {
 }
 
 ::selection {
-  background: #4f46e5;
+  background: var(--brand-accent);
   color: #ffffff;
 }
 
 ::-moz-selection {
-  background: #4f46e5;
+  background: var(--brand-accent);
   color: #ffffff;
 }
 

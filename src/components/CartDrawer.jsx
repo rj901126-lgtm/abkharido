@@ -109,7 +109,7 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
               <span style={{
                 fontSize: '11px',
                 fontWeight: '800',
-                color: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#059669' : '#4f46e5'
+                color: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '#059669' : 'var(--brand-accent)'
               }}>
                 {Math.min(100, Math.round((itemsPrice / FREE_SHIPPING_THRESHOLD) * 100))}%
               </span>
@@ -126,7 +126,7 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
                 height: '100%',
                 background: itemsPrice >= FREE_SHIPPING_THRESHOLD 
                   ? 'linear-gradient(90deg, #059669 0%, #34d399 50%, #059669 100%)' 
-                  : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+                  : 'linear-gradient(90deg, #1d4ed8, #2563eb)',
                 backgroundSize: itemsPrice >= FREE_SHIPPING_THRESHOLD ? '200% 100%' : 'auto',
                 animation: itemsPrice >= FREE_SHIPPING_THRESHOLD ? 'freeShipShimmer 2.5s ease-in-out infinite' : 'none',
                 borderRadius: '999px',

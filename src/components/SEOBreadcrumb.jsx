@@ -52,7 +52,7 @@ export default function SEOBreadcrumb({ items = [] }) {
               <Link
                 href={item.href || '/'}
                 style={{
-                  color: '#4f46e5',
+                  color: 'var(--brand-accent)',
                   textDecoration: 'none',
                   fontWeight: 500,
                   flexShrink: 0,

@@ -121,12 +121,109 @@
 }
 
 /* Shared Cards */
-.ui-card {
+.ui-card,
+.ui-surface {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
   box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ui-card:hover,
+.ui-surface:hover {
+  border-color: #cbd5e1;
+}
+
+/* Section Header Tokens */
+.ui-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.ui-section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ui-section-subtitle {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.ui-section-action {
+  font-size: var(--font-xs);
+  font-weight: 800;
+  color: var(--brand-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.ui-section-action:hover {
+  color: var(--brand-accent-hover);
+  text-decoration: underline;
+}
+
+/* Badges */
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.ui-badge-success {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.ui-badge-brand {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.ui-badge-warning {
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.ui-badge-danger {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.ui-badge-neutral {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
 }
 
 /* Shared Inputs */

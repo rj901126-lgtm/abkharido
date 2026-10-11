@@ -226,7 +226,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+            background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
             color: 'white',
             padding: '6px 12px',
             borderRadius: '10px',
@@ -279,7 +279,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
                     height: '125px',
                     background: isSelected ? '#ffffff' : '#f1f5f9',
                     borderRadius: '16px',
-                    border: isSelected ? '2px solid #4f46e5' : '1.5px dashed #cbd5e1',
+                    border: isSelected ? '2px solid var(--brand-accent)' : '1.5px dashed #cbd5e1',
                     padding: '8px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -287,7 +287,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
                     justifyContent: 'center',
                     cursor: 'pointer',
                     transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: isSelected ? '0 6px 16px rgba(79, 70, 229, 0.12)' : 'none',
+                    boxShadow: isSelected ? '0 6px 16px rgba(37, 99, 235, 0.12)' : 'none',
                     opacity: isSelected ? 1 : 0.45
                   }}
                   title={isSelected ? 'Click to deselect' : 'Click to add to bundle'}
@@ -300,7 +300,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
                     width: '18px',
                     height: '18px',
                     borderRadius: '6px',
-                    background: isSelected ? '#4f46e5' : '#ffffff',
+                    background: isSelected ? 'var(--brand-accent)' : '#ffffff',
                     border: isSelected ? 'none' : '1.5px solid #94a3b8',
                     display: 'flex',
                     alignItems: 'center',
@@ -411,7 +411,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
               border: 'none',
               background: addedSuccess
                 ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
-                : 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                : 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
               color: '#ffffff',
               fontSize: '14px',
               fontWeight: '900',
@@ -422,7 +422,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
               gap: '8px',
               boxShadow: addedSuccess
                 ? '0 4px 14px rgba(5, 150, 105, 0.3)'
-                : '0 4px 16px rgba(79, 70, 229, 0.3)',
+                : '0 4px 16px rgba(37, 99, 235, 0.3)',
               transition: 'all 0.2s ease',
               fontFamily: "'Outfit', sans-serif"
             }}
@@ -474,7 +474,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
                 style={{
                   width: '16px',
                   height: '16px',
-                  accentColor: '#4f46e5',
+                  accentColor: 'var(--brand-accent)',
                   marginTop: '2px',
                   cursor: 'pointer'
                 }}

@@ -529,21 +529,21 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             width: '80px',
             height: '80px',
             borderRadius: '24px',
-            background: 'linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%)',
-            border: '2px solid #c7d2fe',
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            border: '2px solid #bfdbfe',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '20px',
-            boxShadow: '0 8px 16px rgba(99, 102, 241, 0.15)'
+            boxShadow: '0 8px 16px rgba(37, 99, 235, 0.15)'
           }}>
-            <ShieldCheck size={42} color="#4f46e5" strokeWidth={2.2} />
+            <ShieldCheck size={42} color="var(--brand-accent)" strokeWidth={2.2} />
           </div>
 
           <span style={{
             display: 'inline-block',
-            background: 'rgba(79, 70, 229, 0.1)',
-            color: '#4f46e5',
+            background: 'rgba(37, 99, 235, 0.1)',
+            color: 'var(--brand-accent)',
             fontSize: '12px',
             fontWeight: '800',
             letterSpacing: '0.5px',
@@ -571,8 +571,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               fontSize: '16px',
               fontWeight: '800',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-              boxShadow: '0 10px 25px -5px rgba(79, 70, 229, 0.4)',
+              background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+              boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -611,7 +611,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               gap: '8px',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.color = '#4f46e5'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--brand-accent)'; e.currentTarget.style.color = 'var(--brand-accent)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#334155'; }}
           >
             ⚡ Continue as Guest (Fast 1-Step Checkout)
@@ -695,7 +695,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               <button 
                 type="button" 
                 onClick={() => setIsAddingNewAddress(false)}
-                style={{ background: '#f1f5f9', border: 'none', color: '#4f46e5', fontWeight: '800', fontSize: '12.5px', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer' }}
+                style={{ background: '#f1f5f9', border: 'none', color: 'var(--brand-accent)', fontWeight: '800', fontSize: '12.5px', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer' }}
               >
                 ← Saved Addresses
               </button>
@@ -728,19 +728,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                       }}
                       style={{
                         padding: '16px',
-                        border: isSelected ? '2px solid #4f46e5' : '1px solid #e2e8f0',
+                        border: isSelected ? '2px solid var(--brand-accent)' : '1px solid #e2e8f0',
                         borderRadius: '14px',
-                        background: isSelected ? '#f8faff' : '#ffffff',
+                        background: isSelected ? 'var(--brand-accent-light)' : '#ffffff',
                         cursor: 'pointer',
                         display: 'flex',
                         gap: '12px',
                         alignItems: 'flex-start',
-                        boxShadow: isSelected ? '0 4px 14px rgba(79, 70, 229, 0.08)' : '0 2px 6px rgba(0,0,0,0.02)',
+                        boxShadow: isSelected ? '0 4px 14px rgba(37, 99, 235, 0.08)' : '0 2px 6px rgba(0,0,0,0.02)',
                         transition: 'all 0.2s ease'
                       }}
                     >
                       {/* Radio Circle */}
-                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: isSelected ? '6px solid #4f46e5' : '2px solid #cbd5e1', background: '#ffffff', flexShrink: 0, marginTop: '2px', transition: 'all 0.2s' }} />
+                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: isSelected ? '6px solid var(--brand-accent)' : '2px solid #cbd5e1', background: '#ffffff', flexShrink: 0, marginTop: '2px', transition: 'all 0.2s' }} />
 
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -748,7 +748,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                             <span>{addr?.addressType === 'Home' ? '🏠' : addr?.addressType === 'Work' ? '🏢' : '📍'}</span>
                             <span>{addr?.addressType || 'Home'}</span>
                             {addr?.isDefault && (
-                              <span style={{ fontSize: '9.5px', background: '#4f46e5', color: 'white', padding: '2px 8px', borderRadius: '100px', fontWeight: '900', letterSpacing: '0.3px' }}>
+                              <span style={{ fontSize: '9.5px', background: 'var(--brand-accent)', color: 'white', padding: '2px 8px', borderRadius: '100px', fontWeight: '900', letterSpacing: '0.3px' }}>
                                 DEFAULT
                               </span>
                             )}
@@ -778,7 +778,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   style={{ 
                     background: '#f8fafc', 
                     border: '1.5px dashed #cbd5e1', 
-                    color: '#4f46e5', 
+                    color: 'var(--brand-accent)', 
                     padding: '12px 20px', 
                     borderRadius: '12px', 
                     cursor: 'pointer', 
@@ -920,7 +920,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <button 
               type="button" 
               onClick={() => setStep(1)} 
-              style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#4f46e5', fontWeight: '800', fontSize: '11.5px', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', flexShrink: 0 }}
+              style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--brand-accent)', fontWeight: '800', fontSize: '11.5px', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', flexShrink: 0 }}
             >
               Change
             </button>
@@ -1038,7 +1038,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           {/* Coupon Code Section */}
           <div style={{ backgroundColor: '#ffffff', border: '1.5px dashed #cbd5e1', padding: '14px 16px', borderRadius: '16px', marginBottom: '18px' }}>
             <h4 style={{ margin: '0 0 10px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: '900' }}>
-              <Tag size={15} color="#4f46e5" /> Have a Coupon Code?
+              <Tag size={15} color="var(--brand-accent)" /> Have a Coupon Code?
             </h4>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input 
@@ -1084,7 +1084,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   onClick={handleApplyCoupon}
                   disabled={applyingCoupon || !couponCode}
                   style={{
-                    background: couponCode ? 'linear-gradient(135deg, #4f46e5, #6366f1)' : '#e2e8f0',
+                    background: couponCode ? 'linear-gradient(135deg, #1d4ed8, #2563eb)' : '#e2e8f0',
                     color: couponCode ? '#ffffff' : '#94a3b8',
                     border: 'none',
                     borderRadius: '10px',
@@ -1093,7 +1093,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                     fontSize: '13px',
                     fontWeight: '900',
                     cursor: couponCode ? 'pointer' : 'not-allowed',
-                    boxShadow: couponCode ? '0 3px 10px rgba(79, 70, 229, 0.3)' : 'none',
+                    boxShadow: couponCode ? '0 3px 10px rgba(37, 99, 235, 0.3)' : 'none',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -1256,10 +1256,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                       }}
                       style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '8px', borderRadius: '14px', border: '1.5px solid #e2e8f0' }}
                     >
-                      <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid', borderColor: paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? '#4f46e5' : '#cbd5e1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        {paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4f46e5' }} />}
+                      <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid', borderColor: paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--brand-accent)' : '#cbd5e1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        {paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--brand-accent)' }} />}
                       </div>
-                      <CreditCard size={20} color={paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? '#4f46e5' : '#64748b'} />
+                      <CreditCard size={20} color={paymentMethod === 'Online Payment' && selectedSavedCard === card.instrument_id ? 'var(--brand-accent)' : '#64748b'} />
                       <div>
                         <div style={{ fontWeight: '700', color: '#0f172a', textTransform: 'capitalize', fontSize: '13.5px' }}>
                           {card.card_bank_name ? `${card.card_bank_name} ` : ''}{card.card_network} •••• {card.last4}
@@ -1275,7 +1275,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               {/* Online Payment Option */}
               <label 
                 className={`checkout-payment-option ${paymentMethod === 'online' ? 'active' : ''}`}
-                style={{ padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', marginBottom: '10px', borderRadius: '16px', border: paymentMethod === 'online' ? '2px solid #4f46e5' : '1.5px solid #e2e8f0', background: paymentMethod === 'online' ? '#f8faff' : '#ffffff', transition: 'all 0.2s ease', boxShadow: paymentMethod === 'online' ? '0 4px 14px rgba(79, 70, 229, 0.08)' : 'none' }}
+                style={{ padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', marginBottom: '10px', borderRadius: '16px', border: paymentMethod === 'online' ? '2px solid var(--brand-accent)' : '1.5px solid #e2e8f0', background: paymentMethod === 'online' ? 'var(--brand-accent-light)' : '#ffffff', transition: 'all 0.2s ease', boxShadow: paymentMethod === 'online' ? '0 4px 14px rgba(37, 99, 235, 0.08)' : 'none' }}
               >
                 <input 
                   type="radio" 
@@ -1283,7 +1283,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   value="online" 
                   checked={paymentMethod === 'online'}
                   onChange={() => { setPaymentMethod('online'); setSelectedSavedCard(null); }}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#4f46e5', marginTop: '2px' }}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--brand-accent)', marginTop: '2px' }}
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: '800', fontSize: '14.5px', color: '#0f172a' }}>
@@ -1313,8 +1313,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', 
                   marginBottom: '10px', 
                   borderRadius: '16px', 
-                  border: paymentMethod === 'cod' ? '2px solid #4f46e5' : '1.5px solid #e2e8f0', 
-                  background: finalAmount > 15000 ? '#f8fafc' : (paymentMethod === 'cod' ? '#f8faff' : '#ffffff'), 
+                  border: paymentMethod === 'cod' ? '2px solid var(--brand-accent)' : '1.5px solid #e2e8f0', 
+                  background: finalAmount > 15000 ? '#f8fafc' : (paymentMethod === 'cod' ? 'var(--brand-accent-light)' : '#ffffff'), 
                   opacity: finalAmount > 15000 ? 0.65 : 1,
                   transition: 'all 0.2s ease' 
                 }}
@@ -1326,7 +1326,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   disabled={finalAmount > 15000}
                   checked={paymentMethod === 'cod' && finalAmount <= 15000}
                   onChange={() => { if (finalAmount <= 15000) { setPaymentMethod('cod'); setSelectedSavedCard(null); } }}
-                  style={{ width: '18px', height: '18px', cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', accentColor: '#4f46e5', marginTop: '2px' }}
+                  style={{ width: '18px', height: '18px', cursor: finalAmount > 15000 ? 'not-allowed' : 'pointer', accentColor: 'var(--brand-accent)', marginTop: '2px' }}
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: '800', fontSize: '14.5px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>

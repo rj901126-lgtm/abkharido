@@ -92,8 +92,8 @@
 
 .search-input-wrapper:focus-within {
   background-color: #ffffff;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .search-input {
@@ -114,7 +114,7 @@
 .search-button {
   background: none;
   border: none;
-  color: #4f46e5;
+  color: var(--brand-accent);
   padding: 0 14px;
   display: flex;
   align-items: center;
@@ -124,7 +124,7 @@
 }
 
 .search-button:hover {
-  background-color: rgba(79, 70, 229, 0.06);
+  background-color: rgba(37, 99, 235, 0.06);
 }
 
 /* Navigation Links */

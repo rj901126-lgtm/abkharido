@@ -116,7 +116,7 @@ const PincodeModal = ({ isOpen, onClose }) => {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ padding: '8px', background: '#e0e7ff', borderRadius: '12px', color: '#4f46e5', flexShrink: 0 }}>
+            <div style={{ padding: '8px', background: 'var(--brand-accent-light)', borderRadius: '12px', color: 'var(--brand-accent)', flexShrink: 0 }}>
               <MapPin size={22} />
             </div>
             <div>
@@ -193,14 +193,14 @@ const PincodeModal = ({ isOpen, onClose }) => {
               disabled={isResolving}
               style={{
                 padding: '12px 20px',
-                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '12px',
                 fontWeight: '800',
                 fontSize: '13.5px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
               }}
             >
               {isResolving ? 'Checking...' : 'Apply'}
@@ -249,9 +249,9 @@ const PincodeModal = ({ isOpen, onClose }) => {
                 style={{
                   padding: '9px 12px',
                   borderRadius: '10px',
-                  border: pinInput === m.pin ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
-                  background: pinInput === m.pin ? '#f5f3ff' : '#f8fafc',
-                  color: pinInput === m.pin ? '#4f46e5' : '#334155',
+                  border: pinInput === m.pin ? '1.5px solid var(--brand-accent)' : '1px solid #e2e8f0',
+                  background: pinInput === m.pin ? 'var(--brand-accent-light)' : '#f8fafc',
+                  color: pinInput === m.pin ? 'var(--brand-accent)' : '#334155',
                   fontSize: '12.5px',
                   fontWeight: '700',
                   cursor: 'pointer',

@@ -878,7 +878,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                       transition: 'all 0.2s ease',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4f46e5'; e.currentTarget.style.color = '#4f46e5'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--brand-accent)'; e.currentTarget.style.color = 'var(--brand-accent)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#334155'; }}
                   >
                     ⚖️ Compare Models
@@ -951,7 +951,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                         justifyContent: 'center',
                         flexShrink: 0,
                         boxSizing: 'border-box',
-                        boxShadow: activeColor && activeColor.name === c.name ? '0 4px 12px rgba(79, 70, 229, 0.2)' : 'none',
+                        boxShadow: activeColor && activeColor.name === c.name ? '0 4px 12px rgba(37, 99, 235, 0.2)' : 'none',
                         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         transform: activeColor && activeColor.name === c.name ? 'scale(1.05)' : 'scale(1)'
                       }}
@@ -975,7 +975,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   <button
                     type="button"
                     onClick={() => showToast('📏 Standard Indian sizing (True to Size). For shoes, UK size equals Indian standard.', 'info')}
-                    style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '12px', fontWeight: '800', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: 'var(--brand-accent)', fontSize: '12px', fontWeight: '800', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
                   >
                     Size Guide
                   </button>
@@ -991,30 +991,30 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                       className="desktop-premium-variant-btn"
                       onClick={() => setSelectedVariant(v)}
                       style={{
-                        border: isSelected ? '2px solid #4f46e5' : '1.5px solid #e2e8f0',
+                        border: isSelected ? '2px solid var(--brand-accent)' : '1.5px solid #e2e8f0',
                         borderRadius: '12px',
                         padding: '10px 12px',
                         backgroundColor: isSelected ? '#eff6ff' : isVariantOutOfStock ? '#f8fafc' : '#ffffff',
                         cursor: isVariantOutOfStock ? 'not-allowed' : 'pointer',
                         textAlign: 'left',
                         boxSizing: 'border-box',
-                        boxShadow: isSelected ? '0 4px 12px rgba(79, 70, 229, 0.12)' : 'none',
+                        boxShadow: isSelected ? '0 4px 12px rgba(37, 99, 235, 0.12)' : 'none',
                         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         position: 'relative',
                         opacity: isVariantOutOfStock ? 0.6 : 1
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ fontSize: '13px', fontWeight: '800', color: isSelected ? '#1e1b4b' : '#0f172a' }}>{v.name}</div>
+                        <div style={{ fontSize: '13px', fontWeight: '800', color: isSelected ? 'var(--brand-accent)' : '#0f172a' }}>{v.name}</div>
                         {isSelected && (
-                          <span style={{ fontSize: '10px', background: '#4f46e5', color: '#ffffff', width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}>✓</span>
+                          <span style={{ fontSize: '10px', background: 'var(--brand-accent)', color: '#ffffff', width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}>✓</span>
                         )}
                         {isVariantOutOfStock && (
                           <span style={{ fontSize: '9px', background: '#fee2e2', color: '#dc2626', padding: '2px 4px', borderRadius: '4px', fontWeight: '800' }}>Sold Out</span>
                         )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                         <span style={{ fontSize: '13.5px', fontWeight: '900', color: isSelected ? '#4f46e5' : '#0f172a' }}>₹{(v.price || 0).toLocaleString('en-IN')}</span>
+                         <span style={{ fontSize: '13.5px', fontWeight: '900', color: isSelected ? 'var(--brand-accent)' : '#0f172a' }}>₹{(v.price || 0).toLocaleString('en-IN')}</span>
                          {v.originalPrice > v.price && (
                            <span style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(v.originalPrice || 0).toLocaleString('en-IN')}</span>
                          )}
@@ -1170,7 +1170,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   height: '48px',
                   border: 'none',
                   borderRadius: '12px',
-                  backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+                  backgroundImage: isOutOfStock ? 'none' : 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
                   backgroundColor: isOutOfStock ? '#cbd5e1' : undefined,
                   color: isOutOfStock ? '#64748b' : '#ffffff',
                   fontWeight: '900',
@@ -1181,7 +1181,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   justifyContent: 'center',
                   gap: '8px',
                   fontFamily: "'Outfit', sans-serif",
-                  boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(79, 70, 229, 0.3)',
+                  boxShadow: isOutOfStock ? 'none' : '0 6px 18px rgba(37, 99, 235, 0.3)',
                   opacity: isOutOfStock ? 0.7 : 1
                 }}
               >
@@ -1202,7 +1202,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                   <span style={{ fontSize: '18px' }}>🎟️</span>
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>Flat 20% OFF on Orders</div>
-                    <div style={{ fontSize: '11.5px', color: '#64748b' }}>Use coupon code <strong style={{ color: '#4f46e5' }}>FESTIVE20</strong></div>
+                    <div style={{ fontSize: '11.5px', color: '#64748b' }}>Use coupon code <strong style={{ color: 'var(--brand-accent)' }}>FESTIVE20</strong></div>
                   </div>
                 </div>
                 <button
@@ -1971,16 +1971,16 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     style={{
                       padding: '10px 6px',
                       borderRadius: '12px',
-                      border: alertTargetType === opt.id ? '2px solid #4f46e5' : '1px solid #e2e8f0',
-                      background: alertTargetType === opt.id ? '#eef2ff' : '#ffffff',
-                      color: alertTargetType === opt.id ? '#4338ca' : '#475569',
+                      border: alertTargetType === opt.id ? '2px solid var(--brand-accent)' : '1px solid #e2e8f0',
+                      background: alertTargetType === opt.id ? 'var(--brand-accent-light)' : '#ffffff',
+                      color: alertTargetType === opt.id ? 'var(--brand-accent)' : '#475569',
                       cursor: 'pointer',
                       textAlign: 'center',
                       transition: 'all 0.15s ease'
                     }}
                   >
                     <div style={{ fontSize: '11.5px', fontWeight: '800' }}>{opt.label}</div>
-                    <div style={{ fontSize: '10px', color: alertTargetType === opt.id ? '#6366f1' : '#94a3b8', marginTop: '2px', fontWeight: '600' }}>{opt.sub}</div>
+                    <div style={{ fontSize: '10px', color: alertTargetType === opt.id ? 'var(--brand-accent)' : '#94a3b8', marginTop: '2px', fontWeight: '600' }}>{opt.sub}</div>
                   </button>
                 ))}
               </div>

@@ -685,7 +685,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
                   color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
@@ -694,7 +694,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   fontWeight: '900',
                   textTransform: 'uppercase',
                   flexShrink: 0,
-                  boxShadow: '0 2px 4px rgba(79, 70, 229, 0.25)',
+                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
                 }}>
                   {(() => {
                     const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
@@ -733,7 +733,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
                   <div className="dropdown-menu">
                     <div className="dropdown-header-banner" style={{
-                      background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4f46e5 100%)',
+                      background: 'linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%)',
                       padding: '16px',
                       color: 'white',
                       display: 'flex',
