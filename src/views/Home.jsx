@@ -21,6 +21,7 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import '../assets/styles/home.css';
+import '../assets/styles/storefront-refresh.css';
 
 const defaultVipCategories = [
   { id: 'all', label: 'All Categories', icon: LayoutGrid, bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', color: '#334155' },
@@ -230,7 +231,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
 
   return (
-    <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
+    <div className="home-page-layout-container storefront-refresh" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
+      <header className="storefront-intro">
+        <div>
+          <span className="storefront-eyebrow">THE ABKHARIDO EDIT</span>
+          <h1>Find your next everyday favourite.</h1>
+          <p>Explore audio, gadgets and essentials, all in one place.</p>
+        </div>
+        <button type="button" className="storefront-browse" onClick={() => onNavigate('catalog')}>
+          Shop all products <ArrowRight size={18} />
+        </button>
+      </header>
       
       {/* ── 1. Hero / Banner Carousel (With Dot Indicators & Auto-Rotate) ── */}
       {slides.length > 0 && (
@@ -294,7 +305,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
                               else if (onNavigate) onNavigate(`product/${slide.productId || 'signature-wireless-earphone'}`);
                             }}
                           >
-                            ⚡ BUY NOW FOR ₹{slide.price} <ArrowRight size={15} />
+                            Explore product <ArrowRight size={18} />
                           </button>
                           <span className="sig-guarantee-note">✓ 100% Original • COD Available</span>
                         </div>
@@ -381,7 +392,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           {/* Dots Indicator */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '8px' }}>
             {slides.map((_, dotIdx) => (
-              <div 
+              <button
+                type="button"
+                className="storefront-carousel-dot"
+                aria-label={`Show promotion ${dotIdx + 1}`}
+                aria-pressed={dotIdx === activeSlide}
                 key={dotIdx} 
                 onClick={() => setActiveSlide(dotIdx)}
                 style={{
@@ -428,7 +443,11 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       </div>
 
       {/* ── 3. Category Strip (Smooth, jitter-free department navigation) ── */}
-      <section className="home-category-strip">
+      <section className="home-category-strip" aria-labelledby="storefront-categories-title">
+        <div className="storefront-category-heading">
+          <h2 id="storefront-categories-title">Shop by category</h2>
+          <p>A little inspiration for your next find.</p>
+        </div>
         <div className="home-category-pills-row">
           {activeVipCategories.map((cat) => {
             const CatIcon = cat.icon || Sparkles;
@@ -536,8 +555,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
               <span>🛍️</span> Curated For You
             </h3>
             <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
-              {activeCuratedTab === 'bestsellers' && "India's highest selling products with verified 5-star customer ratings"}
-              {activeCuratedTab === 'newarrivals' && "Freshly restocked premium styles and trending direct-to-consumer tech"}
+              {activeCuratedTab === 'bestsellers' && "Discover products from our store"}
+              {activeCuratedTab === 'newarrivals' && "Explore more from our current collection"}
               {activeCuratedTab === 'toprated' && "Top rated buyer choices and customer favorites"}
             </p>
           </div>

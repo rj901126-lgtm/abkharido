@@ -1,0 +1,63 @@
+/* Step 1: homepage composition. Scoped to preserve other storefront screens. */
+.storefront-refresh { gap: 24px; padding-top: 28px !important; }
+.storefront-intro { margin: 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 8px 4px 12px; }
+.storefront-eyebrow { display: block; font-size: 11px; font-weight: 800; letter-spacing: .16em; color: var(--brand-accent); margin-bottom: 10px; }
+.storefront-intro h1 { font-size: clamp(26px, 3vw, 40px); font-weight: 700; letter-spacing: -.035em; }
+.storefront-intro p { color: var(--text-secondary); font-size: 14px; margin-top: 10px; }
+.storefront-browse { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 12px 20px; border: 1px solid var(--border-light); background: white; border-radius: 12px; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.storefront-browse:hover { border-color: var(--brand-accent); color: var(--brand-accent); }
+.storefront-refresh .hero-carousel { height: 400px; box-shadow: none; }
+.storefront-refresh .signature-hero-slide { background: linear-gradient(115deg, #0c1b35, #153865) !important; padding: 32px 56px !important; }
+.storefront-refresh .signature-hero-slide::before { animation: none; background: radial-gradient(circle, rgba(96,165,250,.15), transparent 70%); width: 400px; height: 400px; }
+.storefront-refresh .signature-hero-title { font-size: clamp(28px, 3.8vw, 46px); text-shadow: none; font-weight: 700; }
+.storefront-refresh .signature-hero-subtitle-block { font-size: 16px; color: #cbdcf2; margin-top: 12px; line-height: 1.5; }
+.storefront-refresh .signature-hero-badge { animation: none; background: rgba(255,255,255,.09); color: #dbeafe; border: 1px solid rgba(255,255,255,.2); box-shadow: none; padding: 8px 12px; margin-bottom: 20px; }
+.storefront-refresh .signature-hero-chips { margin: 16px 0 20px; gap: 8px; }
+.storefront-refresh .signature-hero-chip { font-size: 12px; font-weight: 500; padding: 6px 10px; }
+.storefront-refresh .sig-price-main { color: white; font-size: 38px; text-shadow: none; }
+.storefront-refresh .sig-price-mrp { color: #a8bbd4; }
+.storefront-refresh .sig-discount-pill { box-shadow: none; }
+.storefront-refresh .signature-hero-cta { min-height: 48px; background: white !important; color: #153865 !important; border-radius: 12px !important; box-shadow: none !important; }
+.storefront-refresh .sig-studio-card { animation: none; transform: none; box-shadow: none; border-radius: 24px; }
+.storefront-refresh .sig-guarantee-note { color: #cbdcf2; }
+.storefront-carousel-dot { position: relative; padding: 0; border: none; }
+.storefront-carousel-dot::before { content: ''; position: absolute; inset: -10px -3px; }
+.storefront-refresh button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 4px; }
+.storefront-refresh .home-category-strip { margin: 0 12px !important; padding: 24px !important; border: 1px solid var(--border-light); border-radius: 20px; box-shadow: none; }
+.storefront-category-heading { margin-bottom: 20px; }
+.storefront-category-heading h2 { font-size: 24px; font-weight: 700; }
+.storefront-category-heading p { font-size: 14px; color: var(--text-secondary); margin-top: 6px; }
+.storefront-refresh .home-category-pills-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px !important; padding: 0; overflow: visible; }
+.storefront-refresh .home-category-pill-btn { flex-direction: column; height: auto; min-height: 112px; padding: 16px 8px; gap: 12px; border-radius: 14px; box-shadow: none; background: #f8fafc; }
+.storefront-refresh .category-pill-icon-wrap { width: 40px; height: 40px; border: none; border-radius: 12px; }
+.storefront-refresh .category-pill-name { font-size: 12px; white-space: normal; text-align: center; }
+.storefront-refresh .home-section-heading { font-weight: 700 !important; font-size: 24px !important; }
+@media (max-width: 1000px) {
+  .storefront-refresh .home-category-pills-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .storefront-refresh .signature-hero-slide { padding: 24px 36px !important; }
+}
+@media (max-width: 768px) {
+  .storefront-refresh { padding-top: 16px !important; gap: 20px; }
+  .storefront-intro { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .storefront-intro h1 { font-size: 29px; max-width: 340px; }
+  .storefront-browse { min-height: 44px; padding: 10px 14px; font-size: 13px; }
+  .storefront-refresh .hero-carousel { height: 500px !important; }
+  .storefront-refresh .signature-hero-slide { padding: 24px !important; }
+  .storefront-refresh .signature-hero-container { flex-direction: column; gap: 18px; }
+  .storefront-refresh .signature-hero-left { width: 100%; align-items: flex-start; text-align: left; }
+  .storefront-refresh .signature-hero-title { font-size: 28px; }
+  .storefront-refresh .signature-hero-badge { margin-bottom: 14px; font-size: 9px; }
+  .storefront-refresh .signature-hero-subtitle-block { font-size: 14px; margin-top: 8px; }
+  .storefront-refresh .signature-hero-chips { display: none; }
+  .storefront-refresh .signature-hero-price-row { margin-top: 12px; margin-bottom: 14px; }
+  .storefront-refresh .signature-hero-right { width: 100% !important; height: 170px !important; flex: none; }
+  .storefront-refresh .sig-studio-card { width: 170px !important; height: 170px !important; margin: 0 auto; box-shadow: none !important; }
+  .storefront-refresh .signature-hero-img { width: 150px !important; height: 150px !important; object-fit: contain; filter: none !important; }
+  .storefront-refresh .home-category-strip { padding: 20px 14px !important; }
+  .storefront-refresh .home-category-pills-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px !important; }
+  .storefront-refresh .home-category-pill-btn { min-height: 100px; }
+  .storefront-refresh .home-section-heading { font-size: 21px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .storefront-refresh *, .storefront-refresh *::before, .storefront-refresh *::after { animation: none !important; transition: none !important; }
+}
