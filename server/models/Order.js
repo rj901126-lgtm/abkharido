@@ -67,9 +67,28 @@ const orderSchema = new mongoose.Schema({
   }],
 
   // Returns / RMA & Exchange Engine
-  returnStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Rejected', 'Refunded'], default: 'None' },
+  returnStatus: { 
+    type: String, 
+    enum: ['None', 'Requested', 'Approved', 'Pickup Scheduled', 'Picked Up', 'In Transit', 'QC Passed', 'QC Failed', 'Rejected', 'Refunded'], 
+    default: 'None' 
+  },
   returnReason: { type: String },
   cancellationReason: { type: String },
+  returnDetails: {
+    rmaNumber: { type: String },
+    returnAwb: { type: String },
+    reverseCourier: { type: String },
+    pickupPin: { type: String },
+    pickupScheduledDate: { type: Date },
+    pickedUpAt: { type: Date },
+    qcStatus: { type: String, enum: ['Pending', 'Passed', 'Failed'], default: 'Pending' },
+    qcRemarks: { type: String },
+    refundMethod: { type: String },
+    refundAmount: { type: Number },
+    refundTransactionId: { type: String },
+    refundedAt: { type: Date },
+    adminNotes: { type: String }
+  },
   
   exchangeStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Rejected', 'Exchanged'], default: 'None' },
   exchangeReason: { type: String },

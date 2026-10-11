@@ -39,6 +39,16 @@ const AdminOMS = ({ statusFilter }) => {
   const [dispatchOrder, setDispatchOrder] = useState(null);
   const [courierPartner, setCourierPartner] = useState('Delhivery Express');
   const [awbInput, setAwbInput] = useState('');
+  const [managingReturnOrder, setManagingReturnOrder] = useState(null);
+  const [returnActionState, setReturnActionState] = useState({
+    action: 'Approve',
+    courierPartner: 'Delhivery Reverse Express',
+    returnAwb: '',
+    pickupDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+    qcRemarks: '',
+    adminNotes: '',
+    isSubmitting: false
+  });
 
   const { showToast } = useApp();
 
@@ -90,27 +100,27 @@ const AdminOMS = ({ statusFilter }) => {
     }
   };
 
-  const handleApproveReturn = async (id) => {
+  const handleReturnAction = async (orderId, actionPayload) => {
     try {
+      setReturnActionState(prev => ({ ...prev, isSubmitting: true }));
       const token = sessionStorage.getItem('abkharido_admin_token');
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${id}/return`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders/${orderId}/return`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
-        body: JSON.stringify({ action: 'Approve' })
+        body: JSON.stringify(actionPayload)
       });
-      showToast('Return approved successfully', 'success');
-      fetchOrders();
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        showToast(data.message || 'Return status updated successfully', 'success');
+        setManagingReturnOrder(null);
+        fetchOrders();
+      } else {
+        showToast(data.error || 'Failed to update return', 'error');
+      }
     } catch (err) {
-      showToast('Error approving return', 'error');
-    }
-  };
-
-  const handleRejectReturn = async (id) => {
-    try {
-      showToast('Return rejected', 'info');
-      fetchOrders();
-    } catch (err) {
-      showToast('Error rejecting return', 'error');
+      showToast('Error updating return request', 'error');
+    } finally {
+      setReturnActionState(prev => ({ ...prev, isSubmitting: false }));
     }
   };
 
@@ -366,7 +376,8 @@ const AdminOMS = ({ statusFilter }) => {
   const processingCount = orders.filter(o => !o.status || o.status.toLowerCase() === 'processing' || o.status.toLowerCase() === 'pending').length;
   const shippedCount = orders.filter(o => o.status && o.status.toLowerCase() === 'shipped').length;
   const deliveredCount = orders.filter(o => o.status && o.status.toLowerCase() === 'delivered').length;
-  const cancelledCount = orders.filter(o => ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status) || (o.returnStatus && o.returnStatus !== 'None')).length;
+  const returnsCount = orders.filter(o => o.returnStatus && o.returnStatus !== 'None').length;
+  const cancelledCount = orders.filter(o => ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)).length;
 
   const filteredOrders = orders.filter(o => {
     // 1. Tab Filter
@@ -378,10 +389,11 @@ const AdminOMS = ({ statusFilter }) => {
       if (!o.status || o.status.toLowerCase() !== 'shipped') return false;
     } else if (activeTab === 'DELIVERED') {
       if (!o.status || o.status.toLowerCase() !== 'delivered') return false;
+    } else if (activeTab === 'RETURNS') {
+      if (!o.returnStatus || o.returnStatus === 'None') return false;
     } else if (activeTab === 'CANCELLED') {
       const isCancelled = ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status);
-      const hasReturn = o.returnStatus && o.returnStatus !== 'None';
-      if (!isCancelled && !hasReturn) return false;
+      if (!isCancelled) return false;
     }
 
     // 2. Search Query Filter
@@ -465,7 +477,8 @@ const AdminOMS = ({ statusFilter }) => {
           { id: 'PROCESSING', label: 'New / Processing', count: processingCount, color: '#4f46e5', bg: '#e0e7ff', icon: '🟡' },
           { id: 'SHIPPED', label: 'Shipped / Transit', count: shippedCount, color: '#0284c7', bg: '#e0f2fe', icon: '🚚' },
           { id: 'DELIVERED', label: 'Delivered', count: deliveredCount, color: '#059669', bg: '#d1fae5', icon: '✅' },
-          { id: 'CANCELLED', label: 'Cancelled / Returns', count: cancelledCount, color: '#dc2626', bg: '#fee2e2', icon: '❌' },
+          { id: 'RETURNS', label: 'Returns (RMA)', count: returnsCount, color: '#ea580c', bg: '#ffedd5', icon: '🔄' },
+          { id: 'CANCELLED', label: 'Cancelled', count: cancelledCount, color: '#dc2626', bg: '#fee2e2', icon: '❌' },
         ].map(tab => {
           const isActive = activeTab === tab.id;
           return (
@@ -718,14 +731,54 @@ const AdminOMS = ({ statusFilter }) => {
                     {/* Return Status */}
                     <td style={{ padding: '16px' }}>
                       {order.returnStatus && order.returnStatus !== 'None' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#fff7ed', padding: '6px 8px', borderRadius: '8px', border: '1px solid #fed7aa' }}>
-                          <span style={{ fontSize: '11px', fontWeight: '700', color: '#9a3412' }}>Return: {order.returnStatus}</span>
-                          {order.returnStatus === 'Requested' && (
-                            <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
-                              <button style={{ backgroundColor: '#10b981', color: 'white', padding: '3px 8px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '10.5px', fontWeight: '700' }} onClick={() => handleApproveReturn(oId)}>Approve</button>
-                              <button style={{ backgroundColor: '#ef4444', color: 'white', padding: '3px 8px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '10.5px', fontWeight: '700' }} onClick={() => handleRejectReturn(oId)}>Reject</button>
-                            </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', background: '#fff7ed', padding: '8px 10px', borderRadius: '10px', border: '1px solid #fed7aa', minWidth: '150px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '800', color: '#9a3412', textTransform: 'uppercase' }}>
+                              {order.returnStatus}
+                            </span>
+                            {order.returnDetails?.rmaNumber && (
+                              <span style={{ fontSize: '9px', color: '#7c2d12', fontWeight: '700', fontFamily: 'monospace' }}>
+                                {order.returnDetails.rmaNumber}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {order.returnReason && (
+                            <span style={{ fontSize: '10.5px', color: '#475569', fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                              "{order.returnReason}"
+                            </span>
                           )}
+
+                          <button 
+                            onClick={() => {
+                              setManagingReturnOrder(order);
+                              setReturnActionState({
+                                action: order.returnStatus === 'Requested' ? 'Approve' : order.returnStatus === 'Approved' ? 'SchedulePickup' : order.returnStatus === 'Pickup Scheduled' ? 'MarkPickedUp' : 'PassQcAndRefund',
+                                courierPartner: order.returnDetails?.reverseCourier || 'Delhivery Reverse Express',
+                                returnAwb: order.returnDetails?.returnAwb || `REV-${Date.now().toString().slice(-8)}`,
+                                pickupDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+                                qcRemarks: order.returnDetails?.qcRemarks || 'Product intact, verified at warehouse',
+                                adminNotes: order.returnDetails?.adminNotes || '',
+                                isSubmitting: false
+                              });
+                            }}
+                            style={{ 
+                              background: '#ea580c', 
+                              color: '#ffffff', 
+                              border: 'none', 
+                              padding: '5px 8px', 
+                              borderRadius: '6px', 
+                              fontSize: '11px', 
+                              fontWeight: '700', 
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <RefreshCw size={11} /> Manage Return
+                          </button>
                         </div>
                       ) : (
                         <span style={{ color: '#94a3b8', fontSize: '12px' }}>—</span>
@@ -1052,6 +1105,218 @@ const AdminOMS = ({ statusFilter }) => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: RETURN & RMA LIFECYCLE MANAGER */}
+      {managingReturnOrder && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            
+            {/* Modal Header */}
+            <div style={{ padding: '24px 28px', background: 'linear-gradient(135deg, #9a3412 0%, #c2410c 100%)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <RefreshCw size={22} color="#fed7aa" />
+                  <span style={{ fontSize: '20px', fontWeight: '800', fontFamily: 'Outfit, sans-serif' }}>
+                    Return Management (RMA)
+                  </span>
+                </div>
+                <div style={{ fontSize: '13px', color: '#ffedd5', marginTop: '4px' }}>
+                  Order #{String(managingReturnOrder.id || managingReturnOrder._id).slice(-8).toUpperCase()} • Customer: <strong>{managingReturnOrder.user?.fullName || managingReturnOrder.shippingAddress?.fullName || 'Customer'}</strong>
+                </div>
+              </div>
+              <button onClick={() => setManagingReturnOrder(null)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: '36px', height: '36px', borderRadius: '50%', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Return Request Overview Card */}
+            <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '16px', padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#9a3412', fontWeight: '700', textTransform: 'uppercase' }}>RMA ID</span>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#7c2d12', fontFamily: 'monospace' }}>
+                    {managingReturnOrder.returnDetails?.rmaNumber || 'RMA-PENDING'}
+                  </div>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#9a3412', fontWeight: '700', textTransform: 'uppercase' }}>Current Status</span>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#c2410c' }}>
+                    {managingReturnOrder.returnStatus || 'Requested'}
+                  </div>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#9a3412', fontWeight: '700', textTransform: 'uppercase' }}>Doorstep Return PIN</span>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#047857', fontFamily: 'monospace' }}>
+                    🔒 {managingReturnOrder.returnDetails?.pickupPin || 'Auto-Generates'}
+                  </div>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#9a3412', fontWeight: '700', textTransform: 'uppercase' }}>Refund Amount</span>
+                  <div style={{ fontSize: '15px', fontWeight: '900', color: '#0f172a' }}>
+                    ₹{(managingReturnOrder.totalPrice || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Notes & Destination */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '14px 16px', fontSize: '13px' }}>
+                <div style={{ marginBottom: '6px' }}>
+                  <strong style={{ color: '#334155' }}>Customer Reason:</strong> <span style={{ color: '#0f172a' }}>"{managingReturnOrder.returnReason || 'Defective/Not as described'}"</span>
+                </div>
+                <div>
+                  <strong style={{ color: '#334155' }}>Refund Target:</strong>{' '}
+                  <span style={{ color: '#047857', fontWeight: '700' }}>
+                    {managingReturnOrder.refundDestination?.type === 'Wallet' 
+                      ? '⚡ AbKharido Wallet Cash (+5% Bonus Instant Credit)' 
+                      : managingReturnOrder.refundDestination?.type === 'UPI' 
+                        ? `💳 UPI Direct (${managingReturnOrder.refundDestination?.upiId || 'Pending'})` 
+                        : '🏦 Original Payment Gateway (Cashfree Escrow)'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Form */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>
+                  Select Next Return Milestone Action:
+                </label>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+                  {[
+                    { key: 'Approve', label: '1. Approve' },
+                    { key: 'SchedulePickup', label: '2. Schedule Pickup' },
+                    { key: 'MarkPickedUp', label: '3. Mark Picked Up' },
+                    { key: 'PassQcAndRefund', label: '4. Pass QC & Refund' },
+                    { key: 'FailQc', label: '5. Fail QC' },
+                    { key: 'Reject', label: 'Reject' }
+                  ].map(act => (
+                    <button
+                      key={act.key}
+                      type="button"
+                      onClick={() => setReturnActionState(prev => ({ ...prev, action: act.key }))}
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        border: returnActionState.action === act.key ? '2px solid #ea580c' : '1px solid #cbd5e1',
+                        background: returnActionState.action === act.key ? '#fff7ed' : '#ffffff',
+                        color: returnActionState.action === act.key ? '#c2410c' : '#475569'
+                      }}
+                    >
+                      {act.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Dynamic Inputs based on Action */}
+                {returnActionState.action === 'SchedulePickup' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Reverse Courier Partner</label>
+                      <select
+                        value={returnActionState.courierPartner}
+                        onChange={(e) => setReturnActionState(prev => ({ ...prev, courierPartner: e.target.value }))}
+                        style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '13px', fontWeight: '600', background: 'white' }}
+                      >
+                        <option value="Delhivery Reverse Express">Delhivery Reverse Express</option>
+                        <option value="NimbusPost Reverse Logistics">NimbusPost Reverse Logistics</option>
+                        <option value="BlueDart Reverse Air">BlueDart Reverse Air</option>
+                        <option value="Shadowfax Reverse Doorstep">Shadowfax Reverse Doorstep</option>
+                        <option value="Store Pickup Boy / Local">Store Pickup Boy / Local</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Reverse AWB Number</label>
+                      <input
+                        type="text"
+                        value={returnActionState.returnAwb}
+                        onChange={(e) => setReturnActionState(prev => ({ ...prev, returnAwb: e.target.value }))}
+                        placeholder="e.g. REV-94827104"
+                        style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '13px', fontWeight: '600', fontFamily: 'monospace' }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {returnActionState.action === 'PassQcAndRefund' && (
+                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '16px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ fontSize: '13px', color: '#166534', fontWeight: '700' }}>
+                      ⚡ 100% Refund of ₹{(managingReturnOrder.totalPrice || 0).toLocaleString('en-IN')} will be issued immediately upon confirmation!
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#166534', marginBottom: '4px' }}>Warehouse Inspection / QC Remarks</label>
+                      <input
+                        type="text"
+                        value={returnActionState.qcRemarks}
+                        onChange={(e) => setReturnActionState(prev => ({ ...prev, qcRemarks: e.target.value }))}
+                        placeholder="e.g. All items inspected, tags intact, approved for refund"
+                        style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #86efac', padding: '0 12px', fontSize: '13px' }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {(returnActionState.action === 'FailQc' || returnActionState.action === 'Reject') && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '16px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#991b1b', marginBottom: '4px' }}>Rejection / Failure Reason *</label>
+                    <input
+                      type="text"
+                      value={returnActionState.adminNotes}
+                      onChange={(e) => setReturnActionState(prev => ({ ...prev, adminNotes: e.target.value }))}
+                      placeholder="e.g. Item missing original accessories or physically damaged by user"
+                      style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #fca5a5', padding: '0 12px', fontSize: '13px' }}
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setManagingReturnOrder(null)}
+                  className="btn btn-outline"
+                  style={{ flex: 1, height: '46px', borderRadius: '12px', fontWeight: '700' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={returnActionState.isSubmitting}
+                  onClick={() => handleReturnAction(managingReturnOrder._id || managingReturnOrder.id, {
+                    action: returnActionState.action,
+                    courierPartner: returnActionState.courierPartner,
+                    returnAwb: returnActionState.returnAwb,
+                    pickupDate: returnActionState.pickupDate,
+                    qcRemarks: returnActionState.qcRemarks,
+                    adminNotes: returnActionState.adminNotes
+                  })}
+                  style={{
+                    flex: 2,
+                    height: '46px',
+                    borderRadius: '12px',
+                    fontWeight: '800',
+                    fontSize: '14px',
+                    border: 'none',
+                    color: '#ffffff',
+                    cursor: returnActionState.isSubmitting ? 'not-allowed' : 'pointer',
+                    background: returnActionState.action === 'Reject' || returnActionState.action === 'FailQc' ? '#dc2626' : returnActionState.action === 'PassQcAndRefund' ? '#16a34a' : '#ea580c'
+                  }}
+                >
+                  {returnActionState.isSubmitting ? 'Processing...' : `Confirm: ${returnActionState.action}`}
+                </button>
+              </div>
+
+            </div>
+
           </div>
         </div>
       )}

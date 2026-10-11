@@ -765,7 +765,7 @@ const Orders = ({ onNavigate }) => {
                   <div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                       <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                        {isCancelled ? '❌ Order Cancelled' : isDelivered ? '✅ Delivered Safely' : `🚚 Status: ${order.status || 'Processing'}`}
+                        {isCancelled ? '❌ Order Cancelled' : (order.returnStatus && order.returnStatus !== 'None') ? `🔄 Return: ${order.returnStatus}` : isDelivered ? '✅ Delivered Safely' : `🚚 Status: ${order.status || 'Processing'}`}
                       </div>
                       {!isCancelled && (
                         <button
@@ -777,7 +777,65 @@ const Orders = ({ onNavigate }) => {
                       )}
                     </div>
 
-                    {!isCancelled ? (
+                    {order.returnStatus && order.returnStatus !== 'None' ? (
+                      <div>
+                        {/* 5-Step Return Lifecycle Progress */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px', textAlign: 'center', position: 'relative' }}>
+                          {[
+                            { label: 'Requested', icon: '📝', done: true },
+                            { label: 'Approved', icon: '📦', done: order.returnStatus !== 'Requested' },
+                            { label: 'Pickup', icon: '🚚', done: ['Pickup Scheduled', 'Picked Up', 'QC Passed', 'Refunded'].includes(order.returnStatus) },
+                            { label: 'QC Check', icon: '🔍', done: ['Picked Up', 'QC Passed', 'Refunded'].includes(order.returnStatus) },
+                            { label: 'Refunded', icon: '💰', done: order.returnStatus === 'Refunded' }
+                          ].map((st, i) => (
+                            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div style={{
+                                width: '26px', height: '26px', borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px',
+                                background: st.done ? '#c2410c' : '#f1f5f9',
+                                color: st.done ? '#ffffff' : '#94a3b8',
+                                border: st.done ? '2px solid #fed7aa' : '1px solid #cbd5e1',
+                                fontWeight: '800'
+                              }}>
+                                {st.done ? '✓' : i + 1}
+                              </div>
+                              <span style={{ fontSize: '9.5px', fontWeight: '700', color: st.done ? '#9a3412' : '#94a3b8', marginTop: '4px' }}>
+                                {st.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Return Logistics & PIN Bar */}
+                        <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px dashed #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
+                          {order.returnDetails?.pickupPin && (
+                            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', padding: '6px 10px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ color: '#9a3412', fontWeight: '700' }}>🔒 Doorstep Return PIN:</span>
+                              <span style={{ fontFamily: 'monospace', fontWeight: '900', fontSize: '13px', letterSpacing: '2px', color: '#c2410c' }}>
+                                {order.returnDetails.pickupPin}
+                              </span>
+                            </div>
+                          )}
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                            <span>Reverse Courier: <strong style={{ color: '#0f172a' }}>{order.returnDetails?.reverseCourier || 'Assigning reverse partner...'}</strong></span>
+                            {order.returnDetails?.returnAwb && (
+                              <span style={{ fontFamily: 'monospace', fontWeight: '700', color: '#c2410c' }}>AWB: {order.returnDetails.returnAwb}</span>
+                            )}
+                          </div>
+
+                          {order.returnStatus === 'Refunded' ? (
+                            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '6px 10px', borderRadius: '8px', color: '#166534', fontWeight: '700' }}>
+                              ✅ ₹{(order.returnDetails?.refundAmount || order.totalPrice).toLocaleString('en-IN')} Refund successfully credited to {order.refundDestination?.type || 'Wallet'}!
+                            </div>
+                          ) : (
+                            <div style={{ color: '#475569' }}>
+                              Refund Target: <strong style={{ color: '#047857' }}>{order.refundDestination?.type === 'Wallet' ? '⚡ Wallet Cash (+5% bonus)' : (order.refundDestination?.type === 'UPI' ? `UPI: ${order.refundDestination?.upiId || ''}` : 'Original Payment')}</strong>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : !isCancelled ? (
                       <div>
                         {/* 4-Step Progress Dots */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', textAlign: 'center', position: 'relative' }}>
@@ -988,6 +1046,15 @@ const Orders = ({ onNavigate }) => {
                     >
                       Return
                     </button>
+                  )}
+
+                  {/* Return Status Badge if Active */}
+                  {order.returnStatus && order.returnStatus !== 'None' && (
+                    <span
+                      style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#c2410c', fontSize: '11px', fontWeight: '800', padding: '5px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      🔄 Return: {order.returnStatus}
+                    </span>
                   )}
 
                   {/* Email Invoice */}

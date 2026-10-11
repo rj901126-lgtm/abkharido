@@ -152,3 +152,51 @@ export function verifyCashfreeWebhookSignature({ rawBody, timestamp, signature }
     return false;
   }
 }
+
+/**
+ * Initiate an Instant/Standard Refund via Cashfree Payment Gateway
+ */
+export async function createCashfreeRefund({ orderId, refundAmount, refundId, refundNote = 'Customer Return Refund' }) {
+  const config = getCashfreeConfig();
+
+  if (!config.isConfigured) {
+    if (config.env === 'sandbox' || process.env.NODE_ENV !== 'production') {
+      return {
+        refund_id: refundId || `ref_sim_${Date.now()}`,
+        status: 'SUCCESS',
+        cf_refund_id: `cfr_${Date.now()}`,
+        refund_amount: refundAmount,
+        simulated: true
+      };
+    }
+    throw new Error('Cashfree Gateway credentials missing.');
+  }
+
+  const payload = {
+    refund_amount: Number(refundAmount.toFixed(2)),
+    refund_id: refundId || `ref_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    refund_note: refundNote,
+    refund_speed: 'STANDARD'
+  };
+
+  const response = await fetch(`${config.baseUrl}/orders/${orderId}/refunds`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-client-id': config.appId,
+      'x-client-secret': config.secretKey,
+      'x-api-version': config.apiVersion
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    console.error('[Cashfree Refund Error]:', response.status, data);
+    throw new Error(data.message || data.error || 'Failed to initiate Cashfree refund');
+  }
+
+  return data;
+}
+
