@@ -271,11 +271,11 @@
   margin: 6px 0;
 }
 
-/* 📱 Mobile Specific Styles */
+/* 📱 Mobile Specific Styles — Zero-Overflow Apple/Flipkart Grade Responsive Header */
 @media (max-width: 768px) {
   .navbar-header {
     height: auto !important;
-    min-height: 104px !important;
+    min-height: 100px !important;
     padding-top: env(safe-area-inset-top, 0px) !important;
     padding-bottom: 6px !important;
     display: flex !important;
@@ -289,17 +289,25 @@
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+    box-sizing: border-box !important;
     z-index: 1000 !important;
   }
 
   .navbar-container {
     display: grid !important;
-    grid-template-columns: 1fr auto !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
     grid-template-rows: auto auto !important;
     row-gap: 8px !important;
-    column-gap: 12px !important;
-    padding: 6px 14px 6px 14px !important;
+    column-gap: 8px !important;
+    padding: 6px 12px 6px 12px !important;
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
     align-items: center !important;
   }
 
@@ -308,8 +316,11 @@
     grid-row: 1 / 2 !important;
     display: flex !important;
     align-items: center !important;
-    min-height: 44px !important;
-    gap: 8px !important;
+    min-height: 38px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    gap: 6px !important;
+    flex-shrink: 1 !important;
   }
 
   .category-mega-menu-wrapper,
@@ -317,36 +328,14 @@
     display: none !important;
   }
 
-  .delivery-pincode-badge {
-    display: inline-flex !important;
-    align-items: center !important;
-    min-height: 40px !important;
-    max-width: 130px !important;
-    padding: 0 8px !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    flex-shrink: 1 !important;
-  }
-
-  .delivery-pincode-badge > div {
-    min-width: 0 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
-  .delivery-pincode-badge > div > div:last-child {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
   .logo-text {
-    font-size: 20px !important;
+    font-size: 19px !important;
     font-weight: 900 !important;
+    letter-spacing: -0.5px !important;
     background: linear-gradient(135deg, #0f172a 0%, var(--brand-accent) 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
+    flex-shrink: 0 !important;
   }
 
   .logo-plus {
@@ -358,6 +347,41 @@
     display: none !important;
   }
 
+  .delivery-pincode-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-width: 100px !important;
+    padding: 0 6px !important;
+    border-radius: 99px !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+    gap: 4px !important;
+  }
+
+  .delivery-pincode-badge > div {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .delivery-pincode-badge > div > div:first-child {
+    display: none !important; /* Hide "Deliver to" label on mobile */
+  }
+
+  .delivery-pincode-badge > div > div:last-child {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
   .navbar-right {
     grid-column: 2 / 3 !important;
     grid-row: 1 / 2 !important;
@@ -365,45 +389,93 @@
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 8px !important;
-    min-height: 44px !important;
+    gap: 6px !important;
+    min-height: 38px !important;
+    flex-shrink: 0 !important;
   }
 
   .user-profile-pill {
-    min-height: 44px !important;
-    max-width: 130px !important;
-    padding: 0 10px !important;
-    white-space: nowrap !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    border: 1.5px solid #cbd5e1 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .user-profile-pill > span,
+  .user-profile-pill > svg {
+    display: none !important; /* Hide full name and chevron on mobile */
+  }
+
+  .user-profile-pill > div:first-child {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 11px !important;
+    margin: 0 !important;
   }
 
   .nav-item-btn {
-    min-height: 44px !important;
-    min-width: 44px !important;
-    padding: 0 16px !important;
-    font-size: 13px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    min-width: unset !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
     font-weight: 800 !important;
-    border-radius: 8px !important;
+    border-radius: 99px !important;
     background: #f1f5f9 !important;
     border: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
+    flex-shrink: 0 !important;
   }
 
   .cart-item {
-    min-height: 44px !important;
-    min-width: 44px !important;
-    padding: 0 10px !important;
-    background: transparent !important;
-    color: #0f172a !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15) !important;
+    position: relative !important;
+    margin: 0 !important;
   }
+
   .cart-item .nav-text {
     display: none !important;
   }
+
   .cart-item svg {
-    color: #0f172a !important;
+    color: #ffffff !important;
+    width: 18px !important;
+    height: 18px !important;
   }
+
   .cart-badge {
-    border-color: #ffffff !important;
+    top: -5px !important;
+    right: -6px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    border: 2px solid #ffffff !important;
+    background-color: #ef4444 !important;
+    padding: 0 3px !important;
   }
 
   .search-form {
@@ -411,13 +483,18 @@
     grid-row: 2 / 3 !important;
     width: 100% !important;
     max-width: 100% !important;
+    min-width: 0 !important;
     margin: 0 !important;
-    min-height: 44px !important;
+    min-height: 42px !important;
+    box-sizing: border-box !important;
   }
 
   .search-input-wrapper {
-    min-height: 44px !important;
-    height: 44px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 42px !important;
+    height: 42px !important;
     border-radius: 10px !important;
     background: #f8fafc !important;
     border: 1px solid #e2e8f0 !important;
@@ -431,39 +508,65 @@
   }
 
   .search-input {
-    padding: 0 14px !important;
-    font-size: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 0 76px 0 12px !important;
+    font-size: 13.5px !important;
     color: #0f172a !important;
-    height: 44px !important;
+    height: 42px !important;
   }
 
   .search-input::placeholder {
     color: #94a3b8 !important;
+    font-size: 13px !important;
   }
 
   .search-button {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    padding: 0 14px !important;
+    min-width: 38px !important;
+    width: 38px !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     color: var(--brand-accent) !important;
   }
-
 }
 
-@media (max-width: 380px) {
+/* Extra Compact Phones <= 360px */
+@media (max-width: 360px) {
+  .navbar-container {
+    padding: 4px 8px 4px 8px !important;
+    column-gap: 4px !important;
+    row-gap: 6px !important;
+  }
+
+  .logo-text {
+    font-size: 17px !important;
+  }
+
   .delivery-pincode-badge {
-    max-width: 95px !important;
+    max-width: 75px !important;
     padding: 0 4px !important;
   }
-  .delivery-pincode-badge > div > div:first-child {
-    display: none !important;
+
+  .delivery-pincode-badge > div > div:last-child {
+    font-size: 10px !important;
   }
+
+  .cart-item {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+
   .user-profile-pill {
-    max-width: 85px !important;
-    padding: 0 6px !important;
-  }
-  .logo-text {
-    font-size: 18px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
   }
 }
 
