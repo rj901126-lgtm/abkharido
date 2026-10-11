@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
 import Product from '../../../../../../server/models/Product.js';
@@ -37,7 +38,13 @@ export async function POST(req) {
     }
 
     await connectDB();
-    const order = await Order.findOne({ $or: [{ cfOrderId: orderId }, { _id: orderId.length === 24 ? orderId : undefined }].filter(Boolean) });
+    const isObjectId = mongoose.Types.ObjectId.isValid(orderId) && /^[0-9a-fA-F]{24}$/.test(String(orderId));
+    const order = await Order.findOne({ 
+      $or: [
+        { cfOrderId: orderId }, 
+        ...(isObjectId ? [{ _id: orderId }] : [])
+      ] 
+    });
 
     if (!order) {
       console.warn(`[Cashfree Webhook] Order ${orderId} not found in DB`);

@@ -175,9 +175,11 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const itemsPrice = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.product?.price ?? item?.price) || 0) * (Math.max(1, Number(item?.quantity ?? 1))), 0) : 0;
   const deliveryCharge = itemsPrice >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
   const userCoins = currentUser ? (currentUser.walletCoins || 0) : 0;
-  const coinsDiscount = useCoins && currentUser ? Math.min(userCoins, itemsPrice) : 0;
-  
   const couponDiscountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  // Coins discount is clamped to remaining subtotal after coupon discount (matches server ledger)
+  const remainingSubtotalAfterCoupon = Math.max(0, itemsPrice - couponDiscountAmount);
+  const coinsDiscount = useCoins && currentUser ? Math.min(userCoins, remainingSubtotalAfterCoupon) : 0;
+  
   const finalAmount = Math.max(0, itemsPrice - coinsDiscount - couponDiscountAmount + deliveryCharge);
 
 
@@ -429,7 +431,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         const CashfreeConstructor = await loadSdk();
 
         if (CashfreeConstructor && data.paymentSessionId) {
-          const isProd = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' || process.env.CASHFREE_PROD === 'true';
+          const isProd = data.environment === 'production' || process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production';
           const cashfree = CashfreeConstructor({
             mode: isProd ? 'production' : 'sandbox'
           });

@@ -46,7 +46,13 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const isOwner = auth.user?._id && order.user && (String(auth.user._id) === String(order.user));
+    const requesterId = String(auth.user?.id || auth.user?._id || '');
+    const orderUserId = String(order.user || '');
+    const cleanUserPhone = String(auth.user?.phone || '').replace(/\D/g, '').slice(-10);
+    const cleanOrderPhone = String(order.shippingAddress?.phone || '').replace(/\D/g, '').slice(-10);
+
+    const isOwner = (requesterId && orderUserId && requesterId === orderUserId) || 
+                    (cleanUserPhone && cleanOrderPhone && cleanUserPhone === cleanOrderPhone);
     if (!isOwner && !auth.isAdmin && !auth.isSeller) {
       return NextResponse.json({ error: 'Forbidden: You do not have permission to modify this order' }, { status: 403 });
     }

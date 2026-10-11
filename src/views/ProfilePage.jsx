@@ -141,13 +141,17 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
         return;
       }
 
-      // 3. Regular Firebase currentUser emailVerified sync
+      // 3. Regular Firebase currentUser emailVerified sync (silent sync, only toast if user actively initiated verify)
       if (auth?.currentUser?.emailVerified && currentUser && !currentUser.isEmailVerified) {
         await updateUserProfile({
           email: auth.currentUser.email,
           isEmailVerified: true
         });
-        showToast('Email successfully verified!', 'success');
+        const wasAwaiting = typeof window !== 'undefined' ? sessionStorage.getItem('abkharido_awaiting_email_verify') : null;
+        if (wasAwaiting === 'true') {
+          sessionStorage.removeItem('abkharido_awaiting_email_verify');
+          showToast('Email successfully verified! 🎉', 'success');
+        }
       }
     };
     checkEmailSync();

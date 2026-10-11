@@ -278,7 +278,8 @@ export async function POST(req) {
       dbOrderId: newOrder._id,
       paymentSessionId: cfOrder.paymentSessionId,
       amount: finalAmount,
-      simulated: Boolean(cfOrder.simulated)
+      simulated: Boolean(cfOrder.simulated),
+      environment: cfOrder.environment || (process.env.CASHFREE_PROD === 'true' ? 'production' : 'sandbox')
     });
 
   } catch (error) {
