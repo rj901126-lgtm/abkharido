@@ -36,7 +36,7 @@ const SORT_OPTIONS = [
 
 const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery = '', sellerShopName = '', onNavigateProduct, promotions, initialProducts }) => {
   const { products: contextProducts } = useApp();
-  const [serverProducts, setServerProducts] = useState(initialProducts || null);
+  const [serverProducts, setServerProducts] = useState(initialProducts?.length ? initialProducts : null);
   const [isSearching, setIsSearching] = useState(false);
 
   // Faceted Filter States
@@ -97,7 +97,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
   useEffect(() => {
     const fetchSearchResults = async () => {
       if ((!searchQuery || searchQuery.trim() === '') && (!sellerShopName || sellerShopName.trim() === '') && currentCategory === 'all') {
-        setServerProducts(initialProducts || null);
+        setServerProducts(initialProducts?.length ? initialProducts : null);
         return;
       }
 

@@ -34,7 +34,7 @@ const defaultVipCategories = [
 
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
   const { products: contextProducts, currentUser } = useApp();
-  const products = initialProducts || contextProducts || [];
+  const products = initialProducts?.length ? initialProducts : (contextProducts || []);
   const [activeSlide, setActiveSlide] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const [activeCuratedTab, setActiveCuratedTab] = useState('bestsellers');

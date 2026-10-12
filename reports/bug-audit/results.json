@@ -1,0 +1,49 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "cards": 2,
+    "overflow": false,
+    "purchaseBars": [],
+    "errors": []
+  },
+  {
+    "route": "/catalog",
+    "status": 200,
+    "cards": 1,
+    "overflow": false,
+    "purchaseBars": [],
+    "errors": []
+  },
+  {
+    "route": "/product/signature-wireless-earphone",
+    "status": 200,
+    "cards": 0,
+    "overflow": false,
+    "purchaseBars": [
+      {
+        "class": "vip-fixed-bottom-purchase-bar",
+        "visible": true,
+        "bottom": 844,
+        "z": "2500"
+      },
+      {
+        "class": "mobile-sticky-cart-bar",
+        "visible": false,
+        "bottom": 0,
+        "z": "1050"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "route": "/cart with persisted items",
+    "errors": [],
+    "items": 1
+  },
+  {
+    "route": "/api/auth/session",
+    "status": 200,
+    "body": "{}"
+  }
+]

@@ -1,7 +1,11 @@
-import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import NextAuthImport from 'next-auth';
+import CredentialsProviderImport from 'next-auth/providers/credentials';
 import { verifyFirebaseDirect, verifyOtpDirect, loginPasswordDirect } from '../../../../lib/directAuth.js';
 import { isValidEmail } from '../../../../utils/constants.js';
+
+// NextAuth v4 is CommonJS; externalized server bundles can expose a default wrapper.
+const NextAuth = typeof NextAuthImport === 'function' ? NextAuthImport : NextAuthImport.default;
+const CredentialsProvider = typeof CredentialsProviderImport === 'function' ? CredentialsProviderImport : CredentialsProviderImport.default;
 
 async function fetchBackend(path, body) {
   const hosts = [

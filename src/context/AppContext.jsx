@@ -123,21 +123,7 @@ export const AppProvider = ({ children }) => {
   const { data: session, status } = useSession();
   const [dbUser, setDbUser] = useState(null);
   const [localSession, setLocalSession] = useState(null);
-  const [cart, setCart] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const isLogged = !!localStorage.getItem('abkharido_user_session');
-        const saved = localStorage.getItem(isLogged ? 'abkharido_cached_cart' : 'abkharido_cart') 
-          || localStorage.getItem('abkharido_cached_cart') 
-          || localStorage.getItem('abkharido_cart');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return sanitizeCart(parsed);
-        }
-      } catch(e) {}
-    }
-    return [];
-  });
+  const [cart, setCart] = useState([]);
 
   const [orders, setOrders] = useState([]);
   const [hasMoreOrders, setHasMoreOrders] = useState(false);
@@ -185,8 +171,12 @@ export const AppProvider = ({ children }) => {
       }
 
       const isLoggedIn = !!savedUserSession;
-      const savedCart = localStorage.getItem(isLoggedIn ? 'abkharido_cached_cart' : 'abkharido_cart');
-      if (savedCart) setCart(JSON.parse(savedCart));
+      const savedCart = localStorage.getItem(isLoggedIn ? 'abkharido_cached_cart' : 'abkharido_cart')
+        || localStorage.getItem('abkharido_cached_cart') || localStorage.getItem('abkharido_cart');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) setCart(sanitizeCart(parsed));
+      }
 
       const savedWishlist = localStorage.getItem(isLoggedIn ? 'abkharido_cached_wishlist' : 'abkharido_wishlist');
       if (savedWishlist) setWishlist(JSON.parse(savedWishlist));

@@ -954,12 +954,12 @@
 
 /* Sticky Mobile Cart Bar */
 .mobile-sticky-cart-bar {
-  display: none;
+  display: none !important;
 }
 
 @media (max-width: 768px) {
   .mobile-sticky-cart-bar {
-    display: flex;
+    display: none !important;
     position: fixed;
     bottom: 0;
     left: 0;
