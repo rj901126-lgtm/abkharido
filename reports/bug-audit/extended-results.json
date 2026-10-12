@@ -1,0 +1,238 @@
+{
+  "syntax": {
+    "checked": 267,
+    "failures": []
+  },
+  "results": [
+    {
+      "route": "/about",
+      "status": 200,
+      "url": "http://localhost:3003/about",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/account",
+      "status": 200,
+      "url": "http://localhost:3003/account",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "url": "http://localhost:3003/admin",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/appliances",
+      "status": 200,
+      "url": "http://localhost:3003/appliances",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/blog",
+      "status": 200,
+      "url": "http://localhost:3003/blog",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/cart",
+      "status": 200,
+      "url": "http://localhost:3003/cart",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/catalog",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "route": "/categories",
+      "status": 200,
+      "url": "http://localhost:3003/categories",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/checkout",
+      "status": 200,
+      "url": "http://localhost:3003/checkout",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/checkout/return",
+      "status": 200,
+      "url": "http://localhost:3003/checkout/return",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/coins",
+      "status": 200,
+      "url": "http://localhost:3003/coins",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/compare",
+      "status": 200,
+      "url": "http://localhost:3003/compare",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/contact",
+      "status": 200,
+      "url": "http://localhost:3003/contact",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/dashboard",
+      "status": 200,
+      "url": "http://localhost:3003/dashboard",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/electronics",
+      "status": 200,
+      "url": "http://localhost:3003/electronics",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/faq",
+      "status": 200,
+      "url": "http://localhost:3003/faq",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/fashion",
+      "status": 200,
+      "url": "http://localhost:3003/fashion",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/help",
+      "status": 200,
+      "url": "http://localhost:3003/help",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/login",
+      "status": 200,
+      "url": "http://localhost:3003/login",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/mobiles",
+      "status": 200,
+      "url": "http://localhost:3003/mobiles",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/orders",
+      "status": 200,
+      "url": "http://localhost:3003/orders",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/",
+      "status": 200,
+      "url": "http://localhost:3003/",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/partner",
+      "status": 200,
+      "url": "http://localhost:3003/partner",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/privacy",
+      "status": 200,
+      "url": "http://localhost:3003/privacy",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/profile",
+      "status": 200,
+      "url": "http://localhost:3003/profile",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/returns",
+      "status": 200,
+      "url": "http://localhost:3003/returns",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/rewards",
+      "status": 200,
+      "url": "http://localhost:3003/rewards",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/search",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "route": "/seller",
+      "status": 200,
+      "url": "http://localhost:3003/seller",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/settings",
+      "status": 200,
+      "url": "http://localhost:3003/settings",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/shipping",
+      "status": 200,
+      "url": "http://localhost:3003/shipping",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/support",
+      "status": 200,
+      "url": "http://localhost:3003/support",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/terms",
+      "status": 200,
+      "url": "http://localhost:3003/terms",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/vip",
+      "status": 200,
+      "url": "http://localhost:3003/vip",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/wallet",
+      "status": 200,
+      "url": "http://localhost:3003/wallet",
+      "check": "HTTP smoke test; browser interactions not covered"
+    },
+    {
+      "route": "/wishlist",
+      "status": 200,
+      "url": "http://localhost:3003/wishlist",
+      "check": "HTTP smoke test; browser interactions not covered"
+    }
+  ],
+  "additional": [
+    {
+      "issue": "Cart variant isolation",
+      "before": [
+        "1",
+        "2"
+      ],
+      "afterIncreasingFirst": [
+        "2",
+        "2"
+      ],
+      "remainingAfterRemovingFirst": 0
+    },
+    {
+      "issue": "Payment receipt contract",
+      "showsZeroAmount": true
+    }
+  ]
+}

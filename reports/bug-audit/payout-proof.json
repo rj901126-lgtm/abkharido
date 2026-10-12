@@ -1,0 +1,22 @@
+{
+  "coinBalance": 2000,
+  "withdrawal": 1000,
+  "payoutResult": false,
+  "messages": [
+    "Insufficient withdrawable cash balance."
+  ],
+  "failedRequestFormResets": [
+    [
+      "amount",
+      ""
+    ],
+    [
+      "upi",
+      ""
+    ],
+    [
+      "bank",
+      ""
+    ]
+  ]
+}
