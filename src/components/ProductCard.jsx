@@ -4,7 +4,6 @@ import { Heart, ShoppingCart, Check, Truck, Star } from 'lucide-react';
 import LazyImage from './LazyImage';
 import ProductQuickPreviewModal from './ProductQuickPreviewModal';
 import { calculateCoinReward } from '../utils/coinUtils';
-import '../assets/styles/shopping-refresh.css';
 
 
 // Color map for standard swatches
@@ -162,7 +161,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   return (
     <>
       <div 
-        className="card product-card shopping-product-card"
+        className="card product-card" 
         style={{
           ...styles.card,
           transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
@@ -273,7 +272,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
 
           {/* Product Title (2-Line Clamp) */}
           <h4 className="product-card-name" style={styles.name} title={product.name}>
-            <button type="button" className="product-title-action" onClick={(e) => { e.stopPropagation(); if (onNavigateProduct) onNavigateProduct(prodId); }}>{product.name}</button>
+            {product.name}
           </h4>
 
           {/* Rating & AB Coins Trust Row */}
@@ -303,7 +302,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
           </div>
 
           {/* Price Stack & Discount Row */}
-          <div className="shopping-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
             <span style={styles.price}>₹{price.toLocaleString('en-IN')}</span>
             {discountPercent > 0 && (
               <>
@@ -367,7 +366,6 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                   transition: 'background 0.15s ease'
                 }}
                 title="Decrease quantity"
-                aria-label={`Decrease quantity of ${product.name}`}
               >
                 -
               </button>
@@ -421,7 +419,6 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                   transition: 'background 0.15s ease'
                 }}
                 title="Increase quantity"
-                aria-label={`Increase quantity of ${product.name}`}
               >
                 +
               </button>

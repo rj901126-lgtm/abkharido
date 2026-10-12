@@ -832,12 +832,3 @@
 
 
 
-
-/* Step 2: consistent search and keyboard focus without changing header geometry. */
-.navbar-header .search-input-wrapper { border-radius: 12px; background: #f1f5f9; box-shadow: none; }
-.navbar-header .search-input::placeholder { color: #64748b; }
-.navbar-header button:focus-visible, .navbar-header a:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
-@media (min-width: 769px) {
-  .navbar-header .search-input-wrapper { height: 44px; }
-  .navbar-header .search-button { min-width: 44px; }
-}
