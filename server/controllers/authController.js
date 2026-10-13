@@ -1,18 +1,11 @@
 import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { signUserToken, isActiveUser } from '../utils/authSecurity.js';
+import { verifyFirebaseDirect } from '../../src/lib/directAuth.js';
 import Otp from '../models/Otp.js';
 import redisClient from '../config/redis.js';
 
-const generateToken = (id) => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('Server misconfiguration: JWT_SECRET is not set');
-  }
-  return jwt.sign({ id }, secret, {
-    algorithm: 'HS256',
-    expiresIn: '30d',
-  });
-};
+const generateToken = signUserToken;
 
 const isValidEmail = (email) => {
   if (!email || typeof email !== 'string') return false;
@@ -230,7 +223,7 @@ export const verifyOtp = async (req, res, next) => {
           username, 
           phone: normalizedRecipient, 
           fullName: defaultName,
-          password: 'abkharido_otp_user_' + Date.now()
+          password: crypto.randomBytes(32).toString('hex')
         });
       } catch (err) {
         if (err.code === 11000) {
@@ -246,7 +239,7 @@ export const verifyOtp = async (req, res, next) => {
                username: fallbackUsername, 
                phone: normalizedRecipient, 
                fullName: defaultName,
-               password: 'abkharido_otp_user_' + Date.now()
+               password: crypto.randomBytes(32).toString('hex')
              });
           }
         } else {
@@ -277,6 +270,7 @@ export const verifyOtp = async (req, res, next) => {
     user.fullName = fullName;
     await User.updateOne({ _id: user._id }, { $set: { fullName: user.fullName } });
   }
+  if (!isActiveUser(user)) return res.status(401).json({ error: 'Account is not active' });
   res.json({ 
     success: true, 
     user: {
@@ -300,89 +294,8 @@ export const verifyOtp = async (req, res, next) => {
 // @route   POST /api/auth/verify-firebase
 // @access  Public
 export const verifyFirebase = async (req, res, next) => {
-  try {
-    const { phone, isSignup, fullName, email } = req.body;
-    
-    if (!phone) {
-      res.status(400);
-      throw new Error('Phone number is required from Firebase payload');
-    }
-
-    let cleanPhone = phone.toString().replace(/\s/g, '').replace(/-/g, '');
-    if (cleanPhone.startsWith('+91')) cleanPhone = cleanPhone.slice(3);
-    else if (cleanPhone.startsWith('91') && cleanPhone.length === 12) cleanPhone = cleanPhone.slice(2);
-
-    let user = await User.findOne({ $or: [
-      { phone: cleanPhone },
-      { phone: '+91' + cleanPhone },
-      { phone: '91' + cleanPhone },
-      { username: cleanPhone },
-      { username: new RegExp('^' + cleanPhone + '(_|$)') },
-      (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? { email: email.trim().toLowerCase() } : null
-    ].filter(Boolean) });
-    
-    if (!user) {
-      let username = cleanPhone;
-      try {
-        user = await User.create({ 
-          username, 
-          phone: cleanPhone, 
-          email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email.trim().toLowerCase() : undefined, 
-          fullName: fullName || 'New User',
-          password: 'FirebaseVerifiedUser123!' 
-        });
-      } catch (err) {
-        if (err.code === 11000) {
-          user = await User.findOne({ $or: [{ phone: cleanPhone }, { username: cleanPhone }] });
-          if (!user) {
-            user = await User.create({
-              username: `${cleanPhone}_${Date.now().toString().slice(-4)}`,
-              phone: cleanPhone,
-              email: (email && !email.includes(':') && !email.endsWith('@abkharido.com')) ? email.trim().toLowerCase() : undefined,
-              fullName: fullName || 'New User',
-              password: 'FirebaseVerifiedUser123!'
-            });
-          }
-        } else {
-          throw err;
-        }
-      }
-    } else {
-      let shouldUpdate = false;
-      if (!user.phone || user.phone !== cleanPhone) {
-        user.phone = cleanPhone;
-        shouldUpdate = true;
-      }
-      if (fullName && (!user.fullName || user.fullName === 'New User' || user.fullName === 'VIP Member')) {
-        user.fullName = fullName;
-        shouldUpdate = true;
-      }
-      // Auto-heal invalid or ciphertext email from legacy database saves
-      if (user.email && !isValidEmail(user.email)) {
-        user.email = undefined;
-        shouldUpdate = true;
-      }
-      if (email && isValidEmail(email) && (!user.email || user.email !== email.trim().toLowerCase())) {
-        user.email = email.trim().toLowerCase();
-        shouldUpdate = true;
-      }
-      if (shouldUpdate) await user.save();
-    }
-
-    res.json({ 
-      success: true, 
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: isValidEmail(user.email) ? user.email : null,
-        phone: user.phone,
-        role: user.role,
-        token: generateToken(user._id),
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
+  try { res.json(await verifyFirebaseDirect(req.body)); }
+  catch { res.status(401).json({ error: 'Firebase identity verification failed' }); }
 };
 
 // @desc    Check User

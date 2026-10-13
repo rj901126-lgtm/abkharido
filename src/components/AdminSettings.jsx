@@ -96,6 +96,8 @@ const AdminSettings = () => {
       try { setShippingRules(JSON.parse(savedShipping)); } catch (e) {}
     }
     
+    // Remove legacy browser-persisted gateway credentials.
+    localStorage.removeItem('abkharido_payment_settings');
     // Fetch server payment configuration
     fetch('/api/payments/cashfree/config')
       .then(res => res.json())
@@ -137,10 +139,12 @@ const AdminSettings = () => {
   const handleSavePayments = (e) => {
     e.preventDefault();
     setIsSaving(true);
-    localStorage.setItem('abkharido_payment_settings', JSON.stringify(paymentConfig));
+    const { secretKey, webhookSecret, ...publicSettings } = paymentConfig;
+    localStorage.setItem('abkharido_payment_settings', JSON.stringify(publicSettings));
+    setPaymentConfig(prev => ({ ...prev, secretKey: '', webhookSecret: '' }));
     setTimeout(() => {
       setIsSaving(false);
-      showToast('Cashfree PG rules & checkout controls updated successfully!', 'success');
+      showToast('Display preferences saved. Configure gateway credentials securely on the server.', 'success');
     }, 600);
   };
 

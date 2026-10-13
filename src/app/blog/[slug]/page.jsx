@@ -1,3 +1,4 @@
+import { serializeJsonLd } from '../../../utils/safeRendering.js';
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -124,8 +125,8 @@ export default async function BlogPostPage({ params }) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(articleSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }} />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '24px 16px 64px' }}>
         {/* Breadcrumb */}

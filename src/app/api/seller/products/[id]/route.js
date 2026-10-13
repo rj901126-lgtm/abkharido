@@ -1,27 +1,21 @@
+import { ownsProduct, validateProductData } from '../../../../../lib/productValidator.js';
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { getAuthenticatedUser } from '../../../../../lib/serverAuth.js';
 import connectDB from '../../../../../lib/connectDB.js';
 import Product from '../../../../../../server/models/Product.js';
 import mongoose from 'mongoose';
 
 export const dynamic = 'force-dynamic';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026_super_secure';
-
-function verifySeller(req) {
-  const authHeader = req.headers.get('authorization') || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-  if (!token) return null;
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch {
-    return null;
-  }
+async function verifySeller(req) {
+  const auth = await getAuthenticatedUser(req);
+  if (!auth?.isAuthenticated || !auth.isSeller || (!auth.isAdmin && (auth.user.role !== 'seller' || auth.user.sellerStatus !== 'Approved' || auth.user.status !== 'Active'))) return null;
+  return auth.user;
 }
 
 export async function PUT(req, { params }) {
   try {
-    const seller = verifySeller(req);
+    const seller = await verifySeller(req);
     if (!seller || !seller.id) {
       return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
     }
@@ -43,15 +37,17 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    const isOwner = product.vendorId === seller.id || product.sellerId === seller.id || seller.role === 'admin' || seller.role === 'super_admin';
+    const isOwner = ownsProduct(product, seller) || ['admin','super_admin'].includes(seller.role);
     if (!isOwner) {
       return NextResponse.json({ error: 'Forbidden: You do not have permission to modify this product' }, { status: 403 });
     }
 
+    const validation = validateProductData({ ...body, ...(countInStock !== undefined ? { stock: Number(countInStock) } : {}) }, seller, true);
+    if (!validation.isValid) return NextResponse.json({ error: 'Invalid product update', errors: validation.errors }, { status: 400 });
     if (price !== undefined) product.price = Number(price);
     if (originalPrice !== undefined) product.originalPrice = Number(originalPrice);
     if (countInStock !== undefined) {
-      product.countInStock = Number(countInStock);
+      product.stock = Number(countInStock);
       product.inStock = Number(countInStock) > 0;
     }
     if (name) product.name = name.trim();

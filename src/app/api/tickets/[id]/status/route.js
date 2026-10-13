@@ -13,7 +13,7 @@ async function handleStatusUpdate(req, context) {
       return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
     }
 
-    if (!auth.isAdmin && !auth.isStaff) {
+    if (!auth.isAdmin && auth.user?.role !== 'support_agent') {
       return NextResponse.json({ error: 'Forbidden: Admin or Support privileges required to change ticket status' }, { status: 403 });
     }
 

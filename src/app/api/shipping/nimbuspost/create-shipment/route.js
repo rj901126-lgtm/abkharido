@@ -1,3 +1,4 @@
+import { findOrder, sellerOwnsOrder, requireFulfillable } from '../../../orders/financialSecurity.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
@@ -25,18 +26,13 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
     }
 
-    let order = null;
-    if (/^[0-9a-fA-F]{24}$/.test(String(orderId))) {
-      order = await Order.findById(orderId);
-    }
-    if (!order) {
-      order = await Order.findOne({ $or: [{ cfOrderId: orderId }, { id: orderId }] });
-    }
-
+    let order = await findOrder(orderId);
     if (!order) {
       return NextResponse.json({ error: 'Order not found in database' }, { status: 404 });
     }
 
+    if (!auth.isAdmin && !sellerOwnsOrder(auth, order)) return NextResponse.json({ error: 'Order unavailable' }, { status: 403 });
+    requireFulfillable(order);
     // Determine Courier Partner
     let chosenCourier = preferredCourier || (
       order.shippingAddress?.postalCode?.startsWith('4') 
@@ -51,6 +47,7 @@ export async function POST(req) {
 
     // Check for real NimbusPost credentials in environment
     const nimbusToken = process.env.NIMBUSPOST_TOKEN || process.env.NIMBUSPOST_API_KEY || process.env.NIMBUS_API_KEY;
+    if (!nimbusToken) throw new Error('NimbusPost credentials missing');
     if (nimbusToken) {
       try {
         const cleanPhone = String(order.shippingAddress?.phone || '9876543210').replace(/\D/g, '').slice(-10);
@@ -106,6 +103,7 @@ export async function POST(req) {
       }
     }
     
+    if (!isLiveNimbus) throw new Error('Carrier booking was not confirmed');
     // Generate or retain 4-digit Secure Delivery PIN
     const deliveryPin = order.deliveryPin || String(Math.floor(1000 + Math.random() * 9000));
 

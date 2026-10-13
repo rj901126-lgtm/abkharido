@@ -17,11 +17,22 @@ services:
     build:
       context: .
       dockerfile: frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_FIREBASE_API_KEY: ${NEXT_PUBLIC_FIREBASE_API_KEY}
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}
+        NEXT_PUBLIC_FIREBASE_APP_ID: ${NEXT_PUBLIC_FIREBASE_APP_ID}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
     # Exposed only to the docker network, not to the host machine directly
     expose:
       - "3000"
     environment:
       - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/abkharido?replicaSet=abkharido-rs}
+    env_file:
+      - .env
     depends_on:
       - backend
     networks:
@@ -38,13 +49,15 @@ services:
     environment:
       - NODE_ENV=production
       - REDIS_URI=redis://redis:6379
-      - DB_URI=mongodb://mongodb:27017/abkharido
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/abkharido?replicaSet=abkharido-rs}
       # NOTE: Update .env with real secrets for Production/AWS
     env_file:
       - .env
     depends_on:
-      - redis
-      - mongodb
+      redis:
+        condition: service_started
+      mongodb:
+        condition: service_healthy
     networks:
       - abkharido-net
 
@@ -59,6 +72,13 @@ services:
 
   mongodb:
     image: mongo:7
+    command: ["mongod", "--replSet", "abkharido-rs", "--bind_ip_all"]
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'try { rs.status() } catch (e) { rs.initiate({_id: \"abkharido-rs\", members: [{_id: 0, host: \"mongodb:27017\"}]}) }; if (!db.hello().isWritablePrimary) quit(1)' "]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 20s
     restart: unless-stopped
     # Removed ports binding for security (only accessible inside abkharido-net)
     volumes:

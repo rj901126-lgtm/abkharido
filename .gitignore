@@ -35,3 +35,15 @@ playwright-report/
 scratch/
 brain/
 
+
+# Environment variants and private configuration
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*service-account*.json
+*service_account*.json
+*firebase-adminsdk*.json

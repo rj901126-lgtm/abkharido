@@ -2,13 +2,13 @@ import crypto from 'crypto';
 import connectDB from './connectDB.js';
 import User from '../../server/models/User.js';
 import Otp from '../../server/models/Otp.js';
-import jwt from 'jsonwebtoken';
+
 import { isValidEmail } from '../utils/constants.js';
+import { signUserToken, isActiveUser, isGeneratedPassword } from '../../server/utils/authSecurity.js';
+import { verifiedFirebasePhone } from '../../server/utils/firebaseIdentity.js';
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026_super_secure', {
-    expiresIn: '30d',
-  });
+  return signUserToken(id);
 };
 
 // Normalize any phone format (+919172600587, 919172600587, 9172600587) to 10 pure digits
@@ -49,103 +49,34 @@ export async function findExistingUser({ phone, email, username } = {}) {
   return await User.findOne({ $or: orConditions });
 }
 
-export async function verifyFirebaseDirect({ idToken, phone, fullName, email }) {
+export async function verifyFirebaseDirect({ idToken, fullName }) {
+  const normalizedPhone = await verifiedFirebasePhone(idToken);
   await connectDB();
-  let verifiedPhone = phone;
-
-  // Verify Firebase ID Token cryptographically using Firebase Admin SDK if token is provided
-  if (idToken) {
-    try {
-      const admin = (await import('firebase-admin')).default;
-      if (!admin.apps.length) {
-        admin.initializeApp({
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || 'abkharido-auth'
-        });
-      }
-      const decoded = await admin.auth().verifyIdToken(idToken);
-      if (decoded && decoded.phone_number) {
-        verifiedPhone = normalizePhone(decoded.phone_number);
-      }
-    } catch (tokenErr) {
-      console.warn('[Firebase Admin Verify Token Notice]:', tokenErr?.message || tokenErr);
-      // If service account key is not present on dev or edge, fall back to validated phone
-      if (!verifiedPhone) {
-        throw new Error('Invalid or unverified Firebase authentication token.');
-      }
-    }
-  }
-
-  if (!verifiedPhone) throw new Error('Phone number is required from Firebase SMS verification');
-
-  const normalizedPhone = normalizePhone(verifiedPhone);
-  let user = await findExistingUser({ phone: normalizedPhone, email });
-
+  let user = await User.findOne({ phone: { $in: [normalizedPhone, '+91' + normalizedPhone, '91' + normalizedPhone] } });
   if (!user) {
-    const defaultName = fullName || `Customer (+91 ${normalizedPhone})`;
     try {
       user = await User.create({
         username: normalizedPhone,
         phone: normalizedPhone,
-        email: isValidEmail(email) ? email.trim().toLowerCase() : undefined,
-        fullName: defaultName,
-        password: 'FirebaseVerifiedUser123!'
+        fullName: typeof fullName === 'string' ? fullName.slice(0, 120) : 'Customer',
+        password: crypto.randomBytes(32).toString('hex')
       });
-    } catch (err) {
-      if (err.code === 11000) {
-        user = await findExistingUser({ phone: normalizedPhone, email });
-        if (!user) {
-          user = await User.create({
-            username: `${normalizedPhone}_${Date.now().toString().slice(-4)}`,
-            phone: normalizedPhone,
-            email: isValidEmail(email) ? email.trim().toLowerCase() : undefined,
-            fullName: defaultName,
-            password: 'FirebaseVerifiedUser123!'
-          });
-        }
-      } else {
-        throw err;
-      }
+    } catch (error) {
+      if (error.code !== 11000) throw error;
+      user = await User.findOne({ phone: { $in: [normalizedPhone, '+91' + normalizedPhone, '91' + normalizedPhone] } });
+      if (!user) user = await User.create({
+        username: normalizedPhone + '_' + crypto.randomBytes(6).toString('hex'),
+        phone: normalizedPhone, fullName: 'Customer', password: crypto.randomBytes(32).toString('hex')
+      });
     }
-  } else {
-    let shouldSave = false;
-    if (!user.phone || user.phone !== normalizedPhone) {
-      user.phone = normalizedPhone;
-      shouldSave = true;
-    }
-    if (fullName && (!user.fullName || user.fullName === 'VIP Member' || user.fullName === 'New User')) {
-      user.fullName = fullName;
-      shouldSave = true;
-    }
-    // Auto-heal invalid or ciphertext email from legacy database saves
-    if (user.email && !isValidEmail(user.email)) {
-      user.email = undefined;
-      shouldSave = true;
-    }
-    if (email && isValidEmail(email) && (!user.email || user.email !== email.trim().toLowerCase())) {
-      user.email = email.trim().toLowerCase();
-      shouldSave = true;
-    }
-    if (shouldSave) await user.save();
   }
-
-  const cleanPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedPhone;
-  const cleanEmail = isValidEmail(user.email) ? user.email : null;
-  return {
-    success: true,
-    user: {
-      _id: user._id.toString(),
-      username: user.username,
-      email: cleanEmail,
-      isEmailVerified: Boolean(user.isEmailVerified),
-      phone: cleanPhone,
-      isPhoneVerified: true,
-      fullName: user.fullName || 'VIP Member',
-      role: user.role,
-      token: generateToken(user._id),
-    }
-  };
+  if (!isActiveUser(user)) throw new Error('Account is not active.');
+  return { success: true, user: {
+    _id: String(user._id), username: user.username, email: isValidEmail(user.email) ? user.email : null,
+    isEmailVerified: Boolean(user.isEmailVerified), phone: normalizedPhone, isPhoneVerified: true,
+    fullName: user.fullName || 'Customer', role: user.role, token: generateToken(user._id)
+  } };
 }
-
 export async function verifyOtpDirect(params = {}) {
   await connectDB();
   const rawRecipient = params.phone || params.recipient || params.mobile || params.email || '';
@@ -198,7 +129,7 @@ export async function verifyOtpDirect(params = {}) {
         phone: normalizedRecipient,
         email: undefined,
         fullName: defaultName,
-        password: 'abkharido_otp_user_' + Date.now()
+        password: crypto.randomBytes(32).toString('hex')
       });
     } catch (err) {
       if (err.code === 11000) {
@@ -209,7 +140,7 @@ export async function verifyOtpDirect(params = {}) {
             phone: normalizedRecipient,
             email: undefined,
             fullName: defaultName,
-            password: 'abkharido_otp_user_' + Date.now()
+            password: crypto.randomBytes(32).toString('hex')
           });
         }
       } else {
@@ -234,6 +165,7 @@ export async function verifyOtpDirect(params = {}) {
     if (shouldSave) await user.save();
   }
 
+  if (!isActiveUser(user)) throw new Error('Account is not active.');
   const cleanRecipientPhone = (user.phone && !user.phone.includes(':')) ? user.phone : normalizedRecipient;
   const cleanEmail = isValidEmail(user.email) ? user.email : null;
   return {
@@ -255,7 +187,7 @@ export async function verifyOtpDirect(params = {}) {
 export async function loginPasswordDirect({ username, password }) {
   await connectDB();
   const user = await User.findOne({ username });
-  if (user && (await user.matchPassword(password))) {
+  if (isActiveUser(user) && !isGeneratedPassword(password) && (await user.matchPassword(password))) {
     const cleanEmail = isValidEmail(user.email) ? user.email : null;
     return {
       success: true,

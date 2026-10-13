@@ -1,3 +1,4 @@
+import { cancelAndRefund } from '../../src/app/api/orders/financialSecurity.js';
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
@@ -75,123 +76,11 @@ export const processAbandonedCarts = async () => {
 // can successfully transition any given order from Pending → Cancelled.
 // ─────────────────────────────────────────────────────────────────────────────
 export const releaseExpiredOrderStock = async () => {
-  logger.info('[CRON] Starting Expired Order Stock Release job...');
-  let releasedCount = 0;
-  let errorCount = 0;
-
-  try {
-    const now = new Date();
-
-    // Find all orders that:
-    //   • are still Pending (payment never completed)
-    //   • have not been paid
-    //   • have a paymentExpiresAt that is in the past
-    const expiredOrders = await Order.find({
-      status: 'Pending',
-      isPaid: false,
-      paymentExpiresAt: { $lt: now, $exists: true, $ne: null }
-    }).lean();
-
-    logger.info(`[CRON] Found ${expiredOrders.length} expired Pending orders to release.`);
-
-    for (const order of expiredOrders) {
-      try {
-        // ── STEP 1: Atomically cancel the order ──
-        // The conditional update prevents double-processing if two cron instances
-        // fire at the same millisecond (idempotent guard).
-        const cancelled = await Order.findOneAndUpdate(
-          { _id: order._id, status: 'Pending', isPaid: false },
-          {
-            $set: { status: 'Cancelled' },
-            $push: {
-              trackingHistory: {
-                status: 'Cancelled',
-                timestamp: new Date(),
-                comment: 'Order automatically cancelled: payment not received within 15 minutes.'
-              }
-            }
-          },
-          { new: true }
-        );
-
-        if (!cancelled) {
-          // Another cron instance already processed this order — skip safely
-          logger.warn(`[CRON] Order ${order._id} was already processed by another instance. Skipping.`);
-          continue;
-        }
-
-        // ── STEP 2: Restore stock for all items atomically ──
-        for (const item of order.orderItems) {
-          try {
-            const restored = await Product.findOneAndUpdate(
-              { _id: item.product },
-              { $inc: { stock: item.qty, soldCount: -item.qty } },
-              { new: true }
-            );
-            if (restored && restored.stock > 0 && !restored.inStock) {
-              await Product.updateOne({ _id: restored._id }, { $set: { inStock: true } });
-            }
-          } catch (stockErr) {
-            logger.error(`[CRON] Failed to restore stock for product ${item.product} on order ${order._id}: ${stockErr.message}`);
-          }
-        }
-
-        // ── STEP 3: Release coupon if one was applied ──
-        if (order.appliedCoupon) {
-          try {
-            await Coupon.updateOne(
-              { code: order.appliedCoupon },
-              {
-                $pull: { usedBy: order.user },
-                $inc: { usedCount: -1 }
-              }
-            );
-          } catch (couponErr) {
-            logger.error(`[CRON] Failed to release coupon ${order.appliedCoupon} for order ${order._id}: ${couponErr.message}`);
-          }
-        }
-
-        // ── STEP 4: Refund wallet coins if any were used ──
-        // This handles the case where a user spent coins on checkout but didn't pay.
-        if (order.coinsUsed && order.coinsUsed > 0) {
-          try {
-            await User.updateOne(
-              { _id: order.user },
-              { $inc: { walletCoins: order.coinsUsed } }
-            );
-          } catch (coinsErr) {
-            logger.error(`[CRON] Failed to refund ${order.coinsUsed} coins for order ${order._id}: ${coinsErr.message}`);
-          }
-        }
-
-        releasedCount++;
-        logger.info(`[CRON] Released order ${order._id} — restored ${order.orderItems.length} item(s) back to stock.`);
-      } catch (orderErr) {
-        errorCount++;
-        logger.error(`[CRON] Failed to process expired order ${order._id}: ${orderErr.message}`);
-      }
-    }
-
-    logger.info(`[CRON] Expired Order Stock Release complete. Released: ${releasedCount}, Errors: ${errorCount}.`);
-  } catch (error) {
-    logger.error(`[CRON] releaseExpiredOrderStock job failed entirely: ${error.message}`);
-  }
+ try {
+  const expired = await Order.find({ status: 'Pending', isPaid: false, paymentExpiresAt: { $lt: new Date() } }).select('_id').limit(250).lean();
+  for (const order of expired) { try { await cancelAndRefund(order._id, { admin: true, expired: true, reason: 'Payment reservation expired' }); } catch (error) { logger.error(`[CRON] Reservation release failed: ${error.message}`); } }
+ } catch (error) { logger.error(`[CRON] Stock release unavailable: ${error.message}`); }
 };
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CRON SCHEDULER
-//
-// Architecture note for Vercel Serverless:
-// setInterval is unreliable on serverless because functions are stateless and
-// can be cold-started at any time. The jobs below run on every cold start
-// (which is fine for a recovery job — they check timestamps before doing work).
-//
-// For production, consider:
-//   - Vercel Cron Jobs (vercel.json "crons" config) — call a /api/cron/release endpoint
-//   - An external scheduler like Upstash QStash or GitHub Actions
-//
-// The releaseExpiredOrderStock job is safe to run repeatedly — it is idempotent.
-// ─────────────────────────────────────────────────────────────────────────────
 export const initCronJobs = () => {
   // Abandoned cart emails: run every hour
   if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_LOCAL_CRON === 'true') {

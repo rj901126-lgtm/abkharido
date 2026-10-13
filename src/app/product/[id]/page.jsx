@@ -1,3 +1,4 @@
+import { serializeJsonLd, publicProductForPage } from '../../../utils/safeRendering.js';
 import React from 'react';
 import { notFound } from 'next/navigation';
 import ProductClient from './ProductClient';
@@ -28,7 +29,7 @@ async function getProduct(id) {
       }).lean();
       if (productDoc) {
         if (productDoc.status === 'archived' || productDoc.status === 'draft' || productDoc.status === 'review' || productDoc.isArchived) return null;
-        return JSON.parse(JSON.stringify(productDoc));
+        return publicProductForPage(productDoc);
       }
     }
   } catch (err) {
@@ -41,7 +42,7 @@ async function getProduct(id) {
     p.status !== 'archived' && p.status !== 'draft' && p.status !== 'review' && !p.isArchived
   );
   if (localProduct) {
-    return JSON.parse(JSON.stringify(localProduct));
+    return publicProductForPage(localProduct);
   }
 
   return null;
@@ -227,14 +228,13 @@ export default async function Page({ params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <ProductClient id={id} initialProduct={product} />
     </>
   );
 }
-

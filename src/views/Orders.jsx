@@ -251,7 +251,20 @@ const Orders = ({ onNavigate }) => {
         }
       });
       if (res.ok) {
-        showToast('🎉 Converted to Prepaid! 50 AB Coins added to your wallet & contactless delivery activated.', 'success');
+        const session = await res.json();
+        if (!session.paymentSessionId) throw new Error('Payment session unavailable');
+        const Cashfree = window.Cashfree || await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'; script.async = true;
+          script.onload = () => resolve(window.Cashfree); script.onerror = () => reject(new Error('Payment SDK unavailable'));
+          document.body.appendChild(script);
+        });
+        if (!Cashfree) throw new Error('Payment SDK unavailable');
+        const cashfree = Cashfree({ mode: session.mode === 'production' ? 'production' : 'sandbox' });
+        await cashfree.checkout({ paymentSessionId: session.paymentSessionId, redirectTarget: '_modal' });
+        const verified = await fetch('/api/payments/cashfree/verify', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ orderId: session.orderId }) });
+        const verification = await verified.json();
+        showToast(verification.success ? 'Payment verified. 50 bonus coins credited.' : 'Payment is pending verification.', verification.success ? 'success' : 'info');
         fetchOrders();
       } else {
         const err = await res.json().catch(() => ({}));

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
-import connectDB from '../../../../lib/connectDB.js';
-import User from '../../../../../server/models/User.js';
+import { getJwtSecret } from '../../../../../server/utils/authSecurity.js';
+import { timingSafeEqual } from 'crypto';
 
 // In-memory rate limiting map for admin verify attempts
 const failedAttemptsMap = new Map();
@@ -30,6 +29,8 @@ function checkRateLimit(ip) {
 
 function recordFailedAttempt(ip) {
   const now = Date.now();
+  for (const [key, entry] of failedAttemptsMap) if (now > entry.resetTime) failedAttemptsMap.delete(key);
+  if (failedAttemptsMap.size >= 5000) failedAttemptsMap.delete(failedAttemptsMap.keys().next().value);
   const entry = failedAttemptsMap.get(ip);
   if (!entry || now > entry.resetTime) {
     failedAttemptsMap.set(ip, { count: 1, resetTime: now + LOCKOUT_WINDOW_MS });
@@ -58,48 +59,43 @@ export async function POST(req) {
 
     const body = await req.json().catch(() => ({}));
     const { password } = body;
-    const validPin = (process.env.ADMIN_SECURE_PIN || '2026').trim();
-    const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'abkharido_enterprise_secret_2026';
+    const validPin = process.env.ADMIN_SECURE_PIN?.trim();
+    if (!validPin || validPin.length < 16) {
+      return NextResponse.json({ error: 'A private administrator credential must be configured on the server.' }, { status: 503 });
+    }
+    const jwtSecret = getJwtSecret();
 
-    const cleanInput = typeof password === 'string' ? password.trim() : String(password || '').trim();
+    const cleanInput = typeof password === 'string' ? password.trim() : '';
 
     // Verify PIN strictly
-    const isMatch = Boolean(cleanInput && cleanInput === validPin);
+    const submitted = Buffer.from(cleanInput);
+    const expected = Buffer.from(validPin);
+    const isMatch = submitted.length === expected.length && timingSafeEqual(submitted, expected);
 
     if (isMatch) {
       clearFailedAttempts(ip);
-
-      // If user is currently authenticated via session, elevate their role in MongoDB
-      try {
-        const auth = await getAuthenticatedUser(req).catch(() => null);
-        if (auth?.user?.id && auth.user.id !== 'admin-root') {
-          await connectDB();
-          await User.findByIdAndUpdate(auth.user.id, { role: 'super_admin' });
-        }
-      } catch (e) {
-        console.warn('Could not elevate user role in DB:', e.message);
-      }
 
       const cryptoToken = jwt.sign(
         { 
           role: 'super_admin', 
           id: 'admin-root', 
+          purpose: 'admin',
           email: 'admin@abkharido.com', 
           username: 'admin', 
           issuer: 'AbKharido Security Engine' 
         }, 
         jwtSecret, 
-        { algorithm: 'HS256', expiresIn: '7d' }
+        { algorithm: 'HS256', expiresIn: '1h', audience: 'abkharido-admin', issuer: 'abkharido' }
       );
 
       const response = NextResponse.json({ success: true, token: cryptoToken });
       
       // Set secure cookie so subsequent requests to /api/admin/* and Server Components can read it
       response.cookies.set('abkharido_admin_token', cryptoToken, {
-        httpOnly: false,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60,
+        maxAge: 60 * 60,
         path: '/'
       });
 

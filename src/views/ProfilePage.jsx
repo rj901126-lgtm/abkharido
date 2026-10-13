@@ -128,19 +128,6 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
         }
       }
 
-      // 2. Check query param ?emailVerified=true
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('emailVerified') === 'true' && currentUser && !currentUser.isEmailVerified) {
-        await updateUserProfile({
-          isEmailVerified: true
-        });
-        showToast('Email successfully verified! 🎉', 'success');
-        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-        const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, '', cleanUrl);
-        return;
-      }
-
       // 3. Regular Firebase currentUser emailVerified sync (silent sync, only toast if user actively initiated verify)
       if (auth?.currentUser?.emailVerified && currentUser && !currentUser.isEmailVerified) {
         await updateUserProfile({

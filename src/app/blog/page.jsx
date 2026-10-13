@@ -1,4 +1,5 @@
 'use client';
+import { serializeJsonLd } from '../../utils/safeRendering.js';
 import React from 'react';
 import Link from 'next/link';
 import { BLOG_POSTS } from '../../data/blogPosts';
@@ -33,7 +34,7 @@ export default function BlogPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(collectionSchema) }}
       />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
         {/* Hero Header */}

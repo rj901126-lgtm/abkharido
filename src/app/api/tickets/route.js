@@ -17,11 +17,11 @@ export async function GET(req) {
     await connectDB();
 
     // Customers only see their own tickets; Admin and Staff see all tickets
-    const query = (auth.isAdmin || auth.isStaff) ? {} : { customerId: auth.user.id };
+    const query = (auth.isAdmin || auth.user?.role === 'support_agent') ? {} : { customerId: auth.user.id };
 
     const tickets = await Ticket.find(query)
       .populate('customerId', 'fullName username email phone avatar')
-      .populate('orderId', 'totalPrice createdAt status cfOrderId')
+      .populate({ path: 'orderId', select: 'totalPrice createdAt status cfOrderId', match: (auth.isAdmin || auth.user?.role === 'support_agent') ? {} : { user: auth.user.id } })
       .sort({ createdAt: -1 })
       .lean();
 
@@ -68,11 +68,12 @@ export async function POST(req) {
     const body = await req.json().catch(() => ({}));
     const { subject, message, priority = 'Medium', orderId } = body;
 
-    if (!subject || !subject.trim() || !message || !message.trim()) {
+    if (typeof subject !== 'string' || typeof message !== 'string' || !subject.trim() || !message.trim() || subject.length > 200 || message.length > 5000) {
       return NextResponse.json({ error: 'Subject and message description are required' }, { status: 400 });
     }
 
-    const isStaffOrAdmin = Boolean(auth.isAdmin || auth.isStaff);
+    if (orderId && (!/^[0-9a-fA-F]{24}$/.test(String(orderId)) || !await Order.exists({ _id: orderId, user: auth.user._id || auth.user.id }))) return NextResponse.json({ error: 'Order is not available for this account' }, { status: 403 });
+    const isStaffOrAdmin = Boolean(auth.isAdmin || auth.user?.role === 'support_agent');
 
     const ticket = new Ticket({
       customerId: auth.user._id || auth.user.id,

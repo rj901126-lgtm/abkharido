@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
-  const { cart, currentUser, placeOrder, showToast, clearCart, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards } = useApp();
+  const { cart, currentUser, placeOrder, showToast, clearCart, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards, activeReferral } = useApp();
   const [step, setStep] = useState(1); // 1: Address, 2: Summary, 3: Payment, 4: Success
   const [useCoins, setUseCoins] = useState(Boolean(useCoinsDiscount));
   const [selectedSavedCard, setSelectedSavedCard] = useState(null);
@@ -39,9 +39,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const [whatsAppUpdates, setWhatsAppUpdates] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGuestCheckout, setIsGuestCheckout] = useState(false);
+
   const isSubmittingRef = useRef(false);
-  
+
   const invoiceRef = useRef();
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -179,7 +179,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Coins discount is clamped to remaining subtotal after coupon discount (matches server ledger)
   const remainingSubtotalAfterCoupon = Math.max(0, itemsPrice - couponDiscountAmount);
   const coinsDiscount = useCoins && currentUser ? Math.min(userCoins, remainingSubtotalAfterCoupon) : 0;
-  
+
   const finalAmount = Math.max(0, itemsPrice - coinsDiscount - couponDiscountAmount + deliveryCharge);
 
 
@@ -258,7 +258,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   // Handle Payment Submit and Order Placement (Cashfree Integration)
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Prevent double submission synchronously with ref
     if (isSubmittingRef.current || isSubmitting) return;
     isSubmittingRef.current = true;
@@ -299,7 +299,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           setCreatedOrder(orderDetails);
           setStep(4);
           triggerConfetti();
-          
+
           // Auto-save address to profile
           if (updateUserProfile) {
             updateUserProfile({
@@ -347,6 +347,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           },
           paymentMethod: 'Online Payment',
           useCoinsDiscount: useCoins,
+          activeReferral,
           couponCode: appliedCoupon?.code
         })
       });
@@ -361,7 +362,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       }
 
       const data = await res.json();
-      
+
       if (data.simulated) {
         // Developer simulated successful checkout (Verify instantly)
         showToast('Verifying simulated payment...', 'info');
@@ -371,7 +372,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           body: JSON.stringify({ orderId: data.orderId })
         });
         const verifyData = await verifyRes.json().catch(() => ({}));
-        
+
         if (verifyRes.ok && verifyData.success) {
           showToast('Payment Verified Successfully!', 'success');
           clearCart();
@@ -386,7 +387,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           setStep(4);
           triggerConfetti();
 
-          
+
           if (updateUserProfile && currentUser) {
             updateUserProfile({
               fullName: address.name,
@@ -407,7 +408,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       } else {
         // Cashfree Payment Gateway integration (SDK v3 with in-page modal)
         showToast('Launching Cashfree Gateway...', 'success');
-        
+
         const loadSdk = () => {
           return new Promise((resolve) => {
             if (typeof window !== 'undefined' && window.Cashfree) {
@@ -511,7 +512,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
     }
   };
 
-  if (!currentUser && !isGuestCheckout) {
+  if (!currentUser) {
     return (
       <div className="container animate-fade-in" style={{ padding: '60px 20px', minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{
@@ -564,7 +565,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
           <button 
             className="btn btn-primary" 
-            onClick={() => onNavigate('login?callbackUrl=/checkout')} 
+            onClick={() => onNavigate('login?callbackUrl=/checkout')}
             style={{ 
               width: '100%',
               padding: '16px 24px',
@@ -594,7 +595,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
           <button 
             type="button"
-            onClick={() => setIsGuestCheckout(true)} 
+            onClick={() => onNavigate('login?callbackUrl=%2Fcheckout')}
             style={{ 
               width: '100%',
               padding: '14px 24px',
@@ -614,7 +615,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--brand-accent)'; e.currentTarget.style.color = 'var(--brand-accent)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#334155'; }}
           >
-            ⚡ Continue as Guest (Fast 1-Step Checkout)
+            Sign in to complete checkout
           </button>
 
           <div style={{
@@ -652,7 +653,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
         </p>
         <button 
           className="btn btn-primary" 
-          onClick={() => onNavigate('home')} 
+          onClick={() => onNavigate('home')}
           style={{ padding: '14px 40px', fontSize: '16px', fontWeight: '600' }}
         >
           Continue Shopping
@@ -663,7 +664,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
   return (
     <div className="container animate-fade-in-only desktop-premium-checkout" style={{ padding: '24px 0 150px 0', maxWidth: '800px' }}>
-      
+
       {/* Wizard Step Progress Tracker */}
       {step < 4 && (
         <div className="checkout-tracker-container">
@@ -701,7 +702,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               </button>
             )}
           </div>
-          
+
           {/* Saved Addresses View */}
           {currentUser?.addresses && currentUser.addresses.length > 0 && !isAddingNewAddress ? (
             <div style={{ marginBottom: '20px' }}>
@@ -711,7 +712,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                     ? `${addr.houseNo}, ${addr.streetArea || addr.streetAddress || ''}`.trim()
                     : (addr.streetArea || addr.streetAddress || addr.address || '');
                   const isSelected = (address.pincode === addr.pincode && address.streetAddress === addrStreet) || (!address.pincode && (addr.isDefault || idx === 0));
-                  
+
                   return (
                     <div 
                       key={addr.id || `checkout-addr-${idx}`}
@@ -801,7 +802,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 <input 
                   type="checkbox" 
                   id="whatsapp-optin-saved"
-                  checked={whatsAppUpdates} 
+                  checked={whatsAppUpdates}
                   onChange={(e) => setWhatsAppUpdates(e.target.checked)}
                   style={{ width: '16px', height: '16px', accentColor: '#16a34a', cursor: 'pointer', flexShrink: 0 }}
                 />
@@ -828,7 +829,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 <div style={{ flex: 1 }}>
                   <label className="checkout-label">Pincode *</label>
                   <input type="text" value={address.pincode} onChange={(e) => setAddress({...address, pincode: e.target.value})} className="checkout-input" maxLength="6" inputMode="numeric" pattern="[0-9]{6}" placeholder="6-digit pincode" required />
-                  
+
                   {isCheckingShipping && <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Checking shipping serviceability...</div>}
                   {shippingServiceability && !isCheckingShipping && (
                     <div style={{ fontSize: '11px', marginTop: '4px', fontWeight: '600' }}>
@@ -867,7 +868,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 <input 
                   type="checkbox" 
                   id="whatsapp-optin-form"
-                  checked={whatsAppUpdates} 
+                  checked={whatsAppUpdates}
                   onChange={(e) => setWhatsAppUpdates(e.target.checked)}
                   style={{ width: '16px', height: '16px', accentColor: '#16a34a', cursor: 'pointer', flexShrink: 0 }}
                 />
@@ -889,7 +890,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               <button 
                 type="button" 
                 onClick={handleAddressSubmit}
-                disabled={!address.name || !address.phone || !address.pincode || !address.streetAddress || isCheckingShipping || (shippingServiceability && !shippingServiceability.serviceable)} 
+                disabled={!address.name || !address.phone || !address.pincode || !address.streetAddress || isCheckingShipping || (shippingServiceability && !shippingServiceability.serviceable)}
                 className="btn btn-primary checkout-btn"
                 style={{ width: '100%' }}
               >
@@ -905,7 +906,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       {step === 2 ? (
         <div className="card checkout-card">
           <h2 className="checkout-step-header"><ShoppingBag size={20} /> Review Order Items</h2>
-          
+
           {/* Delivery Address Recap */}
           <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '14px 16px', marginBottom: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
             <div>
@@ -919,7 +920,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             </div>
             <button 
               type="button" 
-              onClick={() => setStep(1)} 
+              onClick={() => setStep(1)}
               style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--brand-accent)', fontWeight: '800', fontSize: '11.5px', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', flexShrink: 0 }}
             >
               Change
@@ -1172,7 +1173,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       {step === 3 && (
         <div className="card checkout-card">
           <h2 className="checkout-step-header"><CreditCard size={20} /> Select Payment Option</h2>
-          
+
           {/* 🪙 AB Coins in Step 3 */}
           {currentUser && userCoins > 0 && (
             <div style={{
@@ -1241,7 +1242,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           <form onSubmit={handlePaymentSubmit}>
             <div className="checkout-form">
 
-              
+
               {/* Saved Cards Section */}
               {savedCards && savedCards.length > 0 && (
                 <div style={{ marginBottom: '8px' }}>
@@ -1415,7 +1416,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
 
             <button 
               className="btn btn-outline checkout-btn" 
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               onClick={triggerInvoiceDownload}
               disabled={isDownloading}
             >

@@ -1,181 +1,37 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import connectDB from '../../../../../../server/config/db.js';
+import connectDB from '../../../../../lib/connectDB.js';
 import Product from '../../../../../../server/models/Product.js';
 import Order from '../../../../../../server/models/Order.js';
-import jwt from 'jsonwebtoken';
-
-export async function GET(req, context) {
+import { getAuthenticatedUser } from '../../../../../lib/serverAuth.js';
+export async function GET(req, { params }) {
   try {
-    const params = await context.params;
-    const id = params?.id;
-    if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
-
-    try {
-      if (mongoose.connection.readyState !== 1) {
-        await connectDB();
-      }
-      const product = await Product.findOne({ id }).lean();
-      if (product) {
-        return NextResponse.json({
-          reviews: product.reviews || [],
-          rating: product.rating || 0,
-          reviewsCount: (product.reviews || []).length
-        });
-      }
-    } catch (_e) {}
-
-    return NextResponse.json({ reviews: [], rating: 0, reviewsCount: 0 });
-  } catch (_error) {
-    return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 });
-  }
+    const { id } = await params;
+    await connectDB();
+    const product = await Product.findOne({ id, status: { $in: ['published','active'] }, isArchived: { $ne: true } }).lean();
+    if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    const reviews = (product.reviews || []).map(r => ({ name: r.name, rating: r.rating, comment: r.comment, photos: r.photos, isVerifiedPurchase: Boolean(r.isVerifiedPurchase), createdAt: r.createdAt }));
+    return NextResponse.json({ reviews, rating: reviews.length ? reviews.reduce((s,r) => s + Number(r.rating || 0),0) / reviews.length : 0, reviewsCount: reviews.length });
+  } catch { return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 }); }
 }
-
-export async function POST(req, context) {
+export async function POST(req, { params }) {
   try {
-    const params = await context.params;
-    const id = params?.id;
-    if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
-
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized: Please log in to submit a review' }, { status: 401 });
-    }
-
-    const body = await req.json();
-    const { rating, comment, photos = [] } = body;
-
-    // Strict Anti-Spam validation (P0 Requirement: min 10 chars, max 500 chars, rating 1-5)
+    const auth = await getAuthenticatedUser(req);
+    if (!auth?.isAuthenticated) return NextResponse.json({ error: 'Please log in to submit a review' }, { status: 401 });
+    const { id } = await params;
+    const { rating, comment, photos = [] } = await req.json();
     const numRating = Number(rating);
-    if (!numRating || numRating < 1 || numRating > 5) {
-      return NextResponse.json({ error: 'Rating must be between 1 and 5 stars' }, { status: 400 });
-    }
-    if (!comment || typeof comment !== 'string' || comment.trim().length < 10) {
-      return NextResponse.json({ error: 'Review comment must be at least 10 characters long' }, { status: 400 });
-    }
-    if (comment.trim().length > 500) {
-      return NextResponse.json({ error: 'Review comment cannot exceed 500 characters' }, { status: 400 });
-    }
-
-    // Try proxying to Express backend first
-    const ports = [5000, 5001, 5002];
-    for (const port of ports) {
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 1500);
-
-        const res = await fetch(`http://localhost:${port}/api/products/${id}/reviews`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': authHeader
-          },
-          body: JSON.stringify(body),
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeout);
-        if (res && res.status < 500) {
-          const data = await res.json().catch(() => ({}));
-          return NextResponse.json(data, { status: res.status });
-        }
-      } catch (_err) {}
-    }
-
-    // Fallback: Direct DB manipulation
-    try {
-      if (mongoose.connection.readyState !== 1) {
-        await connectDB();
-      }
-      
-      let userName = 'Customer';
-      let userId = undefined;
-      let userPhone = '';
-      try {
-        const token = authHeader.replace('Bearer ', '');
-        const decoded = jwt.decode(token);
-        if (decoded) {
-          userName = decoded.name || decoded.fullName || decoded.username || userName;
-          userId = decoded.id || decoded._id || decoded.userId;
-          userPhone = decoded.phone || '';
-        }
-      } catch (_e) {}
-
-      const product = await Product.findOne({ id });
-      if (!product) {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-      }
-
-      // Check whether user is a genuine verified purchaser
-      let isVerifiedPurchase = false;
-      const cleanPhone = userPhone ? userPhone.replace(/\D/g, '').slice(-10) : '';
-      if (userId || cleanPhone) {
-        try {
-          const verifiedOrder = await Order.findOne({
-            $or: [
-              userId && /^[0-9a-fA-F]{24}$/.test(String(userId)) ? { user: userId } : null,
-              cleanPhone ? { 'shippingAddress.phone': cleanPhone } : null,
-              cleanPhone ? { 'shippingAddress.phone': `+91${cleanPhone}` } : null
-            ].filter(Boolean),
-            status: { $nin: ['Cancelled', 'CANCELLED', 'Failed', 'FAILED'] },
-            $or: [
-              { 'orderItems.product': product._id },
-              { 'orderItems.product': product.id },
-              { 'orderItems.name': product.name }
-            ]
-          }).lean();
-          if (verifiedOrder) {
-            isVerifiedPurchase = true;
-          }
-        } catch (_ordErr) {}
-      }
-
-      const newReview = {
-        name: userName,
-        user: userId && /^[0-9a-fA-F]{24}$/.test(String(userId)) ? userId : undefined,
-        rating: numRating,
-        comment: comment.trim(),
-        photos: Array.isArray(photos) ? photos.slice(0, 5) : [],
-        isVerifiedPurchase,
-        date: new Date().toISOString().split('T')[0],
-        createdAt: new Date()
-      };
-      if (product) {
-        if (!product.reviews) product.reviews = [];
-        product.reviews.unshift(newReview);
-        product.reviewsCount = product.reviews.length;
-        const totalRating = product.reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0);
-        product.rating = Number((totalRating / product.reviews.length).toFixed(1));
-        await product.save();
-
-        return NextResponse.json({
-          success: true,
-          message: 'Review submitted successfully!',
-          review: newReview,
-          rating: product.rating,
-          reviewsCount: product.reviewsCount,
-          reviews: product.reviews
-        }, { status: 201 });
-      }
-    } catch (_dbErr) {
-      console.error('[Product Review DB Save Error]:', _dbErr);
-    }
-
-    // In-memory fallback
-    return NextResponse.json({
-      success: true,
-      message: 'Review submitted successfully!',
-      review: {
-        name: 'Verified Buyer',
-        rating: numRating,
-        comment: comment.trim(),
-        photos: Array.isArray(photos) ? photos.slice(0, 5) : [],
-        date: new Date().toISOString().split('T')[0]
-      }
-    }, { status: 201 });
-
-  } catch (_error) {
-    return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 });
-  }
+    if (!Number.isInteger(numRating) || numRating < 1 || numRating > 5 || typeof comment !== 'string' || comment.trim().length < 10 || comment.length > 500) return NextResponse.json({ error: 'Invalid rating or review comment' }, { status: 400 });
+    await connectDB();
+    const product = await Product.findOne({ id, status: { $in: ['published','active'] }, isArchived: { $ne: true } });
+    if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    const userId = auth.user._id || auth.user.id;
+    if ((product.reviews || []).some(r => String(r.user) === String(userId))) return NextResponse.json({ error: 'Product already reviewed' }, { status: 409 });
+    const purchase = await Order.exists({ user: userId, 'orderItems.product': product._id, isPaid: true, status: { $nin: ['Cancelled','Returned'] } });
+    const review = { user: userId, name: auth.user.fullName || auth.user.username || 'Customer', rating: numRating, comment: comment.trim(), photos: Array.isArray(photos) ? photos.filter(p => typeof p === 'string' && /^https:\/\//.test(p)).slice(0,5) : [], isVerifiedPurchase: Boolean(purchase) };
+    const updated = await Product.findOneAndUpdate({ _id: product._id, 'reviews.user': { $ne: userId } }, { $push: { reviews: review } }, { new: true, runValidators: true });
+    if (!updated) return NextResponse.json({ error: 'Product already reviewed' }, { status: 409 });
+    const average = updated.reviews.reduce((sum,r) => sum + Number(r.rating || 0),0) / updated.reviews.length;
+    await Product.updateOne({ _id: updated._id }, { $set: { rating: average, reviewsCount: updated.reviews.length } });
+    return NextResponse.json({ success: true, review: { ...review, user: undefined }, rating: average, reviewsCount: updated.reviews.length }, { status: 201 });
+  } catch { return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 }); }
 }
-

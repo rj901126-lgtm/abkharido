@@ -16,7 +16,7 @@ export async function GET(req) {
     const userId = auth.user._id || auth.user.id;
 
     const tickets = await Ticket.find({ customerId: userId })
-      .populate('orderId', 'createdAt totalPrice status cfOrderId')
+      .populate({ path: 'orderId', select: 'createdAt totalPrice status cfOrderId', match: { user: userId } })
       .sort({ updatedAt: -1 })
       .lean();
 

@@ -30,6 +30,13 @@ export function isPlaceholderImage(url) {
 export function validateProductData(data, user = null, isUpdate = false) {
   const errors = [];
   const sanitized = { ...data };
+  const privileged = user && ['admin', 'super_admin'].includes(user.role);
+  const protectedFields = ['_id', 'vendorId', 'sellerId', 'sellerShopName', 'updatedBy', 'auditLogs', 'createdAt', 'updatedAt'];
+  for (const field of protectedFields) {
+    if (!privileged && Object.prototype.hasOwnProperty.call(data, field)) errors.push(`Field ${field} is managed by the server.`);
+    if (!privileged || !['vendorId','sellerId','sellerShopName'].includes(field)) delete sanitized[field];
+  }
+  if (isUpdate && sanitized.stock === undefined) delete sanitized.inStock;
 
   // 1. Stable ID
   if (!isUpdate || sanitized.id) {
@@ -164,6 +171,13 @@ export function validateProductData(data, user = null, isUpdate = false) {
     errors,
     sanitizedProduct: sanitized
   };
+}
+
+// A missing or conflicting owner must never implicitly authorize a seller.
+export function ownsProduct(product, user) {
+  const id = String(user?._id || user?.id || '');
+  const owners = [product?.vendorId, product?.sellerId].filter(v => v != null && String(v));
+  return Boolean(id && owners.length && owners.every(owner => String(owner) === id));
 }
 
 /**

@@ -1,3 +1,4 @@
+import { safeLocalRedirect } from '../utils/safeRendering.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle, ShieldCheck, Zap, Coins, Sparkles, X } from 'lucide-react';
@@ -30,7 +31,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
 
   useEffect(() => {
     if (currentUser) {
-      const target = callbackUrl || 'profile';
+      const target = safeLocalRedirect(callbackUrl);
       onNavigate(target);
     }
   }, [currentUser, onNavigate, callbackUrl]);
@@ -301,8 +302,8 @@ const Login = ({ onNavigate, callbackUrl }) => {
           localStorage.removeItem('abkharido_cached_profile');
           localStorage.removeItem('abkharido_user_session');
           const params = new URLSearchParams(window.location.search);
-          const target = params.get('callbackUrl') || callbackUrl || '/profile';
-          window.location.href = target.startsWith('/') ? target : '/' + target;
+          const target = params.get('callbackUrl') || params.get('redirect') || callbackUrl || '/profile';
+          window.location.href = safeLocalRedirect(target);
         }
       } else {
         showToast(result?.error || 'Authentication failed. Incorrect OTP.', 'error');

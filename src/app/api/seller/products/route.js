@@ -1,27 +1,21 @@
+import { ownsProduct, validateProductData } from '../../../../lib/productValidator.js';
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
 
 export const dynamic = 'force-dynamic';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026_super_secure';
-
-function verifySeller(req) {
-  const authHeader = req.headers.get('authorization') || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-  if (!token) return null;
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch {
-    return null;
-  }
+async function verifySeller(req) {
+  const auth = await getAuthenticatedUser(req);
+  if (!auth?.isAuthenticated || !auth.isSeller || (!auth.isAdmin && (auth.user.role !== 'seller' || auth.user.sellerStatus !== 'Approved' || auth.user.status !== 'Active'))) return null;
+  return auth.user;
 }
 
 export async function GET(req) {
   try {
     await connectDB();
-    const seller = verifySeller(req);
+    const seller = await verifySeller(req);
     
     if (!seller || !seller.id) {
       return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
@@ -34,7 +28,7 @@ export async function GET(req) {
     return NextResponse.json({
       success: true,
       count: products.length,
-      products
+      products: products.filter(p => ownsProduct(p, seller))
     });
 
   } catch (error) {
@@ -46,7 +40,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const seller = verifySeller(req);
+    const seller = await verifySeller(req);
     if (!seller || !seller.id) {
       return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
     }
@@ -70,7 +64,9 @@ export async function POST(req) {
       image: image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
       description: description || `Premium ${name} offered with manufacturer warranty and fast dispatch.`,
       specs: specs || [],
-      inStock: Boolean(inStock),
+      status: 'draft',
+      stock: Number(countInStock),
+      inStock: Number(countInStock) > 0,
       countInStock: Number(countInStock),
       rating: 0,
       reviewsCount: 0,
@@ -78,6 +74,9 @@ export async function POST(req) {
       sellerShopName: seller ? (seller.shopName || 'Verified Merchant') : 'Verified Merchant'
     });
 
+    const validation = validateProductData({ id: slug, name, category: category || 'electronics', price: Number(price), originalPrice: Number(originalPrice || price), stock: Number(countInStock), image, description, specs, status: 'draft' }, seller, false);
+    if (!validation.isValid) return NextResponse.json({ error: 'Invalid product', errors: validation.errors }, { status: 400 });
+    Object.assign(newProduct, validation.sanitizedProduct);
     await newProduct.save();
 
     return NextResponse.json({

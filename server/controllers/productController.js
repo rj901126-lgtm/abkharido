@@ -1,8 +1,9 @@
+import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 // eslint-disable-next-line
 import productsData from '../data/productsData.js';
 import { clearCache } from '../middleware/cacheMiddleware.js';
-import { toPublicProductDTO, validateProductData } from '../../src/lib/productValidator.js';
+import { toPublicProductDTO, validateProductData, ownsProduct } from '../../src/lib/productValidator.js';
 export { toPublicProductDTO };
 
 // @desc    Fetch all products with strict validation and public sanitization
@@ -138,7 +139,8 @@ export const createProduct = async (req, res, next) => {
 
     const product = new Product({
       ...sanitizedProduct,
-      sellerId: req.user._id === 'master_admin_legacy' ? null : req.user._id
+      sellerId: req.user.role === 'seller' ? String(req.user._id) : (sanitizedProduct.sellerId || sanitizedProduct.vendorId || undefined),
+      vendorId: req.user.role === 'seller' ? req.user._id : sanitizedProduct.vendorId
     });
     const createdProduct = await product.save();
     await clearCache('cache:/api/products*');
@@ -158,7 +160,7 @@ export const updateProduct = async (req, res, next) => {
 
     if (product) {
       // If seller, ensure they own it (except admin)
-      if (req.user.role === 'seller' && product.sellerId?.toString() !== req.user._id.toString()) {
+      if (!['admin', 'super_admin'].includes(req.user.role) && !ownsProduct(product, req.user)) {
         res.status(403);
         throw new Error('Not authorized to edit this product');
       }
@@ -201,7 +203,7 @@ export const deleteProduct = async (req, res, next) => {
     const product = await Product.findOne({ id: req.params.id });
 
     if (product) {
-      if (req.user.role === 'seller' && product.sellerId?.toString() !== req.user._id.toString()) {
+      if (!['admin', 'super_admin'].includes(req.user.role) && !ownsProduct(product, req.user)) {
         res.status(403);
         throw new Error('Not authorized to delete this product');
       }
@@ -227,11 +229,12 @@ export const updateProductStock = async (req, res, next) => {
     const product = await Product.findOne({ id: req.params.id });
 
     if (product) {
-      if (req.user.role === 'seller' && product.sellerId?.toString() !== req.user._id.toString()) {
+      if (!['admin', 'super_admin'].includes(req.user.role) && !ownsProduct(product, req.user)) {
         res.status(403);
         throw new Error('Not authorized to edit this product');
       }
 
+      if (!Number.isInteger(Number(stock)) || Number(stock) < 0) return res.status(400).json({ error: 'Invalid stock' });
       product.stock = Number(stock);
       // We also update inStock based on the new stock
       product.inStock = product.stock > 0;
@@ -253,7 +256,7 @@ export const updateProductStock = async (req, res, next) => {
 // @access  Public
 export const getProductRecommendations = async (req, res, next) => {
   try {
-    const product = await Product.findOne({ id: req.params.id }).lean();
+    const product = await Product.findOne({ id: req.params.id, status: { $in: ['published','active'] }, isArchived: { $ne: true } }).lean();
     if (!product) {
       res.status(404);
       throw new Error('Product not found');
@@ -261,6 +264,7 @@ export const getProductRecommendations = async (req, res, next) => {
 
     // Find products in the same category, excluding the current product
     let recommendations = await Product.find({
+      status: { $in: ['published', 'active'] }, isArchived: { $ne: true }, stock: { $gt: 0 },
       category: product.category,
       _id: { $ne: product._id }
     }).limit(4).lean();
@@ -268,12 +272,13 @@ export const getProductRecommendations = async (req, res, next) => {
     // If not enough products in the same category, fetch random ones
     if (recommendations.length < 4) {
       const extraProducts = await Product.find({
+        status: { $in: ['published', 'active'] }, isArchived: { $ne: true }, stock: { $gt: 0 },
         _id: { $ne: product._id, $nin: recommendations.map(r => r._id) }
       }).limit(4 - recommendations.length).lean();
       recommendations = [...recommendations, ...extraProducts];
     }
 
-    res.json(recommendations);
+    res.json(recommendations.map(toPublicProductDTO));
   } catch (error) {
     next(error);
   }
@@ -285,11 +290,12 @@ export const getProductRecommendations = async (req, res, next) => {
 export const createProductReview = async (req, res, next) => {
   try {
     const { rating, comment } = req.body;
-    const product = await Product.findOne({ id: req.params.id });
+    if (!Number.isInteger(Number(rating)) || Number(rating) < 1 || Number(rating) > 5 || typeof comment !== 'string' || comment.trim().length < 10 || comment.length > 500) return res.status(400).json({ error: 'Invalid review' });
+    const product = await Product.findOne({ id: req.params.id, status: { $in: ['published','active'] }, isArchived: { $ne: true } });
 
     if (product) {
       const alreadyReviewed = product.reviews.find(
-        (r) => r.user.toString() === req.user._id.toString()
+        (r) => r.user && String(r.user) === String(req.user._id)
       );
 
       if (alreadyReviewed) {
@@ -302,7 +308,7 @@ export const createProductReview = async (req, res, next) => {
         rating: Number(rating),
         comment,
         user: req.user._id,
-        isVerifiedPurchase: true
+        isVerifiedPurchase: Boolean(await Order.exists({ user: req.user._id, 'orderItems.product': product._id, isPaid: true, status: { $nin: ['Cancelled', 'Returned'] } }))
       };
 
       // Calculate new average using moving average to avoid race conditions on the total
@@ -312,14 +318,15 @@ export const createProductReview = async (req, res, next) => {
       const newReviewsCount = currentReviewsCount + 1;
       const newRating = (currentTotalRating + Number(rating)) / newReviewsCount;
 
-      await Product.updateOne(
-        { _id: product._id },
+      const reviewWrite = await Product.updateOne(
+        { _id: product._id, 'reviews.user': { $ne: req.user._id } },
         {
           $push: { reviews: review },
           $inc: { reviewsCount: 1 },
           $set: { rating: newRating }
         }
       );
+      if (!reviewWrite.modifiedCount) return res.status(409).json({ error: 'Product already reviewed' });
       await clearCache('cache:/api/products*');
       res.status(201).json({ message: 'Review added' });
     } else {

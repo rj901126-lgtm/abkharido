@@ -1,151 +1,44 @@
-import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import redisClient, { isRedisReady } from '../config/redis.js';
+import { verifyAppToken, isSystemAdmin, isActiveUser } from '../utils/authSecurity.js';
+
+async function resolveIdentity(req) {
+  const bearer = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || '')?.[1];
+  const token = bearer || req.headers['x-admin-token'] ||
+    req.cookies?.abkharido_admin_token || req.cookies?.abkharido_seller_token;
+  if (!token) return null;
+  const secure = process.env.ADMIN_SECURE_TOKEN;
+  if (secure && secure.length >= 32 && token === secure) return { role: 'super_admin', _id: 'admin-root' };
+  if (isRedisReady() && await redisClient.get(`blacklist:${token}`).catch(() => null)) return null;
+  const decoded = verifyAppToken(token);
+  if (isSystemAdmin(decoded)) return { role: 'super_admin', _id: 'admin-root', username: 'admin' };
+  if (typeof decoded.id !== 'string' || !/^[a-f\d]{24}$/i.test(decoded.id)) return null;
+  const user = await User.findById(decoded.id).select('-password');
+  return isActiveUser(user) ? user : null;
+}
 
 export const protect = async (req, res, next) => {
-  let token;
-
-  // Check Bearer authorization header or cookies
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies && (req.cookies.abkharido_seller_token || req.cookies.abkharido_admin_token)) {
-    token = req.cookies.abkharido_seller_token || req.cookies.abkharido_admin_token;
-  }
-
-  if (token) {
-    try {
-      if (isRedisReady()) {
-        const isBlacklisted = await redisClient.get(`blacklist:${token}`).catch(() => null);
-        if (isBlacklisted) {
-          return res.status(401).json({ error: 'Token has been revoked. Please log in again.' });
-        }
-      }
-
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        return res.status(500).json({ error: 'Server misconfiguration: JWT_SECRET is not set.' });
-      }
-      
-      const decoded = jwt.verify(token, jwtSecret, { algorithms: ['HS256'] });
-      
-      // If token payload represents a system super_admin session
-      if (decoded.role === 'super_admin' && !decoded.id) {
-        req.user = { role: 'super_admin', username: 'admin' };
-        return next();
-      }
-
-      req.user = await User.findById(decoded.id).select('-password');
-      
-      if (!req.user) {
-        return res.status(401).json({ error: 'User account not found. Please log in again.' });
-      }
-      
-      next();
-    } catch (error) {
-      return res.status(401).json({ error: 'Not authorized, invalid token' });
-    }
-  } else if (req.headers['x-admin-token']) {
-    try {
-      const adminToken = req.headers['x-admin-token'];
-      const adminSecureToken = process.env.ADMIN_SECURE_TOKEN;
-      if (adminSecureToken && adminToken === adminSecureToken) {
-        req.user = { role: 'super_admin' };
-        return next();
-      }
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        return res.status(500).json({ error: 'Server misconfiguration: JWT_SECRET is not set.' });
-      }
-      const decoded = jwt.verify(adminToken, jwtSecret, { algorithms: ['HS256'] });
-      req.user = decoded.role ? decoded : { role: 'super_admin', ...decoded };
-      next();
-    } catch (err) {
-      res.status(401).json({ error: 'Not authorized, invalid security token' });
-    }
-  } else {
-    res.status(401).json({ error: 'Not authorized, no security token provided' });
-  }
-};
-
-export const softProtect = async (req, res, next) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-
-  if (token) {
-    try {
-      const jwtSecret = process.env.JWT_SECRET;
-      if (jwtSecret) {
-        const decoded = jwt.verify(token, jwtSecret, { algorithms: ['HS256'] });
-        if (decoded.id) {
-          req.user = await User.findById(decoded.id).select('-password');
-        } else if (decoded.role === 'super_admin') {
-          req.user = { role: 'super_admin' };
-        }
-      }
-      next();
-    } catch (error) {
-      next();
-    }
-  } else if (req.headers['x-admin-token']) {
-    try {
-      const adminToken = req.headers['x-admin-token'];
-      const jwtSecret = process.env.JWT_SECRET;
-      if (jwtSecret) {
-        const decoded = jwt.verify(adminToken, jwtSecret, { algorithms: ['HS256'] });
-        req.user = decoded.role ? decoded : { role: 'super_admin', ...decoded };
-      }
-      next();
-    } catch (err) {
-      next();
-    }
-  } else {
-    next();
-  }
-};
-
-export const admin = (req, res, next) => {
-  if (req.user && (req.user.role === 'admin' || req.user.role === 'super_admin')) {
-    next();
-  } else {
-    res.status(403).json({ error: 'Not authorized as an admin' });
-  }
-};
-
-// Authorize specific roles
-export const authorizeRoles = (...roles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Not logged in' });
-    }
-    if (req.user.role === 'super_admin') {
-      return next(); // Super admin has access to everything
-    }
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        error: 'Access denied: insufficient permissions' 
-      });
-    }
-    next();
-  };
-};
-
-export const seller = (req, res, next) => {
-  if (req.user && (req.user.role === 'admin' || req.user.role === 'super_admin')) {
+  try {
+    req.user = await resolveIdentity(req);
+    if (!req.user) return res.status(401).json({ error: 'Not authorized, valid active account required' });
     return next();
-  }
-  if (req.user && req.user.role === 'seller') {
-    if (req.user.sellerStatus === 'Approved') {
-      return next();
-    }
-    return res.status(403).json({ error: 'Seller account is pending admin approval' });
-  }
-  res.status(403).json({ error: 'Not authorized as a seller' });
+  } catch { return res.status(401).json({ error: 'Not authorized, invalid token' }); }
+};
+export const softProtect = async (req, res, next) => {
+  try { req.user = await resolveIdentity(req); } catch { req.user = null; }
+  return next();
+};
+export const admin = (req, res, next) => {
+  if (req.user && ['admin', 'super_admin'].includes(req.user.role)) return next();
+  return res.status(403).json({ error: 'Not authorized as an admin' });
+};
+export const authorizeRoles = (...roles) => (req, res, next) => {
+  if (!req.user) return res.status(401).json({ error: 'Not logged in' });
+  if (req.user.role === 'super_admin' || roles.includes(req.user.role)) return next();
+  return res.status(403).json({ error: 'Access denied: insufficient permissions' });
+};
+export const seller = (req, res, next) => {
+  if (req.user && ['admin', 'super_admin'].includes(req.user.role)) return next();
+  if (req.user?.role === 'seller' && req.user.sellerStatus === 'Approved') return next();
+  return res.status(403).json({ error: 'Approved seller access required' });
 };

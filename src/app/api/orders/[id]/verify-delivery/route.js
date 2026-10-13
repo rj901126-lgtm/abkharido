@@ -1,3 +1,4 @@
+import { findOrder, ownsOrder, sellerOwnsOrder, requireFulfillable, creditDeliveredReferral } from '../../financialSecurity.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
@@ -26,18 +27,17 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Delivery PIN is required' }, { status: 400 });
     }
 
-    let order = null;
-    if (/^[0-9a-fA-F]{24}$/.test(String(id))) {
-      order = await Order.findById(id);
-    }
-    if (!order) {
-      order = await Order.findOne({ $or: [{ cfOrderId: id }, { id }] });
-    }
-
+    let order = await findOrder(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
+    if (!auth.isAdmin) return NextResponse.json({ error: 'Administrator delivery verification required' }, { status: 403 });
+    requireFulfillable(order);
+    if (order.status !== 'Out for Delivery') throw new Error('Order must be out for delivery');
+    const { checkRouteRateLimit } = await import('../../../../../lib/rateLimiter.js');
+    const attempts = checkRouteRateLimit('delivery-pin', String(auth.user?.id || auth.user?._id) + ':' + String(order._id), 5, 15 * 60000);
+    if (!attempts.allowed) return NextResponse.json({ error: 'Too many PIN attempts' }, { status: 429 });
     if (!order.deliveryPin) {
       return NextResponse.json({ 
         error: 'No Doorstep PIN configured for this order. Please use standard delivery verification.',
@@ -69,6 +69,7 @@ export async function POST(req, context) {
     });
 
     await order.save();
+    if (order.status === 'Delivered') await creditDeliveredReferral(order._id);
 
     return NextResponse.json({
       success: true,

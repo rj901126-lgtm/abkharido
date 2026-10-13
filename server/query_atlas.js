@@ -1,6 +1,7 @@
+if (!(process.env.MONGODB_URI || process.env.DB_URI || process.env.MONGO_URI)) throw new Error('Database environment configuration is required');
 import mongoose from 'mongoose';
 
-mongoose.connect('mongodb+srv://admin:Abkharido123@cluster0.asrwdhy.mongodb.net/abkharido?appName=Cluster0').then(async () => {
+mongoose.connect(process.env.MONGODB_URI || process.env.DB_URI || process.env.MONGO_URI).then(async () => {
   const Order = mongoose.model('Order', new mongoose.Schema({}, {strict: false}));
   const orders = await Order.find({ status: { $regex: /cancel/i } }, 'status');
   console.log('Atlas Cancelled Orders:', orders.map(o => o.status));

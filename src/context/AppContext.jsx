@@ -1049,6 +1049,11 @@ export const AppProvider = ({ children }) => {
 
   // --- Logout Action ---
   const logout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('abkharido_admin_token');
+    sessionStorage.removeItem('adminToken');
+    sessionStorage.removeItem('abkharido_admin_token');
     initializedForUser.current = null;
     wishlistInitializedForUser.current = null;
     localStorage.removeItem('abkharido_user_session');

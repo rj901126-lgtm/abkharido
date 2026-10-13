@@ -96,4 +96,3 @@ export async function GET(req) {
     return NextResponse.json({ error: error.message, users: [] }, { status: 500 });
   }
 }
-

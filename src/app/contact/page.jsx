@@ -1,3 +1,4 @@
+import { serializeJsonLd } from '../../utils/safeRendering.js';
 import React from 'react';
 import InfoPage from '../../views/InfoPage';
 
@@ -57,7 +58,7 @@ export default function ContactPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(contactSchema) }}
       />
       <InfoPage infoType="contact" />
     </>

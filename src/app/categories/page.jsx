@@ -1,3 +1,4 @@
+import { publicProductForPage } from '../../utils/safeRendering.js';
 import React from 'react';
 import CategoriesClient from './CategoriesClient';
 import { PRODUCTS } from '../../db/mockData.js';
@@ -16,11 +17,11 @@ async function getCategoriesProducts() {
         isArchived: { $ne: true }
       }).limit(100).lean();
       if (products && products.length > 0) {
-        return JSON.parse(JSON.stringify(products));
+        return products.map(publicProductForPage);
       }
     }
   } catch (_e) {}
-  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => (p.status === 'published' || p.status === 'active') && !p.isArchived)));
+  return PRODUCTS.filter(p => (p.status === 'published' || p.status === 'active') && !p.isArchived).map(publicProductForPage);
 }
 
 export const metadata = {
@@ -56,4 +57,3 @@ export default async function Page() {
   const initialProducts = await getCategoriesProducts();
   return <CategoriesClient initialProducts={initialProducts} />;
 }
-

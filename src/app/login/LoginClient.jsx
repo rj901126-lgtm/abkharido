@@ -1,4 +1,5 @@
 "use client";
+import { safeLocalRedirect } from '../../utils/safeRendering.js';
 import React, { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Login from '../../views/Login';
@@ -6,14 +7,13 @@ import Login from '../../views/Login';
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams?.get('callbackUrl') || searchParams?.get('redirect') || '/profile';
+  const callbackUrl = safeLocalRedirect(searchParams?.get('callbackUrl') || searchParams?.get('redirect'));
 
   return (
     <Login 
       onNavigate={(p) => {
         if (!p || p === 'home') router.push('/');
-        else if (p.startsWith('/')) router.push(p);
-        else router.push('/' + p);
+        else router.push(safeLocalRedirect(p));
       }} 
       callbackUrl={callbackUrl}
     />

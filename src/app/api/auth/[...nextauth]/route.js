@@ -2,6 +2,8 @@ import NextAuthImport from 'next-auth';
 import CredentialsProviderImport from 'next-auth/providers/credentials';
 import { verifyFirebaseDirect, verifyOtpDirect, loginPasswordDirect } from '../../../../lib/directAuth.js';
 import { isValidEmail } from '../../../../utils/constants.js';
+import { getJwtSecret } from '../../../../../server/utils/authSecurity.js';
+import { NextResponse } from 'next/server';
 
 // NextAuth v4 is CommonJS; externalized server bundles can expose a default wrapper.
 const NextAuth = typeof NextAuthImport === 'function' ? NextAuthImport : NextAuthImport.default;
@@ -78,19 +80,7 @@ export const authOptions = {
           
           if (res) {
             data = await res.json().catch(() => null);
-            if (!res.ok) {
-              // If external backend returns error, attempt Native Direct MongoDB Auth fallback
-              if (credentials.firebaseIdToken) {
-                 data = await verifyFirebaseDirect(bodyObj).catch(() => null);
-              } else if (credentials.otp && normalizedPhone) {
-                 data = await verifyOtpDirect(bodyObj).catch(() => null);
-              } else if (credentials.username && credentials.password) {
-                 data = await loginPasswordDirect(bodyObj).catch(() => null);
-              }
-              if (!data) {
-                throw new Error('Authentication failed on verification service');
-              }
-            }
+            if (!res.ok) throw new Error('Authentication failed on verification service');
           } else {
             // ── Native Direct MongoDB Authentication Fallback ──
             if (credentials.firebaseIdToken) {
@@ -108,17 +98,7 @@ export const authOptions = {
             const cleanPhone = (userObj.phone && !userObj.phone.includes(':')) ? userObj.phone : normalizedPhone;
             const digits = String(cleanPhone || '').replace(/\D/g, '').slice(-10);
             const cleanEmail = isValidEmail(userObj.email) ? userObj.email.trim().toLowerCase() : null;
-            const isOwner = digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
-            const finalRole = isOwner ? 'super_admin' : (userObj.role || 'user');
-
-            if (isOwner && userObj._id) {
-              try {
-                const connectDB = (await import('../../../../lib/connectDB.js')).default;
-                const User = (await import('../../../../../server/models/User.js')).default;
-                await connectDB();
-                await User.findByIdAndUpdate(userObj._id, { role: 'super_admin' });
-              } catch (e) {}
-            }
+            const finalRole = userObj.role || 'user';
 
             return {
               id: userObj._id?.toString() || userObj.id,
@@ -147,23 +127,12 @@ export const authOptions = {
         token.phone = user.phone;   // persist phone in JWT
         token.email = isValidEmail(user.email) ? user.email : null;   // persist actual email (null for phone users)
       }
-      const rawPhone = token.phone || token.name || '';
-      const digits = String(rawPhone).replace(/\D/g, '').slice(-10);
-      const cleanEmail = String(token.email || '').trim().toLowerCase();
-      if (digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com') {
-        token.role = 'super_admin';
-      }
       return token;
     },
     async session({ session, token }) {
       if (session && session.user) {
-        const rawPhone = token.phone || token.name || session.user.phone || '';
-        const digits = String(rawPhone).replace(/\D/g, '').slice(-10);
-        const cleanEmail = String(token.email || session.user.email || '').trim().toLowerCase();
-        const isOwner = digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
-
         session.user.id = token.id;
-        session.user.role = isOwner ? 'super_admin' : (token.role || 'user');
+        session.user.role = token.role || 'user';
         session.user.phone = token.phone;   // expose phone to client
         session.user.email = isValidEmail(token.email) ? token.email : null;  // clean null if not legitimate email
         session.accessToken = token.accessToken;
@@ -190,9 +159,14 @@ export const authOptions = {
       },
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || 'fallback_secret_for_dev_abkharido',
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST };
+async function guardedHandler(...args) {
+  try { getJwtSecret('NEXTAUTH_SECRET'); }
+  catch { return NextResponse.json({ error: 'Authentication server is not configured' }, { status: 503 }); }
+  return handler(...args);
+}
+export { guardedHandler as GET, guardedHandler as POST };

@@ -6,7 +6,8 @@ import Product from './server/models/Product.js';
 
 async function run() {
   try {
-    await mongoose.connect('mongodb+srv://abkharido_admin:Enterprise2026@cluster0.asrwdhy.mongodb.net/abkharido?retryWrites=true&w=majority', {
+    if (!process.env.JWT_SECRET || !(process.env.MONGODB_URI || process.env.DB_URI || process.env.MONGO_URI)) throw new Error('Database and JWT environment configuration is required');
+    await mongoose.connect(process.env.MONGODB_URI || process.env.DB_URI || process.env.MONGO_URI, {
       family: 4
     });
     
@@ -23,7 +24,7 @@ async function run() {
       });
     }
 
-    const token = jwt.sign({ id: user._id }, 'abkharido_jwt_secret_dev', { expiresIn: '30d' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     console.log('Sending Order Request...');
     const res = await fetch('http://localhost:5000/api/orders', {
@@ -41,9 +42,9 @@ async function run() {
     });
     
     console.log('Status:', res.status);
-    console.log('Body:', await res.text());
+    console.log('Order request completed');
   } catch (err) {
-    console.error(err);
+    console.error('Order request failed');
   } finally {
     mongoose.disconnect();
     process.exit(0);

@@ -1,3 +1,4 @@
+import { findOrder, ownsOrder, sellerOwnsOrder, requireFulfillable } from '../../financialSecurity.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
@@ -18,18 +19,13 @@ export async function POST(req, context) {
     const body = await req.json().catch(() => ({}));
     const { courierPartner = 'Delhivery Express', awbNumber = `ABK-${Date.now().toString().slice(-8)}` } = body;
 
-    let order = null;
-    if (/^[0-9a-fA-F]{24}$/.test(String(id))) {
-      order = await Order.findById(id);
-    }
-    if (!order) {
-      order = await Order.findOne({ $or: [{ cfOrderId: id }, { id }] });
-    }
-
+    let order = await findOrder(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
+    if (!auth.isAdmin && !sellerOwnsOrder(auth, order)) return NextResponse.json({ error: 'Order unavailable' }, { status: 403 });
+    requireFulfillable(order);
     order.status = 'Shipped';
     order.courierPartner = courierPartner;
     order.awbNumber = awbNumber;

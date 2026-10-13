@@ -1,3 +1,5 @@
+import { findOrder, ownsOrder, sellerOwnsOrder, requireFulfillable } from '../../financialSecurity.js';
+import { creditReturn } from '../../financialSecurity.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
@@ -34,14 +36,7 @@ export async function POST(req, context) {
       adminNotes 
     } = body;
 
-    let order = null;
-    if (/^[0-9a-fA-F]{24}$/.test(String(id))) {
-      order = await Order.findById(id);
-    }
-    if (!order) {
-      order = await Order.findOne({ $or: [{ cfOrderId: id }, { id }] });
-    }
-
+    let order = await findOrder(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
@@ -51,9 +46,8 @@ export async function POST(req, context) {
     const cleanUserPhone = String(auth.user?.phone || '').replace(/\D/g, '').slice(-10);
     const cleanOrderPhone = String(order.shippingAddress?.phone || '').replace(/\D/g, '').slice(-10);
 
-    const isOwner = (requesterId && orderUserId && requesterId === orderUserId) || 
-                    (cleanUserPhone && cleanOrderPhone && cleanUserPhone === cleanOrderPhone);
-    if (!isOwner && !auth.isAdmin && !auth.isSeller) {
+    const isOwner = ownsOrder(auth, order);
+    if (!isOwner && !auth.isAdmin ) {
       return NextResponse.json({ error: 'Forbidden: You do not have permission to modify this order' }, { status: 403 });
     }
 
@@ -67,9 +61,10 @@ export async function POST(req, context) {
     // =========================================================================
     // 🛠️ ADMIN & SELLER RETURN LIFECYCLE MANAGEMENT
     // =========================================================================
-    if (auth.isAdmin || auth.isSeller) {
+    if (auth.isAdmin) {
       // 1. APPROVE RETURN REQUEST
       if (action === 'Approve' || action === 'approve') {
+        if (order.status !== 'Delivered' || order.returnStatus !== 'Requested') throw new Error('Return request required');
         order.returnStatus = 'Approved';
         if (!order.returnDetails.rmaNumber) {
           order.returnDetails.rmaNumber = `RMA-${Date.now().toString().slice(-6)}`;
@@ -96,6 +91,7 @@ export async function POST(req, context) {
 
       // 2. SCHEDULE REVERSE PICKUP
       if (action === 'SchedulePickup' || action === 'schedule_pickup') {
+        if (order.returnStatus !== 'Approved') throw new Error('Approved return required');
         const assignedCourier = courierPartner || 'Delhivery Reverse Express';
         const assignedAwb = returnAwb || `REV-${Date.now().toString().slice(-8)}`;
         const scheduledTime = pickupDate ? new Date(pickupDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -125,6 +121,7 @@ export async function POST(req, context) {
 
       // 3. MARK ITEM PICKED UP BY COURIER
       if (action === 'MarkPickedUp' || action === 'mark_picked_up') {
+        if (order.returnStatus !== 'Pickup Scheduled') throw new Error('Scheduled pickup required');
         order.returnStatus = 'Picked Up';
         order.returnDetails.pickedUpAt = new Date();
 
@@ -145,71 +142,8 @@ export async function POST(req, context) {
 
       // 4. QUALITY CHECK PASSED & ISSUE REFUND
       if (action === 'PassQcAndRefund' || action === 'refund') {
-        const destinationType = order.refundDestination?.type || 'Wallet';
-        const orderTotal = Number(order.totalPrice || 0);
-        let refundAmount = orderTotal;
-        let refundTxnId = '';
-
-        // Case A: Wallet Cash Refund (+ 5% bonus incentive)
-        if (destinationType === 'Wallet' || !destinationType || destinationType === 'None') {
-          const bonusCash = Math.round(orderTotal * 1.05);
-          refundAmount = bonusCash;
-          refundTxnId = `WAL-REF-${Date.now().toString().slice(-6)}`;
-
-          if (order.user) {
-            await User.findByIdAndUpdate(order.user, {
-              $inc: { walletCash: bonusCash }
-            });
-          }
-        } 
-        // Case B: Cashfree Gateway / Original Mode Refund
-        else if (destinationType === 'Original' && order.cfOrderId) {
-          try {
-            const cfRefund = await createCashfreeRefund({
-              orderId: order.cfOrderId,
-              refundAmount: orderTotal,
-              refundNote: `Refund for RMA ${order.returnDetails?.rmaNumber || order.id}`
-            });
-            refundTxnId = cfRefund.cf_refund_id || cfRefund.refund_id || `CFR-${Date.now()}`;
-          } catch (err) {
-            console.warn('[Cashfree Refund Direct Call Warning]:', err.message);
-            refundTxnId = `CFR-MANUAL-${Date.now().toString().slice(-6)}`;
-          }
-        } 
-        // Case C: Direct UPI / Bank Refund
-        else {
-          refundTxnId = `UPI-REF-${Date.now().toString().slice(-6)}`;
-        }
-
-        order.returnStatus = 'Refunded';
-        order.status = 'Returned';
-        order.returnDetails.qcStatus = 'Passed';
-        order.returnDetails.qcRemarks = qcRemarks || 'Product received in original condition with tags intact.';
-        order.returnDetails.refundAmount = refundAmount;
-        order.returnDetails.refundMethod = destinationType;
-        order.returnDetails.refundTransactionId = refundTxnId;
-        order.returnDetails.refundedAt = new Date();
-
-        order.refundDetails = {
-          refundArn: refundTxnId,
-          refundStatus: 'Credited',
-          amount: refundAmount,
-          creditedAt: new Date()
-        };
-
-        order.trackingHistory.push({
-          status: 'Refund Credited',
-          timestamp: new Date(),
-          location: 'Finance Escrow Desk',
-          comment: `100% Refund of ₹${refundAmount.toLocaleString('en-IN')} successfully credited to ${destinationType} (Ref: ${refundTxnId}).`
-        });
-
-        await order.save();
-        return NextResponse.json({ 
-          success: true, 
-          message: `QC Passed! ₹${refundAmount.toLocaleString('en-IN')} refund successfully credited via ${destinationType}.`,
-          order 
-        });
+        const refunded = await creditReturn(order._id);
+        return NextResponse.json({ success: true, message: 'Refund credited to wallet', order: refunded });
       }
 
       // 5. QUALITY CHECK FAILED

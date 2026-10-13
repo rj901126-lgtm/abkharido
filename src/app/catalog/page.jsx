@@ -1,3 +1,4 @@
+import { serializeJsonLd } from '../../utils/safeRendering.js';
 import React from 'react';
 import CatalogClient from './CatalogClient';
 import Product from '../../../server/models/Product.js';
@@ -118,10 +119,9 @@ export default async function Page({ searchParams }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListJsonLd) }}
       />
       <CatalogClient initialCategory={category} initialSearch={search} initialProducts={initialProducts} />
     </>
   );
 }
-

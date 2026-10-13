@@ -1,3 +1,4 @@
+import { csvRows as serializeCSV } from '../utils/csvExport.js';
 import React, { useState, useEffect } from 'react';
 import { DollarSign, ArrowDownRight, CreditCard, Activity, CheckCircle, Clock, ShieldCheck, Lock, Building, Landmark, Percent, FileText, Download, Plus, AlertTriangle, Send, RefreshCw, Eye, Sparkles, ShieldAlert } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -144,13 +145,11 @@ const AdminFinance = () => {
 
   const exportGSTReport = () => {
     const headers = ['Tax Category', 'Description', 'Applicable Rate', 'Gross Amount (₹)', 'Tax Liability Amount (₹)', 'Filing Section'];
-    const csvRows = [
-      headers.join(','),
-      `"Platform Commission Revenue","10% share on Gross Vendor Volume","18% (CGST 9% + SGST 9%)","${totalPlatformRev}","${(totalPlatformRev * 0.18).toFixed(2)}","GSTR-1 Section 14"`,
-      `"E-commerce TCS Deducted","Tax Collected at Source on vendor payouts","1% IGST / CGST+SGST","${totalEarnedVol}","${(totalEarnedVol * 0.01).toFixed(2)}","Section 52 CGST Act"`,
-      `"TDS Reserved Under Sec 194-O","Income Tax deduction on e-commerce transactions","1% under ITA","${totalEarnedVol}","${(totalEarnedVol * 0.01).toFixed(2)}","Section 194-O Income Tax Act"`
-    ].join('\n');
-
+    const csvRows = serializeCSV([headers,
+      ['Platform Commission Revenue', '10% share on Gross Vendor Volume', '18% (CGST 9% + SGST 9%)', totalPlatformRev, (totalPlatformRev * 0.18).toFixed(2), 'GSTR-1 Section 14'],
+      ['E-commerce TCS Deducted', 'Tax Collected at Source on vendor payouts', '1% IGST / CGST+SGST', totalEarnedVol, (totalEarnedVol * 0.01).toFixed(2), 'Section 52 CGST Act'],
+      ['TDS Reserved Under Sec 194-O', 'Income Tax deduction on e-commerce transactions', '1% under ITA', totalEarnedVol, (totalEarnedVol * 0.01).toFixed(2), 'Section 194-O Income Tax Act']
+    ]);
     const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -164,20 +163,7 @@ const AdminFinance = () => {
 
   const exportLedgerCSV = () => {
     const headers = ['Vendor Name', 'Email Address', 'Account Number', 'IFSC Code', 'Total Earned (₹)', 'Total Settled (₹)', 'Pending Balance (₹)', 'KYC Status'];
-    const csvRows = [
-      headers.join(','),
-      ...vendors.map(v => [
-        `"${v.name.replace(/"/g, '""')}"`,
-        `"${v.email}"`,
-        `"${v.accountNumber}"`,
-        `"${v.ifscCode}"`,
-        `${v.totalEarned}`,
-        `${v.totalSettled}`,
-        `${v.pendingBalance}`,
-        `"${v.status}"`
-      ].join(','))
-    ].join('\n');
-
+    const csvRows = serializeCSV([headers, ...vendors.map(v => [v.name, v.email, v.accountNumber, v.ifscCode, v.totalEarned, v.totalSettled, v.pendingBalance, v.status])]);
     const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

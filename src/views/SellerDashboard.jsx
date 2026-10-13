@@ -232,7 +232,7 @@ export default function SellerDashboard({ onNavigate }) {
       if (res.ok && data.seller) {
         setCurrentSeller(data.seller);
         localStorage.setItem('abkharido_seller_session', JSON.stringify(data.seller));
-        showToast('Seller account registered & approved! 🚀', 'success');
+        showToast('Seller application submitted for approval.', 'success');
       } else {
         showToast(data.error || 'Registration failed', 'error');
       }

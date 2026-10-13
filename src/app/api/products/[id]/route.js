@@ -3,7 +3,7 @@ import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
 import { PRODUCTS } from '../../../../db/mockData.js';
 import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
-import { toPublicProductDTO, validateProductData } from '../../../../lib/productValidator.js';
+import { toPublicProductDTO, validateProductData, ownsProduct } from '../../../../lib/productValidator.js';
 
 async function fetchBackend(url) {
   const hosts = [
@@ -42,7 +42,7 @@ export async function GET(req, context) {
     const backendRes = await fetchBackend(`/api/products/${lookupId}`);
     if (backendRes) {
       const data = await backendRes.json().catch(() => null);
-      if (data && !data.error && data.status !== 'archived' && !data.isArchived) {
+      if (data && !data.error && ['published', 'active'].includes(data.status) && !data.isArchived) {
         return NextResponse.json(toPublicProductDTO(data));
       }
     }
@@ -70,7 +70,7 @@ export async function GET(req, context) {
         const isLive = product.status === 'published' || product.status === 'active';
         if (!isLive) {
           const auth = await getAuthenticatedUser(req);
-          const isPrivileged = auth && (auth.isAdmin || (auth.user?.role === 'seller' && (product.sellerId === auth.user._id || product.sellerId === auth.user.id)));
+          const isPrivileged = auth && (auth.isAdmin || (auth.isSeller && ownsProduct(product, auth.user)));
           if (!isPrivileged) {
             return NextResponse.json(
               { error: 'Product not found' },
@@ -104,7 +104,7 @@ export async function GET(req, context) {
 export async function PUT(req, context) {
   try {
     const auth = await getAuthenticatedUser(req);
-    if (!auth || (!auth.isAdmin && auth.user?.role !== 'seller')) {
+    if (!auth || (!auth.isAdmin && !auth.isSeller)) {
       return NextResponse.json({ error: 'Unauthorized: Admin or Seller access required' }, { status: 401 });
     }
 
@@ -132,7 +132,7 @@ export async function PUT(req, context) {
 
     // If seller, check ownership
     if (!auth.isAdmin && auth.user?.role === 'seller') {
-      if (product.sellerId && String(product.sellerId) !== String(auth.user._id || auth.user.id)) {
+      if (!ownsProduct(product, auth.user)) {
         return NextResponse.json({ error: 'Forbidden: You cannot edit another seller\'s product' }, { status: 403 });
       }
     }
@@ -199,7 +199,7 @@ export async function DELETE(req, context) {
           { _id: isObjectId ? cleanId : undefined }
         ].filter(Boolean)
       });
-      if (existingProduct && existingProduct.vendorId && String(existingProduct.vendorId) !== String(auth.user?.id)) {
+      if (!existingProduct || !ownsProduct(existingProduct, auth.user)) {
         return NextResponse.json({ error: 'Forbidden: You cannot delete a product belonging to another seller' }, { status: 403 });
       }
     }
@@ -222,4 +222,3 @@ export async function DELETE(req, context) {
     return NextResponse.json({ error: error.message || 'Failed to delete product' }, { status: 500 });
   }
 }
-

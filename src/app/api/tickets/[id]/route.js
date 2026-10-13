@@ -22,14 +22,14 @@ export async function GET(req, context) {
 
     const ticket = await Ticket.findById(id)
       .populate('customerId', 'fullName username email phone avatar')
-      .populate('orderId', 'totalPrice createdAt status cfOrderId')
+      .populate({ path: 'orderId', select: 'totalPrice createdAt status cfOrderId', match: (auth.isAdmin || auth.user?.role === 'support_agent') ? {} : { user: auth.user.id } })
       .lean();
 
     if (!ticket) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    const isStaffOrAdmin = Boolean(auth.isAdmin || auth.isStaff);
+    const isStaffOrAdmin = Boolean(auth.isAdmin || auth.user?.role === 'support_agent');
     const customerIdStr = String(ticket.customerId?._id || ticket.customerId);
     const userIdStr = String(auth.user._id || auth.user.id);
 

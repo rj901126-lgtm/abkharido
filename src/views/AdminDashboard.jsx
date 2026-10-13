@@ -1,3 +1,4 @@
+import { exportToCSV } from '../utils/csvExport.js';
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
@@ -1162,29 +1163,9 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
     }
   };
 
-  const exportCustomersCSV = () => {
-    const csvContent = "data:text/csv;charset=utf-8,Username,Email,Phone,Wallet Cash,Wallet Coins\n" + 
-      adminUsers.map(u => `${u.username},${u.email || ''},${u.phone || ''},${u.walletCash || 0},${u.walletCoins || 0}`).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "customers_export.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const exportCustomersCSV = () => exportToCSV(adminUsers.map(u => ({ Username: u.username, Email: u.email, Phone: u.phone, "Wallet Cash": u.walletCash || 0, "Wallet Coins": u.walletCoins || 0 })), "customers_export.csv");
 
-  const exportMerchantsCSV = () => {
-    const csvContent = "data:text/csv;charset=utf-8,Shop Name,Email,Status,Wallet Cash\n" + 
-      adminSellers.map(s => `${s.shopName},${s.email},${s.sellerStatus},${s.walletCash || 0}`).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "merchants_export.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const exportMerchantsCSV = () => exportToCSV(adminSellers.map(s => ({ "Shop Name": s.shopName, Email: s.email, Status: s.sellerStatus, "Wallet Cash": s.walletCash || 0 })), "merchants_export.csv");
 
   if (!authorized) {
     return (
@@ -1196,7 +1177,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
             </div>
             <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', margin: 0 }}>Executive Admin Control Center</h2>
             <span style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.5' }}>
-              Secure management portal for AbKharido. Enter Master Admin Security PIN (2026) to unlock inventory and operations.
+              Secure management portal for AbKharido. Enter configured Master Admin Security PIN to unlock inventory and operations.
             </span>
           </div>
 

@@ -1,3 +1,4 @@
+import { findOrder, ownsOrder, sellerOwnsOrder, requireFulfillable } from '../../financialSecurity.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
@@ -27,20 +28,13 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Replacement size or variant is required' }, { status: 400 });
     }
 
-    let order = null;
-    if (/^[0-9a-fA-F]{24}$/.test(String(id))) {
-      order = await Order.findById(id);
-    }
-    if (!order) {
-      order = await Order.findOne({ $or: [{ cfOrderId: id }, { id }] });
-    }
-
+    let order = await findOrder(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const isOwner = auth.user?._id && order.user && (String(auth.user._id) === String(order.user));
-    if (!isOwner && !auth.isAdmin && !auth.isSeller) {
+    const isOwner = ownsOrder(auth, order);
+    if (!isOwner && !auth.isAdmin ) {
       return NextResponse.json({ error: 'Forbidden: You do not have permission to modify this order' }, { status: 403 });
     }
 
@@ -48,7 +42,7 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Exchange requests can only be placed for delivered orders' }, { status: 400 });
     }
 
-    order.status = 'Exchange Requested';
+    order.exchangeStatus = 'Requested';
     order.exchangeDetails = {
       requestedSize,
       reason: reason || 'Size/Fit issue',

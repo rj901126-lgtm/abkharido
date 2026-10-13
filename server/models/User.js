@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import mongooseFieldEncryption from 'mongoose-field-encryption';
+import { isActiveUser, isGeneratedPassword } from '../utils/authSecurity.js';
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -147,6 +148,7 @@ userSchema.pre('save', async function() {
 
 // Match password method
 userSchema.methods.matchPassword = async function(enteredPassword) {
+  if (!isActiveUser(this) || isGeneratedPassword(enteredPassword)) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

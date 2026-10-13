@@ -1,3 +1,4 @@
+import Order from '../../../../../../server/models/Order.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Ticket from '../../../../../../server/models/Ticket.js';
@@ -24,7 +25,7 @@ export async function POST(req, context) {
     const body = await req.json().catch(() => ({}));
     const { content } = body;
 
-    if (!content || !content.trim()) {
+    if (typeof content !== 'string' || !content.trim() || content.length > 5000) {
       return NextResponse.json({ error: 'Reply content cannot be empty' }, { status: 400 });
     }
 
@@ -33,7 +34,7 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    const isStaffOrAdmin = Boolean(auth.isAdmin || auth.isStaff);
+    const isStaffOrAdmin = Boolean(auth.isAdmin || auth.user?.role === 'support_agent');
     const customerIdStr = String(ticket.customerId);
     const userIdStr = String(auth.user._id || auth.user.id);
 
@@ -63,7 +64,7 @@ export async function POST(req, context) {
       subject: savedTicket.subject,
       priority: savedTicket.priority,
       status: savedTicket.status,
-      orderId: savedTicket.orderId,
+      orderId: isStaffOrAdmin || !savedTicket.orderId || await Order.exists({ _id: savedTicket.orderId, user: auth.user.id }) ? savedTicket.orderId : null,
       customerId: savedTicket.customerId,
       customer: {
         id: customerUser?._id || savedTicket.customerId,

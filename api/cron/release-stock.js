@@ -1,5 +1,5 @@
-import { releaseExpiredOrderStock } from '../server/utils/cronJobs.js';
-import connectDB from '../server/config/db.js';
+import { releaseExpiredOrderStock } from '../../server/utils/cronJobs.js';
+import connectDB from '../../server/config/db.js';
 import mongoose from 'mongoose';
 
 /**
@@ -23,7 +23,8 @@ export default async function handler(req, res) {
   const authHeader = req.headers.authorization;
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || cronSecret.length < 32) return res.status(503).json({ error: 'Cron authentication is not configured' });
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

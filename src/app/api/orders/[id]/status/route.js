@@ -1,3 +1,4 @@
+import { findOrder, ownsOrder, sellerOwnsOrder, requireFulfillable, creditDeliveredReferral } from '../../financialSecurity.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/connectDB.js';
 import Order from '../../../../../../server/models/Order.js';
@@ -26,22 +27,19 @@ async function handleUpdateStatus(req, context) {
     const body = await req.json();
     const { status, note, location, cancellationReason, courierPartner, awbNumber, trackingUrl } = body;
 
-    let order = null;
-    if (/^[0-9a-fA-F]{24}$/.test(String(id))) {
-      order = await Order.findById(id);
-    }
-    if (!order) {
-      order = await Order.findOne({ $or: [{ cfOrderId: id }, { id }] });
-    }
-
+    let order = await findOrder(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
+    if (!auth.isAdmin && !sellerOwnsOrder(auth, order)) return NextResponse.json({ error: 'Order unavailable' }, { status: 403 });
+    if (!auth.isAdmin && status === 'Delivered') return NextResponse.json({ error: 'Administrator delivery verification required' }, { status: 403 });
+    requireFulfillable(order);
     if (courierPartner) order.courierPartner = courierPartner;
     if (awbNumber) order.awbNumber = awbNumber;
     if (trackingUrl) order.trackingUrl = trackingUrl;
 
+    if (status && !['Processing', 'Packed', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered'].includes(status)) throw new Error('Use the dedicated financial operation for this status');
     if (status) {
       order.status = status;
       if (status === 'Delivered') {
@@ -62,6 +60,7 @@ async function handleUpdateStatus(req, context) {
     }
 
     await order.save();
+    if (order.status === 'Delivered') await creditDeliveredReferral(order._id);
 
 
     return NextResponse.json({

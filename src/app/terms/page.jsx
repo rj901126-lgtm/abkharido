@@ -1,3 +1,4 @@
+import { serializeJsonLd } from '../../utils/safeRendering.js';
 import React from 'react';
 import InfoPage from '../../views/InfoPage';
 
@@ -37,7 +38,7 @@ export default function TermsPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(termsSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(termsSchema) }}
       />
       <InfoPage infoType="terms" />
     </>

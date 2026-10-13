@@ -1,27 +1,20 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
 import connectDB from '../../../../lib/connectDB.js';
 import Order from '../../../../../server/models/Order.js';
 
 export const dynamic = 'force-dynamic';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026_super_secure';
-
-function verifySeller(req) {
-  const authHeader = req.headers.get('authorization') || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-  if (!token) return null;
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch {
-    return null;
-  }
+async function verifySeller(req) {
+  const auth = await getAuthenticatedUser(req);
+  if (!auth?.isAuthenticated || !auth.isSeller || (!auth.isAdmin && (auth.user.role !== 'seller' || auth.user.sellerStatus !== 'Approved' || auth.user.status !== 'Active'))) return null;
+  return auth.user;
 }
 
 export async function GET(req) {
   try {
     await connectDB();
-    const seller = verifySeller(req);
+    const seller = await verifySeller(req);
 
     if (!seller || !seller.id) {
       return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
@@ -42,7 +35,7 @@ export async function GET(req) {
     return NextResponse.json({
       success: true,
       count: orders.length,
-      orders
+      orders: orders.map(o => ({ _id: o._id, cfOrderId: o.cfOrderId, createdAt: o.createdAt, status: o.status, shippingAddress: o.shippingAddress, paymentMethod: o.paymentMethod, isPaid: o.isPaid, awbNumber: o.awbNumber, courierPartner: o.courierPartner, orderItems: (o.orderItems || []).filter(i => String(i.vendorId) === String(seller.id)).map(i => ({ name: i.name, qty: i.qty, price: i.price, image: i.image, product: i.product })) }))
     });
 
   } catch (error) {
@@ -54,7 +47,7 @@ export async function GET(req) {
 
 export async function PUT(req) {
   try {
-    const seller = verifySeller(req);
+    const seller = await verifySeller(req);
     if (!seller || !seller.id) {
       return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
     }
@@ -72,27 +65,18 @@ export async function PUT(req) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const sellerOwnsOrder = order.vendorId === seller.id ||
-      (Array.isArray(order.orderItems) && order.orderItems.some(i => i.vendorId === seller.id)) ||
-      seller.role === 'admin' || seller.role === 'super_admin';
-
-    if (!sellerOwnsOrder) {
-      return NextResponse.json({ error: 'Forbidden: You do not have permission to manage this order' }, { status: 403 });
-    }
-
-    order.status = status;
-    if (status === 'Dispatched' || status === 'Shipped') {
-      order.courier = courier;
-      order.courierPartner = courier;
-      if (!order.awb) order.awb = `NMB-${Math.floor(10000000 + Math.random() * 90000000)}`;
-      if (!order.awbNumber) order.awbNumber = order.awb;
-    }
+    const sellerOwnsOrder = Array.isArray(order.orderItems) && order.orderItems.length > 0 && order.orderItems.every(i => i.vendorId && String(i.vendorId) === String(seller.id));
+    if (!sellerOwnsOrder && !['admin','super_admin'].includes(seller.role)) return NextResponse.json({ error: 'Not authorized to manage this order' }, { status: 403 });
+    if (!['Packed','Shipped','Dispatched'].includes(status)) return NextResponse.json({ error: 'Unsupported seller status' }, { status: 400 });
+    if (!['Processing','Packed'].includes(order.status) || (!order.isPaid && !/cash|cod/i.test(order.paymentMethod))) return NextResponse.json({ error: 'Order cannot be dispatched' }, { status: 409 });
+    order.status = status === 'Dispatched' ? 'Shipped' : status;
+    if (typeof courier === 'string') order.courierPartner = courier.slice(0,100);
     await order.save();
 
     return NextResponse.json({
       success: true,
       message: `Order marked as ${status} with automated AWB tracking`,
-      order
+      order: { _id: order._id, status: order.status }
     });
 
   } catch (error) {

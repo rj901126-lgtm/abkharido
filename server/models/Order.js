@@ -12,6 +12,8 @@ const orderItemSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   color: { type: String },
   variant: { type: String },
+  inventoryPath: { type: String, default: 'stock' },
+  inventorySku: { type: String },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   vendorAmount: { type: Number, default: 0 }
 }, { _id: false });
@@ -31,7 +33,10 @@ const orderSchema = new mongoose.Schema({
     address: { type: String, required: true },
     city: { type: String, required: true },
     postalCode: { type: String, required: true },
-    country: { type: String, required: true }
+    country: { type: String, required: true },
+    phone: { type: String },
+    email: { type: String },
+    state: { type: String }
   },
   paymentMethod: { type: String, required: true, default: 'Razorpay' },
   paymentResult: {
@@ -49,6 +54,18 @@ const orderSchema = new mongoose.Schema({
   // Discount Engine Tracking
   appliedCoupon: { type: String },
   coinsUsed: { type: Number, default: 0 },
+  coinsDebited: { type: Boolean, default: false },
+  coinsRefunded: { type: Boolean, default: false },
+  inventoryReserved: { type: Boolean, default: false },
+  inventoryReleased: { type: Boolean, default: false },
+  conversionBonusPending: { type: Boolean, default: false },
+  paymentRewardsCredited: { type: Boolean, default: false },
+  paymentRewardsAmount: { type: Number, default: 0 },
+  paymentRewardsReversed: { type: Boolean, default: false },
+  gatewayPaymentVerified: { type: Boolean, default: false },
+  cashCollectionVerified: { type: Boolean, default: false },
+  cancellationSettled: { type: Boolean, default: false },
+  financialRefundClaimed: { type: Boolean, default: false },
   
   isPaid: { type: Boolean, required: true, default: false },
   paidAt: { type: Date },
@@ -134,11 +151,14 @@ const orderSchema = new mongoose.Schema({
   // Referral Rewards
   referralApplied: {
     referrerId: { type: String }, // username of the referrer
+    recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    isReversed: { type: Boolean, default: false },
     rewardAmount: { type: Number }, // Coins rewarded to referrer
     isCredited: { type: Boolean, default: false }
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  optimisticConcurrency: true
 });
 
 // Phase 6: Database Optimization

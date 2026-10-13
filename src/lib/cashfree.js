@@ -31,18 +31,9 @@ export function getCashfreeConfig() {
 export async function createCashfreePgOrder({ orderId, orderAmount, customer, returnUrl, notifyUrl }) {
   const config = getCashfreeConfig();
 
-  if (!config.isConfigured) {
-    // Return sandbox simulation if keys are pending in development
-    if (config.env === 'sandbox' || process.env.NODE_ENV !== 'production') {
-      return {
-        orderId,
-        paymentSessionId: `session_sim_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        simulated: true
-      };
-    }
-    throw new Error('Cashfree Payment Gateway is not configured. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY.');
-  }
+  if (!config.isConfigured) throw new Error('Cashfree Gateway credentials missing.');
 
+  if (!Number.isFinite(Number(orderAmount)) || Number(orderAmount) <= 0 || typeof orderId !== 'string') throw new Error('Invalid gateway order');
   const payload = {
     order_id: orderId,
     order_amount: Number(orderAmount.toFixed(2)),
@@ -77,8 +68,9 @@ export async function createCashfreePgOrder({ orderId, orderAmount, customer, re
     throw new Error(data.message || data.error || 'Failed to create order on Cashfree Gateway');
   }
 
+  if (data.order_id !== orderId || typeof data.payment_session_id !== 'string' || !data.payment_session_id) throw new Error('Invalid gateway session response');
   return {
-    orderId: data.order_id || orderId,
+    orderId: data.order_id,
     paymentSessionId: data.payment_session_id,
     cfOrderId: data.cf_order_id,
     simulated: false
@@ -91,14 +83,9 @@ export async function createCashfreePgOrder({ orderId, orderAmount, customer, re
 export async function getCashfreeOrderStatus(orderId) {
   const config = getCashfreeConfig();
 
-  if (!config.isConfigured) {
-    if (config.env === 'sandbox' || process.env.NODE_ENV !== 'production') {
-      return { order_status: 'PAID', order_id: orderId, simulated: true };
-    }
-    throw new Error('Cashfree Gateway credentials missing.');
-  }
+  if (!config.isConfigured) throw new Error('Cashfree Gateway credentials missing.');
 
-  const response = await fetch(`${config.baseUrl}/orders/${orderId}`, {
+  const response = await fetch(`${config.baseUrl}/orders/${encodeURIComponent(orderId)}`, {
     method: 'GET',
     headers: {
       'x-client-id': config.appId,
@@ -129,8 +116,9 @@ export function verifyCashfreeWebhookSignature({ rawBody, timestamp, signature }
 
   // Timestamp freshness check: reject if older than 5 minutes
   const currentTime = Math.floor(Date.now() / 1000);
-  const webhookTime = Number(timestamp);
-  if (Math.abs(currentTime - webhookTime) > 300) {
+  const rawTime = Number(timestamp);
+  const webhookTime = rawTime > 1e12 ? rawTime / 1000 : rawTime;
+  if (!Number.isFinite(webhookTime) || Math.abs(currentTime - webhookTime) > 300) {
     console.warn('[SECURITY] Cashfree Webhook timestamp skew exceeded 300s');
     return false;
   }
@@ -159,18 +147,7 @@ export function verifyCashfreeWebhookSignature({ rawBody, timestamp, signature }
 export async function createCashfreeRefund({ orderId, refundAmount, refundId, refundNote = 'Customer Return Refund' }) {
   const config = getCashfreeConfig();
 
-  if (!config.isConfigured) {
-    if (config.env === 'sandbox' || process.env.NODE_ENV !== 'production') {
-      return {
-        refund_id: refundId || `ref_sim_${Date.now()}`,
-        status: 'SUCCESS',
-        cf_refund_id: `cfr_${Date.now()}`,
-        refund_amount: refundAmount,
-        simulated: true
-      };
-    }
-    throw new Error('Cashfree Gateway credentials missing.');
-  }
+  if (!config.isConfigured) throw new Error('Cashfree Gateway credentials missing.');
 
   const payload = {
     refund_amount: Number(refundAmount.toFixed(2)),
@@ -179,7 +156,7 @@ export async function createCashfreeRefund({ orderId, refundAmount, refundId, re
     refund_speed: 'STANDARD'
   };
 
-  const response = await fetch(`${config.baseUrl}/orders/${orderId}/refunds`, {
+  const response = await fetch(`${config.baseUrl}/orders/${encodeURIComponent(orderId)}/refunds`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -199,4 +176,3 @@ export async function createCashfreeRefund({ orderId, refundAmount, refundId, re
 
   return data;
 }
-

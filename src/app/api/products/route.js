@@ -149,7 +149,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const auth = await getAuthenticatedUser(req);
-    if (!auth || (!auth.isAdmin && auth.user?.role !== 'seller')) {
+    if (!auth || (!auth.isAdmin && !auth.isSeller)) {
       return NextResponse.json({ error: 'Unauthorized: Admin or Seller access required' }, { status: 401 });
     }
 
@@ -249,4 +249,3 @@ export async function DELETE(req) {
     return NextResponse.json({ error: error.message || 'Failed to delete products' }, { status: 500 });
   }
 }
-

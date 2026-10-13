@@ -1,3 +1,4 @@
+import { serializeJsonLd } from '../utils/safeRendering.js';
 import React, { Suspense } from 'react';
 import { AppProvider } from '../context/AppContext';
 import { LanguageProvider } from '../context/LanguageContext';
@@ -247,7 +248,7 @@ export default function RootLayout({ children }) {
         <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }}
         />
       </head>
       <body suppressHydrationWarning>
@@ -265,4 +266,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-

@@ -1,153 +1,30 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import connectDB from '../../../../lib/connectDB.js';
 import User from '../../../../../server/models/User.js';
-
+import { signUserToken } from '../../../../../server/utils/authSecurity.js';
+import { isValidEmail } from '../../../../utils/constants.js';
 export const dynamic = 'force-dynamic';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026_super_secure';
-
 export async function POST(req) {
   try {
+    const body = await req.json();
+    const { action = 'login', email, password, shopName, phone, address, upi, bankAccount, bankIfsc } = body;
+    if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password) return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     await connectDB();
-    const body = await req.json().catch(() => ({}));
-    const { action = 'login', email, password, phone, shopName, address, upi, bankAccount, bankIfsc } = body;
-
-    // ─── ACTION: SIGNUP ─────────────────────────────────────────────
+    const identifier = email.trim().toLowerCase();
     if (action === 'signup') {
-      if (!email || !password || !shopName) {
-        return NextResponse.json({ error: 'Email, password, and shop name are required' }, { status: 400 });
-      }
-
-      // Check existing user
-      const existing = await User.findOne({ 
-        $or: [{ email: email.toLowerCase().trim() }, { username: email.toLowerCase().trim() }] 
-      });
-
-      if (existing) {
-        if (existing.role === 'seller') {
-          return NextResponse.json({ error: 'A seller account with this email already exists. Please login.' }, { status: 400 });
-        }
-        // Upgrade existing user to seller
-        existing.role = 'seller';
-        existing.sellerStatus = 'Pending';
-        existing.shopName = shopName.trim();
-        existing.phone = phone || existing.phone;
-        existing.address = address || existing.address;
-        existing.payoutDetails = {
-          upiId: upi || '',
-          bankAccount: bankAccount || '',
-          ifsc: bankIfsc || ''
-        };
-        await existing.save();
-
-        const token = jwt.sign(
-          { id: existing._id, email: existing.email, role: 'seller', shopName: existing.shopName },
-          JWT_SECRET,
-          { expiresIn: '30d' }
-        );
-
-        return NextResponse.json({
-          success: true,
-          message: 'Seller application submitted for verification',
-          seller: {
-            id: existing._id,
-            email: existing.email,
-            shopName: existing.shopName,
-            sellerStatus: existing.sellerStatus,
-            token
-          }
-        });
-      }
-
-      // Create new Seller User
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      
-      const newSeller = new User({
-        username: email.toLowerCase().trim(),
-        email: email.toLowerCase().trim(),
-        password: hashedPassword,
-        role: 'seller',
-        sellerStatus: 'Approved', // Auto-approved in sandbox / fast onboarding
-        shopName: shopName.trim(),
-        phone: phone || '',
-        address: address || '',
-        payoutDetails: {
-          upiId: upi || '',
-          bankAccount: bankAccount || '',
-          ifsc: bankIfsc || ''
-        },
-        walletCoins: 500
-      });
-
-      await newSeller.save();
-
-      const token = jwt.sign(
-        { id: newSeller._id, email: newSeller.email, role: 'seller', shopName: newSeller.shopName },
-        JWT_SECRET,
-        { expiresIn: '30d' }
-      );
-
-      return NextResponse.json({
-        success: true,
-        message: 'Seller account registered successfully',
-        seller: {
-          id: newSeller._id,
-          email: newSeller.email,
-          shopName: newSeller.shopName,
-          sellerStatus: newSeller.sellerStatus,
-          walletCoins: newSeller.walletCoins,
-          token
-        }
-      });
+      if (!isValidEmail(identifier)) return NextResponse.json({ error: 'Valid email required' }, { status: 400 });
+      if (typeof shopName !== 'string' || !shopName.trim() || password.length < 8) return NextResponse.json({ error: 'Shop name and password of at least 8 characters are required' }, { status: 400 });
+      const clauses = [{ email: identifier }, { username: identifier }];
+      if (typeof phone === 'string' && phone.trim()) clauses.push({ phone: phone.trim().replace(/\D/g, '').slice(-10) });
+      if (await User.exists({ $or: clauses })) return NextResponse.json({ error: 'An account with these credentials already exists' }, { status: 409 });
+      const seller = await User.create({ username: identifier, email: identifier, password, role: 'seller', sellerStatus: 'Pending', shopName: shopName.trim(), phone: typeof phone === 'string' && phone.trim() ? phone.trim().replace(/\D/g, '').slice(-10) : undefined, address: typeof address === 'string' ? address : '', payoutDetails: { upiId: typeof upi === 'string' ? upi : '', bankAccount: typeof bankAccount === 'string' ? bankAccount : '', ifsc: typeof bankIfsc === 'string' ? bankIfsc : '' }, walletCoins: 0, walletCash: 0 });
+      return NextResponse.json({ success: true, message: 'Seller application submitted for verification', seller: { id: seller._id, email: seller.email, shopName: seller.shopName, sellerStatus: 'Pending', walletCoins: 0 } }, { status: 201 });
     }
-
-    // ─── ACTION: LOGIN ──────────────────────────────────────────────
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
-    }
-
-    const seller = await User.findOne({
-      $or: [
-        { email: email.toLowerCase().trim() },
-        { username: email.toLowerCase().trim() },
-        { phone: email.trim() }
-      ]
-    });
-
-
-    if (!seller) {
-      return NextResponse.json({ error: 'No merchant account found with these credentials' }, { status: 401 });
-    }
-
-    const isMatch = await bcrypt.compare(password, seller.password);
-    if (!isMatch) {
-      return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
-    }
-
-    const token = jwt.sign(
-      { id: seller._id, email: seller.email, role: seller.role || 'seller', shopName: seller.shopName || seller.fullName },
-      JWT_SECRET,
-      { expiresIn: '30d' }
-    );
-
-    return NextResponse.json({
-      success: true,
-      message: 'Seller logged in successfully',
-      seller: {
-        id: seller._id,
-        email: seller.email,
-        shopName: seller.shopName || seller.fullName || 'Official Seller',
-        sellerStatus: seller.sellerStatus || 'Approved',
-        walletCoins: seller.walletCoins || 0,
-        token
-      }
-    });
-
-  } catch (error) {
-    console.error('Seller Auth Error:', error);
-    return NextResponse.json({ error: error.message || 'Authentication failed' }, { status: 500 });
-  }
+    if (action !== 'login') return NextResponse.json({ error: 'Invalid authentication action' }, { status: 400 });
+    const seller = await User.findOne({ $or: [{ email: identifier }, { username: identifier }, { phone: identifier }] }).select('+password');
+    if (!seller || seller.role !== 'seller' || seller.status !== 'Active' || !await seller.matchPassword(password)) return NextResponse.json({ error: 'Invalid merchant credentials' }, { status: 401 });
+    if (seller.sellerStatus !== 'Approved') return NextResponse.json({ error: 'Seller account is awaiting approval' }, { status: 403 });
+    const token = signUserToken(seller._id);
+    return NextResponse.json({ success: true, seller: { id: seller._id, email: seller.email, shopName: seller.shopName, sellerStatus: seller.sellerStatus, walletCoins: seller.walletCoins || 0, token } });
+  } catch (error) { return NextResponse.json({ error: error.code === 11000 ? 'Account already exists' : 'Authentication failed' }, { status: error.code === 11000 ? 409 : 500 }); }
 }

@@ -1,3 +1,4 @@
+import { serializeJsonLd, publicProductForPage } from '../../utils/safeRendering.js';
 import React from 'react';
 import CatalogClient from '../catalog/CatalogClient';
 import { PRODUCTS } from '../../db/mockData.js';
@@ -16,9 +17,9 @@ async function getAppliancesProducts() {
       status: { $in: ['published', 'active'], $ne: 'archived' },
       isArchived: { $ne: true }
     }).limit(60).lean();
-    if (products && products.length > 0) return JSON.parse(JSON.stringify(products));
+    if (products && products.length > 0) return products.map(publicProductForPage);
   } catch (_e) {}
-  return JSON.parse(JSON.stringify(PRODUCTS.filter(p => ['appliances', 'home'].includes(p.category) && (p.status === 'published' || p.status === 'active') && !p.isArchived)));
+  return PRODUCTS.filter(p => ['appliances', 'home'].includes(p.category) && (p.status === 'published' || p.status === 'active') && !p.isArchived).map(publicProductForPage);
 }
 
 export const metadata = {
@@ -74,8 +75,8 @@ export default async function AppliancesPage() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(categorySchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(categorySchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListSchema) }} />
 
       <CatalogClient initialCategory="appliances" initialSearch="" initialProducts={products} />
     </>

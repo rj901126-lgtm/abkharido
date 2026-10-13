@@ -1,3 +1,4 @@
+import { validateProductData } from '../../../../lib/productValidator.js';
 import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
@@ -40,11 +41,13 @@ export async function POST(req) {
         image: p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800',
         description: p.description || `Premium ${p.name} with express delivery.`,
         brand: p.brand || 'AbKharido Verified',
-        countInStock: Number(p.countInStock || 50),
+        stock: Number(p.stock ?? p.countInStock ?? 0),
+        status: auth.isAdmin && ['published','active'].includes(p.status) ? p.status : 'draft',
         inStock: Number(p.countInStock || 50) > 0,
         rating: 0,
         reviewsCount: 0,
-        vendorId: user ? user.id : null,
+        vendorId: user && /^[0-9a-fA-F]{24}$/.test(String(user.id)) ? user.id : undefined,
+        sellerId: user && /^[0-9a-fA-F]{24}$/.test(String(user.id)) ? String(user.id) : undefined,
         sellerShopName: user ? (user.shopName || user.fullName || 'Verified Merchant') : (p.sellerShopName || 'AbKharido Official Store'),
         specs: p.specs || [
           { key: 'Brand', value: p.brand || 'AbKharido' },
@@ -54,7 +57,13 @@ export async function POST(req) {
       };
     });
 
-    const inserted = await Product.insertMany(preparedProducts, { ordered: false });
+    for (const p of preparedProducts) {
+      const candidate = { ...p }; delete candidate.vendorId; delete candidate.sellerId; delete candidate.sellerShopName;
+      const result = validateProductData(candidate, user, false);
+      if (!result.isValid) return NextResponse.json({ error: 'Invalid product batch', errors: result.errors }, { status: 400 });
+      Object.assign(p, result.sanitizedProduct);
+    }
+    const inserted = await Product.insertMany(preparedProducts, { ordered: true });
 
     return NextResponse.json({
       success: true,

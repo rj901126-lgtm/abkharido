@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const EMAIL = process.env.SHIPROCKET_EMAIL || "api-rj901126@gmail.com";
-const PASSWORD = process.env.SHIPROCKET_PASSWORD || "u32r*GOmwT%yXVEyhOQFwByCTBIR#9Av";
+const EMAIL = process.env.SHIPROCKET_EMAIL;
+const PASSWORD = process.env.SHIPROCKET_PASSWORD;
 const PICKUP_PINCODE = process.env.SHIPROCKET_PICKUP_PINCODE || "401404";
 
 let cachedToken = null;
@@ -12,6 +12,7 @@ let tokenExpiry = 0; // Timestamp in ms
  * Authenticates with Shiprocket API and returns a cached token.
  */
 export async function getShiprocketToken() {
+  if (!EMAIL || !PASSWORD) return null;
   const now = Date.now();
   // Token is valid for 10 days; we refresh it if it is close to expiry (e.g. within 1 day)
   if (cachedToken && tokenExpiry > now + 24 * 60 * 60 * 1000) {

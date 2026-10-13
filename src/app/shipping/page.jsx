@@ -1,3 +1,4 @@
+import { serializeJsonLd } from '../../utils/safeRendering.js';
 import React from 'react';
 import InfoPage from '../../views/InfoPage';
 
@@ -37,7 +38,7 @@ export default function ShippingPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(shippingSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(shippingSchema) }}
       />
       <InfoPage infoType="shipping" />
     </>
