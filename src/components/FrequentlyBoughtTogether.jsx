@@ -2,162 +2,22 @@ import React, { useState, useEffect, useMemo } from 'react';
 
 import { Plus, Check, ShoppingBag, Sparkles, Tag } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../db/mockData';
+import { buildAvailableBundle, bundleFitsInCart } from '../utils/bundleProducts';
 
-// Intelligent complementary accessory catalog based on category or product type
-const COMPLEMENTARY_ACCESSORIES = {
-  mobiles: [
-    {
-      id: 'acc-20w-fast-charger',
-      name: '20W USB-C PD SuperFast Power Adapter (BIS Certified)',
-      price: 1499,
-      originalPrice: 2499,
-      rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=400&auto=format&fit=crop',
-      category: 'electronics'
-    },
-    {
-      id: 'acc-magsafe-case-clear',
-      name: 'Ultra-Clear Shockproof MagSafe Protective Armor Case',
-      price: 699,
-      originalPrice: 1299,
-      rating: 4.7,
-      image: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?q=80&w=400&auto=format&fit=crop',
-      category: 'accessories'
-    }
-  ],
-  electronics: [
-    {
-      id: 'acc-braided-cable-100w',
-      name: '100W Heavy-Duty Braided Type-C Fast Data Cable (2 Meter)',
-      price: 499,
-      originalPrice: 999,
-      rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop',
-      category: 'accessories'
-    },
-    {
-      id: 'acc-hard-eva-case',
-      name: 'Shockproof Water-Resistant Hard Storage Travel Pouch',
-      price: 599,
-      originalPrice: 1199,
-      rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=400&auto=format&fit=crop',
-      category: 'accessories'
-    }
-  ],
-  fashion: [
-    {
-      id: 'acc-designer-sunglasses',
-      name: 'UV400 Polarized Aviator Classic Sunglasses',
-      price: 999,
-      originalPrice: 2499,
-      rating: 4.6,
-      image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=400&auto=format&fit=crop',
-      category: 'fashion'
-    },
-    {
-      id: 'acc-leather-belt-matte',
-      name: 'Full Grain Genuine Leather Reversible Casual Belt',
-      price: 799,
-      originalPrice: 1599,
-      rating: 4.7,
-      image: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=400&auto=format&fit=crop',
-      category: 'fashion'
-    }
-  ],
-  sports: [
-    {
-      id: 'acc-gym-shaker-pro',
-      name: 'BPA-Free Leakproof Cyclone Gym Protein Shaker (700ml)',
-      price: 399,
-      originalPrice: 899,
-      rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop',
-      category: 'sports'
-    },
-    {
-      id: 'acc-cushioned-socks-3p',
-      name: 'Anti-Odor Cushioned Performance Sports Socks (Pack of 3)',
-      price: 499,
-      originalPrice: 999,
-      rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1582965372486-66442657e03c?q=80&w=400&auto=format&fit=crop',
-      category: 'sports'
-    }
-  ],
-  home: [
-    {
-      id: 'acc-microfiber-cloths-4p',
-      name: 'Ultra-Dense Scratch-Free Microfiber Cleaning Towels (Pack of 4)',
-      price: 349,
-      originalPrice: 799,
-      rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=400&auto=format&fit=crop',
-      category: 'home'
-    },
-    {
-      id: 'acc-silicone-tongs-mat',
-      name: 'Heat-Resistant Non-Stick Silicone Kitchen Tongs & Resting Mat',
-      price: 499,
-      originalPrice: 999,
-      rating: 4.7,
-      image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=400&auto=format&fit=crop',
-      category: 'home'
-    }
-  ]
-};
-
-export default function FrequentlyBoughtTogether({ currentProduct, onNavigateProduct }) {
-  const { addToCart, showToast, products: allContextProducts } = useApp();
+export default function FrequentlyBoughtTogether({ currentProduct, selectedColor = '', selectedVariant = '' }) {
+  const { addToCart, showToast, cart, products: allContextProducts } = useApp();
   const [isAdding, setIsAdding] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
 
-  // Resolve bundle items: 1 Main Product + 2 Complementary items
-  const bundleItems = useMemo(() => {
-    if (!currentProduct) return [];
-    const main = {
-      id: currentProduct.id || currentProduct._id,
-      name: currentProduct.name,
-      price: Number(currentProduct.price) || 0,
-      originalPrice: Number(currentProduct.originalPrice || currentProduct.mrp) || Math.round((currentProduct.price || 0) * 1.35),
-      image: currentProduct.image || (currentProduct.images && currentProduct.images[0]) || '',
-      rating: currentProduct.rating || 4.8,
-      isMain: true
-    };
-
-    const catKey = (currentProduct.category || '').toLowerCase();
-    const matchedCategory = Object.keys(COMPLEMENTARY_ACCESSORIES).find(k => catKey.includes(k)) || 'electronics';
-    
-    // Choose curated accessories
-    const curated = COMPLEMENTARY_ACCESSORIES[matchedCategory] || COMPLEMENTARY_ACCESSORIES.electronics;
-    
-    const accessories = curated.map((acc) => {
-      return {
-        id: acc.id,
-        name: acc.name,
-        price: acc.price,
-        originalPrice: acc.originalPrice,
-        image: acc.image,
-        rating: acc.rating,
-        isMain: false
-      };
-    });
-
-    return [main, ...accessories];
-  }, [currentProduct, allContextProducts]);
+  const bundleItems = useMemo(() => buildAvailableBundle(
+    currentProduct, allContextProducts, { selectedColor, selectedVariant }
+  ), [currentProduct, allContextProducts, selectedColor, selectedVariant]);
 
   // Selected state for each bundle item (all checked by default)
   const [selectedMap, setSelectedMap] = useState({});
 
   useEffect(() => {
-    if (bundleItems && bundleItems.length > 0) {
-      setSelectedMap({
-        [bundleItems[0]?.id]: true,
-        [bundleItems[1]?.id]: true,
-        [bundleItems[2]?.id]: true
-      });
-    }
+    setSelectedMap(Object.fromEntries(bundleItems.map(item => [item.id, true])));
   }, [bundleItems]);
 
   if (!currentProduct || bundleItems.length === 0) return null;
@@ -176,28 +36,25 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
   const rawTotalPrice = selectedItems.reduce((acc, item) => acc + item.price, 0);
   const rawOriginalPrice = selectedItems.reduce((acc, item) => acc + item.originalPrice, 0);
   
-  // Extra 5% Combo Discount applied if 2 or more items are selected
-  const comboDiscountMultiplier = selectedItems.length >= 2 ? 0.95 : 1.0;
-  const finalBundlePrice = Math.round(rawTotalPrice * comboDiscountMultiplier);
+  const finalBundlePrice = rawTotalPrice;
   const totalSavings = rawOriginalPrice - finalBundlePrice;
 
   // Add all selected items to cart
   const handleAddBundleToCart = () => {
+    if (!selectedItems.length || !bundleFitsInCart(selectedItems, cart)) {
+      showToast?.('A selected item has reached its available stock. Please review your bag.', 'warning');
+      return;
+    }
     setIsAdding(true);
     try {
       selectedItems.forEach(item => {
-        addToCart({
-          id: item.id,
-          name: item.name,
-          price: selectedItems.length >= 2 ? Math.round(item.price * 0.95) : item.price,
-          originalPrice: item.originalPrice,
-          image: item.image
-        }, 1);
+        const { isMain, ...cartProduct } = item;
+        addToCart(cartProduct, 1);
       });
 
       setAddedSuccess(true);
       if (showToast) {
-        showToast(`🎉 ${selectedItems.length} items added to your bag with Combo Savings!`, 'success');
+        showToast(`🎉 ${selectedItems.length} items added to your bag.`, 'success');
       }
       setTimeout(() => {
         setAddedSuccess(false);
@@ -246,7 +103,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
         </div>
 
         <div style={{ fontSize: '12px', color: '#059669', fontWeight: '800', background: '#ecfdf5', padding: '4px 10px', borderRadius: '8px', border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <Tag size={13} /> Extra 5% Instant Combo Discount
+          <Tag size={13} /> Current Product Prices
         </div>
       </div>
 
@@ -384,9 +241,11 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
             </span>
             <div style={{ textAlign: 'right' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
-                <span style={{ fontSize: '14px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '600' }}>
-                  ₹{rawOriginalPrice.toLocaleString('en-IN')}
-                </span>
+                {rawOriginalPrice > finalBundlePrice && (
+                  <span style={{ fontSize: '14px', color: '#94a3b8', textDecoration: 'line-through', fontWeight: '600' }}>
+                    ₹{rawOriginalPrice.toLocaleString('en-IN')}
+                  </span>
+                )}
                 <span style={{ fontSize: '22px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.5px' }}>
                   ₹{finalBundlePrice.toLocaleString('en-IN')}
                 </span>
@@ -429,10 +288,10 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
           >
             {addedSuccess ? (
               <>
-                <Check size={18} strokeWidth={3} /> Added to Bag with Savings!
+                <Check size={18} strokeWidth={3} /> Added to Bag!
               </>
             ) : isAdding ? (
-              'Adding Combo to Bag...'
+              'Adding Items to Bag...'
             ) : (
               <>
                 <ShoppingBag size={17} /> Add All {selectedItems.length} Items to Bag ➔
@@ -469,7 +328,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
             >
               <input 
                 type="checkbox"
-                checked={isSelected}
+                checked={Boolean(isSelected)}
                 onChange={() => toggleSelect(item.id)}
                 style={{
                   width: '16px',
@@ -482,13 +341,17 @@ export default function FrequentlyBoughtTogether({ currentProduct, onNavigatePro
               <div style={{ flex: 1 }}>
                 <strong style={{ color: isSelected ? '#0f172a' : '#64748b' }}>
                   {item.isMain ? 'This item: ' : ''}{item.name}
+                  {item.selectedColor ? ` • ${item.selectedColor}` : ''}
+                  {item.selectedVariant ? ` • ${item.selectedVariant}` : ''}
                 </strong>
                 <span style={{ marginLeft: '8px', fontWeight: '800', color: isSelected ? '#059669' : '#94a3b8' }}>
                   ₹{item.price.toLocaleString('en-IN')}
                 </span>
-                <span style={{ marginLeft: '6px', fontSize: '11px', textDecoration: 'line-through', color: '#94a3b8' }}>
-                  ₹{item.originalPrice.toLocaleString('en-IN')}
-                </span>
+                {item.originalPrice > item.price && (
+                  <span style={{ marginLeft: '6px', fontSize: '11px', textDecoration: 'line-through', color: '#94a3b8' }}>
+                    ₹{item.originalPrice.toLocaleString('en-IN')}
+                  </span>
+                )}
               </div>
             </label>
           );

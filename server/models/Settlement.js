@@ -10,6 +10,20 @@ const settlementSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+  orderNumber: { type: String },
+  type: {
+    type: String,
+    enum: ['ORDER_CREDIT', 'WITHDRAWAL_PAYOUT', 'REFUND_DEBIT', 'SHIPPING_ADJUSTMENT', 'COMMISSION_INVOICE'],
+    default: 'ORDER_CREDIT'
+  },
+  grossSale: { type: Number, default: 0 },
+  platformFee: { type: Number, default: 0 },
+  taxDeducted: { type: Number, default: 0 },
+  shippingFee: { type: Number, default: 0 },
+  netAmount: { type: Number, default: 0 },
+  payoutDestination: { type: String },
+  utrNumber: { type: String },
   transactionId: {
     type: String // e.g. UTR number from bank. Optional until Paid
   },

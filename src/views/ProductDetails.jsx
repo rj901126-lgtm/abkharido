@@ -301,49 +301,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
     }
   }, [productFromContext, isLoadingProducts, productId, fetchedProduct, isFetchingLocal, fetchError]);
 
-  const getProductColorModels = (prod) => {
-    if (!prod) return [];
-    if (Array.isArray(prod.colorModels) && prod.colorModels.length > 0) return prod.colorModels;
-    
-    // For fashion products without custom colorModels, provide real size options
-    if (prod.category === 'fashion') {
-      const nameLower = (prod.name || '').toLowerCase();
-      const isFootwear = nameLower.includes('shoe') || nameLower.includes('sneaker') || nameLower.includes('boot') || nameLower.includes('sandal');
-      const sizeNames = isFootwear ? ['UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11'] : ['S', 'M', 'L', 'XL', 'XXL'];
-      return [
-        {
-          name: 'Default',
-          primaryImage: prod.image,
-          images: prod.images && prod.images.length > 0 ? prod.images : [prod.image],
-          variants: sizeNames.map((sz, idx) => ({
-            name: sz,
-            price: prod.price,
-            originalPrice: prod.originalPrice || prod.price,
-            stock: idx === 4 ? 0 : 10 - idx * 2,
-            sku: `${prod.id || 'SKU'}-${sz}`
-          }))
-        }
-      ];
-    }
-
-    // Default fallback model for electronics/general marketplace products
-    return [
-      {
-        name: 'Default',
-        primaryImage: prod.image,
-        images: prod.images && prod.images.length > 0 ? prod.images : [prod.image],
-        variants: [
-          {
-            name: 'Default',
-            price: prod.price,
-            originalPrice: prod.originalPrice || prod.price,
-            stock: prod.stock !== undefined ? prod.stock : 10,
-            sku: `${prod.id || 'SKU'}-STD`
-          }
-        ]
-      }
-    ];
-  };
+  const getProductColorModels = (prod) => Array.isArray(prod?.colorModels) ? prod.colorModels : [];
 
   const colorModels = product ? getProductColorModels(product) : [];
 
@@ -1380,8 +1338,9 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
 
           {/* 🛍️ Smart Bundle Upsell: Frequently Bought Together */}
           <FrequentlyBoughtTogether 
-            currentProduct={product} 
-            onNavigateProduct={onNavigate} 
+            currentProduct={product}
+            selectedColor={activeColor?.name || ''}
+            selectedVariant={activeVariant?.name || ''}
           />
 
           {/* Ratings & Reviews section (M1 Real Calculation Fix) */}

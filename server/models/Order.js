@@ -15,7 +15,13 @@ const orderItemSchema = new mongoose.Schema({
   inventoryPath: { type: String, default: 'stock' },
   inventorySku: { type: String },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  vendorAmount: { type: Number, default: 0 }
+  vendorAmount: { type: Number, default: 0 },
+  hsnCode: { type: String },
+  gstRate: { type: Number, default: 18 },
+  sellerType: { type: String, enum: ['gst', 'non_gst', 'composition'], default: 'non_gst' },
+  sellerGstin: { type: String },
+  sellerShopName: { type: String },
+  isBillOfSupply: { type: Boolean, default: false }
 }, { _id: false });
 
 
@@ -50,6 +56,19 @@ const orderSchema = new mongoose.Schema({
   shippingPrice: { type: Number, required: true, default: 0.0 },
   totalPrice: { type: Number, required: true, default: 0.0 },
   totalPlatformFee: { type: Number, default: 0.0 },
+  sellerSettlement: {
+    isSettled: { type: Boolean, default: false },
+    grossAmount: { type: Number, default: 0 },
+    platformCommission: { type: Number, default: 0 },
+    gstOnCommission: { type: Number, default: 0 },
+    shippingDeduction: { type: Number, default: 0 },
+    gatewayFee: { type: Number, default: 0 },
+    tdsAmount: { type: Number, default: 0 },
+    tcsAmount: { type: Number, default: 0 },
+    netPayable: { type: Number, default: 0 },
+    settledAt: { type: Date },
+    utrNumber: { type: String }
+  },
   
   // Discount Engine Tracking
   appliedCoupon: { type: String },

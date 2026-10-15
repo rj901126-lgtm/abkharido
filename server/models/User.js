@@ -51,14 +51,31 @@ const userSchema = new mongoose.Schema({
     isDefault: { type: Boolean, default: false }
   }],
   
-  // Seller fields
+  // Seller fields & Compliance (GST / Non-GST Scheme)
   shopName: { type: String },
+  sellerType: { type: String, enum: ['gst', 'non_gst', 'composition'], default: 'non_gst' },
+  gstin: { type: String, trim: true, uppercase: true },
+  pan: { type: String, trim: true, uppercase: true },
+  enrolmentId: { type: String, trim: true },
+  legalBusinessName: { type: String, trim: true },
+  turnoverCertified: { type: Boolean, default: true },
+  commissionRate: { type: Number, default: 0.08 },
+  pickupAddress: {
+    street: { type: String },
+    city: { type: String },
+    state: { type: String },
+    pincode: { type: String },
+    phone: { type: String }
+  },
   walletCoins: { type: Number, default: 100 },
   walletCash: { type: Number, default: 0 },
   payoutDetails: {
     upiId: String,
     bankAccount: String,
-    ifsc: String
+    ifsc: String,
+    accountHolderName: String,
+    bankName: String,
+    verified: { type: Boolean, default: true }
   },
   
   // Cross-device synced cart

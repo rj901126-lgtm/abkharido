@@ -23,8 +23,10 @@ export async function checkoutOrder(body, userId, gateway = false) {
     const qty = Number(raw.qty || raw.quantity || 1);
     if (!product || !['published', 'active'].includes(product.status) || product.isArchived || product.inStock === false || !Number.isInteger(qty) || qty < 1 || qty > 100) throw new Error('Invalid or unavailable item');
     let inventoryPath = 'stock', inventorySku, variantPrice = product.price;
-    const selectedColor = raw.selectedColor || raw.color;
-    const selectedVariant = raw.selectedVariant?.name || raw.selectedVariant || raw.variant?.name || raw.variant;
+    // Storefront cart lines wrap the selected product; API clients may send flat lines.
+    const selection = raw.product && typeof raw.product === 'object' ? raw.product : raw;
+    const selectedColor = raw.selectedColor || raw.color || selection.selectedColor || selection.color;
+    const selectedVariant = raw.selectedVariant?.name || raw.selectedVariant || raw.variant?.name || raw.variant || selection.selectedVariant?.name || selection.selectedVariant || selection.variant?.name || selection.variant;
     if (product.colorModels?.length) {
       const colorIndex = product.colorModels.findIndex(color => color.name === selectedColor);
       if (colorIndex < 0) throw new Error('Select a valid product color');
