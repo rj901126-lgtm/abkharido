@@ -46,6 +46,7 @@ import AdminPromotions from '../components/AdminPromotions';
 import AdminUsers from '../components/AdminUsers';
 import AdminProductStudio from '../components/AdminProductStudio';
 import AdminSettings from '../components/AdminSettings';
+import AdminSellers from '../components/AdminSellers';
 
 // eslint-disable-next-line
 const compressImage = (file, maxWidth, maxHeight, quality = 0.7) => {
