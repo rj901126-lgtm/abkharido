@@ -235,21 +235,22 @@ const AdminFinance = () => {
   };
 
   const exportGSTReport = () => {
-    const headers = ['Tax Category', 'Description', 'Applicable Rate', 'Gross Amount (₹)', 'Tax Liability Amount (₹)', 'Filing Section'];
+    const headers = ['Category', 'Description', 'Applicable Rate', 'Turnover / Amount (₹)', 'Tax Liability (₹)', 'Statutory Status'];
     const csvRows = serializeCSV([headers,
-      ['Platform Commission Revenue', '10% share on Gross Vendor Volume', '18% (CGST 9% + SGST 9%)', totalPlatformRev, (totalPlatformRev * 0.18).toFixed(2), 'GSTR-1 Section 14'],
-      ['E-commerce TCS Deducted', 'Tax Collected at Source on GST vendor payouts', '1% IGST / CGST+SGST', totalEarnedVol, (totalEarnedVol * 0.01).toFixed(2), 'Section 52 CGST Act'],
-      ['TDS Reserved Under Sec 194-O', 'Income Tax deduction on non-GST e-commerce transactions', '1% under ITA', totalEarnedVol, (totalEarnedVol * 0.01).toFixed(2), 'Section 194-O Income Tax Act']
+      ['Platform Service Turnover', 'AbKharido Marketplace Commission (10%)', '0% (Exempt)', totalPlatformRev, '0.00', 'Section 22 CGST Act (Turnover < ₹20 Lakhs)'],
+      ['E-commerce TCS (Sec 52)', 'Tax Collection at Source', '0% (Not Applicable)', totalEarnedVol, '0.00', 'Exempt for Unregistered Electronic Commerce Operators'],
+      ['Seller Invoices (GST)', 'Tax Invoices generated for GST registered sellers', '5% - 28%', 'Varies by Seller', 'Direct Seller Filing', 'Seller Files GSTR-1 & GSTR-3B'],
+      ['Seller Invoices (Non-GST)', 'Bills of Supply for unregistered micro-sellers', '0%', totalEarnedVol, '0.00', 'Section 31(3)(c) CGST Act & Notification 34/2023']
     ]);
     const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `AbKharido_GSTR1_Tax_Compliance_Report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `AbKharido_Tax_Exemption_Compliance_Report_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToastMsg('📥 Indian GSTR-1 & TDS Tax Liability Report (CSV) downloaded successfully!', 'success');
+    showToastMsg('📥 Tax Exemption & Compliance Report (CSV) downloaded successfully!', 'success');
   };
 
   const exportLedgerCSV = () => {
@@ -516,45 +517,50 @@ const AdminFinance = () => {
       {/* SPECIAL SECTION: Indian GST Compliance & Financial Fraud Safeguard Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px' }}>
         
-        {/* CARD 1: Indian GST & Tax Liability Engine */}
+        {/* CARD 1: Indian GST & Tax Status Engine */}
         <div style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 6px 25px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
             <div>
-              <span style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', background: '#e0e7ff', color: '#312e81', padding: '3px 10px', borderRadius: '100px' }}>
-                🇮🇳 LEGAL TAX ACCOUNTING
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', background: '#dcfce7', color: '#166534', padding: '3px 10px', borderRadius: '100px', border: '1px solid #86efac' }}>
+                  ✓ SEC 22 CGST EXEMPT (&lt; ₹20L)
+                </span>
+                <span style={{ fontSize: '11px', fontWeight: '800', background: '#eff6ff', color: '#1e40af', padding: '3px 10px', borderRadius: '100px' }}>
+                  MSME INTERMEDIARY
+                </span>
+              </div>
               <h3 style={{ margin: '8px 0 0', fontSize: '19px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Landmark size={22} style={{ color: '#4f46e5' }} /> Indian GST & TCS Liability Engine
+                <Landmark size={22} style={{ color: '#2563eb' }} /> Marketplace Tax & GST Compliance Engine
               </h3>
             </div>
             <button
               type="button"
               onClick={exportGSTReport}
-              style={{ padding: '9px 14px', borderRadius: '10px', background: '#4f46e5', color: '#ffffff', fontWeight: '800', fontSize: '12px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 3px 12px rgba(79, 70, 229, 0.25)' }}
+              style={{ padding: '9px 14px', borderRadius: '10px', background: '#0f172a', color: '#ffffff', fontWeight: '800', fontSize: '12px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 3px 12px rgba(15, 23, 42, 0.2)' }}
             >
-              <Download size={14} /> <span>Download GSTR-1 CSV</span>
+              <Download size={14} /> <span>Download Compliance Report</span>
             </button>
           </div>
 
           <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: '1.5' }}>
-            Automated tax calculation for Indian E-Commerce Marketplace regulations. Tracks GST on commission (18%), TCS under Sec 52 (for GST sellers), and TDS under Sec 194-O (for Non-GST sellers).
+            Operating legally under Indian Law as an unregistered technology facilitator (turnover &lt; ₹20 Lakhs). No GST is charged on AbKharido fees, and Section 52 TCS does not apply to unregistered platforms.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Total GST Collected (18%)</div>
-              <div style={{ fontSize: '20px', fontWeight: '900', color: '#312e81', marginTop: '2px' }}>₹{totalGstCollected.toLocaleString('en-IN')}</div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>CGST 9% + SGST / IGST 9%</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Platform GST Liability</div>
+              <div style={{ fontSize: '20px', fontWeight: '900', color: '#16a34a', marginTop: '2px' }}>₹0.00 (Exempt)</div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>Turnover under ₹20L threshold</div>
             </div>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>TDS & TCS Withholding (1%)</div>
-              <div style={{ fontSize: '20px', fontWeight: '900', color: '#059669', marginTop: '2px' }}>₹{Math.round(totalEarnedVol * 0.01).toLocaleString('en-IN')}</div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Sec 52 TCS & Sec 194-O TDS</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Sec 52 TCS Withholding</div>
+              <div style={{ fontSize: '20px', fontWeight: '900', color: '#0f172a', marginTop: '2px' }}>₹0.00 (N/A)</div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>Only registered ECOs file GSTR-8</div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#16a34a', fontWeight: '700', background: '#f0fdf4', padding: '10px 14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
-            <CheckCircle size={16} /> <span>Non-GST Sellers emit statutory Section 31(3)(c) Bill of Supply. GST Sellers emit Tax Invoices.</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#15803d', fontWeight: '700', background: '#f0fdf4', padding: '10px 14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+            <CheckCircle size={16} /> <span>100% Legal: Non-GST Sellers issue Bill of Supply; GST Sellers issue Tax Invoices. Platform acts as IT Intermediary.</span>
           </div>
         </div>
 

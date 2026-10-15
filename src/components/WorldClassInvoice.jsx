@@ -139,8 +139,8 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
                   </span>
                 </div>
                 <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', lineHeight: '1.4' }}>
-                  Marketplace Platform: <strong>AbKharido Retail Private Limited</strong><br />
-                  Platform GSTIN: <strong>27AABCA9876F1Z2</strong> | State: 27-Maharashtra<br />
+                  Marketplace Platform: <strong>AbKharido</strong> (Digital Intermediary under IT Act 2000)<br />
+                  Platform Entity: <strong>Unregistered Enterprise</strong> (Exempt under Sec 22 CGST Act / MSME)<br />
                   Support: support@abkharido.com | Helplines: +91 9172600587
                 </div>
               </td>
