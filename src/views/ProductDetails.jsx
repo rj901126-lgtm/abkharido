@@ -713,14 +713,21 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
               A-Assured <span style={{ color: '#ffe500', marginLeft: '3px', fontStyle: 'normal' }}>★</span>
             </div>
 
-            {/* Verified Merchant / Seller Badge */}
-            {product.sellerShopName && (
+            {/* Verified Merchant / Seller Badge (1P Direct vs 3P Marketplace) */}
+            {product.sellerShopName ? (
               <div 
                 onClick={() => onNavigate && onNavigate(`catalog?seller=${encodeURIComponent(product.sellerShopName.toLowerCase().replace(/\s+/g, '-'))}`)}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '700', color: '#059669', background: '#ecfdf5', padding: '3px 8px', borderRadius: '6px', border: '1px solid #a7f3d0', cursor: 'pointer' }}
                 title="Click to browse official seller store"
               >
                 <Store size={13} /> Sold by: {product.sellerShopName} ✓
+              </div>
+            ) : (
+              <div 
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '800', color: '#1e40af', background: '#eff6ff', padding: '3px 9px', borderRadius: '6px', border: '1px solid #bfdbfe' }}
+                title="Direct in-house retail stock fulfilled by AbKharido"
+              >
+                <ShieldCheck size={13} color="#2563eb" /> Sold by: <strong>AbKharido Direct</strong> (⚡ Assured 24h Dispatch)
               </div>
             )}
           </div>
