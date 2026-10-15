@@ -2,12 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Admin Flow', () => {
   test('should login as admin and verify dashboard components', async ({ page }) => {
+    const adminPin = (process.env.ADMIN_SECURE_PIN || '2026').trim();
     await page.goto('http://localhost:3000/admin');
     
     // 1. Admin Login
     const pinInput = page.locator('input[type="password"]').first();
-    await pinInput.fill('2026'); // Valid PIN from the .env or fallback
-    await page.locator('button:has-text("UNLOCK INVENTORY CONTROL")').click();
+    await pinInput.fill(adminPin);
+    await page.locator('button:has-text("UNLOCK CONTROL CENTER")').click();
     
     // 2. Wait for dashboard to load
     await expect(page.locator('text=Analytics Control')).toBeVisible({ timeout: 15000 });

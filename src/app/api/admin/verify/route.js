@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { getJwtSecret } from '../../../../../server/utils/authSecurity.js';
-import { timingSafeEqual } from 'crypto';
+import { verifyAdminPin, signAdminToken } from '../../../../../server/utils/authSecurity.js';
 
 // In-memory rate limiting map for admin verify attempts
 const failedAttemptsMap = new Map();
@@ -46,47 +44,20 @@ function clearFailedAttempts(ip) {
 export async function POST(req) {
   try {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
-    
-    // Rate limit check
-    const rateCheck = checkRateLimit(ip);
-    if (!rateCheck.allowed) {
-      console.warn(`[SECURITY ALERT] Admin PIN brute force lockout active for IP ${ip}`);
-      return NextResponse.json(
-        { error: `Too many failed attempts. Try again in ${rateCheck.remainingSeconds} seconds.` },
-        { status: 429 }
-      );
-    }
-
     const body = await req.json().catch(() => ({}));
-    const { password } = body;
+    const password = body?.password;
     const cleanInput = typeof password === 'string' ? password.trim() : '';
 
     if (!cleanInput) {
       return NextResponse.json({ error: 'Please enter your administrator PIN' }, { status: 400 });
     }
 
-    const configuredPin = (process.env.ADMIN_SECURE_PIN || '2026').trim();
-    const isMatch = Boolean(
-      cleanInput === '2026' || 
-      (configuredPin && cleanInput === configuredPin)
-    );
+    const pin = verifyAdminPin(cleanInput);
 
-    if (isMatch) {
+    if (pin.matches) {
       clearFailedAttempts(ip);
 
-      const jwtSecret = getJwtSecret();
-      const cryptoToken = jwt.sign(
-        { 
-          role: 'super_admin', 
-          id: 'admin-root', 
-          purpose: 'admin',
-          email: 'admin@abkharido.com', 
-          username: 'admin', 
-          issuer: 'AbKharido Security Engine' 
-        }, 
-        jwtSecret, 
-        { algorithm: 'HS256', expiresIn: '7d', audience: 'abkharido-admin', issuer: 'abkharido' }
-      );
+      const cryptoToken = signAdminToken();
 
       const response = NextResponse.json({ success: true, token: cryptoToken });
       
@@ -100,11 +71,21 @@ export async function POST(req) {
       });
 
       return response;
-    } else {
-      recordFailedAttempt(ip);
-      console.warn(`[ADMIN AUTH] Invalid admin PIN attempt from IP ${ip}`);
-      return NextResponse.json({ error: 'Invalid PIN or Security Credential' }, { status: 401 });
     }
+
+    // Rate limit check for failed attempts
+    const rateCheck = checkRateLimit(ip);
+    if (!rateCheck.allowed) {
+      console.warn(`[SECURITY ALERT] Admin PIN brute force lockout active for IP ${ip}`);
+      return NextResponse.json(
+        { error: `Too many failed attempts. Try again in ${rateCheck.remainingSeconds} seconds.` },
+        { status: 429 }
+      );
+    }
+
+    recordFailedAttempt(ip);
+    console.warn(`[ADMIN AUTH] Invalid admin PIN attempt from IP ${ip}`);
+    return NextResponse.json({ error: 'Invalid PIN or Security Credential' }, { status: 401 });
   } catch (error) {
     console.error('[Admin Verify Native Route Error]:', error);
     return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });

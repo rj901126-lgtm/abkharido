@@ -11,6 +11,7 @@ import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import logger from './config/logger.js';
 import { initCronJobs } from './utils/cronJobs.js';
+import { verifyAdminPin, signAdminToken } from './utils/authSecurity.js';
 
 // eslint-disable-next-line
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
@@ -216,18 +217,15 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/admin/search', searchRoutes);
 
 // Admin PIN Verification Endpoint
-app.post('/api/admin/verify', (req, res) => {
+app.post('/api/admin/verify', authLimiter, (req, res) => {
   const { password } = req.body || {};
-  const validPin = (process.env.ADMIN_SECURE_PIN || '2026').trim();
-  const jwtSecret = process.env.JWT_SECRET || 'abkharido_enterprise_secret_2026';
-  const cleanInput = typeof password === 'string' ? password.trim() : String(password || '').trim();
+  const pin = verifyAdminPin(password);
+  if (!pin.configured) {
+    return res.status(503).json({ error: 'A private administrator credential of at least 16 characters must be configured on the server.' });
+  }
 
-  if (cleanInput && (cleanInput === validPin || cleanInput === '2026')) {
-    const token = jwt.sign(
-      { role: 'super_admin', id: 'admin-root', email: 'admin@abkharido.com', username: 'admin', issuer: 'AbKharido Security Engine' },
-      jwtSecret,
-      { algorithm: 'HS256', expiresIn: '7d' }
-    );
+  if (pin.matches) {
+    const token = signAdminToken();
     res.cookie('abkharido_admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

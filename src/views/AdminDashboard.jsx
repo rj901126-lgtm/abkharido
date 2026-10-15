@@ -498,14 +498,17 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
         body: JSON.stringify({ password: pinToTest })
       }).catch(() => null);
 
-      // 2. Fallback to NEXT_PUBLIC_API_URL if relative failed or returned error
+      // 2. Fallback to NEXT_PUBLIC_API_URL only if explicitly configured and not on a remote domain
       if (!res || !res.ok) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        res = await fetch(`${apiUrl}/api/admin/verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pinToTest })
-        }).catch(() => null);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const isRemoteHost = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
+        if (apiUrl && (!isRemoteHost || !apiUrl.includes('localhost'))) {
+          res = await fetch(`${apiUrl}/api/admin/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pinToTest })
+          }).catch(() => null);
+        }
       }
 
       if (res && res.ok) {
@@ -1188,6 +1191,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
               </label>
               <input
                 type="password"
+                autoComplete="current-password"
                 placeholder="••••"
                 value={adminPin}
                 onChange={(e) => setAdminPin(e.target.value)}
