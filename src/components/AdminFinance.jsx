@@ -278,14 +278,36 @@ const AdminFinance = () => {
     showToastMsg('📥 Global Vendor Settlement Ledger downloaded successfully!', 'success');
   };
 
-  // Authoritative Calculations
+  // Authoritative Calculations (Amazon/Flipkart Hybrid Model)
   const nonCancelledOrders = realOrders.filter(o => o.status !== 'Cancelled');
-  const totalEarnedVol = nonCancelledOrders.reduce((acc, o) => acc + (o.totalPrice || 0), 0);
-  const totalPlatformRev = Math.round(totalEarnedVol * 0.10); // 10% Platform Commission
+  
+  // Segregate 1P (Direct Retail) vs 3P (Marketplace)
+  let directRetailGmv = 0; // 1P sales where 100% is AbKharido revenue
+  let marketplaceGmv = 0;   // 3P sales where 10% is platform fee & 90% is vendor escrow payable
+
+  nonCancelledOrders.forEach(order => {
+    const items = order.orderItems || order.items || [];
+    if (!items.length) {
+      directRetailGmv += (order.totalPrice || 0);
+    } else {
+      items.forEach(it => {
+        const lineTotal = (it.price || 0) * (it.qty || it.quantity || 1);
+        if (Boolean(it.vendorId || it.sellerId) && it.sellerShopName !== 'AbKharido Direct') {
+          marketplaceGmv += lineTotal;
+        } else {
+          directRetailGmv += lineTotal;
+        }
+      });
+    }
+  });
+
+  const totalEarnedVol = directRetailGmv + marketplaceGmv;
+  const marketplaceCommission = Math.round(marketplaceGmv * 0.10); // 10% Platform Fee on 3P
+  const totalPlatformRev = directRetailGmv + marketplaceCommission; // 100% of 1P Direct + 10% Commission on 3P
   const totalSettledVol = vendors.reduce((acc, v) => acc + (v.totalSettled || 0), 0);
   const totalPendingVol = vendors.reduce((acc, v) => acc + (v.pendingBalance || 0), 0);
   const totalQuarantinedVol = vendors.reduce((acc, v) => acc + (v.inEscrowQuarantine || 0), 0);
-  const totalGstCollected = Math.round(totalPlatformRev * 0.18);
+  const totalGstCollected = Math.round(marketplaceCommission * 0.18);
 
   if (loading) {
     return (
@@ -409,39 +431,47 @@ const AdminFinance = () => {
           </p>
         </div>
 
-        {/* Live Treasury Metrics Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: '14px', width: '100%', maxWidth: '820px', marginTop: '6px' }}>
+        {/* Live Enterprise Hybrid Treasury Metrics Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(155px, 1fr))', gap: '14px', width: '100%', marginTop: '6px' }}>
           
           <div style={{ background: 'rgba(34, 197, 94, 0.1)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderRadius: '18px', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
-            <div style={{ fontSize: '11px', color: '#86efac', fontWeight: '800', textTransform: 'uppercase' }}>Gross Sales Vol. (GMV)</div>
-            <div style={{ fontSize: '26px', fontWeight: '900', color: '#4ade80', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#86efac', fontWeight: '800', textTransform: 'uppercase' }}>Combined GMV</div>
+            <div style={{ fontSize: '24px', fontWeight: '900', color: '#4ade80', marginTop: '4px' }}>
               ₹{totalEarnedVol.toLocaleString('en-IN')}
             </div>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>Marketplace cumulative volume</span>
+            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>1P + 3P Gross Merchandise</span>
           </div>
 
-          <div style={{ background: 'rgba(59, 130, 246, 0.1)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderRadius: '18px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-            <div style={{ fontSize: '11px', color: '#bfdbfe', fontWeight: '800', textTransform: 'uppercase' }}>Platform Revenue (10%)</div>
-            <div style={{ fontSize: '26px', fontWeight: '900', color: '#60a5fa', marginTop: '4px' }}>
+          <div style={{ background: 'rgba(59, 130, 246, 0.12)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderRadius: '18px', border: '1px solid rgba(59, 130, 246, 0.35)' }}>
+            <div style={{ fontSize: '11px', color: '#93c5fd', fontWeight: '800', textTransform: 'uppercase' }}>🏬 1P Direct Retail</div>
+            <div style={{ fontSize: '24px', fontWeight: '900', color: '#60a5fa', marginTop: '4px' }}>
+              ₹{directRetailGmv.toLocaleString('en-IN')}
+            </div>
+            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>100% AbKharido Sales Revenue</span>
+          </div>
+
+          <div style={{ background: 'rgba(168, 85, 247, 0.12)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderRadius: '18px', border: '1px solid rgba(168, 85, 247, 0.35)' }}>
+            <div style={{ fontSize: '11px', color: '#d8b4fe', fontWeight: '800', textTransform: 'uppercase' }}>🏪 3P Partner Volume</div>
+            <div style={{ fontSize: '24px', fontWeight: '900', color: '#c084fc', marginTop: '4px' }}>
+              ₹{marketplaceGmv.toLocaleString('en-IN')}
+            </div>
+            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>Marketplace Merchant GMV</span>
+          </div>
+
+          <div style={{ background: 'rgba(14, 165, 233, 0.12)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderRadius: '18px', border: '1px solid rgba(14, 165, 233, 0.35)' }}>
+            <div style={{ fontSize: '11px', color: '#7dd3fc', fontWeight: '800', textTransform: 'uppercase' }}>Net Platform Revenue</div>
+            <div style={{ fontSize: '24px', fontWeight: '900', color: '#38bdf8', marginTop: '4px' }}>
               ₹{totalPlatformRev.toLocaleString('en-IN')}
             </div>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>Net AbKharido earnings</span>
-          </div>
-
-          <div style={{ background: 'rgba(217, 70, 239, 0.1)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderRadius: '18px', border: '1px solid rgba(217, 70, 239, 0.3)' }}>
-            <div style={{ fontSize: '11px', color: '#f0abfc', fontWeight: '800', textTransform: 'uppercase' }}>Total Settled to Sellers</div>
-            <div style={{ fontSize: '26px', fontWeight: '900', color: '#e879f9', marginTop: '4px' }}>
-              ₹{totalSettledVol.toLocaleString('en-IN')}
-            </div>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>Disbursed via RBI Escrow IMPS</span>
+            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>1P Revenue + 10% 3P Fee</span>
           </div>
 
           <div style={{ background: 'rgba(245, 158, 11, 0.12)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderRadius: '18px', border: '1px solid rgba(245, 158, 11, 0.35)' }}>
-            <div style={{ fontSize: '11px', color: '#fde68a', fontWeight: '800', textTransform: 'uppercase' }}>Cleared Escrow Ready</div>
-            <div style={{ fontSize: '26px', fontWeight: '900', color: '#fbbf24', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#fde68a', fontWeight: '800', textTransform: 'uppercase' }}>Escrow Cleared (3P)</div>
+            <div style={{ fontSize: '24px', fontWeight: '900', color: '#fbbf24', marginTop: '4px' }}>
               ₹{totalPendingVol.toLocaleString('en-IN')}
             </div>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>{vendors.filter(v => (v.pendingBalance || 0) > 0).length} sellers ready for payout</span>
+            <span style={{ fontSize: '11px', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>Ready for IMPS Release</span>
           </div>
 
         </div>

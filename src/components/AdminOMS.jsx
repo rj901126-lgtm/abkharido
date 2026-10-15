@@ -21,6 +21,7 @@ const AdminOMS = ({ statusFilter }) => {
     return 'LIVE'; // Hide cancelled orders by default
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [channelFilter, setChannelFilter] = useState('ALL'); // 'ALL' | '1P' | '3P'
   
   useEffect(() => {
     if (statusFilter) {
@@ -379,8 +380,22 @@ const AdminOMS = ({ statusFilter }) => {
   const returnsCount = orders.filter(o => o.returnStatus && o.returnStatus !== 'None').length;
   const cancelledCount = orders.filter(o => ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)).length;
 
+  // Enterprise Hybrid Channel Attribution (1P Direct vs 3P Marketplace)
+  const getOrderChannel = (o) => {
+    const items = o.orderItems || o.items || [];
+    const has3P = items.some(item => Boolean(item.vendorId || item.sellerId) && item.sellerShopName !== 'AbKharido Direct');
+    return has3P ? '3P' : '1P';
+  };
+
+  const count1POrders = orders.filter(o => getOrderChannel(o) === '1P').length;
+  const count3POrders = orders.filter(o => getOrderChannel(o) === '3P').length;
+
   const filteredOrders = orders.filter(o => {
-    // 1. Tab Filter
+    // 1. Enterprise Channel Filter
+    if (channelFilter === '1P' && getOrderChannel(o) !== '1P') return false;
+    if (channelFilter === '3P' && getOrderChannel(o) !== '3P') return false;
+
+    // 2. Tab Filter
     if (activeTab === 'LIVE') {
       if (['CANCELLED', 'Cancelled', 'cancelled', 'DELIVERED', 'Delivered', 'delivered', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)) return false;
     } else if (activeTab === 'PROCESSING') {
@@ -396,7 +411,7 @@ const AdminOMS = ({ statusFilter }) => {
       if (!isCancelled) return false;
     }
 
-    // 2. Search Query Filter
+    // 3. Search Query Filter
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     const oId = String(o.id || o._id).toLowerCase();
@@ -518,6 +533,39 @@ const AdminOMS = ({ statusFilter }) => {
         })}
       </div>
 
+      {/* ── Enterprise Fulfillment Channel Filter (Amazon 1P vs 3P Model) ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', background: '#ffffff', padding: '10px 16px', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+        <span style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.4px', marginRight: '6px' }}>
+          Fulfillment Channel:
+        </span>
+        {[
+          { id: 'ALL', label: `🌐 All Channels (${orders.length})` },
+          { id: '1P', label: `🏬 AbKharido Central Hub (1P In-House) (${count1POrders})`, color: '#2563eb' },
+          { id: '3P', label: `🏪 3P Partner Merchant Dispatched (${count3POrders})`, color: '#9333ea' }
+        ].map(pill => (
+          <button
+            key={pill.id}
+            type="button"
+            onClick={() => { setChannelFilter(pill.id); setSelectedOrders([]); }}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '100px',
+              fontSize: '12px',
+              fontWeight: '800',
+              border: '1.5px solid',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+              background: channelFilter === pill.id ? (pill.color || '#0f172a') : '#f8fafc',
+              color: channelFilter === pill.id ? '#ffffff' : '#475569',
+              borderColor: channelFilter === pill.id ? (pill.color || '#0f172a') : '#cbd5e1',
+              boxShadow: channelFilter === pill.id ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            {pill.label}
+          </button>
+        ))}
+      </div>
+
       {/* ── 3. Table Container with Bulk Action & Search Bar ── */}
       <div style={{ background: '#ffffff', borderRadius: '18px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
         
@@ -636,7 +684,7 @@ const AdminOMS = ({ statusFilter }) => {
                       />
                     </td>
                     
-                    {/* Order ID & Date */}
+                    {/* Order ID & Date & Fulfillment Channel */}
                     <td style={{ padding: '16px' }}>
                       <div 
                         onClick={() => setViewingOrder(order)} 
@@ -647,6 +695,17 @@ const AdminOMS = ({ statusFilter }) => {
                       </div>
                       <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '3px', fontWeight: '500' }}>
                         {new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </div>
+                      <div style={{ marginTop: '5px' }}>
+                        {getOrderChannel(order) === '1P' ? (
+                          <span style={{ background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '2px 7px', borderRadius: '6px', fontSize: '10px', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            🏬 1P Central Hub
+                          </span>
+                        ) : (
+                          <span style={{ background: '#f3e8ff', color: '#7e22ce', border: '1px solid #e9d5ff', padding: '2px 7px', borderRadius: '6px', fontSize: '10px', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            🏪 3P Merchant Direct
+                          </span>
+                        )}
                       </div>
                     </td>
 

@@ -9,6 +9,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [stockFilter, setStockFilter] = useState('all');
+  const [channelFilter, setChannelFilter] = useState('all'); // 'all' | '1P' | '3P'
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
@@ -42,12 +43,19 @@ const AdminDataGrid = ({ onEditProduct }) => {
     // Profit Margin estimation
     const margin = (16.5 + (stock % 12)).toFixed(1);
 
+    // Enterprise Hybrid Channel Attribution (1P Direct Retail vs 3P Marketplace)
+    const is3P = Boolean(prod.vendorId || prod.sellerId || (prod.channel === '3P') || (prod.sellerShopName && prod.sellerShopName !== 'AbKharido Direct'));
+    const channel = is3P ? '3P' : '1P';
+    const sellerShopName = is3P ? (prod.sellerShopName || 'Partner Merchant') : 'AbKharido Direct';
+
     return {
       ...prod,
       id: cleanId,
       sku,
       stock,
-      margin
+      margin,
+      channel,
+      sellerShopName
     };
   };
 
@@ -302,6 +310,10 @@ const AdminDataGrid = ({ onEditProduct }) => {
 
   // Filter Logic
   const filteredProducts = data.products.filter(p => {
+    // Enterprise Channel filter (1P Direct Retail vs 3P Marketplace)
+    if (channelFilter === '1P' && p.channel !== '1P') return false;
+    if (channelFilter === '3P' && p.channel !== '3P') return false;
+
     if (stockFilter === 'in_stock' && (Number(p.stock) || 0) < 15) return false;
     if (stockFilter === 'low_stock' && (Number(p.stock) || 0) >= 15) return false;
     if (stockFilter === 'high_value' && (Number(p.price) || 0) < 25000) return false;
@@ -312,6 +324,8 @@ const AdminDataGrid = ({ onEditProduct }) => {
   const totalValuation = data.products.reduce((acc, p) => acc + ((Number(p.price) || 0) * (Number(p.stock) || 0)), 0);
   const totalHealthy = data.products.filter(p => (Number(p.stock) || 0) >= 15).length;
   const totalLow = data.products.filter(p => (Number(p.stock) || 0) < 15).length;
+  const count1P = data.products.filter(p => p.channel === '1P').length;
+  const count3P = data.products.filter(p => p.channel === '3P').length;
 
   return (
     <div className="admin-inventory-module" style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingBottom: '40px' }}>
@@ -433,6 +447,39 @@ const AdminDataGrid = ({ onEditProduct }) => {
               Search Database
             </button>
           </form>
+
+          {/* Enterprise Hybrid Channel Tabs (1P vs 3P) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px' }}>
+            <span style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.4px', marginRight: '6px' }}>
+              Channel Model:
+            </span>
+            {[
+              { id: 'all', label: `🌐 All Inventory (${data.products.length})` },
+              { id: '1P', label: `🏬 AbKharido Direct (1P Retail) (${count1P})`, color: '#2563eb' },
+              { id: '3P', label: `🏪 3P Partner Merchants (${count3P})`, color: '#9333ea' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setChannelFilter(tab.id)}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: '100px',
+                  fontSize: '12.5px',
+                  fontWeight: '800',
+                  border: '1.5px solid',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  background: channelFilter === tab.id ? (tab.color || '#0f172a') : '#ffffff',
+                  color: channelFilter === tab.id ? '#ffffff' : '#475569',
+                  borderColor: channelFilter === tab.id ? (tab.color || '#0f172a') : '#cbd5e1',
+                  boxShadow: channelFilter === tab.id ? '0 4px 12px rgba(0,0,0,0.12)' : 'none'
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
           {/* Quick Filter Pills (No unescaped greater/less than signs in text!) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', paddingTop: '4px' }}>
@@ -591,13 +638,22 @@ const AdminDataGrid = ({ onEditProduct }) => {
                           />
                         </td>
 
-                        {/* Name & ID */}
-                        <td style={{ padding: '16px 14px', maxWidth: '240px' }}>
+                        {/* Name & ID & Enterprise Channel Badge */}
+                        <td style={{ padding: '16px 14px', maxWidth: '260px' }}>
                           <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '15px', lineHeight: '1.3' }}>
                             {(prod.name || 'Untitled Product').substring(0, 42)}{(prod.name?.length > 42 ? '...' : '')}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: '600' }}>
-                            ID: <code style={{ background: '#e2e8f0', padding: '2px 8px', borderRadius: '6px', color: '#334155', fontFamily: 'monospace', fontSize: '11px' }}>{prod.id}</code>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '5px', flexWrap: 'wrap' }}>
+                            <code style={{ background: '#e2e8f0', padding: '2px 7px', borderRadius: '6px', color: '#334155', fontFamily: 'monospace', fontSize: '11px' }}>{prod.id}</code>
+                            {prod.channel === '1P' ? (
+                              <span style={{ background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '2px 7px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>
+                                🏬 1P Direct
+                              </span>
+                            ) : (
+                              <span style={{ background: '#f3e8ff', color: '#7e22ce', border: '1px solid #e9d5ff', padding: '2px 7px', borderRadius: '6px', fontSize: '10.5px', fontWeight: '800' }}>
+                                🏪 3P: {prod.sellerShopName || 'Merchant'}
+                              </span>
+                            )}
                           </div>
                         </td>
 

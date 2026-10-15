@@ -314,10 +314,21 @@ const ProductCard = ({ product, onNavigateProduct }) => {
             )}
           </div>
 
-          {/* Delivery Note */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9.5px', color: '#059669', fontWeight: '700', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <Truck size={10} color="#059669" />
-            <span>{deliveryETA}</span>
+          {/* Delivery Note & 1P/3P Trust Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3px', fontSize: '9.5px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#059669', fontWeight: '700' }}>
+              <Truck size={10} color="#059669" />
+              <span>{deliveryETA}</span>
+            </div>
+            {!(Boolean(product.vendorId || product.sellerId || (product.channel === '3P') || (product.sellerShopName && product.sellerShopName !== 'AbKharido Direct'))) ? (
+              <span style={{ fontSize: '9px', fontWeight: '800', background: '#dbeafe', color: '#1d4ed8', padding: '1px 5px', borderRadius: '4px' }}>
+                ⚡ 1P Direct
+              </span>
+            ) : (
+              <span style={{ fontSize: '9px', fontWeight: '800', background: '#f3e8ff', color: '#7e22ce', padding: '1px 5px', borderRadius: '4px' }}>
+                🏪 Verified Seller
+              </span>
+            )}
           </div>
 
           {/* Primary Marketplace Add to Cart / In Bag Stepper */}

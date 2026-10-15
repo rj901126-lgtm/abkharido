@@ -935,8 +935,19 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   <img src={item?.product?.image || ''} alt={item?.product?.name || 'Product'} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item?.product?.name || 'Product'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {item?.product?.name || 'Product'}
+                    </div>
+                    {!(Boolean(item?.product?.vendorId || item?.product?.sellerId || (item?.product?.channel === '3P') || (item?.product?.sellerShopName && item?.product?.sellerShopName !== 'AbKharido Direct'))) ? (
+                      <span style={{ fontSize: '10px', fontWeight: '800', background: '#dbeafe', color: '#1d4ed8', padding: '1px 6px', borderRadius: '4px' }}>
+                        ⚡ 1P Direct
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '10px', fontWeight: '800', background: '#f3e8ff', color: '#7e22ce', padding: '1px 6px', borderRadius: '4px' }}>
+                        🏪 {item?.product?.sellerShopName || '3P Merchant'}
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
                     Qty: <strong style={{ color: '#0f172a' }}>{item?.quantity || 1}</strong>

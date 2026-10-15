@@ -305,6 +305,19 @@ const CartPage = ({ onNavigate, onCheckout }) => {
               <div className="cart-item-details">
                 <h3 className="cart-item-title">{prodTitle}</h3>
                 
+                {/* 1P vs 3P Enterprise Hybrid Attribution */}
+                <div style={{ marginTop: '4px', marginBottom: '4px' }}>
+                  {!(Boolean(prod.vendorId || prod.sellerId || (prod.channel === '3P') || (prod.sellerShopName && prod.sellerShopName !== 'AbKharido Direct'))) ? (
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#1d4ed8', background: '#dbeafe', padding: '2px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      ⚡ Fulfilled by AbKharido Direct (Express 24h Dispatch)
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#7e22ce', background: '#f3e8ff', padding: '2px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      🏪 Sold &amp; Shipped by {prod.sellerShopName || 'Verified Merchant'} ✓
+                    </span>
+                  )}
+                </div>
+
                 {(prod.selectedColor || prod.selectedVariant) && (
                   <span className="cart-item-category">
                     {prod.selectedColor && `Color: ${prod.selectedColor}`}

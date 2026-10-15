@@ -6,10 +6,15 @@ const AdminProductStudio = ({ onFinish }) => {
   const { addProduct, editProduct, showToast } = useApp();
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
   
-  // Form state
+  // Enterprise Hybrid Form state (1P Direct Retail vs 3P Marketplace)
   const [formData, setFormData] = useState({
     name: '',
     category: 'Mobiles',
+    channel: '1P', // '1P' = AbKharido Direct Retail | '3P' = Partner Merchant (Marketplace)
+    sellerShopName: 'AbKharido Direct',
+    warehouseLocation: 'AbKharido Central Hub (Bhiwandi / Mumbai)',
+    costPrice: '',
+    commissionRate: '10',
     price: '',
     mrp: '',
     stock: '50',
@@ -69,22 +74,32 @@ const AdminProductStudio = ({ onFinish }) => {
       return;
     }
 
+    const is1P = formData.channel === '1P';
+    const priceNum = Number(formData.price) || 999;
+    const costNum = Number(formData.costPrice) || Math.round(priceNum * 0.78);
+
     const createdProduct = {
       _id: `prod_${Date.now()}`,
       id: `prod_${Date.now()}`,
       name: formData.name,
       category: formData.category,
-      price: Number(formData.price) || 999,
-      mrp: Number(formData.mrp) || Number(formData.price) * 1.2,
+      price: priceNum,
+      mrp: Number(formData.mrp) || Math.round(priceNum * 1.2),
       countInStock: Number(formData.stock) || 50,
       description: formData.description,
       brand: formData.brand,
       image: formData.image,
+      channel: formData.channel,
+      isOfficialStore: is1P,
+      sellerShopName: is1P ? 'AbKharido Direct' : (formData.sellerShopName || 'Partner Merchant'),
+      warehouseLocation: is1P ? formData.warehouseLocation : 'Merchant Facility',
+      costPrice: is1P ? costNum : undefined,
+      platformCommissionRate: is1P ? 0 : (Number(formData.commissionRate) || 10) / 100,
       createdAt: new Date().toISOString()
     };
 
     if (addProduct) addProduct(createdProduct);
-    showToastMsg(`🚀 Product "${formData.name.slice(0, 25)}..." successfully synchronized to Live Storefront & MongoDB!`, 'success');
+    showToastMsg(`🚀 Product "${formData.name.slice(0, 25)}..." [${is1P ? '1P Direct Retail' : '3P Marketplace'}] synchronized to Live Storefront & MongoDB!`, 'success');
     
     // Clear form after slight delay
     setTimeout(() => {
@@ -92,11 +107,15 @@ const AdminProductStudio = ({ onFinish }) => {
     }, 1500);
   };
 
-  // Profit calculations
+  // Enterprise Profit & Yield calculations
   const priceVal = parseFloat(formData.price) || 0;
   const mrpVal = parseFloat(formData.mrp) || priceVal * 1.2;
   const discountPercent = mrpVal > priceVal ? Math.round(((mrpVal - priceVal) / mrpVal) * 100) : 0;
-  const estMargin = Math.round(priceVal * 0.22); // ~22% net platform margin
+  const is1P = formData.channel === '1P';
+  const costVal = parseFloat(formData.costPrice) || Math.round(priceVal * 0.78);
+  const retailGrossProfit = Math.max(0, priceVal - costVal);
+  const retailMarginPercent = priceVal > 0 ? Math.round((retailGrossProfit / priceVal) * 100) : 22;
+  const commissionVal = Math.round(priceVal * ((Number(formData.commissionRate) || 10) / 100));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '26px', animation: 'fadeIn 0.2s', paddingBottom: '40px' }}>
@@ -138,9 +157,122 @@ const AdminProductStudio = ({ onFinish }) => {
         
         {/* Left Form Panel */}
         <form onSubmit={handleSubmit} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 25px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '22px' }}>
-          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px' }}>
-            <Package size={22} style={{ color: '#4f46e5' }} /> Core Product Specifications
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+            <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Package size={22} style={{ color: '#4f46e5' }} /> Core Product Specifications
+            </h3>
+            <span style={{ fontSize: '11px', fontWeight: '800', background: is1P ? '#dbeafe' : '#f3e8ff', color: is1P ? '#1e40af' : '#7e22ce', padding: '4px 12px', borderRadius: '100px', border: `1px solid ${is1P ? '#93c5fd' : '#d8b4fe'}` }}>
+              {is1P ? '🏬 1P DIRECT RETAIL MODE' : '🏪 3P MARKETPLACE MODE'}
+            </span>
+          </div>
+
+          {/* Enterprise Hybrid Channel Selector (Amazon 1P vs 3P Model) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '13px', fontWeight: '800', color: '#1e293b' }}>
+              Fulfillment &amp; Ownership Channel (Enterprise Hybrid Model)
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, channel: '1P', sellerShopName: 'AbKharido Direct' })}
+                style={{
+                  padding: '14px',
+                  borderRadius: '14px',
+                  border: is1P ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                  background: is1P ? '#eff6ff' : '#ffffff',
+                  color: is1P ? '#1e40af' : '#475569',
+                  fontWeight: '800',
+                  fontSize: '13.5px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  textAlign: 'left',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <span style={{ fontSize: '20px' }}>🏬</span>
+                <div>
+                  <div style={{ fontWeight: '900' }}>AbKharido Direct (1P)</div>
+                  <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>In-House Inventory • 100% Platform Sales</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, channel: '3P', sellerShopName: '' })}
+                style={{
+                  padding: '14px',
+                  borderRadius: '14px',
+                  border: !is1P ? '2px solid #9333ea' : '1px solid #cbd5e1',
+                  background: !is1P ? '#faf5ff' : '#ffffff',
+                  color: !is1P ? '#7e22ce' : '#475569',
+                  fontWeight: '800',
+                  fontSize: '13.5px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  textAlign: 'left',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <span style={{ fontSize: '20px' }}>🏪</span>
+                <div>
+                  <div style={{ fontWeight: '900' }}>Partner Merchant (3P)</div>
+                  <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>Marketplace Seller • 10% Platform Fee</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Conditional 1P vs 3P Controls */}
+          {is1P ? (
+            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '14px 18px', borderRadius: '16px', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '800', color: '#166534' }}>Fulfillment Center Hub (1P)</label>
+                <input
+                  type="text"
+                  value={formData.warehouseLocation}
+                  onChange={(e) => setFormData({ ...formData, warehouseLocation: e.target.value })}
+                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #86efac', fontSize: '13px', fontWeight: '700', background: '#ffffff', color: '#14532d' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '800', color: '#166534' }}>Purchase Cost COGS (₹)</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 109900"
+                  value={formData.costPrice}
+                  onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #86efac', fontSize: '13px', fontWeight: '700', background: '#ffffff', color: '#14532d' }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', padding: '14px 18px', borderRadius: '16px', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '800', color: '#6b21a8' }}>Partner Merchant Shop Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Gujarat Electronics Co."
+                  value={formData.sellerShopName}
+                  onChange={(e) => setFormData({ ...formData, sellerShopName: e.target.value })}
+                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #d8b4fe', fontSize: '13px', fontWeight: '700', background: '#ffffff', color: '#581c87' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '800', color: '#6b21a8' }}>Marketplace Fee (%)</label>
+                <input
+                  type="number"
+                  placeholder="10"
+                  value={formData.commissionRate}
+                  onChange={(e) => setFormData({ ...formData, commissionRate: e.target.value })}
+                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #d8b4fe', fontSize: '13px', fontWeight: '700', background: '#ffffff', color: '#581c87' }}
+                />
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontSize: '13px', fontWeight: '800', color: '#1e293b' }}>Product Category</label>
@@ -149,15 +281,15 @@ const AdminProductStudio = ({ onFinish }) => {
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               style={{ padding: '14px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: '700', background: '#f8fafc', outline: 'none' }}
             >
-              <option value="Mobiles">📱 Mobiles & Smart Gadgets</option>
-              <option value="Electronics">💻 Enterprise Laptops & Electronics</option>
-              <option value="Fashion">👕 Designer Fashion & Street Wear</option>
-              <option value="Home">🏠 Royal Living & Smart Home</option>
+              <option value="Mobiles">📱 Mobiles &amp; Smart Gadgets</option>
+              <option value="Electronics">💻 Enterprise Laptops &amp; Electronics</option>
+              <option value="Fashion">👕 Designer Fashion &amp; Street Wear</option>
+              <option value="Home">🏠 Royal Living &amp; Smart Home</option>
             </select>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '13px', fontWeight: '800', color: '#1e293b' }}>Product Title & Specs</label>
+            <label style={{ fontSize: '13px', fontWeight: '800', color: '#1e293b' }}>Product Title &amp; Specs</label>
             <input
               type="text"
               placeholder="e.g. Apple iPhone 15 Pro Max (256GB, Natural Titanium)"
@@ -194,13 +326,23 @@ const AdminProductStudio = ({ onFinish }) => {
 
           {/* Profit Margin Radar Bar */}
           {priceVal > 0 && (
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '14px 18px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: is1P ? '#f0fdf4' : '#faf5ff', border: `1px solid ${is1P ? '#bbf7d0' : '#e9d5ff'}`, padding: '14px 18px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <span style={{ fontSize: '12px', color: '#166534', fontWeight: '800', display: 'block' }}>Estimated Platform Profit: <strong>₹{estMargin.toLocaleString()}</strong></span>
-                <span style={{ fontSize: '11px', color: '#15803d', fontWeight: '600' }}>Customer Savings Discount: <strong>{discountPercent}% OFF</strong></span>
+                {is1P ? (
+                  <span style={{ fontSize: '12px', color: '#166534', fontWeight: '800', display: 'block' }}>
+                    1P Retail Gross Profit: <strong>₹{retailGrossProfit.toLocaleString('en-IN')} (+{retailMarginPercent}%)</strong>
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '12px', color: '#6b21a8', fontWeight: '800', display: 'block' }}>
+                    3P Platform Commission (10%): <strong>₹{commissionVal.toLocaleString('en-IN')}</strong> • Vendor Payout: ₹{(priceVal - commissionVal).toLocaleString('en-IN')}
+                  </span>
+                )}
+                <span style={{ fontSize: '11px', color: is1P ? '#15803d' : '#7e22ce', fontWeight: '600' }}>
+                  Customer Savings Discount: <strong>{discountPercent}% OFF</strong>
+                </span>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: '900', background: '#16a34a', color: '#ffffff', padding: '4px 10px', borderRadius: '100px', textTransform: 'uppercase' }}>
-                🟢 ULTRA PROFITABLE
+              <span style={{ fontSize: '11px', fontWeight: '900', background: is1P ? '#16a34a' : '#9333ea', color: '#ffffff', padding: '4px 10px', borderRadius: '100px', textTransform: 'uppercase' }}>
+                {is1P ? '🏬 1P IN-HOUSE' : '🏪 3P ESCROW MEDIATED'}
               </span>
             </div>
           )}
@@ -286,6 +428,18 @@ const AdminProductStudio = ({ onFinish }) => {
                 <h4 style={{ margin: '3px 0 0', fontSize: '15px', fontWeight: '900', color: '#0f172a', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {formData.name || 'New Storefront Product Title'}
                 </h4>
+                {/* 1P vs 3P Seller Attribution Pill */}
+                <div style={{ marginTop: '5px' }}>
+                  {is1P ? (
+                    <span style={{ fontSize: '10px', fontWeight: '800', background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      ⚡ Sold by: AbKharido Direct (Assured 24h)
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '10px', fontWeight: '800', background: '#f3e8ff', color: '#7e22ce', padding: '2px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      🏪 Sold by: {formData.sellerShopName || 'Verified Merchant'} ✓
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>

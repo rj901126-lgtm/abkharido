@@ -44,9 +44,17 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
   const isGstSeller = sellerType === 'gst' && Boolean(sellerGstin);
   const isBillOfSupply = !isGstSeller;
 
-  const sellerShopName = sellerInfo.shopName || sellerInfo.legalBusinessName || order.orderItems?.[0]?.sellerShopName || 'AbKharido Verified Merchant';
-  const sellerPan = sellerInfo.pan || (sellerGstin ? sellerGstin.slice(2, 12) : (sellerInfo.enrolmentId || 'Registered on AbKharido'));
-  const sellerState = sellerInfo.pickupAddress?.state || 'Maharashtra';
+  const is1PDirect = !order.orderItems?.[0]?.vendorId || order.orderItems?.[0]?.sellerShopName === 'AbKharido Direct' || order.orderItems?.[0]?.fulfillmentChannel === '1P';
+  const sellerShopName = is1PDirect 
+    ? 'AbKharido Direct Retail (Central Fulfillment Hub)' 
+    : (sellerInfo.shopName || sellerInfo.legalBusinessName || order.orderItems?.[0]?.sellerShopName || 'AbKharido Verified Merchant');
+  const sellerPan = is1PDirect 
+    ? 'MSME / Udyam Platform Entity' 
+    : (sellerInfo.pan || (sellerGstin ? sellerGstin.slice(2, 12) : (sellerInfo.enrolmentId || 'Registered on AbKharido')));
+  const sellerState = is1PDirect ? 'Maharashtra' : (sellerInfo.pickupAddress?.state || 'Maharashtra');
+  const sellerStreet = is1PDirect ? 'AbKharido Central Logistics Hub, Bhiwandi' : (sellerInfo.pickupAddress?.street || 'Registered Warehouse');
+  const sellerCity = is1PDirect ? 'Thane / Mumbai' : (sellerInfo.pickupAddress?.city || 'City');
+  const sellerPincode = is1PDirect ? '421302' : (sellerInfo.pickupAddress?.pincode || '400001');
   const buyerState = order.shippingAddress?.state || 'Maharashtra';
   const isIntraState = sellerState.trim().toLowerCase() === buyerState.trim().toLowerCase();
 
@@ -202,8 +210,8 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
                 </div>
                 <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#0f172a' }}>{sellerShopName}</div>
                 <div style={{ fontSize: '11.5px', color: '#475569', marginTop: '4px', lineHeight: '1.5' }}>
-                  {sellerInfo.pickupAddress?.street || 'Registered Warehouse'}<br />
-                  {sellerInfo.pickupAddress?.city || 'City'}, {sellerState} - {sellerInfo.pickupAddress?.pincode || '400001'}<br />
+                  {sellerStreet}<br />
+                  {sellerCity}, {sellerState} - {sellerPincode}<br />
                   {isGstSeller ? (
                     <span style={{ color: '#1d4ed8', fontWeight: '800' }}>GSTIN: {sellerGstin}</span>
                   ) : (
