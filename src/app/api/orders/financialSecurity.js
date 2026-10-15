@@ -5,6 +5,7 @@ import Product from '../../../../server/models/Product.js';
 import Coupon from '../../../../server/models/Coupon.js';
 import { createCashfreePgOrder, getCashfreeOrderStatus, getCashfreeConfig } from '../../../lib/cashfree.js';
 import { validateCoupon } from '../../../lib/couponValidator.js';
+import { lookupPincode } from '../../../utils/pincodeData.js';
 import crypto from 'crypto';
 
 export async function checkoutOrder(body, userId, gateway = false) {
@@ -15,6 +16,15 @@ export async function checkoutOrder(body, userId, gateway = false) {
   if (!Array.isArray(cart) || !cart.length || cart.length > 100) throw new Error('Invalid cart');
   const address = body.shippingAddress || {};
   if (!address.fullName || !(address.streetAddress || address.address) || !address.city || !(address.postalCode || address.pincode)) throw new Error('Incomplete delivery address');
+
+  // Resolve buyer state for GST interstate compliance check
+  let buyerState = (address.state || '').trim().toLowerCase();
+  const rawPin = address.postalCode || address.pincode;
+  if (!buyerState && rawPin) {
+    const resolvedPin = lookupPincode(rawPin);
+    if (resolvedPin?.state) buyerState = resolvedPin.state.trim().toLowerCase();
+  }
+
   const items = []; let itemsPrice = 0; let referralReward = 0;
   for (const raw of cart) {
     const id = raw.product?._id || raw.product?.id || raw.product || raw.id;
@@ -22,6 +32,25 @@ export async function checkoutOrder(body, userId, gateway = false) {
     const product = await Product.findOne(/^[a-f\d]{24}$/i.test(id) ? { _id: id } : { $or: [{ id }, { slug: id }] });
     const qty = Number(raw.qty || raw.quantity || 1);
     if (!product || !['published', 'active'].includes(product.status) || product.isArchived || product.inStock === false || !Number.isInteger(qty) || qty < 1 || qty > 100) throw new Error('Invalid or unavailable item');
+
+    // Verify Interstate Compliance under CBIC Notification 34/2023 - Central Tax
+    const merchantId = product.vendorId || product.sellerId;
+    if (merchantId && mongoose.Types.ObjectId.isValid(String(merchantId))) {
+      const seller = await User.findById(merchantId).select('sellerType gstin pickupAddress shopName fullName state').lean();
+      if (seller) {
+        const isGstSeller = seller.sellerType === 'gst' || Boolean(seller.gstin);
+        if (!isGstSeller) {
+          // Unregistered non-GST seller: strictly intra-state only
+          const sellerState = (seller.pickupAddress?.state || seller.state || 'Maharashtra').trim().toLowerCase();
+          if (buyerState && sellerState && buyerState !== sellerState) {
+            const prettySellerState = seller.pickupAddress?.state || seller.state || 'their home state';
+            const prettyBuyerState = address.state || buyerState.toUpperCase();
+            throw new Error(`GST_INTERSTATE_RESTRICTION: "${product.name}" is sold by a non-GST registered merchant in ${prettySellerState}. Under Indian GST Law (Notification 34/2023), non-GST merchants can only deliver intra-state within ${prettySellerState} and cannot ship interstate to ${prettyBuyerState}. Please remove this item to proceed.`);
+          }
+        }
+      }
+    }
+
     let inventoryPath = 'stock', inventorySku, variantPrice = product.price;
     // Storefront cart lines wrap the selected product; API clients may send flat lines.
     const selection = raw.product && typeof raw.product === 'object' ? raw.product : raw;

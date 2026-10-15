@@ -10,5 +10,5 @@ export async function POST(req) {
     await connectDB();
     const result = await checkoutOrder(await req.json(), auth.user.id || auth.user._id, true);
     return NextResponse.json(result);
-  } catch { return NextResponse.json({ error: 'Unable to reserve order or create payment session' }, { status: 400 }); }
+  } catch (err) { return NextResponse.json({ error: err.message || 'Unable to reserve order or create payment session' }, { status: 400 }); }
 }

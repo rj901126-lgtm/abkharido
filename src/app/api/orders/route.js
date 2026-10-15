@@ -79,5 +79,5 @@ export async function POST(req) {
     await connectDB();
     const result = await checkoutOrder(await req.json(), auth.user.id || auth.user._id);
     return NextResponse.json(result.order, { status: 201 });
-  } catch { return NextResponse.json({ error: 'Order could not be reserved. Check payment configuration, balance and inventory.' }, { status: 400 }); }
+  } catch (err) { return NextResponse.json({ error: err.message || 'Order could not be reserved. Check payment configuration, balance and inventory.' }, { status: 400 }); }
 }

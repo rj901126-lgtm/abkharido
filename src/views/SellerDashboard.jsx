@@ -901,6 +901,31 @@ export default function SellerDashboard({ onNavigate }) {
         </div>
       </div>
 
+      {/* ⚠️ Non-GST Interstate Delivery Boundary Notice (Notification 34/2023) */}
+      {!isGstSeller && (
+        <div style={{
+          background: '#fffbeb', border: '1.5px solid #fcd34d', borderRadius: '16px',
+          padding: '14px 20px', marginBottom: '22px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px',
+          boxShadow: '0 4px 15px rgba(245, 158, 11, 0.08)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ fontSize: '26px' }}>📍</span>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: '800', color: '#78350f' }}>
+                Intra-State Delivery Protocol Active (CBIC Notification 34/2023)
+              </div>
+              <div style={{ fontSize: '12px', color: '#92400e', marginTop: '3px', lineHeight: '1.4' }}>
+                Aapka store <strong>Non-GST Merchant</strong> ke roop mein active hai. Indian Law ke mutabik aapke products sirf aapki state (<strong>{currentSeller.pickupAddress?.state || 'Home State'}</strong>) ke buyers ko deliver honge. Bahar ke state ke orders automatically block rahenge taaki GST rules violate na hon.
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: '11px', fontWeight: '800', background: '#fef3c7', color: '#b45309', padding: '6px 12px', borderRadius: '8px', border: '1px solid #fde68a' }}>
+            🔒 Interstate Compliance Shield Active
+          </span>
+        </div>
+      )}
+
       {/* 🧭 Master Navigation Tabs */}
       <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '24px', overflowX: 'auto' }}>
         {[
