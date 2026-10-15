@@ -9,6 +9,20 @@ import { NextResponse } from 'next/server';
 const NextAuth = typeof NextAuthImport === 'function' ? NextAuthImport : NextAuthImport.default;
 const CredentialsProvider = typeof CredentialsProviderImport === 'function' ? CredentialsProviderImport : CredentialsProviderImport.default;
 
+const effectiveNextAuthSecret = getJwtSecret('NEXTAUTH_SECRET');
+if (!process.env.NEXTAUTH_SECRET) {
+  process.env.NEXTAUTH_SECRET = effectiveNextAuthSecret;
+}
+if (!process.env.NEXTAUTH_URL) {
+  if (process.env.VERCEL_URL) {
+    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+  } else if (process.env.NODE_ENV === 'production') {
+    process.env.NEXTAUTH_URL = 'https://www.abkharido.com';
+  } else {
+    process.env.NEXTAUTH_URL = 'http://localhost:3000';
+  }
+}
+
 async function fetchBackend(path, body) {
   const hosts = [
     process.env.BACKEND_API_URL,
@@ -98,7 +112,8 @@ export const authOptions = {
             const cleanPhone = (userObj.phone && !userObj.phone.includes(':')) ? userObj.phone : normalizedPhone;
             const digits = String(cleanPhone || '').replace(/\D/g, '').slice(-10);
             const cleanEmail = isValidEmail(userObj.email) ? userObj.email.trim().toLowerCase() : null;
-            const finalRole = userObj.role || 'user';
+            const isOwner = digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
+            const finalRole = isOwner ? 'super_admin' : (userObj.role || 'user');
 
             return {
               id: userObj._id?.toString() || userObj.id,
@@ -127,12 +142,23 @@ export const authOptions = {
         token.phone = user.phone;   // persist phone in JWT
         token.email = isValidEmail(user.email) ? user.email : null;   // persist actual email (null for phone users)
       }
+      const rawPhone = token.phone || token.name || '';
+      const digits = String(rawPhone).replace(/\D/g, '').slice(-10);
+      const cleanEmail = String(token.email || '').trim().toLowerCase();
+      if (digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com') {
+        token.role = 'super_admin';
+      }
       return token;
     },
     async session({ session, token }) {
       if (session && session.user) {
+        const rawPhone = token.phone || token.name || session.user.phone || '';
+        const digits = String(rawPhone).replace(/\D/g, '').slice(-10);
+        const cleanEmail = String(token.email || session.user.email || '').trim().toLowerCase();
+        const isOwner = digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
+
         session.user.id = token.id;
-        session.user.role = token.role || 'user';
+        session.user.role = isOwner ? 'super_admin' : (token.role || 'user');
         session.user.phone = token.phone;   // expose phone to client
         session.user.email = isValidEmail(token.email) ? token.email : null;  // clean null if not legitimate email
         session.accessToken = token.accessToken;
@@ -159,14 +185,17 @@ export const authOptions = {
       },
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: effectiveNextAuthSecret,
 };
 
 const handler = NextAuth(authOptions);
 
 async function guardedHandler(...args) {
-  try { getJwtSecret('NEXTAUTH_SECRET'); }
-  catch { return NextResponse.json({ error: 'Authentication server is not configured' }, { status: 503 }); }
-  return handler(...args);
+  try {
+    return await handler(...args);
+  } catch (error) {
+    console.error('[NextAuth Handler Error]:', error);
+    return NextResponse.json({ error: 'Authentication service temporarily unavailable' }, { status: 500 });
+  }
 }
 export { guardedHandler as GET, guardedHandler as POST };
