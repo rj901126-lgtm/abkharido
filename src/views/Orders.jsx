@@ -700,9 +700,10 @@ const Orders = ({ onNavigate }) => {
                 className="ak-btn-action ak-btn-secondary"
                 onClick={() => handleDownloadInvoice(order._id)}
                 disabled={downloadingOrderId === order._id}
-                title="Download GST Invoice"
+                title={order.status === 'Cancelled' ? 'Download Cancelled Invoice / Refund Voucher' : 'Download GST Invoice'}
+                style={order.status === 'Cancelled' ? { borderColor: '#fca5a5', color: '#b91c1c', background: '#fef2f2' } : {}}
               >
-                <Download size={13} /> {downloadingOrderId === order._id ? '...' : 'Invoice'}
+                <Download size={13} /> {downloadingOrderId === order._id ? '...' : (order.status === 'Cancelled' ? 'Invoice (Cancelled)' : 'Invoice')}
               </button>
 
               <button
@@ -1086,9 +1087,20 @@ const Orders = ({ onNavigate }) => {
                     className="btn btn-primary"
                     onClick={() => handleDownloadInvoice(order._id)}
                     disabled={downloadingOrderId === order._id}
-                    style={{ fontSize: '11px', fontWeight: '800', padding: '5px 12px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: '800',
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: order.status === 'Cancelled' ? '#fef2f2' : undefined,
+                      color: order.status === 'Cancelled' ? '#b91c1c' : undefined,
+                      border: order.status === 'Cancelled' ? '1px solid #fca5a5' : undefined
+                    }}
                   >
-                    <Download size={12} /> {downloadingOrderId === order._id ? '...' : 'PDF Invoice'}
+                    <Download size={12} /> {downloadingOrderId === order._id ? '...' : (order.status === 'Cancelled' ? 'Cancelled PDF Invoice' : 'PDF Invoice')}
                   </button>
                 </div>
               </div>

@@ -1,6 +1,20 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 
 const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false, onGenerated }, ref) => {
+  if (!order) return null;
+
+  // ─── CANCELLATION & CREDIT STATUS ──────────────────────────────────
+  const isCancelled = ['CANCELLED', 'Cancelled', 'cancelled'].includes(String(order.status || '')) || Boolean(order.isCancelled) || Boolean(order.cancellationSettled);
+  const cancellationDate = order.cancellationDate || order.trackingHistory?.find(t => ['CANCELLED', 'Cancelled', 'cancelled'].includes(t.status))?.timestamp || order.updatedAt;
+  const cancellationReason = order.cancellationReason || order.trackingHistory?.find(t => ['CANCELLED', 'Cancelled', 'cancelled'].includes(t.status))?.comment || 'Order Cancelled';
+
+  // ─── SELLER COMPLIANCE DETECTION: GST vs NON-GST (BILL OF SUPPLY) ─────
+  const sellerInfo = seller || order.seller || {};
+  const sellerGstin = sellerInfo.gstin || order.orderItems?.[0]?.sellerGstin || '';
+  const sellerType = sellerInfo.sellerType || (sellerGstin ? 'gst' : 'non_gst');
+  const isGstSeller = sellerType === 'gst' && Boolean(sellerGstin);
+  const isBillOfSupply = !isGstSeller;
+
   useImperativeHandle(ref, () => ({
     generatePDF: async () => {
       if (!order) return;
@@ -10,7 +24,7 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
 
       const opt = {
         margin:       [8, 8, 8, 8],
-        filename:     `${isBillOfSupply ? 'BillOfSupply' : 'TaxInvoice'}_${order.cfOrderId || order.orderId || order.id || order._id || 'AK-2026'}.pdf`,
+        filename:     `${isCancelled ? 'Cancelled_' : ''}${isBillOfSupply ? 'BillOfSupply' : 'TaxInvoice'}_${order.cfOrderId || order.orderId || order.id || order._id || 'AK-2026'}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -28,21 +42,13 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
     }
   }));
 
-  if (!order) return null;
-
   const itemsList = order.items || order.orderItems || [];
   const itemsPrice = order.itemsPrice || itemsList.reduce((acc, item) => acc + (item.product?.price || item.price || 0) * (item.quantity || item.qty || 1), 0);
   const coinsDiscount = order.coinsDiscountValue || order.coinsDiscount || order.coinsUsed || 0;
   const couponDiscountAmount = order.couponDiscountAmount || 0;
   const deliveryCharge = order.deliveryCharge || order.shippingPrice || (itemsPrice >= 499 ? 0 : 40);
   const finalAmount = order.finalAmount || order.totalPrice || (itemsPrice - coinsDiscount - couponDiscountAmount + deliveryCharge);
-
-  // ─── SELLER COMPLIANCE DETECTION: GST vs NON-GST (BILL OF SUPPLY) ─────
-  const sellerInfo = seller || order.seller || {};
-  const sellerGstin = sellerInfo.gstin || order.orderItems?.[0]?.sellerGstin || '';
-  const sellerType = sellerInfo.sellerType || (sellerGstin ? 'gst' : 'non_gst');
-  const isGstSeller = sellerType === 'gst' && Boolean(sellerGstin);
-  const isBillOfSupply = !isGstSeller;
+  const refundAmount = order.refundDetails?.amount || order.totalPrice || finalAmount;
 
   const is1PDirect = !order.orderItems?.[0]?.vendorId || order.orderItems?.[0]?.sellerShopName === 'AbKharido Direct' || order.orderItems?.[0]?.fulfillmentChannel === '1P';
   const sellerShopName = is1PDirect 
@@ -124,6 +130,8 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
       <div 
         id={`invoice-capture-area-${order.id || order._id || '0'}`} 
         style={{
+          position: 'relative',
+          overflow: 'hidden',
           width: '100%',
           maxWidth: '210mm',
           margin: '0 auto',
@@ -136,6 +144,30 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
           borderRadius: isVisible ? '16px' : '0'
         }}
       >
+        {/* ─── Cancelled Watermark Stamp ─── */}
+        {isCancelled && (
+          <div style={{
+            position: 'absolute',
+            top: '40%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(-25deg)',
+            fontSize: '56px',
+            fontWeight: '900',
+            color: 'rgba(220, 38, 38, 0.14)',
+            border: '6px dashed rgba(220, 38, 38, 0.3)',
+            padding: '14px 38px',
+            borderRadius: '16px',
+            pointerEvents: 'none',
+            letterSpacing: '8px',
+            textTransform: 'uppercase',
+            zIndex: 10,
+            whiteSpace: 'nowrap',
+            fontFamily: '"Outfit", sans-serif'
+          }}>
+            ORDER CANCELLED
+          </div>
+        )}
+
         {/* ─── Top Header Ribbon ─────────────────────────────────────── */}
         <table style={{ width: '100%', borderBottom: '2.5px solid #0f172a', paddingBottom: '16px', marginBottom: '20px' }} cellPadding="0" cellSpacing="0">
           <tbody>
@@ -155,25 +187,32 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
               <td style={{ textAlign: 'right', verticalAlign: 'top', width: '42%' }}>
                 <div style={{
                   display: 'inline-block',
-                  background: isBillOfSupply ? '#fef3c7' : '#eff6ff',
-                  color: isBillOfSupply ? '#92400e' : '#1d4ed8',
+                  background: isCancelled ? '#fef2f2' : (isBillOfSupply ? '#fef3c7' : '#eff6ff'),
+                  color: isCancelled ? '#dc2626' : (isBillOfSupply ? '#92400e' : '#1d4ed8'),
                   padding: '4px 12px',
                   borderRadius: '6px',
                   fontWeight: '900',
-                  fontSize: '15px',
-                  letterSpacing: '1px',
+                  fontSize: '14px',
+                  letterSpacing: '0.8px',
                   textTransform: 'uppercase',
-                  border: isBillOfSupply ? '1px solid #fde68a' : '1px solid #bfdbfe'
+                  border: isCancelled ? '1.5px solid #fca5a5' : (isBillOfSupply ? '1px solid #fde68a' : '1px solid #bfdbfe')
                 }}>
-                  {isBillOfSupply ? 'BILL OF SUPPLY' : 'TAX INVOICE'}
+                  {isCancelled 
+                    ? (isBillOfSupply ? 'BILL OF SUPPLY (CANCELLED)' : 'TAX INVOICE (CANCELLED)')
+                    : (isBillOfSupply ? 'BILL OF SUPPLY' : 'TAX INVOICE')}
                 </div>
                 <div style={{ fontSize: '12.5px', fontWeight: '800', marginTop: '6px', color: '#0f172a' }}>
                   {isBillOfSupply ? 'BOS' : 'INV'}-{(order.id || order._id || '0').toString().slice(-8).toUpperCase()}
                 </div>
                 <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                  Date: <strong>{formatDate(order.date || order.createdAt)}</strong>
+                  Order Date: <strong>{formatDate(order.date || order.createdAt)}</strong>
                 </div>
-                {order.awbNumber && (
+                {isCancelled && (
+                  <div style={{ fontSize: '11px', color: '#dc2626', marginTop: '2px', fontWeight: '800' }}>
+                    Cancelled: {formatDate(cancellationDate)}
+                  </div>
+                )}
+                {order.awbNumber && !isCancelled && (
                   <div style={{ fontSize: '10.5px', color: '#059669', marginTop: '2px', fontWeight: '700' }}>
                     AWB: {order.awbNumber} ({order.courierPartner || 'NimbusPost'})
                   </div>
@@ -182,6 +221,38 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
             </tr>
           </tbody>
         </table>
+
+        {/* ─── Official Cancellation Notice / Credit Memorandum ─── */}
+        {isCancelled && (
+          <div style={{
+            background: '#fef2f2',
+            border: '1.5px solid #fca5a5',
+            borderRadius: '8px',
+            padding: '12px 14px',
+            marginBottom: '18px',
+            color: '#991b1b',
+            fontSize: '11px',
+            lineHeight: '1.5'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', borderBottom: '1px solid #fecaca', paddingBottom: '6px' }}>
+              <span style={{ fontSize: '12.5px', fontWeight: '900', color: '#b91c1c' }}>
+                ❌ ORDER CANCELLED & VOID / CREDIT NOTE ADVICE
+              </span>
+              <span style={{ background: '#dc2626', color: '#ffffff', padding: '2px 8px', borderRadius: '4px', fontSize: '9.5px', fontWeight: '800', letterSpacing: '0.5px' }}>
+                VOID FOR TAX PURPOSES
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+              <div><strong>Cancellation Date:</strong> {formatDate(cancellationDate)}</div>
+              <div><strong>Cancellation Reason:</strong> {cancellationReason}</div>
+              <div><strong>Refund Status:</strong> {order.isPaid ? '✅ 100% Refund Processed' : 'Cash on Delivery (No Collection)'}</div>
+              <div><strong>Refund Amount:</strong> ₹{Number(refundAmount).toLocaleString('en-IN')}</div>
+            </div>
+            <div style={{ fontSize: '9.5px', color: '#b91c1c', marginTop: '6px', fontStyle: 'italic' }}>
+              ⚖️ Statutory Declaration: This transaction was cancelled prior to fulfillment. The original tax/invoice liability is reversed to ₹0.00. This document acts as official proof of cancellation and refund and is strictly not valid for Input Tax Credit (ITC).
+            </div>
+          </div>
+        )}
 
         {/* ─── Legal Entity Notice for Non-GST Sellers ─────────────────── */}
         {isBillOfSupply && (
@@ -298,7 +369,7 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
               <td style={{ width: '52%', verticalAlign: 'top', paddingRight: '20px' }}>
                 <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '11px', color: '#475569', lineHeight: '1.6' }}>
                   <div><strong>Payment Mode:</strong> {order.paymentMethod || 'Online'}</div>
-                  <div><strong>Payment Status:</strong> {order.isPaid ? '✅ PAID (Transaction Verified)' : '⏳ CASH ON DELIVERY (Collect on Doorstep)'}</div>
+                  <div><strong>Payment Status:</strong> {isCancelled ? '❌ ORDER CANCELLED (Transaction Voided & Settled)' : (order.isPaid ? '✅ PAID (Transaction Verified)' : '⏳ CASH ON DELIVERY (Collect on Doorstep)')}</div>
                   <div><strong>Place of Supply:</strong> {buyerState} ({isIntraState ? 'Intra-State Supply' : 'Inter-State Supply'})</div>
                   {isGstSeller && (
                     <div style={{ marginTop: '4px', borderTop: '1px dashed #cbd5e1', paddingTop: '4px' }}>
@@ -346,12 +417,30 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
                         <td style={{ textAlign: 'right', fontWeight: '700', color: '#059669' }}>₹0.00 (Exempt)</td>
                       </tr>
                     )}
-                    <tr style={{ borderTop: '1.5px solid #0f172a', borderBottom: '1.5px solid #0f172a' }}>
-                      <td style={{ padding: '8px 0', fontSize: '15px', fontWeight: '900', color: '#0f172a' }}>Grand Total:</td>
-                      <td style={{ padding: '8px 0', fontSize: '16px', fontWeight: '900', color: '#1e3a8a', textAlign: 'right' }}>
+                    <tr style={{ borderTop: '1.5px solid #0f172a', borderBottom: isCancelled ? 'none' : '1.5px solid #0f172a' }}>
+                      <td style={{ padding: '8px 0', fontSize: '15px', fontWeight: '900', color: '#0f172a' }}>
+                        {isCancelled ? 'Original Amount:' : 'Grand Total:'}
+                      </td>
+                      <td style={{ padding: '8px 0', fontSize: '16px', fontWeight: '900', color: isCancelled ? '#64748b' : '#1e3a8a', textAlign: 'right', textDecoration: isCancelled ? 'line-through' : 'none' }}>
                         ₹{finalAmount.toLocaleString('en-IN')}
                       </td>
                     </tr>
+                    {isCancelled && (
+                      <>
+                        <tr style={{ color: '#dc2626' }}>
+                          <td style={{ padding: '4px 0', fontSize: '12px', fontWeight: '800' }}>Refund / Cancellation Adjustment:</td>
+                          <td style={{ padding: '4px 0', fontSize: '13px', fontWeight: '800', textAlign: 'right' }}>
+                            - ₹{finalAmount.toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                        <tr style={{ background: '#fef2f2', borderTop: '2px solid #dc2626', borderBottom: '2px solid #dc2626' }}>
+                          <td style={{ padding: '8px', fontSize: '14px', fontWeight: '900', color: '#991b1b' }}>Net Invoice Value:</td>
+                          <td style={{ padding: '8px', fontSize: '15px', fontWeight: '900', color: '#dc2626', textAlign: 'right' }}>
+                            ₹0.00 (CANCELLED)
+                          </td>
+                        </tr>
+                      </>
+                    )}
                   </tbody>
                 </table>
               </td>

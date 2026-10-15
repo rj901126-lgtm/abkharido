@@ -896,10 +896,23 @@ const AdminOMS = ({ statusFilter }) => {
                         <button 
                           onClick={() => handleDownloadPremiumInvoice(order)}
                           disabled={downloadingOrderId === oId}
-                          style={{ padding: '6px 10px', display: 'inline-flex', gap: '5px', alignItems: 'center', fontSize: '11.5px', borderRadius: '8px', color: '#0284c7', border: '1px solid #bae6fd', background: '#f0f9ff', opacity: downloadingOrderId === oId ? 0.6 : 1, fontWeight: '600', cursor: 'pointer' }}
-                          title="Download PDF Invoice"
+                          style={{ 
+                            padding: '6px 10px', 
+                            display: 'inline-flex', 
+                            gap: '5px', 
+                            alignItems: 'center', 
+                            fontSize: '11.5px', 
+                            borderRadius: '8px', 
+                            color: isCancelled ? '#dc2626' : '#0284c7', 
+                            border: isCancelled ? '1px solid #fca5a5' : '1px solid #bae6fd', 
+                            background: isCancelled ? '#fef2f2' : '#f0f9ff', 
+                            opacity: downloadingOrderId === oId ? 0.6 : 1, 
+                            fontWeight: '600', 
+                            cursor: 'pointer' 
+                          }}
+                          title={isCancelled ? "Download Cancelled Invoice / Credit Note" : "Download PDF Invoice"}
                         >
-                          <Printer size={13} /> {downloadingOrderId === oId ? '...' : 'Invoice'}
+                          <Printer size={13} /> {downloadingOrderId === oId ? '...' : (isCancelled ? 'Cancelled Inv' : 'Invoice')}
                         </button>
 
                         {/* Hidden Premium Invoice Renderer */}
@@ -1082,12 +1095,29 @@ const AdminOMS = ({ statusFilter }) => {
 
             {/* Modal Footer */}
             <div style={{ padding: '20px 32px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <button 
-                onClick={() => handleDownloadPremiumInvoice(viewingOrder)}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: '#0ea5e9', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)' }}
-              >
-                <Printer size={16} /> Download PDF Invoice
-              </button>
+              {(() => {
+                const isViewingCancelled = ['CANCELLED', 'Cancelled', 'cancelled'].includes(String(viewingOrder.status || ''));
+                return (
+                  <button 
+                    onClick={() => handleDownloadPremiumInvoice(viewingOrder)}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px', 
+                      padding: '10px 20px', 
+                      background: isViewingCancelled ? '#fef2f2' : '#0ea5e9', 
+                      color: isViewingCancelled ? '#dc2626' : 'white', 
+                      border: isViewingCancelled ? '1.5px solid #fca5a5' : 'none', 
+                      borderRadius: '12px', 
+                      fontWeight: '700', 
+                      cursor: 'pointer', 
+                      boxShadow: isViewingCancelled ? 'none' : '0 4px 12px rgba(14, 165, 233, 0.3)' 
+                    }}
+                  >
+                    <Printer size={16} /> {isViewingCancelled ? 'Download Cancelled Invoice (Credit Note)' : 'Download PDF Invoice'}
+                  </button>
+                );
+              })()}
               <button onClick={() => setViewingOrder(null)} className="btn btn-outline" style={{ padding: '10px 24px', borderRadius: '12px', fontWeight: '700', background: 'white' }}>
                 Close Inspector
               </button>
