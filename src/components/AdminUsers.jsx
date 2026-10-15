@@ -58,8 +58,13 @@ const AdminUsers = () => {
               cleanEmail = cleanEmail.trim().toLowerCase();
             }
 
+            // Exclude 3P merchants — they have their own dedicated "Sellers & Merchants" command center
+            if (u.role === 'seller' || u.sellerStatus === 'Approved') {
+              continue;
+            }
+
             // Skip empty ghost records with no phone or credentials
-            if (!cleanPhone && !['admin', 'super_admin', 'seller'].includes(u.role)) {
+            if (!cleanPhone && !['admin', 'super_admin'].includes(u.role)) {
               continue;
             }
 

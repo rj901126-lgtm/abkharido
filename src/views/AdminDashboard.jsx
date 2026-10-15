@@ -1323,14 +1323,25 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
             </div>
           )}
 
-          {/* 4. 👥 Users & Sellers */}
+          {/* 4. 🏪 Sellers & Merchants (Marketplace Hub) */}
+          {canManageCatalog && (
+            <div
+              className={`admin-nav-item ${activeTab === 'sellers' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('sellers'); setMobileMenuOpen(false); }}
+            >
+              <Store size={18} />
+              <span>Sellers &amp; Merchants</span>
+            </div>
+          )}
+
+          {/* 5. 👤 Customers & CRM (Buyer Directory) */}
           {canManageSupport && (
             <div
-              className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
+              className={`admin-nav-item ${activeTab === 'customers' || activeTab === 'users' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('customers'); setMobileMenuOpen(false); }}
             >
               <Users size={18} />
-              <span>Users &amp; Sellers</span>
+              <span>Customers &amp; CRM</span>
             </div>
           )}
 
@@ -1529,8 +1540,11 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
         {activeTab === 'inventory' && <AdminDataGrid onAddProduct={() => setActiveTab('add_product')} />}
         {activeTab === 'add_product' && <AdminProductStudio onFinish={() => setActiveTab('inventory')} />}
 
-        {/* 4. 👥 USERS & SELLERS */}
-        {activeTab === 'users' && <AdminUsers />}
+        {/* 4. 🏪 SELLERS & MERCHANTS */}
+        {activeTab === 'sellers' && <AdminSellers onNavigate={onNavigate} />}
+
+        {/* 5. 👤 CUSTOMERS & CRM */}
+        {(activeTab === 'customers' || activeTab === 'users') && <AdminUsers />}
 
         {/* 5. 🏷 COUPONS & PROMOTIONS */}
         {activeTab === 'coupons' && <AdminCoupons />}
