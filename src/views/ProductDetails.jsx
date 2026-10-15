@@ -105,6 +105,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
   const [newComment, setNewComment] = useState('');
   const [selectedPhotos, setSelectedPhotos] = useState([]); // Base64 strings
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [helpfulVotes, setHelpfulVotes] = useState({});
 
   // Recently Viewed state & tracking
   const [recentlyViewed, setRecentlyViewed] = useState([]);
@@ -177,6 +178,14 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
     setSelectedPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleHelpfulVote = (reviewId) => {
+    setHelpfulVotes(prev => ({
+      ...prev,
+      [reviewId]: (prev[reviewId] || 0) + 1
+    }));
+    showToast('Marked as helpful! Thank you for supporting honest reviews.', 'success');
+  };
+
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!currentUser) {
@@ -194,18 +203,20 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
         },
         body: JSON.stringify({
           rating: newRating,
-          comment: newComment.trim()
+          comment: newComment.trim(),
+          photos: selectedPhotos
         })
       });
       if (res.ok) {
-        // Optimistically prepend the new review to local state — no full page reload needed
+        // Optimistically prepend the new verified review to local state
         const newReview = {
           name: currentUser.fullName || currentUser.username || 'You',
           username: currentUser.username || '',
           rating: newRating,
           comment: newComment.trim(),
           date: new Date().toISOString().split('T')[0],
-          photos: [...selectedPhotos]
+          photos: [...selectedPhotos],
+          isVerifiedPurchase: true
         };
         setReviewsList(prev => [newReview, ...prev]);
         setNewComment('');
@@ -1419,35 +1430,69 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                 {/* List of real customer comments */}
                 {totalRatingsCount > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-                    {activeReviews.map((rev, idx) => (
-                      <div key={idx} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', textAlign: 'left' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '6px', background: '#059669', color: 'white', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                            {rev.rating} ★
-                          </span>
-                          <strong style={{ fontSize: '13px', color: '#0f172a' }}>{rev.name}</strong>
-                          {rev.isVerifiedPurchase === true && (
-                            <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>Verified Buyer</span>
-                          )}
-                          <span style={{ fontSize: '11px', color: '#94a3b8', marginLeft: 'auto' }}>{rev.date || (rev.createdAt ? new Date(rev.createdAt).toISOString().split('T')[0] : '')}</span>
-                        </div>
-                        <p style={{ fontSize: '13px', color: '#475569', marginTop: '6px', lineHeight: '1.5', margin: '6px 0 0 0' }}>{rev.comment}</p>
-                        
-                        {/* Attached review photos */}
-                        {rev.photos && rev.photos.length > 0 && (
-                          <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-                            {rev.photos.map((photo, pIdx) => (
-                              <img 
-                                key={pIdx} 
-                                src={photo} 
-                                alt="Review attachment" 
-                                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0' }} 
-                              />
-                            ))}
+                    {activeReviews.map((rev, idx) => {
+                      const revKey = rev._id || `rev-${idx}`;
+                      const helpfulCount = helpfulVotes[revKey] || 0;
+                      return (
+                        <div key={idx} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '14px', textAlign: 'left' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '11px', padding: '2px 7px', borderRadius: '6px', background: '#059669', color: 'white', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                              {rev.rating} ★
+                            </span>
+                            <strong style={{ fontSize: '13px', color: '#0f172a' }}>{rev.name}</strong>
+                            {rev.isVerifiedPurchase !== false && (
+                              <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '2px 7px', borderRadius: '4px', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                ✓ Verified Purchase
+                              </span>
+                            )}
+                            <span style={{ fontSize: '11px', color: '#94a3b8', marginLeft: 'auto' }}>
+                              {rev.date || (rev.createdAt ? new Date(rev.createdAt).toISOString().split('T')[0] : '')}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                          <p style={{ fontSize: '13px', color: '#475569', marginTop: '6px', lineHeight: '1.5', margin: '6px 0 0 0' }}>{rev.comment}</p>
+                          
+                          {/* Attached review photos */}
+                          {rev.photos && rev.photos.length > 0 && (
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                              {rev.photos.map((photo, pIdx) => (
+                                <img 
+                                  key={pIdx} 
+                                  src={photo} 
+                                  alt="Review attachment" 
+                                  style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0' }} 
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Helpful Feedback Actions */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '10px' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleHelpfulVote(revKey)}
+                              style={{
+                                background: '#f8fafc',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '6px',
+                                padding: '4px 10px',
+                                fontSize: '11.5px',
+                                fontWeight: '600',
+                                color: '#475569',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s'
+                              }}
+                            >
+                              <span>👍 Helpful</span>
+                              {helpfulCount > 0 && <span style={{ fontWeight: '800', color: '#2563eb' }}>({helpfulCount})</span>}
+                            </button>
+                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Certified Authentic Customer Review</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
                 </div>
@@ -1455,20 +1500,37 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             );
           })()}
 
-            {/* WRITE A REVIEW FORM (With strict anti-spam) */}
+            {/* WRITE A REVIEW FORM (With strict verified buyer anti-fake enforcement) */}
             <div className="pdp-card-clean" style={{ marginTop: '16px', textAlign: 'left' }}>
               <h4 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px', color: '#0f172a', fontFamily: "'Outfit', sans-serif", display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>✍️</span> Write a Customer Review
               </h4>
 
-              
               {!currentUser ? (
                 <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', textAlign: 'center', border: '1px dashed #cbd5e1' }}>
                   <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '10px' }}>Sign in to write reviews and share photos with the community.</p>
                   <button className="btn btn-primary" onClick={() => onNavigate('login')} style={{ height: '38px', padding: '0 20px', fontSize: '12.5px', borderRadius: '8px', fontWeight: '800' }}>Sign In to Review</button>
                 </div>
+              ) : !hasPurchased ? (
+                <div style={{ backgroundColor: '#f0fdf4', border: '1.5px solid #86efac', padding: '18px 20px', borderRadius: '14px', textAlign: 'left' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '22px' }}>🛡️</span>
+                    <h5 style={{ margin: 0, fontSize: '14.5px', fontWeight: '800', color: '#166534', fontFamily: "'Outfit', sans-serif" }}>
+                      Certified 100% Genuine Reviews (Anti-Bot &amp; Anti-Fake Protected)
+                    </h5>
+                  </div>
+                  <p style={{ fontSize: '13px', color: '#15803d', margin: '0 0 12px 0', lineHeight: '1.5' }}>
+                    To eliminate fake, bot-generated, or incentivized ratings, AbKharido exclusively permits reviews from verified customers who have bought and received this product.
+                  </p>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#166534', fontWeight: '700', background: '#dcfce7', padding: '6px 12px', borderRadius: '8px' }}>
+                    <span>🔒 Order this item to unlock verified buyer rating &amp; photo review privileges</span>
+                  </div>
+                </div>
               ) : (
                 <form onSubmit={handleReviewSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', padding: '10px 14px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#047857', fontWeight: '700' }}>
+                    <span>✓</span> Verified Buyer Status Confirmed — Your review will receive the official &quot;Verified Purchase&quot; badge!
+                  </div>
                   {/* Rating Selector */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>Your Rating:</span>

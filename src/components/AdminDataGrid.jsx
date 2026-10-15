@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Trash2, Edit, ChevronLeft, ChevronRight, Search, CheckCircle, AlertTriangle, DollarSign, Filter, RefreshCw, Check, X, Layers, Plus, TrendingUp } from 'lucide-react';
+import { Package, Trash2, Edit, ChevronLeft, ChevronRight, Search, CheckCircle, AlertTriangle, DollarSign, Filter, RefreshCw, Check, X, Layers, Plus, TrendingUp, FileSpreadsheet } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { exportToCSV } from '../utils/csvExport';
+import BulkProductUploadModal from './BulkProductUploadModal';
 
 const AdminDataGrid = ({ onEditProduct }) => {
   const { showToast, addProduct } = useApp();
@@ -15,6 +16,7 @@ const AdminDataGrid = ({ onEditProduct }) => {
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, ids: [], title: '', count: 0, isAllDummy: false });
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
   const showToastMsg = (text, type = 'success') => {
     setNotification({ show: true, text, type });
@@ -401,6 +403,14 @@ const AdminDataGrid = ({ onEditProduct }) => {
             }}
           >
             <Trash2 size={16} /> <span>Clean / Delete All ({data.total || data.products.length})</span>
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => setIsBulkModalOpen(true)}
+            style={{ padding: '13px 22px', fontSize: '13.5px', fontWeight: '800', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(99, 102, 241, 0.3)' }}
+          >
+            <FileSpreadsheet size={17} /> <span>Bulk Import (CSV)</span>
           </button>
 
           <button 
@@ -888,6 +898,18 @@ const AdminDataGrid = ({ onEditProduct }) => {
           </div>
         </div>
       )}
+
+      {/* Bulk Product Upload Modal */}
+      <BulkProductUploadModal 
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        shopName="AbKharido Direct"
+        onImportSuccess={(newProducts) => {
+          showToastMsg(`🚀 Successfully bulk imported ${newProducts?.length || 'all'} products into warehouse catalog!`, 'success');
+          setIsBulkModalOpen(false);
+          fetchPaginatedProducts(1, search, category);
+        }}
+      />
     </div>
   );
 };

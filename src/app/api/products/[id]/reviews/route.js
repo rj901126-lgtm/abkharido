@@ -9,8 +9,17 @@ export async function GET(req, { params }) {
     await connectDB();
     const product = await Product.findOne({ id, status: { $in: ['published','active'] }, isArchived: { $ne: true } }).lean();
     if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    const reviews = (product.reviews || []).map(r => ({ name: r.name, rating: r.rating, comment: r.comment, photos: r.photos, isVerifiedPurchase: Boolean(r.isVerifiedPurchase), createdAt: r.createdAt }));
-    return NextResponse.json({ reviews, rating: reviews.length ? reviews.reduce((s,r) => s + Number(r.rating || 0),0) / reviews.length : 0, reviewsCount: reviews.length });
+    const reviews = (product.reviews || []).map(r => ({
+      _id: String(r._id || ''),
+      name: r.name,
+      rating: r.rating,
+      comment: r.comment,
+      photos: r.photos || [],
+      isVerifiedPurchase: Boolean(r.isVerifiedPurchase),
+      createdAt: r.createdAt
+    }));
+    const avg = reviews.length ? Number((reviews.reduce((s,r) => s + Number(r.rating || 0),0) / reviews.length).toFixed(1)) : 0;
+    return NextResponse.json({ reviews, rating: avg, reviewsCount: reviews.length });
   } catch { return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 }); }
 }
 export async function POST(req, { params }) {
@@ -20,17 +29,38 @@ export async function POST(req, { params }) {
     const { id } = await params;
     const { rating, comment, photos = [] } = await req.json();
     const numRating = Number(rating);
-    if (!Number.isInteger(numRating) || numRating < 1 || numRating > 5 || typeof comment !== 'string' || comment.trim().length < 10 || comment.length > 500) return NextResponse.json({ error: 'Invalid rating or review comment' }, { status: 400 });
+    if (!Number.isInteger(numRating) || numRating < 1 || numRating > 5 || typeof comment !== 'string' || comment.trim().length < 10 || comment.length > 500) {
+      return NextResponse.json({ error: 'Invalid rating or review comment (min 10, max 500 characters)' }, { status: 400 });
+    }
     await connectDB();
     const product = await Product.findOne({ id, status: { $in: ['published','active'] }, isArchived: { $ne: true } });
     if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     const userId = auth.user._id || auth.user.id;
-    if ((product.reviews || []).some(r => String(r.user) === String(userId))) return NextResponse.json({ error: 'Product already reviewed' }, { status: 409 });
-    const purchase = await Order.exists({ user: userId, 'orderItems.product': product._id, isPaid: true, status: { $nin: ['Cancelled','Returned'] } });
-    const review = { user: userId, name: auth.user.fullName || auth.user.username || 'Customer', rating: numRating, comment: comment.trim(), photos: Array.isArray(photos) ? photos.filter(p => typeof p === 'string' && /^https:\/\//.test(p)).slice(0,5) : [], isVerifiedPurchase: Boolean(purchase) };
+    if ((product.reviews || []).some(r => String(r.user) === String(userId))) {
+      return NextResponse.json({ error: 'You have already reviewed this product' }, { status: 409 });
+    }
+    const purchase = await Order.exists({
+      user: userId,
+      'orderItems.product': product._id,
+      $or: [{ isPaid: true }, { status: 'Delivered' }],
+      status: { $nin: ['Cancelled','Returned'] }
+    });
+    if (!purchase) {
+      return NextResponse.json({
+        error: 'Only verified buyers who purchased this product can leave a genuine rating. This guarantees 100% authenticity on AbKharido.'
+      }, { status: 403 });
+    }
+    const review = {
+      user: userId,
+      name: auth.user.fullName || auth.user.username || 'Verified Customer',
+      rating: numRating,
+      comment: comment.trim(),
+      photos: Array.isArray(photos) ? photos.filter(p => typeof p === 'string' && (p.startsWith('https://') || p.startsWith('data:image/'))).slice(0, 5) : [],
+      isVerifiedPurchase: true
+    };
     const updated = await Product.findOneAndUpdate({ _id: product._id, 'reviews.user': { $ne: userId } }, { $push: { reviews: review } }, { new: true, runValidators: true });
     if (!updated) return NextResponse.json({ error: 'Product already reviewed' }, { status: 409 });
-    const average = updated.reviews.reduce((sum,r) => sum + Number(r.rating || 0),0) / updated.reviews.length;
+    const average = Number((updated.reviews.reduce((sum,r) => sum + Number(r.rating || 0),0) / updated.reviews.length).toFixed(1));
     await Product.updateOne({ _id: updated._id }, { $set: { rating: average, reviewsCount: updated.reviews.length } });
     return NextResponse.json({ success: true, review: { ...review, user: undefined }, rating: average, reviewsCount: updated.reviews.length }, { status: 201 });
   } catch { return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 }); }

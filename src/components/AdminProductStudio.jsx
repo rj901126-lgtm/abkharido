@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Sparkles, DollarSign, Image, Tag, Layers, CheckCircle, Smartphone, Eye, PlusCircle, RefreshCw, AlertCircle, TrendingUp, Award, Zap, ShieldCheck } from 'lucide-react';
+import { Package, Sparkles, DollarSign, Image, Tag, Layers, CheckCircle, Smartphone, Eye, PlusCircle, RefreshCw, AlertCircle, TrendingUp, Award, Zap, ShieldCheck, FileSpreadsheet } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import BulkProductUploadModal from './BulkProductUploadModal';
 
 const AdminProductStudio = ({ onFinish }) => {
   const { addProduct, editProduct, showToast } = useApp();
   const [notification, setNotification] = useState({ show: false, text: '', type: 'success' });
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   
   // Enterprise Hybrid Form state (1P Direct Retail vs 3P Marketplace)
   const [formData, setFormData] = useState({
@@ -143,13 +145,23 @@ const AdminProductStudio = ({ onFinish }) => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAIAutoGenerate}
-          style={{ padding: '14px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.2)', background: 'linear-gradient(135deg, #4f46e5, #ec4899)', color: '#ffffff', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 8px 25px rgba(236, 72, 153, 0.3)', transition: 'all 0.2s' }}
-        >
-          <Sparkles size={18} /> ✨ 1-Click AI Auto-Fill & SEO Setup
-        </button>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setIsBulkModalOpen(true)}
+            style={{ padding: '14px 22px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.25)', background: 'linear-gradient(135deg, #059669, #0d9488)', color: '#ffffff', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 8px 25px rgba(5, 150, 105, 0.35)', transition: 'all 0.2s' }}
+          >
+            <FileSpreadsheet size={18} /> 📁 Multiple Products (Bulk CSV Import)
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAIAutoGenerate}
+            style={{ padding: '14px 22px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.2)', background: 'linear-gradient(135deg, #4f46e5, #ec4899)', color: '#ffffff', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 8px 25px rgba(236, 72, 153, 0.3)', transition: 'all 0.2s' }}
+          >
+            <Sparkles size={18} /> ✨ 1-Click AI Auto-Fill & SEO Setup
+          </button>
+        </div>
       </div>
 
       {/* Main Grid: Left Editor | Right Mobile Simulator */}
@@ -475,6 +487,17 @@ const AdminProductStudio = ({ onFinish }) => {
         </div>
 
       </div>
+
+      <BulkProductUploadModal 
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        shopName={is1P ? 'AbKharido Direct' : formData.sellerShopName}
+        onImportSuccess={(newProducts) => {
+          showToastMsg(`🚀 Successfully batch imported ${newProducts?.length || 'all'} products into database!`, 'success');
+          setIsBulkModalOpen(false);
+          if (onFinish) onFinish();
+        }}
+      />
 
     </div>
   );
