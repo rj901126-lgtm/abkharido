@@ -258,7 +258,19 @@ const Login = ({ onNavigate, callbackUrl }) => {
           if (result && !result.error) {
             verifySuccess = true;
           }
-        } catch (_fbErr) {
+        } catch (fbErr) {
+          const fbCode = fbErr?.code || '';
+          if (fbCode === 'auth/invalid-verification-code') {
+            showToast('Invalid OTP code. Please enter the exact 6-digit code received via SMS.', 'error');
+            setIsVerifying(false);
+            isVerifyingRef.current = false;
+            return;
+          } else if (fbCode === 'auth/code-expired') {
+            showToast('Verification code has expired. Please click Resend to get a new code.', 'error');
+            setIsVerifying(false);
+            isVerifyingRef.current = false;
+            return;
+          }
           // Fallback: If Firebase confirm fails (e.g. carrier SMS didn't match or test code entered), try backend direct verification
           try {
             result = await signIn('credentials', {
