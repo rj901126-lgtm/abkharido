@@ -34,12 +34,13 @@ import {
   Download
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { lookupPincode } from '../utils/pincodeData.js';
 import BulkProductUploadModal from '../components/BulkProductUploadModal';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 import '../assets/styles/admin.css';
 
 export default function SellerDashboard({ onNavigate }) {
-  const { showToast } = useApp();
+  const { showToast, currentUser } = useApp();
   const invoiceRef = useRef(null);
 
   // Decoupled Merchant Account Session
@@ -124,7 +125,92 @@ export default function SellerDashboard({ onNavigate }) {
   const [signupAccountNo, setSignupAccountNo] = useState('');
   const [signupIfsc, setSignupIfsc] = useState('');
   const [signupUpi, setSignupUpi] = useState('');
-  const [certifiedTurnover, setCertifiedTurnover] = useState(true);
+  const [formError, setFormError] = useState('');
+  const [panError, setPanError] = useState('');
+  const [gstinError, setGstinError] = useState('');
+  const [isExistingCustomerPrompt, setIsExistingCustomerPrompt] = useState(false);
+
+  // Auto-prefill from existing logged-in customer account
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.email) {
+        setSignupEmail(prev => prev || currentUser.email);
+        setLoginEmail(prev => prev || currentUser.email);
+      }
+      if (currentUser.phone) {
+        const p = String(currentUser.phone).replace(/\D/g, '').slice(-10);
+        setSignupPhone(prev => prev || p);
+        setLoginEmail(prev => prev || p);
+      }
+      if (currentUser.name || currentUser.fullName) {
+        setSignupLegalName(prev => prev || currentUser.name || currentUser.fullName);
+      }
+    }
+  }, [currentUser]);
+
+  const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+  const getPanHolderType = (pan) => {
+    if (!pan || pan.length < 4) return 'Indian Tax Identity';
+    const char = pan[3];
+    switch (char) {
+      case 'P': return 'Individual / Proprietorship';
+      case 'C': return 'Company / Corporate';
+      case 'H': return 'Hindu Undivided Family (HUF)';
+      case 'F': return 'Partnership Firm / LLP';
+      case 'T': return 'Trust';
+      case 'A': return 'Association of Persons (AOP)';
+      case 'B': return 'Body of Individuals (BOI)';
+      default: return 'Business Entity';
+    }
+  };
+
+  const handlePanChange = (val) => {
+    const clean = val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    setSignupPan(clean);
+    if (clean.length === 10) {
+      if (PAN_REGEX.test(clean)) {
+        setPanError('');
+      } else {
+        setPanError('Invalid format. PAN must have 5 letters, 4 numbers, and 1 letter (e.g. ABCDE1234F).');
+      }
+    } else if (clean.length > 0) {
+      setPanError(`${clean.length}/10 characters entered`);
+    } else {
+      setPanError('');
+    }
+  };
+
+  const handleGstinChange = (val) => {
+    const clean = val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15);
+    setSignupGstin(clean);
+    if (clean.length === 15) {
+      if (GSTIN_REGEX.test(clean)) {
+        setGstinError('');
+      } else {
+        setGstinError('Invalid GSTIN format (e.g. 27AAPCA1234F1Z5).');
+      }
+    } else if (clean.length > 0) {
+      setGstinError(`${clean.length}/15 characters entered`);
+    } else {
+      setGstinError('');
+    }
+  };
+
+  const handlePincodeChange = (val) => {
+    const clean = val.replace(/\D/g, '').slice(0, 6);
+    setSignupPincode(clean);
+    if (clean.length === 6) {
+      try {
+        const pinInfo = lookupPincode(clean);
+        if (pinInfo && pinInfo.city && pinInfo.state) {
+          setSignupCity(pinInfo.city);
+          setSignupState(pinInfo.state);
+        }
+      } catch (_) {}
+    }
+  };
 
   // Add Product Form States
   const [newProdName, setNewProdName] = useState('');
@@ -214,6 +300,7 @@ export default function SellerDashboard({ onNavigate }) {
   // ─── AUTH HANDLERS ──────────────────────────────────────────────
   const handleLogin = async (e) => {
     e.preventDefault();
+    setFormError('');
     setLoading(true);
     try {
       const res = await fetch('/api/seller/auth', {
@@ -231,10 +318,22 @@ export default function SellerDashboard({ onNavigate }) {
         setCurrentSeller(data.seller);
         localStorage.setItem('abkharido_seller_session', JSON.stringify(data.seller));
         showToast(`Welcome back, ${data.seller.shopName || 'Merchant'}! 🎉`, 'success');
+      } else if (data.isCustomerAccount) {
+        // Customer account found! Help them open their store immediately
+        setFormError(data.error);
+        if (data.email) setSignupEmail(data.email);
+        if (data.phone) setSignupPhone(data.phone);
+        if (data.name) setSignupLegalName(data.name);
+        setSignupPassword(loginPassword);
+        setIsExistingCustomerPrompt(true);
+        setAuthMode('signup');
+        showToast('AbKharido customer account found. Please register your store name & PAN to start selling.', 'info');
       } else {
+        setFormError(data.error || 'Login failed. Please verify credentials.');
         showToast(data.error || 'Login failed. Please verify credentials.', 'error');
       }
     } catch {
+      setFormError('Network connection error while contacting server. Please check your internet connection.');
       showToast('Network error during merchant login', 'error');
     } finally {
       setLoading(false);
@@ -243,6 +342,49 @@ export default function SellerDashboard({ onNavigate }) {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setFormError('');
+
+    const cleanShop = signupShopName.trim();
+    if (!cleanShop) {
+      setFormError('Please enter your Shop / Brand name.');
+      return;
+    }
+
+    const cleanPhoneDigits = signupPhone.replace(/\D/g, '').slice(-10);
+    if (cleanPhoneDigits.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhoneDigits)) {
+      setFormError('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.');
+      return;
+    }
+
+    if (signupSellerType === 'non_gst') {
+      const cleanPancard = signupPan.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+      if (!cleanPancard || cleanPancard.length !== 10 || !PAN_REGEX.test(cleanPancard)) {
+        setFormError('Please enter a valid 10-character Indian PAN Card number (e.g. ABCDE1234F). It must be 5 uppercase letters, 4 numbers, and 1 uppercase letter.');
+        return;
+      }
+    } else {
+      const cleanGst = signupGstin.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15);
+      if (!cleanGst || cleanGst.length !== 15 || !GSTIN_REGEX.test(cleanGst)) {
+        setFormError('Please enter a valid 15-character Indian GSTIN (e.g. 27AAPCA1234F1Z5).');
+        return;
+      }
+    }
+
+    if (signupPassword.length < 6) {
+      setFormError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (!signupStreet.trim()) {
+      setFormError('Please enter your Courier Pickup Warehouse Street / Building Address.');
+      return;
+    }
+
+    if (!signupPincode || signupPincode.length !== 6) {
+      setFormError('Please enter a valid 6-digit warehouse pincode.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/seller/auth', {
@@ -251,10 +393,10 @@ export default function SellerDashboard({ onNavigate }) {
         body: JSON.stringify({
           action: 'signup',
           sellerType: signupSellerType,
-          shopName: signupShopName,
-          legalBusinessName: signupLegalName || signupShopName,
+          shopName: cleanShop,
+          legalBusinessName: signupLegalName || cleanShop,
           email: signupEmail,
-          phone: signupPhone,
+          phone: cleanPhoneDigits,
           password: signupPassword,
           gstin: signupSellerType === 'gst' ? signupGstin : '',
           pan: signupSellerType === 'gst' ? signupGstin.slice(2, 12) : signupPan,
@@ -267,7 +409,7 @@ export default function SellerDashboard({ onNavigate }) {
           bankAccount: signupAccountNo,
           bankIfsc: signupIfsc,
           upi: signupUpi,
-          accountHolderName: signupLegalName || signupShopName
+          accountHolderName: signupLegalName || cleanShop
         })
       });
 
@@ -275,11 +417,13 @@ export default function SellerDashboard({ onNavigate }) {
       if (res.ok && data.seller) {
         setCurrentSeller(data.seller);
         localStorage.setItem('abkharido_seller_session', JSON.stringify(data.seller));
-        showToast(data.message || 'Seller account opened successfully!', 'success');
+        showToast(data.message || '🎉 Seller account opened successfully!', 'success');
       } else {
+        setFormError(data.error || 'Registration failed. Please check your details.');
         showToast(data.error || 'Registration failed', 'error');
       }
     } catch {
+      setFormError('Network connection error while contacting server. Please check your internet connection.');
       showToast('Network error during seller signup', 'error');
     } finally {
       setLoading(false);
@@ -481,7 +625,7 @@ export default function SellerDashboard({ onNavigate }) {
       <div className="container animate-fade-in" style={{ maxWidth: '640px', margin: '40px auto 100px auto', padding: '0 16px' }}>
         <div style={{ background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', padding: '36px 30px', boxShadow: '0 12px 40px rgba(15, 23, 42, 0.08)' }}>
           
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)' }}>
               <Store size={28} color="#ffffff" />
             </div>
@@ -489,20 +633,82 @@ export default function SellerDashboard({ onNavigate }) {
               AbKharido Merchant &amp; Seller Hub
             </h1>
             <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: '1.5' }}>
-              Sell with <strong>GST or Without GST</strong> under the Indian E-Commerce Small Seller Scheme. Automated Delhivery logistics dispatch &amp; instant bank settlements.
+              Sell with <strong>GST or Without GST (PAN Card Only)</strong> under the Indian E-Commerce Small Seller Scheme. Automated Delhivery logistics dispatch &amp; instant bank settlements.
             </p>
           </div>
+
+          {/* 🔗 Smart Customer Account Recognition Banner */}
+          {currentUser && (
+            <div style={{
+              background: '#eff6ff',
+              border: '1.5px solid #bfdbfe',
+              borderRadius: '14px',
+              padding: '12px 14px',
+              marginBottom: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <ShieldCheck size={20} color="#2563eb" style={{ flexShrink: 0 }} />
+              <div style={{ fontSize: '12.5px', color: '#1e40af', lineHeight: 1.4 }}>
+                Logged in as <strong>{currentUser.name || currentUser.phone || currentUser.email}</strong>. 
+                {authMode === 'signup' 
+                  ? ' Your existing AbKharido customer account will be upgraded to a Seller Store with no duplicate logins!' 
+                  : ' Use your account credentials to log in.'}
+              </div>
+            </div>
+          )}
+
+          {isExistingCustomerPrompt && (
+            <div style={{
+              background: '#fef3c7',
+              border: '1.5px solid #fde68a',
+              borderRadius: '14px',
+              padding: '12px 14px',
+              marginBottom: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <Info size={20} color="#b45309" style={{ flexShrink: 0 }} />
+              <div style={{ fontSize: '12.5px', color: '#92400e', lineHeight: 1.4 }}>
+                <strong>Customer Account Found:</strong> Enter your existing password and store details below to activate your Seller Store.
+              </div>
+            </div>
+          )}
+
+          {/* ⚠️ Prominent Inline Error Display */}
+          {formError && (
+            <div style={{
+              background: '#fef2f2',
+              border: '1.5px solid #f87171',
+              borderRadius: '14px',
+              padding: '12px 16px',
+              marginBottom: '18px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.08)'
+            }}>
+              <AlertCircle size={18} color="#dc2626" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div style={{ fontSize: '13px', color: '#991b1b', fontWeight: '600', lineHeight: 1.45 }}>
+                {formError}
+              </div>
+            </div>
+          )}
 
           {/* Mode Switcher */}
           <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '12px', marginBottom: '22px' }}>
             <button 
-              onClick={() => setAuthMode('login')}
+              type="button"
+              onClick={() => { setAuthMode('login'); setFormError(''); }}
               style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: authMode === 'login' ? '#ffffff' : 'transparent', color: authMode === 'login' ? '#0f172a' : '#64748b', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxShadow: authMode === 'login' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none' }}
             >
               Merchant Login
             </button>
             <button 
-              onClick={() => setAuthMode('signup')}
+              type="button"
+              onClick={() => { setAuthMode('signup'); setFormError(''); }}
               style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: authMode === 'signup' ? '#ffffff' : 'transparent', color: authMode === 'signup' ? '#0f172a' : '#64748b', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxShadow: authMode === 'signup' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none' }}
             >
               Open New Seller Account
@@ -512,7 +718,9 @@ export default function SellerDashboard({ onNavigate }) {
           {authMode === 'login' ? (
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Merchant Email or Registered Phone</label>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>
+                  Merchant Email or Registered Phone
+                </label>
                 <input 
                   type="text" 
                   placeholder="seller@brand.com or 9876543210"
@@ -524,7 +732,9 @@ export default function SellerDashboard({ onNavigate }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Password</label>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>
+                  Password
+                </label>
                 <input 
                   type="password" 
                   placeholder="••••••••"
@@ -542,6 +752,17 @@ export default function SellerDashboard({ onNavigate }) {
               >
                 {loading ? 'Authenticating...' : 'Login to Merchant Portal'} <ArrowRight size={16} />
               </button>
+
+              <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '12.5px', color: '#64748b' }}>
+                Don&apos;t have a seller account yet?{' '}
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('signup'); setFormError(''); }}
+                  style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: '700', cursor: 'pointer', padding: 0 }}
+                >
+                  Open your Store in 1 Minute
+                </button>
+              </div>
             </form>
 
           ) : (
@@ -550,34 +771,13 @@ export default function SellerDashboard({ onNavigate }) {
               {/* GST / Non-GST Segmented Toggle */}
               <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
-                  Select Your GST Registration Status
+                  Select Your Business Tax Scheme
                 </span>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <button
                     type="button"
-                    onClick={() => setSignupSellerType('gst')}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: '10px',
-                      border: signupSellerType === 'gst' ? '2px solid #2563eb' : '1px solid #cbd5e1',
-                      background: signupSellerType === 'gst' ? '#eff6ff' : '#ffffff',
-                      color: signupSellerType === 'gst' ? '#1e40af' : '#475569',
-                      fontWeight: '800',
-                      fontSize: '12px',
-                      textAlign: 'left',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🏢 I Have GST Number
-                    <div style={{ fontSize: '10px', fontWeight: '500', color: '#64748b', marginTop: '2px' }}>
-                      Inter-state sales &amp; Tax Invoices
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setSignupSellerType('non_gst')}
+                    onClick={() => { setSignupSellerType('non_gst'); setFormError(''); }}
                     style={{
                       padding: '10px 12px',
                       borderRadius: '10px',
@@ -590,16 +790,41 @@ export default function SellerDashboard({ onNavigate }) {
                       cursor: 'pointer'
                     }}
                   >
-                    🛍️ Without GST (Small Seller)
+                    🛍️ Without GST (PAN Only)
                     <div style={{ fontSize: '10px', fontWeight: '500', color: '#64748b', marginTop: '2px' }}>
-                      Turnover &lt; ₹40L (Bill of Supply)
+                      Turnover &lt; ₹40L (Govt Scheme)
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setSignupSellerType('gst'); setFormError(''); }}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: '10px',
+                      border: signupSellerType === 'gst' ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                      background: signupSellerType === 'gst' ? '#eff6ff' : '#ffffff',
+                      color: signupSellerType === 'gst' ? '#1e40af' : '#475569',
+                      fontWeight: '800',
+                      fontSize: '12px',
+                      textAlign: 'left',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🏢 I Have GSTIN
+                    <div style={{ fontSize: '10px', fontWeight: '500', color: '#64748b', marginTop: '2px' }}>
+                      Inter-state sales &amp; Tax Invoices
                     </div>
                   </button>
                 </div>
 
-                {signupSellerType === 'non_gst' && (
-                  <div style={{ marginTop: '8px', fontSize: '11px', color: '#166534', background: '#dcfce7', padding: '6px 10px', borderRadius: '6px' }}>
-                    💡 <strong>Govt Rule (Notification 34/2023):</strong> Unregistered small sellers can sell on e-commerce without GST. You only need your <strong>PAN Card</strong> &amp; Bank Account. Customer bills are issued as <strong>Bill of Supply with 0% tax</strong>!
+                {signupSellerType === 'non_gst' ? (
+                  <div style={{ marginTop: '8px', fontSize: '11px', color: '#166534', background: '#dcfce7', padding: '8px 10px', borderRadius: '8px', lineHeight: '1.4' }}>
+                    💡 <strong>Govt Notification 34/2023:</strong> Small sellers in India can sell on e-commerce without GST! You only need your <strong>10-Digit PAN Card</strong> &amp; Bank Account. Orders are legally issued as <strong>Bill of Supply with 0% tax</strong>.
+                  </div>
+                ) : (
+                  <div style={{ marginTop: '8px', fontSize: '11px', color: '#1e40af', background: '#dbeafe', padding: '8px 10px', borderRadius: '8px', lineHeight: '1.4' }}>
+                    💡 <strong>GST Registered Merchant:</strong> We will automatically extract and link your PAN card from your 15-character GSTIN. Tax invoices will be generated automatically.
                   </div>
                 )}
               </div>
@@ -607,7 +832,9 @@ export default function SellerDashboard({ onNavigate }) {
               {/* Basic Business Details */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>Shop / Brand Name*</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    Shop / Brand Name*
+                  </label>
                   <input 
                     type="text" 
                     placeholder="e.g. Apex Electronics"
@@ -619,10 +846,12 @@ export default function SellerDashboard({ onNavigate }) {
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>Legal Business / Owner Name</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    Owner Name (As on PAN/Bank)
+                  </label>
                   <input 
                     type="text" 
-                    placeholder="As per PAN / Bank"
+                    placeholder="Full Legal Name"
                     value={signupLegalName}
                     onChange={(e) => setSignupLegalName(e.target.value)}
                     style={{ width: '100%', height: '38px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
@@ -633,7 +862,9 @@ export default function SellerDashboard({ onNavigate }) {
               {/* Contact Credentials */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>Email Address*</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    Email Address*
+                  </label>
                   <input 
                     type="email" 
                     placeholder="seller@brand.com"
@@ -645,21 +876,25 @@ export default function SellerDashboard({ onNavigate }) {
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>10-Digit Mobile Number*</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    10-Digit Mobile Number*
+                  </label>
                   <input 
                     type="tel" 
                     placeholder="9876543210"
                     value={signupPhone}
-                    onChange={(e) => setSignupPhone(e.target.value)}
+                    onChange={(e) => setSignupPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     required
                     style={{ width: '100%', height: '38px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
 
-              {/* Password */}
+              {/* Password with Account Linking Tip */}
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>Create Password (Min 6 Characters)*</label>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '3px' }}>
+                  Password (Min 6 Characters)*
+                </label>
                 <input 
                   type="password" 
                   placeholder="••••••••"
@@ -668,39 +903,109 @@ export default function SellerDashboard({ onNavigate }) {
                   required
                   style={{ width: '100%', height: '38px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
                 />
+                <span style={{ fontSize: '11px', color: '#64748b', display: 'block', marginTop: '3px' }}>
+                  💡 If you already have an AbKharido customer account, enter your account password to link your store.
+                </span>
               </div>
 
               {/* Conditional Tax Compliance: GST vs Non-GST Inputs */}
               {signupSellerType === 'gst' ? (
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#1e40af', display: 'block', marginBottom: '3px' }}>
-                    15-Character GSTIN Number*
-                  </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#1e40af' }}>
+                      15-Character GSTIN Number*
+                    </label>
+                    {signupGstin.length > 0 && (
+                      <span style={{ fontSize: '11px', color: signupGstin.length === 15 && GSTIN_REGEX.test(signupGstin) ? '#16a34a' : '#d97706', fontWeight: '700' }}>
+                        {signupGstin.length}/15 {signupGstin.length === 15 && GSTIN_REGEX.test(signupGstin) ? '✓ Valid' : ''}
+                      </span>
+                    )}
+                  </div>
                   <input 
                     type="text" 
                     placeholder="27AAPCA1234F1Z5"
                     value={signupGstin}
-                    onChange={(e) => setSignupGstin(e.target.value.toUpperCase())}
-                    maxLength={15}
+                    onChange={(e) => handleGstinChange(e.target.value)}
                     required
-                    style={{ width: '100%', height: '38px', padding: '0 12px', borderRadius: '8px', border: '1.5px solid #2563eb', fontSize: '13px', boxSizing: 'border-box', fontWeight: '700', letterSpacing: '1px' }}
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    style={{
+                      width: '100%',
+                      height: '40px',
+                      padding: '0 12px',
+                      borderRadius: '8px',
+                      border: signupGstin.length === 15 && GSTIN_REGEX.test(signupGstin)
+                        ? '2px solid #2563eb'
+                        : (gstinError ? '2px solid #ef4444' : '1.5px solid #cbd5e1'),
+                      fontSize: '13.5px',
+                      boxSizing: 'border-box',
+                      fontWeight: '700',
+                      letterSpacing: '1.5px',
+                      background: signupGstin.length === 15 && GSTIN_REGEX.test(signupGstin) ? '#eff6ff' : '#ffffff'
+                    }}
                   />
+                  {signupGstin.length >= 12 && PAN_REGEX.test(signupGstin.slice(2, 12)) ? (
+                    <div style={{ marginTop: '5px', fontSize: '11px', color: '#1d4ed8', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <CheckCircle2 size={13} color="#2563eb" /> Linked PAN from GSTIN: <strong>{signupGstin.slice(2, 12)}</strong>
+                    </div>
+                  ) : gstinError ? (
+                    <div style={{ marginTop: '4px', fontSize: '11px', color: '#dc2626', fontWeight: '600' }}>
+                      {gstinError}
+                    </div>
+                  ) : null}
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#166534', display: 'block', marginBottom: '3px' }}>
-                      PAN Card Number (10 Chars)*
-                    </label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: '700', color: '#166534' }}>
+                        PAN Card Number (10 Chars)*
+                      </label>
+                      {signupPan.length > 0 && (
+                        <span style={{ fontSize: '11px', color: signupPan.length === 10 && PAN_REGEX.test(signupPan) ? '#16a34a' : '#d97706', fontWeight: '700' }}>
+                          {signupPan.length}/10
+                        </span>
+                      )}
+                    </div>
                     <input 
                       type="text" 
                       placeholder="ABCDE1234F"
                       value={signupPan}
-                      onChange={(e) => setSignupPan(e.target.value.toUpperCase())}
-                      maxLength={10}
+                      onChange={(e) => handlePanChange(e.target.value)}
                       required
-                      style={{ width: '100%', height: '38px', padding: '0 12px', borderRadius: '8px', border: '1.5px solid #16a34a', fontSize: '13px', boxSizing: 'border-box', fontWeight: '700', letterSpacing: '1px' }}
+                      autoCapitalize="characters"
+                      autoCorrect="off"
+                      spellCheck="false"
+                      style={{
+                        width: '100%',
+                        height: '40px',
+                        padding: '0 12px',
+                        borderRadius: '8px',
+                        border: signupPan.length === 10 && PAN_REGEX.test(signupPan)
+                          ? '2px solid #16a34a'
+                          : (panError ? '2px solid #ef4444' : '1.5px solid #16a34a'),
+                        fontSize: '13.5px',
+                        boxSizing: 'border-box',
+                        fontWeight: '700',
+                        letterSpacing: '1.5px',
+                        background: signupPan.length === 10 && PAN_REGEX.test(signupPan) ? '#f0fdf4' : '#ffffff',
+                        transition: 'all 0.2s ease'
+                      }}
                     />
+                    {signupPan.length === 10 && PAN_REGEX.test(signupPan) ? (
+                      <div style={{ marginTop: '5px', fontSize: '11px', color: '#15803d', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <CheckCircle2 size={13} color="#16a34a" /> Valid Indian PAN ({getPanHolderType(signupPan)})
+                      </div>
+                    ) : panError ? (
+                      <div style={{ marginTop: '4px', fontSize: '11px', color: '#dc2626', fontWeight: '600' }}>
+                        {panError}
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#64748b' }}>
+                        5 letters, 4 digits, 1 letter (e.g. ABCDE1234F)
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -712,16 +1017,19 @@ export default function SellerDashboard({ onNavigate }) {
                       placeholder="ENR/27/..."
                       value={signupEnrolmentId}
                       onChange={(e) => setSignupEnrolmentId(e.target.value)}
-                      style={{ width: '100%', height: '38px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', height: '40px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
                     />
+                    <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#64748b' }}>
+                      Issued by GST Portal for non-GST sellers
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Pickup Warehouse Address */}
-              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
-                  📍 Courier Pickup Warehouse Address (Where Courier Boy Will Pick Packages)
+              {/* Pickup Warehouse Address with Auto-Pincode Resolution */}
+              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                  📍 Courier Pickup Warehouse Address
                 </span>
                 
                 <input 
@@ -734,6 +1042,14 @@ export default function SellerDashboard({ onNavigate }) {
                 />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="6-Digit PIN*"
+                    value={signupPincode}
+                    onChange={(e) => handlePincodeChange(e.target.value)}
+                    required
+                    style={{ height: '34px', padding: '0 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', boxSizing: 'border-box', fontWeight: '700' }}
+                  />
                   <input 
                     type="text" 
                     placeholder="City*"
@@ -750,21 +1066,13 @@ export default function SellerDashboard({ onNavigate }) {
                     required
                     style={{ height: '34px', padding: '0 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', boxSizing: 'border-box' }}
                   />
-                  <input 
-                    type="text" 
-                    placeholder="6-Digit PIN*"
-                    value={signupPincode}
-                    onChange={(e) => setSignupPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    required
-                    style={{ height: '34px', padding: '0 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', boxSizing: 'border-box' }}
-                  />
                 </div>
               </div>
 
               {/* Bank & Settlement Details */}
-              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
-                  💳 Settlement Bank Account or UPI (Where AbKharido Transfers Your Earnings)
+              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                  💳 Settlement Bank Account or UPI (Where Earnings are Transferred)
                 </span>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '6px' }}>
@@ -786,7 +1094,7 @@ export default function SellerDashboard({ onNavigate }) {
 
                 <input 
                   type="text" 
-                  placeholder="Or Instant UPI ID (e.g. brand@okaxis)"
+                  placeholder="Or Instant UPI ID (e.g. yourname@okaxis / gpay)"
                   value={signupUpi}
                   onChange={(e) => setSignupUpi(e.target.value)}
                   style={{ width: '100%', height: '34px', padding: '0 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', boxSizing: 'border-box' }}
@@ -802,17 +1110,28 @@ export default function SellerDashboard({ onNavigate }) {
                   required
                 />
                 <label htmlFor="cert-turnover" style={{ cursor: 'pointer' }}>
-                  I certify that all provided details are accurate and agree to AbKharido's Merchant Terms &amp; Conditions.
+                  I certify that all details are accurate and agree to AbKharido&apos;s Merchant Terms &amp; Conditions.
                 </label>
               </div>
 
               <button 
                 type="submit"
                 disabled={loading}
-                style={{ width: '100%', height: '46px', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)', color: '#ffffff', borderRadius: '12px', border: 'none', fontWeight: '800', fontSize: '14px', cursor: 'pointer', marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                style={{ width: '100%', height: '46px', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)', color: '#ffffff', borderRadius: '12px', border: 'none', fontWeight: '800', fontSize: '14px', cursor: 'pointer', marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 6px 18px rgba(37, 99, 235, 0.25)' }}
               >
                 {loading ? 'Opening Merchant Account...' : 'Open Storefront & Start Selling'} <ArrowRight size={16} />
               </button>
+
+              <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '12.5px', color: '#64748b' }}>
+                Already have a merchant store?{' '}
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('login'); setFormError(''); }}
+                  style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: '700', cursor: 'pointer', padding: 0 }}
+                >
+                  Login to Merchant Portal
+                </button>
+              </div>
             </form>
           )}
 
