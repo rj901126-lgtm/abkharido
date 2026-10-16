@@ -294,7 +294,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             {/* Logo */}
             <a href="/" className="logo-container" aria-label="AbKharido Home" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
               <img
-                src="/logo.png"
+                src="/abkharido-logo.png?v=3"
                 alt="AbKharido"
                 className="brand-logo-image logo-text"
               />

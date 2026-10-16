@@ -47,7 +47,7 @@ const Footer = ({ onNavigate }) => {
                 alignItems: 'center'
               }}
             >
-              <img src="/logo.png" alt="AbKharido" height="30" style={{ height: '30px', width: 'auto', objectFit: 'contain' }} />
+              <img src="/abkharido-logo.png?v=3" alt="AbKharido" height="30" style={{ height: '30px', width: 'auto', objectFit: 'contain' }} />
             </div>
           </Link>
           <p
