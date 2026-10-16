@@ -145,7 +145,10 @@ export default function SellerDashboard({ onNavigate }) {
         setLoginEmail(prev => prev || p);
       }
       if (currentUser.name || currentUser.fullName) {
-        setSignupLegalName(prev => prev || currentUser.name || currentUser.fullName);
+        const rawName = String(currentUser.name || currentUser.fullName || '').trim();
+        if (rawName && !rawName.startsWith('http') && !rawName.includes('abkharido.com') && !rawName.includes('/') && !rawName.includes('#') && !rawName.includes('@') && !/^\d+$/.test(rawName)) {
+          setSignupLegalName(prev => prev || rawName);
+        }
       }
     }
   }, [currentUser]);
@@ -724,13 +727,15 @@ export default function SellerDashboard({ onNavigate }) {
           </div>
 
           {authMode === 'login' ? (
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleLogin} autoComplete="on" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>
                   Merchant Email or Registered Phone
                 </label>
                 <input 
                   type="text" 
+                  name="abk_merchant_login_username"
+                  autoComplete="username"
                   placeholder="seller@brand.com or 9876543210"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
@@ -745,6 +750,8 @@ export default function SellerDashboard({ onNavigate }) {
                 </label>
                 <input 
                   type="password" 
+                  name="abk_merchant_login_password"
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
@@ -774,7 +781,7 @@ export default function SellerDashboard({ onNavigate }) {
             </form>
 
           ) : (
-            <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleSignup} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               
               {/* GST / Non-GST Segmented Toggle */}
               <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
@@ -845,6 +852,8 @@ export default function SellerDashboard({ onNavigate }) {
                   </label>
                   <input 
                     type="text" 
+                    name="abk_seller_shop_brand"
+                    autoComplete="off"
                     placeholder="e.g. Apex Electronics"
                     value={signupShopName}
                     onChange={(e) => setSignupShopName(e.target.value)}
@@ -859,6 +868,8 @@ export default function SellerDashboard({ onNavigate }) {
                   </label>
                   <input 
                     type="text" 
+                    name="abk_seller_legal_name"
+                    autoComplete="off"
                     placeholder="Full Legal Name"
                     value={signupLegalName}
                     onChange={(e) => setSignupLegalName(e.target.value)}
@@ -875,6 +886,8 @@ export default function SellerDashboard({ onNavigate }) {
                   </label>
                   <input 
                     type="email" 
+                    name="abk_seller_email_addr"
+                    autoComplete="off"
                     placeholder="seller@brand.com"
                     value={signupEmail}
                     onChange={(e) => setSignupEmail(e.target.value)}
@@ -889,6 +902,8 @@ export default function SellerDashboard({ onNavigate }) {
                   </label>
                   <input 
                     type="tel" 
+                    name="abk_seller_mobile_num"
+                    autoComplete="off"
                     placeholder="9876543210"
                     value={signupPhone}
                     onChange={(e) => setSignupPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
@@ -905,6 +920,8 @@ export default function SellerDashboard({ onNavigate }) {
                 </label>
                 <input 
                   type="password" 
+                  name="abk_seller_new_password"
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
