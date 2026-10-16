@@ -137,11 +137,17 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
   };
 
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isScrolledCompact, setIsScrolledCompact] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       setShowBackToTop(scrollY > 400);
+      setIsScrolledCompact((prev) => {
+        if (!prev && scrollY > 55) return true;
+        if (prev && scrollY < 20) return false;
+        return prev;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -231,8 +237,37 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
 
   return (
     <div className="home-page-layout-container" style={{ paddingBottom: '70px', maxWidth: '1280px', margin: '0 auto', paddingTop: 0 }}>
+
+      {/* ── 1. Sticky Category Strip (Above Banner • Shrinks to Icons on Scroll) ── */}
+      <section className={`home-category-strip ${isScrolledCompact ? 'compact-scrolled' : ''}`}>
+        <div className="home-category-pills-row">
+          {activeVipCategories.map((cat) => {
+            const CatIcon = cat.icon || Sparkles;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className="home-category-pill-btn"
+                type="button"
+                title={cat.label}
+                aria-label={`Filter by ${cat.label}`}
+              >
+                <div 
+                  className="category-pill-icon-wrap"
+                  style={{ background: cat.bg || '#f1f5f9' }}
+                >
+                  <CatIcon size={18} color={cat.color || 'var(--brand-accent)'} />
+                </div>
+                <span className="category-pill-name">
+                  {cat.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
       
-      {/* ── 1. Hero / Banner Carousel (With Dot Indicators & Auto-Rotate) ── */}
+      {/* ── 2. Hero / Banner Carousel (With Dot Indicators & Auto-Rotate) ── */}
       {slides.length > 0 && (
         <div style={{ position: 'relative', margin: '0 12px' }}>
           <section 
@@ -426,34 +461,6 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </div>
         ))}
       </div>
-
-      {/* ── 3. Category Strip (Smooth, jitter-free department navigation) ── */}
-      <section className="home-category-strip">
-        <div className="home-category-pills-row">
-          {activeVipCategories.map((cat) => {
-            const CatIcon = cat.icon || Sparkles;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
-                className="home-category-pill-btn"
-                type="button"
-                aria-label={`Filter by ${cat.label}`}
-              >
-                <div 
-                  className="category-pill-icon-wrap"
-                  style={{ background: cat.bg || '#f1f5f9' }}
-                >
-                  <CatIcon size={18} color={cat.color || 'var(--brand-accent)'} />
-                </div>
-                <span className="category-pill-name">
-                  {cat.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
 
       {/* ── 4. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
