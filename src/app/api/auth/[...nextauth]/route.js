@@ -9,15 +9,17 @@ import { NextResponse } from 'next/server';
 const NextAuth = typeof NextAuthImport === 'function' ? NextAuthImport : NextAuthImport.default;
 const CredentialsProvider = typeof CredentialsProviderImport === 'function' ? CredentialsProviderImport : CredentialsProviderImport.default;
 
+export const dynamic = 'force-dynamic';
+
 const effectiveNextAuthSecret = getJwtSecret('NEXTAUTH_SECRET');
 if (!process.env.NEXTAUTH_SECRET) {
   process.env.NEXTAUTH_SECRET = effectiveNextAuthSecret;
 }
 if (!process.env.NEXTAUTH_URL) {
-  if (process.env.VERCEL_URL) {
-    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
-  } else if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production') {
     process.env.NEXTAUTH_URL = 'https://www.abkharido.com';
+  } else if (process.env.VERCEL_URL) {
+    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
   } else {
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
   }
@@ -178,6 +180,7 @@ export const authOptions = {
   pages: {
     signIn: '/login',
   },
+  trustHost: true,
   cookies: {
     sessionToken: {
       name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
@@ -186,7 +189,6 @@ export const authOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: (process.env.NODE_ENV === 'production' && typeof window === 'undefined' && process.env.NEXTAUTH_URL?.includes('abkharido.com')) ? '.abkharido.com' : undefined,
       },
     },
   },
@@ -195,12 +197,23 @@ export const authOptions = {
 
 const handler = NextAuth(authOptions);
 
-async function guardedHandler(...args) {
+async function guardedHandler(req, context) {
+  if (req && !req.nextUrl && req.url) {
+    try {
+      req.nextUrl = new URL(req.url, process.env.NEXTAUTH_URL || 'https://www.abkharido.com');
+    } catch (_) {}
+  }
+  let safeContext = context;
+  if (!safeContext || !safeContext.params) {
+    const url = req?.nextUrl || (req?.url ? new URL(req.url, 'https://www.abkharido.com') : null);
+    const parts = (url?.pathname || '').replace(/^\/api\/auth\/?/, '').split('/').filter(Boolean);
+    safeContext = { params: Promise.resolve({ nextauth: parts }) };
+  }
   try {
-    return await handler(...args);
+    return await handler(req, safeContext);
   } catch (error) {
-    console.error('[NextAuth Handler Error]:', error);
-    return NextResponse.json({ error: 'Authentication service temporarily unavailable' }, { status: 500 });
+    console.error('[NextAuth Handler Error]:', error?.message || error);
+    return NextResponse.json({ error: error?.message || 'Authentication service temporarily unavailable' }, { status: 500 });
   }
 }
 export { guardedHandler as GET, guardedHandler as POST };

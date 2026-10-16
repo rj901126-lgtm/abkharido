@@ -5,7 +5,9 @@ const Toast = ({ message, type = 'success', onClose }) => {
   useEffect(() => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
-        navigator.vibrate(type === 'error' ? [30, 50, 30] : 25);
+        if (!navigator.userActivation || navigator.userActivation.hasBeenActive) {
+          navigator.vibrate(type === 'error' ? [30, 50, 30] : 25);
+        }
       } catch (_) {}
     }
   }, [type]);
