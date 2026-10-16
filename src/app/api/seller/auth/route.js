@@ -28,6 +28,8 @@ export async function POST(req) {
       gstin = '',
       pan = '',
       enrolmentId = '',
+      udyamNumber = '',
+      documents = null,
       legalBusinessName = '',
       pickupStreet = '',
       pickupCity = '',
@@ -130,6 +132,10 @@ export async function POST(req) {
         existingUser.gstin = isGst ? cleanGst : undefined;
         existingUser.pan = cleanPan;
         existingUser.enrolmentId = enrolmentId ? String(enrolmentId).trim() : undefined;
+        existingUser.udyamNumber = udyamNumber ? String(udyamNumber).trim().toUpperCase() : (existingUser.udyamNumber || undefined);
+        if (documents && typeof documents === 'object') {
+          existingUser.documents = { ...(existingUser.documents || {}), ...documents };
+        }
         existingUser.legalBusinessName = cleanLegalName;
         existingUser.turnoverCertified = true;
         existingUser.sellerStatus = 'Approved';
@@ -191,6 +197,8 @@ export async function POST(req) {
         gstin: isGst ? cleanGst : undefined,
         pan: cleanPan,
         enrolmentId: enrolmentId ? String(enrolmentId).trim() : undefined,
+        udyamNumber: udyamNumber ? String(udyamNumber).trim().toUpperCase() : undefined,
+        documents: documents && typeof documents === 'object' ? documents : undefined,
         legalBusinessName: cleanLegalName,
         turnoverCertified: true,
         shopName: cleanShopName,

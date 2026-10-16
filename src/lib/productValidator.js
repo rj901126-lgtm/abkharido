@@ -240,10 +240,10 @@ export function toPublicProductDTO(product) {
       }))
     })),
     hasProCare: Boolean(product.hasProCare),
-    channel: (product.channel === '3P' || Boolean(product.vendorId || product.sellerId)) ? '3P' : '1P',
-    sellerShopName: (product.channel === '3P' || Boolean(product.vendorId || product.sellerId))
-      ? (product.sellerShopName && product.sellerShopName !== 'AbKharido Direct' ? product.sellerShopName : (product.sellerName || 'Verified Marketplace Partner'))
-      : 'AbKharido Direct',
+    channel: (product.channel === '1P' || product.sellerShopName === 'AbKharido Direct' || product.isOfficialStore) ? '1P' : ((product.channel === '3P' || Boolean(product.vendorId || product.sellerId)) ? '3P' : '1P'),
+    sellerShopName: (product.channel === '1P' || product.sellerShopName === 'AbKharido Direct' || product.isOfficialStore)
+      ? 'AbKharido Direct'
+      : (product.sellerShopName && product.sellerShopName !== 'AbKharido Direct' ? product.sellerShopName : (product.sellerName || 'Verified Marketplace Partner')),
     sellerType: product.sellerType || 'gst',
     status: product.status || 'published',
     flashSale: product.flashSale?.isActive ? {

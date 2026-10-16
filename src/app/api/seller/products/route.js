@@ -79,17 +79,22 @@ export async function POST(req) {
     }, seller, false);
     if (!validation.isValid) return NextResponse.json({ error: validation.errors?.[0] || 'Invalid product', errors: validation.errors }, { status: 400 });
 
+    const isOwner = ['9172600587', 'admin@abkharido.com', 'rj901126@gmail.com'].includes(seller.phone) || 
+                    ['admin@abkharido.com', 'rj901126@gmail.com'].includes(seller.email) ||
+                    ['admin', 'super_admin'].includes(seller.role);
+
     const isGstSeller = seller.sellerType === 'gst' || Boolean(seller.gstin);
     const newProduct = new Product({
       ...validation.sanitizedProduct,
       status: 'published',
-      channel: '3P',
+      channel: isOwner ? '1P' : '3P',
+      isOfficialStore: isOwner,
       countInStock: finalStock,
       rating: 0,
       reviewsCount: 0,
       vendorId: seller.id,
       sellerId: String(seller.id),
-      sellerShopName: seller.shopName || 'Verified Merchant',
+      sellerShopName: isOwner ? 'AbKharido Direct' : (seller.shopName || 'Verified Merchant'),
       sellerType: isGstSeller ? 'gst' : 'non_gst',
       sellerGstin: seller.gstin || '',
       gstRate: isGstSeller ? Number(gstRate ?? 18) : 0

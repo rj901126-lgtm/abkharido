@@ -176,6 +176,13 @@ export async function POST(req) {
     if (!auth.isAdmin && auth.user?.role === 'seller') {
       sanitizedProduct.sellerId = auth.user._id || auth.user.id;
       sanitizedProduct.sellerShopName = auth.user.shopName || 'Verified Partner Store';
+      sanitizedProduct.channel = '3P';
+    } else if (auth.isAdmin) {
+      sanitizedProduct.channel = sanitizedProduct.channel || '1P';
+      sanitizedProduct.isOfficialStore = sanitizedProduct.channel === '1P';
+      if (sanitizedProduct.channel === '1P') {
+        sanitizedProduct.sellerShopName = 'AbKharido Direct';
+      }
     }
 
     // Audit trail

@@ -57,6 +57,12 @@ const userSchema = new mongoose.Schema({
   gstin: { type: String, trim: true, uppercase: true },
   pan: { type: String, trim: true, uppercase: true },
   enrolmentId: { type: String, trim: true },
+  udyamNumber: { type: String, trim: true, uppercase: true },
+  documents: {
+    panCardUrl: { type: String },
+    bankProofUrl: { type: String },
+    udyamCertUrl: { type: String }
+  },
   legalBusinessName: { type: String, trim: true },
   turnoverCertified: { type: Boolean, default: true },
   commissionRate: { type: Number, default: 0.08 },
