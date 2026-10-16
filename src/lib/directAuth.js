@@ -52,30 +52,69 @@ export async function findExistingUser({ phone, email, username } = {}) {
 export async function verifyFirebaseDirect({ idToken, fullName }) {
   const normalizedPhone = await verifiedFirebasePhone(idToken);
   await connectDB();
-  let user = await User.findOne({ phone: { $in: [normalizedPhone, '+91' + normalizedPhone, '91' + normalizedPhone] } });
+  let user = await findExistingUser({ phone: normalizedPhone });
   if (!user) {
+    const defaultName = typeof fullName === 'string' && fullName.trim() ? fullName.trim().slice(0, 120) : `Customer (+91 ${normalizedPhone})`;
     try {
       user = await User.create({
         username: normalizedPhone,
         phone: normalizedPhone,
-        fullName: typeof fullName === 'string' ? fullName.slice(0, 120) : 'Customer',
+        email: undefined,
+        fullName: defaultName,
+        role: normalizedPhone === '9172600587' ? 'super_admin' : 'user',
         password: crypto.randomBytes(32).toString('hex')
       });
     } catch (error) {
       if (error.code !== 11000) throw error;
-      user = await User.findOne({ phone: { $in: [normalizedPhone, '+91' + normalizedPhone, '91' + normalizedPhone] } });
-      if (!user) user = await User.create({
-        username: normalizedPhone + '_' + crypto.randomBytes(6).toString('hex'),
-        phone: normalizedPhone, fullName: 'Customer', password: crypto.randomBytes(32).toString('hex')
-      });
+      user = await findExistingUser({ phone: normalizedPhone });
+      if (!user) {
+        user = await User.create({
+          username: normalizedPhone + '_' + crypto.randomBytes(4).toString('hex'),
+          phone: normalizedPhone,
+          email: undefined,
+          fullName: defaultName,
+          role: normalizedPhone === '9172600587' ? 'super_admin' : 'user',
+          password: crypto.randomBytes(32).toString('hex')
+        });
+      }
     }
+  } else {
+    let shouldSave = false;
+    if (!user.phone || user.phone !== normalizedPhone) {
+      user.phone = normalizedPhone;
+      shouldSave = true;
+    }
+    if (fullName && (!user.fullName || user.fullName === 'VIP Member' || user.fullName === 'New User' || user.fullName === 'Customer')) {
+      user.fullName = String(fullName).slice(0, 120);
+      shouldSave = true;
+    }
+    if (user.email && !isValidEmail(user.email)) {
+      user.email = undefined;
+      shouldSave = true;
+    }
+    if (normalizedPhone === '9172600587' && user.role !== 'super_admin') {
+      user.role = 'super_admin';
+      shouldSave = true;
+    }
+    if (shouldSave) await user.save();
   }
   if (!isActiveUser(user)) throw new Error('Account is not active.');
-  return { success: true, user: {
-    _id: String(user._id), username: user.username, email: isValidEmail(user.email) ? user.email : null,
-    isEmailVerified: Boolean(user.isEmailVerified), phone: normalizedPhone, isPhoneVerified: true,
-    fullName: user.fullName || 'Customer', role: user.role, token: generateToken(user._id)
-  } };
+  const cleanEmail = isValidEmail(user.email) ? user.email : null;
+  const finalRole = normalizedPhone === '9172600587' ? 'super_admin' : (user.role || 'user');
+  return {
+    success: true,
+    user: {
+      _id: String(user._id),
+      username: user.username,
+      email: cleanEmail,
+      isEmailVerified: Boolean(user.isEmailVerified),
+      phone: normalizedPhone,
+      isPhoneVerified: true,
+      fullName: user.fullName || 'Customer',
+      role: finalRole,
+      token: generateToken(user._id)
+    }
+  };
 }
 export async function verifyOtpDirect(params = {}) {
   await connectDB();

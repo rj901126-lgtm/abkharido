@@ -24,10 +24,14 @@ if (!process.env.NEXTAUTH_URL) {
 }
 
 async function fetchBackend(path, body) {
+  if (process.env.VERCEL && !process.env.BACKEND_API_URL) {
+    return null;
+  }
+
   const hosts = [
     process.env.BACKEND_API_URL,
-    'http://127.0.0.1:5000',
-    'http://localhost:5000'
+    !process.env.VERCEL ? 'http://127.0.0.1:5000' : null,
+    !process.env.VERCEL ? 'http://localhost:5000' : null
   ].filter(Boolean);
 
   const uniqueHosts = [...new Set(hosts.map(h => h.replace(/\/$/, '')))];
@@ -46,7 +50,7 @@ async function fetchBackend(path, body) {
       });
       clearTimeout(timeout);
       
-      if (res && res.status < 500) return res;
+      if (res && res.ok) return res;
     } catch (err) {
       // Continue to next host or native DB fallback
     }
@@ -92,10 +96,11 @@ export const authOptions = {
           let data = null;
           const res = await fetchBackend(path, JSON.stringify(bodyObj));
           
-          if (res) {
+          if (res && res.ok) {
             data = await res.json().catch(() => null);
-            if (!res.ok) throw new Error('Authentication failed on verification service');
-          } else {
+          }
+
+          if (!data) {
             // ── Native Direct MongoDB Authentication Fallback ──
             if (credentials.firebaseIdToken) {
                data = await verifyFirebaseDirect(bodyObj);
