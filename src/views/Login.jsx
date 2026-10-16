@@ -556,18 +556,19 @@ const Login = ({ onNavigate, callbackUrl }) => {
             {/* Minimal Header */}
             <div style={{ marginBottom: '22px' }}>
               <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: '#f8fafc',
+                width: '46px',
+                height: '46px',
+                borderRadius: '13px',
+                background: '#ffffff',
                 border: '1px solid #e2e8f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '6px',
-                marginBottom: '14px'
+                padding: '7px',
+                marginBottom: '14px',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.08)'
               }}>
-                <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img src="/login-icon.png?v=1" alt="AbKharido" width="32" height="32" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
 
               <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.3px' }}>
