@@ -293,12 +293,21 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
           <div className="navbar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {/* Logo */}
             <a href="/" className="logo-container" aria-label="AbKharido Home" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
-              <span className="logo-text">
-                AbKharido<span className="logo-plus">.com</span>
-              </span>
-              <span className="logo-sub">
-                Direct Buy <span style={{ color: 'var(--brand-accent)', fontWeight: 'bold' }}>& Earn</span>
-              </span>
+              <img
+                src="/logo.png"
+                alt="AbKharido Logo"
+                className="brand-logo-img"
+                width="34"
+                height="34"
+              />
+              <div className="logo-text-wrapper">
+                <span className="logo-text">
+                  AbKharido<span className="logo-plus">.com</span>
+                </span>
+                <span className="logo-sub">
+                  Direct Buy <span style={{ color: 'var(--brand-accent)', fontWeight: 'bold' }}>& Earn</span>
+                </span>
+              </div>
             </a>
 
             {/* 📍 Pincode / Delivery Location Selector */}

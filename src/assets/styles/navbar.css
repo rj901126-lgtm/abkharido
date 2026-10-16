@@ -39,9 +39,24 @@
 /* Brand Logo Styling */
 .logo-container {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   line-height: 1;
   text-decoration: none;
+}
+
+.brand-logo-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.logo-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
 }
 
 .logo-text {
@@ -326,6 +341,15 @@
   .category-mega-menu-wrapper,
   .language-toggle-wrapper {
     display: none !important;
+  }
+
+  .logo-container {
+    gap: 6px !important;
+  }
+
+  .brand-logo-img {
+    width: 28px !important;
+    height: 28px !important;
   }
 
   .logo-text {

@@ -1,21 +1,28 @@
 {
   "name": "AbKharido - Direct Buy & Earn",
   "short_name": "AbKharido",
-  "description": "Direct Buy & Earn. Shop the latest deals without 3rd party sellers.",
+  "description": "Direct Buy & Earn. Shop verified authentic electronics, fashion, and lifestyle products.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "theme_color": "#2563eb",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/logo.jpg",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/logo.jpg",
-      "sizes": "512x512",
+      "sizes": "1024x1024",
       "type": "image/jpeg"
     }
   ]
