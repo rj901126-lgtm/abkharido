@@ -116,6 +116,8 @@ export default function SellerDashboard({ onNavigate }) {
   const [signupGstin, setSignupGstin] = useState('');
   const [signupPan, setSignupPan] = useState('');
   const [signupEnrolmentId, setSignupEnrolmentId] = useState('');
+  const [signupUdyamNumber, setSignupUdyamNumber] = useState('');
+  const [certifiedTurnover, setCertifiedTurnover] = useState(true);
   const [signupLegalName, setSignupLegalName] = useState('');
   const [signupStreet, setSignupStreet] = useState('');
   const [signupCity, setSignupCity] = useState('');
@@ -385,6 +387,11 @@ export default function SellerDashboard({ onNavigate }) {
       return;
     }
 
+    if (!certifiedTurnover) {
+      setFormError('Please accept the Merchant Terms & Conditions to proceed.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/seller/auth', {
@@ -401,6 +408,7 @@ export default function SellerDashboard({ onNavigate }) {
           gstin: signupSellerType === 'gst' ? signupGstin : '',
           pan: signupSellerType === 'gst' ? signupGstin.slice(2, 12) : signupPan,
           enrolmentId: signupEnrolmentId,
+          udyamNumber: signupUdyamNumber,
           pickupStreet: signupStreet,
           pickupCity: signupCity,
           pickupState: signupState,
@@ -1010,17 +1018,17 @@ export default function SellerDashboard({ onNavigate }) {
 
                   <div>
                     <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '3px' }}>
-                      GST Enrolment ID (Optional)
+                      MSME / Udyam Reg. No. (Optional)
                     </label>
                     <input 
                       type="text" 
-                      placeholder="ENR/27/..."
-                      value={signupEnrolmentId}
-                      onChange={(e) => setSignupEnrolmentId(e.target.value)}
+                      placeholder="UDYAM-XX-00-0000000"
+                      value={signupUdyamNumber}
+                      onChange={(e) => setSignupUdyamNumber(e.target.value.toUpperCase())}
                       style={{ width: '100%', height: '40px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
                     />
                     <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#64748b' }}>
-                      Issued by GST Portal for non-GST sellers
+                      Govt Aadhaar-verified registration
                     </div>
                   </div>
                 </div>
@@ -1099,6 +1107,11 @@ export default function SellerDashboard({ onNavigate }) {
                   onChange={(e) => setSignupUpi(e.target.value)}
                   style={{ width: '100%', height: '34px', padding: '0 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', boxSizing: 'border-box' }}
                 />
+
+                <div style={{ marginTop: '8px', fontSize: '11px', color: '#0369a1', background: '#f0f9ff', padding: '7px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid #bae6fd' }}>
+                  <ShieldCheck size={14} color="#0284c7" />
+                  <span><strong>Bank Name Match:</strong> Under Section 194-O, Account Holder Name must match the PAN Card Name for payouts to be processed.</span>
+                </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#475569' }}>
