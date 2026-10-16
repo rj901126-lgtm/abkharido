@@ -187,6 +187,10 @@ export async function settleVerifiedPayment(id) {
     if (!order.inventoryReserved || order.coinsUsed > 0 && !order.coinsDebited) throw new Error('Legacy reservation requires reconciliation before settlement');
     order.gatewayPaymentVerified = true;
     order.isPaid = true; order.paidAt = new Date();
+    const wasCodConversion = Boolean(order.conversionBonusPending) || /cod|cash on delivery/i.test(order.paymentMethod);
+    if (wasCodConversion) {
+      order.paymentMethod = 'Online Payment (Prepaid)';
+    }
     if (order.status === 'Pending') order.status = 'Placed';
     order.paymentResult = { id: paid.order_id, status: 'SUCCESS', update_time: new Date().toISOString() };
     if (!order.paymentRewardsCredited) {
@@ -197,6 +201,15 @@ export async function settleVerifiedPayment(id) {
       order.paymentRewardsAmount = reward;
       await creditReferral(order, session);
     }
+    if (!order.trackingHistory) order.trackingHistory = [];
+    order.trackingHistory.push({
+      status: order.status,
+      timestamp: new Date(),
+      location: 'Cashfree Escrow Gateway',
+      comment: wasCodConversion
+        ? 'Converted from COD to Prepaid Online Payment (+50 Bonus AB Coins credited)'
+        : `100% Escrow Payment Verified (Ref: ${paid.order_id})`
+    });
     await order.save({ session }); return order;
   });
 }
@@ -434,12 +447,12 @@ export async function startConversion(order) {
   if (order.isPaid || !/cod|cash on delivery/i.test(order.paymentMethod) || ['Cancelled', 'Returned', 'Delivered'].includes(order.status)) throw new Error('Order cannot be converted');
   const config = getCashfreeConfig();
   if (!config.isConfigured) throw new Error('Payment gateway unavailable');
-  const gatewayId = `AK_${order._id}_convert`;
+  const gatewayId = `AK_${order._id}_c${Date.now().toString(36)}`;
   const user = await User.findById(order.user);
   const base = process.env.NEXT_PUBLIC_SITE_URL || process.env.FRONTEND_URL;
   if (!base || !/^https?:\/\//.test(base)) throw new Error('Payment return URL is not configured');
-  const gateway = await createCashfreePgOrder({ orderId: gatewayId, orderAmount: Number(order.totalPrice), customer: { id: String(order.user), phone: user?.phone, email: user?.email, name: user?.firstName }, returnUrl: `${base.replace(/\/$/, '')}/orders?order_id={order_id}`, notifyUrl: `${base.replace(/\/$/, '')}/api/payments/cashfree/webhook` });
-  const updated = await Order.findOneAndUpdate({ _id: order._id, isPaid: false, status: { $nin: ['Cancelled', 'Returned', 'Delivered'] } }, { $set: { cfOrderId: gatewayId, paymentMethod: 'Online Payment (Prepaid)', conversionBonusPending: true } }, { new: true });
+  const gateway = await createCashfreePgOrder({ orderId: gatewayId, orderAmount: Number(order.totalPrice), customer: { id: String(order.user), phone: user?.phone || order.shippingAddress?.phone, email: user?.email, name: user?.firstName || order.shippingAddress?.fullName }, returnUrl: `${base.replace(/\/$/, '')}/checkout/return?order_id={order_id}`, notifyUrl: `${base.replace(/\/$/, '')}/api/payments/cashfree/webhook` });
+  const updated = await Order.findOneAndUpdate({ _id: order._id, isPaid: false, status: { $nin: ['Cancelled', 'Returned', 'Delivered'] } }, { $set: { cfOrderId: gatewayId, conversionBonusPending: true } }, { new: true });
   if (!updated) throw new Error('Order is no longer payable');
   return { success: true, orderId: gatewayId, paymentSessionId: gateway.paymentSessionId, mode: config.env, order: updated };
 }

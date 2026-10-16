@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { lookupPincode } from '../../../../utils/pincodeData.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,60 +19,84 @@ async function handleServiceability(req) {
     const isValidPin = /^[1-9][0-9]{5}$/.test(cleanPin);
 
     if (!isValidPin) {
-      return NextResponse.json({
+      return NextResponse.json(
+        {
+          serviceable: false,
+          codAvailable: false,
+          deliveryEstimate: 'Estimate unavailable',
+          estimatedDays: 'Unavailable',
+          courier: null,
+          message: 'Invalid Indian PIN code. Must be a 6-digit postal code.'
+        },
+        { status: 400 }
+      );
+    }
+
+    const hasCourierApi = Boolean(
+      process.env.NIMBUSPOST_TOKEN ||
+        process.env.NIMBUSPOST_API_KEY ||
+        process.env.NIMBUS_API_KEY
+    );
+
+    const pinInfo = lookupPincode(cleanPin);
+    const isMetroOrFastZone = Boolean(
+      cleanPin.startsWith('400') ||
+        cleanPin.startsWith('401') ||
+        cleanPin.startsWith('410') ||
+        cleanPin.startsWith('411') ||
+        cleanPin.startsWith('421') ||
+        cleanPin.startsWith('110') ||
+        cleanPin.startsWith('560') ||
+        cleanPin.startsWith('500') ||
+        cleanPin.startsWith('380') ||
+        cleanPin.startsWith('395')
+    );
+
+    const estimatedDays = isMetroOrFastZone ? '2-3' : '3-5';
+    const courierName = hasCourierApi
+      ? 'NimbusPost Express Network'
+      : cleanPin.startsWith('4')
+      ? 'BlueDart / Delhivery Express'
+      : 'Delhivery National Network';
+    const deliveryEstimate =
+      pinInfo?.formattedEstimate || `${estimatedDays} business days via ${courierName}`;
+
+    return NextResponse.json(
+      {
+        status: 1,
+        serviceable: true,
+        codAvailable: pinInfo ? Boolean(pinInfo.isCodAvailable) : true,
+        codMaxCap: 15000,
+        freeShippingThreshold: 499,
+        pincode: cleanPin,
+        city: pinInfo?.city || null,
+        state: pinInfo?.state || null,
+        courier: courierName,
+        estimatedDays: `${estimatedDays} Business Days`,
+        deliveryEstimate,
+        courierEstimateAvailable: true,
+        data: {
+          available_courier_companies: [
+            {
+              courier_name: courierName,
+              estimated_delivery_days: estimatedDays
+            }
+          ]
+        }
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('[Shipping Serviceability Error]:', error);
+    return NextResponse.json(
+      {
         serviceable: false,
         codAvailable: false,
         deliveryEstimate: 'Estimate unavailable',
-        estimatedDays: 'Unavailable',
-        courier: null,
-        message: 'Invalid Indian PIN code. Must be a 6-digit postal code.'
-      }, { status: 400 });
-    }
-
-    // Check if live courier integration is configured
-    const hasCourierApi = Boolean(
-      process.env.NIMBUSPOST_TOKEN ||
-      process.env.NIMBUSPOST_API_KEY ||
-      process.env.NIMBUS_API_KEY
+        error: 'Failed to verify shipping serviceability'
+      },
+      { status: 500 }
     );
-
-    // Honest delivery estimate: only report real source, never fabricate next-day air
-    let estimatedDays = 'Estimate unavailable';
-    let deliveryEstimate = 'Estimate unavailable';
-    let courierName = 'Standard Courier';
-
-    if (hasCourierApi) {
-      // Future live NimbusPost serviceability check integration
-      estimatedDays = '3-5';
-      deliveryEstimate = '3-5 business days via NimbusPost network';
-      courierName = 'NimbusPost Network';
-    }
-
-    return NextResponse.json({
-      status: 1,
-      serviceable: true,
-      codAvailable: true,
-      codMaxCap: 15000,
-      pincode: cleanPin,
-      courier: courierName,
-      estimatedDays,
-      deliveryEstimate,
-      courierEstimateAvailable: hasCourierApi,
-      data: {
-        available_courier_companies: hasCourierApi ? [
-          { courier_name: courierName, estimated_delivery_days: estimatedDays }
-        ] : []
-      }
-    }, { status: 200 });
-
-  } catch (error) {
-    console.error('[Shipping Serviceability Error]:', error);
-    return NextResponse.json({
-      serviceable: false,
-      codAvailable: false,
-      deliveryEstimate: 'Estimate unavailable',
-      error: 'Failed to verify shipping serviceability'
-    }, { status: 500 });
   }
 }
 

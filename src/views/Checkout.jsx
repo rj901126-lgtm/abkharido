@@ -141,8 +141,18 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             setShippingServiceability({
               serviceable: true,
               courier: data.courier || 'Standard Courier',
-              estimatedDays: data.estimatedDays || 'Estimate unavailable'
+              estimatedDays: data.estimatedDays || '3-5 Business Days',
+              deliveryEstimate: data.deliveryEstimate || '',
+              city: data.city || '',
+              state: data.state || ''
             });
+            if (data.city || data.state) {
+              setAddress(prev => ({
+                ...prev,
+                city: prev.city || data.city || '',
+                state: prev.state || data.state || ''
+              }));
+            }
           } else {
             setShippingServiceability({
               serviceable: false,
@@ -440,12 +450,46 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           cashfree.checkout({
             paymentSessionId: data.paymentSessionId,
             redirectTarget: "_modal"
-          }).then((result) => {
+          }).then(async (result) => {
             if (result && result.error) {
               console.warn('[Cashfree Checkout Notice]:', result.error);
               showToast(result.error.message || 'Payment window closed or cancelled.', 'warning');
+              isSubmittingRef.current = false;
+              setIsSubmitting(false);
+              return;
             }
             if (result && (result.redirect || result.paymentDetails)) {
+              try {
+                const verifyRes = await fetch('/api/payments/cashfree/verify', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    ...(currentUser?.token ? { 'Authorization': `Bearer ${currentUser.token}` } : {})
+                  },
+                  body: JSON.stringify({ orderId: data.orderId })
+                });
+                const verifyData = await verifyRes.json().catch(() => ({}));
+                if (verifyRes.ok && verifyData.success) {
+                  showToast('Payment Verified Successfully!', 'success');
+                  clearCart();
+                  setCreatedOrder({
+                    ...(verifyData.order || {}),
+                    _id: verifyData.order?._id || data.dbOrderId || data.orderId,
+                    orderId: data.orderId,
+                    totalPrice: verifyData.order?.totalPrice || data.amount || finalAmount,
+                    deliveryPin: verifyData.order?.deliveryPin || data.order?.deliveryPin,
+                    paymentStatus: 'SUCCESS',
+                    status: 'Placed',
+                    shippingAddress: address
+                  });
+                  setStep(4);
+                  triggerConfetti();
+                  setTimeout(() => triggerInvoiceDownload(), 500);
+                  isSubmittingRef.current = false;
+                  setIsSubmitting(false);
+                  return;
+                }
+              } catch (_) {}
               window.location.href = `/checkout/return?order_id=${data.orderId}`;
             }
             isSubmittingRef.current = false;
@@ -830,13 +874,15 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                   <label className="checkout-label">Pincode *</label>
                   <input type="text" value={address.pincode} onChange={(e) => setAddress({...address, pincode: e.target.value})} className="checkout-input" maxLength="6" inputMode="numeric" pattern="[0-9]{6}" placeholder="6-digit pincode" required />
 
-                  {isCheckingShipping && <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Checking shipping serviceability...</div>}
+                  {isCheckingShipping && <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px', fontWeight: '600' }}>Checking courier serviceability...</div>}
                   {shippingServiceability && !isCheckingShipping && (
-                    <div style={{ fontSize: '11px', marginTop: '4px', fontWeight: '600' }}>
+                    <div style={{ fontSize: '11.5px', marginTop: '5px', fontWeight: '700' }}>
                       {shippingServiceability.serviceable ? (
-                        <span style={{ color: '#059669' }}>✓ Deliverable by {shippingServiceability.courier || 'Express Air'} in {shippingServiceability.estimatedDays || '3-4'} days.</span>
+                        <span style={{ color: '#059669' }}>
+                          ✓ Deliverable via {shippingServiceability.courier || 'Express Courier'} ({shippingServiceability.estimatedDays || '3-5 Business Days'})
+                        </span>
                       ) : (
-                        <span style={{ color: '#dc2626' }}>✗ Delivery unavailable for this pin code.</span>
+                        <span style={{ color: '#dc2626' }}>✗ Delivery unavailable for this PIN code.</span>
                       )}
                     </div>
                   )}
