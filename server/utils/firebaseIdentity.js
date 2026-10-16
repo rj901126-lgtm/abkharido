@@ -1,5 +1,6 @@
-import { getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
+// NOTE: firebase-admin is imported lazily inside verifiedFirebasePhone(). A top-level import
+// crashed the whole /api/auth/* module graph on Vercel serverless (HTTP 500 HTML page) whenever
+// the package failed to bundle/initialise. REST verification below is the guaranteed fallback.
 
 const DEFAULT_FIREBASE_API_KEY = 'AIzaSyBelERlA93mJok7ibKf6AMEYTROS4yNFKY';
 
@@ -28,6 +29,10 @@ export async function verifiedFirebasePhone(idToken) {
 
   // 1. Primary: Local cryptographic RS256 verification via firebase-admin/auth (uses Google public x509 certs)
   try {
+    const [{ getApps, initializeApp }, { getAuth }] = await Promise.all([
+      import('firebase-admin/app'),
+      import('firebase-admin/auth')
+    ]);
     if (!getApps().length) {
       initializeApp({ projectId });
     }
