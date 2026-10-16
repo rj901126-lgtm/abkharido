@@ -50,9 +50,16 @@ const productSchema = new mongoose.Schema({
   originalPrice: { type: Number, required: true },
   inStock: { type: Boolean, default: true },
   stock: { type: Number, default: 0 },
+  countInStock: { type: Number, default: 0 },
+  soldCount: { type: Number, default: 0 },
   sku: { type: String, sparse: true },
-  hsnCode: { type: String },
+  hsnCode: { type: String, default: '8517' },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  channel: { type: String, enum: ['1P', '3P'], default: '1P', index: true },
+  sellerShopName: { type: String, default: 'AbKharido Direct' },
+  sellerType: { type: String, enum: ['gst', 'non_gst', 'composition'], default: 'gst' },
+  sellerGstin: { type: String },
+  platformCommissionRate: { type: Number, default: 0.08 },
   
   // Flash Sale Engine
   flashSale: {

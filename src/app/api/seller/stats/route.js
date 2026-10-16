@@ -23,7 +23,8 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
     }
 
-    const sellerUser = await User.findById(seller.id).lean();
+    const sellerDoc = await User.findById(seller.id);
+    const sellerUser = sellerDoc ? (typeof sellerDoc.toObject === 'function' ? sellerDoc.toObject() : { ...sellerDoc }) : null;
     if (!sellerUser) {
       return NextResponse.json({ error: 'Seller account not found' }, { status: 404 });
     }

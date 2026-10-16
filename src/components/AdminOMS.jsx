@@ -772,19 +772,34 @@ const AdminOMS = ({ statusFilter }) => {
 
                     {/* Payment Info */}
                     <td style={{ padding: '16px' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        fontSize: '11.5px',
-                        fontWeight: '700',
-                        background: (order.paymentStatus === 'SUCCESS' || order.isPaid) ? '#ecfdf5' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '#fffbeb' : '#fef2f2',
-                        color: (order.paymentStatus === 'SUCCESS' || order.isPaid) ? '#047857' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '#b45309' : '#dc2626',
-                        border: `1px solid ${(order.paymentStatus === 'SUCCESS' || order.isPaid) ? '#a7f3d0' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '#fde68a' : '#fecaca'}`
-                      }}>
-                        {(order.paymentStatus === 'SUCCESS' || order.isPaid) ? '✓ Paid' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '⏳ COD Unpaid' : 'Unpaid'}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          fontSize: '11.5px',
+                          fontWeight: '700',
+                          background: isCancelled
+                            ? ((order.financialRefundClaimed || order.refundDetails?.refundStatus === 'Credited') ? '#ecfdf5' : '#f1f5f9')
+                            : (order.paymentStatus === 'SUCCESS' || order.isPaid) ? '#ecfdf5' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '#fffbeb' : '#fef2f2',
+                          color: isCancelled
+                            ? ((order.financialRefundClaimed || order.refundDetails?.refundStatus === 'Credited') ? '#047857' : '#475569')
+                            : (order.paymentStatus === 'SUCCESS' || order.isPaid) ? '#047857' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '#b45309' : '#dc2626',
+                          border: `1px solid ${isCancelled
+                            ? ((order.financialRefundClaimed || order.refundDetails?.refundStatus === 'Credited') ? '#a7f3d0' : '#cbd5e1')
+                            : (order.paymentStatus === 'SUCCESS' || order.isPaid) ? '#a7f3d0' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '#fde68a' : '#fecaca'}`
+                        }}>
+                          {isCancelled
+                            ? ((order.financialRefundClaimed || order.refundDetails?.refundStatus === 'Credited') ? '💰 Refund Credited' : '🚫 COD Voided (₹0)')
+                            : (order.paymentStatus === 'SUCCESS' || order.isPaid) ? '✓ Paid' : (order.paymentMethod === 'Cash on Delivery' && !order.isPaid) ? '⏳ COD Unpaid' : 'Unpaid'}
+                        </span>
+                        {order.refundDetails?.refundArn && (
+                          <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#047857', fontWeight: '700' }}>
+                            {order.refundDetails.refundArn}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Return Status */}
@@ -876,6 +891,17 @@ const AdminOMS = ({ statusFilter }) => {
                             title="Assign Courier & Dispatch"
                           >
                             <Truck size={13} /> Dispatch
+                          </button>
+                        )}
+
+                        {/* 1-Click Mark Delivered & Settle Seller Escrow Button (for Shipped orders) */}
+                        {(isShipped && !isDelivered && !isCancelled) && (
+                          <button
+                            onClick={() => handleVerifyCOD(order)}
+                            style={{ padding: '6px 11px', display: 'inline-flex', gap: '5px', alignItems: 'center', fontSize: '11.5px', borderRadius: '8px', color: '#ffffff', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', border: 'none', fontWeight: '800', cursor: 'pointer', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)' }}
+                            title="Verify Delivery & Settle Seller Escrow"
+                          >
+                            <CheckCircle size={13} /> Deliver
                           </button>
                         )}
 

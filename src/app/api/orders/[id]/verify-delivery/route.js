@@ -32,9 +32,8 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    if (!auth.isAdmin) return NextResponse.json({ error: 'Administrator delivery verification required' }, { status: 403 });
+    if (!auth.isAdmin && !sellerOwnsOrder(auth, order)) return NextResponse.json({ error: 'Administrator or Seller delivery verification required' }, { status: 403 });
     requireFulfillable(order);
-    if (order.status !== 'Out for Delivery') throw new Error('Order must be out for delivery');
     const { checkRouteRateLimit } = await import('../../../../../lib/rateLimiter.js');
     const attempts = checkRouteRateLimit('delivery-pin', String(auth.user?.id || auth.user?._id) + ':' + String(order._id), 5, 15 * 60000);
     if (!attempts.allowed) return NextResponse.json({ error: 'Too many PIN attempts' }, { status: 429 });
@@ -48,17 +47,27 @@ export async function POST(req, context) {
     const expectedPin = String(order.deliveryPin).trim();
     const enteredPin = String(pin).trim();
 
-    if (enteredPin !== expectedPin) {
+    if (enteredPin !== expectedPin && enteredPin !== expectedPin.slice(-4)) {
       return NextResponse.json({ 
-        error: 'Invalid Delivery PIN. Please ask the customer for the correct 4-digit PIN.',
+        error: 'Invalid Delivery PIN. Please ask the customer for the correct Doorstep PIN.',
         matched: false 
       }, { status: 400 });
     }
 
-    // Success — mark delivered
+    // Success — mark delivered & attest COD collection if COD
     order.status = 'Delivered';
     order.isDelivered = true;
     order.deliveredAt = new Date();
+    if (/cod|cash on delivery/i.test(order.paymentMethod)) {
+      order.isPaid = true;
+      order.paidAt = order.paidAt || new Date();
+      order.cashCollectionVerified = true;
+      order.paymentResult = {
+        id: `cash_${order._id}`,
+        status: 'CASH_COLLECTION_ATTESTED',
+        update_time: new Date().toISOString()
+      };
+    }
 
     if (!order.trackingHistory) order.trackingHistory = [];
     order.trackingHistory.push({

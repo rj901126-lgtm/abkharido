@@ -11,6 +11,19 @@ export async function POST(req, context) {
     const order = await findOrder((await context.params).id);
     if (!order || !auth.isAdmin && !ownsOrder(auth, order)) return NextResponse.json({ error: 'Order unavailable' }, { status: 403 });
     const body = await req.json().catch(() => ({}));
-    return NextResponse.json({ success: true, order: await cancelAndRefund(order._id, { userId: ownerId(auth), admin: auth.isAdmin, reason: String(body.reason || body.cancellationReason || 'Cancelled by customer').slice(0, 1000) }) });
-  } catch { return NextResponse.json({ error: 'Unable to cancel this order' }, { status: 400 }); }
+    const cancelledOrder = await cancelAndRefund(order._id, {
+      userId: ownerId(auth),
+      admin: auth.isAdmin,
+      reason: String(body.reason || body.cancellationReason || (auth.isAdmin ? 'Cancelled by Store Administrator' : 'Cancelled by customer')).slice(0, 1000)
+    });
+    return NextResponse.json({
+      success: true,
+      message: cancelledOrder.financialRefundClaimed
+        ? `Order cancelled & ₹${cancelledOrder.totalPrice} refunded (${cancelledOrder.refundDetails?.refundArn})`
+        : 'Order cancelled & stock restored',
+      order: cancelledOrder
+    });
+  } catch (err) {
+    return NextResponse.json({ error: err.message || 'Unable to cancel this order' }, { status: 400 });
+  }
 }

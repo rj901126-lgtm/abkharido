@@ -667,12 +667,25 @@ const Orders = ({ onNavigate }) => {
                   {firstItemName}
                 </div>
 
-                <div className="ak-item-meta" style={{ marginTop: '4px' }}>
+                <div className="ak-item-meta" style={{ marginTop: '4px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
                   <span className="ak-item-price">
                     ₹{orderPrice.toLocaleString('en-IN')}
                   </span>
                   <span>• Qty: {orderQty}</span>
                   <span>• {order.paymentMethod || 'Online'}</span>
+                  <span style={{
+                    background: (firstItem.vendorId || firstItem.sellerId) && firstItem.sellerShopName !== 'AbKharido Direct' ? '#f5f3ff' : '#eff6ff',
+                    color: (firstItem.vendorId || firstItem.sellerId) && firstItem.sellerShopName !== 'AbKharido Direct' ? '#6d28d9' : '#1d4ed8',
+                    border: `1px solid ${(firstItem.vendorId || firstItem.sellerId) && firstItem.sellerShopName !== 'AbKharido Direct' ? '#ddd6fe' : '#bfdbfe'}`,
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    fontSize: '10px',
+                    fontWeight: '800'
+                  }}>
+                    {(firstItem.vendorId || firstItem.sellerId) && firstItem.sellerShopName !== 'AbKharido Direct'
+                      ? `🏪 ${firstItem.sellerShopName || 'Verified Seller'}`
+                      : '🏢 AbKharido Direct (1P)'}
+                  </span>
                 </div>
 
 
@@ -680,7 +693,9 @@ const Orders = ({ onNavigate }) => {
                   {isDelivered 
                     ? 'Delivered safely at your doorstep' 
                     : isCancelled 
-                    ? 'Order cancelled • 100% Refund processed' 
+                    ? (order.isPaid || order.financialRefundClaimed || order.refundDetails?.amount > 0
+                        ? `Order cancelled • ₹${(order.refundDetails?.amount || orderPrice).toLocaleString('en-IN')} Refund Credited`
+                        : 'Order cancelled • COD Liability ₹0 (Voided)')
                     : (() => {
                         const orderDate = new Date(order.createdAt || Date.now());
                         const estDate = new Date(orderDate.getTime() + 3 * 24 * 60 * 60 * 1000);
@@ -901,8 +916,47 @@ const Orders = ({ onNavigate }) => {
                         </div>
                       </div>
                     ) : (
-                      <div style={{ fontSize: '11.5px', color: '#991b1b', lineHeight: 1.4 }}>
-                        🛑 Cancelled. Any pre-captured payment has been auto-refunded to your bank.
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {/* 3-Step Cancellation & Refund Tracker */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', textAlign: 'center' }}>
+                          {[
+                            { label: 'Cancelled', done: true },
+                            { label: 'Inventory & Coins Restored', done: true },
+                            { label: (order.isPaid || order.financialRefundClaimed || order.refundDetails?.amount > 0) ? 'Refund Credited' : 'COD Liability Voided', done: true }
+                          ].map((st, idx) => (
+                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div style={{
+                                width: '24px', height: '24px', borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px',
+                                background: idx === 2 ? '#059669' : '#dc2626',
+                                color: '#ffffff', fontWeight: '800'
+                              }}>
+                                ✓
+                              </div>
+                              <span style={{ fontSize: '9.5px', fontWeight: '700', color: '#334155', marginTop: '4px' }}>
+                                {st.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '8px 10px', fontSize: '11px', color: '#991b1b' }}>
+                          <div><strong>Reason:</strong> {order.cancellationReason || 'Cancelled by customer / system'}</div>
+                          {(order.isPaid || order.financialRefundClaimed || order.refundDetails?.amount > 0) ? (
+                            <div style={{ marginTop: '4px', color: '#065f46', background: '#ecfdf5', padding: '6px 8px', borderRadius: '6px', border: '1px solid #a7f3d0', fontWeight: '700' }}>
+                              ✅ ₹{(order.refundDetails?.amount || orderPrice).toLocaleString('en-IN')} Refund Credited to Wallet
+                              {order.refundDetails?.refundArn && (
+                                <span style={{ display: 'block', fontSize: '10px', fontFamily: 'monospace', color: '#047857', marginTop: '2px' }}>
+                                  Ref ARN: {order.refundDetails.refundArn}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <div style={{ marginTop: '4px', color: '#475569', fontWeight: '600' }}>
+                              ✓ Cash on Delivery order voided — ₹0 payable.{order.coinsUsed > 0 ? ` (${order.coinsUsed} Wallet Coins restored)` : ''}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>

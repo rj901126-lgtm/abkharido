@@ -34,18 +34,57 @@ async function handleUpdateStatus(req, context) {
 
     if (!auth.isAdmin && !sellerOwnsOrder(auth, order)) return NextResponse.json({ error: 'Order unavailable' }, { status: 403 });
     if (!auth.isAdmin && status === 'Delivered') return NextResponse.json({ error: 'Administrator delivery verification required' }, { status: 403 });
+
+    // Allow Admin to attest COD cash collection even if order is already Delivered
+    const isCodOrder = /cod|cash on delivery/i.test(order.paymentMethod);
+    if (auth.isAdmin && (body.isPaid === true || body.paymentStatus === 'SUCCESS') && isCodOrder) {
+      order.isPaid = true;
+      order.paidAt = order.paidAt || new Date();
+      order.cashCollectionVerified = true;
+      order.paymentResult = {
+        id: `cash_${order._id}`,
+        status: 'CASH_COLLECTION_ATTESTED',
+        update_time: new Date().toISOString()
+      };
+      if (order.status === 'Delivered' && (!status || status === 'Delivered')) {
+        if (!order.trackingHistory) order.trackingHistory = [];
+        order.trackingHistory.push({
+          status: 'Cash Collected',
+          timestamp: new Date(),
+          location: order.shippingAddress?.city || 'Customer Doorstep',
+          comment: 'COD cash collection verified & attested by Administrator'
+        });
+        await order.save();
+        await creditDeliveredReferral(order._id);
+        return NextResponse.json({
+          success: true,
+          message: 'COD cash collection verified and settled!',
+          order
+        });
+      }
+    }
+
     requireFulfillable(order);
     if (courierPartner) order.courierPartner = courierPartner;
     if (awbNumber) order.awbNumber = awbNumber;
     if (trackingUrl) order.trackingUrl = trackingUrl;
 
-    if (status && !['Processing', 'Packed', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered'].includes(status)) throw new Error('Use the dedicated financial operation for this status');
+    if (status && !['Placed', 'Processing', 'Packed', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered'].includes(status)) throw new Error('Use the dedicated financial operation for this status');
     if (status) {
       order.status = status;
       if (status === 'Delivered') {
-
         order.isDelivered = true;
         order.deliveredAt = new Date();
+        if (isCodOrder && auth.isAdmin) {
+          order.isPaid = true;
+          order.paidAt = order.paidAt || new Date();
+          order.cashCollectionVerified = true;
+          order.paymentResult = {
+            id: `cash_${order._id}`,
+            status: 'CASH_COLLECTION_ATTESTED',
+            update_time: new Date().toISOString()
+          };
+        }
       }
       if (status === 'Cancelled' && cancellationReason) {
         order.cancellationReason = cancellationReason;

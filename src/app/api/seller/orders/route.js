@@ -22,11 +22,12 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Unauthorized merchant access' }, { status: 401 });
     }
 
-    const sellerUser = await User.findById(seller.id).lean();
+    const sellerDoc = await User.findById(seller.id);
+    const sellerUser = sellerDoc ? sellerDoc.toObject() : null;
     const isGstSeller = sellerUser?.sellerType === 'gst' || Boolean(sellerUser?.gstin);
 
-    // Fetch real orders for this authenticated seller
-    const orders = await Order.find({
+    // Fetch real orders for this authenticated seller (without .lean() so shippingAddress is decrypted)
+    const orderDocs = await Order.find({
       $or: [
         { 'orderItems.vendorId': seller.id },
         { 'items.vendorId': seller.id },
@@ -34,12 +35,12 @@ export async function GET(req) {
       ]
     })
       .sort({ createdAt: -1 })
-      .limit(100)
-      .lean();
+      .limit(100);
 
-    const formattedOrders = orders.map(o => {
+    const formattedOrders = orderDocs.map(doc => {
+      const o = typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
       const allItems = o.orderItems || o.items || [];
-      const sellerItems = allItems.filter(i => String(i.vendorId) === String(seller.id) || o.vendorId === seller.id);
+      const sellerItems = allItems.filter(i => String(i.vendorId) === String(seller.id) || String(o.vendorId) === String(seller.id));
 
       const itemsSubtotal = sellerItems.reduce((acc, i) => acc + (Number(i.price) || 0) * (Number(i.qty || i.quantity) || 1), 0);
       const commissionRate = sellerUser?.commissionRate || 0.08;
@@ -50,13 +51,25 @@ export async function GET(req) {
       const tcsAmount = isGstSeller ? Math.round(itemsSubtotal * 0.01) : 0; // 0% TCS for Non-GST composition sellers
       const netPayable = Math.max(0, itemsSubtotal - platformFee - gstOnPlatformFee - gatewayFee - tdsAmount - tcsAmount);
 
+      // DPDP Act 2023 Privacy Protection: Mask customer phone/email once order is Delivered, Cancelled, or Returned
+      const rawAddr = o.shippingAddress || {};
+      const isClosedOrder = ['Delivered', 'Cancelled', 'Returned'].includes(o.status);
+      const rawPhone = String(rawAddr.phone || '').replace(/\D/g, '').slice(-10);
+      const safePhone = isClosedOrder && rawPhone.length >= 4
+        ? `+91 ******${rawPhone.slice(-4)}`
+        : (rawAddr.phone || '');
+
       return {
         _id: o._id,
         orderId: o.cfOrderId || String(o._id),
         cfOrderId: o.cfOrderId,
         createdAt: o.createdAt,
         status: o.status,
-        shippingAddress: o.shippingAddress,
+        shippingAddress: {
+          ...rawAddr,
+          phone: safePhone,
+          email: isClosedOrder ? undefined : rawAddr.email
+        },
         paymentMethod: o.paymentMethod,
         isPaid: o.isPaid,
         isDelivered: o.isDelivered,

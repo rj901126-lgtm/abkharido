@@ -47,36 +47,54 @@ export async function POST(req) {
 
     await connectDB();
     const body = await req.json().catch(() => ({}));
-    const { name, category, price, originalPrice, image, description, specs, inStock = true, countInStock = 50 } = body;
+    const { name, category, price, originalPrice, image, description, specs, hsnCode = '8517', gstRate = 18, stock, countInStock = 50 } = body;
 
     if (!name || !price) {
       return NextResponse.json({ error: 'Product name and price are required' }, { status: 400 });
     }
 
+    const finalStock = Math.max(0, Math.floor(Number(stock ?? countInStock ?? 50)));
+    const finalPrice = Math.floor(Number(price));
+    const finalOriginalPrice = Math.floor(Number(originalPrice || price));
+    const finalImage = image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80';
+    const finalDesc = (description && description.trim().length >= 10)
+      ? description.trim()
+      : `Premium ${name.trim()} offered with manufacturer warranty and fast dispatch.`;
+
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + `-${Date.now().toString().slice(-4)}`;
 
-    const newProduct = new Product({
+    const validation = validateProductData({
       id: slug,
       name: name.trim(),
       category: category || 'electronics',
-      price: Number(price),
-      originalPrice: Number(originalPrice || price),
-      image: image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
-      description: description || `Premium ${name} offered with manufacturer warranty and fast dispatch.`,
+      price: finalPrice,
+      originalPrice: finalOriginalPrice,
+      stock: finalStock,
+      image: finalImage,
+      description: finalDesc,
       specs: specs || [],
-      status: 'draft',
-      stock: Number(countInStock),
-      inStock: Number(countInStock) > 0,
-      countInStock: Number(countInStock),
+      hsnCode: String(hsnCode || '8517'),
+      gstRate: Number(gstRate ?? 18),
+      status: 'draft'
+    }, seller, false);
+    if (!validation.isValid) return NextResponse.json({ error: validation.errors?.[0] || 'Invalid product', errors: validation.errors }, { status: 400 });
+
+    const isGstSeller = seller.sellerType === 'gst' || Boolean(seller.gstin);
+    const newProduct = new Product({
+      ...validation.sanitizedProduct,
+      status: 'published',
+      channel: '3P',
+      countInStock: finalStock,
       rating: 0,
       reviewsCount: 0,
-      vendorId: seller ? seller.id : null,
-      sellerShopName: seller ? (seller.shopName || 'Verified Merchant') : 'Verified Merchant'
+      vendorId: seller.id,
+      sellerId: String(seller.id),
+      sellerShopName: seller.shopName || 'Verified Merchant',
+      sellerType: isGstSeller ? 'gst' : 'non_gst',
+      sellerGstin: seller.gstin || '',
+      gstRate: isGstSeller ? Number(gstRate ?? 18) : 0
     });
 
-    const validation = validateProductData({ id: slug, name, category: category || 'electronics', price: Number(price), originalPrice: Number(originalPrice || price), stock: Number(countInStock), image, description, specs, status: 'draft' }, seller, false);
-    if (!validation.isValid) return NextResponse.json({ error: 'Invalid product', errors: validation.errors }, { status: 400 });
-    Object.assign(newProduct, validation.sanitizedProduct);
     await newProduct.save();
 
     return NextResponse.json({

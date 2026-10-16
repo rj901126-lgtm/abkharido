@@ -35,28 +35,15 @@ export async function GET(req) {
       }
     }
 
-    if (search && search.trim() && auth.isAdmin) {
-      const s = search.trim();
-      const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.$or = [
-        { cfOrderId: { $regex: escaped, $options: 'i' } },
-        { 'orderItems.name': { $regex: escaped, $options: 'i' } },
-        { 'shippingAddress.fullName': { $regex: escaped, $options: 'i' } },
-        { 'shippingAddress.phone': { $regex: escaped, $options: 'i' } },
-        { 'returnDetails.rmaNumber': { $regex: escaped, $options: 'i' } },
-        { deliveryPin: { $regex: escaped, $options: 'i' } }
-      ];
-    }
-
-    const orders = await Order.find(query)
+    // Do NOT use .lean() here so mongoose-field-encryption post('init') hook decrypts shippingAddress & paymentResult
+    const docs = await Order.find(query)
       .populate('user', 'fullName username email phone')
       .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean();
+      .limit(limit);
 
-    // Strip internal encryption fields (__enc_*) from serialized JSON
-    const cleanOrders = (orders || []).map(ord => {
-      const clean = { ...ord };
+    // Convert decrypted documents to plain objects and strip internal encryption metadata (__enc_*)
+    let cleanOrders = (docs || []).map(doc => {
+      const clean = typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
       Object.keys(clean).forEach(k => {
         if (k.startsWith('__enc_')) {
           delete clean[k];
@@ -64,6 +51,19 @@ export async function GET(req) {
       });
       return clean;
     });
+
+    if (search && search.trim() && auth.isAdmin) {
+      const q = search.trim().toLowerCase();
+      cleanOrders = cleanOrders.filter(ord => {
+        const idMatch = String(ord._id || '').toLowerCase().includes(q) || String(ord.cfOrderId || '').toLowerCase().includes(q);
+        const itemMatch = (ord.orderItems || []).some(i => String(i.name || '').toLowerCase().includes(q));
+        const nameMatch = String(ord.shippingAddress?.fullName || ord.user?.fullName || '').toLowerCase().includes(q);
+        const phoneMatch = String(ord.shippingAddress?.phone || ord.user?.phone || '').toLowerCase().includes(q);
+        const rmaMatch = String(ord.returnDetails?.rmaNumber || '').toLowerCase().includes(q);
+        const pinMatch = String(ord.deliveryPin || '').toLowerCase().includes(q);
+        return idMatch || itemMatch || nameMatch || phoneMatch || rmaMatch || pinMatch;
+      });
+    }
 
     return NextResponse.json(cleanOrders);
   } catch (error) {

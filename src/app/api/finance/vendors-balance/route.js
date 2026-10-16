@@ -22,23 +22,25 @@ export async function GET(req) {
 
     await connectDB();
 
-    // Query all sellers (registered as seller, approved, or flagged)
-    const sellers = await User.find({
+    // Query all sellers without .lean() so payoutDetails encryption hook runs
+    const sellerDocs = await User.find({
       $or: [
         { role: 'seller' },
         { isSeller: true },
         { sellerStatus: 'Approved' }
       ]
-    }).select('-password').lean();
+    }).select('-password');
 
-    // Fetch settlements for all these sellers
+    const sellers = (sellerDocs || []).map(d => typeof d.toObject === 'function' ? d.toObject() : { ...d });
+
+    // Fetch settlements and in-transit orders for all these sellers
     const sellerIds = sellers.map(s => s._id);
     const [allSettlements, activeOrders] = await Promise.all([
       Settlement.find({ vendorId: { $in: sellerIds } }).lean(),
       Order.find({
-        status: { $in: ['Confirmed', 'Processing', 'Shipped', 'Out for Delivery'] },
-        paymentStatus: 'Completed'
-      }).select('items status totalPrice orderNumber').lean()
+        status: { $in: ['Placed', 'Pending', 'Processing', 'Packed', 'Shipped', 'In Transit', 'Out for Delivery'] },
+        'orderItems.vendorId': { $in: sellerIds }
+      }).select('orderItems status totalPrice isPaid paymentMethod').lean()
     ]);
 
     const formatted = sellers.map(s => {
@@ -52,12 +54,12 @@ export async function GET(req) {
 
       const clearedBalance = Math.max(Number(s.walletCash) || 0, 0);
 
-      // Calculate in-escrow quarantine (orders delivered vs in-transit)
+      // Calculate in-escrow quarantine (orders placed/shipped/in-transit not yet delivered)
       let inEscrowQuarantine = 0;
       activeOrders.forEach(order => {
-        (order.items || []).forEach(item => {
-          if (String(item.sellerId) === sellerIdStr) {
-            inEscrowQuarantine += (item.price || 0) * (item.quantity || 1);
+        (order.orderItems || []).forEach(item => {
+          if (String(item.vendorId) === sellerIdStr) {
+            inEscrowQuarantine += (Number(item.price) || 0) * (Number(item.qty || item.quantity) || 1);
           }
         });
       });

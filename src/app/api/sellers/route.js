@@ -13,9 +13,21 @@ export async function GET(req) {
     }
 
     await connectDB();
-    const sellers = await User.find({ role: 'seller' })
+    const sellerDocs = await User.find({ role: 'seller' })
       .select('-password')
-      .lean();
+      .sort({ createdAt: -1 });
+
+    const sellers = (sellerDocs || []).map(doc => {
+      const s = typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
+      Object.keys(s).forEach(k => {
+        if (k.startsWith('__enc_')) delete s[k];
+      });
+      return {
+        ...s,
+        sellerGstin: s.gstin || s.sellerGstin || '',
+        sellerState: s.pickupAddress?.state || s.state || s.sellerState || 'Maharashtra'
+      };
+    });
 
     return NextResponse.json(sellers);
   } catch (error) {

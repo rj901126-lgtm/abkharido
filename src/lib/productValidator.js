@@ -240,8 +240,13 @@ export function toPublicProductDTO(product) {
       }))
     })),
     hasProCare: Boolean(product.hasProCare),
-    sellerShopName: product.sellerShopName || product.sellerName || 'AbKharido Verified Store',
-    sellerId: product.sellerId || '',
+    channel: (product.channel === '3P' || Boolean(product.vendorId || product.sellerId)) ? '3P' : '1P',
+    sellerShopName: (product.channel === '3P' || Boolean(product.vendorId || product.sellerId))
+      ? (product.sellerShopName && product.sellerShopName !== 'AbKharido Direct' ? product.sellerShopName : (product.sellerName || 'Verified Marketplace Partner'))
+      : 'AbKharido Direct',
+    vendorId: product.vendorId ? String(product.vendorId) : '',
+    sellerId: product.sellerId ? String(product.sellerId) : (product.vendorId ? String(product.vendorId) : ''),
+    sellerType: product.sellerType || 'gst',
     status: product.status || 'published',
     flashSale: product.flashSale?.isActive ? {
       isActive: true,
