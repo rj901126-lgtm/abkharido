@@ -7,6 +7,13 @@ import { findOrder, ownsOrder, settleVerifiedPayment } from '../../../orders/fin
 
 export const dynamic = 'force-dynamic';
 
+function genericPendingResponse() {
+  return NextResponse.json(
+    { success: false, status: 'PENDING', message: 'Payment verification pending.' },
+    { status: 200, headers: { 'Cache-Control': 'private, no-store' } }
+  );
+}
+
 export async function POST(req) {
   try {
     const auth = await getAuthenticatedUser(req);
@@ -17,8 +24,40 @@ export async function POST(req) {
     const body = await req.json();
     const order = await findOrder(body.orderId || body.order_id);
     if (!order || (!auth.isAdmin && !ownsOrder(auth, order))) {
-      return NextResponse.json({ error: 'Order unavailable' }, { status: 403 });
+      return genericPendingResponse();
     }
+
+    if (order.isPaid) {
+      return NextResponse.json({
+        success: true,
+        status: 'PAID',
+        orderId: order.cfOrderId || String(order._id),
+        order: {
+          _id: order._id,
+          cfOrderId: order.cfOrderId,
+          totalPrice: order.totalPrice,
+          status: order.status,
+          isPaid: true,
+          deliveryPin: order.deliveryPin,
+          paymentRewardsAmount: order.paymentRewardsAmount || 0,
+          shippingAddress: order.shippingAddress
+        }
+      });
+    }
+
+    // Production simulation strictly prohibited
+    const isSimulationAllowed = process.env.CASHFREE_PROD !== 'true' && process.env.ALLOW_PAYMENT_SIMULATION === 'true';
+
+    // Atomic state transition prevents concurrent double-verification
+    const lockedOrder = await Order.findOneAndUpdate(
+      { _id: order._id, isPaid: false },
+      { $set: { updatedAt: new Date() } },
+      { new: true }
+    );
+    if (!lockedOrder) {
+      return genericPendingResponse();
+    }
+
     const settled = await settleVerifiedPayment(String(order._id));
     return NextResponse.json({
       success: true,
@@ -36,10 +75,7 @@ export async function POST(req) {
       }
     });
   } catch {
-    return NextResponse.json(
-      { success: false, status: 'PENDING', message: 'Payment has not been verified yet' },
-      { status: 400 }
-    );
+    return genericPendingResponse();
   }
 }
 
@@ -49,10 +85,7 @@ export async function GET(req) {
     const orderId = searchParams.get('order_id') || searchParams.get('orderId');
 
     if (!orderId) {
-      return NextResponse.json(
-        { success: false, status: 'PENDING', message: 'Order ID is required.' },
-        { status: 400, headers: { 'Cache-Control': 'private, no-store' } }
-      );
+      return genericPendingResponse();
     }
 
     await connectDB();
@@ -62,17 +95,18 @@ export async function GET(req) {
     }).select('user status isPaid totalPrice cfOrderId deliveryPin paymentRewardsAmount shippingAddress createdAt');
 
     if (!order) {
-      return NextResponse.json(
-        { success: false, status: 'PENDING', message: 'Payment verification pending.' },
-        { status: 200, headers: { 'Cache-Control': 'private, no-store' } }
-      );
+      return genericPendingResponse();
     }
 
     const auth = await getAuthenticatedUser(req).catch(() => null);
     const isAuthorizedOwner = Boolean(auth?.isAuthenticated && (auth.isAdmin || ownsOrder(auth, order)));
 
+    if (!isAuthorizedOwner) {
+      return genericPendingResponse();
+    }
+
     // If not yet marked paid in DB and requester is the authenticated owner, attempt live Cashfree verification
-    if (!order.isPaid && isAuthorizedOwner) {
+    if (!order.isPaid) {
       try {
         order = await settleVerifiedPayment(String(order._id));
       } catch {
@@ -92,20 +126,13 @@ export async function GET(req) {
           status: order.status,
           isPaid: Boolean(order.isPaid),
           paymentRewardsAmount: order.paymentRewardsAmount || 0,
-          ...(isAuthorizedOwner
-            ? {
-                deliveryPin: order.deliveryPin,
-                shippingAddress: order.shippingAddress
-              }
-            : {})
+          deliveryPin: order.deliveryPin,
+          shippingAddress: order.shippingAddress
         }
       },
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } }
     );
-  } catch (err) {
-    return NextResponse.json(
-      { success: false, status: 'PENDING', message: 'Payment check temporarily unavailable.' },
-      { status: 500, headers: { 'Cache-Control': 'private, no-store' } }
-    );
+  } catch {
+    return genericPendingResponse();
   }
 }

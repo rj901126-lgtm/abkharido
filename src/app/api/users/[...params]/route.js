@@ -31,7 +31,18 @@ export async function GET(req, { params }) {
     }
     const user = await resolveUser(route[0], auth);
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    return NextResponse.json(profile(user, auth.isAdmin || String(user._id) === String(auth.user.id)), { headers: privateHeaders });
+    const isOwnerOrAdmin = auth.isAdmin || String(user._id) === String(auth.user.id);
+    const userObj = user?.toObject ? user.toObject() : user;
+    if (!isOwnerOrAdmin) {
+      return NextResponse.json({
+        _id: userObj._id,
+        username: userObj.username,
+        fullName: userObj.fullName,
+        avatar: userObj.avatar,
+        role: userObj.role
+      }, { headers: privateHeaders });
+    }
+    return NextResponse.json(profile(user, true), { headers: privateHeaders });
   } catch { return NextResponse.json({ error: 'Failed to retrieve profile' }, { status: 500 }); }
 }
 export async function POST(req, { params }) {

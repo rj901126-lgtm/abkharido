@@ -61,7 +61,7 @@ const Footer = ({ onNavigate }) => {
               fontWeight: '500'
             }}
           >
-            India’s trusted direct-to-consumer &amp; verified marketplace with 100% escrow protection and AB Coins rewards.
+            India’s trusted direct-to-consumer &amp; verified marketplace with 100% escrow protection, standard 2-5 days delivery across India, and AB Coins rewards.
           </p>
           <div
             style={{

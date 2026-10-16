@@ -244,8 +244,6 @@ export function toPublicProductDTO(product) {
     sellerShopName: (product.channel === '3P' || Boolean(product.vendorId || product.sellerId))
       ? (product.sellerShopName && product.sellerShopName !== 'AbKharido Direct' ? product.sellerShopName : (product.sellerName || 'Verified Marketplace Partner'))
       : 'AbKharido Direct',
-    vendorId: product.vendorId ? String(product.vendorId) : '',
-    sellerId: product.sellerId ? String(product.sellerId) : (product.vendorId ? String(product.vendorId) : ''),
     sellerType: product.sellerType || 'gst',
     status: product.status || 'published',
     flashSale: product.flashSale?.isActive ? {
