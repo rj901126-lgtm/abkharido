@@ -117,6 +117,30 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   // Delivery Pincode Modal State
   const [isPincodeModalOpen, setIsPincodeModalOpen] = useState(false);
 
+  // Measure real header height (varies with safe-area, font scaling, device) and expose as CSS variable
+  const headerRef = useRef(null);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof window === 'undefined') return;
+    const applyHeight = () => {
+      const h = Math.round(el.getBoundingClientRect().height);
+      if (h > 0) document.documentElement.style.setProperty('--navbar-h', `${h}px`);
+    };
+    applyHeight();
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(applyHeight);
+      ro.observe(el);
+    }
+    window.addEventListener('resize', applyHeight);
+    window.addEventListener('orientationchange', applyHeight);
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', applyHeight);
+      window.removeEventListener('orientationchange', applyHeight);
+    };
+  }, []);
+
   // Close dropdown on outside click or escape key
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -261,7 +285,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
 
   return (
     <>
-      <header className="navbar-header" role="banner" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
+      <header ref={headerRef} className="navbar-header" role="banner" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
 
 
         <nav className="navbar-container" aria-label="Main Navigation">
