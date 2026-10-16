@@ -45,11 +45,14 @@ const Footer = ({ onNavigate }) => {
                 marginBottom: '8px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '2px'
+                gap: '8px'
               }}
             >
-              <span>AbKharido</span>
-              <span style={{ color: '#38bdf8', fontSize: '16px' }}>.com</span>
+              <img src="/logo.png" alt="AbKharido" width="28" height="28" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+              <div>
+                <span style={{ color: '#60a5fa' }}>Ab</span><span style={{ color: '#fb923c' }}>Kharido</span>
+                <span style={{ color: '#38bdf8', fontSize: '16px' }}>.com</span>
+              </div>
             </div>
           </Link>
           <p

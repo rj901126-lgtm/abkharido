@@ -302,7 +302,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
               />
               <div className="logo-text-wrapper">
                 <span className="logo-text">
-                  AbKharido<span className="logo-plus">.com</span>
+                  <span className="logo-brand-ab">Ab</span><span className="logo-brand-kharido">Kharido</span><span className="logo-plus">.com</span>
                 </span>
                 <span className="logo-sub">
                   Direct Buy <span style={{ color: 'var(--brand-accent)', fontWeight: 'bold' }}>& Earn</span>

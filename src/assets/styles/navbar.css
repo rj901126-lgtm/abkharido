@@ -64,9 +64,18 @@
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #0f172a 0%, var(--brand-accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.logo-brand-ab {
+  color: #014dee;
+  -webkit-text-fill-color: #014dee;
+}
+
+.logo-brand-kharido {
+  color: #fd7400;
+  -webkit-text-fill-color: #fd7400;
 }
 
 .logo-sub {
@@ -356,9 +365,10 @@
     font-size: 19px !important;
     font-weight: 900 !important;
     letter-spacing: -0.5px !important;
-    background: linear-gradient(135deg, #0f172a 0%, var(--brand-accent) 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
+    display: inline-flex !important;
+    align-items: baseline !important;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
     flex-shrink: 0 !important;
   }
 
