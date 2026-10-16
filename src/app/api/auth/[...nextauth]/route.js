@@ -198,22 +198,32 @@ export const authOptions = {
 const handler = NextAuth(authOptions);
 
 async function guardedHandler(req, context) {
-  if (req && !req.nextUrl && req.url) {
-    try {
-      req.nextUrl = new URL(req.url, process.env.NEXTAUTH_URL || 'https://www.abkharido.com');
-    } catch (_) {}
+  const rawUrl = req?.url || 'https://www.abkharido.com/api/auth';
+  let urlObj;
+  try {
+    urlObj = new URL(rawUrl, process.env.NEXTAUTH_URL || 'https://www.abkharido.com');
+  } catch (_) {
+    urlObj = new URL('https://www.abkharido.com/api/auth');
   }
+  if (req && !req.nextUrl) {
+    req.nextUrl = urlObj;
+  }
+
+  // NextAuth client telemetry endpoint
+  if (urlObj.pathname.endsWith('/_log')) {
+    return NextResponse.json({ ok: true });
+  }
+
   let safeContext = context;
   if (!safeContext || !safeContext.params) {
-    const url = req?.nextUrl || (req?.url ? new URL(req.url, 'https://www.abkharido.com') : null);
-    const parts = (url?.pathname || '').replace(/^\/api\/auth\/?/, '').split('/').filter(Boolean);
+    const parts = urlObj.pathname.replace(/^\/api\/auth\/?/, '').split('/').filter(Boolean);
     safeContext = { params: Promise.resolve({ nextauth: parts }) };
   }
   try {
     return await handler(req, safeContext);
   } catch (error) {
     console.error('[NextAuth Handler Error]:', error?.message || error);
-    return NextResponse.json({ error: error?.message || 'Authentication service temporarily unavailable' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Authentication service temporarily unavailable' }, { status: 200 });
   }
 }
 export { guardedHandler as GET, guardedHandler as POST };
