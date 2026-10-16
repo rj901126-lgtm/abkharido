@@ -1,7 +1,7 @@
 import { safeLocalRedirect } from '../utils/safeRendering.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Phone, User, Mail, ArrowLeft, ChevronRight, Copy, CheckCircle, ShieldCheck, Zap, Coins, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ShieldCheck, Lock, Zap } from 'lucide-react';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { signIn } from 'next-auth/react';
 import { auth as firebaseAuth } from '../firebase';
@@ -24,7 +24,6 @@ const Login = ({ onNavigate, callbackUrl }) => {
   const [isSending, setIsSending] = useState(false);
   const [firebaseConfirmation, setFirebaseConfirmation] = useState(null); // Firebase SMS result
   const isVerifyingRef = useRef(false);
-
 
   // Focus management
   const otpRefs = useRef([]);
@@ -105,8 +104,6 @@ const Login = ({ onNavigate, callbackUrl }) => {
     }
     return true;
   };
-
-
 
   const cleanupRecaptcha = () => {
     if (window.recaptchaVerifier) {
@@ -226,8 +223,6 @@ const Login = ({ onNavigate, callbackUrl }) => {
       setIsSending(false);
     }
   };
-
-
 
   const handleVerifyOtp = async (e, otpOverride) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -366,457 +361,347 @@ const Login = ({ onNavigate, callbackUrl }) => {
     setOtpCode(['', '', '', '', '', '']);
   };
 
-
-
   return (
-    <div className="lp-wrapper animate-fade-in" style={{ alignItems: 'stretch', flexWrap: 'nowrap', minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="auth-clean-shell animate-fade-in">
       <style>{`
-        @keyframes lp-pulse-glow {
-          0%, 100% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.05); opacity: 1; }
+        .auth-clean-shell {
+          min-height: calc(100vh - 140px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 28px 16px 64px;
+          background: radial-gradient(circle at 50% 0%, #eff6ff 0%, #f8fafc 55%, #f8fafc 100%);
+          box-sizing: border-box;
         }
-        @media (max-width: 991px) {
-          .lp-wrapper {
-            min-height: auto !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            background: #f8fafc !important;
+        .auth-clean-card {
+          width: 100%;
+          max-width: 400px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 24px;
+          padding: 32px 28px;
+          box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.02);
+          box-sizing: border-box;
+        }
+        @media (max-width: 480px) {
+          .auth-clean-shell {
+            padding: 16px 14px 48px;
+            align-items: flex-start;
           }
-          .lp-left-desktop-only { display: none !important; width: 0 !important; height: 0 !important; opacity: 0 !important; visibility: hidden !important; }
-          .lp-right {
-            padding: 8px 12px 36px 12px !important;
-            background: #f8fafc !important;
-            justify-content: flex-start !important;
-            align-items: center !important;
-            width: 100% !important;
-            max-width: 100vw !important;
-            min-height: auto !important;
-            box-sizing: border-box !important;
-          }
-          .lp-form-card {
-            width: 100% !important;
-            max-width: 430px !important;
-            border-radius: 24px !important;
-            border: 1px solid rgba(226, 232, 240, 0.9) !important;
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
-            padding: 20px 16px !important;
-            box-sizing: border-box !important;
-            background: #ffffff !important;
-            margin-top: 4px !important;
+          .auth-clean-card {
+            padding: 24px 20px;
+            border-radius: 20px;
           }
         }
-        @media (min-width: 992px) {
-          .lp-form-card {
-            width: 100% !important;
-            max-width: 460px !important;
-            border-radius: 28px !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.06) !important;
-            padding: 36px 32px !important;
-            background: #ffffff !important;
-          }
+        .auth-phone-box {
+          display: flex;
+          align-items: center;
+          height: 50px;
+          border-radius: 12px;
+          border: 1.5px solid #cbd5e1;
+          background: #ffffff;
+          transition: all 0.2s ease;
+          position: relative;
+        }
+        .auth-phone-box:focus-within {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        .auth-phone-box.valid {
+          border-color: #10b981;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        .auth-otp-grid {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 8px;
+          margin: 20px 0;
+        }
+        .auth-otp-input {
+          width: 100%;
+          height: 48px;
+          border-radius: 12px;
+          border: 1.5px solid #cbd5e1;
+          background: #f8fafc;
+          text-align: center;
+          font-family: 'Outfit', monospace;
+          font-size: 19px;
+          font-weight: 800;
+          color: #0f172a;
+          outline: none;
+          transition: all 0.18s ease;
+          box-sizing: border-box;
+        }
+        .auth-otp-input:focus {
+          background: #ffffff;
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+          transform: translateY(-1px);
+        }
+        .auth-primary-btn {
+          width: 100%;
+          height: 48px;
+          border-radius: 12px;
+          border: none;
+          background: #0f172a;
+          color: #ffffff;
+          font-family: 'Outfit', sans-serif;
+          font-size: 14.5px;
+          font-weight: 800;
+          letter-spacing: 0.2px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .auth-primary-btn:hover:not(:disabled) {
+          background: #1e293b;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+        }
+        .auth-primary-btn:disabled {
+          background: #e2e8f0;
+          color: #94a3b8;
+          cursor: not-allowed;
         }
       `}</style>
       <div id="recaptcha-container"></div>
 
-      {/* ── Desktop: Left Titanium Security & Assurance Panel ── */}
-      <div className="lp-left lp-left-desktop-only">
-        <div className="lp-left-content" style={{ maxWidth: '440px' }}>
-          <div className="lp-logo-row" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '14px',
-              background: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '6px',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
-            }}>
-              <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-            </div>
-            <div>
-              <span style={{
-                fontFamily: "var(--font-logo, 'Outfit', sans-serif)",
-                fontSize: '28px',
-                fontWeight: '900',
-                letterSpacing: '-0.5px',
-                color: '#ffffff',
-                display: 'block',
-                lineHeight: 1.1
-              }}>
-                AbKharido<span style={{ color: '#f59e0b', fontWeight: '900' }}>.com</span>
-              </span>
-              <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600', letterSpacing: '0.5px' }}>
-                DIRECT BUY • VIP PRIVILEGES
-              </span>
-            </div>
-          </div>
-
-          <h1 className="lp-left-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '36px', fontWeight: '900', lineHeight: '1.15', letterSpacing: '-0.5px', marginBottom: '16px' }}>
-            {showOtpScreen ? 'Two-Step\nOTP Security 🔐' : 'Buy Direct.\nSave Big.\nEarn Rewards. 🚀'}
-          </h1>
-          <p className="lp-left-sub" style={{ fontSize: '14.5px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '36px' }}>
-            {showOtpScreen ? `We texted a 6-digit verification code to +91 ${phone}.` : 'India’s trusted direct-from-warehouse shopping platform with verified quality.'}
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '24px', background: 'rgba(239, 68, 68, 0.2)', padding: '10px', borderRadius: '12px' }}>🛡️</span>
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>Cashfree Escrow Shield</div>
-                <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Your funds are protected in bank escrow until delivery is verified at your doorstep.</div>
-              </div>
-            </div>
-
-            <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '24px', background: 'rgba(34, 197, 94, 0.2)', padding: '10px', borderRadius: '12px' }}>⚡</span>
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>Zero Middleman Margin</div>
-                <div style={{ fontSize: '12.5px', color: '#cbd5e1', marginTop: '3px', lineHeight: 1.4 }}>Direct shipment from manufacturers with genuine brand assurance and express air-dispatch.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Right / Mobile: Form Panel ── */}
-      <div className="lp-right">
-        <div className="lp-form-card">
-          
-          {/* Top Row: Back to Store + Security Status */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <button 
+      <div className="auth-clean-card">
+        {showOtpScreen ? (
+          <>
+            <button
               type="button"
-              onClick={() => onNavigate('home')} 
-              style={{ 
-                background: '#f8fafc', 
-                border: '1px solid #e2e8f0', 
-                color: '#475569', 
-                fontSize: '12px', 
-                fontWeight: '800', 
-                padding: '6px 14px', 
-                borderRadius: '100px', 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                gap: '6px', 
+              onClick={handleGoBack}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '0',
+                color: '#64748b',
+                fontSize: '12.5px',
+                fontWeight: '700',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                marginBottom: '18px'
               }}
             >
-              <ArrowLeft size={14} /> Back to Store
+              <ArrowLeft size={15} /> Change number
             </button>
-            
-            <span style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              gap: '5px', 
-              background: '#ecfdf5', 
-              border: '1px solid #a7f3d0', 
-              color: '#059669', 
-              fontSize: '11px', 
-              fontWeight: '800', 
-              padding: '4px 10px', 
-              borderRadius: '100px' 
-            }}>
-              <ShieldCheck size={13} /> 256-Bit SSL
-            </span>
-          </div>
 
-          {/* ── OTP Screen ── */}
-          {showOtpScreen ? (
-            <>
-              {/* Brand Logo in OTP Header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
-                <div style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '14px',
-                  background: '#ffffff',
-                  border: '1.5px solid #e2e8f0',
-                  boxShadow: '0 4px 14px rgba(37,99,235,0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '5px',
-                  flexShrink: 0
-                }}>
-                  <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                </div>
-                <div>
-                  <span style={{
-                    fontFamily: "var(--font-logo, 'Outfit', sans-serif)",
-                    fontSize: '22px',
-                    fontWeight: '900',
-                    letterSpacing: '-0.5px',
-                    background: 'linear-gradient(135deg, #0f172a 0%, #4338ca 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'inline-block',
-                    lineHeight: 1.15
-                  }}>
-                    AbKharido<span style={{ color: '#f59e0b', WebkitTextFillColor: '#f59e0b', fontWeight: '900' }}>.com</span>
-                  </span>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700', marginTop: '2px' }}>
-                    Authentic OTP Verification
-                  </div>
-                </div>
-              </div>
+            <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
+              Verify with OTP
+            </h1>
+            <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
+              Enter the 6-digit code sent to <strong style={{ color: '#0f172a', fontWeight: '700' }}>+91 {phone}</strong>
+            </p>
 
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#eff6ff', color: '#2563eb', padding: '5px 12px', borderRadius: '100px', fontSize: '11.5px', fontWeight: '800', marginBottom: '10px', border: '1px solid #bfdbfe' }}>
-                <span>🔐</span> TWO-STEP OTP SECURITY
-              </div>
-              <h2 className="lp-form-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '24px', fontWeight: '900', color: '#0f172a', margin: '0 0 4px 0' }}>
-                Enter OTP Code
-              </h2>
-              
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '10px 14px', borderRadius: '14px', marginBottom: '18px', fontSize: '13px', color: '#334155', overflow: 'hidden', minWidth: 0 }}>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>SMS Sent to <strong style={{ color: '#0f172a', fontWeight: '800' }}>+91 {phone}</strong></span>
-                <button type="button" onClick={handleGoBack} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4f46e5', fontWeight: '800', cursor: 'pointer', fontSize: '11px', padding: '5px 10px', borderRadius: '8px', flexShrink: 0, whiteSpace: 'nowrap' }}>
-                  CHANGE ✏️
-                </button>
-              </div>
-
-              <form onSubmit={handleVerifyOtp} className="lp-form" style={{ overflow: 'hidden' }}>
-                <div className="lp-otp-row">
-                  {otpCode.map((data, index) => (
-                    <input
-                      key={index}
-                      type="text"
-                      name={index === 0 ? "one-time-code" : `otp-${index}`}
-                      maxLength="1"
-                      autoComplete={index === 0 ? "one-time-code" : "off"}
-                      value={data}
-                      onChange={(e) => handleOtpChange(e.target, index)}
-                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                      onFocus={(e) => e.target.select()}
-                      className="lp-otp-box"
-                      inputMode="numeric"
-                    />
-                  ))}
-                </div>
-
-                <button type="submit" className="lp-submit-btn" disabled={isVerifying} style={{ marginTop: '12px' }}>
-                  {isVerifying ? 'Verifying OTP...' : '⚡ VERIFY & LOGIN'}
-                  {!isVerifying && <ChevronRight size={18} />}
-                </button>
-
-                <div className="lp-resend-row" style={{ marginTop: '16px' }}>
-                  {timer > 0 ? (
-                    <span className="lp-timer">Resend SMS code in <strong>{timer}s</strong></span>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '100%' }}>
-                      <button type="button" onClick={() => handleRequestOtp(null)} className="lp-link-btn" style={{ fontSize: '14px', fontWeight: '800', color: '#4f46e5' }}>
-                        🔄 Resend OTP via SMS
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          setFirebaseConfirmation(null);
-                          triggerBackendOtp();
-                        }} 
-                        className="lp-link-btn" 
-                        style={{ fontSize: '12.5px', fontWeight: '700', color: '#6366f1', textDecoration: 'underline' }}
-                      >
-                        Didn't receive SMS? Try Alternative Fast Route 🚀
-                      </button>
-                    </div>
-                  )}
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Verified by Telecom Gateway</span>
-                </div>
-              </form>
-            </>
-          ) : (
-            <>
-              {/* Brand Logo Header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
-                <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '16px',
-                  background: '#ffffff',
-                  border: '1.5px solid #e2e8f0',
-                  boxShadow: '0 4px 16px rgba(37,99,235,0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '6px',
-                  flexShrink: 0
-                }}>
-                  <img src="/logo.png" alt="AbKharido Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                </div>
-                <div>
-                  <span style={{
-                    fontFamily: "var(--font-logo, 'Outfit', sans-serif)",
-                    fontSize: '24px',
-                    fontWeight: '900',
-                    letterSpacing: '-0.5px',
-                    background: 'linear-gradient(135deg, #0f172a 0%, #4338ca 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'inline-block',
-                    lineHeight: 1.15
-                  }}>
-                    AbKharido<span style={{ color: '#f59e0b', WebkitTextFillColor: '#f59e0b', fontWeight: '900' }}>.com</span>
-                  </span>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '700', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    Direct Buy <span style={{ color: '#2563eb', fontWeight: '800' }}>&amp; Earn</span> • Verified Quality
-                  </div>
-                </div>
-              </div>
-
-              {/* Banking Grade Security Pill */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#059669', padding: '5px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: '800', marginBottom: '12px', border: '1px solid #a7f3d0' }}>
-                <span>🔒</span> BANKING-GRADE AUTHENTIC OTP
-              </div>
-
-              <h2 className="lp-form-title" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '26px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.4px', margin: '0 0 6px 0' }}>
-                Login or Signup
-              </h2>
-              <p className="lp-form-sub" style={{ fontSize: '13.5px', color: '#64748b', margin: '0 0 22px 0' }}>
-                Enter your 10-digit mobile number to verify via SMS
-              </p>
-
-              <form onSubmit={handleRequestOtp} className="lp-form">
-                {/* Phone Input with Dynamic Validation Glow */}
-                <div style={{
-                  position: 'relative',
-                  height: '56px',
-                  border: `2px solid ${phone.length === 10 ? '#10b981' : phone.length > 0 ? '#3b82f6' : '#cbd5e1'}`,
-                  borderRadius: '16px',
-                  background: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  transition: 'all 0.2s ease',
-                  boxShadow: phone.length === 10 ? '0 0 0 3px rgba(16,185,129,0.15)' : '0 2px 10px rgba(0,0,0,0.02)'
-                }}>
-                  <span style={{
-                    fontSize: '15px',
-                    fontWeight: '800',
-                    color: '#0f172a',
-                    padding: '0 14px',
-                    borderRight: '2px solid #f1f5f9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    height: '100%',
-                    background: '#f8fafc',
-                    borderTopLeftRadius: '14px',
-                    borderBottomLeftRadius: '14px'
-                  }}>
-                    🇮🇳 +91
-                  </span>
+            <form onSubmit={handleVerifyOtp}>
+              <div className="auth-otp-grid">
+                {otpCode.map((data, index) => (
                   <input
-                    type="tel"
-                    placeholder="Enter mobile number"
-                    value={phone}
-                    onChange={(e) => {
-                      let val = e.target.value.replace(/\D/g, '');
-                      if (val.startsWith('91') && val.length > 10) {
-                        val = val.substring(2);
-                      }
-                      val = val.substring(0, 10);
-                      setPhone(val);
-                      localStorage.setItem('abkharido_login_phone', val);
-                    }}
-                    style={{
-                      flex: 1,
-                      border: 'none',
-                      outline: 'none',
-                      padding: '0 40px 0 14px',
-                      fontSize: phone ? '17px' : '15px',
-                      fontWeight: phone ? '800' : '500',
-                      color: '#0f172a',
-                      letterSpacing: phone ? '1.5px' : 'normal',
-                      fontFamily: phone ? 'monospace, sans-serif' : 'inherit',
-                      height: '100%',
-                      background: 'transparent'
-                    }}
+                    key={index}
+                    type="text"
+                    name={index === 0 ? "one-time-code" : `otp-${index}`}
+                    maxLength="1"
+                    autoComplete={index === 0 ? "one-time-code" : "off"}
+                    value={data}
+                    onChange={(e) => handleOtpChange(e.target, index)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                    onFocus={(e) => e.target.select()}
+                    className="auth-otp-input"
                     inputMode="numeric"
-                    disabled={isSending}
-                    required
+                    autoFocus={index === 0}
                   />
-                  {/* Clear button when typed */}
-                  {phone.length > 0 && !isSending && (
+                ))}
+              </div>
+
+              <button type="submit" className="auth-primary-btn" disabled={isVerifying || otpCode.join('').length < 6}>
+                {isVerifying ? 'Verifying...' : 'Verify & Continue'}
+                {!isVerifying && <ChevronRight size={17} />}
+              </button>
+
+              <div style={{ marginTop: '18px', textAlign: 'center', fontSize: '12.5px', color: '#64748b' }}>
+                {timer > 0 ? (
+                  <span>Resend code in <strong style={{ color: '#0f172a' }}>{timer}s</strong></span>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleRequestOtp(null)}
+                      style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: '700', fontSize: '13px', cursor: 'pointer', padding: 0 }}
+                    >
+                      Resend OTP via SMS
+                    </button>
                     <button
                       type="button"
                       onClick={() => {
-                        setPhone('');
-                        localStorage.removeItem('abkharido_login_phone');
+                        setFirebaseConfirmation(null);
+                        triggerBackendOtp();
                       }}
-                      style={{
-                        position: 'absolute',
-                        right: '14px',
-                        background: '#f1f5f9',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '26px',
-                        height: '26px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#64748b',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: '900',
-                        transition: 'background 0.2s'
-                      }}
-                      title="Clear number"
+                      style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: '600', fontSize: '12px', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
                     >
-                      ✕
+                      Didn&apos;t receive SMS? Try alternative route
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
+            </form>
+          </>
+        ) : (
+          <>
+            {/* Minimal Header */}
+            <div style={{ marginBottom: '22px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '12px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px',
+                marginBottom: '14px'
+              }}>
+                <img src="/logo.png" alt="AbKharido" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
 
-                {/* Continue CTA Button */}
-                <button
-                  type="submit"
-                  disabled={isSending || phone.length !== 10}
-                  style={{
-                    height: '52px',
-                    borderRadius: '16px',
-                    fontSize: '15px',
-                    fontWeight: '800',
-                    background: phone.length === 10 ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : '#94a3b8',
-                    boxShadow: phone.length === 10 ? '0 6px 20px rgba(37, 99, 235, 0.35)' : 'none',
-                    border: 'none',
-                    color: 'white',
-                    cursor: phone.length === 10 ? 'pointer' : 'not-allowed',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    transition: 'all 0.2s ease',
-                    marginTop: '14px'
-                  }}
-                >
-                  {isSending ? 'Sending Authentic OTP...' : 'CONTINUE'}
-                  {!isSending && <ChevronRight size={20} />}
-                </button>
-              </form>
+              <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.3px' }}>
+                Sign in or create account
+              </h1>
+              <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0 }}>
+                Enter your 10-digit mobile number to receive an OTP
+              </p>
+            </div>
 
-              {/* Terms & Privacy */}
-              <div className="lp-policy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '18px', fontSize: '12px', color: '#64748b' }}>
-                <CheckCircle size={14} color="#10b981" />
-                <span>
-                  By proceeding, you agree to our <span onClick={() => onNavigate('info?tab=terms')} style={{ color: '#2563eb', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}>Terms</span> &amp; <span onClick={() => onNavigate('info?tab=privacy')} style={{ color: '#2563eb', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</span>
+            <form onSubmit={handleRequestOtp}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                Mobile Number
+              </label>
+
+              <div className={`auth-phone-box ${phone.length === 10 ? 'valid' : ''}`}>
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: '#475569',
+                  padding: '0 12px',
+                  borderRight: '1px solid #e2e8f0',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  userSelect: 'none'
+                }}>
+                  +91
                 </span>
+                <input
+                  type="tel"
+                  placeholder="98765 43210"
+                  value={phone}
+                  onChange={(e) => {
+                    let val = e.target.value.replace(/\D/g, '');
+                    if (val.startsWith('91') && val.length > 10) {
+                      val = val.substring(2);
+                    }
+                    val = val.substring(0, 10);
+                    setPhone(val);
+                    localStorage.setItem('abkharido_login_phone', val);
+                  }}
+                  style={{
+                    flex: 1,
+                    border: 'none',
+                    outline: 'none',
+                    padding: '0 36px 0 12px',
+                    fontSize: '15.5px',
+                    fontWeight: phone ? '700' : '500',
+                    color: '#0f172a',
+                    letterSpacing: phone ? '0.8px' : 'normal',
+                    fontFamily: "'Outfit', sans-serif",
+                    height: '100%',
+                    background: 'transparent'
+                  }}
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  disabled={isSending}
+                  required
+                />
+                {phone.length > 0 && !isSending && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhone('');
+                      localStorage.removeItem('abkharido_login_phone');
+                    }}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      background: '#f1f5f9',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '22px',
+                      height: '22px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: '700'
+                    }}
+                    title="Clear"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
-              {/* Direct Reassurance Box */}
-              <div style={{ marginTop: '20px', padding: '14px 16px', background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)', borderRadius: '16px', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#ffffff', border: '1px solid #93c5fd', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb', flexShrink: 0, boxShadow: '0 2px 6px rgba(37,99,235,0.1)' }}>
-                  <ShieldCheck size={20} />
-                </div>
-                <div style={{ fontSize: '11.5px', color: '#334155', lineHeight: 1.4 }}>
-                  <strong style={{ color: '#0f172a' }}>100% Safe &amp; Direct:</strong> Authentic SMS OTP verification powered by Cashfree Escrow &amp; Firebase Auth with Zero Bypass policy.
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+              <button
+                type="submit"
+                className="auth-primary-btn"
+                disabled={isSending || phone.length !== 10}
+                style={{ marginTop: '14px' }}
+              >
+                {isSending ? 'Sending OTP...' : 'Continue'}
+                {!isSending && <ChevronRight size={17} />}
+              </button>
+            </form>
+
+            {/* Subtle 3-Point Trust Strip */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              marginTop: '22px',
+              paddingTop: '18px',
+              borderTop: '1px solid #f1f5f9',
+              fontSize: '11px',
+              fontWeight: '600',
+              color: '#64748b'
+            }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <Lock size={12} color="#059669" /> Instant OTP
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <ShieldCheck size={12} color="#2563eb" /> Escrow Safe
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <Zap size={12} color="#d97706" /> Fast Checkout
+              </span>
+            </div>
+
+            {/* Minimal Terms Note */}
+            <div style={{ marginTop: '14px', textAlign: 'center', fontSize: '11.5px', color: '#94a3b8', lineHeight: 1.4 }}>
+              By continuing, you agree to AbKharido&apos;s{' '}
+              <span onClick={() => onNavigate('terms')} style={{ color: '#475569', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>Terms</span>
+              {' '}&amp;{' '}
+              <span onClick={() => onNavigate('privacy')} style={{ color: '#475569', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</span>.
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
