@@ -40,32 +40,19 @@
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 8px;
-  line-height: 1;
   text-decoration: none;
-}
-
-.brand-logo-img {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  flex-shrink: 0;
-  border-radius: 6px;
-}
-
-.logo-text-wrapper {
-  display: flex;
-  flex-direction: column;
   line-height: 1;
+  flex-shrink: 0;
 }
 
-.logo-text {
-  font-family: var(--font-logo);
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-  display: inline-flex;
-  align-items: baseline;
+.brand-logo-image,
+img.logo-text {
+  height: 36px;
+  width: auto;
+  max-width: 210px;
+  object-fit: contain;
+  display: block;
+  user-select: none;
 }
 
 .logo-brand-ab {
@@ -353,33 +340,21 @@
   }
 
   .logo-container {
-    gap: 6px !important;
+    gap: 0 !important;
+    display: flex !important;
+    align-items: center !important;
   }
 
-  .brand-logo-img {
-    width: 28px !important;
-    height: 28px !important;
-  }
-
-  .logo-text {
-    font-size: 19px !important;
-    font-weight: 900 !important;
-    letter-spacing: -0.5px !important;
-    display: inline-flex !important;
-    align-items: baseline !important;
-    background: none !important;
-    -webkit-text-fill-color: initial !important;
+  .brand-logo-image,
+  img.logo-text {
+    height: 26px !important;
+    width: auto !important;
+    max-width: 145px !important;
+    object-fit: contain !important;
+    display: block !important;
     flex-shrink: 0 !important;
   }
 
-  .logo-plus {
-    color: #f59e0b !important;
-    -webkit-text-fill-color: #f59e0b !important;
-  }
-
-  .logo-sub {
-    display: none !important;
-  }
 
   .delivery-pincode-badge {
     display: inline-flex !important;

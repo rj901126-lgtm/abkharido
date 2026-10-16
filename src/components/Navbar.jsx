@@ -295,19 +295,9 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             <a href="/" className="logo-container" aria-label="AbKharido Home" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
               <img
                 src="/logo.png"
-                alt="AbKharido Logo"
-                className="brand-logo-img"
-                width="34"
-                height="34"
+                alt="AbKharido"
+                className="brand-logo-image logo-text"
               />
-              <div className="logo-text-wrapper">
-                <span className="logo-text">
-                  <span className="logo-brand-ab">Ab</span><span className="logo-brand-kharido">Kharido</span><span className="logo-plus">.com</span>
-                </span>
-                <span className="logo-sub">
-                  Direct Buy <span style={{ color: 'var(--brand-accent)', fontWeight: 'bold' }}>& Earn</span>
-                </span>
-              </div>
             </a>
 
             {/* 📍 Pincode / Delivery Location Selector */}

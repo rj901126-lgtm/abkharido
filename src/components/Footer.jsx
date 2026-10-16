@@ -44,15 +44,10 @@ const Footer = ({ onNavigate }) => {
                 letterSpacing: '-0.5px',
                 marginBottom: '8px',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
+                alignItems: 'center'
               }}
             >
-              <img src="/logo.png" alt="AbKharido" width="28" height="28" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
-              <div>
-                <span style={{ color: '#60a5fa' }}>Ab</span><span style={{ color: '#fb923c' }}>Kharido</span>
-                <span style={{ color: '#38bdf8', fontSize: '16px' }}>.com</span>
-              </div>
+              <img src="/logo.png" alt="AbKharido" height="30" style={{ height: '30px', width: 'auto', objectFit: 'contain' }} />
             </div>
           </Link>
           <p
