@@ -298,7 +298,11 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                 return null;
               })()}
             </div>
-
+            {userEarningsCoins > 0 && (
+              <span style={{ fontSize: '9.5px', fontWeight: '800', background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '1px 5px', borderRadius: '4px', whiteSpace: 'nowrap' }}>
+                🪙 +{userEarningsCoins} Coins
+              </span>
+            )}
           </div>
 
           {/* Price Stack & Discount Row */}

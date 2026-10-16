@@ -401,10 +401,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
       {/* ── 2. 4-Pillar Trust Signals USP Bar (Instant Reassurance) ── */}
       <div className="home-trust-grid" style={{ margin: '4px 12px 6px' }}>
         {[
-          { icon: <Truck size={18} color="#0284c7" />, title: "Standard Courier Dispatch", sub: "Reliable 2-5 business days", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
-          { icon: <ShieldCheck size={18} color="#059669" />, title: "Secure Cashfree Checkout", sub: "Encrypted payment gateway", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
-          { icon: <CheckCircle2 size={18} color="var(--brand-accent)" />, title: "Easy 7-Day Replacement", sub: "Hassle-free doorstep returns", bg: "linear-gradient(135deg, #ffffff 0%, #eff6ff 100%)", border: "#dbeafe" },
-          { icon: <Award size={18} color="#d97706" />, title: "Cash on Delivery (COD)", sub: "Eligible orders up to ₹15,000", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
+          { icon: <Truck size={18} color="#0284c7" />, title: "1P Direct & Verified 3P", sub: "Official warehouse & KYC sellers", bg: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)", border: "#e0f2fe" },
+          { icon: <ShieldCheck size={18} color="#059669" />, title: "100% Escrow Checkout", sub: "Funds protected till delivery", bg: "linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)", border: "#d1fae5" },
+          { icon: <CheckCircle2 size={18} color="var(--brand-accent)" />, title: "Instant Refund & ARN", sub: "1-Click cancel & 7-day returns", bg: "linear-gradient(135deg, #ffffff 0%, #eff6ff 100%)", border: "#dbeafe" },
+          { icon: <Award size={18} color="#d97706" />, title: "Doorstep PIN & COD", sub: "OTP verified handover up to ₹15k", bg: "linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)", border: "#fef3c7" },
         ].map((item, idx) => (
           <div key={idx} style={{
             background: item.bg, 

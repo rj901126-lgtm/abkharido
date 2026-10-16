@@ -725,20 +725,20 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </div>
 
             {/* Verified Merchant / Seller Badge (1P Direct vs 3P Marketplace) */}
-            {product.sellerShopName ? (
+            {Boolean((product.vendorId || product.sellerId || product.channel === '3P') && product.sellerShopName && product.sellerShopName !== 'AbKharido Direct') ? (
               <div 
                 onClick={() => onNavigate && onNavigate(`catalog?seller=${encodeURIComponent(product.sellerShopName.toLowerCase().replace(/\s+/g, '-'))}`)}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '700', color: '#059669', background: '#ecfdf5', padding: '3px 8px', borderRadius: '6px', border: '1px solid #a7f3d0', cursor: 'pointer' }}
-                title="Click to browse official seller store"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '800', color: '#7e22ce', background: '#faf5ff', padding: '3px 9px', borderRadius: '6px', border: '1px solid #e9d5ff', cursor: 'pointer' }}
+                title="Click to browse verified seller store"
               >
-                <Store size={13} /> Sold by: {product.sellerShopName} ✓
+                <Store size={13} color="#7e22ce" /> Sold by: <strong>{product.sellerShopName}</strong> ✓ (Escrow Protected)
               </div>
             ) : (
               <div 
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '800', color: '#1e40af', background: '#eff6ff', padding: '3px 9px', borderRadius: '6px', border: '1px solid #bfdbfe' }}
-                title="Direct in-house retail stock fulfilled by AbKharido"
+                title="Direct in-house retail stock fulfilled by AbKharido Official Warehouse"
               >
-                <ShieldCheck size={13} color="#2563eb" /> Sold by: <strong>AbKharido Direct</strong> (⚡ Assured 24h Dispatch)
+                <ShieldCheck size={13} color="#2563eb" /> Sold by: <strong>AbKharido Direct</strong> (⚡ Official 1P • 24h Dispatch)
               </div>
             )}
           </div>
@@ -1248,6 +1248,49 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
             </div>
             <div style={{ fontSize: '12.5px', fontWeight: '700', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px', color: deliveryEstimate.includes('ELIGIBLE') || deliveryEstimate.includes('Express') ? '#059669' : deliveryEstimate.includes('Invalid') ? '#e11d48' : '#0f172a' }}>
               {deliveryEstimate || "✨ Enter your postal code to see real-time delivery dates and Cash on Delivery options."}
+            </div>
+
+            {/* 4-Pillar Fulfillment, Escrow & Doorstep PIN Guarantee Grid */}
+            <div style={{
+              marginTop: '14px',
+              paddingTop: '12px',
+              borderTop: '1px dashed #e2e8f0',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(185px, 1fr))',
+              gap: '8px'
+            }}>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 10px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <span style={{ fontSize: '15px', lineHeight: 1.2 }}>🛡️</span>
+                <div>
+                  <div style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a' }}>100% Escrow Protected</div>
+                  <div style={{ fontSize: '10.5px', color: '#64748b', lineHeight: 1.3 }}>Payment held safely until confirmed doorstep delivery</div>
+                </div>
+              </div>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 10px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <span style={{ fontSize: '15px', lineHeight: 1.2 }}>🔐</span>
+                <div>
+                  <div style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a' }}>6-Digit Doorstep PIN</div>
+                  <div style={{ fontSize: '10.5px', color: '#64748b', lineHeight: 1.3 }}>Zero fake delivery — handover verified via secret OTP</div>
+                </div>
+              </div>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 10px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <span style={{ fontSize: '15px', lineHeight: 1.2 }}>↩️</span>
+                <div>
+                  <div style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a' }}>Instant Refund + ARN</div>
+                  <div style={{ fontSize: '10.5px', color: '#64748b', lineHeight: 1.3 }}>1-Click cancel &amp; 7-day return with live Bank ARN</div>
+                </div>
+              </div>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 10px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <span style={{ fontSize: '15px', lineHeight: 1.2 }}>🧾</span>
+                <div>
+                  <div style={{ fontSize: '11.5px', fontWeight: '800', color: '#0f172a' }}>Verified Tax Invoice</div>
+                  <div style={{ fontSize: '10.5px', color: '#64748b', lineHeight: 1.3 }}>
+                    {Boolean((product.vendorId || product.sellerId || product.channel === '3P') && product.sellerShopName && product.sellerShopName !== 'AbKharido Direct')
+                      ? `Official invoice by ${product.sellerShopName}`
+                      : 'GST Tax Invoice by AbKharido Direct'}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

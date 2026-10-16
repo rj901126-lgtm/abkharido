@@ -1284,6 +1284,24 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 </div>
               )}
 
+              {/* 100% Escrow & Instant Refund Protection Banner */}
+              <div style={{
+                background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)',
+                border: '1px solid #a7f3d0',
+                borderRadius: '14px',
+                padding: '12px 14px',
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px'
+              }}>
+                <ShieldCheck size={20} color="#059669" style={{ flexShrink: 0, marginTop: '1px' }} />
+                <div style={{ fontSize: '12px', color: '#065f46', lineHeight: 1.45 }}>
+                  <strong style={{ fontWeight: '800', display: 'block', marginBottom: '2px' }}>🛡️ 100% RBI Nodal Escrow &amp; Refund Guarantee</strong>
+                  Your payment is held safely in Escrow and released to the seller only after <strong>6-Digit Doorstep PIN Delivery</strong>. Instant refund with Bank ARN if cancelled or returned.
+                </div>
+              </div>
+
               {/* Online Payment Option */}
               <label 
                 className={`checkout-payment-option ${paymentMethod === 'online' ? 'active' : ''}`}
@@ -1391,7 +1409,21 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           </p>
 
           <div style={{ backgroundColor: '#fafafa', border: '1px solid #e0e0e0', padding: '16px', borderRadius: '12px', textAlign: 'left', width: '100%', maxWidth: '550px', fontSize: '14px', margin: '8px 0' }}>
-            <div style={{ fontWeight: 'bold', borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}><ShieldCheck size={16} color="var(--primary-color)" /> Direct Warehousing dispatch</div>
+            <div style={{ fontWeight: 'bold', borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><ShieldCheck size={16} color="var(--primary-color)" /> Verified Dispatch &amp; Escrow Summary</span>
+              <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: '6px', fontWeight: '800', border: '1px solid #a7f3d0' }}>🛡️ 100% Escrow Protected</span>
+            </div>
+            {createdOrder?.deliveryPin && (
+              <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)', color: '#ffffff', padding: '12px 14px', borderRadius: '10px', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                <div>
+                  <div style={{ fontSize: '10.5px', fontWeight: '800', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🔐 Doorstep Delivery Security PIN</div>
+                  <div style={{ fontSize: '11.5px', color: '#cbd5e1', marginTop: '2px' }}>Share only with courier partner at doorstep handover</div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px dashed #fde047', borderRadius: '8px', padding: '5px 12px', fontFamily: "'Outfit', monospace", fontSize: '18px', fontWeight: '900', color: '#fde047', letterSpacing: '3px' }}>
+                  {createdOrder.deliveryPin}
+                </div>
+              </div>
+            )}
             <div style={{ marginBottom: '4px' }}><strong>Deliver to:</strong> {createdOrder?.shippingAddress?.fullName || createdOrder?.shippingAddress?.name || address?.name || 'Customer'}</div>
             <div style={{ marginBottom: '8px' }}><strong>Address:</strong> {createdOrder?.shippingAddress?.address || createdOrder?.shippingAddress?.streetAddress || address?.streetAddress || ''}, {createdOrder?.shippingAddress?.locality || address?.locality || ''}, {createdOrder?.shippingAddress?.city || address?.city || ''} - {createdOrder?.shippingAddress?.postalCode || createdOrder?.shippingAddress?.pincode || address?.pincode || ''}</div>
             <div style={{ marginBottom: '4px', color: '#059669', fontWeight: '500' }}>
@@ -1421,6 +1453,13 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           </div>
 
           <div className="checkout-btn-group" style={{ width: '100%', maxWidth: '550px', marginTop: '24px' }}>
+            <button
+              className="btn btn-primary checkout-btn"
+              style={{ width: '100%', marginBottom: '10px', background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', border: 'none' }}
+              onClick={() => onNavigate('orders')}
+            >
+              📦 Track &amp; Manage My Order
+            </button>
             <button className="btn btn-primary checkout-btn" style={{ width: '100%', marginBottom: '12px' }} onClick={() => onNavigate('home')}>
               Continue Shopping
             </button>
