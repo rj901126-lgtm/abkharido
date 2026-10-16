@@ -490,53 +490,8 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         )}
       </section>
 
-      {/* ── 6. Category Highlights (Active In-Stock Categories) ── */}
-      {activeVipCategories.some(c => c.hasStock && c.id !== 'all') && (
-        <div style={{ margin: '12px 12px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
-          {activeVipCategories.filter(c => c.hasStock && c.id !== 'all').map((cat, idx) => {
-            const CatIcon = cat.icon || Sparkles;
-            return (
-              <div 
-                key={idx}
-                onClick={() => handleCategoryClick(cat.id)}
-                style={{
-                  background: 'linear-gradient(135deg, #090d16 0%, #1e293b 100%)',
-                  borderRadius: '14px',
-                  padding: '14px 16px',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  transition: 'transform 0.15s ease'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
-              >
-                <div>
-                  <span style={{ fontSize: '9.5px', fontWeight: '900', color: '#38bdf8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                    IN-STOCK INVENTORY
-                  </span>
-                  <h4 style={{ margin: '2px 0 0', fontSize: '14px', fontWeight: '800', fontFamily: "'Outfit', sans-serif" }}>
-                    {cat.label}
-                  </h4>
-                  <span style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.7)', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
-                    Shop Collection →
-                  </span>
-                </div>
-                <div style={{ background: 'rgba(255,255,255,0.12)', width: '42px', height: '42px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <CatIcon size={20} color="#ffffff" />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── 7. Curated Marketplace Highlights (Interactive Category Tabs) ── */}
-      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '14px 12px 0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+      {/* ── 5. Curated Marketplace Highlights (Interactive Category Tabs) ── */}
+      <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>

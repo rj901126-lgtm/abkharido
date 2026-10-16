@@ -10,36 +10,34 @@
   box-sizing: border-box;
 }
 
-/* ── VIP Dashboard Header ── */
+/* ── Clean Modern Dashboard Header ── */
 .profile-dashboard-header {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, var(--brand-accent, #2563eb) 100%);
-  padding: 24px 20px 48px;
+  background: #ffffff;
+  padding: 20px 18px;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.15);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .profile-header-user {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   position: relative;
   z-index: 1;
 }
 
 .profile-header-avatar {
-  width: 64px;
-  height: 64px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-  border: 2.5px solid #fde68a;
+  background: #0f172a;
+  border: 2px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  font-weight: 900;
+  font-size: 19px;
+  font-weight: 800;
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
   flex-shrink: 0;
 }
 
@@ -50,9 +48,9 @@
 }
 
 .profile-header-name {
-  font-size: 20px;
-  font-weight: 900;
-  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
   margin: 0;
   letter-spacing: -0.3px;
 }
@@ -62,7 +60,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: -24px;
+  margin-top: 16px;
   position: relative;
   z-index: 10;
 }

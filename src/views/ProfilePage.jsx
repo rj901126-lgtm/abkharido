@@ -249,70 +249,38 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
 
   if (!currentUser) {
     return (
-      <div className="container animate-fade-in" style={{ padding: '20px', minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-        <div style={{ background: 'white', padding: '40px 32px', borderRadius: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.08)', border: '1px solid #f1f5f9', maxWidth: '420px', width: '100%', position: 'relative', overflow: 'hidden' }}>
-          
-          {/* Decorative glowing blobs */}
-          <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
-          <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%' }}></div>
-          
-          <div style={{ position: 'relative', width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 10px 25px -5px rgba(37,99,235,0.2)' }}>
-            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'linear-gradient(135deg, #1d4ed8, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <User size={34} color="white" strokeWidth={2.5} />
-            </div>
-            <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', background: '#fff', padding: '4px', borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-              <div style={{ background: '#10b981', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ShieldAlert size={12} color="white" />
-              </div>
-            </div>
+      <div className="container animate-fade-in" style={{ padding: '24px 16px', minHeight: '75vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+        <div style={{ background: '#ffffff', padding: '32px 24px', borderRadius: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 4px 20px rgba(15,23,42,0.04)', border: '1px solid #e2e8f0', maxWidth: '380px', width: '100%' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: '#eff6ff', border: '1px solid #dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+            <User size={26} color="#2563eb" strokeWidth={2.2} />
           </div>
-          
-          <h2 style={{ fontWeight: '900', fontSize: '26px', color: '#0f172a', marginBottom: '12px', letterSpacing: '-0.5px', position: 'relative', zIndex: 1 }}>
-            Unlock Your Profile
+          <h2 style={{ fontWeight: '800', fontSize: '21px', color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.4px' }}>
+            Your AbKharido Account
           </h2>
-          
-          <p style={{ color: '#64748b', fontSize: '15px', lineHeight: '1.6', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
-            Sign in to access your dashboard, track orders, and redeem <span style={{ fontWeight: '700', color: '#f59e0b' }}>AB Coins</span>.
+          <p style={{ color: '#64748b', fontSize: '13.5px', lineHeight: '1.55', marginBottom: '22px' }}>
+            Sign in with your mobile number to track orders, manage addresses, and redeem <strong style={{ color: '#b45309' }}>AB Coins</strong>.
           </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#f8fafc', padding: '12px 16px', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-              <ShoppingBag size={18} color="var(--brand-accent)" />
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#334155' }}>Track All Your Orders</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fef3c7', padding: '12px 16px', borderRadius: '16px', border: '1px solid #fde68a' }}>
-              <Coins size={18} color="#d97706" />
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#92400e' }}>Earn 5% Cashback in AB Coins</span>
-            </div>
-          </div>
-          
-          <button 
-            className="btn btn-primary" 
-            style={{ 
+          <button
+            className="btn btn-primary"
+            style={{
               width: '100%',
-              padding: '16px 32px', 
-              fontSize: '16px', 
-              fontWeight: '700',
-              borderRadius: '16px', 
-              background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
-              boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.4)',
+              height: '46px',
+              fontSize: '14.5px',
+              fontWeight: '800',
+              borderRadius: '12px',
+              background: '#2563eb',
+              color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
               border: 'none',
-              cursor: 'pointer',
-              position: 'relative', 
-              zIndex: 1
-            }} 
+              cursor: 'pointer'
+            }}
             onClick={() => onNavigate('login?callbackUrl=/profile')}
           >
-            Sign In to Continue <ArrowRight size={18} />
+            Sign In / Continue <ArrowRight size={16} />
           </button>
-          
-          <p style={{ marginTop: '20px', fontSize: '13px', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
-            New to AbKharido? <span onClick={() => onNavigate('login?callbackUrl=/profile')} style={{ color: 'var(--brand-accent)', fontWeight: '700', cursor: 'pointer' }}>Create an Account</span>
-          </p>
         </div>
       </div>
     );
@@ -661,73 +629,70 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
   return (
     <div className="profile-page-container animate-fade-in" style={{ padding: '0 0 160px 0', background: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. VIP Luxury Dashboard Header (Unified Midnight Titanium & Gold Theme) */}
+      {/* 1. Clean Minimalist Dashboard Header */}
       <div className="profile-dashboard-header" style={{
-        background: 'linear-gradient(135deg, #090d16 0%, #17153b 50%, #2e236c 100%)',
-        boxShadow: '0 12px 32px -4px rgba(9, 13, 22, 0.35), inset 0 1px 0 rgba(255,255,255,0.1)',
-        borderBottom: '1px solid rgba(251, 191, 36, 0.22)',
-        paddingBottom: '54px'
+        background: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
+        padding: '20px 18px'
       }}>
         <div className="profile-header-user">
           <div className="profile-header-avatar" style={{
-            background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+            background: '#0f172a',
             color: '#ffffff',
-            border: '3px solid #fbbf24',
-            boxShadow: '0 4px 18px rgba(251, 191, 36, 0.45)',
-            fontWeight: '900',
-            fontSize: '22px'
+            border: '2px solid #e2e8f0',
+            fontWeight: '800',
+            fontSize: '19px',
+            width: '52px',
+            height: '52px'
           }}>
             {getInitials(currentUser)}
           </div>
           <div className="profile-header-info">
-            <h2 className="profile-header-name" style={{ color: '#ffffff', fontWeight: '900', letterSpacing: '-0.3px' }}>
+            <h2 className="profile-header-name" style={{ color: '#0f172a', fontWeight: '800', fontSize: '18px', letterSpacing: '-0.3px' }}>
               {(currentUser.firstName || currentUser.lastName)
                 ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
                 : currentUser.fullName || 'AbKharido Member'}
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
               <span style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
-                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.22) 0%, rgba(217, 119, 6, 0.22) 100%)',
-                border: '1px solid rgba(251, 191, 36, 0.45)',
-                color: '#fbbf24',
-                padding: '3px 10px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: '800',
-                backdropFilter: 'blur(6px)'
+                background: '#f1f5f9',
+                border: '1px solid #e2e8f0',
+                color: '#334155',
+                padding: '2px 9px',
+                borderRadius: '999px',
+                fontSize: '11.5px',
+                fontWeight: '700'
               }}>
-                👑 VIP Member
+                ✓ Verified Member
               </span>
               <span style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
-                background: 'rgba(255, 255, 255, 0.12)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: '#ffffff',
-                padding: '3px 10px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                backdropFilter: 'blur(6px)'
+                background: '#fffbeb',
+                border: '1px solid #fde68a',
+                color: '#b45309',
+                padding: '2px 9px',
+                borderRadius: '999px',
+                fontSize: '11.5px',
+                fontWeight: '800',
+                cursor: 'pointer'
               }} onClick={() => handleTabSelect('rewards')}>
-                🪙 {userCoins} Coins Active &gt;
+                🪙 {userCoins} Coins &gt;
               </span>
             </div>
           </div>
         </div>
       </div>
 
-
-      <div style={{ padding: '0 16px', marginTop: '-34px', position: 'relative', zIndex: 10 }}>
+      <div style={{ padding: '16px 16px 0', position: 'relative', zIndex: 10 }}>
         
         {/* 2. Upgraded Smart Quick Action Dashboard (Only on Overview) */}
         {activeTab === 'overview' ? (
-          <div className="profile-quick-actions" style={{ marginTop: '4px' }}>
+          <div className="profile-quick-actions" style={{ marginTop: '0' }}>
             <div className="quick-action-card" onClick={() => onNavigate('orders')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <ShoppingBag size={22} color="#2563eb" />
