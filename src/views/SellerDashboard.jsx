@@ -31,7 +31,12 @@ import {
   ExternalLink,
   HelpCircle,
   Receipt,
-  Download
+  Download,
+  Camera,
+  Trash2,
+  Loader2,
+  UploadCloud,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { lookupPincode } from '../utils/pincodeData.js';
@@ -227,6 +232,9 @@ export default function SellerDashboard({ onNavigate }) {
   const [newProdStock, setNewProdStock] = useState(50);
   const [newProdImage, setNewProdImage] = useState('');
   const [newProdDesc, setNewProdDesc] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const productImageInputRef = useRef(null);
 
   useEffect(() => {
     if (currentSeller) {
@@ -517,6 +525,105 @@ export default function SellerDashboard({ onNavigate }) {
       }
     } catch {
       showToast('Network error processing payout', 'error');
+    }
+  };
+
+  // ─── PRODUCT PHOTO COMPRESSION & UPLOAD HANDLER ──────────────────
+  const compressProductPhoto = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.85) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new window.Image();
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+
+              if (width > height) {
+                if (width > maxWidth) {
+                  height = Math.round(height * (maxWidth / width));
+                  width = maxWidth;
+                }
+              } else {
+                if (height > maxHeight) {
+                  width = Math.round(width * (maxHeight / height));
+                  height = maxHeight;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) return resolve(event.target.result);
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', quality));
+            } catch {
+              resolve(event.target.result);
+            }
+          };
+          img.onerror = () => resolve(event.target.result);
+          img.src = event.target.result;
+        };
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  const handleProductPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (JPG, PNG, WEBP)', 'error');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('Image size is too large (max 15MB). Please choose a smaller photo.', 'error');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    showToast('Uploading & optimizing product photo...', 'info');
+
+    try {
+      // 1. Client-side fast compression
+      const compressedDataUrl = await compressProductPhoto(file, 1200, 1200, 0.85);
+
+      // 2. Try direct Cloudinary upload with preset
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'abkharido_uploads');
+        formData.append('cloud_name', 'rx1klbob');
+
+        const res = await fetch('https://api.cloudinary.com/v1_1/rx1klbob/image/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+          setNewProdImage(data.secure_url);
+          showToast('Product photo uploaded successfully! 📸', 'success');
+          return;
+        }
+      } catch (cloudErr) {
+        console.warn('Cloudinary upload fallback to local compressed image:', cloudErr);
+      }
+
+      // 3. Fallback to high-quality compressed Data URL
+      setNewProdImage(compressedDataUrl);
+      showToast('Product photo attached and ready! 📸', 'success');
+    } catch {
+      showToast('Failed to process image. Please try another photo.', 'error');
+    } finally {
+      setIsUploadingImage(false);
+      if (productImageInputRef.current) productImageInputRef.current.value = '';
     }
   };
 
@@ -2324,14 +2431,104 @@ export default function SellerDashboard({ onNavigate }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Product Image URL</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155' }}>
+                    Product Photo* (Take Photo or Select from Gallery)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowUrlInput(prev => !prev)}
+                    style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '11px', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                  >
+                    {showUrlInput ? 'Hide URL input' : 'Or Paste Image Link'}
+                  </button>
+                </div>
+
+                {newProdImage ? (
+                  <div style={{ position: 'relative', border: '1.5px solid #cbd5e1', borderRadius: '12px', padding: '10px 14px', background: '#f8fafc', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <img 
+                      src={newProdImage} 
+                      alt="Product Preview" 
+                      style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }} 
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '12px', fontWeight: '800', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                        <CheckCircle2 size={14} color="#16a34a" /> Photo Ready
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {newProdImage.startsWith('data:') ? 'Captured/Uploaded Device Photo' : newProdImage}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => productImageInputRef.current?.click()}
+                        style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#334155', fontSize: '11.5px', fontWeight: '700', cursor: 'pointer' }}
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNewProdImage('')}
+                        style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #fecaca', background: '#fee2e2', color: '#dc2626', fontSize: '11.5px', fontWeight: '700', cursor: 'pointer' }}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div 
+                    onClick={() => !isUploadingImage && productImageInputRef.current?.click()}
+                    style={{ 
+                      border: '2px dashed #93c5fd', 
+                      borderRadius: '12px', 
+                      padding: '18px 12px', 
+                      background: isUploadingImage ? '#eff6ff' : '#f8fafc', 
+                      textAlign: 'center', 
+                      cursor: isUploadingImage ? 'wait' : 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {isUploadingImage ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <Loader2 size={24} color="#2563eb" style={{ animation: 'spin 1s linear infinite' }} />
+                        <span style={{ fontSize: '12.5px', fontWeight: '700', color: '#2563eb' }}>
+                          Uploading &amp; Optimizing Photo...
+                        </span>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+                          <Camera size={22} />
+                        </div>
+                        <span style={{ fontSize: '13px', fontWeight: '800', color: '#1e40af' }}>
+                          📸 Tap to Take Photo or Choose from Gallery
+                        </span>
+                        <span style={{ fontSize: '11px', color: '#64748b' }}>
+                          Direct Camera / Mobile Gallery / File Upload (JPG, PNG, WEBP)
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <input 
-                  type="url" 
-                  placeholder="https://images.unsplash.com/..."
-                  value={newProdImage}
-                  onChange={(e) => setNewProdImage(e.target.value)}
-                  style={{ width: '100%', height: '40px', padding: '0 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }}
+                  type="file" 
+                  ref={productImageInputRef}
+                  accept="image/*"
+                  onChange={handleProductPhotoUpload}
+                  style={{ display: 'none' }}
                 />
+
+                {showUrlInput && (
+                  <input 
+                    type="url" 
+                    placeholder="Or paste image URL (e.g. https://images.unsplash.com/...)"
+                    value={newProdImage}
+                    onChange={(e) => setNewProdImage(e.target.value)}
+                    style={{ width: '100%', height: '36px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', marginTop: '8px', boxSizing: 'border-box' }}
+                  />
+                )}
               </div>
 
               <div>
