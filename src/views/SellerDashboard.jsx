@@ -231,10 +231,13 @@ export default function SellerDashboard({ onNavigate }) {
   const [newProdGstRate, setNewProdGstRate] = useState(18);
   const [newProdStock, setNewProdStock] = useState(50);
   const [newProdImage, setNewProdImage] = useState('');
+  const [newProdGallery, setNewProdGallery] = useState([]);
   const [newProdDesc, setNewProdDesc] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const productImageInputRef = useRef(null);
+  const galleryImageInputRef = useRef(null);
 
   useEffect(() => {
     if (currentSeller) {
@@ -627,6 +630,145 @@ export default function SellerDashboard({ onNavigate }) {
     }
   };
 
+  const handleGalleryPhotoUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    if (newProdGallery.length + files.length > 4) {
+      showToast('You can add up to 4 additional gallery photos.', 'error');
+      return;
+    }
+
+    setIsUploadingGallery(true);
+    showToast(`Uploading ${files.length} gallery photo(s)...`, 'info');
+
+    try {
+      const uploadedUrls = [];
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        const compressed = await compressProductPhoto(file, 1200, 1200, 0.85);
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', 'abkharido_uploads');
+          formData.append('cloud_name', 'rx1klbob');
+
+          const res = await fetch('https://api.cloudinary.com/v1_1/rx1klbob/image/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.secure_url) {
+            uploadedUrls.push(data.secure_url);
+            continue;
+          }
+        } catch {
+          // Fallback to compressed base64
+        }
+        uploadedUrls.push(compressed);
+      }
+
+      setNewProdGallery(prev => [...prev, ...uploadedUrls].slice(0, 4));
+      showToast('Gallery photos attached successfully! 🖼️', 'success');
+    } catch {
+      showToast('Error uploading some gallery photos.', 'error');
+    } finally {
+      setIsUploadingGallery(false);
+      if (galleryImageInputRef.current) galleryImageInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveGalleryImage = (index) => {
+    setNewProdGallery(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Quick 1-Click Stock Toggle
+  const handleQuickStockToggle = async (product, newStock) => {
+    const prodId = product.id || product._id;
+    try {
+      const res = await fetch(`/api/seller/products/${prodId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentSeller?.token || ''}`
+        },
+        body: JSON.stringify({ countInStock: newStock })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Stock updated: ${product.name?.slice(0, 20)}... is now ${newStock > 0 ? `${newStock} in stock` : 'Out of Stock'}`, 'success');
+        setSellerProducts(prev => prev.map(p => (p.id === prodId || p._id === prodId) ? { ...p, stock: newStock, countInStock: newStock, inStock: newStock > 0 } : p));
+      } else {
+        showToast(data.error || 'Failed to update stock', 'error');
+      }
+    } catch {
+      showToast('Network error updating stock', 'error');
+    }
+  };
+
+  // 1-Click Orders & Tax Sales Report CSV Export
+  const handleExportOrdersCSV = () => {
+    if (!sellerOrders || sellerOrders.length === 0) {
+      showToast('No orders available to export yet.', 'error');
+      return;
+    }
+
+    const headers = [
+      'Order Date',
+      'Order ID',
+      'Customer City',
+      'Customer State',
+      'Items Purchased',
+      'Quantity',
+      'Gross Sale (INR)',
+      'Payment Mode',
+      'Order Status',
+      'Courier Partner',
+      'AWB Number',
+      'Platform Fee (8%)',
+      'TDS 194-O (1%)',
+      'Net Settled Payout (INR)'
+    ];
+
+    const rows = sellerOrders.map(o => {
+      const allItems = o.orderItems || o.items || [];
+      const itemNames = allItems.map(i => i.name?.replace(/,/g, ' ')).join(' | ');
+      const totalQty = allItems.reduce((acc, i) => acc + (Number(i.qty || i.quantity) || 1), 0);
+      const gross = o.financialLedger?.grossSale || 0;
+      const fee = o.financialLedger?.platformCommission || 0;
+      const tds = o.financialLedger?.tdsDeducted || 0;
+      const net = o.financialLedger?.netPayable || 0;
+
+      return [
+        new Date(o.createdAt).toLocaleDateString('en-IN'),
+        o.orderId || o.cfOrderId || String(o._id),
+        (o.shippingAddress?.city || '').replace(/,/g, ' '),
+        (o.shippingAddress?.state || '').replace(/,/g, ' '),
+        `"${itemNames}"`,
+        totalQty,
+        gross,
+        o.paymentMethod || 'Prepaid',
+        o.status || 'Pending',
+        o.courierPartner || 'Delhivery',
+        o.awbNumber || 'Pending Pickup',
+        fee,
+        tds,
+        net
+      ].join(',');
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `AbKharido_Merchant_Sales_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('📊 Sales & Tax CSV exported successfully!', 'success');
+  };
+
   // ─── ADD PRODUCT HANDLER ─────────────────────────────────────────
   const handleAddProductSubmit = async (e) => {
     e.preventDefault();
@@ -651,6 +793,7 @@ export default function SellerDashboard({ onNavigate }) {
           hsnCode: newProdHsn,
           gstRate: isGstSeller ? Number(newProdGstRate) : 0,
           image: newProdImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
+          images: [newProdImage, ...newProdGallery].filter(Boolean),
           description: newProdDesc || `${newProdName} with verified quality guarantee and fast dispatch.`
         })
       });
@@ -663,6 +806,7 @@ export default function SellerDashboard({ onNavigate }) {
         setNewProdPrice('');
         setNewProdOriginalPrice('');
         setNewProdImage('');
+        setNewProdGallery([]);
         setNewProdDesc('');
         fetchSellerProducts();
       } else {
@@ -1532,6 +1676,130 @@ export default function SellerDashboard({ onNavigate }) {
 
           </div>
 
+          {/* 🛡️ MERCHANT COMPLIANCE & IDENTITY PROFILE */}
+          <div style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '22px 24px', marginBottom: '24px', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldCheck size={22} color="#2563eb" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '16px', fontWeight: '900', color: '#0f172a', margin: 0 }}>
+                    Merchant Verification &amp; Tax Compliance Profile
+                  </h3>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                    Government Regulatory &amp; Banking KYC Status
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleExportOrdersCSV}
+                  style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#334155', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Download size={13} /> GSTR-1 Sales Report (CSV)
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
+              {/* Business Name & Channel */}
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  Store &amp; Inventory Channel
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {currentSeller?.shopName || 'Registered Merchant'}
+                </div>
+                <div style={{ marginTop: '6px', fontSize: '11px' }}>
+                  {(() => {
+                    const is1POwner = currentSeller?.id === '9172600587' || currentSeller?.phone === '9172600587' || currentSeller?.role === 'super_admin' || currentSeller?.email === 'admin@abkharido.com';
+                    return is1POwner ? (
+                      <span style={{ background: '#fef3c7', color: '#b45309', padding: '2px 8px', borderRadius: '6px', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        👑 1P Direct (0% Commission)
+                      </span>
+                    ) : (
+                      <span style={{ background: '#eff6ff', color: '#1d4ed8', padding: '2px 8px', borderRadius: '6px', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        🏪 3P Marketplace (Standard 8%)
+                      </span>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Legal Name & PAN */}
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  Tax Identity &amp; PAN Card
+                </div>
+                <div style={{ fontSize: '13px', fontWeight: '900', color: '#0f172a' }}>
+                  {currentSeller?.legalBusinessName || currentSeller?.name || 'Verified Merchant'}
+                </div>
+                <div style={{ marginTop: '4px', fontSize: '11.5px', color: '#15803d', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <CheckCircle2 size={13} color="#16a34a" /> PAN: {currentSeller?.pan || (currentSeller?.gstin ? currentSeller.gstin.slice(2, 12) : 'Registered')}
+                </div>
+                {currentSeller?.udyamNumber && (
+                  <div style={{ marginTop: '2px', fontSize: '10.5px', color: '#475569', fontWeight: '700' }}>
+                    MSME: {currentSeller.udyamNumber}
+                  </div>
+                )}
+              </div>
+
+              {/* Tax Scheme */}
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  GST Scheme &amp; Invoicing
+                </div>
+                {currentSeller?.gstin ? (
+                  <>
+                    <div style={{ fontSize: '13px', fontWeight: '900', color: '#1e40af' }}>
+                      GST Registered
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '2px' }}>
+                      GSTIN: {currentSeller.gstin}
+                    </div>
+                    <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#15803d', fontWeight: '800' }}>
+                      ✓ Nationwide Pan-India Delivery
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: '13px', fontWeight: '900', color: '#059669' }}>
+                      Composition Small Seller
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '2px' }}>
+                      Notification 34/2023 Central Tax
+                    </div>
+                    <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#15803d', fontWeight: '800' }}>
+                      ✓ Bill of Supply (0% Tax) Enabled
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Payout Bank / UPI */}
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  Settlement Destination
+                </div>
+                <div style={{ fontSize: '13px', fontWeight: '900', color: '#0f172a' }}>
+                  {currentSeller?.payoutDetails?.bankName || 'Verified Bank'}
+                </div>
+                <div style={{ fontSize: '11.5px', color: '#475569', marginTop: '2px' }}>
+                  A/C: ••••{currentSeller?.payoutDetails?.bankAccount ? currentSeller.payoutDetails.bankAccount.slice(-4) : 'Configured'}
+                  {currentSeller?.payoutDetails?.bankIfsc ? ` • IFSC: ${currentSeller.payoutDetails.bankIfsc}` : ''}
+                </div>
+                {currentSeller?.payoutDetails?.upi && (
+                  <div style={{ marginTop: '3px', fontSize: '11px', color: '#7c3aed', fontWeight: '700' }}>
+                    UPI: {currentSeller.payoutDetails.upi}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* 🌟 ARCHITECTURE GUIDE: How AbKharido Seller Payment & Delivery System Works */}
           <div style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '24px', marginBottom: '24px', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.03)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
@@ -1642,31 +1910,54 @@ export default function SellerDashboard({ onNavigate }) {
       {activeTab === 'orders' && (
         <div className="animate-fade-in">
           
-          {/* Order Filter Pills */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-            {[
-              { id: 'all', label: 'All Orders' },
-              { id: 'pending', label: '⏳ Awaiting Packing & Dispatch' },
-              { id: 'shipped', label: '🚚 In Transit / Dispatched' },
-              { id: 'delivered', label: '✅ Delivered & Settled' }
-            ].map(f => (
-              <button
-                key={f.id}
-                onClick={() => setOrderFilter(f.id)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  border: orderFilter === f.id ? '1px solid #2563eb' : '1px solid #e2e8f0',
-                  background: orderFilter === f.id ? '#eff6ff' : '#ffffff',
-                  color: orderFilter === f.id ? '#1d4ed8' : '#64748b',
-                  fontWeight: '800',
-                  fontSize: '12.5px',
-                  cursor: 'pointer'
-                }}
-              >
-                {f.label}
-              </button>
-            ))}
+          {/* Order Filter Pills & CSV Export */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {[
+                { id: 'all', label: 'All Orders' },
+                { id: 'pending', label: '⏳ Awaiting Packing & Dispatch' },
+                { id: 'shipped', label: '🚚 In Transit / Dispatched' },
+                { id: 'delivered', label: '✅ Delivered & Settled' }
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setOrderFilter(f.id)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    border: orderFilter === f.id ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                    background: orderFilter === f.id ? '#eff6ff' : '#ffffff',
+                    color: orderFilter === f.id ? '#1d4ed8' : '#64748b',
+                    fontWeight: '800',
+                    fontSize: '12.5px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleExportOrdersCSV}
+              style={{
+                padding: '9px 16px',
+                borderRadius: '10px',
+                border: '1px solid #cbd5e1',
+                background: '#ffffff',
+                color: '#1e40af',
+                fontWeight: '800',
+                fontSize: '12.5px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 6px rgba(15, 23, 42, 0.04)'
+              }}
+            >
+              <Download size={14} /> Export Orders (GSTR-1 CSV)
+            </button>
           </div>
 
           {filteredOrders.length === 0 ? (
@@ -1890,12 +2181,22 @@ export default function SellerDashboard({ onNavigate }) {
                 </p>
               </div>
 
-              <button 
-                onClick={fetchSellerPayouts}
-                style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#f8fafc', fontWeight: '700', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <RefreshCw size={13} /> Refresh Ledger
-              </button>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button 
+                  type="button"
+                  onClick={handleExportOrdersCSV}
+                  style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#1e40af', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Download size={13} /> Export Sales CSV
+                </button>
+                <button 
+                  type="button"
+                  onClick={fetchSellerPayouts}
+                  style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#f8fafc', fontWeight: '700', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <RefreshCw size={13} /> Refresh Ledger
+                </button>
+              </div>
             </div>
 
             {payoutHistory.length === 0 ? (
@@ -2016,47 +2317,127 @@ export default function SellerDashboard({ onNavigate }) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
               {sellerProducts
                 .filter(p => !catalogSearch || p.name?.toLowerCase().includes(catalogSearch.toLowerCase()) || p.category?.toLowerCase().includes(catalogSearch.toLowerCase()))
-                .map(p => (
-                  <div key={p.id || p._id} style={{ background: '#ffffff', borderRadius: '18px', border: '1px solid #e2e8f0', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)' }}>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <img src={p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200'} alt={p.name} style={{ width: '64px', height: '64px', borderRadius: '10px', objectFit: 'contain', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>Category: {p.category}</div>
-                        <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: '700' }}>HSN: {p.hsnCode || '8517'} • GST: {isGstSeller ? `${p.gstRate || 18}%` : '0% (Exempt)'}</div>
+                .map(p => {
+                  const currentStock = Math.max(0, Number(p.stock ?? p.countInStock ?? 0));
+                  const is1P = p.channel === '1P' || p.isOfficialStore;
+                  const galleryCount = Array.isArray(p.images) ? p.images.length : (p.image ? 1 : 0);
+
+                  return (
+                    <div key={p.id || p._id} style={{ background: '#ffffff', borderRadius: '18px', border: '1px solid #e2e8f0', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)' }}>
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <div style={{ position: 'relative', width: '68px', height: '68px', flexShrink: 0 }}>
+                          <img src={p.image || (Array.isArray(p.images) && p.images[0]) || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200'} alt={p.name} style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'contain', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
+                          {galleryCount > 1 && (
+                            <span style={{ position: 'absolute', bottom: '2px', right: '2px', background: 'rgba(15, 23, 42, 0.8)', color: '#ffffff', fontSize: '9.5px', fontWeight: '800', padding: '1px 4px', borderRadius: '4px' }}>
+                              +{galleryCount - 1} 📷
+                            </span>
+                          )}
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                            {is1P && (
+                              <span style={{ fontSize: '10px', fontWeight: '900', background: '#fef3c7', color: '#b45309', padding: '1px 6px', borderRadius: '4px' }}>
+                                👑 1P Direct
+                              </span>
+                            )}
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>{p.category}</span>
+                          </div>
+                          <div style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                          <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: '700', marginTop: '2px' }}>HSN: {p.hsnCode || '8517'} • GST: {isGstSeller ? `${p.gstRate || 18}%` : '0% (Exempt)'}</div>
+                        </div>
+                      </div>
+
+                      {/* Stock Health & Price */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '8px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <div>
+                          <div style={{ fontSize: '16px', fontWeight: '900', color: '#0f172a' }}>₹{(p.price || 0).toLocaleString('en-IN')}</div>
+                          {p.originalPrice && Number(p.originalPrice) > Number(p.price) && (
+                            <div style={{ fontSize: '10.5px', color: '#94a3b8', textDecoration: 'line-through' }}>MRP: ₹{Number(p.originalPrice).toLocaleString('en-IN')}</div>
+                          )}
+                        </div>
+
+                        <div>
+                          {currentStock === 0 ? (
+                            <span style={{ fontSize: '11px', fontWeight: '800', background: '#fee2e2', color: '#dc2626', padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              🔴 Out of Stock
+                            </span>
+                          ) : currentStock <= 5 ? (
+                            <span style={{ fontSize: '11px', fontWeight: '800', background: '#fef3c7', color: '#b45309', padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              ⚠️ Low Stock: {currentStock} left
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '11px', fontWeight: '800', background: '#dcfce7', color: '#15803d', padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              🟢 In Stock: {currentStock} units
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 1-Click Fast Stock Adjustments */}
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {currentStock > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => handleQuickStockToggle(p, 0)}
+                            style={{ flex: 1, padding: '5px 8px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fff1f2', color: '#b91c1c', fontSize: '11px', fontWeight: '800', cursor: 'pointer', textAlign: 'center' }}
+                            title="Instantly stop buyer orders for this item"
+                          >
+                            Pause (Set 0)
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleQuickStockToggle(p, 25)}
+                            style={{ flex: 1, padding: '5px 8px', borderRadius: '6px', border: '1px solid #86efac', background: '#f0fdf4', color: '#15803d', fontSize: '11px', fontWeight: '800', cursor: 'pointer', textAlign: 'center' }}
+                            title="Re-activate catalog item with 25 units"
+                          >
+                            ✓ Re-activate (+25)
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleQuickStockToggle(p, currentStock + 10)}
+                          style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#334155', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                          title="Add 10 units to current stock"
+                        >
+                          +10 Stock
+                        </button>
+                      </div>
+
+                      {/* Edit & Live View Footer */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+                        <div style={{ fontSize: '10.5px', color: '#64748b' }}>
+                          SKU #{String(p.id || p._id).slice(-6).toUpperCase()}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedEditProduct(p);
+                              setEditPrice(String(p.price || ''));
+                              setEditStock(String(p.stock || p.countInStock || 50));
+                              setIsQuickEditModalOpen(true);
+                            }}
+                            style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff', fontWeight: '700', fontSize: '11.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Edit3 size={12} /> Edit Price/Stock
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => window.open(`/product/${p.id || p._id}`, '_blank')}
+                            style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#ffffff', color: '#2563eb', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            title="View on Live Storefront"
+                          >
+                            <ExternalLink size={13} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
-                      <div>
-                        <div style={{ fontSize: '16px', fontWeight: '900', color: '#0f172a' }}>₹{(p.price || 0).toLocaleString('en-IN')}</div>
-                        <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: '700' }}>In Stock: {p.stock || p.countInStock || 50} units</div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button
-                          onClick={() => {
-                            setSelectedEditProduct(p);
-                            setEditPrice(String(p.price || ''));
-                            setEditStock(String(p.stock || p.countInStock || 50));
-                            setIsQuickEditModalOpen(true);
-                          }}
-                          style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', fontWeight: '700', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                        >
-                          <Edit3 size={13} /> Edit
-                        </button>
-
-                        <button
-                          onClick={() => window.open(`/product/${p.id || p._id}`, '_blank')}
-                          style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff', color: '#2563eb', cursor: 'pointer' }}
-                          title="View on Live Storefront"
-                        >
-                          <ExternalLink size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           )}
 
@@ -2355,6 +2736,30 @@ export default function SellerDashboard({ onNavigate }) {
                 </div>
               </div>
 
+              {/* Real-time Profit & Commission Calculator */}
+              {Number(newProdPrice) > 0 && (() => {
+                const gross = Number(newProdPrice);
+                const is1POwner = currentSeller.id === '9172600587' || currentSeller.phone === '9172600587' || currentSeller.role === 'super_admin';
+                const feeRate = is1POwner ? 0 : 0.08;
+                const fee = Math.round(gross * feeRate);
+                const gstOnFee = Math.round(fee * 0.18);
+                const tds = Math.round(gross * 0.01);
+                const netEarn = Math.max(0, gross - fee - gstOnFee - tds);
+                return (
+                  <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', fontSize: '12px', color: '#166534' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', marginBottom: '4px' }}>
+                      <span>💰 Estimated Payout to Your Bank:</span>
+                      <span style={{ fontSize: '13.5px', color: '#15803d' }}>₹{netEarn.toLocaleString('en-IN')} / unit</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '11px', flexWrap: 'wrap', gap: '8px' }}>
+                      <span>Gross Price: ₹{gross}</span>
+                      <span>Platform Fee ({feeRate * 100}%): -₹{fee}</span>
+                      <span>TDS Sec 194-O (1%): -₹{tds}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Category</label>
@@ -2433,7 +2838,7 @@ export default function SellerDashboard({ onNavigate }) {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155' }}>
-                    Product Photo* (Take Photo or Select from Gallery)
+                    Main Product Photo* (Take Photo or Select from Gallery)
                   </label>
                   <button
                     type="button"
@@ -2453,7 +2858,7 @@ export default function SellerDashboard({ onNavigate }) {
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '12px', fontWeight: '800', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
-                        <CheckCircle2 size={14} color="#16a34a" /> Photo Ready
+                        <CheckCircle2 size={14} color="#16a34a" /> Primary Photo Ready
                       </div>
                       <div style={{ fontSize: '11px', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {newProdImage.startsWith('data:') ? 'Captured/Uploaded Device Photo' : newProdImage}
@@ -2502,7 +2907,7 @@ export default function SellerDashboard({ onNavigate }) {
                           <Camera size={22} />
                         </div>
                         <span style={{ fontSize: '13px', fontWeight: '800', color: '#1e40af' }}>
-                          📸 Tap to Take Photo or Choose from Gallery
+                          📸 Tap to Take Photo or Choose Primary Photo
                         </span>
                         <span style={{ fontSize: '11px', color: '#64748b' }}>
                           Direct Camera / Mobile Gallery / File Upload (JPG, PNG, WEBP)
@@ -2529,6 +2934,57 @@ export default function SellerDashboard({ onNavigate }) {
                     style={{ width: '100%', height: '36px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', marginTop: '8px', boxSizing: 'border-box' }}
                   />
                 )}
+
+                {/* 🖼️ Additional Gallery Angles (Up to 4 Photos) */}
+                <div style={{ marginTop: '12px', background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11.5px', fontWeight: '800', color: '#475569' }}>
+                      Additional Gallery Photos / Angles ({newProdGallery.length}/4)
+                    </label>
+                    {newProdGallery.length < 4 && (
+                      <button
+                        type="button"
+                        onClick={() => galleryImageInputRef.current?.click()}
+                        disabled={isUploadingGallery}
+                        style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', fontWeight: '800', color: '#2563eb', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        {isUploadingGallery ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <PlusCircle size={12} />}
+                        + Add Angle Photo
+                      </button>
+                    )}
+                  </div>
+
+                  {newProdGallery.length > 0 ? (
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                      {newProdGallery.map((imgUrl, gIdx) => (
+                        <div key={gIdx} style={{ position: 'relative', width: '56px', height: '56px', borderRadius: '8px', overflow: 'hidden', border: '1.5px solid #cbd5e1', background: '#ffffff' }}>
+                          <img src={imgUrl} alt={`Angle ${gIdx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveGalleryImage(gIdx)}
+                            style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(239, 68, 68, 0.9)', color: '#ffffff', border: 'none', borderRadius: '50%', width: '16px', height: '16px', fontSize: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+                            title="Remove Photo"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '10.5px', color: '#94a3b8' }}>
+                      Tip: Add side angles, packaging, or detail shots to boost buyer conversion.
+                    </div>
+                  )}
+
+                  <input 
+                    type="file" 
+                    ref={galleryImageInputRef}
+                    accept="image/*"
+                    multiple
+                    onChange={handleGalleryPhotoUpload}
+                    style={{ display: 'none' }}
+                  />
+                </div>
               </div>
 
               <div>

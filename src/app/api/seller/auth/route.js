@@ -235,10 +235,12 @@ export async function POST(req) {
           gstin: seller.gstin || '',
           pan: seller.pan || '',
           enrolmentId: seller.enrolmentId || '',
+          udyamNumber: seller.udyamNumber || '',
           legalBusinessName: seller.legalBusinessName || seller.shopName,
           walletCash: seller.walletCash || 0,
           payoutDetails: seller.payoutDetails,
           pickupAddress: seller.pickupAddress,
+          role: seller.role,
           token
         }
       }, { status: 201 });
@@ -315,10 +317,12 @@ export async function POST(req) {
         gstin: seller.gstin || '',
         pan: seller.pan || '',
         enrolmentId: seller.enrolmentId || '',
+        udyamNumber: seller.udyamNumber || '',
         legalBusinessName: seller.legalBusinessName || seller.shopName,
         walletCash: seller.walletCash || 0,
         payoutDetails: seller.payoutDetails,
         pickupAddress: seller.pickupAddress,
+        role: seller.role,
         token
       }
     });

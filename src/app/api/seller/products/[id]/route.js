@@ -47,8 +47,10 @@ export async function PUT(req, { params }) {
     if (price !== undefined) product.price = Number(price);
     if (originalPrice !== undefined) product.originalPrice = Number(originalPrice);
     if (countInStock !== undefined) {
-      product.stock = Number(countInStock);
-      product.inStock = Number(countInStock) > 0;
+      const stockNum = Math.max(0, Math.floor(Number(countInStock)));
+      product.stock = stockNum;
+      product.countInStock = stockNum;
+      product.inStock = stockNum > 0;
     }
     if (name) product.name = name.trim();
 

@@ -47,7 +47,7 @@ export async function POST(req) {
 
     await connectDB();
     const body = await req.json().catch(() => ({}));
-    const { name, category, price, originalPrice, image, description, specs, hsnCode = '8517', gstRate = 18, stock, countInStock = 50 } = body;
+    const { name, category, price, originalPrice, image, images, description, specs, hsnCode = '8517', gstRate = 18, stock, countInStock = 50 } = body;
 
     if (!name || !price) {
       return NextResponse.json({ error: 'Product name and price are required' }, { status: 400 });
@@ -56,7 +56,8 @@ export async function POST(req) {
     const finalStock = Math.max(0, Math.floor(Number(stock ?? countInStock ?? 50)));
     const finalPrice = Math.floor(Number(price));
     const finalOriginalPrice = Math.floor(Number(originalPrice || price));
-    const finalImage = image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80';
+    const finalImage = image || (Array.isArray(images) && images[0]) || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80';
+    const finalImages = Array.isArray(images) && images.length > 0 ? images.filter(Boolean) : [finalImage];
     const finalDesc = (description && description.trim().length >= 10)
       ? description.trim()
       : `Premium ${name.trim()} offered with manufacturer warranty and fast dispatch.`;
@@ -71,6 +72,7 @@ export async function POST(req) {
       originalPrice: finalOriginalPrice,
       stock: finalStock,
       image: finalImage,
+      images: finalImages,
       description: finalDesc,
       specs: specs || [],
       hsnCode: String(hsnCode || '8517'),
@@ -90,6 +92,7 @@ export async function POST(req) {
       channel: isOwner ? '1P' : '3P',
       isOfficialStore: isOwner,
       countInStock: finalStock,
+      images: finalImages,
       rating: 0,
       reviewsCount: 0,
       vendorId: seller.id,
