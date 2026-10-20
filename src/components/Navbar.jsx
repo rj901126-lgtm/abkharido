@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../context/AppContext';
@@ -25,7 +27,11 @@ import {
   Home as HomeIcon,
   Flame,
   Coins,
-  ChevronRight
+  ChevronRight,
+  Truck,
+  ShieldCheck,
+  Zap,
+  HelpCircle
 } from 'lucide-react';
 import '../assets/styles/navbar.css';
 import { normalizeSearchQuery } from '../utils/searchHelper';
@@ -35,9 +41,10 @@ import { useLanguage } from '../context/LanguageContext';
 
 const SEARCH_PLACEHOLDERS = [
   "Search for 'Signature Wireless ANC Earphones'...",
-  "Search for 'Bluetooth Audio & Speakers'...",
-  "Search for 'True Wireless Earbuds'...",
-  "Search for 'Active Noise Cancellation'..."
+  "Search for 'Bluetooth Audio & Soundbars'...",
+  "Search for 'Smartphones & 5G Mobiles'...",
+  "Search for 'Casual Wear & Sneakers'...",
+  "Search for 'Smartwatches & Accessories'..."
 ];
 
 const MEGA_MENU_CATEGORIES = [
@@ -103,7 +110,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const searchParams = useSearchParams();
   const { t } = useLanguage();
   const activeCat = searchParams ? (searchParams.get('category') || currentCategory || 'all') : (currentCategory || 'all');
-  const { currentUser, cart, logout, products, deliveryLocation, showToast } = useApp();
+  const { currentUser, cart, wishlist, logout, products, deliveryLocation, showToast } = useApp();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
@@ -111,14 +118,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const searchInputRef = useRef(null);
-  const dropdownRef = useRef(null);
-
-  // Delivery Pincode Modal State
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isPincodeModalOpen, setIsPincodeModalOpen] = useState(false);
 
-  // Measure real header height (varies with safe-area, font scaling, device) and expose as CSS variable
+  const searchInputRef = useRef(null);
+  const dropdownRef = useRef(null);
   const headerRef = useRef(null);
+
+  // Measure real header height (varies with safe-area, font scaling, device) and expose as CSS variable
   useEffect(() => {
     const el = headerRef.current;
     if (!el || typeof window === 'undefined') return;
@@ -162,16 +169,14 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
     };
   }, [dropdownOpen]);
 
-  // Close dropdown on navigation
+  // Close menus on navigation
   useEffect(() => {
     setDropdownOpen(false);
     setMobileMenuOpen(false);
+    setMegaMenuOpen(false);
   }, [activePage]);
 
-  // Mobile Account Menu Drawer State
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Lock scroll and handle escape when mobile menu is open
+  // Lock scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       const prevOverflow = document.body.style.overflow;
@@ -265,6 +270,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   }, [products]);
 
   const cartCount = Array.isArray(cart) ? cart.reduce((acc, item) => acc + (Number(item?.quantity) || 1), 0) : 0;
+  const wishlistCount = Array.isArray(wishlist) ? wishlist.length : 0;
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -277,590 +283,578 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
   };
 
   const handleCategoryClick = (catId) => {
+    setMegaMenuOpen(false);
     onSelectCategory(catId);
     if (activePage !== 'home' && activePage !== 'catalog') {
       onNavigate('');
     }
   };
 
+  // User display name resolution
+  const userFullName = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
+    || (typeof currentUser?.name === 'string' && currentUser.name.trim())
+    || (typeof currentUser?.username === 'string' && currentUser.username.trim())
+    || 'Customer';
+  const firstName = userFullName.split(' ')[0];
+  const currentUserInitial = firstName.charAt(0).toUpperCase();
+
   return (
     <>
-      <header ref={headerRef} className="navbar-header" role="banner" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, ...style }}>
+      <header ref={headerRef} className="navbar-header" role="banner" style={style}>
 
+        {/* 🌟 1. TOP UTILITY STRIP (Desktop & Tablet) */}
+        <div className="navbar-top-strip">
+          <div className="navbar-top-container">
+            {/* Left side benefits */}
+            <div className="navbar-top-left">
+              <span className="top-benefit-item">
+                <Truck size={13} color="#f59e0b" />
+                <span><strong>FREE Delivery</strong> on orders ₹499+</span>
+              </span>
+              <span className="top-strip-divider">•</span>
+              <span className="top-benefit-item">
+                <ShieldCheck size={13} color="#10b981" />
+                <span>100% Genuine Products • 7-Day Doorstep Returns</span>
+              </span>
+              <span className="top-strip-divider">•</span>
+              <span className="top-benefit-item">
+                <Zap size={13} color="#fbbf24" />
+                <span>Express COD Available India-Wide</span>
+              </span>
+            </div>
 
-        <nav className="navbar-container" aria-label="Main Navigation">
-          
-          <div className="navbar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {/* Logo */}
-            <a href="/" className="logo-container" aria-label="AbKharido Home" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
-              <img
-                src="/abkharido-logo.png?v=3"
-                alt="AbKharido"
-                className="brand-logo-image logo-text"
-              />
-            </a>
-
-            {/* 📍 Pincode / Delivery Location Selector */}
-            <button 
-              type="button"
-              className="delivery-pincode-badge"
-              onClick={() => setIsPincodeModalOpen(true)}
-              title="Click to change your delivery pincode"
-              aria-label={`Delivery location: ${deliveryLocation?.displayText || 'Palghar 401404'}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '5px 10px',
-                borderRadius: '10px',
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                minHeight: '44px'
-              }}
-            >
-              <MapPin size={15} color="var(--brand-accent)" />
-              <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
-                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600' }}>Deliver to</div>
-                <div style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a' }}>
-                  {deliveryLocation?.displayText || 'Palghar 401404'}
-                </div>
-              </div>
-            </button>
-
-            {/* Category Mega-Menu Trigger (Displays only categories with in-stock products) */}
-            <div 
-              className="category-mega-menu-wrapper"
-              onMouseEnter={() => setMegaMenuOpen(true)}
-              onMouseLeave={() => setMegaMenuOpen(false)}
-              style={{ position: 'relative' }}
-            >
-              <button
-                type="button"
-                onClick={() => setMegaMenuOpen(prev => !prev)}
-                aria-expanded={megaMenuOpen}
-                aria-haspopup="true"
-                aria-label="Category mega menu"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: megaMenuOpen ? '#eff6ff' : 'none',
-                  border: '1px solid',
-                  borderColor: megaMenuOpen ? '#bfdbfe' : 'transparent',
-                  color: megaMenuOpen ? 'var(--brand-accent)' : '#334155',
-                  padding: '6px 10px',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  minHeight: '44px',
-                  transition: 'all 0.2s'
-                }}
+            {/* Right side links */}
+            <div className="navbar-top-right">
+              <a 
+                href="/seller" 
+                onClick={(e) => { e.preventDefault(); onNavigate('seller'); }} 
+                className="top-link seller-badge-link"
+                title="Open your store on AbKharido"
               >
-                <Layers size={15} color={megaMenuOpen ? 'var(--brand-accent)' : '#64748b'} />
-                <span>Categories</span>
-                <ChevronDown size={13} style={{ transform: megaMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                <Store size={13} />
+                <span>Sell on AbKharido</span>
+                <span className="top-pill-free">Zero Fee</span>
+              </a>
+              <span className="top-strip-divider">|</span>
+              <a 
+                href="/orders" 
+                onClick={(e) => { e.preventDefault(); onNavigate('orders'); }} 
+                className="top-link"
+              >
+                <Package size={13} />
+                <span>Track Order</span>
+              </a>
+              <span className="top-strip-divider">|</span>
+              <a 
+                href="/support" 
+                onClick={(e) => { e.preventDefault(); onNavigate('support'); }} 
+                className="top-link"
+              >
+                <HelpCircle size={13} />
+                <span>24/7 Support</span>
+              </a>
+              <span className="top-strip-divider">|</span>
+              <LanguageToggle />
+            </div>
+          </div>
+        </div>
+
+        {/* 🌟 2. MAIN HEADER BAR */}
+        <div className="navbar-main-bar">
+          <nav className="navbar-container" aria-label="Main Navigation">
+            
+            {/* Left: Brand Logo & Delivery Pincode */}
+            <div className="navbar-left">
+              <a href="/" className="logo-container" aria-label="AbKharido Home" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
+                <img
+                  src="/abkharido-logo.png?v=3"
+                  alt="AbKharido"
+                  className="brand-logo-image logo-text"
+                />
+              </a>
+
+              {/* Delivery Location Pill */}
+              <button 
+                type="button"
+                className="delivery-pincode-badge"
+                onClick={() => setIsPincodeModalOpen(true)}
+                title="Click to change your delivery pincode"
+                aria-label={`Delivery location: ${deliveryLocation?.displayText || 'Palghar 401404'}`}
+              >
+                <div className="pincode-icon-circle">
+                  <MapPin size={14} color="#2563eb" />
+                </div>
+                <div className="pincode-text-block">
+                  <span className="pincode-sublabel">DELIVER TO</span>
+                  <span className="pincode-val">
+                    {deliveryLocation?.displayText || 'Palghar 401404'}
+                    <ChevronDown size={11} className="pincode-chevron" />
+                  </span>
+                </div>
               </button>
 
-              {/* Mega-Menu Dropdown Panel */}
-              {megaMenuOpen && (
-                <div 
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    width: '640px',
-                    backgroundColor: '#ffffff',
-                    borderRadius: '20px',
-                    boxShadow: '0 20px 40px rgba(9, 13, 22, 0.15)',
-                    border: '1.5px solid #e2e8f0',
-                    padding: '20px',
-                    display: 'grid',
-                    gridTemplateColumns: availableMegaCategories.length > 1 ? 'repeat(2, 1fr)' : '1fr',
-                    gap: '20px',
-                    zIndex: 1200,
-                    marginTop: '8px'
-                  }}
+              {/* Category Mega-Menu Trigger (Desktop) */}
+              <div 
+                className="category-mega-menu-wrapper"
+                onMouseEnter={() => setMegaMenuOpen(true)}
+                onMouseLeave={() => setMegaMenuOpen(false)}
+              >
+                <button
+                  type="button"
+                  className={`category-mega-menu-btn ${megaMenuOpen ? 'active' : ''}`}
+                  onClick={() => setMegaMenuOpen(prev => !prev)}
+                  aria-expanded={megaMenuOpen}
+                  aria-haspopup="true"
+                  aria-label="Category mega menu"
                 >
-                  {availableMegaCategories.length === 0 ? (
-                    <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
-                      Catalogue restock in progress. Check back shortly!
+                  <Layers size={15} />
+                  <span>Categories</span>
+                  <ChevronDown size={12} className="category-chevron" />
+                </button>
+
+                {/* Mega-Menu Dropdown Panel */}
+                {megaMenuOpen && (
+                  <div className="mega-menu-dropdown">
+                    {availableMegaCategories.length === 0 ? (
+                      <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
+                        Catalogue restock in progress. Check back shortly!
+                      </div>
+                    ) : (
+                      availableMegaCategories.map((section, sIdx) => {
+                        const SectionIcon = section.icon || Layers;
+                        return (
+                          <div key={sIdx} className="mega-section-block">
+                            <div 
+                              onClick={() => { setMegaMenuOpen(false); onSelectCategory(section.cat); }}
+                              className="mega-section-header"
+                            >
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <SectionIcon size={16} color="var(--brand-accent)" />
+                                {section.title}
+                              </span>
+                              <span style={{ fontSize: '11px', color: 'var(--brand-accent)', fontWeight: '800' }}>View All →</span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              {section.items.map((item, iIdx) => (
+                                <span
+                                  key={iIdx}
+                                  onClick={() => {
+                                    setMegaMenuOpen(false);
+                                    onSearch(item.query);
+                                  }}
+                                  className="mega-subitem-link"
+                                >
+                                  • {item.name}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Center: High-Tech Search Bar */}
+            <form className="search-form" role="search" aria-label="Sitewide Product Search" onSubmit={handleSearchSubmit}>
+              <div className="search-input-wrapper">
+                <div className="search-prefix-icon">
+                  <Search size={17} />
+                </div>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  id="main-store-search"
+                  className="search-input"
+                  aria-label="Search products, brands, or categories"
+                  placeholder={isListening ? "🎙️ Listening... Speak product name now..." : SEARCH_PLACEHOLDERS[placeholderIndex]}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
+                />
+                {searchQuery && !isListening && (
+                  <button 
+                    type="button" 
+                    className="search-clear-btn"
+                    aria-label="Clear search input"
+                    onClick={() => { setSearchQuery(''); if (searchInputRef.current) searchInputRef.current.focus(); }}
+                  >
+                    ✕
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={`search-mic-btn ${isListening ? 'active-listening' : ''}`}
+                  onClick={handleVoiceSearch}
+                  title="Search by voice"
+                  aria-label={isListening ? "Listening to voice input" : "Search by voice"}
+                >
+                  <Mic size={15} />
+                </button>
+                <button type="submit" className="search-submit-btn" aria-label="Submit Search">
+                  <span>Search</span>
+                  <Search size={14} />
+                </button>
+              </div>
+
+              {/* Active Voice Listening Dialog Banner */}
+              {isListening && (
+                <div style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  left: 0,
+                  right: 0,
+                  backgroundColor: '#0f172a',
+                  color: '#ffffff',
+                  padding: '14px 16px',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                  boxShadow: '0 16px 40px rgba(9, 13, 22, 0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  zIndex: 9999
+                }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1.5px solid #ef4444',
+                    flexShrink: 0
+                  }}>
+                    <Mic size={18} color="#ef4444" style={{ animation: 'pulse 0.6s infinite' }} />
+                  </div>
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '900', color: '#f8fafc', letterSpacing: '-0.2px' }}>
+                      🎙️ Listening... Boliye kya chahiye!
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px', fontWeight: '500' }}>
+                      E.g. &quot;Wireless Earbuds&quot;, &quot;Shoes&quot;, &quot;Smartwatch&quot;, ya &quot;Tshirt&quot;
+                    </div>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setIsListening(false)}
+                    style={{
+                      background: 'rgba(255,255,255,0.12)',
+                      border: '1px solid rgba(255,255,255,0.25)',
+                      color: '#ffffff',
+                      padding: '6px 12px',
+                      borderRadius: '100px',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      flexShrink: 0
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {/* Auto-Suggestions Dropdown */}
+              {showSuggestions && products && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                  backdropFilter: 'blur(16px)',
+                  borderRadius: '18px',
+                  boxShadow: '0 16px 40px rgba(9, 13, 22, 0.25)',
+                  marginTop: '8px',
+                  maxHeight: '360px',
+                  overflowY: 'auto',
+                  zIndex: 1100,
+                  border: '1px solid #e2e8f0',
+                  padding: '12px 16px'
+                }}>
+                  {!searchQuery.trim() ? (
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Flame size={14} color="#f59e0b" /> Trending Searches
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+                        {["Wireless Audio", "Bluetooth Earphones", "ANC Headphones", "5G Mobiles", "Smartwatch"].map((tag, i) => (
+                          <span
+                            key={i}
+                            onMouseDown={() => {
+                              setSearchQuery(tag);
+                              onSearch(tag);
+                              setShowSuggestions(false);
+                            }}
+                            style={{ background: '#f1f5f9', color: '#0f172a', padding: '6px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Search size={12} color="#64748b" /> {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--brand-accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Sparkles size={14} color="var(--brand-accent)" /> Featured Inventory
+                      </div>
+                      {products.slice(0, 3).map((p, idx) => (
+                        <div 
+                          key={p?.id || `trending-${idx}`}
+                          onMouseDown={() => { if (p?.id) onNavigateProduct(p.id); setShowSuggestions(false); }}
+                          style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 4px', cursor: 'pointer', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}
+                        >
+                          <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
+                          <div style={{ flex: 1, overflow: 'hidden' }}>
+                            <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
+                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>In {p?.category || 'Catalog'}</div>
+                          </div>
+                          <span style={{ fontSize: '14px', fontWeight: '900', color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: '8px' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</span>
+                        </div>
+                      ))}
                     </div>
                   ) : (
-                    availableMegaCategories.map((section, sIdx) => {
-                      const SectionIcon = section.icon || Layers;
-                      return (
-                        <div key={sIdx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div 
-                            onClick={() => { setMegaMenuOpen(false); onSelectCategory(section.cat); }}
-                            style={{ fontSize: '13.5px', fontWeight: '900', color: '#0f172a', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                          >
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <SectionIcon size={16} color="var(--brand-accent)" />
-                              {section.title}
-                            </span>
-                            <span style={{ fontSize: '11px', color: 'var(--brand-accent)', fontWeight: '800' }}>View All →</span>
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {section.items.map((item, iIdx) => (
-                              <span
-                                key={iIdx}
-                                onClick={() => {
-                                  setMegaMenuOpen(false);
-                                  onSearch(item.query);
-                                }}
-                                style={{ fontSize: '12.5px', color: '#475569', fontWeight: '500', cursor: 'pointer', padding: '3px 6px', borderRadius: '6px', transition: 'all 0.15s' }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.color = 'var(--brand-accent)'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#475569'; }}
-                              >
-                                • {item.name}
-                              </span>
-                            ))}
-                          </div>
+                    (() => {
+                      const matches = products.filter(p => {
+                        if (!p) return false;
+                        const name = p.name ? p.name.toLowerCase() : '';
+                        const category = p.category ? p.category.toLowerCase() : '';
+                        const desc = p.description ? p.description.toLowerCase() : '';
+                        const query = normalizeSearchQuery(searchQuery.toLowerCase());
+                        return name.includes(query) || category.includes(query) || desc.includes(query);
+                      }).slice(0, 6);
+                      
+                      return matches.length > 0 ? (
+                        <div>
+                          <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Live Matches ({matches.length})</div>
+                          {matches.map((p, idx) => (
+                            <div 
+                              key={p?.id || `match-${idx}`} 
+                              onMouseDown={() => {
+                                if (p?.id) onNavigateProduct(p.id);
+                                setSearchQuery('');
+                                setShowSuggestions(false);
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '8px 6px',
+                                cursor: 'pointer',
+                                borderBottom: '1px solid #f1f5f9',
+                                borderRadius: '12px',
+                                transition: 'background 0.2s'
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                              <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '2px' }} />
+                              <div style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
+                                <div style={{ fontWeight: '800', color: '#090d16', fontSize: '13px', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
+                                <span style={{ color: '#4338ca', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>💎 Verified Quality • {p?.category || 'General'}</span>
+                              </div>
+                              <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</div>
+                                {(p?.originalPrice || 0) > (p?.price || 0) && (
+                                  <div style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(p.originalPrice || 0).toLocaleString('en-IN')}</div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '13px' }}>
+                          No instant matches found for &quot;{searchQuery}&quot;. Press enter for deep catalog search!
                         </div>
                       );
-                    })
+                    })()
                   )}
                 </div>
               )}
-            </div>
-          </div>
+            </form>
 
-          {/* Search form */}
-          <form className="search-form" role="search" aria-label="Sitewide Product Search" onSubmit={handleSearchSubmit}>
-            <div className="search-input-wrapper" style={{ position: 'relative', border: isListening ? '1.5px solid #ef4444' : undefined, boxShadow: isListening ? '0 0 16px rgba(239, 68, 68, 0.35)' : undefined, transition: 'all 0.3s ease' }}>
-              <input
-                ref={searchInputRef}
-                type="text"
-                id="main-store-search"
-                className="search-input"
-                aria-label="Search products, brands, or categories"
-                placeholder={isListening ? "🎙️ Listening... Speak product name now..." : SEARCH_PLACEHOLDERS[placeholderIndex]}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
-                style={{ paddingRight: searchQuery ? '88px' : '62px', background: isListening ? 'rgba(239, 68, 68, 0.04)' : undefined }}
-              />
-              {searchQuery && !isListening && (
-                <button 
-                  type="button" 
-                  aria-label="Clear search input"
-                  onClick={() => { setSearchQuery(''); if (searchInputRef.current) searchInputRef.current.focus(); }}
-                  style={{ position: 'absolute', right: '64px', top: '50%', transform: 'translateY(-50%)', background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '22px', height: '22px', color: '#64748b', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 6, transition: 'all 0.2s' }}
+            {/* Right: Actions (Coins, Wishlist, Cart, User / Login) */}
+            <div className="navbar-right">
+
+              {/* VIP Coins Pill (Logged In) */}
+              {currentUser && (
+                <a 
+                  href="/profile?tab=rewards" 
+                  onClick={(e) => { e.preventDefault(); onNavigate('profile?tab=rewards'); }}
+                  className="nav-coins-pill"
+                  title="Your AbKharido Rewards Coins"
                 >
-                  ✕
-                </button>
+                  <Coins size={16} color="#d97706" />
+                  <span>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100}</span>
+                </a>
               )}
-              {/* Voice Search Mic Button - cleanly spaced to never overlap clear button */}
-              <button
-                type="button"
-                onClick={handleVoiceSearch}
-                title="Search by voice"
-                aria-label={isListening ? "Listening to voice input" : "Search by voice"}
-                style={{
-                  position: 'absolute',
-                  right: '34px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: isListening ? '#ef4444' : 'rgba(241, 245, 249, 0.8)',
-                  color: isListening ? '#ffffff' : '#475569',
-                  border: isListening ? '1px solid #dc2626' : '1px solid #e2e8f0',
-                  borderRadius: '100px',
-                  width: '28px',
-                  height: '28px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: isListening ? '0 0 12px rgba(239, 68, 68, 0.6)' : 'none',
-                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                  zIndex: 5
-                }}
-              >
-                <Mic size={14} style={{ animation: isListening ? 'pulse 0.8s infinite' : 'none' }} />
-              </button>
-              <button type="submit" className="search-button" aria-label="Submit Search">
-                <Search size={18} />
-              </button>
-            </div>
-            {/* Active Voice Listening Visual Dialog Banner */}
-            {isListening && (
-              <div style={{
-                position: 'absolute',
-                top: 'calc(100% + 8px)',
-                left: 0,
-                right: 0,
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                padding: '14px 16px',
-                borderRadius: '16px',
-                border: '1px solid rgba(239, 68, 68, 0.5)',
-                boxShadow: '0 16px 40px rgba(9, 13, 22, 0.45)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                zIndex: 9999
-              }}>
-                <div style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1.5px solid #ef4444',
-                  flexShrink: 0
-                }}>
-                  <Mic size={18} color="#ef4444" style={{ animation: 'pulse 0.6s infinite' }} />
-                </div>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div style={{ fontSize: '13px', fontWeight: '900', color: '#f8fafc', letterSpacing: '-0.2px' }}>
-                    🎙️ Listening... Boliye kya chahiye!
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px', fontWeight: '500' }}>
-                    E.g. &quot;Samsung Mobile&quot;, &quot;Shoes&quot;, &quot;Watch&quot;, ya &quot;Tshirt&quot;
-                  </div>
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => setIsListening(false)}
-                  style={{
-                    background: 'rgba(255,255,255,0.12)',
-                    border: '1px solid rgba(255,255,255,0.25)',
-                    color: '#ffffff',
-                    padding: '6px 12px',
-                    borderRadius: '100px',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                    transition: 'background 0.2s'
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-            {showSuggestions && products && (
-              <div className="search-suggestions-dropdown" style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                backdropFilter: 'blur(16px)',
-                borderRadius: '20px',
-                boxShadow: '0 16px 40px rgba(9, 13, 22, 0.25)',
-                marginTop: '8px',
-                maxHeight: '360px',
-                overflowY: 'auto',
-                zIndex: 1100,
-                border: '1px solid #e2e8f0',
-                padding: '12px 16px'
-              }}>
-                {!searchQuery.trim() ? (
-                  <div>
-                    <div style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Flame size={14} color="#f59e0b" /> Trending Searches
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-                      {["Wireless Audio", "Bluetooth Earphones", "ANC Headphones", "Original Inventory"].map((tag, i) => (
-                        <span
-                          key={i}
-                          onMouseDown={() => {
-                            setSearchQuery(tag);
-                            onSearch(tag);
-                            setShowSuggestions(false);
-                          }}
-                          style={{ background: '#f1f5f9', color: '#0f172a', padding: '6px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                        >
-                          <Search size={12} color="#64748b" /> {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--brand-accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Sparkles size={14} color="var(--brand-accent)" /> Featured Inventory
-                    </div>
-                    {products.slice(0, 3).map((p, idx) => (
-                      <div 
-                        key={p?.id || `trending-${idx}`}
-                        onMouseDown={() => { if (p?.id) onNavigateProduct(p.id); setShowSuggestions(false); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 4px', cursor: 'pointer', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}
-                      >
-                        <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
-                        <div style={{ flex: 1, overflow: 'hidden' }}>
-                          <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
-                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>In {p?.category || 'Catalog'}</div>
-                        </div>
-                        <span style={{ fontSize: '14px', fontWeight: '900', color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: '8px' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  (() => {
-                    const matches = products.filter(p => {
-                      if (!p) return false;
-                      const name = p.name ? p.name.toLowerCase() : '';
-                      const category = p.category ? p.category.toLowerCase() : '';
-                      const desc = p.description ? p.description.toLowerCase() : '';
-                      const query = normalizeSearchQuery(searchQuery.toLowerCase());
-                      return name.includes(query) || category.includes(query) || desc.includes(query);
-                    }).slice(0, 6);
-                    
-                    return matches.length > 0 ? (
-                      <div>
-                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Live Matches ({matches.length})</div>
-                        {matches.map((p, idx) => (
-                          <div 
-                            key={p?.id || `match-${idx}`} 
-                            className="suggestion-item"
-                            onMouseDown={() => {
-                              if (p?.id) onNavigateProduct(p.id);
-                              setSearchQuery('');
-                              setShowSuggestions(false);
-                            }}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '8px 6px',
-                              cursor: 'pointer',
-                              borderBottom: '1px solid #f1f5f9',
-                              borderRadius: '12px',
-                              transition: 'background 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '2px' }} />
-                            <div className="suggestion-text" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
-                              <div style={{ fontWeight: '800', color: '#090d16', fontSize: '13px', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
-                              <span style={{ color: '#4338ca', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>💎 VIP Deals • {p?.category || 'General'}</span>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</div>
-                              {(p?.originalPrice || 0) > (p?.price || 0) && (
-                                <div style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(p.originalPrice || 0).toLocaleString('en-IN')}</div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '13px' }}>
-                        No instant matches found for "{searchQuery}". Try pressing enter for deep catalog search!
-                      </div>
-                    );
-                  })()
-                )}
-              </div>
-            )}
-          </form>
 
-          <div className="navbar-right">
-            <LanguageToggle style={{ marginRight: '6px' }} />
-            {currentUser ? (
-              /* Steve Jobs Grade Luxury Profile Pill */
-              <div 
-                ref={dropdownRef}
-                className="nav-item user-profile-pill" 
-                onMouseEnter={() => {
-                  if (typeof window !== 'undefined' && window.innerWidth > 768) {
-                    setDropdownOpen(true);
-                  }
-                }}
-                onMouseLeave={() => {
-                  if (typeof window !== 'undefined' && window.innerWidth > 768) {
-                    setDropdownOpen(false);
-                  }
-                }}
+              {/* Wishlist Link with Live Counter Badge */}
+              <a
+                href="/profile?tab=wishlist"
+                className="nav-action-btn wishlist-btn"
+                aria-label={`Wishlist, ${wishlistCount} items`}
+                title="View your saved wishlist"
                 onClick={(e) => {
                   e.preventDefault();
-                  if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-                    setMobileMenuOpen(true);
-                    return;
+                  if (currentUser) {
+                    onNavigate('profile?tab=wishlist');
+                  } else {
+                    onNavigate('wishlist');
                   }
-                  setDropdownOpen(!dropdownOpen);
-                }}
-                style={{ 
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  height: '32px',
-                  padding: '0 8px 0 4px',
-                  borderRadius: '99px',
-                  background: dropdownOpen ? '#eff6ff' : '#f8fafc',
-                  border: dropdownOpen ? '1px solid #93c5fd' : '1px solid #e2e8f0',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                 }}
               >
-                {/* Minimalist Monogram Avatar Circle */}
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '11px',
-                  fontWeight: '900',
-                  textTransform: 'uppercase',
-                  flexShrink: 0,
-                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
-                }}>
-                  {(() => {
-                    const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
-                      || (typeof currentUser?.name === 'string' && currentUser.name.trim())
-                      || (typeof currentUser?.username === 'string' && currentUser.username.trim())
-                      || 'U';
-                    return name.charAt(0).toUpperCase();
-                  })()}
+                <div className="nav-action-icon-wrap">
+                  <Heart size={20} color={wishlistCount > 0 ? '#ef4444' : '#334155'} fill={wishlistCount > 0 ? '#ef4444' : 'none'} />
+                  {wishlistCount > 0 && <span className="nav-badge">{wishlistCount}</span>}
                 </div>
-
-                {/* Single-Line Clean Name */}
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  color: '#0f172a',
-                  maxWidth: '75px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  lineHeight: 1,
-                  display: 'inline-block',
-                }}>
-                  {(() => {
-                    const name = (typeof currentUser?.fullName === 'string' && currentUser.fullName.trim())
-                      || (typeof currentUser?.name === 'string' && currentUser.name.trim())
-                      || (typeof currentUser?.username === 'string' && currentUser.username.trim())
-                      || 'User';
-                    return name.split(' ')[0];
-                  })()}
-                </span>
-
-                <ChevronDown size={11} color="#64748b" style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
-
-
-                {dropdownOpen && (
-
-                  <div className="dropdown-menu">
-                    <div className="dropdown-header-banner" style={{
-                      background: 'linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%)',
-                      padding: '16px',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      borderBottom: '1px solid rgba(255,255,255,0.1)'
-                    }}>
-                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#fbbf24', color: '#1e1b4b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '900', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-                        {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
-                      </div>
-                      <div style={{ overflow: 'hidden' }}>
-                        <div className="dropdown-name" style={{ color: '#ffffff', fontSize: '15px', fontWeight: '800', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{currentUser.fullName}</div>
-                        <div className="dropdown-email" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '11.5px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{currentUser.email || 'VIP Indian Member'}</div>
-                      </div>
-                    </div>
-
-                    <div style={{ padding: '10px' }}>
-                      {currentUser.isInfluencer ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', color: '#059669', fontWeight: '800', fontSize: '13px', marginBottom: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                          <CircleDollarSign size={18} color="#059669" /> 
-                          <span>Withdrawable: ₹{(currentUser.walletCash || 0).toFixed(2)}</span>
-                        </div>
-                      ) : (
-                        <a href="#rewards" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile?tab=rewards'); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderRadius: '12px', color: '#b45309', fontWeight: '800', fontSize: '13.5px', marginBottom: '8px', border: '1px solid #fde68a', boxShadow: '0 2px 4px rgba(245,158,11,0.06)', textDecoration: 'none', cursor: 'pointer', transition: 'transform 0.2s' }}>
-                          <Coins size={22} color="#d97706" /> 
-                          <div style={{ flex: 1 }}>
-                            <div style={{ color: '#92400e', lineHeight: 1.2, fontSize: '13px' }}>My Coins: <span style={{ color: '#d97706', fontWeight: '900', fontSize: '16px', marginLeft: '2px' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100}</span></div>
-                            <div style={{ fontSize: '10px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>✨ View & Redeem rewards &gt;</div>
-                          </div>
-                        </a>
-                      )}
-
-                      {currentUser.isInfluencer && (
-                        <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('partner'); }}>
-                          <div className="dropdown-icon-box" style={{ background: '#ecfdf5', color: '#059669' }}><Award size={16} /></div>
-                          <span style={{ fontWeight: '600' }}>Creator Dashboard</span>
-                        </a>
-                      )}
-
-                      <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile'); }}>
-                        <div className="dropdown-icon-box" style={{ background: '#eff6ff', color: '#2563eb' }}><User size={16} /></div>
-                        <span style={{ fontWeight: '600', color: '#1e293b' }}>My Profile</span>
-                      </a>
-
-                      <a href="#wishlist" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile?tab=wishlist'); }}>
-                        <div className="dropdown-icon-box" style={{ background: '#fef2f2', color: '#dc2626' }}><Heart size={16} fill="#dc2626" /></div>
-                        <span style={{ fontWeight: '600', color: '#1e293b' }}>My Wishlist</span>
-                      </a>
-
-                      <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('orders'); }}>
-                        <div className="dropdown-icon-box" style={{ background: '#f0fdf4', color: '#16a34a' }}><Package size={16} /></div>
-                        <span style={{ fontWeight: '600', color: '#1e293b' }}>My Orders</span>
-                      </a>
-
-                      <a href="#seller" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('seller'); }}>
-                        <div className="dropdown-icon-box" style={{ background: '#faf5ff', color: '#9333ea' }}><Store size={16} /></div>
-                        <span style={{ fontWeight: '600', color: '#1e293b' }}>Sell on AbKharido</span>
-                      </a>
-
-                      <div className="dropdown-divider" style={{ margin: '8px 0', borderColor: '#e2e8f0' }}></div>
-
-                      <button className="dropdown-item" onClick={() => { setDropdownOpen(false); logout(); }} style={{ color: '#e11d48', width: '100%', border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', padding: '10px 12px', borderRadius: '10px' }}>
-                        <div className="dropdown-icon-box" style={{ background: '#fff1f2', color: '#e11d48' }}><LogOut size={16} /></div>
-                        <span style={{ fontWeight: '700' }}>Logout Account</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Login/Signup Button */
-              <a 
-                href="#login" 
-                className="nav-item-btn" 
-                onClick={(e) => { e.preventDefault(); onNavigate('login'); }}
-                style={{ fontWeight: 'bold', fontSize: '13.5px', textDecoration: 'none' }}
-              >
-                {t('login', 'Login')}
+                <span className="nav-action-label">Wishlist</span>
               </a>
-            )}
 
-            {/* Cart */}
-            <a 
-              href="#cart" 
-              className="nav-item cart-item" 
-              aria-label={`Shopping Cart, ${cartCount} item${cartCount === 1 ? '' : 's'}`}
-              onClick={(e) => { 
-                e.preventDefault(); 
-                if (onCartClick) {
-                  onCartClick();
-                } else {
-                  onNavigate('cart');
-                }
-              }}
-            >
-              <div className="cart-icon-wrapper">
-                <ShoppingCart size={20} />
-                {cartCount > 0 && <span className="cart-badge" aria-live="polite">{cartCount}</span>}
-              </div>
-              <span className="nav-text">{t('cart', 'Cart')}</span>
-            </a>
+              {/* Cart Link with Live Counter Badge */}
+              <a 
+                href="/cart" 
+                className="nav-action-btn cart-btn" 
+                aria-label={`Shopping Cart, ${cartCount} items`}
+                title="View Shopping Cart"
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  if (onCartClick) {
+                    onCartClick();
+                  } else {
+                    onNavigate('cart');
+                  }
+                }}
+              >
+                <div className="nav-action-icon-wrap">
+                  <ShoppingCart size={20} color="#ffffff" />
+                  {cartCount > 0 && <span className="nav-badge">{cartCount}</span>}
+                </div>
+                <span className="cart-btn-label">Cart</span>
+              </a>
 
-          </div>
-        </nav>
+              {/* User Account / Login */}
+              {currentUser ? (
+                <div 
+                  ref={dropdownRef}
+                  className="user-profile-menu-wrap"
+                  onMouseEnter={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth > 768) {
+                      setDropdownOpen(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth > 768) {
+                      setDropdownOpen(false);
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+                      setMobileMenuOpen(true);
+                      return;
+                    }
+                    setDropdownOpen(!dropdownOpen);
+                  }}
+                >
+                  <div className={`user-profile-pill ${dropdownOpen ? 'active' : ''}`}>
+                    <div className="user-avatar-circle">
+                      {currentUserInitial}
+                    </div>
+                    <div className="user-pill-text">
+                      <span className="user-pill-greet">Hello,</span>
+                      <span className="user-pill-name">{firstName}</span>
+                    </div>
+                    <ChevronDown size={12} className="user-pill-chevron" />
+                  </div>
+
+                  {/* Dropdown Menu */}
+                  {dropdownOpen && (
+                    <div className="dropdown-menu">
+                      <div className="dropdown-header-banner">
+                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#fbbf24', color: '#1e1b4b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '900', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                          {currentUserInitial}
+                        </div>
+                        <div style={{ overflow: 'hidden' }}>
+                          <div style={{ color: '#ffffff', fontSize: '15px', fontWeight: '800', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{userFullName}</div>
+                          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '11.5px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{currentUser.email || currentUser.phone || 'VIP Indian Member'}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ padding: '10px' }}>
+                        {currentUser.isInfluencer ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', color: '#059669', fontWeight: '800', fontSize: '13px', marginBottom: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                            <CircleDollarSign size={18} color="#059669" /> 
+                            <span>Withdrawable: ₹{(currentUser.walletCash || 0).toFixed(2)}</span>
+                          </div>
+                        ) : (
+                          <a href="#rewards" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile?tab=rewards'); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderRadius: '12px', color: '#b45309', fontWeight: '800', fontSize: '13.5px', marginBottom: '8px', border: '1px solid #fde68a', textDecoration: 'none', cursor: 'pointer' }}>
+                            <Coins size={22} color="#d97706" /> 
+                            <div style={{ flex: 1 }}>
+                              <div style={{ color: '#92400e', lineHeight: 1.2, fontSize: '13px' }}>My Coins: <span style={{ color: '#d97706', fontWeight: '900', fontSize: '16px', marginLeft: '2px' }}>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100}</span></div>
+                              <div style={{ fontSize: '10px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>✨ View &amp; Redeem rewards &gt;</div>
+                            </div>
+                          </a>
+                        )}
+
+                        {currentUser.isInfluencer && (
+                          <a href="#partner-center" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('partner'); }}>
+                            <div className="dropdown-icon-box" style={{ background: '#ecfdf5', color: '#059669' }}><Award size={16} /></div>
+                            <span style={{ fontWeight: '600' }}>Creator Dashboard</span>
+                          </a>
+                        )}
+
+                        <a href="#profile" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile'); }}>
+                          <div className="dropdown-icon-box" style={{ background: '#eff6ff', color: '#2563eb' }}><User size={16} /></div>
+                          <span style={{ fontWeight: '600', color: '#1e293b' }}>My Profile</span>
+                        </a>
+
+                        <a href="#wishlist" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('profile?tab=wishlist'); }}>
+                          <div className="dropdown-icon-box" style={{ background: '#fef2f2', color: '#dc2626' }}><Heart size={16} fill="#dc2626" /></div>
+                          <span style={{ fontWeight: '600', color: '#1e293b' }}>My Wishlist ({wishlistCount})</span>
+                        </a>
+
+                        <a href="#orders" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('orders'); }}>
+                          <div className="dropdown-icon-box" style={{ background: '#f0fdf4', color: '#16a34a' }}><Package size={16} /></div>
+                          <span style={{ fontWeight: '600', color: '#1e293b' }}>My Orders</span>
+                        </a>
+
+                        <a href="#seller" className="dropdown-item" onClick={(e) => { e.preventDefault(); setDropdownOpen(false); onNavigate('seller'); }}>
+                          <div className="dropdown-icon-box" style={{ background: '#faf5ff', color: '#9333ea' }}><Store size={16} /></div>
+                          <span style={{ fontWeight: '600', color: '#1e293b' }}>Sell on AbKharido</span>
+                        </a>
+
+                        <div style={{ height: '1px', background: '#f1f5f9', margin: '8px 0' }}></div>
+
+                        <button className="dropdown-item" onClick={() => { setDropdownOpen(false); logout(); }} style={{ color: '#e11d48', width: '100%', border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', padding: '10px 12px', borderRadius: '10px' }}>
+                          <div className="dropdown-icon-box" style={{ background: '#fff1f2', color: '#e11d48' }}><LogOut size={16} /></div>
+                          <span style={{ fontWeight: '700' }}>Logout Account</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* High-Conversion Sign-In Button (Logged Out) */
+                <a 
+                  href="/login" 
+                  className="login-action-btn"
+                  onClick={(e) => { e.preventDefault(); onNavigate('login'); }}
+                >
+                  <User size={18} />
+                  <div className="login-btn-text">
+                    <span className="login-subtext">HELLO, GUEST</span>
+                    <span className="login-maintext">{t('login', 'Sign In')}</span>
+                  </div>
+                </a>
+              )}
+
+            </div>
+          </nav>
+        </div>
+
       </header>
 
       {/* 📍 Pincode Serviceability & Delivery Modal */}
@@ -888,10 +882,10 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             {/* User Profile Card */}
             <div className="mobile-sheet-header">
               <div className="mobile-sheet-avatar">
-                {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+                {currentUserInitial}
               </div>
               <div className="mobile-sheet-userinfo">
-                <div className="mobile-sheet-name">{currentUser.fullName || 'Valued Customer'}</div>
+                <div className="mobile-sheet-name">{userFullName}</div>
                 <div className="mobile-sheet-email">{currentUser.email || currentUser.phone || 'VIP Member'}</div>
               </div>
               <button 
@@ -980,7 +974,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   <Heart size={18} fill="#dc2626" />
                 </div>
                 <div className="mobile-sheet-item-text">
-                  <span className="mobile-sheet-item-title">My Wishlist</span>
+                  <span className="mobile-sheet-item-title">My Wishlist ({wishlistCount})</span>
                   <span className="mobile-sheet-item-subtitle">Items saved for future shopping</span>
                 </div>
                 <ChevronRight size={18} color="#94a3b8" />
