@@ -406,42 +406,81 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                 {/* Mega-Menu Dropdown Panel */}
                 {megaMenuOpen && (
                   <div className="mega-menu-dropdown">
+                    <div className="dropdown-header-banner mega-menu-banner">
+                      <div className="dropdown-avatar-circle" style={{ width: '36px', height: '36px', fontSize: '15px' }}>
+                        <Layers size={18} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div className="dropdown-user-title" style={{ fontSize: '14.5px' }}>Explore Store Departments</div>
+                        <div className="dropdown-user-sub">100% Genuine Inventory • Direct Factory Dispatch</div>
+                      </div>
+                      <span
+                        onClick={() => { setMegaMenuOpen(false); onSelectCategory('All'); }}
+                        style={{
+                          background: 'rgba(255,255,255,0.16)',
+                          border: '1px solid rgba(255,255,255,0.28)',
+                          color: '#ffffff',
+                          fontSize: '11.5px',
+                          fontWeight: '800',
+                          padding: '6px 12px',
+                          borderRadius: '99px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        All Products <ChevronRight size={13} />
+                      </span>
+                    </div>
+
                     {availableMegaCategories.length === 0 ? (
-                      <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
+                      <div style={{ padding: '24px 16px', textAlign: 'center', color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
                         Catalogue restock in progress. Check back shortly!
                       </div>
                     ) : (
-                      availableMegaCategories.map((section, sIdx) => {
-                        const SectionIcon = section.icon || Layers;
-                        return (
-                          <div key={sIdx} className="mega-section-block">
-                            <div 
-                              onClick={() => { setMegaMenuOpen(false); onSelectCategory(section.cat); }}
-                              className="mega-section-header"
-                            >
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <SectionIcon size={16} color="var(--brand-accent)" />
-                                {section.title}
-                              </span>
-                              <span style={{ fontSize: '11px', color: 'var(--brand-accent)', fontWeight: '800' }}>View All →</span>
+                      <div className="mega-menu-grid">
+                        {availableMegaCategories.map((section, sIdx) => {
+                          const SectionIcon = section.icon || Layers;
+                          const tintClasses = ['blue', 'purple', 'green', 'amber'];
+                          const tintClass = tintClasses[sIdx % tintClasses.length];
+                          return (
+                            <div key={sIdx} className="mega-section-block">
+                              <div 
+                                onClick={() => { setMegaMenuOpen(false); onSelectCategory(section.cat); }}
+                                className="mega-section-header"
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  <div className={`dropdown-icon-box ${tintClass}`}>
+                                    <SectionIcon size={16} />
+                                  </div>
+                                  <div>
+                                    <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#0f172a', lineHeight: 1.2 }}>{section.title}</div>
+                                    <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>{section.items.length} curated collections</div>
+                                  </div>
+                                </div>
+                                <span className="mega-view-all-pill">View All <ChevronRight size={12} /></span>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                {section.items.map((item, iIdx) => (
+                                  <span
+                                    key={iIdx}
+                                    onClick={() => {
+                                      setMegaMenuOpen(false);
+                                      onSearch(item.query);
+                                    }}
+                                    className="mega-subitem-link"
+                                  >
+                                    <span>{item.name}</span>
+                                    <ChevronRight size={13} className="mega-subitem-chevron" />
+                                  </span>
+                                ))}
+                              </div>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              {section.items.map((item, iIdx) => (
-                                <span
-                                  key={iIdx}
-                                  onClick={() => {
-                                    setMegaMenuOpen(false);
-                                    onSearch(item.query);
-                                  }}
-                                  className="mega-subitem-link"
-                                >
-                                  • {item.name}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
                 )}
@@ -557,23 +596,36 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   top: '100%',
                   left: 0,
                   right: 0,
-                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                  backdropFilter: 'blur(16px)',
-                  borderRadius: '18px',
-                  boxShadow: '0 16px 40px rgba(9, 13, 22, 0.25)',
-                  marginTop: '8px',
-                  maxHeight: '360px',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  boxShadow: '0 20px 45px rgba(15, 23, 42, 0.2), 0 4px 12px rgba(15, 23, 42, 0.06)',
+                  marginTop: '10px',
+                  maxHeight: '420px',
                   overflowY: 'auto',
                   zIndex: 1100,
                   border: '1px solid #e2e8f0',
-                  padding: '12px 16px'
+                  padding: '8px'
                 }}>
+                  <div className="dropdown-header-banner" style={{ padding: '12px 14px', marginBottom: '8px', borderRadius: '14px' }}>
+                    <div className="dropdown-avatar-circle" style={{ width: '32px', height: '32px', fontSize: '13px' }}>
+                      <Sparkles size={15} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div className="dropdown-user-title" style={{ fontSize: '13px' }}>
+                        {!searchQuery.trim() ? 'Discover Curated Tech & Lifestyle' : `Instant Search Results`}
+                      </div>
+                      <div className="dropdown-user-sub" style={{ fontSize: '11px' }}>
+                        {!searchQuery.trim() ? 'Popular keywords & top-rated express inventory' : `Showing live matches for "${searchQuery}"`}
+                      </div>
+                    </div>
+                  </div>
+
                   {!searchQuery.trim() ? (
-                    <div>
-                      <div style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ padding: '4px 6px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Flame size={14} color="#f59e0b" /> Trending Searches
                       </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
                         {["Wireless Audio", "Bluetooth Earphones", "ANC Headphones", "5G Mobiles", "Smartwatch"].map((tag, i) => (
                           <span
                             key={i}
@@ -582,27 +634,29 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                               onSearch(tag);
                               setShowSuggestions(false);
                             }}
-                            style={{ background: '#f1f5f9', color: '#0f172a', padding: '6px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            style={{ background: '#f8fafc', color: '#0f172a', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '5px', transition: 'all 0.15s ease' }}
                           >
-                            <Search size={12} color="#64748b" /> {tag}
+                            <Search size={12} color="#2563eb" /> {tag}
                           </span>
                         ))}
                       </div>
-                      <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--brand-accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '800', color: 'var(--brand-accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Sparkles size={14} color="var(--brand-accent)" /> Featured Inventory
                       </div>
                       {products.slice(0, 3).map((p, idx) => (
                         <div 
                           key={p?.id || `trending-${idx}`}
                           onMouseDown={() => { if (p?.id) onNavigateProduct(p.id); setShowSuggestions(false); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 4px', cursor: 'pointer', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' }}
+                          className="dropdown-item"
+                          style={{ padding: '8px 10px' }}
                         >
-                          <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0' }} />
+                          <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0', flexShrink: 0 }} />
                           <div style={{ flex: 1, overflow: 'hidden' }}>
                             <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
-                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>In {p?.category || 'Catalog'}</div>
+                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>In {p?.category || 'Catalog'} • Express Dispatch</div>
                           </div>
-                          <span style={{ fontSize: '14px', fontWeight: '900', color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: '8px' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</span>
+                          <span style={{ fontSize: '13px', fontWeight: '900', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '4px 8px', borderRadius: '8px', flexShrink: 0 }}>₹{(p?.price || 0).toLocaleString('en-IN')}</span>
+                          <ChevronRight size={14} color="#94a3b8" />
                         </div>
                       ))}
                     </div>
@@ -618,8 +672,7 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                       }).slice(0, 6);
                       
                       return matches.length > 0 ? (
-                        <div>
-                          <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Live Matches ({matches.length})</div>
+                        <div style={{ padding: '2px 4px' }}>
                           {matches.map((p, idx) => (
                             <div 
                               key={p?.id || `match-${idx}`} 
@@ -628,35 +681,26 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                                 setSearchQuery('');
                                 setShowSuggestions(false);
                               }}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                padding: '8px 6px',
-                                cursor: 'pointer',
-                                borderBottom: '1px solid #f1f5f9',
-                                borderRadius: '12px',
-                                transition: 'background 0.2s'
-                              }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
-                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                              className="dropdown-item"
+                              style={{ padding: '8px 10px' }}
                             >
-                              <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '2px' }} />
+                              <img src={p?.image || ''} alt={p?.name || 'Product'} style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '3px', flexShrink: 0 }} />
                               <div style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
-                                <div style={{ fontWeight: '800', color: '#090d16', fontSize: '13px', fontFamily: "'Outfit', sans-serif" }}>{p?.name || 'Product'}</div>
-                                <span style={{ color: '#4338ca', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>💎 Verified Quality • {p?.category || 'General'}</span>
+                                <div style={{ fontWeight: '800', color: '#090d16', fontSize: '13px', fontFamily: "'Outfit', sans-serif", overflow: 'hidden', textOverflow: 'ellipsis' }}>{p?.name || 'Product'}</div>
+                                <span style={{ color: '#2563eb', fontSize: '11px', fontWeight: '700' }}>💎 Verified Genuine • {p?.category || 'General'}</span>
                               </div>
-                              <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '14px', fontWeight: '900', color: '#059669' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</div>
+                              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                <div style={{ fontSize: '13.5px', fontWeight: '900', color: '#059669' }}>₹{(p?.price || 0).toLocaleString('en-IN')}</div>
                                 {(p?.originalPrice || 0) > (p?.price || 0) && (
-                                  <div style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(p.originalPrice || 0).toLocaleString('en-IN')}</div>
+                                  <div style={{ fontSize: '10.5px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{(p.originalPrice || 0).toLocaleString('en-IN')}</div>
                                 )}
                               </div>
+                              <ChevronRight size={14} color="#94a3b8" />
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '13px' }}>
+                        <div style={{ padding: '20px 16px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '13px' }}>
                           No instant matches found for &quot;{searchQuery}&quot;. Press enter for deep catalog search!
                         </div>
                       );
@@ -681,28 +725,6 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
                   <span>{currentUser.walletCoins !== undefined ? currentUser.walletCoins : 100}</span>
                 </a>
               )}
-
-              {/* Wishlist Link with Live Counter Badge */}
-              <a
-                href="/profile?tab=wishlist"
-                className="nav-action-btn wishlist-btn"
-                aria-label={`Wishlist, ${wishlistCount} items`}
-                title="View your saved wishlist"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (currentUser) {
-                    onNavigate('profile?tab=wishlist');
-                  } else {
-                    onNavigate('wishlist');
-                  }
-                }}
-              >
-                <div className="nav-action-icon-wrap">
-                  <Heart size={20} color={wishlistCount > 0 ? '#ef4444' : '#334155'} fill={wishlistCount > 0 ? '#ef4444' : 'none'} />
-                  {wishlistCount > 0 && <span className="nav-badge">{wishlistCount}</span>}
-                </div>
-                <span className="nav-action-label">Wishlist</span>
-              </a>
 
               {/* Cart Link with Live Counter Badge */}
               <a 

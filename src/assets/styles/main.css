@@ -226,7 +226,9 @@ img {
 }
 
 /* Global input focus ring */
-input:focus, textarea:focus, select:focus {
+input:not(.search-input):not(.orders-search-input):not(.lp-input):focus,
+textarea:focus,
+select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   border-color: var(--brand-accent, #2563eb) !important;
