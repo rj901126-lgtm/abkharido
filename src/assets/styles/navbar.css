@@ -171,64 +171,46 @@ img.logo-text {
   user-select: none;
 }
 
-/* Delivery Pincode Pill */
-.delivery-pincode-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: left;
-  user-select: none;
-}
-
-.delivery-pincode-badge:hover {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
-}
-
-.pincode-icon-circle {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: #eff6ff;
-  color: var(--nav-primary);
+/* Delivery Location Icon Button (Clean icon only - No truncated text) */
+.delivery-location-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
+  padding: 0;
 }
 
-.pincode-text-block {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
+.delivery-location-icon-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+  transform: translateY(-1px);
 }
 
-.pincode-sublabel {
-  font-size: 9.5px;
-  font-weight: 800;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.pincode-val {
-  font-size: 12.5px;
-  font-weight: 800;
-  color: #0f172a;
+.location-icon-circle {
   display: flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
 }
 
-.pincode-chevron {
-  color: #94a3b8;
+.location-pulse-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.6);
 }
 
 /* Category Mega-Menu Trigger */
@@ -809,30 +791,17 @@ img.logo-text {
     display: none !important;
   }
 
-  .delivery-pincode-badge {
-    padding: 3px 8px !important;
+  .delivery-location-icon-btn {
+    width: 34px !important;
     height: 34px !important;
-    border-radius: 99px !important;
-    gap: 4px !important;
-    max-width: 110px !important;
-    overflow: hidden !important;
+    border-radius: 9px !important;
   }
 
-  .pincode-icon-circle {
-    width: 22px !important;
-    height: 22px !important;
-    border-radius: 6px !important;
-  }
-
-  .pincode-sublabel {
-    display: none !important;
-  }
-
-  .pincode-val {
-    font-size: 11px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+  .location-pulse-dot {
+    top: 4px !important;
+    right: 4px !important;
+    width: 6px !important;
+    height: 6px !important;
   }
 
   /* Row 1 Right: Wishlist + Cart + Profile */

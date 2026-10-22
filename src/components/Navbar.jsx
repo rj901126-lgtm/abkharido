@@ -38,6 +38,7 @@ import { normalizeSearchQuery } from '../utils/searchHelper';
 import LanguageToggle from './LanguageToggle';
 import PincodeModal from './PincodeModal';
 import { useLanguage } from '../context/LanguageContext';
+import BrandLogo from './BrandLogo';
 
 const SEARCH_PLACEHOLDERS = [
   "Search for 'Signature Wireless ANC Earphones'...",
@@ -366,31 +367,21 @@ const Navbar = ({ activePage, onNavigate, onNavigateProduct, onSearch, currentCa
             {/* Left: Brand Logo & Delivery Pincode */}
             <div className="navbar-left">
               <a href="/" className="logo-container" aria-label="AbKharido Home" onClick={(e) => { e.preventDefault(); onNavigate('home'); }}>
-                <img
-                  src="/abkharido-logo.png?v=3"
-                  alt="AbKharido"
-                  className="brand-logo-image logo-text"
-                />
+                <BrandLogo variant="light" size="md" />
               </a>
 
-              {/* Delivery Location Pill */}
+              {/* Delivery Location Icon Button (Clean Icon Only — No truncated text) */}
               <button 
                 type="button"
-                className="delivery-pincode-badge"
+                className="delivery-location-icon-btn"
                 onClick={() => setIsPincodeModalOpen(true)}
-                title="Click to change your delivery pincode"
+                title={`Deliver to: ${deliveryLocation?.displayText || 'Palghar 401404'} (Click to change pincode)`}
                 aria-label={`Delivery location: ${deliveryLocation?.displayText || 'Palghar 401404'}`}
               >
-                <div className="pincode-icon-circle">
-                  <MapPin size={14} color="#2563eb" />
+                <div className="location-icon-circle">
+                  <MapPin size={17} color="#2563eb" />
                 </div>
-                <div className="pincode-text-block">
-                  <span className="pincode-sublabel">DELIVER TO</span>
-                  <span className="pincode-val">
-                    {deliveryLocation?.displayText || 'Palghar 401404'}
-                    <ChevronDown size={11} className="pincode-chevron" />
-                  </span>
-                </div>
+                <span className="location-pulse-dot" />
               </button>
 
               {/* Category Mega-Menu Trigger (Desktop) */}

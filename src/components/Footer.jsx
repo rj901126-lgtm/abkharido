@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { PhoneCall, Mail, MessageSquare, ChevronRight } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 const Footer = ({ onNavigate }) => {
   const handleNav = (e, path) => {
@@ -47,7 +48,7 @@ const Footer = ({ onNavigate }) => {
                 alignItems: 'center'
               }}
             >
-              <img src="/abkharido-logo.png?v=3" alt="AbKharido" height="30" style={{ height: '30px', width: 'auto', objectFit: 'contain' }} />
+              <BrandLogo variant="dark" size="md" />
             </div>
           </Link>
           <p
