@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import mongooseFieldEncryption from 'mongoose-field-encryption';
 import { isActiveUser, isGeneratedPassword } from '../utils/authSecurity.js';
+import { fieldEncryptionSecret, fieldEncryptionSalt } from '../utils/fieldEncryptionConfig.js';
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -178,10 +179,8 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
 // Add Field-Level Encryption Plugin for sensitive payout details
 userSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
   fields: ['payoutDetails'],
-  secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
-  saltGenerator: function (secret) {
-    return process.env.DATABASE_ENCRYPTION_SALT || "1234567890123456";
-  },
+  secret: fieldEncryptionSecret,
+  saltGenerator: () => fieldEncryptionSalt,
 });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
