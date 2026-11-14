@@ -75,49 +75,57 @@ const AdminPromotions = () => {
     setTimeout(() => setNotification({ show: false, text: '', type: 'success' }), 3800);
   };
 
+  const applyPromotionConfig = (config) => {
+    if (config.announcement) setAnnouncement(config.announcement);
+    if (config.flashDeals) setFlashDeals(config.flashDeals);
+    if (Array.isArray(config.heroBanners)) setHeroBanners(config.heroBanners);
+    if (config.categoryBanners && typeof config.categoryBanners === 'object') setCategoryBanners(config.categoryBanners);
+    if (Array.isArray(config.vipCategories)) setVipCategories(config.vipCategories);
+  };
+
   useEffect(() => {
-    // Load from local resilience vault if available
+    let isMounted = true;
     try {
       const saved = localStorage.getItem('abkharido_promotions_v2');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.announcement) setAnnouncement(parsed.announcement);
-        if (parsed.flashDeals) setFlashDeals(parsed.flashDeals);
-        if (parsed.heroBanners && Array.isArray(parsed.heroBanners)) setHeroBanners(parsed.heroBanners);
-        if (parsed.categoryBanners) setCategoryBanners(parsed.categoryBanners);
-        if (parsed.vipCategories && Array.isArray(parsed.vipCategories)) setVipCategories(parsed.vipCategories);
-      }
-    } catch (err) {
-      console.log('Using robust enterprise default promotions');
-    }
+      if (saved) applyPromotionConfig(JSON.parse(saved));
+    } catch {}
+
+    fetch('/api/admin/promotions/save', { cache: 'no-store' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (isMounted && data?.success && data.promotions) applyPromotionConfig(data.promotions);
+      })
+      .catch(() => {});
+
+    return () => { isMounted = false; };
   }, []);
 
   const handleSaveAll = async () => {
     setIsSaving(true);
     const fullPayload = { announcement, flashDeals, heroBanners, categoryBanners, vipCategories };
-    localStorage.setItem('abkharido_promotions_v2', JSON.stringify(fullPayload));
-    localStorage.setItem('abkharido_vip_categories', JSON.stringify(vipCategories));
-    window.dispatchEvent(new Event('abkharido_promotions_updated'));
-    
-    // Legacy sync
-    try {
-      localStorage.setItem('abkharido_announcement', JSON.stringify(announcement));
-      localStorage.setItem('abkharido_banners', JSON.stringify(heroBanners));
-    } catch (e) {}
-
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/promotions/save`, {
+      const res = await fetch('/api/admin/promotions/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify(fullPayload)
       });
-    } catch (err) {}
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) throw new Error(data.error || 'Unable to save promotions');
 
-    setTimeout(() => {
+      try {
+        localStorage.setItem('abkharido_promotions_v2', JSON.stringify(data.promotions || fullPayload));
+        localStorage.setItem('abkharido_vip_categories', JSON.stringify(vipCategories));
+        localStorage.setItem('abkharido_announcement', JSON.stringify(announcement));
+        localStorage.setItem('abkharido_banners', JSON.stringify(heroBanners));
+        window.dispatchEvent(new Event('abkharido_promotions_updated'));
+      } catch {}
+      showToastMsg('Promotions saved for the storefront.', 'success');
+    } catch (error) {
+      showToastMsg(error.message || 'Unable to save promotions. Check your connection and admin access.', 'error');
+    } finally {
       setIsSaving(false);
-      showToastMsg('🚀 All promotional campaigns, doorbuster countdowns & category banners live-broadcasted to Vercel CDN!', 'success');
-    }, 600);
+    }
   };
 
   // AI Holiday Presets

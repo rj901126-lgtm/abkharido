@@ -201,6 +201,34 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+    const syncLocalPromotions = () => {
+      const freshPromo = loadPromotionsFromStorage();
+      if (freshPromo) setPromotions(freshPromo);
+    };
+
+    window.addEventListener('abkharido_promotions_updated', syncLocalPromotions);
+    fetch('/api/admin/promotions/save', { cache: 'no-store' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!isMounted || !data?.success || !data.promotions) return;
+        setPromotions(data.promotions);
+        try {
+          localStorage.setItem('abkharido_promotions_v2', JSON.stringify(data.promotions));
+          if (Array.isArray(data.promotions.heroBanners)) {
+            localStorage.setItem('abkharido_banners', JSON.stringify(data.promotions.heroBanners));
+          }
+        } catch {}
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('abkharido_promotions_updated', syncLocalPromotions);
+    };
+  }, []);
+
   // Auto-detect user location via GPS or IP (Palghar / real Indian city)
   const detectUserLocation = async (manualTrigger = false) => {
     setIsDetectingLocation(true);
