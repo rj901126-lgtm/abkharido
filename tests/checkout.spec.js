@@ -7,7 +7,7 @@ test.describe('Checkout Flow', () => {
   test('should complete end-to-end checkout flow', async ({ page }) => {
     // 1. Login
     await page.goto('/');
-    await page.locator('button:has-text("Login")').first().click();
+    await page.locator('a.login-action-btn').first().click();
     await page.locator('input[placeholder="Enter your phone or email"]').fill('9172600587');
     await page.locator('button:has-text("Continue")').click();
     
@@ -18,7 +18,7 @@ test.describe('Checkout Flow', () => {
       await otpInputs.nth(i).fill(otpStr[i]);
     }
 
-    const profileIcon = page.locator('.user-avatar, .profile-menu-trigger, svg.lucide-user').first();
+    const profileIcon = page.locator('.user-profile-menu-wrap .user-profile-pill').first();
     await expect(profileIcon).toBeVisible({ timeout: 10000 });
 
     // 2. Add product to cart
@@ -26,8 +26,9 @@ test.describe('Checkout Flow', () => {
     const productCards = page.locator('.product-card');
     await expect(productCards.first()).toBeVisible({ timeout: 15000 });
     await productCards.first().click();
+    await page.waitForURL(/\/product\/.+/, { timeout: 20000 });
     
-    const addToCartBtn = page.locator('button:has-text("Add to Cart"), .add-to-cart-btn').first();
+    const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
     await addToCartBtn.click();
     await page.waitForTimeout(2000);
