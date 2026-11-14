@@ -93,6 +93,7 @@ export async function POST(req) {
     const settlement = await Settlement.create({
       vendorId: user._id,
       amount: requestedAmount,
+      type: 'WITHDRAWAL_PAYOUT',
       status: 'Pending',
       notes: `User withdrawal via ${body.method || (hasUpi ? 'UPI' : 'Bank Transfer')}`
     });

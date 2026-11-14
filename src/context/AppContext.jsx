@@ -624,7 +624,7 @@ export const AppProvider = ({ children }) => {
         if (currentRefCode && sanitizedRef === currentRefCode) {
           showToast('Self-referral links do not earn rewards.', 'warning');
         } else {
-          incrementReferrerClicks();
+          incrementReferrerClicks(sanitizedRef);
           setActiveReferral({
             type: 'ref',
             referrerId: sanitizedRef,
@@ -891,16 +891,31 @@ export const AppProvider = ({ children }) => {
 
 
   // --- Helper: Increment Referrer Clicks via API ---
-  const incrementReferrerClicks = async () => {
+  const incrementReferrerClicks = async (referralCode) => {
+    const storageKey = `abkharido_referral_click_${referralCode}`;
     try {
-      const res = await fetch(`/api/stats/click`, { method: 'POST' });
-      if (res.ok) {
-        fetchStats();
+      if (sessionStorage.getItem(storageKey)) return;
+      sessionStorage.setItem(storageKey, '1');
+    } catch (_) {}
+
+    try {
+      const res = await fetch('/api/stats/click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referralCode })
+      });
+      if (!res.ok) {
+        try { sessionStorage.removeItem(storageKey); } catch (_) {}
       }
     } catch (err) {
-      console.error('Failed to update referred click:', err);
+      try { sessionStorage.removeItem(storageKey); } catch (_) {}
+      if (process.env.NODE_ENV !== 'production') console.error('Failed to update referred click:', err);
     }
   };
+
+  useEffect(() => {
+    if (currentUser?.token) fetchStats();
+  }, [currentUser?.token]);
 
   // --- Delta Sync Helper ---
   const syncQueue = useRef(null);
