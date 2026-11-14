@@ -789,6 +789,14 @@ const Orders = ({ onNavigate }) => {
                 
                 {/* 📍 Left Column: Live Milestone Timeline & Doorstep PIN */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+
+                  {order.exchangeStatus && order.exchangeStatus !== 'None' && (
+                    <div role="status" style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: '12px', padding: '12px 14px', color: '#4c1d95' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '800', marginBottom: '4px' }}>🔄 Exchange request: {order.exchangeStatus}</div>
+                      {order.exchangeSize && <div style={{ fontSize: '11px' }}>Requested replacement: <strong>{order.exchangeSize}</strong></div>}
+                      {order.exchangeReason && <div style={{ fontSize: '11px', marginTop: '2px' }}>Reason: {order.exchangeReason}</div>}
+                    </div>
+                  )}
                   
                   {/* Milestone Tracker Card */}
                   <div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #e2e8f0' }}>

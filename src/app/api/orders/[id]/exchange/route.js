@@ -22,7 +22,7 @@ export async function POST(req, context) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { requestedSize, reason, notes } = body;
+    const { requestedSize, reason } = body;
 
     if (!requestedSize) {
       return NextResponse.json({ error: 'Replacement size or variant is required' }, { status: 400 });
@@ -43,12 +43,8 @@ export async function POST(req, context) {
     }
 
     order.exchangeStatus = 'Requested';
-    order.exchangeDetails = {
-      requestedSize,
-      reason: reason || 'Size/Fit issue',
-      notes: notes || '',
-      requestedAt: new Date()
-    };
+    order.exchangeSize = requestedSize;
+    order.exchangeReason = reason || 'Size/Fit issue';
 
     if (!order.trackingHistory) order.trackingHistory = [];
     order.trackingHistory.push({
