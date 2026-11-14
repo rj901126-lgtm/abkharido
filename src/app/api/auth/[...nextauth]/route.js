@@ -147,7 +147,7 @@ export const authOptions = {
         token.phone = user.phone;   // persist phone in JWT
         token.email = isValidEmail(user.email) ? user.email : null;   // persist actual email (null for phone users)
       }
-src/app/api/auth/[...nextauth]/route.js jwt owner role      return token;
+      return token;
     },
     async session({ session, token }) {
       if (session && session.user) {
