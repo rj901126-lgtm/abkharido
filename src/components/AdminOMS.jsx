@@ -43,9 +43,9 @@ const AdminOMS = ({ statusFilter }) => {
   const [managingReturnOrder, setManagingReturnOrder] = useState(null);
   const [returnActionState, setReturnActionState] = useState({
     action: 'Approve',
-    courierPartner: 'Delhivery Reverse Express',
+    courierPartner: '',
     returnAwb: '',
-    pickupDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+    pickupDate: '',
     qcRemarks: '',
     adminNotes: '',
     isSubmitting: false
@@ -828,9 +828,9 @@ const AdminOMS = ({ statusFilter }) => {
                               setManagingReturnOrder(order);
                               setReturnActionState({
                                 action: order.returnStatus === 'Requested' ? 'Approve' : order.returnStatus === 'Approved' ? 'SchedulePickup' : order.returnStatus === 'Pickup Scheduled' ? 'MarkPickedUp' : 'PassQcAndRefund',
-                                courierPartner: order.returnDetails?.reverseCourier || 'Delhivery Reverse Express',
-                                returnAwb: order.returnDetails?.returnAwb || `REV-${Date.now().toString().slice(-8)}`,
-                                pickupDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+                                courierPartner: order.returnDetails?.reverseCourier || '',
+                                returnAwb: order.returnDetails?.returnAwb || '',
+                                pickupDate: order.returnDetails?.pickupScheduledDate ? new Date(order.returnDetails.pickupScheduledDate).toISOString().slice(0, 10) : '',
                                 qcRemarks: order.returnDetails?.qcRemarks || 'Product intact, verified at warehouse',
                                 adminNotes: order.returnDetails?.adminNotes || '',
                                 isSubmitting: false
@@ -1339,6 +1339,7 @@ const AdminOMS = ({ statusFilter }) => {
                         onChange={(e) => setReturnActionState(prev => ({ ...prev, courierPartner: e.target.value }))}
                         style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '13px', fontWeight: '600', background: 'white' }}
                       >
+                        <option value="">Select booked courier partner</option>
                         <option value="Delhivery Reverse Express">Delhivery Reverse Express</option>
                         <option value="NimbusPost Reverse Logistics">NimbusPost Reverse Logistics</option>
                         <option value="BlueDart Reverse Air">BlueDart Reverse Air</option>
@@ -1348,13 +1349,23 @@ const AdminOMS = ({ statusFilter }) => {
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Reverse AWB Number</label>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Confirmed Reverse AWB Number</label>
                       <input
                         type="text"
                         value={returnActionState.returnAwb}
                         onChange={(e) => setReturnActionState(prev => ({ ...prev, returnAwb: e.target.value }))}
-                        placeholder="e.g. REV-94827104"
+                        placeholder="Enter the AWB issued by the courier"
                         style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '13px', fontWeight: '600', fontFamily: 'monospace' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>Confirmed Pickup Date</label>
+                      <input
+                        type="date"
+                        min={new Date().toISOString().slice(0, 10)}
+                        value={returnActionState.pickupDate}
+                        onChange={(e) => setReturnActionState(prev => ({ ...prev, pickupDate: e.target.value }))}
+                        style={{ width: '100%', height: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '13px', fontWeight: '600' }}
                       />
                     </div>
                   </div>

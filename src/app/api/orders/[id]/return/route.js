@@ -92,9 +92,16 @@ export async function POST(req, context) {
       // 2. SCHEDULE REVERSE PICKUP
       if (action === 'SchedulePickup' || action === 'schedule_pickup') {
         if (order.returnStatus !== 'Approved') throw new Error('Approved return required');
-        const assignedCourier = courierPartner || 'Delhivery Reverse Express';
-        const assignedAwb = returnAwb || `REV-${Date.now().toString().slice(-8)}`;
-        const scheduledTime = pickupDate ? new Date(pickupDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const assignedCourier = typeof courierPartner === 'string' ? courierPartner.trim() : '';
+        const assignedAwb = typeof returnAwb === 'string' ? returnAwb.trim() : '';
+        const validPickupDate = typeof pickupDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(pickupDate);
+        const scheduledTime = validPickupDate ? new Date(`${pickupDate}T00:00:00.000Z`) : null;
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+        if (!assignedCourier || !assignedAwb || assignedAwb.length > 100 || !scheduledTime ||
+            !Number.isFinite(scheduledTime.getTime()) || scheduledTime < today) {
+          return NextResponse.json({ error: 'Enter a courier partner, the confirmed reverse AWB, and a valid pickup date.' }, { status: 400 });
+        }
 
         order.returnStatus = 'Pickup Scheduled';
         order.returnDetails.reverseCourier = assignedCourier;
@@ -114,7 +121,7 @@ export async function POST(req, context) {
         await order.save();
         return NextResponse.json({ 
           success: true, 
-          message: `Reverse pickup scheduled with ${assignedCourier} (AWB: ${assignedAwb})!`,
+          message: `Reverse pickup scheduled for ${pickupDate} with ${assignedCourier} (AWB: ${assignedAwb}).`,
           order 
         });
       }

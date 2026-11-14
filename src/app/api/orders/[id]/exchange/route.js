@@ -55,14 +55,14 @@ export async function POST(req, context) {
       status: 'Exchange Requested',
       timestamp: new Date(),
       location: order.shippingAddress?.city || 'Returns Hub',
-      comment: `Exchange requested: ${reason || 'Size issue'} (Replacement Size: ${requestedSize}). Pickup scheduled.`
+      comment: `Exchange requested: ${reason || 'Size issue'} (Replacement Size: ${requestedSize}). Pickup is pending scheduling.`
     });
 
     await order.save();
 
     return NextResponse.json({
       success: true,
-      message: 'Exchange request submitted successfully. Free doorstep pickup scheduled.',
+      message: 'Exchange request submitted. Pickup is pending confirmation and will be shared after it is scheduled.',
       order
     });
   } catch (error) {

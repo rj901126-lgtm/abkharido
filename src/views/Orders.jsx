@@ -393,13 +393,13 @@ const Orders = ({ onNavigate }) => {
         },
         body: JSON.stringify(exchangeForm)
       });
-      if (res.ok) {
-        showToast('🔄 Exchange request submitted! Free doorstep pickup scheduled.', 'success');
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        showToast(data.message || 'Exchange request submitted. Pickup details will be shared after scheduling.', 'success');
         setOrderToExchange(null);
         fetchOrders();
       } else {
-        const err = await res.json().catch(() => ({}));
-        showToast(err.error || err.message || 'Failed to submit exchange', 'error');
+        showToast(data.error || data.message || 'Failed to submit exchange', 'error');
       }
     } catch (_err) {
       showToast('Network error submitting exchange.', 'error');
