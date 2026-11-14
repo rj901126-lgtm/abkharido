@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '../../../../lib/connectDB.js';
 import Product from '../../../../../server/models/Product.js';
 import { getAuthenticatedUser } from '../../../../lib/serverAuth.js';
+import { getProductImportSummary } from '../../../../utils/sellerProducts.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,8 +68,7 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      message: `Successfully imported and published ${inserted.length} products to the catalog!`,
-      count: inserted.length,
+      ...getProductImportSummary(inserted),
       products: inserted
     });
 
@@ -78,8 +78,7 @@ export async function POST(req) {
     if (error.insertedDocs && error.insertedDocs.length > 0) {
       return NextResponse.json({
         success: true,
-        message: `Partially imported ${error.insertedDocs.length} products (some duplicates skipped).`,
-        count: error.insertedDocs.length,
+        ...getProductImportSummary(error.insertedDocs, { partial: true }),
         products: error.insertedDocs
       });
     }

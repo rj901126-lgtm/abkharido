@@ -110,7 +110,7 @@ export async function GET(req) {
           });
         }
         return NextResponse.json({
-          products: fallback.slice(0, limit).map(toPublicProductDTO),
+          products: fallback.slice((page - 1) * limit, page * limit).map(toPublicProductDTO),
           total: fallback.length,
           page,
           limit,
@@ -133,11 +133,11 @@ export async function GET(req) {
         fallback = fallback.filter(p => p.category && p.category.toLowerCase() === category.toLowerCase());
       }
       return NextResponse.json({
-        products: fallback.slice(0, limit).map(toPublicProductDTO),
+        products: fallback.slice((page - 1) * limit, page * limit).map(toPublicProductDTO),
         total: fallback.length,
         page,
         limit,
-        totalPages: 1
+        totalPages: Math.ceil(fallback.length / limit) || 1
       });
     }
   } catch (error) {

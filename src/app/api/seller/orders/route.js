@@ -83,6 +83,9 @@ export async function GET(req) {
           price: i.price,
           image: i.image,
           product: i.product,
+          vendorId: i.vendorId || o.vendorId,
+          sellerShopName: i.sellerShopName || sellerUser?.shopName,
+          fulfillmentChannel: i.fulfillmentChannel,
           hsnCode: i.hsnCode || '8517',
           gstRate: isGstSeller ? (i.gstRate || 18) : 0,
           isBillOfSupply: !isGstSeller

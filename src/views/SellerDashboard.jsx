@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { lookupPincode } from '../utils/pincodeData.js';
+import { getSellerProductStock } from '../utils/sellerProducts.js';
 import BulkProductUploadModal from '../components/BulkProductUploadModal';
 import WorldClassInvoice from '../components/WorldClassInvoice';
 import '../assets/styles/admin.css';
@@ -2318,7 +2319,7 @@ export default function SellerDashboard({ onNavigate }) {
               {sellerProducts
                 .filter(p => !catalogSearch || p.name?.toLowerCase().includes(catalogSearch.toLowerCase()) || p.category?.toLowerCase().includes(catalogSearch.toLowerCase()))
                 .map(p => {
-                  const currentStock = Math.max(0, Number(p.stock ?? p.countInStock ?? 0));
+                  const currentStock = getSellerProductStock(p);
                   const is1P = p.channel === '1P' || p.isOfficialStore;
                   const galleryCount = Array.isArray(p.images) ? p.images.length : (p.image ? 1 : 0);
 
@@ -2417,7 +2418,7 @@ export default function SellerDashboard({ onNavigate }) {
                             onClick={() => {
                               setSelectedEditProduct(p);
                               setEditPrice(String(p.price || ''));
-                              setEditStock(String(p.stock || p.countInStock || 50));
+                              setEditStock(String(getSellerProductStock(p)));
                               setIsQuickEditModalOpen(true);
                             }}
                             style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff', fontWeight: '700', fontSize: '11.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
@@ -3108,8 +3109,8 @@ export default function SellerDashboard({ onNavigate }) {
         onClose={() => setIsBulkModalOpen(false)}
         userToken={currentSeller?.token}
         shopName={currentSeller?.shopName}
-        onImportSuccess={() => {
-          showToast('Batch products successfully imported to your store! 🚀', 'success');
+        onImportSuccess={(_products, result) => {
+          showToast(result?.message || 'Products imported. Check their publication status in your catalog.', 'success');
           fetchSellerProducts();
         }}
       />

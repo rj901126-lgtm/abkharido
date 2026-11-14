@@ -43,10 +43,10 @@ function normalizeHeaderName(rawHeader) {
   const clean = rawHeader.toLowerCase().replace(/[^a-z0-9]/g, '');
   if (['title', 'productname', 'name', 'itemname', 'producttitle'].includes(clean)) return 'name';
   if (['price', 'sellingprice', 'offerprice', 'finalprice', 'discountedprice'].includes(clean)) return 'price';
-  if (['mrp', 'originalprice', 'listprice', 'regularprice'].includes(clean)) return 'originalPrice';
+  if (['mrp', 'originalmrp', 'originalprice', 'listprice', 'regularprice'].includes(clean)) return 'originalPrice';
   if (['category', 'cat', 'department', 'type'].includes(clean)) return 'category';
   if (['image', 'imageurl', 'photourl', 'img', 'picture', 'photo'].includes(clean)) return 'image';
-  if (['stock', 'inventory', 'quantity', 'qty', 'countinstock', 'units'].includes(clean)) return 'countInStock';
+  if (['stock', 'stockunits', 'inventory', 'quantity', 'qty', 'countinstock', 'units'].includes(clean)) return 'countInStock';
   if (['description', 'desc', 'details', 'features', 'highlights'].includes(clean)) return 'description';
   if (['brand', 'manufacturer', 'company'].includes(clean)) return 'brand';
   return clean;
@@ -111,7 +111,8 @@ export function parseCsvProducts(csvText) {
     }
 
     const rawStock = rowData.countInStock ? String(rowData.countInStock).replace(/[^0-9]/g, '') : '50';
-    const countInStock = parseInt(rawStock, 10) || 50;
+    const parsedStock = parseInt(rawStock, 10);
+    const countInStock = Number.isNaN(parsedStock) ? 50 : parsedStock;
 
     const image = rowData.image && rowData.image.startsWith('http')
       ? rowData.image.trim()

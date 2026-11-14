@@ -18,13 +18,14 @@ const CartPage = ({ onNavigate, onCheckout }) => {
   };
   const getItemQty = (item) => Math.max(1, Number(item?.quantity ?? 1));
 
-  const handleMoveToWishlist = (productId) => {
+  const handleMoveToWishlist = (product) => {
+    const productId = product.id || product._id;
     if (!wishlist.includes(productId)) {
       toggleWishlist(productId);
     } else {
       showToast('Item saved for later in your wishlist!', 'info');
     }
-    removeFromCart(productId);
+    removeFromCart(product);
   };
 
   if (!cart || cart.length === 0) {
@@ -267,7 +268,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
           const prodTitle = prod.name || prod.title || 'Product';
 
           return (
-            <div key={prodId} className="cart-item-card">
+            <div key={JSON.stringify([prodId, prod.selectedColor, prod.selectedVariant])} className="cart-item-card">
               <div className="cart-item-image">
                 <img src={prodImage} alt={prodTitle} />
               </div>
@@ -310,7 +311,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                   <div className="qty-counter">
                     <button 
                       className="qty-btn" 
-                      onClick={() => updateCartQty(prodId, qty - 1)}
+                      onClick={() => updateCartQty(prod, qty - 1)}
                     >
                       -
                     </button>
@@ -322,7 +323,7 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                     />
                     <button 
                       className="qty-btn" 
-                      onClick={() => updateCartQty(prodId, qty + 1)}
+                      onClick={() => updateCartQty(prod, qty + 1)}
                     >
                       +
                     </button>
@@ -331,14 +332,14 @@ const CartPage = ({ onNavigate, onCheckout }) => {
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
                       className="item-action-btn item-wishlist-btn"
-                      onClick={() => handleMoveToWishlist(prodId)}
+                      onClick={() => handleMoveToWishlist(prod)}
                       title="Save for Later"
                     >
                       <Heart size={14} /> Save
                     </button>
                     <button 
                       className="item-action-btn"
-                      onClick={() => removeFromCart(prodId)}
+                      onClick={() => removeFromCart(prod)}
                     >
                       <Trash2 size={14} /> Remove
                     </button>

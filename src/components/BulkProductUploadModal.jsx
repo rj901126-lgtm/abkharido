@@ -89,9 +89,14 @@ export default function BulkProductUploadModal({ isOpen, onClose, onImportSucces
 
       const data = await res.json();
       if (res.ok) {
-        setImportResult({ success: true, count: data.count || parsedData.validProducts.length });
+        const result = {
+          success: true,
+          count: data.count ?? data.products?.length ?? parsedData.validProducts.length,
+          message: data.message || 'Products imported. Check their publication status in your catalog.'
+        };
+        setImportResult(result);
         if (onImportSuccess) {
-          onImportSuccess(data.products || parsedData.validProducts);
+          onImportSuccess(data.products || parsedData.validProducts, result);
         }
       } else {
         setImportResult({ success: false, error: data.error || 'Failed to import products' });
@@ -118,7 +123,7 @@ export default function BulkProductUploadModal({ isOpen, onClose, onImportSucces
                 Excel / CSV Bulk Product Listing
               </h2>
               <p style={{ fontSize: '12.5px', color: '#64748b', margin: '2px 0 0 0' }}>
-                Upload dozens of products instantly with automated validation & instant publishing
+                Import products as drafts for administrator review and publication
               </p>
             </div>
           </div>
@@ -160,7 +165,7 @@ export default function BulkProductUploadModal({ isOpen, onClose, onImportSucces
               🎉 Bulk Listing Successful!
             </h3>
             <p style={{ fontSize: '14px', color: '#047857', margin: '0 0 20px 0' }}>
-              Successfully uploaded and published <strong>{importResult.count} products</strong> to the marketplace.
+              {importResult.message}
             </p>
             <button
               onClick={onClose}
@@ -303,7 +308,7 @@ export default function BulkProductUploadModal({ isOpen, onClose, onImportSucces
                     </>
                   ) : (
                     <>
-                      ⚡ Import & Publish {parsedData.validProducts.length} Products to Store <ArrowRight size={16} />
+                      ⚡ Import {parsedData.validProducts.length} Products as Drafts <ArrowRight size={16} />
                     </>
                   )}
                 </button>

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { normalizeSearchQuery } from '../utils/searchHelper';
+import { fetchAllProducts } from '../utils/fetchProducts.js';
 import { getCategoryData, ALL_POPULAR_BRANDS } from '../utils/categoryData';
 import '../assets/styles/product.css';
 
@@ -95,31 +96,26 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
 
   // Fetch from Backend Search API
   useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
     const fetchSearchResults = async () => {
-      if ((!searchQuery || searchQuery.trim() === '') && (!sellerShopName || sellerShopName.trim() === '') && currentCategory === 'all') {
-        setServerProducts(initialProducts?.length ? initialProducts : null);
-        return;
-      }
-
       setIsSearching(true);
       try {
-        const queryParams = new URLSearchParams({
-          limit: 100,
-        });
+        const queryParams = new URLSearchParams();
         
         if (searchQuery) queryParams.append('search', normalizeSearchQuery(searchQuery.trim()));
         if (currentCategory && currentCategory !== 'all') queryParams.append('category', currentCategory);
         if (sellerShopName) queryParams.append('seller', sellerShopName.trim());
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/products?${queryParams.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
-          setServerProducts(data.products || []);
-        }
+        const matchingProducts = await fetchAllProducts(queryParams, {
+          baseUrl: process.env.NEXT_PUBLIC_API_URL || '',
+          signal: controller.signal,
+        });
+        if (!cancelled) setServerProducts(matchingProducts);
       } catch (err) {
-        console.error('Failed to fetch search results from engine', err);
+        if (!cancelled) console.error('Failed to fetch search results from engine', err);
       } finally {
-        setIsSearching(false);
+        if (!cancelled) setIsSearching(false);
       }
     };
 
@@ -127,7 +123,11 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
       fetchSearchResults();
     }, 300);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [searchQuery, currentCategory, sellerShopName, initialProducts]);
 
   // Apply Faceted Filters & Sorting

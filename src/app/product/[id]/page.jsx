@@ -2,7 +2,7 @@ import { serializeJsonLd, publicProductForPage } from '../../../utils/safeRender
 import React from 'react';
 import { notFound } from 'next/navigation';
 import ProductClient from './ProductClient';
-import connectDB from '../../../../server/config/db.js';
+import connectDB from '../../../lib/connectDB.js';
 import Product from '../../../../server/models/Product.js';
 import mongoose from 'mongoose';
 import { PRODUCTS } from '../../../db/mockData.js';
@@ -19,6 +19,7 @@ async function getProduct(id) {
 
   // Try DB query if connected or quick connect
   try {
+    await connectDB();
     if (mongoose.connection.readyState === 1) {
       const productDoc = await Product.findOne({
         $or: [

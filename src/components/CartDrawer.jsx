@@ -178,11 +178,11 @@ const CartDrawer = ({ isOpen, onClose, onNavigate }) => {
                       <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>₹{((prod.price) || 0).toLocaleString('en-IN')}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
-                          <button onClick={() => updateCartQty(prodId, (item?.quantity || 1) - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
+                          <button onClick={() => updateCartQty(prod, (item?.quantity || 1) - 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderRight: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Minus size={14} /></button>
                           <span style={{ padding: '0 12px', fontSize: '13px', fontWeight: '600' }}>{item?.quantity || 1}</span>
-                          <button onClick={() => updateCartQty(prodId, (item?.quantity || 1) + 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
+                          <button onClick={() => updateCartQty(prod, (item?.quantity || 1) + 1)} style={{ padding: '6px 10px', background: '#f8fafc', border: 'none', borderLeft: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex' }}><Plus size={14} /></button>
                         </div>
-                        <button onClick={() => removeFromCart(prodId)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
+                        <button onClick={() => removeFromCart(prod)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
                           <Trash2 size={16} />
                         </button>
                       </div>

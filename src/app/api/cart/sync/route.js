@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(req) {
   try {
     const body = await req.json().catch(() => ({}));
+    let syncedCart = body.cart || [];
     const auth = await getAuthenticatedUser(req);
     const userId = auth?.user?.id || null;
 
@@ -18,7 +19,10 @@ export async function POST(req) {
         if (body.action === 'clear') {
           user.cart = [];
         } else if (Array.isArray(body.cart)) {
-          const rawItems = body.cart
+          const sourceItems = body.merge === true
+            ? [...(Array.isArray(user.cart) ? user.cart : []), ...body.cart]
+            : body.cart;
+          const rawItems = sourceItems
             .map(item => {
               const prod = item.product || item;
               const pId = prod.id || prod._id || prod;
@@ -50,11 +54,12 @@ export async function POST(req) {
         }
         user.cartUpdatedAt = new Date();
         await user.save();
+        syncedCart = user.cart;
 
       }
     }
 
-    return NextResponse.json({ success: true, cart: body.cart || [] });
+    return NextResponse.json({ success: true, cart: syncedCart });
   } catch (error) {
     console.error('POST /api/cart/sync error:', error);
     return NextResponse.json({ success: true, cart: [] });

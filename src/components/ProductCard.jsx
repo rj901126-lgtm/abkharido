@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp, isSameCartItem } from '../context/AppContext';
 import { Heart, ShoppingCart, Check, Truck, Star } from 'lucide-react';
 import LazyImage from './LazyImage';
 import ProductQuickPreviewModal from './ProductQuickPreviewModal';
 import { calculateCoinReward } from '../utils/coinUtils';
+import { selectCartProduct } from '../utils/cartSelection.js';
 
 
 // Color map for standard swatches
@@ -53,32 +54,15 @@ const ProductCard = ({ product, onNavigateProduct }) => {
   const prodId = product.id || product._id;
   const isInWishlist = Array.isArray(wishlist) && wishlist.some(id => id === prodId || id.id === prodId);
 
-  // Cart Status Calculation
-  const cartItem = (cart || []).find(item => {
-    const itemProd = item.product || item;
-    const itemPId = String(itemProd._id || itemProd.id || itemProd || '').trim();
-    const itemSlug = String(itemProd.slug || itemProd.id || '').trim().toLowerCase();
-    const itemName = String(itemProd.name || itemProd.title || '').trim().toLowerCase();
-
-    const targetPId = String(product._id || product.id || prodId || '').trim();
-    const targetSlug = String(product.slug || product.id || '').trim().toLowerCase();
-    const targetName = String(product.name || product.title || '').trim().toLowerCase();
-
-    return (
-      (itemPId && targetPId && itemPId === targetPId) ||
-      (itemSlug && targetSlug && itemSlug === targetSlug) ||
-      (itemPId && targetSlug && itemPId.toLowerCase() === targetSlug) ||
-      (itemSlug && targetPId && itemSlug === targetPId.toLowerCase()) ||
-      (itemName && targetName && itemName.length > 2 && itemName === targetName)
-    );
-  });
+  const selectedProduct = selectCartProduct(product, product.colorModels?.[selectedColorIdx]?.name);
+  const cartItem = selectedProduct ? (cart || []).find(item => isSameCartItem(item, selectedProduct)) : null;
   const quantityInCart = cartItem?.quantity || 0;
 
 
   // Flash Sale Engine Check
   const isFlashSale = product.flashSale?.isActive && new Date(product.flashSale.endTime) > new Date();
-  const price = isFlashSale ? product.flashSale.price : (product.price || 0);
-  const originalPrice = product.originalPrice || (isFlashSale ? product.price : price);
+  const price = selectedProduct?.price ?? (isFlashSale ? product.flashSale.price : (product.price || 0));
+  const originalPrice = selectedProduct?.originalPrice ?? product.originalPrice ?? price;
   const discountPercent = originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   // Standardized dynamic earnings display
@@ -104,12 +88,11 @@ const ProductCard = ({ product, onNavigateProduct }) => {
       e.stopPropagation();
     }
     if (quantityInCart > 0) return;
-    const targetProduct = activeColorModel ? {
-      ...product,
-      selectedColor: activeColorModel.name,
-      selectedVariant: activeColorModel.variants?.[0]?.name || ''
-    } : product;
-    addToCart(targetProduct, 1);
+    if (!selectedProduct || selectedProduct.stock < 1 || product.inStock === false) {
+      showToast?.('This option is currently out of stock.', 'warning');
+      return;
+    }
+    addToCart(selectedProduct, 1);
     setIsJustAdded(true);
     setTimeout(() => setIsJustAdded(false), 2000);
   };
@@ -362,8 +345,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  const targetId = cartItem.product?.id || cartItem.product?._id || prodId;
-                  updateCartQty(targetId, quantityInCart - 1);
+                  updateCartQty(cartItem.product, quantityInCart - 1);
                 }}
                 style={{
                   width: '26px',
@@ -415,8 +397,7 @@ const ProductCard = ({ product, onNavigateProduct }) => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  const targetId = cartItem.product?.id || cartItem.product?._id || prodId;
-                  updateCartQty(targetId, quantityInCart + 1);
+                  updateCartQty(cartItem.product, quantityInCart + 1);
                 }}
                 style={{
                   width: '26px',

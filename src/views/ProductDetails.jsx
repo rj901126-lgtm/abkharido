@@ -1040,7 +1040,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart - 1);
+                      updateCartQty(cartItem.product, quantityInCart - 1);
                     }}
                     style={{ 
                       width: '36px', 
@@ -1076,7 +1076,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      updateCartQty(cartItem.product.id || cartItem.product._id, quantityInCart + 1);
+                      updateCartQty(cartItem.product, quantityInCart + 1);
                     }}
                     style={{ 
                       width: '36px', 
@@ -1772,7 +1772,7 @@ const ProductDetails = ({ productId, onNavigate, onBuyNow, promotions, initialPr
                     key={rv.id}
                     onClick={() => {
                       if (onNavigate) {
-                        onNavigate(rv.id);
+                        onNavigate(`product/${rv.id}`);
                       } else {
                         window.location.href = `/product/${rv.id}`;
                       }

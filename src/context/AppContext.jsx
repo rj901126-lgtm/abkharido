@@ -6,6 +6,8 @@ import { useSession, signOut } from 'next-auth/react';
 import { lookupPincode, lookupPincodeAsync } from '../utils/pincodeData';
 import { sanitizeReferralCode, generateSafeReferralCode } from '../utils/referralUtils';
 import { isValidEmail } from '../utils/constants';
+import { fetchAllProducts } from '../utils/fetchProducts.js';
+import { createSyncQueue } from '../utils/syncQueue.js';
 
 const AppContext = createContext();
 
@@ -553,16 +555,18 @@ export const AppProvider = ({ children }) => {
           } catch(e) {}
           
           if (guestWishlist && guestWishlist.length > 0) {
-            await fetch(`/api/wishlist/sync`, {
+            const mergeResponse = await fetch(`/api/wishlist/sync`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({ wishlist: guestWishlist, merge: true })
-            }).then(() => {
-              localStorage.removeItem('abkharido_wishlist');
-            }).catch(err => console.error('Guest wishlist sync failed', err));
+            });
+            if (!mergeResponse.ok) throw new Error('Unable to save guest wishlist');
+            const merged = await mergeResponse.json();
+            if (!merged.success) throw new Error('Unable to save guest wishlist');
+            localStorage.removeItem('abkharido_wishlist');
           }
 
           const res = await fetch(`/api/wishlist`, {
@@ -635,14 +639,8 @@ export const AppProvider = ({ children }) => {
   // --- API Fetches ---
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`/api/products?limit=100`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        const liveList = data.products || (Array.isArray(data) ? data : []);
-        if (liveList.length > 0) {
-          setProducts(liveList);
-        }
-      }
+      const liveList = await fetchAllProducts({}, { cache: 'no-store' });
+      setProducts(liveList);
     } catch (err) {
       if (process.env.NODE_ENV !== 'production') console.error('Failed to load products:', err);
     } finally {
@@ -900,24 +898,29 @@ export const AppProvider = ({ children }) => {
   };
 
   // --- Delta Sync Helper ---
+  const syncQueue = useRef(null);
+  if (!syncQueue.current) syncQueue.current = createSyncQueue();
   const dispatchDeltaSync = async (endpoint, payload, stateSetter) => {
-    if (!currentUser?.token) return;
-    try {
-      const res = await fetch(`/api/${endpoint}/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
-        body: JSON.stringify(payload)
-      });
-      if (res.status === 401) {
-        console.warn('Background sync returned 401. Session might be expiring.');
-        return;
+    const token = currentUser?.token;
+    if (!token) return;
+    return syncQueue.current(endpoint, async () => {
+      try {
+        const res = await fetch(`/api/${endpoint}/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(payload)
+        });
+        if (res.status === 401) {
+          console.warn('Background sync returned 401. Session might be expiring.');
+          return;
+        }
+        if (res.ok && stateSetter && payload?.action === 'clear') {
+          stateSetter([]);
+        }
+      } catch (err) {
+        console.error(`${endpoint} delta sync failed network-wise`, err);
       }
-      if (res.ok && stateSetter && payload?.action === 'clear') {
-        stateSetter([]);
-      }
-    } catch (err) {
-      console.error(`${endpoint} delta sync failed network-wise`, err);
-    }
+    });
   };
 
   const lastAddToCartTimestamp = useRef({});
@@ -946,15 +949,17 @@ export const AppProvider = ({ children }) => {
       const cleanPrev = sanitizeCart(prev);
       const existingIndex = cleanPrev.findIndex(item => isSameCartItem(item, { product }));
 
-      const stock = (product.stock !== undefined && product.stock !== null && product.stock > 0) 
-        ? product.stock 
-        : (product.inStock !== false ? 99 : 0);
+      const stock = product.inStock === false ? 0 : Number(product.stock ?? 99);
+      if (!Number.isInteger(qty) || qty < 1 || !Number.isFinite(stock) || qty > stock) {
+        showToast(`Only ${Number.isFinite(stock) ? Math.max(0, stock) : 0} units available in stock.`, 'warning');
+        return cleanPrev;
+      }
       
       let updatedCart;
       if (existingIndex > -1) {
         const existing = cleanPrev[existingIndex];
         const newQty = existing.quantity + qty;
-        if (newQty > stock && stock > 0) {
+        if (newQty > stock) {
           showToast(`Only ${stock} units available in stock.`, 'warning');
           return cleanPrev;
         }
@@ -976,13 +981,13 @@ export const AppProvider = ({ children }) => {
       // Backend sync
       dispatchDeltaSync('cart', { cart: updatedCart, action: 'add', item: { product: pId, quantity: qty } });
 
+      showToast(`${product.name?.substring(0, 24) || 'Item'} added to bag! 🛍️`, 'success');
       return updatedCart;
     });
-
-    showToast(`${product.name?.substring(0, 24) || 'Item'} added to bag! 🛍️`, 'success');
   };
 
   const updateCartQty = (productOrId, qty) => {
+    if (!Number.isInteger(qty)) return;
     if (qty <= 0) {
       removeFromCart(productOrId);
       return;
@@ -990,11 +995,9 @@ export const AppProvider = ({ children }) => {
     setCart(prev => {
       const cleanPrev = sanitizeCart(prev);
       const updatedCart = cleanPrev.map(item => {
-        if (isSameProduct(item, productOrId)) {
-          const stock = (item.product?.stock !== undefined && item.product?.stock !== null && item.product?.stock > 0) 
-            ? item.product.stock 
-            : (item.product?.inStock !== false ? 99 : 0);
-          if (qty > stock && stock > 0) {
+        if (typeof productOrId === 'object' ? isSameCartItem(item, productOrId) : isSameProduct(item, productOrId)) {
+          const stock = item.product?.inStock === false ? 0 : Number(item.product?.stock ?? 99);
+          if (!Number.isFinite(stock) || qty > stock) {
             showToast(`Only ${stock} units available in stock.`, 'warning');
             return item;
           }
@@ -1020,7 +1023,7 @@ export const AppProvider = ({ children }) => {
   const removeFromCart = (productOrId) => {
     setCart(prev => {
       const cleanPrev = sanitizeCart(prev);
-      const updatedCart = cleanPrev.filter(item => !isSameProduct(item, productOrId));
+      const updatedCart = cleanPrev.filter(item => !(typeof productOrId === 'object' ? isSameCartItem(item, productOrId) : isSameProduct(item, productOrId)));
 
       try {
         if (!currentUser?.token) {

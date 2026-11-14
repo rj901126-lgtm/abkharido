@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 import { useApp } from '../context/AppContext';
 import { MapPin, ShoppingBag, CreditCard, CheckCircle2, ArrowRight, ArrowLeft, ShieldCheck, Tag, Download, Coins } from 'lucide-react';
 import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '../utils/constants';
 import confetti from 'canvas-confetti';
 import WorldClassInvoice from '../components/WorldClassInvoice';
+import { checkoutAddressLine, checkoutAddressReducer, checkoutAddressToSaved, createCheckoutAddressState, savedAddressToCheckout } from '../utils/checkoutAddress.js';
 
 const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const { cart, currentUser, placeOrder, showToast, clearCart, verifyPayment, updateUserProfile, savedCards, fetchUserSavedCards, activeReferral } = useApp();
@@ -21,15 +22,10 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   }, [step]);
 
   // Form states
-  const [address, setAddress] = useState({
-    name: currentUser ? (currentUser.fullName || '') : '',
-    phone: currentUser ? (currentUser.phone || currentUser.username || '') : '',
-    pincode: currentUser ? (currentUser.pincode || '') : '',
-    locality: '',
-    streetAddress: currentUser ? (currentUser.address || '') : '',
-    city: currentUser ? (currentUser.city || '') : '',
-    state: currentUser ? (currentUser.state || '') : ''
-  });
+  const [addressState, dispatchAddress] = useReducer(checkoutAddressReducer, currentUser, createCheckoutAddressState);
+  const address = addressState.address;
+  const setAddress = next => dispatchAddress({ type: 'resolve', address: next });
+  const selectAddress = next => dispatchAddress({ type: 'select', address: next });
 
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [shippingServiceability, setShippingServiceability] = useState(null);
@@ -50,36 +46,9 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
-  // Synchronize currentUser fields & auto-select default address
+  // Refresh defaults until the buyer chooses or edits a delivery address.
   useEffect(() => {
-    if (currentUser) {
-      if (Array.isArray(currentUser.addresses) && currentUser.addresses.length > 0) {
-        const defaultAddr = currentUser.addresses.find(a => a?.isDefault) || currentUser.addresses[0];
-        if (defaultAddr) {
-          setAddress({
-            name: defaultAddr.name || currentUser.fullName || '',
-            phone: defaultAddr.phone || currentUser.phone || currentUser.username || '',
-            pincode: defaultAddr.pincode || '',
-            locality: defaultAddr.streetArea || '',
-            streetAddress: defaultAddr.houseNo 
-              ? `${defaultAddr.houseNo}, ${defaultAddr.streetArea || defaultAddr.streetAddress || ''}`.trim()
-              : (defaultAddr.streetArea || defaultAddr.streetAddress || defaultAddr.address || ''),
-            city: defaultAddr.city || '',
-            state: defaultAddr.state || ''
-          });
-          return;
-        }
-      }
-      setAddress(prev => ({
-        ...prev,
-        name: currentUser.fullName || prev.name,
-        phone: currentUser.phone || currentUser.username || prev.phone,
-        pincode: currentUser.pincode || prev.pincode,
-        streetAddress: currentUser.address || prev.streetAddress,
-        city: currentUser.city || prev.city,
-        state: currentUser.state || prev.state
-      }));
-    }
+    dispatchAddress({ type: 'hydrate', user: currentUser });
   }, [currentUser]);
 
   // Resolve Indian postal pincode details automatically
@@ -239,22 +208,16 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
       return;
     }
 
+    selectAddress(address);
+
     // Persist new address to profile address book
     if (updateUserProfile && currentUser && isAddingNewAddress) {
       const existingAddresses = Array.isArray(currentUser.addresses) ? [...currentUser.addresses] : [];
-      const newAddrObj = {
+      const newAddrObj = checkoutAddressToSaved(address, {
         id: 'addr_' + Date.now(),
-        name: address.name,
         phone: cleanPhone,
-        houseNo: '',
-        streetArea: address.locality || '',
-        streetAddress: address.streetAddress,
-        city: address.city,
-        state: address.state,
-        pincode: address.pincode,
-        addressType: 'Home',
         isDefault: existingAddresses.length === 0
-      };
+      });
       const updatedAddresses = [...existingAddresses, newAddrObj];
       updateUserProfile({
         addresses: updatedAddresses
@@ -288,8 +251,8 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           fullName: address.name || address.fullName || currentUser?.fullName || 'Valued Customer',
           name: address.name || address.fullName || currentUser?.fullName || 'Valued Customer',
           phone: address.phone || currentUser?.phone || currentUser?.username || '',
-          streetAddress: address.streetAddress || address.address || '',
-          address: address.streetAddress || address.address || '',
+          streetAddress: checkoutAddressLine(address),
+          address: checkoutAddressLine(address),
           pincode: address.pincode || address.postalCode || '',
           postalCode: address.pincode || address.postalCode || '',
           locality: address.locality || '',
@@ -349,7 +312,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
           shippingAddress: {
             fullName: address.name,
             phone: address.phone,
-            streetAddress: address.streetAddress,
+            streetAddress: checkoutAddressLine(address),
             city: address.city,
             postalCode: address.pincode,
             state: address.state,
@@ -403,7 +366,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               fullName: address.name,
               phone: address.phone,
               pincode: address.pincode,
-              address: address.streetAddress,
+              address: checkoutAddressLine(address),
               city: address.city,
               state: address.state
             });
@@ -752,24 +715,15 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
             <div style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {currentUser.addresses.map((addr, idx) => {
-                  const addrStreet = addr.houseNo 
-                    ? `${addr.houseNo}, ${addr.streetArea || addr.streetAddress || ''}`.trim()
-                    : (addr.streetArea || addr.streetAddress || addr.address || '');
-                  const isSelected = (address.pincode === addr.pincode && address.streetAddress === addrStreet) || (!address.pincode && (addr.isDefault || idx === 0));
+                  const savedAddress = savedAddressToCheckout(addr, currentUser);
+                  const addrStreet = savedAddress.streetAddress;
+                  const isSelected = (address.pincode === addr.pincode && checkoutAddressLine(address) === addrStreet) || (!address.pincode && (addr.isDefault || idx === 0));
 
                   return (
                     <div 
                       key={addr.id || `checkout-addr-${idx}`}
                       onClick={() => {
-                        setAddress({
-                          name: addr.name || currentUser.fullName || '',
-                          phone: addr.phone || currentUser.phone || currentUser.username || '',
-                          pincode: addr.pincode || '',
-                          locality: addr.streetArea || '',
-                          streetAddress: addrStreet,
-                          city: addr.city || '',
-                          state: addr.state || ''
-                        });
+                        selectAddress(savedAddress);
                       }}
                       style={{
                         padding: '16px',
@@ -817,7 +771,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 <button 
                   type="button"
                   onClick={() => {
-                    setAddress({ name: currentUser?.fullName || '', phone: currentUser?.phone || currentUser?.username || '', pincode: '', locality: '', streetAddress: '', city: '', state: '' });
+                    selectAddress({ name: currentUser?.fullName || '', phone: currentUser?.phone || currentUser?.username || '', pincode: '', locality: '', streetAddress: '', city: '', state: '' });
                     setIsAddingNewAddress(true);
                   }}
                   style={{ 
@@ -861,18 +815,18 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               <div className="checkout-form-row">
                 <div style={{ flex: 1 }}>
                   <label className="checkout-label">Full Name *</label>
-                  <input type="text" value={address.name} onChange={(e) => setAddress({...address, name: e.target.value})} className="checkout-input" placeholder="e.g. Raj Chauhan" required />
+                  <input type="text" value={address.name} onChange={(e) => selectAddress({...address, name: e.target.value})} className="checkout-input" placeholder="e.g. Raj Chauhan" required />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label className="checkout-label">Mobile Number *</label>
-                  <input type="tel" value={address.phone} onChange={(e) => setAddress({...address, phone: e.target.value})} className="checkout-input" placeholder="10-digit mobile number" required />
+                  <input type="tel" value={address.phone} onChange={(e) => selectAddress({...address, phone: e.target.value})} className="checkout-input" placeholder="10-digit mobile number" required />
                 </div>
               </div>
 
               <div className="checkout-form-row">
                 <div style={{ flex: 1 }}>
                   <label className="checkout-label">Pincode *</label>
-                  <input type="text" value={address.pincode} onChange={(e) => setAddress({...address, pincode: e.target.value})} className="checkout-input" maxLength="6" inputMode="numeric" pattern="[0-9]{6}" placeholder="6-digit pincode" required />
+                  <input type="text" value={address.pincode} onChange={(e) => selectAddress({...address, pincode: e.target.value})} className="checkout-input" maxLength="6" inputMode="numeric" pattern="[0-9]{6}" placeholder="6-digit pincode" required />
 
                   {isCheckingShipping && <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px', fontWeight: '600' }}>Checking courier serviceability...</div>}
                   {shippingServiceability && !isCheckingShipping && (
@@ -889,23 +843,23 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 </div>
                 <div style={{ flex: 1 }}>
                   <label className="checkout-label">Locality / Area *</label>
-                  <input type="text" value={address.locality} onChange={(e) => setAddress({...address, locality: e.target.value})} className="checkout-input" placeholder="e.g. Indiranagar" required />
+                  <input type="text" value={address.locality} onChange={(e) => selectAddress({...address, locality: e.target.value})} className="checkout-input" placeholder="e.g. Indiranagar" required />
                 </div>
               </div>
 
               <div>
                 <label className="checkout-label">Flat No. / Building / Street Address *</label>
-                <textarea value={address.streetAddress} onChange={(e) => setAddress({...address, streetAddress: e.target.value})} className="checkout-input" placeholder="e.g. Flat 402, 100 Ft Road" required />
+                <textarea value={address.streetAddress} onChange={(e) => selectAddress({...address, streetAddress: e.target.value})} className="checkout-input" placeholder="e.g. Flat 402, 100 Ft Road" required />
               </div>
 
               <div className="checkout-form-row">
                 <div style={{ flex: 1 }}>
                   <label className="checkout-label">City *</label>
-                  <input type="text" value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} className="checkout-input" placeholder="e.g. Bengaluru" required />
+                  <input type="text" value={address.city} onChange={(e) => selectAddress({...address, city: e.target.value})} className="checkout-input" placeholder="e.g. Bengaluru" required />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label className="checkout-label">State *</label>
-                  <input type="text" value={address.state} onChange={(e) => setAddress({...address, state: e.target.value})} className="checkout-input" placeholder="e.g. Karnataka" required />
+                  <input type="text" value={address.state} onChange={(e) => selectAddress({...address, state: e.target.value})} className="checkout-input" placeholder="e.g. Karnataka" required />
                 </div>
               </div>
 
@@ -961,7 +915,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
                 {address.name} • <span style={{ color: '#64748b', fontWeight: '600' }}>{address.phone}</span>
               </div>
               <div style={{ fontSize: '12.5px', color: '#475569', marginTop: '2px', lineHeight: '1.4' }}>
-                {address.streetAddress}{address.locality ? `, ${address.locality}` : ''}, {address.city}, {address.state} - {address.pincode}
+                {checkoutAddressLine(address)}, {address.city}, {address.state} - {address.pincode}
               </div>
             </div>
             <button 
@@ -1471,7 +1425,7 @@ const Checkout = ({ useCoinsDiscount, onNavigate }) => {
               </div>
             )}
             <div style={{ marginBottom: '4px' }}><strong>Deliver to:</strong> {createdOrder?.shippingAddress?.fullName || createdOrder?.shippingAddress?.name || address?.name || 'Customer'}</div>
-            <div style={{ marginBottom: '8px' }}><strong>Address:</strong> {createdOrder?.shippingAddress?.address || createdOrder?.shippingAddress?.streetAddress || address?.streetAddress || ''}, {createdOrder?.shippingAddress?.locality || address?.locality || ''}, {createdOrder?.shippingAddress?.city || address?.city || ''} - {createdOrder?.shippingAddress?.postalCode || createdOrder?.shippingAddress?.pincode || address?.pincode || ''}</div>
+            <div style={{ marginBottom: '8px' }}><strong>Address:</strong> {checkoutAddressLine({ streetAddress: createdOrder?.shippingAddress?.address || createdOrder?.shippingAddress?.streetAddress || address?.streetAddress, locality: createdOrder?.shippingAddress?.locality || address?.locality })}, {createdOrder?.shippingAddress?.city || address?.city || ''} - {createdOrder?.shippingAddress?.postalCode || createdOrder?.shippingAddress?.pincode || address?.pincode || ''}</div>
             <div style={{ marginBottom: '4px', color: '#059669', fontWeight: '500' }}>
               <strong>Estimated Delivery:</strong> {shippingServiceability?.estimatedDays && shippingServiceability.estimatedDays !== 'Unavailable' ? `${shippingServiceability.estimatedDays} business days` : 'Standard Dispatch (2-5 business days)'}
             </div>
