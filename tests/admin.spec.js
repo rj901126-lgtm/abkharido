@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Admin Flow', () => {
   test('should login as admin and verify dashboard components', async ({ page }) => {
-    const adminPin = (process.env.ADMIN_SECURE_PIN || '2026').trim();
+    const adminPin = process.env.ADMIN_SECURE_PIN?.trim();
+    test.skip(!adminPin, 'ADMIN_SECURE_PIN must be set in the test environment to exercise this flow.');
     await page.goto('http://localhost:3000/admin');
     
     // 1. Admin Login
