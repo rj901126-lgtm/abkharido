@@ -76,7 +76,10 @@ export async function GET(req) {
         deliveredAt: o.deliveredAt,
         awbNumber: o.awbNumber || '',
         courierPartner: o.courierPartner || 'Delhivery Express',
-        trackingHistory: o.trackingHistory || [],
+        trackingHistory: (o.trackingHistory || []).map(entry => ({
+          ...entry,
+          comment: String(entry.comment || '').replace(/(?:doorstep\s*)?pin\s*[:#-]?\s*\d{4,8}/gi, 'PIN withheld')
+        })),
         orderItems: sellerItems.map(i => ({
           name: i.name,
           qty: i.qty || i.quantity || 1,
@@ -127,13 +130,40 @@ export async function PUT(req) {
     const body = await req.json().catch(() => ({}));
     const { orderId, status = 'Shipped', courier = 'Delhivery Express' } = body;
 
+    if (status === 'Delivered') {
+      return NextResponse.json({ error: 'Delivery must be confirmed through the buyer PIN verification flow' }, { status: 403 });
+    }
+    if (!['Packed', 'Shipped', 'Dispatched'].includes(status)) {
+      return NextResponse.json({ error: 'Unsupported seller order status' }, { status: 400 });
+    }
+
     if (!orderId) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
     }
 
-    const order = await Order.findOne({ $or: [{ _id: orderId }, { cfOrderId: orderId }] });
+    const order = await Order.findOne({
+      $and: [
+        { $or: [{ _id: orderId }, { cfOrderId: orderId }] },
+        { $or: [{ vendorId: seller.id }, { 'orderItems.vendorId': seller.id }, { 'items.vendorId': seller.id }] }
+      ]
+    });
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    const allItems = order.orderItems || order.items || [];
+    const sellerOwnsWholeOrder = allItems.length > 0 && allItems.every(item =>
+      String(item.vendorId || order.vendorId || '') === String(seller.id)
+    );
+    if (!sellerOwnsWholeOrder) {
+      return NextResponse.json({ error: 'This order is not exclusively owned by this seller' }, { status: 403 });
+    }
+    if (['Delivered', 'Cancelled', 'Returned'].includes(order.status)) {
+      return NextResponse.json({ error: 'This order cannot be changed from its current state' }, { status: 409 });
+    }
+    const isCodOrder = /cod|cash on delivery/i.test(order.paymentMethod || '');
+    if (!order.isPaid && !isCodOrder) {
+      return NextResponse.json({ error: 'Online payment must be confirmed before fulfillment' }, { status: 409 });
     }
 
     const sellerUser = await User.findById(seller.id);
