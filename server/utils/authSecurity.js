@@ -1,19 +1,20 @@
 import jwt from 'jsonwebtoken';
-import { timingSafeEqual } from 'node:crypto';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 
 // Reject PIN sessions issued before the default-PIN bypass was removed.
 const ADMIN_AUTH_VERSION = 2;
 
 export function verifyAdminPin(password) {
   const input = typeof password === 'string' ? password.trim() : '';
+  const configuredPin = (process.env.ADMIN_SECURE_PIN || '').trim();
   if (!input) {
-    return { configured: true, matches: false };
+    return { configured: Boolean(configuredPin), matches: false };
   }
-  const configuredPin = (process.env.ADMIN_SECURE_PIN || '2026').trim();
-  const isMatch = Boolean(
-    input === '2026' ||
-    (configuredPin && input === configuredPin)
-  );
+  if (!configuredPin) return { configured: false, matches: false };
+  const inputBuffer = Buffer.from(input);
+  const configuredBuffer = Buffer.from(configuredPin);
+  const isMatch = inputBuffer.length === configuredBuffer.length &&
+    timingSafeEqual(inputBuffer, configuredBuffer);
   return { configured: true, matches: isMatch };
 }
 
@@ -26,15 +27,17 @@ export function signAdminToken() {
   );
 }
 
-const FALLBACK_JWT_SECRET = '1b72bb7eb91508158058d56294eb6e552b03bfa2f6c9a1c8a1c54b78993d6008';
-const FALLBACK_NEXTAUTH_SECRET = '253039922bafc58b77dd12129377f329a787a8d5e606663d4230acdbd96826fd';
+const DEVELOPMENT_JWT_SECRET = randomBytes(32).toString('hex');
 
 export function getJwtSecret(name = 'JWT_SECRET') {
   const value = process.env[name] || process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
-  if (typeof value === 'string' && value.length >= 16) {
+  if (typeof value === 'string' && value.length >= 32) {
     return value;
   }
-  return name === 'NEXTAUTH_SECRET' ? FALLBACK_NEXTAUTH_SECRET : FALLBACK_JWT_SECRET;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(`A strong ${name} or JWT_SECRET/NEXTAUTH_SECRET must be configured in production.`);
+  }
+  return DEVELOPMENT_JWT_SECRET;
 }
 export function signUserToken(id) {
   return jwt.sign({ id: String(id), purpose: 'user' }, getJwtSecret(), { algorithm: 'HS256', expiresIn: '30d' });
