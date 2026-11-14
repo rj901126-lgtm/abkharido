@@ -29,29 +29,31 @@ const AdminCMSBuilder = () => {
   const fetchLayout = async () => {
     setLoading(true);
     try {
-      const savedLayout = localStorage.getItem('abkharido_cms_storefront_v2');
-      const savedSeo = localStorage.getItem('abkharido_cms_seo');
-      if (savedSeo) {
-        try { setSeoConfig(JSON.parse(savedSeo)); } catch (e) {}
-      }
-
-      // Removed layout caching to force authentic DB fetch
-
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data && Array.isArray(data.components) && data.components.length > 0) {
-          setLayout(data);
-          setLoading(false);
-          return;
-        }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success || !data.layout || !Array.isArray(data.layout.components)) {
+        throw new Error(data.error || 'Unable to load CMS layout');
       }
 
-      // Real DB baseline without dummy data
-      setLayout({ type: 'home_page', components: [] });
-      localStorage.setItem('abkharido_cms_storefront_v2', JSON.stringify({ type: 'home_page', components: [] }));
+      setLayout(data.layout);
+      if (data.layout.seo && typeof data.layout.seo === 'object') {
+        setSeoConfig(current => ({ ...current, ...data.layout.seo }));
+      }
     } catch (err) {
-      showToastMsg('Notice: Offline inspection mode active', 'info');
+      let restoredDraft = false;
+      try {
+        const savedLayout = JSON.parse(localStorage.getItem('abkharido_cms_storefront_v2') || 'null');
+        const savedSeo = JSON.parse(localStorage.getItem('abkharido_cms_seo') || 'null');
+        if (savedLayout && Array.isArray(savedLayout.components)) {
+          setLayout(savedLayout);
+          restoredDraft = true;
+        }
+        if (savedSeo && typeof savedSeo === 'object') setSeoConfig(current => ({ ...current, ...savedSeo }));
+      } catch {}
+      showToastMsg(
+        restoredDraft ? 'Could not load the saved layout; showing this browser’s local draft.' : 'Unable to load the CMS layout. Check your connection and try again.',
+        restoredDraft ? 'info' : 'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -59,22 +61,32 @@ const AdminCMSBuilder = () => {
 
   const handleSave = async () => {
     setSaving(true);
-    localStorage.setItem('abkharido_cms_storefront_v2', JSON.stringify(layout));
-    localStorage.setItem('abkharido_cms_seo', JSON.stringify(seoConfig));
-
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
-        body: JSON.stringify({ components: layout.components })
+        body: JSON.stringify({ components: layout.components, seo: seoConfig })
       });
-    } catch (err) {}
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success || !data.layout) {
+        throw new Error(data.error || 'Unable to save CMS changes');
+      }
 
-    setTimeout(() => {
+      setLayout(data.layout);
+      if (data.layout.seo && typeof data.layout.seo === 'object') {
+        setSeoConfig(current => ({ ...current, ...data.layout.seo }));
+      }
+      try {
+        localStorage.setItem('abkharido_cms_storefront_v2', JSON.stringify(data.layout));
+        localStorage.setItem('abkharido_cms_seo', JSON.stringify(data.layout.seo || seoConfig));
+      } catch {}
+      showToastMsg('CMS layout and SEO settings saved.', 'success');
+    } catch (err) {
+      showToastMsg(err.message || 'Unable to save CMS changes. Check your connection and admin access.', 'error');
+    } finally {
       setSaving(false);
-      showToastMsg('🎉 Storefront layout and SEO parameters instantly published to Vercel global live infrastructure!', 'success');
-    }, 600);
+    }
   };
 
   const addComponent = () => {
@@ -223,14 +235,14 @@ const AdminCMSBuilder = () => {
               <LayoutTemplate size={14} /> 🎨 ENTERPRISE CMS ENGINE 2.0
             </span>
             <span style={{ fontSize: '11px', fontWeight: '800', background: '#059669', color: '#ecfdf5', padding: '4px 12px', borderRadius: '100px', border: '1px solid #34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Globe size={12} /> SEO SHIELD OPTIMIZED
+              <Globe size={12} /> SEO SETTINGS
             </span>
           </div>
           <h2 style={{ margin: 0, fontSize: '28px', fontFamily: 'Outfit, sans-serif', fontWeight: '900', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '12px' }}>
             Enterprise Storefront & CMS Command Center 2.0
           </h2>
           <p style={{ margin: '6px 0 0', color: '#cbd5e1', fontSize: '14px', maxWidth: '650px', lineHeight: '1.5' }}>
-            Visually assemble world-class homepage hierarchies, switch festive campaign themes in 1-click, test on a live iPhone emulator, and manage SEO rankings.
+            Edit homepage sections, preview layouts on a phone-sized canvas, and save storefront SEO settings.
           </p>
         </div>
 
@@ -258,7 +270,7 @@ const AdminCMSBuilder = () => {
             disabled={saving} 
             style={{ padding: '13px 26px', fontSize: '15px', fontWeight: '900', borderRadius: '100px', background: saving ? '#4f46e5' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.35)', border: 'none', color: '#ffffff', cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            <Save size={18} /> <span>{saving ? 'Publishing...' : 'Publish to Live'}</span>
+            <Save size={18} /> <span>{saving ? 'Saving...' : 'Save Changes'}</span>
           </button>
         </div>
       </div>
@@ -303,7 +315,7 @@ const AdminCMSBuilder = () => {
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Globe size={20} style={{ color: '#0284c7' }} /> Storefront SEO & OpenGraph Control Shield
             </h3>
-            <span style={{ fontSize: '12px', fontWeight: '800', background: '#e0f2fe', color: '#0369a1', padding: '4px 12px', borderRadius: '100px' }}>Google Search Status: 100% Verified</span>
+            <span style={{ fontSize: '12px', fontWeight: '800', background: '#e0f2fe', color: '#0369a1', padding: '4px 12px', borderRadius: '100px' }}>Metadata configuration</span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', flexWrap: 'wrap' }}>

@@ -15,6 +15,11 @@ const layoutSchema = new mongoose.Schema({
       data: { type: mongoose.Schema.Types.Mixed } // Can hold array of image URLs or Category references
     }
   ],
+  seo: {
+    title: { type: String, default: '' },
+    metaDesc: { type: String, default: '' },
+    ogImage: { type: String, default: '' }
+  },
   isActive: {
     type: Boolean,
     default: true
