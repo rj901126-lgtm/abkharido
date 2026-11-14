@@ -29,12 +29,12 @@ test.describe('End-to-End User Shopping Journey (Patch 5.6)', () => {
 
     // 4. Add to Cart
     // Either desktop Add to Bag button or mobile sticky bar button
-    const addToCartBtn = page.locator('.add-cart-outline-btn, .mobile-sticky-cart-btn-add, button:has-text("Add to Bag"), button:has-text("Add to Cart")').first();
+    const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
     await addToCartBtn.click();
 
     // Verify cart count badge increments
-    const cartBadge = page.locator('.cart-count, [data-testid="cart-badge"], .nav-cart-btn span').first();
+    const cartBadge = page.locator('.cart-btn .nav-badge').first();
     await expect(cartBadge).toBeVisible({ timeout: 10000 });
     const badgeText = await cartBadge.textContent();
     expect(parseInt(badgeText?.trim() || '0', 10)).toBeGreaterThan(0);
