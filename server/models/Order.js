@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { fieldEncryptionSecret, fieldEncryptionSalt } from '../utils/fieldEncryptionConfig.js';
 
 const orderItemSchema = new mongoose.Schema({
   product: {
@@ -199,10 +200,8 @@ orderSchema.index({ status: 1, isPaid: 1, paymentExpiresAt: 1 });
 import mongooseFieldEncryption from 'mongoose-field-encryption';
 orderSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
   fields: ['shippingAddress', 'paymentResult'],
-  secret: process.env.DATABASE_ENCRYPTION_KEY || 'abkharido_default_master_encryption_key_2026_super_secure',
-  saltGenerator: function (secret) {
-    return process.env.DATABASE_ENCRYPTION_SALT || "1234567890123456";
-  },
+  secret: fieldEncryptionSecret,
+  saltGenerator: () => fieldEncryptionSalt,
 });
 
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
