@@ -26,9 +26,12 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
+      run: npm ci
+
+    - name: Report dependency advisories
       run: |
-        rm -f package-lock.json
-        npm install
+        npm audit --json > npm-audit.json || true
+        node -e 'const fs = require("fs"); const audit = JSON.parse(fs.readFileSync("npm-audit.json", "utf8")); const report = Object.entries(audit.vulnerabilities || {}).map(([name, issue]) => ({ name, severity: issue.severity, direct: issue.isDirect, range: issue.range, fixAvailable: issue.fixAvailable, advisories: issue.via.map(item => typeof item === "string" ? item : item.title) })); console.log(JSON.stringify(report, null, 2));'
       
     - name: Run Linter (Oxlint)
       run: npm run lint
