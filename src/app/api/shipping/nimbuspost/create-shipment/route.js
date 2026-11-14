@@ -126,7 +126,7 @@ export async function POST(req) {
       status: 'Shipped',
       timestamp: new Date(),
       location: 'NimbusPost Logistics Hub',
-      comment: `Dispatched via NimbusPost [${chosenCourier}] (AWB: ${awbNumber}) [Live Carrier Booked] | Doorstep PIN: ${deliveryPin}`
+      comment: `Dispatched via NimbusPost [${chosenCourier}] (AWB: ${awbNumber}) [Live Carrier Booked] | Doorstep PIN active`
     });
 
     await order.save();
@@ -139,7 +139,6 @@ export async function POST(req) {
         provider: 'NimbusPost 27+ Courier Engine',
         courier: chosenCourier,
         awb: awbNumber,
-        deliveryPin: deliveryPin,
         trackingUrl: order.trackingUrl,
         labelUrl: order.nimbusLabelUrl,
         orderId: order._id || order.id,
