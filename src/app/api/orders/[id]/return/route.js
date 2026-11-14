@@ -203,6 +203,10 @@ export async function POST(req, context) {
       return NextResponse.json({ error: 'Returns can only be requested for delivered orders' }, { status: 400 });
     }
 
+    if (order.exchangeStatus && !['None', 'Rejected'].includes(order.exchangeStatus)) {
+      return NextResponse.json({ error: 'This order already has an active exchange request' }, { status: 409 });
+    }
+
     if (order.returnStatus && order.returnStatus !== 'None' && order.returnStatus !== 'Rejected') {
       return NextResponse.json({ error: `A return request is already in progress (Status: ${order.returnStatus})` }, { status: 400 });
     }

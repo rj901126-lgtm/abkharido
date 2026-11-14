@@ -41,6 +41,7 @@ const AdminOMS = ({ statusFilter }) => {
   const [courierPartner, setCourierPartner] = useState('Delhivery Express');
   const [awbInput, setAwbInput] = useState('');
   const [managingReturnOrder, setManagingReturnOrder] = useState(null);
+  const [exchangeActionOrderId, setExchangeActionOrderId] = useState(null);
   const [returnActionState, setReturnActionState] = useState({
     action: 'Approve',
     courierPartner: '',
@@ -122,6 +123,28 @@ const AdminOMS = ({ statusFilter }) => {
       showToast('Error updating return request', 'error');
     } finally {
       setReturnActionState(prev => ({ ...prev, isSubmitting: false }));
+    }
+  };
+
+  const handleExchangeAction = async (orderId, status) => {
+    try {
+      setExchangeActionOrderId(orderId);
+      const token = sessionStorage.getItem('abkharido_admin_token') || '';
+      const res = await fetch(`/api/orders/${orderId}/exchange`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to update exchange request');
+      }
+      showToast(data.message || 'Exchange request updated', 'success');
+      fetchOrders();
+    } catch (error) {
+      showToast(error.message || 'Failed to update exchange request', 'error');
+    } finally {
+      setExchangeActionOrderId(null);
     }
   };
 
@@ -377,7 +400,7 @@ const AdminOMS = ({ statusFilter }) => {
   const processingCount = orders.filter(o => !o.status || o.status.toLowerCase() === 'processing' || o.status.toLowerCase() === 'pending').length;
   const shippedCount = orders.filter(o => o.status && o.status.toLowerCase() === 'shipped').length;
   const deliveredCount = orders.filter(o => o.status && o.status.toLowerCase() === 'delivered').length;
-  const returnsCount = orders.filter(o => o.returnStatus && o.returnStatus !== 'None').length;
+  const returnsCount = orders.filter(o => (o.returnStatus && o.returnStatus !== 'None') || (o.exchangeStatus && o.exchangeStatus !== 'None')).length;
   const cancelledCount = orders.filter(o => ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status)).length;
 
   // Enterprise Hybrid Channel Attribution (1P Direct vs 3P Marketplace)
@@ -405,7 +428,7 @@ const AdminOMS = ({ statusFilter }) => {
     } else if (activeTab === 'DELIVERED') {
       if (!o.status || o.status.toLowerCase() !== 'delivered') return false;
     } else if (activeTab === 'RETURNS') {
-      if (!o.returnStatus || o.returnStatus === 'None') return false;
+      if ((!o.returnStatus || o.returnStatus === 'None') && (!o.exchangeStatus || o.exchangeStatus === 'None')) return false;
     } else if (activeTab === 'CANCELLED') {
       const isCancelled = ['CANCELLED', 'Cancelled', 'cancelled', 'RETURNED', 'Returned', 'returned', 'REFUNDED', 'Refunded', 'FAILED', 'Failed'].includes(o.status);
       if (!isCancelled) return false;
@@ -418,7 +441,8 @@ const AdminOMS = ({ statusFilter }) => {
     const cName = (o.user?.fullName || o.user?.username || o.shippingAddress?.fullName || '').toLowerCase();
     const phone = (o.shippingAddress?.phone || '').toLowerCase();
     const awb = (o.awbNumber || '').toLowerCase();
-    return oId.includes(q) || cName.includes(q) || phone.includes(q) || awb.includes(q);
+    const exchangeDetails = `${o.exchangeStatus || ''} ${o.exchangeSize || ''} ${o.exchangeReason || ''}`.toLowerCase();
+    return oId.includes(q) || cName.includes(q) || phone.includes(q) || awb.includes(q) || exchangeDetails.includes(q);
   });
 
   if (loading && orders.length === 0) {
@@ -492,7 +516,7 @@ const AdminOMS = ({ statusFilter }) => {
           { id: 'PROCESSING', label: 'New / Processing', count: processingCount, color: '#4f46e5', bg: '#e0e7ff', icon: '🟡' },
           { id: 'SHIPPED', label: 'Shipped / Transit', count: shippedCount, color: '#0284c7', bg: '#e0f2fe', icon: '🚚' },
           { id: 'DELIVERED', label: 'Delivered', count: deliveredCount, color: '#059669', bg: '#d1fae5', icon: '✅' },
-          { id: 'RETURNS', label: 'Returns (RMA)', count: returnsCount, color: '#ea580c', bg: '#ffedd5', icon: '🔄' },
+          { id: 'RETURNS', label: 'Returns & Exchanges', count: returnsCount, color: '#ea580c', bg: '#ffedd5', icon: '🔄' },
           { id: 'CANCELLED', label: 'Cancelled', count: cancelledCount, color: '#dc2626', bg: '#fee2e2', icon: '❌' },
         ].map(tab => {
           const isActive = activeTab === tab.id;
@@ -804,7 +828,22 @@ const AdminOMS = ({ statusFilter }) => {
 
                     {/* Return Status */}
                     <td style={{ padding: '16px' }}>
-                      {order.returnStatus && order.returnStatus !== 'None' ? (
+                      {order.exchangeStatus && order.exchangeStatus !== 'None' ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: '#f5f3ff', padding: '8px 10px', borderRadius: '10px', border: '1px solid #ddd6fe', minWidth: '160px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '800', color: '#5b21b6', textTransform: 'uppercase' }}>Exchange: {order.exchangeStatus}</span>
+                          <span style={{ fontSize: '10.5px', color: '#475569' }}>Replacement: <strong>{order.exchangeSize || '—'}</strong></span>
+                          {order.exchangeReason && <span style={{ fontSize: '10px', color: '#64748b' }}>{order.exchangeReason}</span>}
+                          {order.exchangeStatus === 'Requested' && (
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              <button type="button" disabled={exchangeActionOrderId === oId} onClick={() => handleExchangeAction(oId, 'Approved')} style={{ flex: 1, border: 0, borderRadius: '6px', padding: '5px 6px', background: '#16a34a', color: '#fff', fontSize: '10px', fontWeight: 800, cursor: 'pointer' }}>Approve</button>
+                              <button type="button" disabled={exchangeActionOrderId === oId} onClick={() => handleExchangeAction(oId, 'Rejected')} style={{ flex: 1, border: 0, borderRadius: '6px', padding: '5px 6px', background: '#dc2626', color: '#fff', fontSize: '10px', fontWeight: 800, cursor: 'pointer' }}>Reject</button>
+                            </div>
+                          )}
+                          {order.exchangeStatus === 'Approved' && (
+                            <button type="button" disabled={exchangeActionOrderId === oId} onClick={() => handleExchangeAction(oId, 'Exchanged')} style={{ border: 0, borderRadius: '6px', padding: '5px 6px', background: '#4f46e5', color: '#fff', fontSize: '10px', fontWeight: 800, cursor: 'pointer' }}>Mark Fulfilled</button>
+                          )}
+                        </div>
+                      ) : order.returnStatus && order.returnStatus !== 'None' ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', background: '#fff7ed', padding: '8px 10px', borderRadius: '10px', border: '1px solid #fed7aa', minWidth: '150px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '11px', fontWeight: '800', color: '#9a3412', textTransform: 'uppercase' }}>
