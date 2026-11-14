@@ -23,7 +23,8 @@ export async function GET(req) {
 
     return NextResponse.json([]);
   } catch (error) {
-    return NextResponse.json([]);
+    console.error('[Staff List API Error]:', error);
+    return NextResponse.json({ error: 'Unable to load staff accounts' }, { status: 500 });
   }
 }
 
@@ -42,13 +43,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Username, Email, and Password are required' }, { status: 400 });
     }
 
-    const { default: bcrypt } = await import('bcryptjs');
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const newStaff = await User.create({
       username: username.trim(),
       email: email.toLowerCase().trim(),
-      password: hashedPassword,
+      password,
       fullName: fullName || username,
       role: role || 'admin',
       isStaff: true,

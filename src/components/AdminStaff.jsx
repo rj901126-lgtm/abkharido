@@ -46,19 +46,13 @@ const AdminStaff = () => {
 
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, { headers: { 'x-admin-token': token } });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setStaff(data);
-          setLoading(false);
-          return;
-        }
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !Array.isArray(data)) {
+        throw new Error(data?.error || 'Unable to load staff accounts.');
       }
-
-      // No dummy data
-      setStaff([]);
+      setStaff(data);
     } catch (err) {
-      showToastMsg('Notice: Offline inspection mode active', 'info');
+      showToastMsg(err.message || 'Unable to load staff accounts.', 'error');
     } finally {
       setLoading(false);
     }
@@ -77,38 +71,22 @@ const AdminStaff = () => {
     e.preventDefault();
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || localStorage.getItem('adminToken') || '';
-      let createdStaff = null;
-
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-token': token,
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(formData)
-        });
-        if (res.ok) {
-          const data = await res.json();
-          createdStaff = data.staff;
-        }
-      } catch (apiErr) {
-        console.warn('API error creating staff, falling back to local state:', apiErr);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/staff`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.staff) {
+        showToastMsg(data?.error || 'Staff account could not be saved.', 'error');
+        return;
       }
 
-      const newStaffMember = createdStaff || {
-        _id: 's_' + Date.now(),
-        fullName: formData.fullName,
-        username: formData.username,
-        email: formData.email,
-        role: formData.role,
-        status: 'Active',
-        mfaStatus: formData.enforceMfa ? 'Enforced (Waiting First Login)' : 'Disabled',
-        lastActive: 'Just Now',
-        ipAddress: '127.0.0.1',
-        actionsCount: 0
-      };
+      const newStaffMember = data.staff;
 
       const updated = [newStaffMember, ...staff];
       setStaff(updated);
@@ -118,7 +96,7 @@ const AdminStaff = () => {
       setIsAdding(false);
       setFormData({ username: '', email: '', password: '', fullName: '', role: 'support_agent', enforceMfa: true });
     } catch (err) {
-      showToastMsg('Error creating staff account', 'error');
+      showToastMsg(err.message || 'Error creating staff account.', 'error');
     }
   };
 

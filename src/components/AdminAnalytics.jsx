@@ -23,6 +23,8 @@ const AdminAnalytics = () => {
   const [liveOrderFeed, setLiveOrderFeed] = useState([]);
   const [categoryStats, setCategoryStats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [hasLoadedData, setHasLoadedData] = useState(false);
 
   useEffect(() => {
     fetchAnalytics();
@@ -30,46 +32,51 @@ const AdminAnalytics = () => {
 
   const fetchAnalytics = async () => {
     setLoading(true);
+    setError('');
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/analytics`, {
         headers: { 'x-admin-token': token }
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.kpis) {
-          setKpis({
-            totalUsers: data.kpis.totalUsers || 0,
-            totalProducts: data.kpis.totalProducts || 0,
-            totalOrders: data.kpis.totalOrders || 0,
-            liveOrders: data.kpis.liveOrders || 0,
-            totalRevenue: data.kpis.totalRevenue || 0,
-            clv: data.kpis.clv || 0,
-            retentionRate: data.kpis.retentionRate || 0
-          });
-        }
-        if (data.salesData) setSalesData(data.salesData);
-        if (data.liveOrderFeed) setLiveOrderFeed(data.liveOrderFeed);
-        if (data.categoryStats) setCategoryStats(data.categoryStats);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.kpis) {
+        throw new Error(data?.error || 'Unable to load analytics data.');
       }
+      setKpis({
+        totalUsers: Number(data.kpis.totalUsers) || 0,
+        totalProducts: Number(data.kpis.totalProducts) || 0,
+        totalOrders: Number(data.kpis.totalOrders) || 0,
+        liveOrders: Number(data.kpis.liveOrders) || 0,
+        totalRevenue: Number(data.kpis.totalRevenue) || 0,
+        clv: Number(data.kpis.clv) || 0,
+        retentionRate: Number(data.kpis.retentionRate) || 0
+      });
+      if (Array.isArray(data.salesData)) setSalesData(data.salesData);
+      if (Array.isArray(data.liveOrderFeed)) setLiveOrderFeed(data.liveOrderFeed);
+      if (Array.isArray(data.categoryStats)) setCategoryStats(data.categoryStats);
+      setHasLoadedData(true);
     } catch (error) {
       console.log('Error fetching real analytics data', error);
-      // Empty fallbacks for real DB integration
-      setLiveOrderFeed([]);
-      setCategoryStats([]);
-      setSalesData([]);
-      setKpis({ totalUsers: 0, totalProducts: 0, totalOrders: 0, liveOrders: 0, totalRevenue: 0, clv: 0, retentionRate: 0 });
+      setError(error.message || 'Unable to load analytics data.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
+  if (loading && !hasLoadedData) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '440px', flexDirection: 'column', gap: '16px' }}>
         <div style={{ width: '46px', height: '46px', border: '4px solid #e0e7ff', borderTop: '4px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
         <div style={{ color: '#4f46e5', fontWeight: '800', fontSize: '16px' }}>⚡ Booting Enterprise Executive Intelligence & AI Forecaster 2.0...</div>
+      </div>
+    );
+  }
+  if (error && !hasLoadedData) {
+    return (
+      <div role="alert" style={{ padding: '32px', textAlign: 'center', color: '#991b1b', background: '#fef2f2', borderRadius: '16px' }}>
+        <p>{error}</p>
+        <button type="button" onClick={fetchAnalytics} style={{ padding: '10px 16px', border: 0, borderRadius: '8px', cursor: 'pointer' }}>Retry</button>
       </div>
     );
   }
@@ -79,6 +86,7 @@ const AdminAnalytics = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '26px', paddingBottom: '40px' }}>
+      {error && <div role="alert" style={{ padding: '12px 16px', color: '#991b1b', background: '#fef2f2', borderRadius: '12px' }}>{error}</div>}
       
       {/* Top AI Predictive Alert Radar */}
       {predictions.length > 0 && (
