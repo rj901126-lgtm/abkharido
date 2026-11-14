@@ -14,9 +14,10 @@ test.describe('Cart Flow', () => {
 
     // Click the first product
     await productCards.first().click();
+    await page.waitForURL(/\/product\/.+/, { timeout: 20000 });
 
     // Verify Product Details load
-    const addToCartBtn = page.locator('button:has-text("Add to Cart"), .add-to-cart-btn').first();
+    const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
 
     // Click Add to Cart
@@ -25,7 +26,7 @@ test.describe('Cart Flow', () => {
     // Verify some toast/notification or state change occurs
     // Often a toast with "Added to cart" appears, or the button text changes
     // Let's just check the cart icon counter
-    const cartBadge = page.locator('.cart-count, [data-testid="cart-badge"], .lucide-shopping-cart + span, header .badge').first();
+    const cartBadge = page.locator('.cart-btn .nav-badge').first();
     await expect(cartBadge).toBeVisible({ timeout: 10000 });
     const badgeText = await cartBadge.textContent();
     expect(parseInt(badgeText.trim())).toBeGreaterThan(0);
@@ -37,8 +38,9 @@ test.describe('Cart Flow', () => {
     const productCards = page.locator('.product-card');
     await expect(productCards.first()).toBeVisible({ timeout: 15000 });
     await productCards.first().click();
+    await page.waitForURL(/\/product\/.+/, { timeout: 20000 });
     
-    const addToCartBtn = page.locator('button:has-text("Add to Cart"), .add-to-cart-btn').first();
+    const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
     await addToCartBtn.click();
     await page.waitForTimeout(2000); // Wait for cart update
