@@ -64,7 +64,9 @@ export async function GET(req) {
         date: p.createdAt,
         utr: p.transactionId || p.utrNumber || null,
         destination: p.payoutDestination || user.payoutDetails?.upiId || user.payoutDetails?.bankAccount || 'Bank Transfer',
-        notes: p.notes || (p.type === 'WITHDRAWAL_PAYOUT'\n          ? (p.status === 'Paid' ? 'Bank Account / UPI Withdrawal Disbursed' : 'Payout request pending confirmation')\n          : 'Net Order Sale Earnings Credited')
+        notes: p.notes || (p.type === 'WITHDRAWAL_PAYOUT'
+          ? (p.status === 'Paid' ? 'Bank Account / UPI Withdrawal Disbursed' : 'Payout request pending confirmation')
+          : 'Net Order Sale Earnings Credited')
       }))
     });
 
