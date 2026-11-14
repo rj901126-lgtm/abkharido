@@ -47,13 +47,12 @@ async function resolveProduct(pRef) {
 export async function GET(req) {
   try {
     const userId = await getUserIdFromReq(req);
-    if (!userId) {
-      return NextResponse.json([]);
-    }
+    if (!userId) return NextResponse.json({ error: 'Login required' }, { status: 401 });
 
     await connectDB();
     const user = await User.findById(userId).lean();
-    if (!user || !Array.isArray(user.cart)) {
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (!Array.isArray(user.cart)) {
       return NextResponse.json([]);
     }
 
@@ -72,19 +71,26 @@ export async function GET(req) {
     return NextResponse.json(formattedCart);
   } catch (error) {
     console.error('GET /api/cart error:', error);
-    return NextResponse.json([]);
+    return NextResponse.json({ error: 'Unable to load cart' }, { status: 500 });
   }
 }
 
 export async function POST(req) {
   try {
     const userId = await getUserIdFromReq(req);
-    const body = await req.json().catch(() => ({}));
-    const cartItems = Array.isArray(body.cart) ? body.cart : [];
+    if (!userId) return NextResponse.json({ error: 'Login required' }, { status: 401 });
+    const body = await req.json().catch(() => null);
+    if (!body || !Array.isArray(body.cart)) {
+      return NextResponse.json({ error: 'Invalid cart data' }, { status: 400 });
+    }
+    const cartItems = body.cart;
 
     if (userId) {
       await connectDB();
       const user = await User.findById(userId);
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      }
       if (user) {
         const rawItems = cartItems
           .map(item => {
@@ -125,6 +131,6 @@ export async function POST(req) {
     return NextResponse.json({ success: true, cart: cartItems });
   } catch (error) {
     console.error('POST /api/cart error:', error);
-    return NextResponse.json({ success: true, cart: [] });
+    return NextResponse.json({ error: 'Unable to save cart' }, { status: 500 });
   }
 }

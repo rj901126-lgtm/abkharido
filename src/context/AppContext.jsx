@@ -481,6 +481,7 @@ export const AppProvider = ({ children }) => {
     const initBackendCart = async () => {
       const token = currentUser?.token || JSON.parse(localStorage.getItem('abkharido_user_session') || '{}')?.token;
       if (token) {
+        let initialized = false;
         try {
           // If user had a local (guest) cart before logging in, merge it into their DB cart first
           let guestCart = null;
@@ -490,14 +491,18 @@ export const AppProvider = ({ children }) => {
           } catch (e) {}
           
           if (guestCart && guestCart.length > 0) {
-            await fetch(`/api/cart/sync`, {
+            const mergeRes = await fetch(`/api/cart/sync`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({ cart: guestCart, merge: true })
-            }).catch(err => console.error('Guest cart sync failed', err));
+            });
+            const mergeResult = await mergeRes.json().catch(() => null);
+            if (!mergeRes.ok || !mergeResult?.success) {
+              throw new Error('Guest cart merge was not confirmed by the server');
+            }
           }
 
           // Then fetch the final merged cart from DB as the source of truth
@@ -523,12 +528,12 @@ export const AppProvider = ({ children }) => {
                 localStorage.removeItem('abkharido_cached_cart');
               } catch (_) {}
             }
-
+            initialized = true;
           }
         } catch (err) {
           console.error('Failed to fetch backend cart:', err);
         } finally {
-          initializedForUser.current = token;
+          if (initialized) initializedForUser.current = token;
         }
       } else {
         initializedForUser.current = null;

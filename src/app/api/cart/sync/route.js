@@ -7,15 +7,21 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req) {
   try {
-    const body = await req.json().catch(() => ({}));
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body) || (body.action !== 'clear' && !Array.isArray(body.cart))) {
+      return NextResponse.json({ error: 'Invalid cart data' }, { status: 400 });
+    }
     let syncedCart = body.cart || [];
     const auth = await getAuthenticatedUser(req);
     const userId = auth?.user?.id || null;
+    if (!userId) return NextResponse.json({ error: 'Login required' }, { status: 401 });
 
-    if (userId) {
-      await connectDB();
-      const user = await User.findById(userId);
-      if (user) {
+    await connectDB();
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    if (user) {
         if (body.action === 'clear') {
           user.cart = [];
         } else if (Array.isArray(body.cart)) {
@@ -55,13 +61,11 @@ export async function POST(req) {
         user.cartUpdatedAt = new Date();
         await user.save();
         syncedCart = user.cart;
-
-      }
     }
 
     return NextResponse.json({ success: true, cart: syncedCart });
   } catch (error) {
     console.error('POST /api/cart/sync error:', error);
-    return NextResponse.json({ success: true, cart: [] });
+    return NextResponse.json({ error: 'Unable to sync cart' }, { status: 500 });
   }
 }
