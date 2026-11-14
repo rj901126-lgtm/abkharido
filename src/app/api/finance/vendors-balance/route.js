@@ -133,9 +133,15 @@ export async function POST(req) {
   let session;
   try {
     const auth = await getAuthenticatedUser(req);
-    if (!auth || !auth.isAdmin) {
+    if (!auth || auth.user?.role !== 'super_admin') {
       return NextResponse.json({ error: 'Unauthorized: Super Admin access required for Escrow Release' }, { status: 401 });
     }
+
+    // Keep direct and batch disbursements disabled until each transfer has an
+    // atomic reservation, a stable provider idempotency key, and a reconciliation flow.
+    return NextResponse.json({
+      error: 'Automated escrow payouts are temporarily disabled pending provider-confirmed, idempotent settlement processing.'
+    }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
 
     const body = await req.json();
     const { vendorId, amount, batchAll, transferMode = 'IMPS', remarks } = body;
