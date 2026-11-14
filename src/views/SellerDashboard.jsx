@@ -488,6 +488,32 @@ export default function SellerDashboard({ onNavigate }) {
     }
   };
 
+  const handleVerifyDeliveryPin = async (orderId) => {
+    const pin = window.prompt('Ask the customer for the delivery PIN and enter it here:');
+    if (!pin) return;
+
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}/verify-delivery`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentSeller?.token || ''}`
+        },
+        body: JSON.stringify({ pin })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || 'Delivery PIN verified.', 'success');
+        fetchSellerOrders();
+        fetchSellerStats();
+      } else {
+        showToast(data.error || 'Delivery PIN could not be verified.', 'error');
+      }
+    } catch {
+      showToast('Network error verifying delivery PIN.', 'error');
+    }
+  };
+
   // ─── WITHDRAWAL SUBMISSION ───────────────────────────────────────
   const handleWithdrawSubmit = async (e) => {
     e.preventDefault();
@@ -2010,10 +2036,10 @@ export default function SellerDashboard({ onNavigate }) {
 
                         {isShipped && !isDelivered && (
                           <button
-                            onClick={() => handleUpdateOrderStatus(order._id, 'Delivered')}
+                            onClick={() => handleVerifyDeliveryPin(order._id)}
                             style={{ background: '#10b981', color: '#ffffff', border: 'none', padding: '9px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '12.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                           >
-                            <CheckCircle2 size={14} /> Mark Delivered &amp; Settle Wallet
+                            <CheckCircle2 size={14} /> Verify Delivery PIN
                           </button>
                         )}
 
