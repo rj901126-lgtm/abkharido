@@ -48,6 +48,7 @@ export async function GET(req, context) {
     }
 
     // ── Native Mongoose / MongoDB Fallback ──
+    let databaseUnavailable = false;
     try {
       await connectDB();
       const product = await Product.findOne({ 
@@ -82,6 +83,17 @@ export async function GET(req, context) {
       }
     } catch (dbErr) {
       console.warn('[Product Detail DB Fallback Warning]:', dbErr.message);
+      databaseUnavailable = true;
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      if (databaseUnavailable) {
+        return NextResponse.json({ error: 'Product catalog is temporarily unavailable' }, { status: 503 });
+      }
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404, headers: { 'X-Robots-Tag': 'noindex, nofollow' } }
+      );
     }
 
     // Fallback to local catalog if not found in database

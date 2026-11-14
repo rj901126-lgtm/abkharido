@@ -94,6 +94,10 @@ export async function GET(req) {
       let products = await query;
 
       if (!products || (products.length === 0 && total === 0)) {
+        if (process.env.NODE_ENV === 'production') {
+          return NextResponse.json({ products: [], total: 0, page, limit, totalPages: 0 });
+        }
+
         let fallback = PRODUCTS.filter(p => p.status !== 'archived' && !p.isArchived && (p.status === 'published' || p.status === 'active'));
         if (category && category !== 'all') {
           fallback = fallback.filter(p => p.category && p.category.toLowerCase() === category.toLowerCase());
@@ -127,6 +131,11 @@ export async function GET(req) {
         totalPages: Math.ceil(total / limit) || 1
       });
     } catch (dbError) {
+      if (process.env.NODE_ENV === 'production') {
+        console.error('[Products Native API] Database unavailable:', dbError.message);
+        return NextResponse.json({ error: 'Product catalog is temporarily unavailable' }, { status: 503 });
+      }
+
       console.warn('[Products Native API] DB fallback, using mock catalog:', dbError.message);
       let fallback = PRODUCTS.filter(p => p.status !== 'archived' && !p.isArchived && (p.status === 'published' || p.status === 'active'));
       if (category && category !== 'all') {
