@@ -10,12 +10,14 @@
   box-sizing: border-box;
 }
 
-/* ── Clean Modern Dashboard Header ── */
+/* ── Signature Luxury Dashboard Header ── */
 .profile-dashboard-header {
-  background: #ffffff;
-  padding: 20px 18px;
+  background: linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%);
+  padding: 24px 20px;
   position: relative;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
 }
 
 .profile-header-user {

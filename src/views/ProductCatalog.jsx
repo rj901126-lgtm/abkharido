@@ -27,11 +27,11 @@ import { getCategoryData, ALL_POPULAR_BRANDS } from '../utils/categoryData';
 import '../assets/styles/product.css';
 
 const SORT_OPTIONS = [
-  { id: 'popularity', label: 'Featured & Popular', shortLabel: 'Popular', icon: '⚡' },
-  { id: 'priceLow', label: 'Price: Low to High', shortLabel: 'Price: Low', icon: '💰' },
-  { id: 'priceHigh', label: 'Price: High to Low', shortLabel: 'Price: High', icon: '💎' },
-  { id: 'rating', label: 'Customer Rating', shortLabel: 'Rating', icon: '⭐' },
-  { id: 'discount', label: 'Highest Discount', shortLabel: 'Discount', icon: '🏷️' }
+  { id: 'popularity', label: 'Featured & Popular', sub: 'Most ordered & trending picks', shortLabel: 'Popular', icon: '⚡', tint: 'amber' },
+  { id: 'priceLow', label: 'Price: Low to High', sub: 'Best budget-friendly deals first', shortLabel: 'Price: Low', icon: '💰', tint: 'green' },
+  { id: 'priceHigh', label: 'Price: High to Low', sub: 'Flagship & premium specs first', shortLabel: 'Price: High', icon: '💎', tint: 'blue' },
+  { id: 'rating', label: 'Customer Rating', sub: 'Highest verified buyer ratings', shortLabel: 'Rating', icon: '⭐', tint: 'purple' },
+  { id: 'discount', label: 'Highest Discount', sub: 'Biggest savings & markdowns', shortLabel: 'Discount', icon: '🏷️', tint: 'red' }
 ];
 
 
@@ -294,17 +294,33 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
       {/* ── 1. DESKTOP FILTERS SIDEBAR ── */}
       <aside className="filters-sidebar">
         
-        {/* Sidebar Header & Clear All */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: '800', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
-            <SlidersHorizontal size={16} color="var(--brand-accent)" />
-            <span>Faceted Filters</span>
+        {/* Signature Luxury Sidebar Header Banner (Matches Header Login Badge Menu) */}
+        <div className="dropdown-header-banner" style={{ padding: '14px', borderRadius: '14px', marginBottom: '12px', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="dropdown-avatar-circle" style={{ width: '34px', height: '34px' }}>
+              <SlidersHorizontal size={16} strokeWidth={2.4} />
+            </div>
+            <div>
+              <div style={{ fontSize: '13.5px', fontWeight: '800', color: '#ffffff', lineHeight: 1.2 }}>Faceted Filters</div>
+              <div style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.75)', marginTop: '1px' }}>
+                {activeFilterCount > 0 ? `${activeFilterCount} active filters` : 'Refine catalog'}
+              </div>
+            </div>
           </div>
 
           {(selectedSubCategory || selectedBrand || selectedRating || minPrice > 0 || maxPrice < 150000 || isFreeDeliveryOnly || isWarrantyOnly || isEmiOnly || selectedQuickChip) && (
             <button 
               onClick={handleResetFilters}
-              style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '11.5px', fontWeight: '800', cursor: 'pointer', padding: 0 }}
+              style={{
+                background: 'rgba(255,255,255,0.16)',
+                border: '1px solid rgba(255,255,255,0.28)',
+                color: '#ffffff',
+                fontSize: '10.5px',
+                fontWeight: '800',
+                padding: '4px 9px',
+                borderRadius: '99px',
+                cursor: 'pointer'
+              }}
             >
               Clear All
             </button>
@@ -328,12 +344,13 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
               <div 
                 onClick={() => { setSelectedSubCategory(null); setSelectedQuickChip(null); }}
                 style={{
-                  padding: '6px 10px',
-                  borderRadius: '8px',
+                  padding: '7px 10px',
+                  borderRadius: '10px',
                   fontSize: '12.5px',
                   fontWeight: !selectedSubCategory ? '800' : '600',
                   color: !selectedSubCategory ? 'var(--brand-accent)' : '#334155',
                   background: !selectedSubCategory ? 'var(--brand-accent-light)' : 'transparent',
+                  border: !selectedSubCategory ? '1px solid #bfdbfe' : '1px solid transparent',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -354,12 +371,13 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                       setSelectedQuickChip(null);
                     }}
                     style={{
-                      padding: '6px 10px',
-                      borderRadius: '8px',
+                      padding: '7px 10px',
+                      borderRadius: '10px',
                       fontSize: '12.5px',
                       fontWeight: isSelected ? '800' : '500',
                       color: isSelected ? 'var(--brand-accent)' : '#334155',
                       background: isSelected ? 'var(--brand-accent-light)' : 'transparent',
+                      border: isSelected ? '1px solid #bfdbfe' : '1px solid transparent',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -567,10 +585,10 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
 
         {/* 🏪 Verified Seller Storefront Banner (If browsing seller URL) */}
         {sellerShopName && (
-          <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e1b4b 100%)', borderRadius: '14px', padding: '14px 18px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px', boxShadow: '0 4px 16px rgba(15, 23, 42, 0.12)' }}>
+          <div style={{ background: 'linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%)', borderRadius: '16px', padding: '14px 18px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.14)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)', flexShrink: 0 }}>
-                <Store size={20} color="#ffffff" />
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(251, 191, 36, 0.35)', flexShrink: 0, color: '#1e1b4b' }}>
+                <Store size={20} />
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -589,7 +607,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             {onSelectCategory && (
               <button
                 onClick={() => { window.location.href = '/catalog'; }}
-                style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#ffffff', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.24)', color: '#ffffff', padding: '6px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}
               >
                 View All Store ➔
               </button>
@@ -748,7 +766,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
               No products found {searchQuery ? `for "${searchQuery}"` : ''}
             </h3>
             <p style={{ color: '#64748b', fontSize: '13.5px', maxWidth: '420px', margin: '0 auto 20px', lineHeight: '1.5' }}>
-              We couldn't find any products matching your specific filters. Try clearing some filters or searching with different terms.
+              We couldn&apos;t find any products matching your specific filters. Try clearing some filters or searching with different terms.
             </p>
             <button
               onClick={handleResetFilters}
@@ -771,7 +789,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
 
       </main>
 
-      {/* ── 📱 Mobile Sort Bottom Sheet Modal ── */}
+      {/* ── 📱 Mobile Sort Bottom Sheet Modal (Upgraded to Match Header Login Badge Menu) ── */}
       {showSortSheet && typeof document !== 'undefined' && createPortal(
         <div 
           className="catalog-sort-bottomsheet-backdrop"
@@ -783,15 +801,35 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
           >
             <div className="catalog-sort-handle" />
             
-            <div className="catalog-sort-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ArrowUpDown size={17} color="var(--brand-accent)" />
-                <h3 className="catalog-sort-title">Sort Products By</h3>
+            {/* Signature Luxury Header Banner */}
+            <div className="dropdown-header-banner" style={{ padding: '14px 16px', borderRadius: '16px', marginBottom: '12px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="dropdown-avatar-circle" style={{ width: '38px', height: '38px' }}>
+                  <ArrowUpDown size={18} strokeWidth={2.4} />
+                </div>
+                <div>
+                  <h3 className="catalog-sort-title" style={{ color: '#ffffff', fontSize: '15px' }}>Sort Products By</h3>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.78)', marginTop: '2px' }}>
+                    Choose how {filteredProducts.length} items are ordered
+                  </div>
+                </div>
               </div>
               <button 
-                className="catalog-sort-close-btn"
                 onClick={() => setShowSortSheet(false)}
                 aria-label="Close sort"
+                style={{
+                  background: 'rgba(255,255,255,0.14)',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
               >
                 ✕
               </button>
@@ -810,9 +848,14 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                       setShowSortSheet(false);
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '16px' }}>{opt.icon}</span>
-                      <span className="catalog-sort-option-label">{opt.label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div className={`dropdown-icon-box ${opt.tint || 'blue'}`} style={{ width: '36px', height: '36px', borderRadius: '10px', fontSize: '16px' }}>
+                        {opt.icon}
+                      </div>
+                      <div style={{ textAlign: 'left' }}>
+                        <div className="catalog-sort-option-label">{opt.label}</div>
+                        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '500', marginTop: '1px' }}>{opt.sub}</div>
+                      </div>
                     </div>
                     <div className={`catalog-sort-radio ${isSelected ? 'active' : ''}`}>
                       {isSelected && <div className="catalog-sort-radio-inner" />}
@@ -826,42 +869,74 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
         document.body
       )}
 
-      {/* ── 📱 Mobile Filter Slide-in Drawer Modal ── */}
+      {/* ── 📱 Mobile Filter Slide-in Drawer Modal (Upgraded to Match Header Login Badge Menu) ── */}
       {showFilterDrawer && typeof document !== 'undefined' && createPortal(
         <div 
           style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', zIndex: 99999, display: 'flex', justifyContent: 'flex-end' }}
           onClick={() => setShowFilterDrawer(false)}
         >
           <div 
-            style={{ width: '85%', maxWidth: '340px', background: '#ffffff', height: '100%', overflowY: 'auto', padding: '20px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px' }}
+            style={{ width: '86%', maxWidth: '350px', background: '#ffffff', height: '100%', overflowY: 'auto', padding: '14px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '-12px 0 40px rgba(15, 23, 42, 0.22)' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '16px', fontWeight: '900', color: '#0f172a', fontFamily: "'Outfit', sans-serif" }}>
-                <SlidersHorizontal size={18} color="var(--brand-accent)" />
-                <span>Filters {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
+            {/* Signature Luxury Header Banner */}
+            <div className="dropdown-header-banner" style={{ padding: '15px 16px', borderRadius: '16px', marginBottom: '2px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
+                <div className="dropdown-avatar-circle" style={{ width: '38px', height: '38px' }}>
+                  <SlidersHorizontal size={18} strokeWidth={2.4} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '15px', fontWeight: '800', color: '#ffffff', fontFamily: "'Outfit', sans-serif" }}>
+                    Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.78)', marginTop: '1px' }}>
+                    {filteredProducts.length} matching products
+                  </div>
+                </div>
               </div>
-              <button onClick={() => setShowFilterDrawer(false)} style={{ background: '#f1f5f9', border: 'none', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', cursor: 'pointer', color: '#475569' }}>✕</button>
+              <button
+                onClick={() => setShowFilterDrawer(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.14)',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  color: '#ffffff'
+                }}
+              >
+                ✕
+              </button>
             </div>
 
             {/* Department */}
-            <div>
+            <div style={{ padding: '0 4px' }}>
               <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Category</h5>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div onClick={() => { setSelectedSubCategory(null); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: !selectedSubCategory ? 'var(--brand-accent)' : '#334155', background: !selectedSubCategory ? 'var(--brand-accent-light)' : 'transparent', fontWeight: !selectedSubCategory ? '800' : '500', cursor: 'pointer' }}>
-                  All Items
+                <div onClick={() => { setSelectedSubCategory(null); setSelectedQuickChip(null); }} style={{ padding: '9px 12px', borderRadius: '10px', fontSize: '13px', color: !selectedSubCategory ? 'var(--brand-accent)' : '#334155', background: !selectedSubCategory ? 'var(--brand-accent-light)' : '#f8fafc', border: !selectedSubCategory ? '1px solid #bfdbfe' : '1px solid #f1f5f9', fontWeight: !selectedSubCategory ? '800' : '600', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>All Items</span>
+                  {!selectedSubCategory && <Check size={14} />}
                 </div>
-                {activeSubCategories.map(sub => (
-                  <div key={sub.id} onClick={() => { setSelectedSubCategory(selectedSubCategory?.id === sub.id ? null : sub); setSelectedQuickChip(null); }} style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', color: selectedSubCategory?.id === sub.id ? 'var(--brand-accent)' : '#334155', background: selectedSubCategory?.id === sub.id ? 'var(--brand-accent-light)' : 'transparent', fontWeight: selectedSubCategory?.id === sub.id ? '800' : '500', cursor: 'pointer' }}>
-                    {sub.name}
-                  </div>
-                ))}
+                {activeSubCategories.map(sub => {
+                  const isSel = selectedSubCategory?.id === sub.id;
+                  return (
+                    <div key={sub.id} onClick={() => { setSelectedSubCategory(isSel ? null : sub); setSelectedQuickChip(null); }} style={{ padding: '9px 12px', borderRadius: '10px', fontSize: '13px', color: isSel ? 'var(--brand-accent)' : '#334155', background: isSel ? 'var(--brand-accent-light)' : '#f8fafc', border: isSel ? '1px solid #bfdbfe' : '1px solid #f1f5f9', fontWeight: isSel ? '800' : '600', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{sub.name}</span>
+                      {isSel && <Check size={14} />}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* Brands */}
             {visibleBrands.length > 0 && (
-              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', paddingLeft: '4px', paddingRight: '4px' }}>
                 <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Brands</h5>
                 <div style={{ maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {visibleBrands.slice(0, 10).map((brand, idx) => (
@@ -875,7 +950,7 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             )}
 
             {/* Price Range */}
-            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', paddingLeft: '4px', paddingRight: '4px' }}>
               <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Price Range</h5>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {[
@@ -889,8 +964,8 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
                     type="button"
                     onClick={() => { setMinPrice(chip.min); setMaxPrice(chip.max); }}
                     style={{
-                      padding: '5px 10px',
-                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      borderRadius: '8px',
                       border: (minPrice === chip.min && maxPrice === chip.max) ? '1.5px solid var(--brand-accent)' : '1px solid #e2e8f0',
                       background: (minPrice === chip.min && maxPrice === chip.max) ? 'var(--brand-accent-light)' : '#f8fafc',
                       color: (minPrice === chip.min && maxPrice === chip.max) ? 'var(--brand-accent)' : '#475569',
@@ -906,29 +981,29 @@ const ProductCatalog = ({ currentCategory = 'all', onSelectCategory, searchQuery
             </div>
 
             {/* Customer Rating */}
-            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', paddingLeft: '4px', paddingRight: '4px' }}>
               <h5 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px', marginBottom: '8px' }}>Customer Rating</h5>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {[4, 3].map(stars => (
                   <label key={stars} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#334155', cursor: 'pointer' }}>
                     <input type="radio" name="mobile-rating-filter" checked={selectedRating === stars} onChange={() => setSelectedRating(selectedRating === stars ? null : stars)} style={{ accentColor: 'var(--brand-accent)', width: '15px', height: '15px' }} />
-                    <span style={{ fontWeight: '700' }}>{stars}★ & above</span>
+                    <span style={{ fontWeight: '700' }}>{stars}★ &amp; above</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Apply & Reset Buttons */}
-            <div style={{ marginTop: 'auto', display: 'flex', gap: '8px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+            <div style={{ marginTop: 'auto', display: 'flex', gap: '8px', paddingTop: '14px', borderTop: '1px solid #e2e8f0' }}>
               <button 
                 onClick={() => { handleResetFilters(); setShowFilterDrawer(false); }}
-                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}
+                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}
               >
                 Reset All
               </button>
               <button 
                 onClick={() => setShowFilterDrawer(false)}
-                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)', color: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}
+                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%)', color: '#ffffff', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}
               >
                 Apply ({filteredProducts.length})
               </button>

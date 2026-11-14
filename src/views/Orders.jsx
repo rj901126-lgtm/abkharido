@@ -474,23 +474,23 @@ const Orders = ({ onNavigate }) => {
     <>
     <div className="orders-page-wrapper animate-fade-in">
 
-      {/* 🌟 Modern Hero Orders Header — Sleek, High-Contrast & Compact */}
+      {/* 🌟 Signature Luxury Orders Header (Matches Header Login Badge Menu) */}
       <div className="orders-hero-header">
-        <div className="orders-hero-top">
-          <div className="orders-hero-title-group">
-            <div className="orders-hero-icon">
-              <History size={16} color="#4f46e5" />
+        <div className="dropdown-header-banner" style={{ padding: '14px 16px', borderRadius: '14px', marginBottom: '10px', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+          <div className="orders-hero-title-group" style={{ gap: '12px' }}>
+            <div className="dropdown-avatar-circle" style={{ width: '38px', height: '38px' }}>
+              <History size={18} strokeWidth={2.4} />
             </div>
             <div>
-              <h1 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', fontFamily: "'Outfit', sans-serif", margin: 0, lineHeight: 1.2 }}>My Orders</h1>
-              <span style={{ fontSize: '10.5px', color: '#94a3b8', fontWeight: '500' }}>Track shipments & order history</span>
+              <h1 style={{ fontSize: '16px', fontWeight: '800', color: '#ffffff', fontFamily: "'Outfit', sans-serif", margin: 0, lineHeight: 1.2 }}>My Orders</h1>
+              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.78)', fontWeight: '500' }}>Track live shipments &amp; download GST invoices</span>
             </div>
           </div>
 
           {/* Quick Metrics — tight row */}
           <div className="orders-hero-badges">
-            <span className="orders-hero-badge">
-              <strong style={{ color: '#0f172a' }}>{totalOrdersCount}</strong> Total
+            <span className="orders-hero-badge" style={{ background: 'rgba(255,255,255,0.14)', borderColor: 'rgba(255,255,255,0.24)', color: '#ffffff' }}>
+              <strong>{totalOrdersCount}</strong> Total
             </span>
             {activeInTransitCount > 0 && (
               <span className="orders-hero-badge" style={{ background: '#eff6ff', borderColor: '#bfdbfe', color: '#1d4ed8' }}>
@@ -1193,12 +1193,19 @@ const Orders = ({ onNavigate }) => {
       
       {/* ✏️ Modal 1: Edit Delivery Address */}
       {orderToEditAddress && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setOrderToEditAddress(null)}>
-          <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', margin: 0 }}>✏️ Update Delivery Address</h3>
-              <button onClick={() => setOrderToEditAddress(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748b' }}>✕</button>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setOrderToEditAddress(null)}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '22px', padding: '12px', width: '100%', maxWidth: '450px', boxShadow: '0 25px 50px -12px rgba(9, 13, 22, 0.35)' }} onClick={e => e.stopPropagation()}>
+            <div className="dropdown-header-banner" style={{ padding: '16px 18px', borderRadius: '16px', marginBottom: '14px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="dropdown-avatar-circle" style={{ width: '38px', height: '38px', fontSize: '16px' }}>✏️</div>
+                <div>
+                  <h3 style={{ fontSize: '15.5px', fontWeight: '800', color: '#ffffff', margin: 0 }}>Update Delivery Address</h3>
+                  <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.78)', marginTop: '2px' }}>Update your delivery address details</div>
+                </div>
+              </div>
+              <button onClick={() => setOrderToEditAddress(null)} style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.22)', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', cursor: 'pointer', color: '#ffffff' }}>✕</button>
             </div>
+            <div style={{ padding: '4px 10px 10px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Recipient Full Name *</label>
@@ -1258,6 +1265,7 @@ const Orders = ({ onNavigate }) => {
               <button className="btn btn-primary" style={{ flex: 1 }} disabled={isSavingAddress} onClick={handleSaveAddress}>
                 {isSavingAddress ? 'Saving...' : 'Save Address'}
               </button>
+            </div>
             </div>
           </div>
         </div>
@@ -1690,40 +1698,67 @@ const Orders = ({ onNavigate }) => {
       )}
 
       {/* ════════════════════════════════════════
-          Custom Time Filter Bottom Sheet Modal
+          Custom Time Filter Bottom Sheet Modal (Upgraded to Match Header Login Badge Menu)
           ════════════════════════════════════════ */}
       {showTimeSheet && (
         <div className="orders-sheet-overlay" onClick={(e) => { if (e.target === e.currentTarget) setShowTimeSheet(false); }}>
           <div className="orders-time-sheet">
             <div className="orders-sheet-handle" />
-            <div className="orders-sheet-header">
-              <div>
-                <p className="orders-sheet-title">Filter by Date</p>
-                <p className="orders-sheet-subtitle">Show orders from a specific time period</p>
+            <div className="dropdown-header-banner" style={{ padding: '14px 16px', borderRadius: '16px', marginBottom: '12px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="dropdown-avatar-circle" style={{ width: '38px', height: '38px' }}>
+                  <Calendar size={18} strokeWidth={2.4} />
+                </div>
+                <div>
+                  <p className="orders-sheet-title" style={{ color: '#ffffff' }}>Filter by Date</p>
+                  <p className="orders-sheet-subtitle" style={{ color: 'rgba(255,255,255,0.78)' }}>Show orders from a specific time period</p>
+                </div>
               </div>
-              <button className="orders-sheet-close-btn" onClick={() => setShowTimeSheet(false)}>✕</button>
+              <button
+                onClick={() => setShowTimeSheet(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.14)',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                  borderRadius: '50%',
+                  width: '30px',
+                  height: '30px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#ffffff',
+                  fontWeight: 700
+                }}
+              >
+                ✕
+              </button>
             </div>
             <div className="orders-time-options-list">
               {[
-                { v: 'all', l: '📅 All Time', sub: 'Show all your orders' },
-                { v: '30days', l: '🗓 Past 30 Days', sub: 'Orders placed this month' },
-                { v: '3months', l: '📆 Past 3 Months', sub: 'Last quarter orders' },
-                { v: '6months', l: '📆 Past 6 Months', sub: 'Last 6 months' },
-                { v: '2026', l: '🗂 Year 2026', sub: 'Orders placed in 2026' },
-                { v: '2025', l: '🗂 Year 2025', sub: 'Orders placed in 2025' },
+                { v: 'all', l: 'All Time', icon: '📅', tint: 'blue', sub: 'Show all your orders' },
+                { v: '30days', l: 'Past 30 Days', icon: '🗓', tint: 'green', sub: 'Orders placed this month' },
+                { v: '3months', l: 'Past 3 Months', icon: '📆', tint: 'purple', sub: 'Last quarter orders' },
+                { v: '6months', l: 'Past 6 Months', icon: '📆', tint: 'amber', sub: 'Last 6 months' },
+                { v: '2026', l: 'Year 2026', icon: '🗂', tint: 'blue', sub: 'Orders placed in 2026' },
+                { v: '2025', l: 'Year 2025', icon: '🗂', tint: 'purple', sub: 'Orders placed in 2025' },
               ].map(opt => (
                 <button
                   key={opt.v}
                   className={`orders-time-option-item ${timeFilter === opt.v ? 'selected' : ''}`}
                   onClick={() => { setTimeFilter(opt.v); setShowTimeSheet(false); }}
                 >
-                  <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontWeight: 700, fontSize: '13.5px' }}>{opt.l}</div>
-                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '1px' }}>{opt.sub}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' }}>
+                    <div className={`dropdown-icon-box ${opt.tint}`} style={{ width: '34px', height: '34px', borderRadius: '9px', fontSize: '15px' }}>
+                      {opt.icon}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '13.5px', color: timeFilter === opt.v ? '#1d4ed8' : '#0f172a' }}>{opt.l}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px', fontWeight: 500 }}>{opt.sub}</div>
+                    </div>
                   </div>
                   {timeFilter === opt.v && (
-                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--brand-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Check size={11} color="#ffffff" strokeWidth={3} />
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--brand-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Check size={12} color="#ffffff" strokeWidth={3} />
                     </div>
                   )}
                 </button>

@@ -1,8 +1,21 @@
 import React from 'react';
-// eslint-disable-next-line
-import { ShieldCheck, Mail, Building, FileText, HelpCircle } from 'lucide-react';
+import { ShieldCheck, Mail, Building, FileText, HelpCircle, Truck, RotateCcw, Lock, PhoneCall, ChevronRight, Sparkles } from 'lucide-react';
+
+const INFO_MENU_ITEMS = [
+  { key: 'about', href: '/about', title: 'About AbKharido', sub: 'Direct D2C story & careers', icon: Building, tint: 'blue' },
+  { key: 'terms', href: '/terms', title: 'Terms of Use', sub: 'Platform & payment rules', icon: FileText, tint: 'purple' },
+  { key: 'privacy', href: '/privacy', title: 'Privacy Policy', sub: 'How we handle your data', icon: Lock, tint: 'green' },
+  { key: 'returns', href: '/returns', title: 'Returns & Replacement', sub: '7-day doorstep guarantee', icon: RotateCcw, tint: 'amber' },
+  { key: 'shipping', href: '/shipping', title: 'Shipping & Delivery', sub: 'Delivery coverage and timelines', icon: Truck, tint: 'blue' },
+  { key: 'faq', href: '/faq', title: 'FAQs & Help', sub: 'Quick answers & guides', icon: HelpCircle, tint: 'purple' },
+  { key: 'contact', href: '/contact', title: 'Contact Support', sub: 'WhatsApp & email helpdesk', icon: PhoneCall, tint: 'green' }
+];
 
 const InfoPage = ({ infoType }) => {
+  const activeKey = infoType || 'contact';
+  const activeMeta = INFO_MENU_ITEMS.find((i) => i.key === activeKey) || INFO_MENU_ITEMS[INFO_MENU_ITEMS.length - 1];
+  const ActiveIcon = activeMeta.icon || ShieldCheck;
+
   const renderContent = () => {
     switch (infoType) {
       case 'about':
@@ -10,7 +23,7 @@ const InfoPage = ({ infoType }) => {
           <div>
             <h2 style={styles.title}>About AbKharido.com</h2>
             <p style={styles.paragraph}>
-              Welcome to <strong>AbKharido.com</strong>, India's premier direct-to-consumer e-commerce marketplace. 
+              Welcome to <strong>AbKharido.com</strong>, India&apos;s premier direct-to-consumer e-commerce marketplace.
               Established in 2026, we specialize in high-quality consumer electronics, home appliances, footwear, 
               and apparel shipped directly from fulfillment centers.
             </p>
@@ -20,7 +33,7 @@ const InfoPage = ({ infoType }) => {
               AbKharido.com is owned, cataloged, warehoused, and directly dispatched by our team. This guarantees 
               verified quality checks, strict packaging standards, and quick support resolutions.
             </p>
-            <h3 style={styles.subtitle}>Referral & Sharing Program</h3>
+            <h3 style={styles.subtitle}>Referral &amp; Sharing Program</h3>
             <p style={styles.paragraph}>
               We believe in rewarding our community. Shoppers earn shopping discount coins, while creators/influencers 
               receive withdrawable cash commissions on sales made through secure tracking links.
@@ -30,7 +43,7 @@ const InfoPage = ({ infoType }) => {
             <p style={styles.paragraph}>
               We are constantly seeking smart minds in warehouse operations, customer service, supply logistics, and 
               software engineering. If you would like to join our self-operated e-commerce crew, please drop your resume 
-              at <a href="mailto:careers@abkharido.com" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>careers@abkharido.com</a>.
+              at <a href="mailto:careers@abkharido.com" style={{ color: '#2563eb', fontWeight: '800' }}>careers@abkharido.com</a>.
             </p>
 
             <h3 style={styles.subtitle}>📦 Wholesale Enquiries</h3>
@@ -42,7 +55,7 @@ const InfoPage = ({ infoType }) => {
       case 'terms':
         return (
           <div>
-            <h2 style={styles.title}>Terms of Use & Guidelines</h2>
+            <h2 style={styles.title}>Terms of Use &amp; Guidelines</h2>
             <p style={styles.date}>Last Updated: July 2026</p>
             <p style={styles.paragraph}>
               This document is an electronic record in terms of Information Technology Act, 2000 and rules there 
@@ -55,7 +68,7 @@ const InfoPage = ({ infoType }) => {
               Users are responsible for maintaining the privacy of their OTP sessions and are advised against 
               exposing registration keys.
             </p>
-            <h3 style={styles.subtitle}>2. Payment Terms & Refunds</h3>
+            <h3 style={styles.subtitle}>2. Payment Terms &amp; Refunds</h3>
             <p style={styles.paragraph}>
               All transactions are processed through our partner payment gateways (Cashfree Payments). 
               Funds are held securely and orders are dispatched once payment status is verified. Refund processing 
@@ -75,7 +88,7 @@ const InfoPage = ({ infoType }) => {
             <h2 style={styles.title}>Privacy Policy</h2>
             <p style={styles.date}>Last Updated: July 2026</p>
             <p style={styles.paragraph}>
-              We value the trust you place in us. That's why we insist upon the highest standards for secure 
+              We value the trust you place in us. That&apos;s why we insist upon the highest standards for secure
               transactions and customer information privacy. Please read the following statement to learn 
               about our information gathering and dissemination practices.
             </p>
@@ -85,7 +98,7 @@ const InfoPage = ({ infoType }) => {
               We do NOT store credit card details, netbanking passwords, or UPI pins. All transaction screens 
               are securely operated by Cashfree Payments Web SDK.
             </p>
-            <h3 style={styles.subtitle}>2. Tracking Links & Cookies</h3>
+            <h3 style={styles.subtitle}>2. Tracking Links &amp; Cookies</h3>
             <p style={styles.paragraph}>
               Our referral sharing program utilizes anonymous random codes (e.g. <code>REF-XXXXX</code>) to log 
               conversions. Personal details are never exposed in URLs or sharing buttons.
@@ -95,7 +108,7 @@ const InfoPage = ({ infoType }) => {
       case 'returns':
         return (
           <div>
-            <h2 style={styles.title}>Cancellation, Returns & Shipping</h2>
+            <h2 style={styles.title}>Cancellation, Returns &amp; Shipping</h2>
             <p style={styles.paragraph}>
               We want you to be fully satisfied with every purchase. AbKharido offers a user-friendly cancellation 
               and returns policy.
@@ -108,11 +121,11 @@ const InfoPage = ({ infoType }) => {
             </p>
             <h3 style={styles.subtitle}>Order Cancellations</h3>
             <p style={styles.paragraph}>
-              You can cancel your order at any time before it enters the "In Transit" milestone. Click the 
-              <strong>"Cancel Order"</strong> button in your Orders history. Any redeemed coins will be immediately 
+              You can cancel your order at any time before it enters the &quot;In Transit&quot; milestone. Click the
+              <strong> &quot;Cancel Order&quot;</strong> button in your Orders history. Any redeemed coins will be immediately
               refunded to your wallet, and payment refunds will be processed within 5-7 business days.
             </p>
-            <h3 style={styles.subtitle}>🚚 Shipping & Delivery Policy</h3>
+            <h3 style={styles.subtitle}>🚚 Shipping &amp; Delivery Policy</h3>
             <p style={styles.paragraph}>
               Orders are dispatched within 24 hours of successful placement. Standard express delivery takes between 
               2 to 5 business days across 29,000+ Indian pincodes. Free standard shipping is provided on all orders 
@@ -123,14 +136,14 @@ const InfoPage = ({ infoType }) => {
       case 'shipping':
         return (
           <div>
-            <h2 style={styles.title}>Shipping & Delivery Policy</h2>
+            <h2 style={styles.title}>Shipping &amp; Delivery Policy</h2>
             <p style={styles.date}>Last Updated: 2026</p>
             <p style={styles.paragraph}>
               At <strong>AbKharido.com</strong>, we are committed to delivering your orders swiftly, securely, and transparently 
               to your doorstep anywhere in India.
             </p>
 
-            <h3 style={styles.subtitle}>1. Fulfillment Hubs & Dispatch Timelines</h3>
+            <h3 style={styles.subtitle}>1. Fulfillment Hubs &amp; Dispatch Timelines</h3>
             <p style={styles.paragraph}>
               All products listed on AbKharido are stocked and dispatched directly from our verified fulfillment centers in 
               Maharashtra (Palghar &amp; Mumbai MMR) and regional logistics partners. Orders placed before 2:00 PM IST on business days 
@@ -150,11 +163,11 @@ const InfoPage = ({ infoType }) => {
               • <strong>Orders below ₹499:</strong> A nominal flat shipping charge of ₹40 is applied at checkout.
             </p>
 
-            <h3 style={styles.subtitle}>4. Live Tracking & Handover</h3>
+            <h3 style={styles.subtitle}>4. Live Tracking &amp; Handover</h3>
             <p style={styles.paragraph}>
               Once dispatched, you will receive real-time SMS / WhatsApp tracking details with your courier partner 
               (NimbusPost, BlueDart, or Delhivery) and AWB tracking number. You can also track your orders live in your 
-              <strong>My Orders</strong> tab.
+              <strong> My Orders</strong> tab.
             </p>
           </div>
         );
@@ -201,39 +214,48 @@ const InfoPage = ({ infoType }) => {
       default:
         return (
           <div>
-            <h2 className="info-title">Contact Support &amp; Partnerships</h2>
-            <p className="info-paragraph">
+            <h2 className="info-title" style={styles.title}>Contact Support &amp; Partnerships</h2>
+            <p className="info-paragraph" style={styles.paragraph}>
               Need assistance with an order, payment transaction, or creator payout? Get in touch with our team directly.
             </p>
 
-            <div className="info-contact-card">
-              <div className="info-contact-item">
-                <Building size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
+            <div className="info-contact-card" style={styles.contactCard}>
+              <div className="info-contact-item" style={styles.contactItem}>
+                <div className="dropdown-icon-box blue" style={{ width: '40px', height: '40px', borderRadius: '10px' }}>
+                  <Building size={20} />
+                </div>
                 <div>
-                  <strong>Registered Office Address:</strong><br />
-                  AbKharido Retail Private Limited,<br />
-                  Palghar, Maharashtra - 401404, India.
+                  <strong style={{ color: '#0f172a', fontSize: '14px' }}>Registered Office Address:</strong><br />
+                  <span style={{ color: '#475569', fontSize: '13px' }}>
+                    AbKharido Retail Private Limited,<br />
+                    Palghar, Maharashtra - 401404, India.
+                  </span>
                 </div>
               </div>
-              <div className="info-contact-item">
-                <Mail size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
+              <div className="info-contact-item" style={styles.contactItem}>
+                <div className="dropdown-icon-box purple" style={{ width: '40px', height: '40px', borderRadius: '10px' }}>
+                  <Mail size={20} />
+                </div>
                 <div>
-                  <strong>Support Helpdesk:</strong><br />
-                  <a href="mailto:support@abkharido.com" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>support@abkharido.com</a>
-                  <span style={{ display: 'block', fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>Operating Hours: Mon–Sat, 9:00 AM – 9:00 PM IST</span>
+                  <strong style={{ color: '#0f172a', fontSize: '14px' }}>Support Helpdesk:</strong><br />
+                  <a href="mailto:support@abkharido.com" style={{ color: '#2563eb', fontWeight: '800', fontSize: '13.5px' }}>support@abkharido.com</a>
+                  <span style={{ display: 'block', fontSize: '11.5px', color: '#64748b', marginTop: '2px', fontWeight: '600' }}>Operating Hours: Mon–Sat, 9:00 AM – 9:00 PM IST</span>
                 </div>
               </div>
-              <div className="info-contact-item">
-                <FileText size={20} color="var(--primary-color)" style={{ flexShrink: 0 }} />
+              <div className="info-contact-item" style={styles.contactItem}>
+                <div className="dropdown-icon-box green" style={{ width: '40px', height: '40px', borderRadius: '10px' }}>
+                  <PhoneCall size={20} />
+                </div>
                 <div>
-                  <strong>WhatsApp Support:</strong><br />
-                  <a href="https://wa.me/919172600587" target="_blank" rel="noopener noreferrer" style={{ color: '#059669', fontWeight: 'bold' }}>+91 9172600587</a>
+                  <strong style={{ color: '#0f172a', fontSize: '14px' }}>WhatsApp Support:</strong><br />
+                  <a href="https://wa.me/919172600587" target="_blank" rel="noopener noreferrer" style={{ color: '#059669', fontWeight: '800', fontSize: '14px' }}>+91 9172600587</a>
+                  <span style={{ display: 'block', fontSize: '11.5px', color: '#64748b', marginTop: '2px', fontWeight: '600' }}>Order, return &amp; payment assistance</span>
                 </div>
               </div>
             </div>
 
-            <h3 className="info-subtitle">🤝 Creator &amp; Affiliate Partnership Desk</h3>
-            <p className="info-paragraph">
+            <h3 className="info-subtitle" style={styles.subtitle}>🤝 Creator &amp; Affiliate Partnership Desk</h3>
+            <p className="info-paragraph" style={styles.paragraph}>
               Looking to monetize your product recommendations or track creator commissions? Access the creator tools directly inside the <strong>Partner Hub</strong>.
             </p>
           </div>
@@ -242,21 +264,89 @@ const InfoPage = ({ infoType }) => {
   };
 
   return (
-    <div className="container info-page-wrap animate-fade-in">
-      <div className="info-sidebar">
-        <h3 className="info-sidebar-title">Policies &amp; Info</h3>
-        <div className="info-nav-menu">
-          <a href="/about" className="info-nav-link">🏢 About AbKharido</a>
-          <a href="/terms" className="info-nav-link">📄 Terms of Use</a>
-          <a href="/privacy" className="info-nav-link">🔒 Privacy Policy</a>
-          <a href="/returns" className="info-nav-link">↩️ Returns &amp; Replacement</a>
-          <a href="/shipping" className="info-nav-link">🚚 Shipping &amp; Delivery</a>
-          <a href="/faq" className="info-nav-link">❓ Frequently Asked Questions</a>
-          <a href="/contact" className="info-nav-link">📞 Contact Support</a>
+    <div className="container info-page-wrap animate-fade-in" style={styles.pageContainer}>
+      {/* Sidebar Upgraded to Match Header Login Badge Dropdown UI */}
+      <div className="info-sidebar" style={styles.sidebar}>
+        <div className="dropdown-header-banner" style={{ marginBottom: '8px', padding: '14px', borderRadius: '14px' }}>
+          <div className="dropdown-avatar-circle" style={{ width: '36px', height: '36px' }}>
+            <Sparkles size={17} />
+          </div>
+          <div>
+            <div className="dropdown-user-title" style={{ fontSize: '14px' }}>Policies &amp; Info</div>
+            <div className="dropdown-user-sub" style={{ fontSize: '11px' }}>Official Store Guidelines</div>
+          </div>
+        </div>
+
+        <div className="info-nav-menu" style={styles.navMenu}>
+          {INFO_MENU_ITEMS.map((item) => {
+            const ItemIcon = item.icon;
+            const isActive = activeKey === item.key;
+            return (
+              <a
+                key={item.key}
+                href={item.href}
+                className="info-nav-link dropdown-item"
+                style={{
+                  background: isActive ? '#eff6ff' : 'transparent',
+                  border: isActive ? '1px solid #bfdbfe' : '1px solid transparent',
+                  padding: '9px 11px',
+                  borderRadius: '12px'
+                }}
+              >
+                <div className={`dropdown-icon-box ${item.tint}`}>
+                  <ItemIcon size={16} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: '800', fontSize: '13px', color: isActive ? '#1d4ed8' : '#0f172a', lineHeight: 1.2 }}>
+                    {item.title}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '500', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {item.sub}
+                  </div>
+                </div>
+                <ChevronRight size={14} color={isActive ? '#2563eb' : '#94a3b8'} />
+              </a>
+            );
+          })}
         </div>
       </div>
-      <div className="card info-content-card">
-        {renderContent()}
+
+      {/* Main Content Card with Luxury Header Strip */}
+      <div className="card info-content-card" style={styles.contentCard}>
+        <div className="dropdown-header-banner" style={{ padding: '18px 22px', borderRadius: '16px', marginBottom: '22px', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="dropdown-avatar-circle" style={{ width: '42px', height: '42px' }}>
+              <ActiveIcon size={20} strokeWidth={2.4} />
+            </div>
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.2px' }}>
+                {activeMeta.title}
+              </div>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>
+                {activeMeta.sub} • AbKharido information
+              </div>
+            </div>
+          </div>
+          <span style={{
+            background: 'rgba(255,255,255,0.14)',
+            border: '1px solid rgba(255,255,255,0.24)',
+            color: '#ffffff',
+            fontSize: '11px',
+            fontWeight: '800',
+            padding: '5px 11px',
+            borderRadius: '99px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            whiteSpace: 'nowrap'
+          }}>
+            <ShieldCheck size={13} color="#fbbf24" /> Official info
+          </span>
+        </div>
+
+        <div style={{ padding: '0 6px' }}>
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
@@ -264,90 +354,88 @@ const InfoPage = ({ infoType }) => {
 
 const styles = {
   pageContainer: {
-    padding: '24px 0',
+    padding: '28px 16px 64px',
     display: 'flex',
     gap: '24px',
-    maxWidth: '1000px',
-    minHeight: '60vh',
-    flexWrap: 'wrap'
+    maxWidth: '1080px',
+    margin: '0 auto',
+    minHeight: '65vh',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start'
   },
   sidebar: {
-    width: '240px',
+    width: '280px',
     alignSelf: 'flex-start',
     backgroundColor: '#ffffff',
-    border: '1px solid var(--border-light)',
-    borderRadius: '4px',
-    padding: '16px',
-    minWidth: '220px',
-    flex: '1 0 220px'
-  },
-  sidebarTitle: {
-    fontSize: '15px',
-    fontWeight: 'bold',
-    color: 'var(--text-primary)',
-    borderBottom: '1px solid #eaeaea',
-    paddingBottom: '10px',
-    marginBottom: '12px'
+    border: '1px solid #e2e8f0',
+    borderRadius: '20px',
+    padding: '10px',
+    minWidth: '250px',
+    flex: '1 0 250px',
+    boxShadow: '0 14px 34px rgba(15, 23, 42, 0.06)'
   },
   navMenu: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px'
-  },
-  sidebarLink: {
-    fontSize: '13px',
-    color: 'var(--text-primary)',
-    fontWeight: '500',
-    transition: 'color 0.15s'
+    gap: '4px'
   },
   contentCard: {
-    flex: '3 0 450px',
-    padding: '32px',
-    backgroundColor: '#ffffff'
+    flex: '3 0 480px',
+    padding: '18px',
+    backgroundColor: '#ffffff',
+    borderRadius: '22px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 14px 34px rgba(15, 23, 42, 0.06)'
   },
   title: {
-    fontSize: '22px',
-    fontWeight: 'bold',
-    color: '#212121',
-    borderBottom: '1px solid #eaeaea',
+    fontSize: '21px',
+    fontWeight: '800',
+    color: '#0f172a',
+    borderBottom: '1px solid #f1f5f9',
     paddingBottom: '12px',
-    marginBottom: '20px'
+    marginBottom: '16px',
+    letterSpacing: '-0.3px'
   },
   subtitle: {
-    fontSize: '15px',
-    fontWeight: 'bold',
-    color: '#212121',
-    marginTop: '20px',
+    fontSize: '15.5px',
+    fontWeight: '800',
+    color: '#0f172a',
+    marginTop: '22px',
     marginBottom: '8px'
   },
   date: {
     fontSize: '12px',
-    color: 'var(--text-secondary)',
+    color: '#64748b',
     marginBottom: '16px',
-    fontStyle: 'italic'
+    fontWeight: '600'
   },
   paragraph: {
-    fontSize: '13px',
-    color: '#424242',
-    lineHeight: '1.6',
+    fontSize: '13.5px',
+    color: '#334155',
+    lineHeight: '1.7',
     marginBottom: '14px'
   },
   contactCard: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
-    marginTop: '20px',
-    backgroundColor: '#fafafa',
-    border: '1px solid #e0e0e0',
-    borderRadius: '4px',
-    padding: '20px'
+    gap: '16px',
+    marginTop: '18px',
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    borderRadius: '16px',
+    padding: '18px'
   },
   contactItem: {
     display: 'flex',
-    gap: '12px',
-    fontSize: '13px',
-    color: '#212121',
-    lineHeight: '1.5'
+    alignItems: 'flex-start',
+    gap: '14px',
+    fontSize: '13.5px',
+    color: '#0f172a',
+    lineHeight: '1.5',
+    background: '#ffffff',
+    padding: '14px',
+    borderRadius: '14px',
+    border: '1px solid #f1f5f9'
   }
 };
 

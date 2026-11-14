@@ -375,13 +375,16 @@ const Login = ({ onNavigate, callbackUrl }) => {
         }
         .auth-clean-card {
           width: 100%;
-          max-width: 400px;
+          max-width: 420px;
           background: #ffffff;
           border: 1px solid #e2e8f0;
           border-radius: 24px;
-          padding: 32px 28px;
-          box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.02);
+          padding: 12px;
+          box-shadow: 0 20px 45px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.04);
           box-sizing: border-box;
+        }
+        .auth-card-inner {
+          padding: 18px 16px 14px;
         }
         @media (max-width: 480px) {
           .auth-clean-shell {
@@ -389,8 +392,11 @@ const Login = ({ onNavigate, callbackUrl }) => {
             align-items: flex-start;
           }
           .auth-clean-card {
-            padding: 24px 20px;
+            padding: 10px;
             border-radius: 20px;
+          }
+          .auth-card-inner {
+            padding: 14px 12px 10px;
           }
         }
         .auth-phone-box {
@@ -472,32 +478,42 @@ const Login = ({ onNavigate, callbackUrl }) => {
       <div className="auth-clean-card">
         {showOtpScreen ? (
           <>
+            {/* Signature Luxury Header Banner (Matches Header Login Badge Menu) */}
+            <div className="dropdown-header-banner" style={{ padding: '18px', borderRadius: '16px', marginBottom: '4px' }}>
+              <div className="dropdown-avatar-circle" style={{ width: '42px', height: '42px' }}>
+                <Lock size={20} strokeWidth={2.4} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '17px', fontWeight: '800', color: '#ffffff', margin: 0, letterSpacing: '-0.2px' }}>
+                  Verify with OTP
+                </h1>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', margin: '2px 0 0', lineHeight: 1.4 }}>
+                  6-digit code sent to <strong style={{ color: '#fbbf24', fontWeight: '800' }}>+91 {phone}</strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="auth-card-inner">
             <button
               type="button"
               onClick={handleGoBack}
               style={{
-                background: 'none',
-                border: 'none',
-                padding: '0',
-                color: '#64748b',
-                fontSize: '12.5px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                padding: '6px 12px',
+                borderRadius: '99px',
+                color: '#334155',
+                fontSize: '12px',
                 fontWeight: '700',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
                 cursor: 'pointer',
-                marginBottom: '18px'
+                marginBottom: '6px'
               }}
             >
-              <ArrowLeft size={15} /> Change number
+              <ArrowLeft size={14} /> Change mobile number
             </button>
-
-            <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
-              Verify with OTP
-            </h1>
-            <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
-              Enter the 6-digit code sent to <strong style={{ color: '#0f172a', fontWeight: '700' }}>+91 {phone}</strong>
-            </p>
 
             <form onSubmit={handleVerifyOtp}>
               <div className="auth-otp-grid">
@@ -550,37 +566,62 @@ const Login = ({ onNavigate, callbackUrl }) => {
                 )}
               </div>
             </form>
+            </div>
           </>
         ) : (
           <>
-            {/* Minimal Header */}
-            <div style={{ marginBottom: '22px' }}>
+            {/* Signature Luxury Header Banner (Matches Header Login Badge Menu) */}
+            <div className="dropdown-header-banner" style={{ padding: '18px', borderRadius: '16px', marginBottom: '10px' }}>
               <div style={{
                 width: '46px',
                 height: '46px',
                 borderRadius: '13px',
                 background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                border: '2px solid rgba(255,255,255,0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '7px',
-                marginBottom: '14px',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.08)'
+                padding: '6px',
+                flexShrink: 0,
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
               }}>
                 <img src="/login-icon.png?v=1" alt="AbKharido" width="32" height="32" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
 
-              <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.3px' }}>
-                Sign in or create account
-              </h1>
-              <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0 }}>
-                Enter your 10-digit mobile number to receive an OTP
-              </p>
+              <div style={{ flex: 1 }}>
+                <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '800', color: '#ffffff', margin: '0 0 3px 0', letterSpacing: '-0.2px' }}>
+                  Sign in or create account
+                </h1>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>
+                  Enter your 10-digit mobile number for instant OTP
+                </p>
+              </div>
             </div>
 
+            {/* Golden AB Coins Welcome Banner */}
+            <div style={{
+              margin: '0 4px',
+              padding: '10px 14px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+              border: '1px solid #fde68a',
+              color: '#b45309',
+              fontSize: '11.5px',
+              fontWeight: '800',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px'
+            }}>
+              <span>🪙 Explore AB Coins and member benefits</span>
+              <span style={{ background: '#ffffff', padding: '2px 8px', borderRadius: '99px', border: '1px solid #fde68a', fontSize: '10.5px', color: '#92400e', whiteSpace: 'nowrap' }}>
+                Sign in to view
+              </span>
+            </div>
+
+            <div className="auth-card-inner">
             <form onSubmit={handleRequestOtp}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
                 Mobile Number
               </label>
 
@@ -670,28 +711,33 @@ const Login = ({ onNavigate, callbackUrl }) => {
               </button>
             </form>
 
-            {/* Subtle 3-Point Trust Strip */}
+            {/* Upgraded 3-Point Trust Strip with Tinted Icon Boxes */}
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '8px',
-              marginTop: '22px',
-              paddingTop: '18px',
-              borderTop: '1px solid #f1f5f9',
-              fontSize: '11px',
-              fontWeight: '600',
-              color: '#64748b'
+              marginTop: '20px',
+              paddingTop: '16px',
+              borderTop: '1px solid #f1f5f9'
             }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <Lock size={12} color="#059669" /> Instant OTP
-              </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <ShieldCheck size={12} color="#2563eb" /> Escrow Safe
-              </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <Zap size={12} color="#d97706" /> Fast Checkout
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', padding: '7px 8px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                <div className="dropdown-icon-box green" style={{ width: '24px', height: '24px', borderRadius: '6px' }}>
+                  <Lock size={12} />
+                </div>
+                <span style={{ fontSize: '10.5px', fontWeight: '700', color: '#0f172a', lineHeight: 1.15 }}>Instant OTP</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', padding: '7px 8px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                <div className="dropdown-icon-box blue" style={{ width: '24px', height: '24px', borderRadius: '6px' }}>
+                  <ShieldCheck size={12} />
+                </div>
+                <span style={{ fontSize: '10.5px', fontWeight: '700', color: '#0f172a', lineHeight: 1.15 }}>Escrow Safe</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', padding: '7px 8px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                <div className="dropdown-icon-box amber" style={{ width: '24px', height: '24px', borderRadius: '6px' }}>
+                  <Zap size={12} />
+                </div>
+                <span style={{ fontSize: '10.5px', fontWeight: '700', color: '#0f172a', lineHeight: 1.15 }}>Fast Checkout</span>
+              </div>
             </div>
 
             {/* Minimal Terms Note */}
@@ -700,6 +746,7 @@ const Login = ({ onNavigate, callbackUrl }) => {
               <span onClick={() => onNavigate('terms')} style={{ color: '#475569', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>Terms</span>
               {' '}&amp;{' '}
               <span onClick={() => onNavigate('privacy')} style={{ color: '#475569', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</span>.
+            </div>
             </div>
           </>
         )}

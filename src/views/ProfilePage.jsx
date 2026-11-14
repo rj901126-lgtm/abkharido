@@ -629,60 +629,69 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
   return (
     <div className="profile-page-container animate-fade-in" style={{ padding: '0 0 160px 0', background: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. Clean Minimalist Dashboard Header */}
+      {/* 1. Signature Luxury Dashboard Header (Matches Header Login Badge Menu) */}
       <div className="profile-dashboard-header" style={{
-        background: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
-        padding: '20px 18px'
+        background: 'linear-gradient(135deg, #090d16 0%, #1e3a8a 60%, #2563eb 100%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        padding: '24px 20px',
+        borderRadius: '0 0 24px 24px',
+        boxShadow: '0 12px 30px rgba(15, 23, 42, 0.16)'
       }}>
-        <div className="profile-header-user">
-          <div className="profile-header-avatar" style={{
-            background: '#0f172a',
-            color: '#ffffff',
-            border: '2px solid #e2e8f0',
-            fontWeight: '800',
-            fontSize: '19px',
-            width: '52px',
-            height: '52px'
-          }}>
-            {getInitials(currentUser)}
-          </div>
-          <div className="profile-header-info">
-            <h2 className="profile-header-name" style={{ color: '#0f172a', fontWeight: '800', fontSize: '18px', letterSpacing: '-0.3px' }}>
-              {(currentUser.firstName || currentUser.lastName)
-                ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
-                : currentUser.fullName || 'AbKharido Member'}
-            </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                background: '#f1f5f9',
-                border: '1px solid #e2e8f0',
-                color: '#334155',
-                padding: '2px 9px',
-                borderRadius: '999px',
-                fontSize: '11.5px',
-                fontWeight: '700'
-              }}>
-                ✓ Verified Member
-              </span>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                background: '#fffbeb',
-                border: '1px solid #fde68a',
-                color: '#b45309',
-                padding: '2px 9px',
-                borderRadius: '999px',
-                fontSize: '11.5px',
-                fontWeight: '800',
-                cursor: 'pointer'
-              }} onClick={() => handleTabSelect('rewards')}>
-                🪙 {userCoins} Coins &gt;
-              </span>
+        <div className="profile-header-user" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div className="profile-header-avatar" style={{
+              background: '#fbbf24',
+              color: '#1e1b4b',
+              border: '2px solid rgba(255, 255, 255, 0.35)',
+              boxShadow: '0 4px 14px rgba(251, 191, 36, 0.35)',
+              fontWeight: '900',
+              fontSize: '19px',
+              width: '54px',
+              height: '54px'
+            }}>
+              {getInitials(currentUser)}
+            </div>
+            <div className="profile-header-info">
+              <h2 className="profile-header-name" style={{ color: '#ffffff', fontWeight: '800', fontSize: '18.5px', letterSpacing: '-0.3px' }}>
+                {(currentUser.firstName || currentUser.lastName)
+                  ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
+                  : currentUser.fullName || 'AbKharido Member'}
+              </h2>
+              <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.78)', fontWeight: '500', marginTop: '1px' }}>
+                {currentUser.email || currentUser.phone || 'Verified Store Account'}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'rgba(255, 255, 255, 0.14)',
+                  border: '1px solid rgba(255, 255, 255, 0.24)',
+                  color: '#ffffff',
+                  padding: '3px 10px',
+                  borderRadius: '999px',
+                  fontSize: '11px',
+                  fontWeight: '700'
+                }}>
+                  ✓ Verified Member
+                </span>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                  border: '1px solid #fde68a',
+                  color: '#b45309',
+                  padding: '3px 10px',
+                  borderRadius: '999px',
+                  fontSize: '11.5px',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+                }} onClick={() => handleTabSelect('rewards')}>
+                  🪙 {userCoins} AB Coins &gt;
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -693,44 +702,48 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
         {/* 2. Upgraded Smart Quick Action Dashboard (Only on Overview) */}
         {activeTab === 'overview' ? (
           <div className="profile-quick-actions" style={{ marginTop: '0' }}>
-            <div className="quick-action-card" onClick={() => onNavigate('orders')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <ShoppingBag size={22} color="#2563eb" />
+            <div className="quick-action-card" onClick={() => onNavigate('orders')} style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.04)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '11px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ShoppingBag size={20} color="#2563eb" />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '14.5px', fontWeight: '800', color: '#0f172a' }}>My Orders</span>
-                <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Track &amp; Reorder</small>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>My Orders</span>
+                <small style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Track &amp; Reorder</small>
               </div>
+              <ArrowRight size={15} color="#94a3b8" />
             </div>
 
-            <div className="quick-action-card" onClick={() => handleTabSelect('wishlist')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Heart size={22} fill="#dc2626" color="#dc2626" />
+            <div className="quick-action-card" onClick={() => handleTabSelect('wishlist')} style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.04)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '11px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Heart size={20} fill="#dc2626" color="#dc2626" />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '14.5px', fontWeight: '800', color: '#0f172a' }}>Wishlist ({wishlistProducts.length})</span>
-                <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Saved Deals</small>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>Wishlist ({wishlistProducts.length})</span>
+                <small style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Saved Deals</small>
               </div>
+              <ArrowRight size={15} color="#94a3b8" />
             </div>
 
-            <div className="quick-action-card" onClick={() => handleTabSelect('rewards')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '22px' }}>
+            <div className="quick-action-card" onClick={() => handleTabSelect('rewards')} style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid #fde68a', background: 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)', borderRadius: '16px', boxShadow: '0 4px 14px rgba(245, 158, 11, 0.08)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '11px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '20px' }}>
                 🪙
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '14.5px', fontWeight: '800', color: '#92400e' }}>{userCoins} Coins</span>
-                <small style={{ fontSize: '11.5px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>Redeem Rewards</small>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: '14px', fontWeight: '800', color: '#92400e' }}>{userCoins} Coins</span>
+                <small style={{ fontSize: '11px', color: '#b45309', fontWeight: '700', marginTop: '2px' }}>Redeem Rewards</small>
               </div>
+              <ArrowRight size={15} color="#d97706" />
             </div>
 
-            <div className="quick-action-card" onClick={() => handleTabSelect('support')} style={{ padding: '15px 14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1.5px solid #f1f5f9', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.02)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <ShieldCheck size={22} color="#16a34a" />
+            <div className="quick-action-card" onClick={() => handleTabSelect('support')} style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.04)', margin: 0, cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '11px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ShieldCheck size={20} color="#16a34a" />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '14.5px', fontWeight: '800', color: '#0f172a' }}>Help Center</span>
-                <small style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Support Tickets</small>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>Help Center</span>
+                <small style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', marginTop: '2px' }}>Support Tickets</small>
               </div>
+              <ArrowRight size={15} color="#94a3b8" />
             </div>
           </div>
         ) : (
@@ -1450,22 +1463,27 @@ const ProfilePage = ({ onNavigate, onNavigateProduct, initialTab = 'overview', o
               }
             `}</style>
 
-            {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>📍</span> {editingAddressId ? 'Edit Delivery Address' : 'Add New Delivery Address'}
-                </h3>
-                <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
-                  Enter delivery details for fast, accurate shipping.
-                </p>
+            {/* Modal Header (Matches Signature Header Login Badge Menu) */}
+            <div className="dropdown-header-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', padding: '16px 18px', borderRadius: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="dropdown-avatar-circle" style={{ width: '38px', height: '38px', fontSize: '17px' }}>
+                  📍
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '15.5px', fontWeight: '800', color: '#ffffff' }}>
+                    {editingAddressId ? 'Edit Delivery Address' : 'Add New Delivery Address'}
+                  </h3>
+                  <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: 'rgba(255,255,255,0.78)', fontWeight: '500' }}>
+                    Enter delivery details for fast, accurate shipping
+                  </p>
+                </div>
               </div>
               <button 
                 type="button" 
                 onClick={() => setIsAddressModalOpen(false)}
-                style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer', flexShrink: 0 }}
+                style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.22)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', cursor: 'pointer', flexShrink: 0 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 

@@ -105,30 +105,48 @@ const PincodeModal = ({ isOpen, onClose }) => {
     }} onClick={onClose}>
       <div style={{
         background: '#ffffff',
-        borderRadius: '24px',
-        maxWidth: '460px',
+        borderRadius: '22px',
+        maxWidth: '470px',
         width: '100%',
-        padding: '24px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        padding: '10px',
+        boxShadow: '0 25px 50px -12px rgba(9, 13, 22, 0.35)',
+        border: '1px solid #e2e8f0',
         animation: 'modalSlideUp 0.25s ease-out'
       }} onClick={(e) => e.stopPropagation()}>
         
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ padding: '8px', background: 'var(--brand-accent-light)', borderRadius: '12px', color: 'var(--brand-accent)', flexShrink: 0 }}>
-              <MapPin size={22} />
+        {/* Signature Luxury Header Banner (Matches Login Badge Menu) */}
+        <div className="dropdown-header-banner" style={{ marginBottom: '14px', padding: '16px 18px', borderRadius: '16px', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="dropdown-avatar-circle" style={{ width: '40px', height: '40px' }}>
+              <MapPin size={20} strokeWidth={2.4} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#0f172a' }}>Choose Delivery Location</h3>
-              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>Select your location for live dispatch dates &amp; COD availability.</p>
+              <h3 style={{ margin: 0, fontSize: '15.5px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.2px' }}>Choose Delivery Location</h3>
+              <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: 'rgba(255,255,255,0.78)', fontWeight: '500' }}>Live dispatch dates &amp; instant COD availability</p>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', flexShrink: 0 }}>
-            <X size={18} />
+          <button
+            onClick={onClose}
+            aria-label="Close location modal"
+            style={{
+              background: 'rgba(255,255,255,0.14)',
+              border: '1px solid rgba(255,255,255,0.22)',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#ffffff',
+              flexShrink: 0
+            }}
+          >
+            <X size={16} />
           </button>
         </div>
 
+        <div style={{ padding: '4px 10px 10px' }}>
         {/* 🌟 Auto-Detect Location Button */}
         <button 
           type="button"
@@ -239,34 +257,55 @@ const PincodeModal = ({ isOpen, onClose }) => {
             Popular Delivery Hubs
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-            {POPULAR_METROS.map(m => (
-              <button
-                key={m.pin}
-                onClick={() => {
-                  setPinInput(m.pin);
-                  handleApply(m.pin);
-                }}
-                style={{
-                  padding: '9px 12px',
-                  borderRadius: '10px',
-                  border: pinInput === m.pin ? '1.5px solid var(--brand-accent)' : '1px solid #e2e8f0',
-                  background: pinInput === m.pin ? 'var(--brand-accent-light)' : '#f8fafc',
-                  color: pinInput === m.pin ? 'var(--brand-accent)' : '#334155',
-                  fontSize: '12.5px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <span>{m.name}</span>
-                <span style={{ fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace' }}>{m.pin}</span>
-              </button>
-            ))}
+            {POPULAR_METROS.map(m => {
+              const isSelected = pinInput === m.pin;
+              return (
+                <button
+                  key={m.pin}
+                  onClick={() => {
+                    setPinInput(m.pin);
+                    handleApply(m.pin);
+                  }}
+                  style={{
+                    padding: '9px 10px',
+                    borderRadius: '12px',
+                    border: isSelected ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                    background: isSelected ? '#eff6ff' : '#f8fafc',
+                    color: isSelected ? '#1d4ed8' : '#0f172a',
+                    fontSize: '12.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '7px', minWidth: 0 }}>
+                    <span style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '7px',
+                      background: isSelected ? '#dbeafe' : '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      color: '#2563eb',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <MapPin size={12} />
+                    </span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</span>
+                  </span>
+                  <span style={{ fontSize: '10.5px', color: isSelected ? '#2563eb' : '#64748b', fontFamily: 'monospace', fontWeight: '800' }}>{m.pin}</span>
+                </button>
+              );
+            })}
           </div>
+        </div>
         </div>
 
       </div>
