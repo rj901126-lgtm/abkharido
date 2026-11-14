@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 
-const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false, onGenerated }, ref) => {
-  if (!order) return null;
+const WorldClassInvoice = forwardRef(({ order: incomingOrder, seller = null, isVisible = false, onGenerated }, ref) => {
+  const order = incomingOrder || {};
 
   // ─── CANCELLATION & CREDIT STATUS ──────────────────────────────────
   const isCancelled = ['CANCELLED', 'Cancelled', 'cancelled'].includes(String(order.status || '')) || Boolean(order.isCancelled) || Boolean(order.cancellationSettled);
@@ -17,7 +17,7 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
 
   useImperativeHandle(ref, () => ({
     generatePDF: async () => {
-      if (!order) return;
+      if (!incomingOrder) return;
       const elementId = `invoice-capture-area-${order.id || order._id || '0'}`;
       const element = document.getElementById(elementId);
       if (!element) return;
@@ -41,6 +41,8 @@ const WorldClassInvoice = forwardRef(({ order, seller = null, isVisible = false,
       }
     }
   }));
+
+  if (!incomingOrder) return null;
 
   const itemsList = order.items || order.orderItems || [];
   const itemsPrice = order.itemsPrice || itemsList.reduce((acc, item) => acc + (item.product?.price || item.price || 0) * (item.quantity || item.qty || 1), 0);
