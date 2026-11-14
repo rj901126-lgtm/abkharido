@@ -5,7 +5,7 @@ test.describe('Authentication Flow', () => {
     // Navigate to home page and open login modal
     await page.goto('/');
     
-    const loginButton = page.locator('button:has-text("Login")').first();
+    const loginButton = page.locator('a.login-action-btn').first();
     await loginButton.click();
 
     // Verify modal is visible
@@ -38,18 +38,18 @@ test.describe('Authentication Flow', () => {
 
     // Verify successful login by checking if user avatar/profile appears
     // The modal should close and the login button should be replaced by a user profile icon
-    await expect(page.locator('button:has-text("Login")')).toHaveCount(0, { timeout: 10000 });
+    await expect(page.locator('a.login-action-btn')).toHaveCount(0, { timeout: 10000 });
     
     // Check if toast message says Welcome or similar (optional, might disappear quickly)
     // We can also check if a user avatar or "My Account" is visible
-    const profileIcon = page.locator('.user-avatar, .profile-menu-trigger, svg.lucide-user').first();
+    const profileIcon = page.locator('.user-profile-menu-wrap .user-profile-pill').first();
     await expect(profileIcon).toBeVisible({ timeout: 10000 });
   });
 
   test('should logout successfully', async ({ page }) => {
     // First, login
     await page.goto('/');
-    await page.locator('button:has-text("Login")').first().click();
+    await page.locator('a.login-action-btn').first().click();
     await page.locator('input[placeholder="Enter your phone or email"]').fill('9172600587');
     await page.locator('button:has-text("Continue")').click();
     
@@ -61,18 +61,18 @@ test.describe('Authentication Flow', () => {
     }
 
     // Wait for login to complete
-    const profileIcon = page.locator('.user-avatar, .profile-menu-trigger, svg.lucide-user').first();
+    const profileIcon = page.locator('.user-profile-menu-wrap .user-profile-pill').first();
     await expect(profileIcon).toBeVisible({ timeout: 10000 });
 
     // Open profile menu
     await profileIcon.click();
 
     // Click Logout
-    const logoutBtn = page.locator('button:has-text("Logout"), a:has-text("Logout"), text=Logout');
+    const logoutBtn = page.locator('.dropdown-menu button:has-text("Logout Account")');
     await logoutBtn.click();
 
     // Wait for the login button to reappear
-    const loginButton = page.locator('button:has-text("Login")').first();
+    const loginButton = page.locator('a.login-action-btn').first();
     await expect(loginButton).toBeVisible({ timeout: 10000 });
   });
 });
