@@ -40,44 +40,44 @@ export async function POST(req) {
         : 'Delhivery Air Direct'
     );
 
-    // Default compliant AWB & tracking
-    let awbNumber = `NMB-${Date.now().toString().slice(-8)}`;
-    let trackingUrl = `https://track.nimbuspost.com/?awb=${awbNumber}`;
-    let isLiveNimbus = false;
-
     // Check for real NimbusPost credentials in environment
     const nimbusToken = process.env.NIMBUSPOST_TOKEN || process.env.NIMBUSPOST_API_KEY || process.env.NIMBUS_API_KEY;
-    if (nimbusToken) {
+    if (!nimbusToken) {
+      return NextResponse.json({ error: 'NimbusPost credentials are not configured. No shipment was booked.' }, { status: 503 });
+    }
+
+    const cleanPhone = String(order.shippingAddress?.phone || '').replace(/\D/g, '').slice(-10);
+    const nameParts = (order.shippingAddress?.fullName || 'Customer').trim().split(' ');
+    const firstName = nameParts[0] || 'Customer';
+    const lastName = nameParts.slice(1).join(' ') || '.';
+    const nimbusPayload = {
+      order_number: String(order.cfOrderId || order._id || order.id),
+      shipping_address: {
+        first_name: firstName,
+        last_name: lastName,
+        address: order.shippingAddress?.streetAddress || order.shippingAddress?.address || '',
+        city: order.shippingAddress?.city || '',
+        state: order.shippingAddress?.state || '',
+        pincode: String(order.shippingAddress?.postalCode || order.shippingAddress?.pincode || ''),
+        phone: cleanPhone
+      },
+      order_type: order.paymentMethod === 'Cash on Delivery' ? 'cod' : 'prepaid',
+      total_amount: Number(order.totalPrice || 0),
+      weight: 500,
+      order_items: (order.orderItems || []).map(item => ({
+        name: item.name || 'Product Item',
+        qty: item.qty || 1,
+        price: item.price || 0
+      }))
+    };
+
+    let npData;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      let npRes;
       try {
-        const cleanPhone = String(order.shippingAddress?.phone || '9876543210').replace(/\D/g, '').slice(-10);
-        const nameParts = (order.shippingAddress?.fullName || 'Customer').trim().split(' ');
-        const firstName = nameParts[0] || 'Customer';
-        const lastName = nameParts.slice(1).join(' ') || '.';
-
-        const nimbusPayload = {
-          order_number: String(order.cfOrderId || order._id || order.id),
-          shipping_address: {
-            first_name: firstName,
-            last_name: lastName,
-            address: order.shippingAddress?.streetAddress || order.shippingAddress?.address || 'Street Address',
-            city: order.shippingAddress?.city || 'Mumbai',
-            state: order.shippingAddress?.state || 'Maharashtra',
-            pincode: String(order.shippingAddress?.postalCode || order.shippingAddress?.pincode || '400001'),
-            phone: cleanPhone
-          },
-          order_type: order.paymentMethod === 'Cash on Delivery' ? 'cod' : 'prepaid',
-          total_amount: Number(order.totalPrice || 0),
-          weight: 500,
-          order_items: (order.orderItems || []).map(item => ({
-            name: item.name || 'Product Item',
-            qty: item.qty || 1,
-            price: item.price || 999
-          }))
-        };
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
-        const npRes = await fetch('https://api.nimbuspost.com/v1/shipments', {
+        npRes = await fetch('https://api.nimbuspost.com/v1/shipments', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -86,21 +86,28 @@ export async function POST(req) {
           body: JSON.stringify(nimbusPayload),
           signal: controller.signal
         });
+      } finally {
         clearTimeout(timeoutId);
-
-        if (npRes.ok) {
-          const npData = await npRes.json().catch(() => ({}));
-          if (npData?.status && npData?.data) {
-            awbNumber = npData.data.awb_number || npData.data.awb || awbNumber;
-            chosenCourier = npData.data.courier_name || npData.data.courier || chosenCourier;
-            trackingUrl = npData.data.tracking_url || `https://track.nimbuspost.com/?awb=${awbNumber}`;
-            isLiveNimbus = true;
-          }
-        }
-      } catch (npErr) {
-        console.warn('[NimbusPost Live API Notice]: Could not reach live gateway, falling back to automated smart dispatch:', npErr.message);
       }
+
+      npData = await npRes.json().catch(() => null);
+      if (!npRes.ok) {
+        console.warn('[NimbusPost Booking Failed]:', npRes.status, npData?.message || 'Gateway rejected shipment');
+        return NextResponse.json({ error: 'NimbusPost rejected the booking. The order was not marked shipped.' }, { status: 502 });
+      }
+    } catch (npErr) {
+      console.warn('[NimbusPost Booking Error]:', npErr.message);
+      return NextResponse.json({ error: 'NimbusPost could not confirm the booking. The order was not marked shipped.' }, { status: 502 });
     }
+
+    const carrierData = npData?.data;
+    const awbNumber = carrierData?.awb_number || carrierData?.awb;
+    if (!npData?.status || !carrierData || !awbNumber) {
+      return NextResponse.json({ error: 'NimbusPost returned no confirmed AWB. The order was not marked shipped.' }, { status: 502 });
+    }
+    chosenCourier = carrierData.courier_name || carrierData.courier || chosenCourier;
+    const trackingUrl = carrierData.tracking_url || `https://track.nimbuspost.com/?awb=${encodeURIComponent(awbNumber)}`;
+    const shipmentId = String(carrierData.shipment_id || carrierData.id || awbNumber);
 
     // Generate or retain Secure Delivery PIN
     const deliveryPin = order.deliveryPin || String(Math.floor(100000 + Math.random() * 900000));
@@ -110,7 +117,7 @@ export async function POST(req) {
     order.courierPartner = chosenCourier;
     order.awbNumber = awbNumber;
     order.deliveryPin = deliveryPin;
-    order.nimbusShipmentId = `NIMBUS-SHP-${Date.now().toString().slice(-6)}`;
+    order.nimbusShipmentId = shipmentId;
     order.nimbusLabelUrl = `/api/orders/${order._id || order.id}/label`;
     order.trackingUrl = trackingUrl;
 
@@ -119,15 +126,15 @@ export async function POST(req) {
       status: 'Shipped',
       timestamp: new Date(),
       location: 'NimbusPost Logistics Hub',
-      comment: `Dispatched via NimbusPost [${chosenCourier}] (AWB: ${awbNumber})${isLiveNimbus ? ' [Live Carrier Booked]' : ' [Pending Carrier Handover]'} | Doorstep PIN: ${deliveryPin}`
+      comment: `Dispatched via NimbusPost [${chosenCourier}] (AWB: ${awbNumber}) [Live Carrier Booked] | Doorstep PIN: ${deliveryPin}`
     });
 
     await order.save();
 
     return NextResponse.json({
       success: true,
-      message: isLiveNimbus ? 'Real NimbusPost shipment booked with carrier!' : 'Shipment registered successfully on NimbusPost logistics pipeline',
-      isLiveNimbus,
+      message: 'NimbusPost shipment booked with carrier!',
+      isLiveNimbus: true,
       logistics: {
         provider: 'NimbusPost 27+ Courier Engine',
         courier: chosenCourier,
