@@ -18,6 +18,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -eu
+            export LC_ALL=C
             cd ~/abkharido
 
             if [ ! -f .env ]; then
@@ -50,19 +51,18 @@ jobs:
             fi
 
             encryption_salt="$(read_env DATABASE_ENCRYPTION_SALT)"
-            if [ "${#encryption_salt}" -lt 16 ]; then
-              echo "Deployment stopped: configure DATABASE_ENCRYPTION_SALT (minimum 16 characters)."
+            if [ "${#encryption_salt}" -ne 16 ]; then
+              echo "Deployment stopped: configure DATABASE_ENCRYPTION_SALT as exactly 16 ASCII characters."
               exit 1
             fi
 
             git fetch origin
             git reset --hard origin/main
-            
+
             echo "Starting Docker deployments..."
-            
+
             # Rebuild and start only the backend in detached mode (Frontend is handled by Vercel)
             sudo docker compose build backend
             sudo docker compose up -d backend
-            
-            echo "Deployment completed successfully!"
 
+            echo "Deployment completed successfully!"
