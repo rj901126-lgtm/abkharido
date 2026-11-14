@@ -62,9 +62,9 @@ export async function GET(req) {
         amount: p.amount || p.netAmount || 0,
         status: p.status,
         date: p.createdAt,
-        utr: p.transactionId || p.utrNumber || `UTR-${String(p._id).slice(-8).toUpperCase()}`,
+        utr: p.transactionId || p.utrNumber || null,
         destination: p.payoutDestination || user.payoutDetails?.upiId || user.payoutDetails?.bankAccount || 'Bank Transfer',
-        notes: p.notes || (p.type === 'WITHDRAWAL_PAYOUT' ? 'Bank Account / UPI Withdrawal Disbursed' : 'Net Order Sale Earnings Credited')
+        notes: p.notes || (p.type === 'WITHDRAWAL_PAYOUT'\n          ? (p.status === 'Paid' ? 'Bank Account / UPI Withdrawal Disbursed' : 'Payout request pending confirmation')\n          : 'Net Order Sale Earnings Credited')
       }))
     });
 
@@ -111,26 +111,22 @@ export async function POST(req) {
 
       if (!debited) throw new Error('INSUFFICIENT_BALANCE');
 
-      const simulatedUtr = `AK-${method === 'UPI' ? 'UPI' : 'NEFT'}-${Date.now().toString().slice(-8)}${Math.floor(100 + Math.random() * 899)}`;
-
       [settlement] = await Settlement.create([{
         vendorId: user._id,
         amount,
         type: 'WITHDRAWAL_PAYOUT',
-        status: 'Paid', // Instantly disbursed via automated payment rails
+        status: 'Pending',
         payoutDestination: payoutTarget,
-        transactionId: simulatedUtr,
-        utrNumber: simulatedUtr,
-        notes: `Instant merchant settlement via ${method} (${payoutTarget})`
+        notes: `Merchant payout request via ${method} (${payoutTarget}); awaiting provider confirmation`
       }], { session });
 
       await PayoutAuditLog.create([{
-        action: 'PROCESSED',
+        action: 'REQUESTED',
         userId: user._id,
         amount,
         settlementId: settlement._id,
         performedBy: user._id,
-        details: { destination: payoutTarget, method, utr: simulatedUtr }
+        details: { destination: payoutTarget, method, message: 'Seller initiated payout request' }
       }], { session });
 
       remainingBalance = debited.walletCash;
@@ -138,12 +134,11 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      message: `Instant payout of ₹${amount.toLocaleString('en-IN')} disbursed successfully! UTR: ${settlement?.transactionId}`,
+      message: `Payout request of ₹${amount.toLocaleString('en-IN')} submitted. It is pending provider confirmation.`,
       payout: {
         id: settlement._id,
         amount,
-        status: 'Paid',
-        utr: settlement?.transactionId,
+        status: 'Pending',
         date: settlement?.createdAt
       },
       remainingBalance
