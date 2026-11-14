@@ -28,15 +28,18 @@ export function signAdminToken() {
 }
 
 const DEVELOPMENT_JWT_SECRET = randomBytes(32).toString('hex');
+const isProductionBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
 export function getJwtSecret(name = 'JWT_SECRET') {
   const value = process.env[name] || process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
   if (typeof value === 'string' && value.length >= 32) {
     return value;
   }
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && !isProductionBuild) {
     throw new Error(`A strong ${name} or JWT_SECRET/NEXTAUTH_SECRET must be configured in production.`);
   }
+  // Next.js evaluates API routes during production builds; that temporary key
+  // is never accepted by the production server runtime.
   return DEVELOPMENT_JWT_SECRET;
 }
 export function signUserToken(id) {
