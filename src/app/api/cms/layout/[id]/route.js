@@ -23,6 +23,7 @@ export async function GET(req, context) {
     const saved = await Layout.findOne({ type: id, isActive: true }).lean();
     return NextResponse.json({
       success: true,
+      isCustomized: Boolean(saved),
       layout: saved || { type: id, components: id === 'home_page' ? defaultComponents : [], seo: {} }
     });
   } catch (error) {

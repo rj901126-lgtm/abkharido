@@ -3,13 +3,14 @@ import HomeClientWrapper from './HomeClientWrapper';
 import logger from '../../server/config/logger.js';
 import connectDB from '../../server/config/db.js';
 import Product from '../../server/models/Product.js';
+import Layout from '../../server/models/Layout.js';
 import { toPublicProductDTO } from '../lib/productValidator.js';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.abkharido.com';
 
-export const metadata = {
+const defaultMetadata = {
   title: {
     absolute: "AbKharido — Online Shopping for Electronics, Fashion & Home"
   },
@@ -27,6 +28,37 @@ export const metadata = {
     images: [{ url: `${SITE_URL}/logo.jpg`, width: 1200, height: 630, alt: 'AbKharido India Online Shopping' }]
   }
 };
+
+export async function generateMetadata() {
+  try {
+    await connectDB();
+    const layout = await Layout.findOne({ type: 'home_page', isActive: true }).select('seo').lean();
+    const seo = layout?.seo || {};
+    if (!seo.title && !seo.metaDesc && !seo.ogImage) return defaultMetadata;
+
+    const title = String(seo.title || defaultMetadata.title.absolute).trim();
+    const description = String(seo.metaDesc || defaultMetadata.description).trim();
+    let images = defaultMetadata.openGraph.images;
+    if (seo.ogImage) {
+      try {
+        const imageUrl = new URL(seo.ogImage);
+        if (imageUrl.protocol === 'https:' || imageUrl.protocol === 'http:') {
+          images = [{ url: imageUrl.toString(), width: 1200, height: 630, alt: 'AbKharido storefront' }];
+        }
+      } catch {}
+    }
+
+    return {
+      ...defaultMetadata,
+      title: { absolute: title },
+      description,
+      openGraph: { ...defaultMetadata.openGraph, title, description, images }
+    };
+  } catch (error) {
+    logger.warn('Could not load custom homepage SEO metadata', error);
+    return defaultMetadata;
+  }
+}
 
 async function getProducts() {
   try {

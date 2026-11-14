@@ -35,6 +35,7 @@ const defaultVipCategories = [
 const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, initialProducts }) => {
   const { products: contextProducts, currentUser } = useApp();
   const products = initialProducts?.length ? initialProducts : (contextProducts || []);
+  const [cmsComponents, setCmsComponents] = useState(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const [activeCuratedTab, setActiveCuratedTab] = useState('bestsellers');
@@ -42,6 +43,19 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
   })()).current;
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/cms/layout/home_page')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (isMounted && data?.success && data.isCustomized && Array.isArray(data.layout?.components)) {
+          setCmsComponents(data.layout.components);
+        }
+      })
+      .catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
 
   // Derive categories: Always display full department suite so catalog is accessible for future and current stock
   const activeVipCategories = React.useMemo(() => {
@@ -462,7 +476,47 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
         ))}
       </div>
 
+      {cmsComponents?.map((component, index) => {
+        if (component.type === 'banner') {
+          return (
+            <section key={component.id || `cms-banner-${index}`} style={{ position: 'relative', overflow: 'hidden', minHeight: '160px', margin: '8px 12px', borderRadius: '20px', background: 'linear-gradient(135deg, #0f172a, #312e81)', color: '#ffffff', display: 'flex', alignItems: 'center', padding: '24px 28px' }}>
+              {typeof component.data === 'string' && /^https?:\/\//i.test(component.data) && (
+                <img src={component.data} alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              )}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(15,23,42,0.88), rgba(15,23,42,0.2))' }} />
+              <h2 style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: 0, fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(20px, 3vw, 32px)', fontWeight: 900 }}>{component.title || 'Featured collection'}</h2>
+            </section>
+          );
+        }
+
+        if (component.type !== 'deals_row' && component.type !== 'category_row') return null;
+        const rowProducts = component.type === 'deals_row'
+          ? (flashDeals.length > 0 ? flashDeals.slice(0, 4) : displayList.slice(0, 4))
+          : displayList.filter(product => String(product.category || '').trim().toLowerCase() === String(component.data || '').trim().toLowerCase()).slice(0, 4);
+
+        return (
+          <section key={component.id || `cms-row-${index}`} className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '8px 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', gap: '10px' }}>
+              <h3 className="home-section-heading" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '19px', fontWeight: '900', color: '#090d16', margin: 0 }}>{component.title || (component.type === 'deals_row' ? 'Deals of the Day' : 'Shop this category')}</h3>
+              {component.type === 'category_row' && component.data && (
+                <button type="button" onClick={() => handleCategoryClick(component.data)} style={{ border: 0, background: 'transparent', color: 'var(--brand-accent)', fontWeight: 800, cursor: 'pointer' }}>View all →</button>
+              )}
+            </div>
+            {rowProducts.length > 0 ? (
+              <div className="product-responsive-row">
+                {rowProducts.map((product, productIndex) => (
+                  <ProductCard key={product?.id || product?._id || `cms-${index}-${productIndex}`} product={product} onNavigateProduct={onNavigateProduct} />
+                ))}
+              </div>
+            ) : (
+              <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>No products are currently available in this section.</p>
+            )}
+          </section>
+        );
+      })}
+
       {/* ── 4. Flash Deals / Deal of the Day (Live Countdown Timer) ── */}
+      {!cmsComponents && (
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
@@ -489,8 +543,10 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           </div>
         )}
       </section>
+      )}
 
       {/* ── 5. Curated Marketplace Highlights (Interactive Category Tabs) ── */}
+      {!cmsComponents && (
       <section className="home-section-card" style={{ backgroundColor: '#ffffff', borderRadius: '24px', padding: '22px 20px', border: '1px solid #e2e8f0', margin: '0 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
@@ -552,6 +608,7 @@ const Home = ({ onNavigate, onNavigateProduct, onSelectCategory, promotions, ini
           ))}
         </div>
       </section>
+      )}
 
 
       {/* ── 8. Featured Shopping Collections ── */}

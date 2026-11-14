@@ -29,7 +29,7 @@ const AdminCMSBuilder = () => {
   const fetchLayout = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`);
+      const res = await fetch('/api/cms/layout/home_page');
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success || !data.layout || !Array.isArray(data.layout.components)) {
         throw new Error(data.error || 'Unable to load CMS layout');
@@ -63,7 +63,7 @@ const AdminCMSBuilder = () => {
     setSaving(true);
     try {
       const token = sessionStorage.getItem('abkharido_admin_token') || '';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/cms/layout/home_page`, {
+      const res = await fetch('/api/cms/layout/home_page', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({ components: layout.components, seo: seoConfig })
