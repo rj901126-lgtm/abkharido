@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { exportToCSV } from '../utils/csvExport';
 import BulkProductUploadModal from './BulkProductUploadModal';
 
-const AdminDataGrid = ({ onEditProduct }) => {
+const AdminDataGrid = ({ onEditProduct, onAddProduct }) => {
   const { showToast, addProduct } = useApp();
   const [data, setData] = useState({ products: [], total: 0, page: 1, limit: 15, totalPages: 1 });
   const [search, setSearch] = useState('');
@@ -384,6 +384,15 @@ const AdminDataGrid = ({ onEditProduct }) => {
         </div>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {onAddProduct && (
+            <button
+              type="button"
+              onClick={onAddProduct}
+              style={{ padding: '13px 22px', fontSize: '13.5px', fontWeight: '800', borderRadius: '14px', background: '#0f172a', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <Plus size={17} /> <span>Add Product</span>
+            </button>
+          )}
           <button 
             type="button"
             onClick={triggerDeleteAllDummy}
