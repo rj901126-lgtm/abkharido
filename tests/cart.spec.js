@@ -7,7 +7,7 @@ test.describe('Cart Flow', () => {
     const productCards = page.locator('.product-card');
     await expect(productCards.first()).toBeVisible({ timeout: 15000 });
     await productCards.first().click();
-    await page.waitForURL(/\\/product\\/.+/, { timeout: 20000 });
+    await page.waitForURL(/\/product\/.+/, { timeout: 20000 });
 
     const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
@@ -23,7 +23,7 @@ test.describe('Cart Flow', () => {
     const productCards = page.locator('.product-card');
     await expect(productCards.first()).toBeVisible({ timeout: 15000 });
     await productCards.first().click();
-    await page.waitForURL(/\\/product\\/.+/, { timeout: 20000 });
+    await page.waitForURL(/\/product\/.+/, { timeout: 20000 });
 
     const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
