@@ -1542,7 +1542,7 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
         {activeTab === 'orders' && <AdminOMS statusFilter={orderStatusFilter} />}
 
         {/* 3. 📱 PRODUCTS & INVENTORY */}
-        {activeTab === 'inventory' && <AdminDataGrid onAddProduct={() => setActiveTab('add_product')} />}
+        {activeTab === 'inventory' && <AdminDataGrid onAddProduct={() => setActiveTab('add_product')} onEditProduct={handleEditProduct} />}
         {activeTab === 'add_product' && <AdminProductStudio onFinish={() => setActiveTab('inventory')} />}
 
         {/* 4. 🏪 SELLERS & MERCHANTS */}
@@ -1572,15 +1572,6 @@ const AdminDashboard = ({ onNavigate, promotions, onUpdatePromotions, initialAut
         {activeTab === 'staff' && <AdminStaff />}
         {activeTab === 'crm' && <AdminCRM />}
 
-      {/* CONDITIONAL RENDER: INVENTORY TAB */}
-      {activeTab === 'inventory' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '100%' }}>
-          <AdminDataGrid onEditProduct={handleEditProduct} />
-        </div>
-      )}
-
-      {/* CONDITIONAL RENDER: ADD PRODUCT TAB */}
-      {activeTab === 'add_product' && <AdminProductStudio onFinish={() => setActiveTab('inventory')} />}
       {activeTab === 'add_product_old_legacy_unused' && (
         <div style={{ maxWidth: '950px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', paddingBottom: '50px' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
