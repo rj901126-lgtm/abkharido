@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('End-to-End User Shopping Journey', () => {
   test('browse, search, open a product, add it to cart, and view the cart', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveURL(/\\/$/);
+    await expect(page).toHaveURL(/\/$/);
 
     const logo = page.locator('a.logo-container[aria-label="AbKharido Home"]');
     await expect(logo).toBeVisible({ timeout: 10000 });
@@ -17,7 +17,7 @@ test.describe('End-to-End User Shopping Journey', () => {
     await expect(page.locator('.product-card').first()).toBeVisible({ timeout: 15000 });
 
     await page.locator('.product-card').first().click();
-    await page.waitForURL(/.*product\\/(signature-wireless-earphone|sigboom-21)/i, { timeout: 10000 });
+    await page.waitForURL(/.*product\/(signature-wireless-earphone|sigboom-21)/i, { timeout: 10000 });
 
     const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 10000 });
