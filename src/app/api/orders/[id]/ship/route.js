@@ -62,14 +62,16 @@ export async function POST(req, context) {
 
     await order.save();
 
+    const safeOrder = typeof order.toObject === 'function' ? order.toObject() : { ...order };
+    delete safeOrder.deliveryPin;
+
     return NextResponse.json({
       success: true,
       message: 'Order shipped successfully',
       courier: courierPartner,
       awb: awbNumber,
-      deliveryPin,
       trackingUrl: resolvedTrackingUrl,
-      order
+      order: safeOrder
     });
   } catch (error) {
     console.error('Error shipping order:', error);

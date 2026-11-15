@@ -230,10 +230,14 @@ export async function executeEscrowPayout({ transferId, amount, beneficiary, tra
         });
         const transferData = await transferRes.json();
         if (transferRes.ok && transferData?.subCode === '200') {
+          const providerUtr = transferData.data?.utr;
+          if (!providerUtr) {
+            throw new Error('Cashfree accepted the payout but did not confirm a UTR; reconciliation is required.');
+          }
           return {
             success: true,
             status: 'SUCCESS',
-            utrNumber: transferData.data?.utr || ('CF' + Date.now().toString().slice(-8) + Math.floor(1000 + Math.random() * 9000)),
+            utrNumber: providerUtr,
             transferId: cleanTransferId,
             amount: cleanAmount,
             settledAt: new Date().toISOString(),
@@ -248,22 +252,5 @@ export async function executeEscrowPayout({ transferId, amount, beneficiary, tra
     }
   }
 
-  // Production-grade Fallback & Simulation for Escrow Direct Transfer
-  // Generates authentic 12-digit Indian Banking UTR (Unique Transaction Reference)
-  const timestamp = Date.now().toString().slice(-8);
-  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  const utrPrefix = transferMode === 'UPI' ? 'UPI' : 'CMS';
-  const generatedUtr = utrPrefix + timestamp + randomSuffix;
-
-  return {
-    success: true,
-    status: 'SUCCESS',
-    utrNumber: generatedUtr,
-    transferId: cleanTransferId,
-    amount: cleanAmount,
-    settledAt: new Date().toISOString(),
-    escrowBankReference: 'RBI-NODAL-ESCROW-ICICI-CF-POOL',
-    transferMode: transferMode || 'IMPS',
-    notes: 'Disbursed directly from RBI Nodal Escrow Account to ' + (beneficiary?.accountNumber ? ('A/C ending in ' + String(beneficiary.accountNumber).slice(-4)) : (beneficiary?.upiId || 'verified vendor account'))
-  };
+  throw new Error('Cashfree payout was not confirmed. No UTR was generated; reconcile provider status before retrying.');
 }

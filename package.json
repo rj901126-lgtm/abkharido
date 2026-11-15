@@ -40,7 +40,6 @@
     "morgan": "^1.11.0",
     "next": "^16.2.11",
     "next-auth": "^4.24.15",
-    "nodemailer": "^9.0.3",
     "puppeteer": "^25.4.0",
     "rate-limit-redis": "^6.0.0",
     "react": "^19.2.8",
@@ -59,5 +58,11 @@
     "@types/react-dom": "^19.2.3",
     "concurrently": "^10.0.3",
     "playwright": "^1.62.1"
+  },
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.14.5"
+    }
   }
 }
+

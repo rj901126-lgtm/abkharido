@@ -1,4 +1,10 @@
+import { randomBytes } from 'node:crypto';
 import { defineConfig, devices } from '@playwright/test';
+
+// The CI-only admin flow gets an ephemeral PIN instead of a committed fallback.
+if (process.env.CI && !process.env.ADMIN_SECURE_PIN) {
+  process.env.ADMIN_SECURE_PIN = randomBytes(32).toString('hex');
+}
 
 /**
  * @see https://playwright.dev/docs/test-configuration

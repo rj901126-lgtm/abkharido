@@ -17,14 +17,52 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -eu
+            export LC_ALL=C
             cd ~/abkharido
+
+            if [ ! -f .env ]; then
+              echo "Deployment stopped: ~/abkharido/.env is missing."
+              exit 1
+            fi
+
+            read_env() {
+              grep -m1 "^$1=" .env | cut -d= -f2- || true
+            }
+
+            signing_secret="$(read_env JWT_SECRET)"
+            if [ -z "$signing_secret" ]; then
+              signing_secret="$(read_env NEXTAUTH_SECRET)"
+            fi
+            if [ "${#signing_secret}" -lt 32 ]; then
+              echo "Deployment stopped: configure JWT_SECRET or NEXTAUTH_SECRET (minimum 32 characters)."
+              exit 1
+            fi
+
+            if [ -z "$(read_env ADMIN_SECURE_PIN)" ]; then
+              echo "Deployment stopped: configure ADMIN_SECURE_PIN."
+              exit 1
+            fi
+
+            encryption_key="$(read_env DATABASE_ENCRYPTION_KEY)"
+            if [ "${#encryption_key}" -lt 32 ]; then
+              echo "Deployment stopped: configure DATABASE_ENCRYPTION_KEY (minimum 32 characters)."
+              exit 1
+            fi
+
+            encryption_salt="$(read_env DATABASE_ENCRYPTION_SALT)"
+            if [ "${#encryption_salt}" -ne 16 ]; then
+              echo "Deployment stopped: configure DATABASE_ENCRYPTION_SALT as exactly 16 ASCII characters."
+              exit 1
+            fi
+
             git fetch origin
             git reset --hard origin/main
-            
+
             echo "Starting Docker deployments..."
-            
+
             # Rebuild and start only the backend in detached mode (Frontend is handled by Vercel)
             sudo docker compose build backend
             sudo docker compose up -d backend
-            
+
             echo "Deployment completed successfully!"

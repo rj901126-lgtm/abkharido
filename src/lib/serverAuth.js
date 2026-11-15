@@ -52,11 +52,10 @@ export async function getAuthenticatedUser(req) {
     const userDoc = await User.findById(id).select('-password');
     const user = userDoc ? (typeof userDoc.toObject === 'function' ? userDoc.toObject() : { ...userDoc }) : null;
     if (!isActiveUser(user)) return null;
-    const digits = String(user.phone || user.username || '').replace(/\D/g, '').slice(-10);
-    const cleanEmail = String(user.email || '').trim().toLowerCase();
-    const isOwner = digits === '9172600587' || cleanEmail === 'rj901126@gmail.com' || cleanEmail === 'admin@abkharido.com';
-    const role = isOwner ? 'super_admin' : (user.role || 'user');
-    const isAdmin = isOwner || ['admin', 'super_admin', 'master_admin_legacy'].includes(role);
+    // Privileged roles must come from the persisted, provisioned role field.
+    // Phone, username, and email values are not authorization claims.
+    const role = user.role || 'user';
+    const isAdmin = ['admin', 'super_admin', 'master_admin_legacy'].includes(role);
     return {
       user: { ...user, role, _id: String(user._id), id: String(user._id) },
       isAuthenticated: true, isAdmin,

@@ -1,16 +1,3 @@
-import nodemailer from 'nodemailer';
-
-// Configure nodemailer transporter
-// eslint-disable-next-line
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-    user: 'testuser@ethereal.email',
-    pass: 'testpass'
-  }
-});
-
 /**
  * Generate a beautifully formatted HTML invoice matching WorldClassInvoice exactly
  */
@@ -249,4 +236,5 @@ export const sendEmail = async (to, subject, htmlContent) => {
     return false;
   }
 };
+
 

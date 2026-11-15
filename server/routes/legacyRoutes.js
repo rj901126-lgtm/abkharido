@@ -94,7 +94,7 @@ router.post('/payouts', protect, async (req, res) => {
 
     // Atomic coin balance deduction to eliminate race conditions
     const updatedUser = await User.findOneAndUpdate(
-      { _id: user._id, walletCoins: { $gte: requestedAmount } },
+      // Keep the currently locked balance in the wallet after this atomic debit.\n      { _id: user._id, walletCoins: { $gte: requestedAmount + lockedCoins } },
       { $inc: { walletCoins: -requestedAmount } },
       { new: true }
     );

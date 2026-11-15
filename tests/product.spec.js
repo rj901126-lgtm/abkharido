@@ -27,7 +27,7 @@ test.describe('Product Browsing Flow', () => {
     await page.waitForURL(/\/product\/.+/, { timeout: 20000 });
 
     // Verify Product Details load
-    const addToCartBtn = page.locator('button:has-text("Add to Cart"), .add-to-cart-btn').first();
+    const addToCartBtn = page.getByRole('button', { name: /Add to Bag/i }).first();
     await expect(addToCartBtn).toBeVisible({ timeout: 20000 });
   });
 

@@ -138,7 +138,7 @@ export async function POST(req) {
         }
         existingUser.legalBusinessName = cleanLegalName;
         existingUser.turnoverCertified = true;
-        existingUser.sellerStatus = 'Approved';
+        existingUser.sellerStatus = 'Pending';
         
         // Retain super_admin or admin roles; upgrade 'user' to 'seller'
         if (existingUser.role !== 'admin' && existingUser.role !== 'super_admin') {
@@ -158,7 +158,7 @@ export async function POST(req) {
           ifsc: typeof bankIfsc === 'string' && bankIfsc.trim() ? bankIfsc.trim().toUpperCase() : (existingUser.payoutDetails?.ifsc || ''),
           accountHolderName: accountHolderName ? accountHolderName.trim() : (cleanLegalName || existingUser.payoutDetails?.accountHolderName || cleanShopName),
           bankName: bankName ? bankName.trim() : (existingUser.payoutDetails?.bankName || 'HDFC Bank'),
-          verified: true
+          verified: false
         };
 
         await existingUser.save();
@@ -166,7 +166,7 @@ export async function POST(req) {
 
         return NextResponse.json({
           success: true,
-          message: `🎉 Success! Your AbKharido account has been upgraded to a Verified Seller Store (${cleanShopName}). Both customer and seller features are linked to your profile.`,
+          message: `Seller application for ${cleanShopName} submitted. Selling access will be enabled after verification.`,
           seller: {
             id: existingUser._id,
             email: existingUser.email,
@@ -192,7 +192,7 @@ export async function POST(req) {
         email: rawIdentifier,
         password: rawPassword,
         role: 'seller',
-        sellerStatus: 'Approved', // Auto-approved for frictionless onboarding
+        sellerStatus: 'Pending',
         sellerType: isGst ? 'gst' : 'non_gst',
         gstin: isGst ? cleanGst : undefined,
         pan: cleanPan,
@@ -211,7 +211,7 @@ export async function POST(req) {
           ifsc: typeof bankIfsc === 'string' ? bankIfsc.trim().toUpperCase() : '',
           accountHolderName: accountHolderName ? accountHolderName.trim() : cleanLegalName,
           bankName: bankName ? bankName.trim() : 'HDFC Bank',
-          verified: true
+          verified: false
         },
         walletCoins: 100,
         walletCash: 0,
@@ -222,9 +222,7 @@ export async function POST(req) {
 
       return NextResponse.json({
         success: true,
-        message: isGst 
-          ? 'GST Merchant account created successfully! You are ready to sell nationwide.' 
-          : 'Non-GST Seller account opened successfully under E-Commerce Composition Scheme (Bill of Supply).',
+        message: 'Seller application submitted successfully. Selling access will be enabled after verification.',
         seller: {
           id: seller._id,
           email: seller.email,

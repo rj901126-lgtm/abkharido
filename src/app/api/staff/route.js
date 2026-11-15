@@ -31,16 +31,21 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const auth = await getAuthenticatedUser(req);
-    if (!auth || !auth.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    if (!auth || auth.user?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Unauthorized: Super-admin access required' }, { status: 403 });
     }
 
     await connectDB();
     const body = await req.json();
-    const { username, email, password, fullName, role } = body;
+    const { username, email, password, fullName, role = 'admin' } = body;
 
     if (!username || !email || !password) {
       return NextResponse.json({ error: 'Username, Email, and Password are required' }, { status: 400 });
+    }
+
+    const allowedRoles = ['admin', 'support_agent', 'catalog_manager'];
+    if (!allowedRoles.includes(role)) {
+      return NextResponse.json({ error: 'Unsupported staff role' }, { status: 400 });
     }
 
     const newStaff = await User.create({
@@ -48,7 +53,7 @@ export async function POST(req) {
       email: email.toLowerCase().trim(),
       password,
       fullName: fullName || username,
-      role: role || 'admin',
+      role,
       isStaff: true,
       status: 'Active'
     });
