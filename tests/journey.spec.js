@@ -8,10 +8,11 @@ test.describe('End-to-End User Shopping Journey', () => {
     const logo = page.locator('a.logo-container[aria-label="AbKharido Home"]');
     await expect(logo).toBeVisible({ timeout: 10000 });
 
-    const searchInput = page.locator('input.search-input, input[placeholder*="Search"]').first();
+    const searchInput = page.getByRole('textbox', { name: 'Search products, brands, or categories' });
     await expect(searchInput).toBeVisible({ timeout: 10000 });
     await searchInput.fill('signature');
-    await searchInput.press('Enter');
+    await expect(searchInput).toHaveValue('signature');
+    await page.getByRole('button', { name: 'Submit Search' }).click();
 
     await page.waitForURL(/.*catalog.*search=signature/i, { timeout: 10000 });
     await expect(page.locator('.product-card').first()).toBeVisible({ timeout: 15000 });
